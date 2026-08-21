@@ -58,6 +58,9 @@ body{
   letter-spacing:.03em;
   padding-bottom:40px;
   overflow-wrap:break-word;
+  /* 日本語を文節のかたまりで折り返す（対応ブラウザのみ。未対応なら通常の折り返しになるだけ） */
+  word-break:auto-phrase;
+  line-break:strict;
 }
 @media(min-width:768px){
   body{font-size:1.16rem;letter-spacing:.04em;}
@@ -182,7 +185,7 @@ h2::after{
 }
 .guide-ava svg{width:100%;height:100%;display:block;}
 .guide-msg{
-  position:relative;background:var(--white);
+  position:relative;background:var(--white);min-width:0;
   border:2px solid #ffe0cf;border-radius:18px;
   padding:12px 16px;font-size:.95rem;line-height:1.75;
 }
@@ -403,7 +406,9 @@ h2::after{
   background:var(--white);border-radius:22px;box-shadow:var(--shadow-sm);
   padding:18px 14px;margin:8px 0 24px;overflow-x:auto;
 }
-.type-table{width:100%;border-collapse:collapse;min-width:560px;font-size:.9rem;}
+.type-table{width:100%;border-collapse:collapse;min-width:620px;font-size:.9rem;}
+.type-table.type-table-4{min-width:700px;}
+.type-table small{line-height:1.6;}
 .type-table th,.type-table td{
   padding:10px 10px;text-align:center;border-bottom:1.5px solid var(--line);
   line-height:1.7;vertical-align:middle;
@@ -506,6 +511,12 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
   display:inline-flex;align-items:center;gap:4px;margin-top:4px;
 }
 .case-card .more svg{width:14px;height:14px;stroke:var(--coral-text);}
+.case-card .vbadge{
+  display:inline-flex;align-items:center;gap:4px;margin-left:8px;
+  font-size:.74rem;font-weight:800;color:var(--sky);
+  background:var(--sky-bg);border-radius:999px;padding:2px 9px;
+}
+.case-card .vbadge svg{width:12px;height:12px;fill:var(--sky);}
 .c-red{background:var(--red-bg);color:var(--red-dark);}
 .c-blue{background:var(--sky-bg);color:var(--sky);}
 .c-green{background:var(--green-bg);color:var(--green);}
@@ -674,7 +685,8 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 }
 .score-box h3 svg{width:22px;height:22px;stroke:var(--sky);}
 .score-box p{font-size:.95rem;line-height:1.9;}
-.checklist{display:grid;grid-template-columns:1fr;gap:10px;}
+/* minmax(0,1fr)とmin-width:0 は、文節折り返し（auto-phrase）で最小幅が広がるのを抑えるため */
+.checklist{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;}
 .chk-group{
   font-size:.9rem;font-weight:800;color:var(--amber-deep);
   margin:14px 0 2px;letter-spacing:.03em;
@@ -687,6 +699,8 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
   transition:border-color .15s, background .15s;
 }
 .chk input{width:24px;height:24px;flex:0 0 24px;accent-color:var(--green);cursor:pointer;}
+.chk > span:last-child{min-width:0;}
+.chk-group{min-width:0;}
 .chk .art{
   width:44px;height:44px;flex:0 0 44px;border-radius:50%;
   background:var(--white);box-shadow:var(--shadow-sm);
@@ -738,6 +752,28 @@ details.finder p{font-size:.92rem;padding:0 0 14px;line-height:1.9;}
   border-radius:999px;padding:9px 20px;
 }
 .cta-mini a svg{width:18px;height:18px;stroke:var(--coral-text);}
+
+/* ---------- 動画（モーダルの中・カードの下） ---------- */
+.video-cta{margin-top:22px;text-align:center;}
+.video-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:11px;
+  min-height:56px;padding:11px 26px;cursor:pointer;
+  background:linear-gradient(135deg,var(--coral),#e8694e);color:#fff;
+  font-size:1rem;font-weight:800;letter-spacing:.03em;
+  border:none;border-radius:999px;font-family:inherit;text-align:left;
+  box-shadow:0 5px 14px rgba(232,105,78,.3);
+}
+.video-btn:active{transform:translateY(1px);}
+.video-btn svg{width:26px;height:26px;fill:#fff;flex:0 0 26px;}
+.video-btn small{display:block;font-size:.78rem;font-weight:600;opacity:.92;letter-spacing:0;}
+.video-wrap{display:none;margin-top:14px;}
+.video-wrap.show{display:block;}
+.video-wrap video{
+  width:100%;max-width:262px;aspect-ratio:9/16;margin:0 auto;display:block;
+  border-radius:16px;background:var(--navy);box-shadow:var(--shadow);
+}
+.video-wrap.wide video{max-width:100%;aspect-ratio:16/9;}
+.video-wrap .vw-note{font-size:.8rem;color:var(--muted);line-height:1.8;margin-top:8px;}
 
 /* ---------- フッター免責 ---------- */
 footer.disclaimer{
@@ -923,24 +959,24 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
           </thead>
           <tbody>
             <tr>
-              <td>50%以下</td>
+              <td><span class="nowrap">50%以下</span></td>
               <td><span class="mark-ok">全額損金</span></td>
-              <td><small>昔ながらの「掛け捨てに近い」ゾーン。保障が主役</small></td>
+              <td><small><span class="nowrap">昔ながらの「掛け捨てに近い」ゾーン。</span><br><span class="nowrap">保障が主役</span></small></td>
             </tr>
             <tr>
-              <td>50%超〜70%以下</td>
+              <td><span class="nowrap">50%超〜70%以下</span></td>
               <td><span class="mark-tri">6割損金</span><small>4割を資産計上</small></td>
-              <td><small>※1人あたり年換算保険料30万円以下なら全額損金の特例あり</small></td>
+              <td><small><span class="nowrap">1人あたり年換算保険料30万円以下</span>なら<br><span class="nowrap">全額損金の特例あり</span></small></td>
             </tr>
             <tr>
-              <td>70%超〜85%以下</td>
+              <td><span class="nowrap">70%超〜85%以下</span></td>
               <td><span class="mark-tri">4割損金</span><small>6割を資産計上</small></td>
-              <td><small>「そこそこ戻って、そこそこ落ちる」中間ゾーン</small></td>
+              <td><small><span class="nowrap">「そこそこ戻って、そこそこ落ちる」</span><br><span class="nowrap">中間ゾーン</span></small></td>
             </tr>
             <tr>
-              <td>85%超</td>
-              <td><span class="mark-ng">ほぼ資産計上</span><small>当初10年は保険料×返戻率×90%を資産に</small></td>
-              <td><small>かつての「節税保険」の主役たちは、ここに封印</small></td>
+              <td><span class="nowrap">85%超</span></td>
+              <td><span class="mark-ng">ほぼ資産計上</span><small><span class="nowrap">当初10年は保険料×返戻率×90%</span><br><span class="nowrap">を資産に</span></small></td>
+              <td><small><span class="nowrap">かつての「節税保険」の主役たちは、</span><br><span class="nowrap">ここに封印</span></small></td>
             </tr>
           </tbody>
         </table>
@@ -1007,9 +1043,60 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
       </div>
     </div>
 
+    <h3 class="sub-h">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16M7 20V9M12 20V4M17 20v-7"/></svg>
+      その保険、誰のためのお金ですか
+    </h3>
+    <p class="sub-lead">法人まわりの「備え」は、大きく4種類。<strong>お金の行き先も、税務上の扱いも、それぞれ違います</strong>。どれか1つで全部まかなおうとすると、どれも中途半端になります。</p>
+
+    <div class="type-table-box">
+      <table class="type-table type-table-4" aria-label="法人まわりの備え4種類の比較">
+        <thead>
+          <tr>
+            <th>種類</th>
+            <th>受け取るのは</th>
+            <th>払うときの扱い</th>
+            <th>受け取るときの扱い</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="nowrap">掛け捨ての定期保険</span><small><span class="nowrap">事業保障が主役</span></small></td>
+            <td><span class="nowrap">会社</span><small><span class="nowrap">（借入の返済・運転資金）</span></small></td>
+            <td><span class="mark-ok">全額損金</span><small><span class="nowrap">最高解約返戻率が</span><br><span class="nowrap">50%以下なら</span></small></td>
+            <td><small><span class="nowrap">保険金は益金。</span><br><span class="nowrap">借入の返済は損金にならない</span></small></td>
+          </tr>
+          <tr>
+            <td><span class="nowrap">長期平準・逓増定期</span><small><span class="nowrap">退職金の原資</span></small></td>
+            <td><span class="nowrap">会社</span><small><span class="nowrap">（役員退職金へ）</span></small></td>
+            <td><span class="mark-tri">一部が損金</span><small><span class="nowrap">最高解約返戻率が</span><br><span class="nowrap">高いほど渋い</span></small></td>
+            <td><small><span class="nowrap">返戻金−資産計上額が雑収入。</span><br><span class="nowrap">出口の損金とぶつける</span></small></td>
+          </tr>
+          <tr>
+            <td><span class="nowrap">経営セーフティ共済</span><small><span class="nowrap">取引先の倒産に備える</span></small></td>
+            <td><span class="nowrap">会社</span><small><span class="nowrap">（無担保の貸付・</span><br><span class="nowrap">解約手当金）</span></small></td>
+            <td><span class="mark-ok">全額損金</span><small><span class="nowrap">年240万円まで</span><br><span class="nowrap">（累計800万円）</span></small></td>
+            <td><small><span class="nowrap">解約手当金は全額が益金。</span><br><span class="nowrap">40ヶ月以上で掛金の100%</span></small></td>
+          </tr>
+          <tr>
+            <td><span class="nowrap">小規模企業共済</span><small><span class="nowrap">社長個人の退職金</span></small></td>
+            <td><span class="nowrap">社長個人</span><small><span class="nowrap">（会社ではありません）</span></small></td>
+            <td><span class="mark-ok">全額を所得控除</span><small><span class="nowrap">個人の所得税・住民税が軽く</span></small></td>
+            <td><small><span class="nowrap">受け取り方で課税が変わる</span><br><span class="nowrap">（退職所得・一時所得など）</span></small></td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="venn-cap">※一般的な整理の例です。損金算入の割合は最高解約返戻率と契約時期により異なります。解約時に益金になるのは返戻金の全額ではなく、資産計上額（決算書の「保険積立金」）を差し引いた差額です。小規模企業共済の掛金は月1,000円〜7万円の範囲で、支払うのは<strong>社長個人</strong>（会社の損金ではなく、個人の小規模企業共済等掛金控除）。<strong>常時使用する従業員が20人以下（商業・サービス業は5人以下）の会社の役員などが対象</strong>で、任意解約は掛金納付月数が短いと元本割れします（遺族が受け取る共済金は、みなし相続財産として相続税の対象です）。</p>
+    </div>
+
+    <div class="mame">
+      <span class="mame-badge"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6.5 6.5 0 0 0-4 11.6c.8.7 1.4 1.7 1.6 2.9h4.8c.2-1.2.8-2.2 1.6-2.9A6.5 6.5 0 0 0 12 3Z"/></svg>豆知識</span>
+      <span class="mame-body"><strong>法人保険で「いちばんお金を受け取る人」は、社長ではありません。</strong>契約者も受取人も<b>会社</b>だからです。だから受け取った瞬間に益金になり、出口の損金が要る——法人保険の話が個人の保険とまるで違うのは、この一点に尽きます。では、社長に万一のとき、ご遺族にお金を残すには。会社が保険金を受け取り、そこから<b>死亡退職金として支給する</b>形にすると、相続税では<b>500万円×法定相続人の数</b>の非課税枠が使えます。ご遺族を受取人にした個人契約の生命保険金にも、同額の非課税枠が別枠であります。<small>※どちらの形が有利かは、会社の状況・保障額・相続財産の全体で変わります。設計の前に顧問税理士へご相談ください。</small></span>
+    </div>
+
     <div class="note">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
-      <span>3つに共通するのは、<strong>「入るときの話」より「出るときの話」のほうが大事</strong>ということです。損金割合もピークも、確認すべきことは3つだけ。<strong>最高解約返戻率はいくつか／ピークは何年目から何年目か／その年に会社で何が起きる予定か</strong>。この3点が言えれば、貴社の保険の輪郭が見えます。※損金算入割合・返戻率は保険会社・商品・契約条件により大きく異なります。</span>
+      <span>①で見てきた3つの言葉（節税・損金・返戻率）に共通するのは、<strong>「入るときの話」より「出るときの話」のほうが大事</strong>ということです。損金割合もピークも、確認すべきことは3つだけ。<strong>最高解約返戻率はいくつか／ピークは何年目から何年目か／その年に会社で何が起きる予定か</strong>。この3点が言えれば、貴社の保険の輪郭が見えます。※損金算入割合・返戻率は保険会社・商品・契約条件により大きく異なります。</span>
     </div>
   </div>
 </section>
@@ -1020,7 +1107,7 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
     <div class="sec-head">
       <div>
         <span class="step-pill"><i>2</i><span>思い込みをチェック</span></span>
-        <h2>ほんとう？　うそ？　<span class="nowrap">法人保険ワナクイズ8問</span></h2>
+        <h2>本当？　うそ？　<span class="nowrap">法人保険ワナクイズ8問</span></h2>
       </div>
       <div class="spot"><span class="spot-circle" data-art="spotQuiz" aria-hidden="true"></span></div>
     </div>
@@ -1043,7 +1130,7 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
         <div class="ans-row">
           <button type="button" class="ans-btn yes" id="btnYes">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/></svg>
-            <span id="lblYes">ほんとう</span>
+            <span id="lblYes">本当</span>
           </button>
           <button type="button" class="ans-btn no" id="btnNo">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
@@ -1103,33 +1190,33 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
     <p class="sec-lead">出口の定番は、大きく3つ。それぞれ、ぶつける損金とタイミングの難しさが違います。同じ「解約返戻金」という看板でも、降り方はこんなに違います。</p>
 
     <div class="type-table-box">
-      <table class="type-table" aria-label="解約返戻金の出口の定番3つの比較">
+      <table class="type-table type-table-4" aria-label="解約返戻金の出口の定番3つの比較">
         <thead>
           <tr>
             <th>出口</th>
             <th>ぶつける損金</th>
-            <th>タイミングの難易度</th>
+            <th><span class="nowrap">タイミングの難易度</span></th>
             <th>ひとこと</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>役員退職金<small>いちばんの定番</small></td>
-            <td>退職金<small>（適正額まで損金）</small></td>
-            <td><span class="mark-tri">△</span><small>勇退の年ぴったりに山を合わせる</small></td>
-            <td><small>金額の上限に「功績倍率」という相場あり（クイズ第4問）</small></td>
+            <td><span class="nowrap">役員退職金</span><small><span class="nowrap">いちばんの定番</span></small></td>
+            <td><span class="nowrap">退職金</span><small><span class="nowrap">（適正額まで損金）</span></small></td>
+            <td><span class="mark-tri">△</span><small><span class="nowrap">勇退の年に</span><br><span class="nowrap">山を合わせる</span></small></td>
+            <td><small><span class="nowrap">金額の上限に「功績倍率」</span><br><span class="nowrap">という相場あり（クイズ第4問）</span></small></td>
           </tr>
           <tr>
-            <td>大型の設備投資・修繕</td>
-            <td>修繕費・除却損など<small>（内容による）</small></td>
-            <td><span class="mark-tri">△</span><small>投資の年と解約の年を重ねる</small></td>
-            <td><small>資産計上になる投資は当期の損金にならない点に注意</small></td>
+            <td><span class="nowrap">大型の</span><br><span class="nowrap">設備投資・修繕</span></td>
+            <td><span class="nowrap">修繕費・除却損など</span><small><span class="nowrap">（内容による）</span></small></td>
+            <td><span class="mark-tri">△</span><small><span class="nowrap">投資の年と</span><br><span class="nowrap">解約の年を重ねる</span></small></td>
+            <td><small><span class="nowrap">資産計上になる投資は</span><br><span class="nowrap">当期の損金にならない点に注意</span></small></td>
           </tr>
           <tr>
-            <td>業績が沈んだ年<small>赤字の緩和</small></td>
-            <td>その年の赤字と相殺</td>
-            <td><span class="mark-ng">×</span><small>狙って作れない（作ってはいけない）</small></td>
-            <td><small>予定はできないが、いざという時の「隠し味」になる</small></td>
+            <td><span class="nowrap">業績が沈んだ年</span><small><span class="nowrap">赤字の緩和</span></small></td>
+            <td><span class="nowrap">その年の赤字と相殺</span></td>
+            <td><span class="mark-ng">×</span><small><span class="nowrap">狙って作れない</span><br><span class="nowrap">（作ってはいけない）</span></small></td>
+            <td><small><span class="nowrap">予定はできないが、いざという</span><br><span class="nowrap">時の「隠し味」になる</span></small></td>
           </tr>
         </tbody>
       </table>
@@ -1215,6 +1302,38 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
       </div>
     </div>
 
+    <div class="venn-box">
+      <svg viewBox="0 0 560 330" role="img" aria-label="保険を続けるか解約するかの二択ではなく、分けて契約しておけば残す・現金化する・払い済みにするの3方向へ振り分けられることを示す図">
+        <text x="280" y="30" text-anchor="middle" font-size="18" font-weight="bold" fill="#1b3f5e">3つの役割に「払い済み」を足すと、降り方はこうなります</text>
+        <!-- 左：5本に分けた契約 -->
+        <text x="86" y="70" text-anchor="middle" font-size="14" fill="#5c6874">5本に分けて契約</text>
+        <rect x="46" y="86" width="80" height="34" rx="7" fill="#e8f4fb" stroke="#24729f" stroke-width="2.2"/>
+        <rect x="46" y="128" width="80" height="34" rx="7" fill="#e8f4fb" stroke="#24729f" stroke-width="2.2"/>
+        <rect x="46" y="170" width="80" height="34" rx="7" fill="#e8f4fb" stroke="#24729f" stroke-width="2.2"/>
+        <rect x="46" y="212" width="80" height="34" rx="7" fill="#e8f4fb" stroke="#24729f" stroke-width="2.2"/>
+        <rect x="46" y="254" width="80" height="34" rx="7" fill="#e8f4fb" stroke="#24729f" stroke-width="2.2"/>
+        <text x="86" y="308" text-anchor="middle" font-size="12.5" fill="#5c6874">合計の保険料は同じ</text>
+        <!-- 矢印 -->
+        <path d="M136 103h58" fill="none" stroke="#2c7a4b" stroke-width="3.5" stroke-linecap="round"/>
+        <path d="M186 96l9 7-9 7" fill="none" stroke="#2c7a4b" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M136 145c30 0 30 45 58 45" fill="none" stroke="#a8701a" stroke-width="3.5" stroke-linecap="round"/>
+        <path d="M186 183l9 7-9 7" fill="none" stroke="#a8701a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M136 271c30 0 30 -6 58 -6" fill="none" stroke="#24729f" stroke-width="3.5" stroke-linecap="round"/>
+        <path d="M186 258l9 7-9 7" fill="none" stroke="#24729f" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- 右：3つの出口 -->
+        <rect x="206" y="74" width="330" height="58" rx="12" fill="#e8f6ef" stroke="#c3e5d3" stroke-width="2.4"/>
+        <text x="232" y="100" font-size="16" font-weight="bold" fill="#2c7a4b">2本は 残す</text>
+        <text x="232" y="120" font-size="13" fill="#5c6874">万一の保障として、会社と家族を守り続ける</text>
+        <rect x="206" y="160" width="330" height="58" rx="12" fill="#fdf3e2" stroke="#f2dcae" stroke-width="2.4"/>
+        <text x="232" y="186" font-size="16" font-weight="bold" fill="#a8701a">2本は 現金化する</text>
+        <text x="232" y="206" font-size="13" fill="#5c6874">退職金や設備投資の年にぶつけて受け止める</text>
+        <rect x="206" y="238" width="330" height="58" rx="12" fill="#e8f4fb" stroke="#c6e2f2" stroke-width="2.4"/>
+        <text x="232" y="264" font-size="16" font-weight="bold" fill="#24729f">1本は 払い済みにする</text>
+        <text x="232" y="284" font-size="13" fill="#5c6874">以後の保険料はゼロ。保障は小さくなるが残る</text>
+      </svg>
+      <p class="venn-cap">※1本の契約でも「減額（一部解約）」で近いことはできます。ただし<strong>払い済みへの変更では、それまで資産に計上してきた金額を、その時点の解約返戻金の額に置き換える経理処理（「洗い替え」といいます）が必要になることがあり</strong>、雑収入や雑損失が出る場合があります。減額も同じで、雑収入になるのは戻ってくるお金そのものではなく、<strong>減らした割合に応じて取り崩す資産計上額を差し引いた差額</strong>です（資産計上額が大きい時期は、雑損失になることもあります）。保険料を全額損金にしてきた契約は資産計上額がないので、戻ったお金がまるごと雑収入です。<strong>形を変えた瞬間に、税金も動きます</strong>。手続きの前に顧問税理士へご確認ください。</p>
+    </div>
+
     <div class="mame">
       <span class="mame-badge"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6.5 6.5 0 0 0-4 11.6c.8.7 1.4 1.7 1.6 2.9h4.8c.2-1.2.8-2.2 1.6-2.9A6.5 6.5 0 0 0 12 3Z"/></svg>豆知識</span>
       <span class="mame-body"><strong>現物支給には「値札の付け方」のルールがあります。</strong>保険契約を退職金として渡すときの評価額は、原則としてその時点の<b>解約返戻金相当額</b>。かつて低解約返戻金型で「安い時期に個人へ」と渡す名義変更プランが流行しましたが、2021年のルール見直しで、返戻金が資産計上額の7割を下回る契約は<b>資産計上額で評価する</b>扱いになりました。また、現物支給も退職金ですから株主総会の決議などの手続きと、退職金全体での適正額チェック（功績倍率法）が要ります。便利な渡し方ですが、値札と手続きは顧問税理士とご一緒に。</span>
@@ -1240,7 +1359,7 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
 
     <div class="guide">
       <span class="guide-ava" data-guide aria-hidden="true"></span>
-      <p class="guide-msg">顧問先との打ち合わせでよく伺うお話を、寸劇風にまとめました。笑えるのは“他社事（ひとごと）”のうちです。気になる演目をタップしてご覧ください。</p>
+      <p class="guide-msg">顧問先との打ち合わせでよく伺うお話を、寸劇風にまとめました。笑えるのは“他社事（ひとごと）”のうちです。気になる演目をタップしてご覧ください。<strong>各演目には、30秒でざっと分かる動画（音声なし・字幕つき）</strong>も付けました。</p>
     </div>
 
     <div class="case-grid" id="caseGrid"></div>
@@ -1265,7 +1384,7 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
 
     <div class="guide">
       <span class="guide-ava" data-guide aria-hidden="true"></span>
-      <p class="guide-msg">ここまで「気をつけて」の話ばかりで、法人保険が嫌いになりかけていませんか。ご安心ください。法人保険は本来、<strong>出口さえ決めれば、ちゃんと働く道具</strong>です。しかも「え、そんな使い方が？」という意外な出番もあります。ここからは、味方につける側の4演目です。</p>
+      <p class="guide-msg">ここまで「気をつけて」の話ばかりで、法人保険が嫌いになりかけていませんか。ご安心ください。法人保険は本来、<strong>出口さえ決めれば、ちゃんと働く道具</strong>です。しかも「え、そんな使い方が？」という意外な出番もあります。ここからは、味方につける側の4演目です。こちらも<strong>30秒の動画つき</strong>。お時間のないときは動画だけでもどうぞ。</p>
     </div>
 
     <div class="model-note">
@@ -1323,6 +1442,65 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
       保険のピークと、勇退の年。2本の線は合っていますか
     </h3>
     <p class="sub-lead">10年後のピークに合わせて入った保険は、10年後に社長が勇退する前提の設計です。ところが実際の勇退は、後継者探し・業績・本人の元気さで、<strong>だいたい後ろへずれます</strong>（④第五幕参照）。ずれたときに効くのが「山がなだらかな商品」「減額・払い済みなどの中間の選択肢」、そして<strong>毎年の点検</strong>です。</p>
+
+    <h3 class="sub-h">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 8l-4 4 4 4M17 8l4 4-4 4M3 12h18"/></svg>
+      同じ会社でも、守るべきものは入れ替わります
+    </h3>
+    <p class="sub-lead">創業まもない頃と、承継が見えてきた頃。<strong>必要な保険の重心が、ほぼ逆</strong>になります。同じ社長が同じ会社を経営していても、です。</p>
+
+    <div class="venn-box">
+      <svg viewBox="0 0 560 300" role="img" aria-label="成長期は事業保障が重く承継期は出口原資が重くなるという役割の逆転を示す図">
+        <!-- 上段：成長期 -->
+        <rect x="20" y="26" width="120" height="30" rx="15" fill="#e8f4fb"/>
+        <text x="80" y="47" text-anchor="middle" font-size="15" font-weight="bold" fill="#24729f">成長期の社長</text>
+        <rect x="20" y="66" width="230" height="76" rx="12" fill="#fdeee9" stroke="#c2453f" stroke-width="3"/>
+        <text x="135" y="96" text-anchor="middle" font-size="17" font-weight="bold" fill="#a63631">事業保障</text>
+        <text x="135" y="120" text-anchor="middle" font-size="13" fill="#5c6874">借入は多く、内部留保は薄い</text>
+        <text x="280" y="115" text-anchor="middle" font-size="30" font-weight="bold" fill="#c3cfd8">&gt;</text>
+        <rect x="310" y="72" width="230" height="64" rx="12" fill="#f4ece3" stroke="#e6dbd0" stroke-width="2"/>
+        <text x="425" y="98" text-anchor="middle" font-size="15" fill="#8a8079">出口の原資</text>
+        <text x="425" y="120" text-anchor="middle" font-size="13" fill="#a99b90">まだ、先の話</text>
+        <!-- 下段：承継期（重心が右に移る） -->
+        <rect x="20" y="168" width="156" height="30" rx="15" fill="#e8f6ef"/>
+        <text x="98" y="189" text-anchor="middle" font-size="15" font-weight="bold" fill="#2c7a4b">承継が見えた社長</text>
+        <rect x="20" y="208" width="230" height="64" rx="12" fill="#f4ece3" stroke="#e6dbd0" stroke-width="2"/>
+        <text x="135" y="234" text-anchor="middle" font-size="15" fill="#8a8079">事業保障</text>
+        <text x="135" y="256" text-anchor="middle" font-size="13" fill="#a99b90">借入は減り、役割は小さく</text>
+        <text x="280" y="251" text-anchor="middle" font-size="30" font-weight="bold" fill="#c3cfd8">&lt;</text>
+        <rect x="310" y="202" width="230" height="76" rx="12" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="3"/>
+        <text x="425" y="232" text-anchor="middle" font-size="17" font-weight="bold" fill="#2c7a4b">出口の原資</text>
+        <text x="425" y="256" text-anchor="middle" font-size="13" fill="#5c6874">退職金・自社株の買取・納税資金</text>
+      </svg>
+      <p class="venn-cap">※重さが逆転するだけで、どちらか一方だけになるわけではありません。成長期でも退職金の準備は早いほど楽になり、承継期でも社長に万一があれば会社は揺れます。<strong>見直しとは比率を調整すること</strong>で、全部を入れ替えることではありません。</p>
+    </div>
+
+    <h3 class="sub-h">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16M6 8l-3 7h6ZM18 8l-3 7h6ZM6 8h12M8 20h8"/></svg>
+      そもそも、御社に法人保険は要りますか
+    </h3>
+    <p class="sub-lead">税理士事務所として、いちばん正直な問いを最後に置きます。判断の物差しはシンプルで、<strong>社長に万一があった翌日、会社のお金で足りるかどうか</strong>。それだけです。</p>
+
+    <div class="venn-box">
+      <svg viewBox="0 0 560 300" role="img" aria-label="会社の現預金と、社長に万一があった翌日に出ていくお金を天秤で比べる図">
+        <path d="M280 44v150" stroke="#5c6874" stroke-width="6" stroke-linecap="round"/>
+        <path d="M280 194l-40 38h80Z" fill="#8ea0ad"/>
+        <path d="M96 54h368" stroke="#5c6874" stroke-width="6" stroke-linecap="round"/>
+        <path d="M96 54v22M464 54v22" stroke="#8ea0ad" stroke-width="3"/>
+        <!-- 左皿：会社にあるお金 -->
+        <path d="M20 76h152l-30 44q-46 20 -92 0Z" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="3"/>
+        <text x="96" y="152" text-anchor="middle" font-size="16" font-weight="bold" fill="#2c7a4b">いま会社にあるお金</text>
+        <text x="96" y="176" text-anchor="middle" font-size="14" fill="#5c6874">現預金・すぐ売れる資産</text>
+        <!-- 右皿：出ていくお金 -->
+        <path d="M388 76h152l-30 44q-46 20 -92 0Z" fill="#fdeee9" stroke="#c2453f" stroke-width="3"/>
+        <text x="464" y="152" text-anchor="middle" font-size="16" font-weight="bold" fill="#a63631">翌日から出ていくお金</text>
+        <text x="464" y="176" text-anchor="middle" font-size="14" fill="#5c6874">借入金の返済</text>
+        <text x="464" y="198" text-anchor="middle" font-size="14" fill="#5c6874">当面の運転資金</text>
+        <text x="464" y="220" text-anchor="middle" font-size="14" fill="#5c6874">死亡退職金</text>
+        <text x="280" y="272" text-anchor="middle" font-size="15.5" fill="#1b3f5e">右が重ければ、その差だけが「保険で備える金額」です</text>
+      </svg>
+      <p class="venn-cap">※左が右を上回っているなら、保障の保険はそもそも要らないかもしれません（それでも退職金の準備や、利益の山と谷をならすという別の目的は残ります）。<strong>「全部の会社に必要」でも「全部いらない」でもなく、差額の分だけ</strong>——それが私たちの立場です。なお右皿には2つの調整があります。受け取った保険金にも税金がかかるので<strong>差額より少し多めが目安</strong>になる一方、日本政策金融公庫の団体信用生命保険のように<strong>団信が付いている借入は、社長に万一のとき保険で返済される</strong>ため右皿から外して構いません。実際に働いた例は⑤第三話をご覧ください。</p>
+    </div>
 
     <div class="mikane">
       <h3>
@@ -1465,6 +1643,7 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
         </div>
         <div id="caseModalHow"></div>
       </div>
+      <div class="video-cta" id="caseModalVideo"></div>
       <div data-cta-mini></div>
       <p class="cmodal-note">※演目は一般的な内容をもとにした創作例で、実在の企業・個人・事案とは関係ありません。経理処理・税務の取り扱い・お手続きの可否は、契約時期・約款・ご契約内容および各社の状況により異なります。実際の判断は顧問税理士・保険会社にご確認ください。</p>
     </div>
@@ -1760,9 +1939,9 @@ var QUIZ = [
     check:'入る前に「出口の年に何をぶつけるか」を言えるか。言えないなら、その保険はまだ入りどきではない。'
   },
   {
-    icon:'qChoco', a:true, yes:'ほんとう', no:'うそ',
+    icon:'qChoco', a:true, yes:'本当', no:'うそ',
     q:'かつての「全額損金でよく戻る」節税保険が売り止めになった大事件。そのきっかけの日は、バレンタインデーである。（①を読んだ方には、サービス問題です）',
-    expl:'ほんとうです。2019年2月14日、国税庁が節税保険の税務ルール見直しに動くと伝わり、生保各社は主力商品の販売を一斉に停止しました。業界で語り継がれる「バレンタインショック」です。以後は最高解約返戻率で損金割合が決まるルールになりました。チョコレートの日に届いたのは、チョコより甘くない知らせだったのです。',
+    expl:'本当です。2019年2月14日、国税庁が節税保険の税務ルール見直しに動くと伝わり、生保各社は主力商品の販売を一斉に停止しました。業界で語り継がれる「バレンタインショック」です。以後は最高解約返戻率で損金割合が決まるルールになりました。チョコレートの日に届いたのは、チョコより甘くない知らせだったのです。',
     wana:'この日を境に「節税保険」の設計図は書き換わった。それ以前の知識・武勇伝は、今の商品には当てはまらない。',
     check:'貴社の契約が2019年7月8日より前か後か。前なら旧ルールのまま（それはそれで大事な情報）。証券の契約日を見る。'
   },
@@ -1845,7 +2024,7 @@ function renderQ(){
   elNum.textContent = qIdx + 1;
   elIcon.innerHTML = ARTS[q.icon] || '';
   elText.textContent = q.q;
-  lblYes.textContent = q.yes || 'ほんとう';
+  lblYes.textContent = q.yes || '本当';
   lblNo.textContent  = q.no  || 'うそ';
   btnYes.disabled = false;
   btnNo.disabled = false;
@@ -1866,7 +2045,7 @@ function answer(ansYes){
   else wrongItems.push({ n: qIdx + 1, q: q.q, point: q.wana });
   btnYes.disabled = true;
   btnNo.disabled = true;
-  var ansLabel = q.a ? (q.yes || 'ほんとう') : (q.no || 'うそ');
+  var ansLabel = q.a ? (q.yes || '本当') : (q.no || 'うそ');
   elVAns.textContent = '答え：「' + ansLabel + '」';
   elVChip.textContent = correct ? '正解！' : 'ざんねん…';
   elVChip.className = 'result-chip ' + (correct ? 'correct' : 'wrong');
@@ -2216,42 +2395,42 @@ var SCENES = {
 /* ---------- セクション4：あるある劇場 ---------- */
 var CASES = [
   {
-    art:'qKessan', cls:'c-red', chip:'第一幕：決算対策', scene:'kakekomi',
+    art:'qKessan', cls:'c-red', chip:'第一幕：決算対策', scene:'kakekomi', vid:'case1',
     title:'節税のつもりが、貯金になっていた',
     story:'「2月に決算の着地が見えたんです。利益2,000万。それで急いで法人保険に入りました、年払い600万。ところが決算のとき税理士さんが『この商品、6割は資産計上ですね』と。え、全部損金じゃないの？　気づけば貸借対照表に「保険積立金」という知らない行が育ってるんですよ。私は税金を減らしたかったのであって、B/Sを育てたかったわけではないんです」<small>——製造業・50代社長の方（脚色あり）</small>',
     what:'<p class="cmodal-p">2019年のルール改正後、解約返戻率が高い保険は保険料の多く（この例では6割）を資産計上します。損金になったのは600万円のうち240万円だけ。「保険＝決算対策」のイメージは、旧ルール時代の記憶であることが多いのです。しかも資産計上された360万円は、税金の計算上はまだ「使っていないお金」。節税というより、返ってくる予定の貯金に近い姿です。</p>',
     how:'<p class="cmodal-p">加入前に「この契約、初年度に損金になるのはいくらですか」と一問聞くだけで防げます。あわせて、決算対策の選択肢は保険だけではありません。経営セーフティ共済・未払費用の計上・少額資産など、締め切り（決算日）に間に合う手段の比較表を作ってから選ぶのが定石です。</p>'
   },
   {
-    art:'qSafe', cls:'c-blue', chip:'第二幕：ピーク忘れ', scene:'safeSleep',
+    art:'qSafe', cls:'c-blue', chip:'第二幕：ピーク忘れ', scene:'safeSleep', vid:'case2',
     title:'証券は、金庫の中で冬眠していた',
     story:'「10年目がピークだと聞いて入った逓増定期です。担当の営業さんが3年目に転職して、経理も代替わりして、証券は金庫の奥へ。この前ふと思い出して設計書を見たら、ピークは2年前に終わってました。返戻率、山を下りはじめてるんです。誰も悪くないんですけど、誰か教えてくださいよ」<small>——卸売業・60代社長の方（脚色あり）</small>',
     what:'<p class="cmodal-p">ピークの管理が、担当者の記憶に依存していた形です。保険営業の方の転職・経理の交代・社長の多忙。10年という時間は、そのすべてを起こすのに十分な長さです。ピークを過ぎた返戻率は基本的に下り坂で、定期保険は満了まで持ちきると返戻金ゼロに向かいます。発見が遅れるほど、降りる場所の標高は下がっていきます。</p>',
     how:'<p class="cmodal-p">ピークの年を「人」ではなく「仕組み」に覚えさせます。経営計画への記載、経理の年間カレンダー、顧問税理士との決算前ミーティングの定例議題——書いた場所の数だけ安全です。今日、証券と設計書を金庫から出して、山頂の年に付箋を貼るところから始めてください。</p>'
   },
   {
-    art:'qBoomerang', cls:'c-amber', chip:'第三幕：出口なき解約', scene:'boomerangTax',
+    art:'qBoomerang', cls:'c-amber', chip:'第三幕：出口なき解約', scene:'boomerangTax', vid:'case3',
     title:'節税したはずの税金が、まとめて里帰りした',
     story:'「業績のいい年に、資金も欲しくて保険を解約したんです。1,500万戻ってきて、ほっとしたのも束の間。決算で税理士さんが『これ、雑収入で課税されます』と。いい年に解約したから、税率もフルで効いてくる。昔せっせと損金にした保険料の税金が、成人して里帰りしてきた気分でした」<small>——建設業・50代社長の方（脚色あり）</small>',
     what:'<p class="cmodal-p">解約返戻金から資産計上分を引いた差額は、受け取った期の雑収入（益金）です。この例では損金割合の高い古い契約だったため、1,500万円の大半が課税対象になりました。繰り延べてきた課税が、いちばん税負担の重い「業績のいい年」に着地してしまった——出口設計の不在が、タイミング最悪の里帰りを招いた形です。</p>',
     how:'<p class="cmodal-p">解約の前に「この返戻金、どの損金にぶつけるか」を決めます。退職金の年・大型投資の年まで待てるなら待つ、待てないなら分割解約や減額で雑収入の山を数年に割る、という調整もあります。③の体感シミュレーターで、ぜひ貴社の数字を動かしてみてください。</p>'
   },
   {
-    art:'qTaikin', cls:'c-berry', chip:'第四幕：役員退職金', scene:'bigBouquet',
+    art:'qTaikin', cls:'c-berry', chip:'第四幕：役員退職金', scene:'bigBouquet', vid:'case4',
     title:'はずんだ退職金に、税務署が渋い顔',
     story:'「先代の勇退に、感謝を込めて退職金を思いきり出したんです。保険の返戻金もちょうど入るし、全部損金だと思うじゃないですか。そうしたら税務調査で『この金額は過大では』と。長年のご功労に、上限があるんですか？　って聞いたら、調査官も少し気まずそうでした」<small>——サービス業・40代二代目社長の方（脚色あり）</small>',
     what:'<p class="cmodal-p">役員退職金が損金になるのは「その働きに見合った適正額」まで。実務でよく使われる目安が功績倍率法（最終月額報酬×在任年数×功績倍率、社長の倍率は3.0前後が一つの相場とされます）です。たとえば月額80万円×30年×3.0＝7,200万円。これを大きく超えた部分は損金と認められないことがあり、「保険の出口でぶつけたはずの損金」が想定より小さくなる、という二重の誤算が起こります。</p>',
     how:'<p class="cmodal-p">勇退の数年前に、退職金の適正額レンジを試算しておきます。保険の返戻金がレンジを超えそうなら、退職金以外の出口（設備投資の年に重ねる・分割で降りる）を組み合わせる設計に。功績倍率はあくまで実務の目安で、最終的には個別判断になるため、金額が大きいほど事前の詰めが効きます。</p>'
   },
   {
-    art:'qMuscle', cls:'c-green', chip:'第五幕：勇退延期', scene:'genkiPresident',
+    art:'qMuscle', cls:'c-green', chip:'第五幕：勇退延期', scene:'genkiPresident', vid:'case5',
     title:'社長が元気すぎて、山に間に合わなかった',
     story:'「65歳で勇退するつもりで、10年後にピークが来る保険に入ったんです。完璧な計画でした。ただひとつ誤算だったのは、65歳になった私が、まったく辞める気にならなかったことです。後継ぎもまだ育ってないし、体は動くし、仕事は面白いし。保険だけが予定どおり山を下りはじめました」<small>——小売業・60代社長の方（脚色あり）</small>',
     what:'<p class="cmodal-p">退職金準備の保険は「勇退の年」と「返戻率の山」を重ねる設計ですが、実際の勇退は後継者・業績・本人の気力で後ろへずれがちです。統計でも社長の平均年齢は上がり続けています。山が鋭い商品ほど、この「人生の予定変更」に弱い——設計時にいちばん読みにくい変数は、返戻率ではなく社長ご自身なのです。</p>',
     how:'<p class="cmodal-p">勇退時期が固まっていない段階では、ピークがなだらかで長い商品（長期平準定期など）を選ぶ、あるいは減額・払い済み・契約者貸付といった「中間の降り方」を最初から選択肢に入れておきます。そして年に一度、勇退プランと山の位置を見比べる。ずれたら設計を直す。保険は入って終わりではなく、育てるものです。</p>'
   },
   {
-    art:'qBalance', cls:'c-red', chip:'第六幕：保険料の重さ', scene:'heavyPremium',
+    art:'qBalance', cls:'c-red', chip:'第六幕：保険料の重さ', scene:'heavyPremium', vid:'case6',
     title:'節税のために入った保険で、資金繰りが苦しい',
     story:'「利益が出た年に、勧められるまま大きめの契約をしたんです。年払い800万。その後、業績が沈みまして。利益はないのに、保険料の請求は毎年変わらず来るんですよ。気づけば保険料を払うために借入を検討してました。あれ、私は何のために節税してたんでしたっけ」<small>——運送業・50代社長の方（脚色あり）</small>',
     what:'<p class="cmodal-p">保険料は「利益が出た年」に決めますが、支払いは「その後の毎年」に続きます。利益が沈んだ年、損金のありがたみは薄れ（そもそも所得がなければ相殺する税金もなく）、キャッシュだけが出ていきます。節税のための固定費が資金繰りを圧迫する——本末転倒という言葉が、これほど似合う場面もありません。</p>',
@@ -2262,34 +2441,74 @@ var CASES = [
 /* ---------- セクション5：逆転劇場 ---------- */
 var GOOD_CASES = [
   {
-    art:'qLoan', cls:'c-blue', chip:'第一話：契約者貸付', amt:'例 返戻金1,000万円→約900万円', scene:'quickLoan',
+    art:'qLoan', cls:'c-blue', chip:'第一話：契約者貸付', vid:'good1', amt:'例 返戻金1,000万円→約900万円', scene:'quickLoan',
     title:'解約しなくても、借りられた',
     story:'「大口の入金が急に遅れて、月末の支払いが足りない。銀行に駆け込んでも融資は間に合わない。そのとき顧問税理士に『その保険、貸付が使えますよ』と言われたんです。解約返戻金1,000万の契約で、約900万をその週のうちに借りられました。保険を解約せずに、です。あんな地味な制度に助けられるとは思いませんでした」<small>——製造業・40代社長の方（脚色あり）</small>',
     what:'<p class="cmodal-p">契約者貸付は、解約返戻金の一定割合（多くの商品で7〜9割程度）を担保に、審査なし・短期間で借りられる制度です。保険契約はそのまま続くので、保障もピークへの登山も中断しません。所定の利息はかかりますが、「解約して雑収入に課税されるより、借りて返すほうが安くつく」場面は実務で少なくありません。コロナ禍では利息を一定期間ゼロにした保険会社もありました。</p>',
     how:'<p class="cmodal-p">平時に貸付限度額と利率を確認し、緊急時の資金調達リストに書き加えておきます。順番の目安は、現預金→共済・貸付→（それでも足りなければ）解約。借りたら返済計画もセットで。放置すると利息が膨らみ、保険金から差し引かれます。</p>'
   },
   {
-    art:'qDoor', cls:'c-green', chip:'第二話：出口の完走', amt:'例 雑収入800万円を相殺', scene:'exitGoal',
+    art:'qDoor', cls:'c-green', chip:'第二話：出口の完走', vid:'good2', amt:'例 雑収入800万円を相殺', scene:'exitGoal',
     title:'10年前に決めた出口に、ちゃんと着いた',
     story:'「入るときに税理士さんと決めたんです。『この保険は、私が引退する年に解約して退職金の原資にする』って。10年後、本当にその年が来て、返戻金2,000万を受け取って、退職金と相殺。追加の税負担はほぼゼロでした。感想ですか？　何も起きなかったのが感想です。何も起きないって、すごいことなんですね」<small>——卸売業・60代の元社長の方（脚色あり）</small>',
     what:'<p class="cmodal-p">返戻金2,000万円のうち資産計上していたのは1,200万円。差額の800万円が雑収入になりますが、同じ期に役員退職金2,400万円を支給し（功績倍率法の目安7,200万円＝月額80万円×30年×3.0に対して、余裕のある金額です）、雑収入をきれいに受け止めました。入口の時点で出口が決まっていたから、10年間、途中の誘惑（解約・見直し営業）にも迷わずに済んだ、という好例です。</p>',
     how:'<p class="cmodal-p">再現のコツは3つ。①入るときに出口の年と用途を書面にする、②ピークの年を経営計画に載せる、③勇退の1〜2年前から退職金の適正額と支給手続き（株主総会決議など）を顧問税理士と詰める。祝賀会の準備と同じで、段取り八分です。</p>'
   },
   {
-    art:'qShield', cls:'c-berry', chip:'第三話：事業保障', amt:'保障は「税引き後」で設計', scene:'shieldCompany',
+    art:'qShield', cls:'c-berry', chip:'第三話：事業保障', vid:'good3', amt:'保障は「税引き後」で設計', scene:'shieldCompany',
     title:'保険金が、会社と家族の両方を守った',
     story:'「先代が急に亡くなって、正直、会社は畳むしかないと思いました。借入もありましたし。でも先代は保障重視の保険を残していて、保険金で借入を整理して、運転資金も数ヶ月分残った。取引先にも銀行にも『大丈夫です』と言えました。あの保険は節税でも何でもない、ただの定期保険でしたけど、会社がいま在るのはあれのおかげです」<small>——建設業・40代二代目社長の方（脚色あり）</small>',
     what:'<p class="cmodal-p">法人保険の原点である事業保障が、設計どおりに働いた例です。ポイントは保険金額の決め方。「借入金＋固定費数ヶ月分＋死亡退職金」を積み上げ、さらに保険金が益金になって課税される分を上乗せしてありました（借入の返済は損金にならないため、税引き後で借入を返せる金額が必要です）。あわせて遺族へは死亡退職金と弔慰金を支給。相続税には死亡退職金の非課税枠（500万円×法定相続人の数）があり、弔慰金にも別途の目安（業務上の死亡は月額報酬の36ヶ月分、業務外は6ヶ月分）があります。</p>',
     how:'<p class="cmodal-p">「うちの会社は、社長に万一があったら、いくらあれば回るか」を一度積み上げ計算してみてください。借入金・買掛金・人件費数ヶ月・死亡退職金、そして税負担分。この金額と現在の保障額の差が、本当に保険で備えるべき金額です。節税の議論より先に、ここを固めるのが順番です。</p>'
   },
   {
-    art:'qUmbrella', cls:'c-amber', chip:'第四話：国の共済', amt:'掛金 累計800万円まで', scene:'kyosaiUmbrella',
+    art:'qUmbrella', cls:'c-amber', chip:'第四話：国の共済', vid:'good4', amt:'掛金 累計800万円まで', scene:'kyosaiUmbrella',
     title:'地味な名前の、隠れた優等生',
     story:'「取引先が倒産して、売掛金が焦げ付いたんです。青くなっていたら、顧問税理士が『セーフティ共済、入ってましたよね』と。無担保・無保証人で、すぐ借入ができました。そういえば決算対策で勧められるまま入った共済でした。名前が地味なので正直ノーマークでしたが、あれは効きます」<small>——製造業・50代社長の方（脚色あり）</small>',
     what:'<p class="cmodal-p">経営セーフティ共済（中小企業倒産防止共済）は1978年生まれの国の制度。本来の顔は「取引先の倒産時に、掛金の10倍（最高8,000万円）まで無担保・無利子で借りられる」共済で、この例ではその本業が働きました。掛金は月5,000円〜20万円（年240万円・累計800万円まで）が損金になり、40ヶ月以上続ければ任意解約でも掛金の100%が戻ります。もっとも、こちらにも裏面はあります。倒産時の借入では借入額の10分の1にあたる掛金が消える、解約手当金は全額課税、2024年10月以降は解約後2年間の再加入分は損金にできない——優等生にも、ちゃんと注意書きがあるのです。</p>',
     how:'<p class="cmodal-p">未加入なら、法人保険の検討より先に共済の枠（と、社長個人の小規模企業共済）を埋めるのが定石です。加入済みなら、40ヶ月の壁を越えているか、解約するならどの年度の損金にぶつけるかを確認。保険と同じで、共済にも出口設計があります。</p>'
   }
 ];
+
+/* ---------- 演目の解説動画（各30秒・音声なし） ---------- */
+var VIDEO_SRC = {
+  case1:'videos/case1.mp4', case2:'videos/case2.mp4', case3:'videos/case3.mp4',
+  case4:'videos/case4.mp4', case5:'videos/case5.mp4', case6:'videos/case6.mp4',
+  good1:'videos/good1.mp4', good2:'videos/good2.mp4', good3:'videos/good3.mp4', good4:'videos/good4.mp4'
+};
+var VIDEO_SRC_W = {
+  case1:'videos/case1-wide.mp4', case2:'videos/case2-wide.mp4', case3:'videos/case3-wide.mp4',
+  case4:'videos/case4-wide.mp4', case5:'videos/case5-wide.mp4', case6:'videos/case6-wide.mp4',
+  good1:'videos/good1-wide.mp4', good2:'videos/good2-wide.mp4', good3:'videos/good3-wide.mp4', good4:'videos/good4-wide.mp4'
+};
+/* 画面が広ければPC向けの横長版、狭ければスマホ向けの縦長版 */
+function wideScreen(){
+  try { return window.matchMedia('(min-width: 700px)').matches; } catch(e) { return false; }
+}
+var PLAY_ICO = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-1.5 6.3 6 3.7-6 3.7Z"/></svg>';
+
+function videoCta(key, label){
+  var w = wideScreen() && VIDEO_SRC_W[key];
+  var src = w ? VIDEO_SRC_W[key] : VIDEO_SRC[key];
+  if(!src) return '';
+  return '<button type="button" class="video-btn">' + PLAY_ICO +
+         '<span>' + (label || 'この演目を30秒の動画で見る') + '<small>約30秒・音声なし（字幕つき）</small></span></button>' +
+         '<div class="video-wrap' + (w ? ' wide' : '') + '">' +
+         '<video controls playsinline preload="none" src="' + src + '"></video>' +
+         '<p class="vw-note">音声はありません。画面の字幕でご覧いただけます。</p></div>';
+}
+
+/* ボタンを押したらその場で再生 */
+document.addEventListener('click', function(ev){
+  var btn = ev.target.closest ? ev.target.closest('.video-btn') : null;
+  if(!btn) return;
+  var wrap = btn.nextElementSibling;
+  if(!wrap) return;
+  btn.style.display = 'none';
+  wrap.classList.add('show');
+  var v = wrap.querySelector('video');
+  if(v && v.play){ var pr = v.play(); if(pr && pr.catch) pr.catch(function(){}); }
+});
 
 /* ---------- 劇場のカード描画とモーダル ---------- */
 function renderCases(gridId, list, kind){
@@ -2302,7 +2521,9 @@ function renderCases(gridId, list, kind){
       '<span class="t"><span class="chip ' + c.cls + '">' + c.chip + '</span>' +
       (c.amt ? '<span class="amt">' + c.amt + '</span>' : '') +
       '<h3>' + c.title + '</h3>' +
-      '<span class="more">くわしく見る<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></span>' +
+      '<span class="more">くわしく見る<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>' +
+      (c.vid ? '<span class="vbadge"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-1.5 6.3 6 3.7-6 3.7Z"/></svg>30秒動画</span>' : '') +
+      '</span>' +
       '</span></button>';
   });
   grid.innerHTML = html;
@@ -2329,6 +2550,7 @@ function openCase(c, kind){
   document.getElementById('caseModalStory').innerHTML = c.story;
   document.getElementById('caseModalWhat').innerHTML = c.what;
   document.getElementById('caseModalHow').innerHTML = c.how;
+  document.getElementById('caseModalVideo').innerHTML = c.vid ? videoCta(c.vid) : '';
   document.getElementById('caseModalLbl2').textContent = kind === 'good' ? '何が効いたのか' : '何が起きたのか';
   document.getElementById('caseModalLbl3').textContent = kind === 'good' ? 'こう備えれば、貴社でも使えます' : 'こう確認すれば防げます';
   var lbl2 = document.getElementById('caseModalLbl2Wrap');
