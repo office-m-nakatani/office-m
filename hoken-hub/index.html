@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>保険ツール管理センター｜株式会社Office-M</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231b3f5e'/%3E%3Cpath d='M32 13.5 17 19.2v10.3c0 9.3 6.4 17.1 15 20 8.6-2.9 15-10.7 15-20V19.2Z' fill='%23f0846a'/%3E%3Cpath d='m25 32 5 5 10-10' fill='none' stroke='%23fff' stroke-width='4.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+/* ============================================================
+   保険ツール管理センター
+   ・管理画面（社内用）と、共有ゲート（お客様用 #s=... ）の2モードを1ファイルに収めている
+   ・配色は各保険チェックツールと共通（ネイビー＋クリーム＋コーラル）
+   ============================================================ */
+:root{
+  --navy:#1b3f5e; --navy-2:#27587f; --navy-soft:#eaf1f7;
+  --bg:#fff8f2; --white:#fff; --text:#33404d; --muted:#5c6874; --line:#efe2d8;
+  --shadow:0 6px 20px rgba(130,100,80,.09); --shadow-sm:0 3px 10px rgba(130,100,80,.07);
+  --coral:#f0846a; --coral-text:#d9552f; --coral-bg:#fdeee9; --coral-border:#f4d0c6;
+  --green:#2c7a4b; --green-bg:#e8f6ef; --green-border:#c3e5d3;
+  --amber:#a8701a; --amber-bg:#fdf3e2; --amber-border:#f2dcae;
+  --sky:#24729f; --sky-bg:#e8f4fb; --sky-border:#c6e2f2;
+  --berry:#8f4574; --berry-bg:#fbeef6; --berry-border:#eed2e2;
+  --red:#c2453f; --red-bg:#fdeee9;
+  --mincho:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho",YuMincho,"游明朝体","MS PMincho",serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",YuGothic,Meiryo,"Noto Sans JP",sans-serif;
+  color:var(--text); background:var(--bg); line-height:1.75; font-size:15px;
+  overflow-wrap:break-word; padding-bottom:60px;
+}
+/* インラインSVGアイコンの既定サイズ。個別指定（.btn svg など）が優先される */
+svg{width:1.05em;height:1.05em;vertical-align:-.16em;flex:none;}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit;}
+a{color:var(--navy-2);}
+.wrap{max-width:1120px;margin:0 auto;padding:0 16px;}
+.hide{display:none !important;}
+
+/* ---------- 上部バー ---------- */
+.topbar{background:var(--navy);color:#fff;position:sticky;top:0;z-index:40;box-shadow:0 2px 12px rgba(27,63,94,.22);}
+.topbar .wrap{display:flex;align-items:center;gap:14px;min-height:62px;flex-wrap:wrap;padding-top:8px;padding-bottom:8px;}
+.tb-brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.04em;font-size:1.02rem;}
+.tb-brand svg{width:26px;height:26px;flex:none;}
+.tb-brand small{display:block;font-weight:400;font-size:.72rem;opacity:.78;letter-spacing:.02em;line-height:1.4;}
+.tb-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;}
+.tb-btn{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);
+  color:#fff;padding:7px 13px;border-radius:9px;cursor:pointer;font-size:.85rem;transition:background .15s;}
+.tb-btn:hover{background:rgba(255,255,255,.22);}
+.tb-btn svg{width:15px;height:15px;}
+
+/* ---------- セクション見出し ---------- */
+.sec{margin-top:34px;}
+.sec-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+.sec-head h2{font-family:var(--mincho);font-size:1.34rem;color:var(--navy);letter-spacing:.05em;font-weight:600;}
+.sec-head p{font-size:.84rem;color:var(--muted);}
+
+/* ---------- 提案プリセット ---------- */
+.preset-main{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:860px){.preset-main{grid-template-columns:1fr;}}
+.preset{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow);position:relative;overflow:hidden;}
+.preset::before{content:"";position:absolute;inset:0 auto 0 0;width:5px;background:var(--coral);}
+.preset.p-death::before{background:var(--navy-2);}
+.preset-tag{display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:700;letter-spacing:.08em;
+  color:var(--coral-text);background:var(--coral-bg);border:1px solid var(--coral-border);border-radius:999px;padding:3px 11px;}
+.p-death .preset-tag{color:var(--navy);background:var(--navy-soft);border-color:#cfe0ec;}
+.preset h3{font-family:var(--mincho);font-size:1.42rem;color:var(--navy);margin:10px 0 4px;letter-spacing:.04em;line-height:1.5;}
+.preset .p-tool{font-size:.88rem;color:var(--muted);margin-bottom:12px;}
+.preset .p-flow{background:#fdfaf6;border:1px dashed var(--line);border-radius:10px;padding:10px 13px;font-size:.82rem;color:var(--muted);line-height:1.85;margin-bottom:14px;}
+.preset .p-flow b{color:var(--navy);font-weight:700;}
+.p-actions{display:flex;gap:9px;flex-wrap:wrap;}
+.p-subs{margin-top:13px;padding-top:12px;border-top:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.p-subs .lb{font-size:.76rem;color:var(--muted);}
+.chip{display:inline-flex;align-items:center;gap:5px;background:#fdfaf6;border:1px solid var(--line);border-radius:999px;
+  padding:4px 12px;font-size:.79rem;cursor:pointer;color:var(--navy-2);transition:.15s;}
+.chip:hover{background:var(--navy-soft);border-color:#cfe0ec;}
+.chip svg{width:12px;height:12px;}
+.preset-sub-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+.preset-mini{flex:1 1 210px;background:var(--white);border:1px solid var(--line);border-radius:12px;padding:13px 15px;box-shadow:var(--shadow-sm);}
+.preset-mini h4{font-size:.96rem;color:var(--navy);margin-bottom:3px;}
+.preset-mini p{font-size:.76rem;color:var(--muted);margin-bottom:9px;}
+
+/* ---------- ボタン ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;border-radius:10px;
+  padding:10px 17px;cursor:pointer;font-size:.88rem;font-weight:700;letter-spacing:.03em;transition:.15s;text-decoration:none;}
+.btn svg{width:16px;height:16px;}
+.btn-primary{background:var(--coral);color:#fff;box-shadow:0 3px 10px rgba(240,132,106,.32);}
+.btn-primary:hover{background:#e6725a;}
+.btn-navy{background:var(--navy);color:#fff;}
+.btn-navy:hover{background:#16344e;}
+.btn-ghost{background:var(--white);color:var(--navy);border:1px solid #cfe0ec;}
+.btn-ghost:hover{background:var(--navy-soft);}
+.btn-sm{padding:6px 12px;font-size:.8rem;border-radius:8px;}
+.btn-sm svg{width:13px;height:13px;}
+.btn[disabled]{opacity:.42;cursor:not-allowed;box-shadow:none;}
+
+/* ---------- ツール一覧 ---------- */
+.filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;}
+.filter{background:var(--white);border:1px solid var(--line);border-radius:999px;padding:6px 15px;font-size:.83rem;cursor:pointer;color:var(--muted);}
+.filter.on{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:700;}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px;}
+.card{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:16px 17px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;}
+.card-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;}
+.card-ico{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:none;}
+.card-ico svg{width:20px;height:20px;}
+.c-life .card-ico{background:var(--coral-bg);color:var(--coral-text);}
+.c-sonpo .card-ico{background:var(--sky-bg);color:var(--sky);}
+.c-corp .card-ico{background:var(--berry-bg);color:var(--berry);}
+.c-souzoku .card-ico{background:var(--amber-bg);color:var(--amber);}
+.c-kanren .card-ico{background:var(--green-bg);color:var(--green);}
+.card h3{font-size:1rem;color:var(--navy);line-height:1.55;letter-spacing:.02em;}
+.card .owner{font-size:.72rem;color:var(--muted);margin-top:2px;}
+.card .desc{font-size:.81rem;color:var(--muted);line-height:1.8;flex:1;margin-bottom:11px;}
+.badge{display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:.06em;border-radius:999px;padding:2px 9px;vertical-align:middle;}
+.b-life{background:var(--coral-bg);color:var(--coral-text);} .b-sonpo{background:var(--sky-bg);color:var(--sky);}
+.b-corp{background:var(--berry-bg);color:var(--berry);} .b-souzoku{background:var(--amber-bg);color:var(--amber);}
+.b-kanren{background:var(--green-bg);color:var(--green);}
+.b-ok{background:var(--green-bg);color:var(--green);} .b-ng{background:var(--amber-bg);color:var(--amber);}
+.url-row{background:#fdfaf6;border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin-bottom:11px;}
+.url-row label{display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--muted);margin-bottom:5px;font-weight:700;letter-spacing:.04em;}
+.url-row label svg{width:12px;height:12px;}
+.url-row input{width:100%;border:1px solid var(--line);border-radius:7px;padding:7px 9px;font-size:.78rem;background:var(--white);}
+.url-row input:focus{outline:2px solid #cfe0ec;outline-offset:-1px;}
+.url-row .saved{font-size:.7rem;color:var(--green);opacity:0;transition:opacity .2s;}
+.url-row .saved.on{opacity:1;}
+.card-actions{display:flex;gap:7px;flex-wrap:wrap;}
+
+/* ---------- 共有リンク一覧 ---------- */
+.tbl{width:100%;border-collapse:collapse;background:var(--white);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-sm);}
+.tbl th,.tbl td{padding:11px 13px;text-align:left;font-size:.82rem;border-bottom:1px solid var(--line);vertical-align:middle;}
+.tbl th{background:var(--navy-soft);color:var(--navy);font-size:.75rem;letter-spacing:.06em;font-weight:700;white-space:nowrap;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl .nm{font-weight:700;color:var(--navy);}
+.tbl .acts{display:flex;gap:5px;flex-wrap:wrap;}
+.remain{font-weight:700;}
+.remain.ok{color:var(--green);} .remain.warn{color:var(--amber);} .remain.dead{color:var(--red);}
+.empty{background:var(--white);border:1px dashed var(--line);border-radius:12px;padding:26px;text-align:center;color:var(--muted);font-size:.86rem;}
+.tbl-scroll{overflow-x:auto;}
+
+/* ---------- モーダル ---------- */
+.modal{position:fixed;inset:0;background:rgba(27,63,94,.42);z-index:60;display:flex;align-items:flex-start;justify-content:center;padding:22px 14px;overflow-y:auto;}
+.modal-box{background:var(--white);border-radius:16px;max-width:620px;width:100%;box-shadow:0 18px 50px rgba(27,63,94,.3);margin:auto;}
+.modal-box.wide{max-width:780px;}
+.modal-head{display:flex;align-items:center;gap:10px;padding:17px 20px;border-bottom:1px solid var(--line);}
+.modal-head h3{font-family:var(--mincho);font-size:1.2rem;color:var(--navy);letter-spacing:.04em;flex:1;}
+.modal-body{padding:19px 20px;}
+.modal-foot{padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:9px;justify-content:flex-end;flex-wrap:wrap;}
+.x-btn{background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;border-radius:6px;line-height:0;}
+.x-btn:hover{background:var(--navy-soft);}
+.x-btn svg{width:19px;height:19px;}
+.field{margin-bottom:15px;}
+.field label{display:block;font-size:.8rem;font-weight:700;color:var(--navy);margin-bottom:5px;letter-spacing:.03em;}
+.field .hint{font-size:.75rem;color:var(--muted);margin-top:4px;line-height:1.7;}
+.field input[type=text],.field input[type=email],.field select,.field textarea{
+  width:100%;border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:.87rem;background:#fdfaf6;}
+.field input:focus,.field select:focus,.field textarea:focus{outline:2px solid #cfe0ec;outline-offset:-1px;background:#fff;}
+.field textarea{min-height:120px;line-height:1.8;resize:vertical;font-size:.83rem;}
+.radio-row{display:flex;gap:8px;flex-wrap:wrap;}
+.radio-row label{display:inline-flex;align-items:center;gap:6px;background:#fdfaf6;border:1px solid var(--line);
+  border-radius:9px;padding:8px 14px;cursor:pointer;font-size:.85rem;font-weight:400;color:var(--text);margin:0;}
+.radio-row label.on{background:var(--navy-soft);border-color:#9cc2dc;font-weight:700;color:var(--navy);}
+.radio-row input{accent-color:var(--navy);}
+.note{border-radius:10px;padding:12px 14px;font-size:.79rem;line-height:1.85;}
+.note-amber{background:var(--amber-bg);border:1px solid var(--amber-border);color:#7d5413;}
+.note-sky{background:var(--sky-bg);border:1px solid var(--sky-border);color:#1c5b7f;}
+.note-green{background:var(--green-bg);border:1px solid var(--green-border);color:#215c39;}
+.share-url{display:flex;gap:8px;align-items:stretch;}
+.share-url input{flex:1;font-size:.78rem;font-family:ui-monospace,Menlo,Consolas,monospace;}
+.qr-box{text-align:center;padding:14px;background:#fdfaf6;border:1px solid var(--line);border-radius:12px;}
+.qr-box svg{width:190px;height:190px;background:#fff;border-radius:8px;}
+.qr-box p{font-size:.74rem;color:var(--muted);margin-top:7px;}
+.help h4{font-family:var(--mincho);color:var(--navy);font-size:1.03rem;margin:18px 0 6px;letter-spacing:.04em;}
+.help h4:first-child{margin-top:0;}
+.help p,.help li{font-size:.84rem;line-height:1.9;color:var(--text);}
+.help ul,.help ol{padding-left:1.35em;margin:5px 0;}
+.help code{background:var(--navy-soft);padding:1px 6px;border-radius:5px;font-size:.8rem;font-family:ui-monospace,Menlo,Consolas,monospace;}
+
+/* ---------- パスワード画面（社内用） ---------- */
+#lock{min-height:100vh;background:linear-gradient(168deg,#fbe6e6 0%,#fdf1ea 46%,#ddf0fb 100%);
+  display:flex;align-items:center;justify-content:center;padding:24px 14px;}
+.lock-card{background:var(--white);border-radius:20px;box-shadow:0 12px 40px rgba(130,100,80,.16);
+  padding:34px 30px;max-width:400px;width:100%;text-align:center;}
+.lock-card .l-ico{width:60px;height:60px;border-radius:50%;background:var(--navy-soft);color:var(--navy);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+.lock-card .l-ico svg{width:29px;height:29px;}
+.lock-card h1{font-family:var(--mincho);font-size:1.3rem;color:var(--navy);letter-spacing:.05em;line-height:1.6;}
+.lock-card .l-lead{font-size:.85rem;color:var(--muted);margin:6px 0 20px;}
+.lock-card input[type=password]{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px 14px;
+  font-size:1rem;background:#fdfaf6;text-align:center;letter-spacing:.14em;}
+.lock-card input[type=password]:focus{outline:2px solid #9cc2dc;outline-offset:-1px;background:#fff;}
+.lock-card .l-err{min-height:22px;font-size:.8rem;color:var(--red);margin-top:7px;}
+.lock-card .l-remember{display:flex;align-items:center;justify-content:center;gap:7px;font-size:.79rem;
+  color:var(--muted);margin-bottom:16px;cursor:pointer;}
+.lock-card .l-remember input{accent-color:var(--navy);}
+.lock-card button{width:100%;padding:12px;font-size:.95rem;}
+.lock-card .l-note{font-size:.75rem;color:var(--muted);line-height:1.85;margin-top:18px;padding-top:15px;border-top:1px solid var(--line);}
+
+/* ---------- 共有ゲート（お客様側） ---------- */
+#gate{min-height:100vh;background:linear-gradient(168deg,#fbe6e6 0%,#fdf1ea 46%,#ddf0fb 100%);padding:0 0 40px;}
+#gate.framed{background:var(--bg);padding:0;display:flex;flex-direction:column;height:100vh;}
+.gate-bar{background:var(--navy);color:#fff;padding:10px 0;}
+.gate-bar .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.gate-bar .g-brand{display:flex;align-items:center;gap:8px;font-size:.9rem;font-weight:700;letter-spacing:.04em;}
+.gate-bar .g-brand svg{width:20px;height:20px;}
+.gate-bar .g-exp{margin-left:auto;font-size:.78rem;background:rgba(255,255,255,.14);border-radius:999px;padding:4px 13px;}
+.gate-card{max-width:640px;margin:38px auto;background:var(--white);border-radius:20px;box-shadow:0 12px 40px rgba(130,100,80,.16);
+  padding:34px 30px;text-align:center;}
+.gate-card .g-ico{width:66px;height:66px;border-radius:50%;background:var(--coral-bg);color:var(--coral-text);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+.gate-card .g-ico svg{width:33px;height:33px;}
+.gate-card.expired .g-ico{background:var(--amber-bg);color:var(--amber);}
+.gate-card.error .g-ico{background:var(--red-bg);color:var(--red);}
+.gate-card .g-to{font-size:.86rem;color:var(--muted);letter-spacing:.06em;}
+.gate-card h1{font-family:var(--mincho);font-size:1.5rem;color:var(--navy);line-height:1.6;margin:8px 0 12px;letter-spacing:.04em;}
+.gate-card .g-desc{font-size:.88rem;color:var(--muted);line-height:1.95;text-align:left;background:#fdfaf6;
+  border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:18px;}
+.gate-meta{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:20px;}
+.gate-meta span{font-size:.78rem;background:var(--navy-soft);color:var(--navy);border-radius:999px;padding:5px 14px;}
+.gate-meta span.warn{background:var(--amber-bg);color:var(--amber);}
+.gate-card .g-foot{margin-top:20px;padding-top:16px;border-top:1px solid var(--line);font-size:.76rem;color:var(--muted);line-height:1.9;}
+#gateFrame{width:100%;flex:1;min-height:0;border:none;display:block;background:var(--bg);}
+.frame-help{background:var(--navy-soft);text-align:center;font-size:.78rem;padding:7px;color:var(--navy);}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;
+  padding:11px 22px;border-radius:999px;font-size:.85rem;box-shadow:0 8px 24px rgba(27,63,94,.3);opacity:0;
+  transition:.25s;pointer-events:none;z-index:90;}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+@media print{.topbar,.tb-actions,.card-actions,.p-actions{display:none;}}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     お客様用：共有ゲート（URLに #s=... が付いているときだけ表示）
+     ============================================================ -->
+<div id="gate" class="hide"></div>
+
+<!-- ============================================================
+     社内用：パスワード画面（共有リンクで開いたときは表示されない）
+     ============================================================ -->
+<div id="lock" class="hide">
+  <div class="lock-card">
+    <div class="l-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10.5" rx="2.5"/><path d="M8 10.5V7.4a4 4 0 0 1 8 0v3.1"/><path d="M12 14.8v2.4"/></svg>
+    </div>
+    <h1>保険ツール管理センター</h1>
+    <p class="l-lead">ご利用にはパスワードが必要です</p>
+    <form id="lockForm" autocomplete="off">
+      <input type="password" id="lockPass" placeholder="パスワード" autocomplete="current-password" aria-label="パスワード">
+      <div class="l-err" id="lockErr" role="alert"></div>
+      <label class="l-remember"><input type="checkbox" id="lockKeep" checked>この端末では30日間、次回から省略する</label>
+      <button class="btn btn-primary" type="submit">開く</button>
+    </form>
+    <p class="l-note">お客様にお渡しした共有リンクは、パスワードなしでそのままご覧いただけます。</p>
+  </div>
+</div>
+
+<!-- ============================================================
+     社内用：管理画面
+     ============================================================ -->
+<div id="admin" class="hide">
+  <header class="topbar">
+    <div class="wrap">
+      <div class="tb-brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg>
+        <span>保険ツール管理センター<small id="tbSub">生命保険・損害保険の提案ツールをここから開く／共有する</small></span>
+      </div>
+      <div class="tb-actions">
+        <button class="tb-btn" id="btnHelp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/></svg>使い方</button>
+        <button class="tb-btn" id="btnSettings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 9 19.4a1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 4.6 9a1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1Z"/></svg>設定</button>
+        <button class="tb-btn" id="btnLock" title="この端末のパスワード記憶を消して、ロック画面に戻ります"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10.5" rx="2.5"/><path d="M8 10.5V7.4a4 4 0 0 1 8 0v3.1"/></svg>ロックする</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div id="setupWarn"></div>
+
+    <!-- 提案プリセット -->
+    <section class="sec">
+      <div class="sec-head">
+        <h2>今日の提案から始める</h2>
+        <p>ボタンひとつでお客様にお見せするツールを開き、そのまま1週間有効の共有リンクをお渡しできます。</p>
+      </div>
+      <div class="preset-main" id="presetMain"></div>
+      <div class="preset-sub-row" id="presetSub"></div>
+    </section>
+
+    <!-- ツール一覧 -->
+    <section class="sec">
+      <div class="sec-head">
+        <h2>ツール一覧とURLの登録</h2>
+        <p>公開URLを登録すると、共有リンクを発行できるようになります。入力すると自動保存されます。</p>
+      </div>
+      <div class="filters" id="filters"></div>
+      <div class="grid" id="toolGrid"></div>
+    </section>
+
+    <!-- 発行済み共有リンク -->
+    <section class="sec">
+      <div class="sec-head">
+        <h2>発行した共有リンク</h2>
+        <p>この端末のブラウザに保存されます。期限を過ぎたリンクは自動的に閲覧できなくなります。</p>
+      </div>
+      <div id="linkList"></div>
+    </section>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="modalRoot"></div>
+
+<script>
+(function () {
+'use strict';
+
+/* ============================================================
+   1. ツール定義
+   ------------------------------------------------------------
+   local  … このHTMLと同じ場所に置いてあるファイル名（file:// で開いたとき用）
+   url    … 既定の公開URL（未公開のものは空。管理画面で登録すると上書きされる）
+   ============================================================ */
+var TOOLS = [
+  {
+    id: 'seimei', cat: 'life', name: '三大疾病と生命保険の「出る・出ない」チェック',
+    owner: '株式会社Office-M', local: 'OfficeM_生命保険チェック.html', url: 'https://office-m-nakatani.github.io/office-m/seimeihoken-check/',
+    desc: '三大疾病保険・払込免除特約の「出る・出ない」を○×クイズで確認。心疾患と急性心筋梗塞の違い、60日ルールなど、パンフレットの小さな字をやさしく解説します。'
+  },
+  {
+    id: 'shibou', cat: 'life', name: '死亡保険と終身保険の「置き場所」チェック',
+    owner: '株式会社Office-M', local: '死亡保険チェック.html', url: 'https://office-m-nakatani.github.io/office-m/shibouhoken-check/',
+    desc: '銀行・NISA・iDeCo・保険という4つの「お金の置き場所」を並べ、死亡保険が何の代わりになって何の代わりにならないのかを整理。払済保険という選択肢まで。'
+  },
+  {
+    id: 'kaigo', cat: 'life', name: '介護の「使える・使えない」チェック',
+    owner: '株式会社Office-M', local: '介護保険チェック.html', url: 'https://office-m-nakatani.github.io/office-m/kaigo-check/',
+    desc: '公的介護保険と民間の介護保険の線引きを○×クイズで確認。要支援と要介護、40〜64歳の16特定疾病、区分支給限度基準額、障害者控除対象者認定まで。'
+  },
+  {
+    id: 'souzoku', cat: 'souzoku', name: '相続の「渡し方」チェック',
+    owner: '株式会社Office-M', local: '相続チェック.html', url: 'https://office-m-nakatani.github.io/office-m/souzoku-check/',
+    desc: '基礎控除・生命保険の非課税枠・二次相続・小規模宅地等の特例を、○×クイズと概算シミュレーターで。納税資金の考え方まで踏み込みます。'
+  },
+  {
+    id: 'hojin', cat: 'corp', name: '社長のための法人保険「出口」チェック',
+    owner: '株式会社Office-M', local: 'hojin-hoken-check/index.html',
+    url: 'https://office-m-nakatani.github.io/office-m/hojin-hoken-check/',
+    desc: '「節税」のカラクリ、損金ルール、解約返戻金のピーク、出口戦略を○×クイズで。バレンタインショック・功績倍率・契約者貸付まで解説します。'
+  },
+  {
+    id: 'hojinsim', cat: 'corp', name: '法人保険 解約返戻金シミュレーター',
+    owner: '株式会社Office-M', local: '法人保険シミュレーター.html',
+    url: 'https://office-m-nakatani.github.io/hoken-sim/',
+    desc: '逓増定期・長期平準定期の解約返戻率の推移と、損金算入ルールを踏まえた出口の試算。ピーク時期と実質負担額を数字で確認できます。'
+  },
+  {
+    id: 'jidousha', cat: 'sonpo', name: '大雨・地震と自動車保険の備えチェック',
+    owner: 'ニッサン総合保険企画株式会社', local: 'ニッサン総合保険_自動車保険チェック.html', url: 'https://office-m-nakatani.github.io/nissansougou-general-insurance-/car/',
+    desc: '大雨での水没、地震での損壊、もらい事故。自動車保険の「出る・出ない」を○×クイズで確認できる啓発ツールです。'
+  },
+  {
+    id: 'nankai', cat: 'sonpo', name: '南海トラフ地震と保険の備えチェック',
+    owner: 'ニッサン総合保険企画株式会社', local: 'ニッサン総合保険_南海トラフ啓発ツール.html', url: 'https://office-m-nakatani.github.io/nissansougou-general-insurance-/',
+    desc: '南海トラフ地震の想定リスク（47都道府県対応）と、火災保険・自動車保険・地震保険の補償範囲を○×クイズで確認します。'
+  },
+  {
+    id: 'lifeplan', cat: 'kanren', name: 'ご夫婦のライフプランシミュレーター',
+    owner: '株式会社Office-M', local: 'ライフプラン案.html',
+    url: 'https://office-m-nakatani.github.io/lifeplan/',
+    desc: '住宅・教育・老後・資産運用までを一枚で見える化。必要保障額の話に入る前の「土台」としてお使いいただけます。'
+  }
+];
+
+var CATS = [
+  { id: 'all', label: 'すべて' },
+  { id: 'life', label: '生命保険（個人）' },
+  { id: 'sonpo', label: '損害保険' },
+  { id: 'souzoku', label: '相続' },
+  { id: 'corp', label: '法人' },
+  { id: 'kanren', label: '関連ツール' }
+];
+var CAT_LABEL = {};
+CATS.forEach(function (c) { CAT_LABEL[c.id] = c.label; });
+
+/* 提案プリセット（main = お客様にまずお見せするツール） */
+var PRESETS = [
+  {
+    id: 'medical', big: true, label: '医療保険の提案', tag: '医療・三大疾病',
+    main: 'seimei', subs: ['kaigo', 'lifeplan'],
+    flow: '<b>①</b>三大疾病の「出る・出ない」を○×で体感していただく → <b>②</b>払込免除特約の条件を証券で確認 → <b>③</b>公的介護保険で足りるところ／足りないところ → <b>④</b>お手元の証券チェックをご提案'
+  },
+  {
+    id: 'death', big: true, label: '死亡保険の提案', tag: '死亡・終身',
+    main: 'shibou', subs: ['souzoku', 'lifeplan'],
+    flow: '<b>①</b>お金の置き場所は4つ（銀行・NISA・iDeCo・保険）から入る → <b>②</b>終身保険は「途中で降りると負ける」を共有 → <b>③</b>非課税枠500万円×法定相続人の話へ → <b>④</b>必要保障額をライフプランで見える化'
+  },
+  { id: 'souzoku', label: '相続の提案', main: 'souzoku', subs: ['shibou'] },
+  { id: 'corp', label: '法人保険の提案', main: 'hojin', subs: ['hojinsim'] },
+  { id: 'sonpo', label: '損害保険の提案', main: 'jidousha', subs: ['nankai'] }
+];
+
+/* ============================================================
+   2. 保存データ
+   ============================================================ */
+var STORE_KEY = 'officem.hokenHub.v1';
+var MAX_DAYS = 7;            /* 閲覧期限の上限。1週間を超えるリンクは発行しない */
+var state = {
+  urls: {},                  /* toolId → 公開URL */
+  links: [],                 /* 発行済み共有リンク */
+  settings: { base: '', office: '株式会社Office-M', contact: 'y.nakatani@office-m-tax.com' }
+};
+
+function load() {
+  try {
+    var raw = localStorage.getItem(STORE_KEY);
+    if (!raw) return;
+    var o = JSON.parse(raw);
+    if (o.urls) state.urls = o.urls;
+    if (o.links) state.links = o.links;
+    if (o.settings) for (var k in o.settings) state.settings[k] = o.settings[k];
+  } catch (e) { /* プライベートモード等で読めなくても動く */ }
+}
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+  catch (e) { toast('この端末では設定を保存できませんでした'); }
+}
+function tool(id) { for (var i = 0; i < TOOLS.length; i++) if (TOOLS[i].id === id) return TOOLS[i]; return null; }
+function toolUrl(t) { return (state.urls[t.id] || t.url || '').trim(); }
+
+/* file:// で開いているときは手元のHTMLを、Web上なら登録した公開URLを開く */
+function openTarget(t) {
+  if (location.protocol === 'file:' && t.local) return encodeURI(t.local);
+  return toolUrl(t);
+}
+function openTool(id) {
+  var t = tool(id), target = openTarget(t);
+  if (!target) { toast('先に公開URLを登録してください'); openSettingsFor(t); return; }
+  window.open(target, '_blank', 'noopener');
+}
+
+/* ============================================================
+   3. 共有リンク（1週間で閲覧できなくなる）
+   ------------------------------------------------------------
+   ・URLの # 以降に、対象ツール・公開URL・期限を詰めた文字列を入れる
+   ・サーバーを持たない構成のため、判定はお客様のブラウザ側で行う
+   ・改ざん検知用のチェックサムを付け、期限だけ書き換えることはできないようにしている
+   ============================================================ */
+var SECRET = 'officem-hoken-hub-2026';
+
+function fnv1a(str) {
+  var h = 0x811c9dc5;
+  for (var i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
+  }
+  return h >>> 0;
+}
+function keyStream(len, seed) {
+  var out = new Uint8Array(len), x = seed >>> 0 || 1;
+  for (var i = 0; i < len; i++) {
+    x ^= x << 13; x >>>= 0; x ^= x >> 17; x ^= x << 5; x >>>= 0;
+    out[i] = x & 0xff;
+  }
+  return out;
+}
+function b64urlEnc(bytes) {
+  var s = '';
+  for (var i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function b64urlDec(str) {
+  var s = str.replace(/-/g, '+').replace(/_/g, '/');
+  while (s.length % 4) s += '=';
+  var bin = atob(s), out = new Uint8Array(bin.length);
+  for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+function pack(obj) {
+  var json = JSON.stringify(obj);
+  var body = new TextEncoder().encode(json);
+  var sum = fnv1a(json + SECRET);
+  var buf = new Uint8Array(body.length + 4);
+  buf[0] = (sum >>> 24) & 0xff; buf[1] = (sum >>> 16) & 0xff; buf[2] = (sum >>> 8) & 0xff; buf[3] = sum & 0xff;
+  buf.set(body, 4);
+  var ks = keyStream(buf.length, fnv1a(SECRET));
+  for (var i = 0; i < buf.length; i++) buf[i] ^= ks[i];
+  return b64urlEnc(buf);
+}
+function unpack(str) {
+  try {
+    var buf = b64urlDec(str);
+    var ks = keyStream(buf.length, fnv1a(SECRET));
+    for (var i = 0; i < buf.length; i++) buf[i] ^= ks[i];
+    var sum = ((buf[0] << 24) >>> 0) + (buf[1] << 16) + (buf[2] << 8) + buf[3];
+    var json = new TextDecoder().decode(buf.subarray(4));
+    if (fnv1a(json + SECRET) !== (sum >>> 0)) return null;
+    return JSON.parse(json);
+  } catch (e) { return null; }
+}
+
+function shareBase() {
+  if (state.settings.base) return state.settings.base;
+  if (location.protocol === 'http:' || location.protocol === 'https:') return location.origin + location.pathname;
+  return '';
+}
+function makeShare(toolId, days, addressee) {
+  var t = tool(toolId), url = toolUrl(t);
+  days = Math.min(Math.max(parseInt(days, 10) || MAX_DAYS, 1), MAX_DAYS);
+  var now = Date.now();
+  var exp = now + days * 86400000;            /* 発行時刻ちょうどから days 日間。1週間を1分でも超えることはない */
+  var key = Math.random().toString(36).slice(2, 8) + now.toString(36).slice(-4);
+  var payload = {
+    v: 1, t: toolId, u: url, e: Math.floor(exp / 1000), i: Math.floor(now / 1000),
+    n: addressee || '', k: key,
+    o: state.settings.office, c: state.settings.contact   /* お客様の端末には設定が無いので、差出人情報も入れておく */
+  };
+  var link = shareBase() + '#s=' + pack(payload);
+  var rec = { k: key, t: toolId, n: addressee || '', iat: now, exp: exp, url: link, days: days };
+  state.links.unshift(rec);
+  if (state.links.length > 200) state.links.length = 200;
+  save();
+  return rec;
+}
+
+/* ============================================================
+   3.5 パスワード（管理画面のみ。共有リンクで開いた場合は不要）
+   ------------------------------------------------------------
+   パスワードそのものはHTMLに書かず、ソルト付きハッシュだけを持たせている。
+   ブラウザの中だけで確認するしくみのため、来訪者をそっと止めるためのもの。
+   ============================================================ */
+var AUTH_KEY = 'officem.hokenHub.auth';
+var PASS_SALT = 'officem-hoken-hub-2026|';
+var PASS_HASH = '87bdd87b73f2aa6f93eaa8926577af41d7fa7cc23a9b938f2c9967def49dcfd8';
+var AUTH_DAYS = 30;
+
+var sha256 = (function () {
+  var K = [
+    0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+    0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+    0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+    0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+    0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+    0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+    0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+    0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+  function rotr(x, n) { return (x >>> n) | (x << (32 - n)); }
+  return function (str) {
+    var bytes = new TextEncoder().encode(str), l = bytes.length;
+    var total = l + 1 + ((56 - (l + 1) % 64 + 64) % 64) + 8;
+    var m = new Uint8Array(total), dv = new DataView(m.buffer);
+    m.set(bytes); m[l] = 0x80;
+    dv.setUint32(total - 8, Math.floor(l * 8 / 4294967296));
+    dv.setUint32(total - 4, (l * 8) >>> 0);
+    var H = [0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+    var w = new Uint32Array(64), i, j;
+    for (i = 0; i < total; i += 64) {
+      for (j = 0; j < 16; j++) w[j] = dv.getUint32(i + j * 4);
+      for (j = 16; j < 64; j++) {
+        var s0 = rotr(w[j-15],7) ^ rotr(w[j-15],18) ^ (w[j-15] >>> 3);
+        var s1 = rotr(w[j-2],17) ^ rotr(w[j-2],19) ^ (w[j-2] >>> 10);
+        w[j] = (w[j-16] + s0 + w[j-7] + s1) >>> 0;
+      }
+      var a=H[0],b=H[1],c=H[2],d=H[3],e=H[4],f=H[5],g=H[6],h=H[7];
+      for (j = 0; j < 64; j++) {
+        var t1 = (h + (rotr(e,6)^rotr(e,11)^rotr(e,25)) + ((e&f)^((~e)&g)) + K[j] + w[j]) >>> 0;
+        var t2 = ((rotr(a,2)^rotr(a,13)^rotr(a,22)) + ((a&b)^(a&c)^(b&c))) >>> 0;
+        h=g; g=f; f=e; e=(d+t1)>>>0; d=c; c=b; b=a; a=(t1+t2)>>>0;
+      }
+      H[0]=(H[0]+a)>>>0;H[1]=(H[1]+b)>>>0;H[2]=(H[2]+c)>>>0;H[3]=(H[3]+d)>>>0;
+      H[4]=(H[4]+e)>>>0;H[5]=(H[5]+f)>>>0;H[6]=(H[6]+g)>>>0;H[7]=(H[7]+h)>>>0;
+    }
+    var out = '';
+    for (i = 0; i < 8; i++) out += ('00000000' + H[i].toString(16)).slice(-8);
+    return out;
+  };
+})();
+
+function isAuthed() {
+  try {
+    var o = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null');
+    return !!(o && o.h === PASS_HASH && o.e > Date.now());
+  } catch (e) { return false; }
+}
+function rememberAuth() {
+  try { localStorage.setItem(AUTH_KEY, JSON.stringify({ h: PASS_HASH, e: Date.now() + AUTH_DAYS * 86400000 })); }
+  catch (e) { /* 保存できなくても、その場では開ける */ }
+}
+function forgetAuth() { try { localStorage.removeItem(AUTH_KEY); } catch (e) {} }
+
+/* ============================================================
+   4. QRコード（外部ライブラリ不使用・byteモード）
+   ============================================================ */
+var QRGen = (function () {
+  var EC_TABLE = {
+    L: [[26,7,1,19,0,20],[44,10,1,34,0,35],[70,15,1,55,0,56],[100,20,1,80,0,81],[134,26,1,108,0,109],[172,18,2,68,0,69],[196,20,2,78,0,79],[242,24,2,97,0,98],[292,30,2,116,0,117],[346,18,2,68,2,69],[404,20,4,81,0,82],[466,24,2,92,2,93],[532,26,4,107,0,108],[581,30,3,115,1,116],[655,22,5,87,1,88],[733,24,5,98,1,99],[815,28,1,107,5,108],[901,30,5,120,1,121],[991,28,3,113,4,114],[1085,28,3,107,5,108]],
+    M: [[26,10,1,16,0,17],[44,16,1,28,0,29],[70,26,1,44,0,45],[100,18,2,32,0,33],[134,24,2,43,0,44],[172,16,4,27,0,28],[196,18,4,31,0,32],[242,22,2,38,2,39],[292,22,3,36,2,37],[346,26,4,43,1,44],[404,30,1,50,4,51],[466,22,6,36,2,37],[532,22,8,37,1,38],[581,24,4,40,5,41],[655,24,5,41,5,42],[733,28,7,45,3,46],[815,28,10,46,1,47],[901,26,9,43,4,44],[991,26,3,44,11,45],[1085,26,3,41,13,42]]
+  };
+  var ALIGN = [[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90]];
+  var EC_BITS = { L: 1, M: 0 };
+  var EXP = new Uint8Array(512), LOG = new Uint8Array(256);
+  (function () {
+    var x = 1, i;
+    for (i = 0; i < 255; i++) { EXP[i] = x; LOG[x] = i; x <<= 1; if (x & 0x100) x ^= 0x11d; }
+    for (i = 255; i < 512; i++) EXP[i] = EXP[i - 255];
+  })();
+  function gmul(a, b) { return (a === 0 || b === 0) ? 0 : EXP[LOG[a] + LOG[b]]; }
+  function genPoly(n) {
+    var g = [1], i, j;
+    for (i = 0; i < n; i++) {
+      var ng = new Array(g.length + 1);
+      for (j = 0; j < ng.length; j++) ng[j] = 0;
+      for (j = 0; j < g.length; j++) { ng[j] ^= g[j]; ng[j + 1] ^= gmul(g[j], EXP[i]); }
+      g = ng;
+    }
+    return g;
+  }
+  function rsEcc(data, ecLen) {
+    var gen = genPoly(ecLen), buf = new Uint8Array(data.length + ecLen), i, j;
+    buf.set(data);
+    for (i = 0; i < data.length; i++) {
+      var f = buf[i]; if (f === 0) continue;
+      for (j = 1; j < gen.length; j++) buf[i + j] ^= gmul(gen[j], f);
+    }
+    return buf.slice(data.length);
+  }
+  function dataCapacity(v, ecl) { var r = EC_TABLE[ecl][v - 1]; return r[2] * r[3] + r[4] * r[5]; }
+  function pickVersion(len, ecl) {
+    for (var v = 1; v <= 20; v++) {
+      var cc = v < 10 ? 8 : 16;
+      if (dataCapacity(v, ecl) * 8 >= 4 + cc + len * 8) return v;
+    }
+    return 0;
+  }
+  function buildCodewords(bytes, ver, ecl) {
+    var bits = [], i;
+    function push(val, n) { for (var b = n - 1; b >= 0; b--) bits.push((val >>> b) & 1); }
+    push(4, 4); push(bytes.length, ver < 10 ? 8 : 16);
+    for (i = 0; i < bytes.length; i++) push(bytes[i], 8);
+    var cap = dataCapacity(ver, ecl) * 8;
+    for (i = 0; i < 4 && bits.length < cap; i++) bits.push(0);
+    while (bits.length % 8 !== 0) bits.push(0);
+    var pad = [0xEC, 0x11], pi = 0;
+    while (bits.length < cap) { push(pad[pi % 2], 8); pi++; }
+    var data = new Uint8Array(bits.length / 8), k;
+    for (i = 0; i < data.length; i++) { var v = 0; for (k = 0; k < 8; k++) v = (v << 1) | bits[i * 8 + k]; data[i] = v; }
+    var row = EC_TABLE[ecl][ver - 1], ecLen = row[1], blocks = [], eccs = [], off = 0;
+    for (i = 0; i < row[2]; i++) { blocks.push(data.slice(off, off + row[3])); off += row[3]; }
+    for (i = 0; i < row[4]; i++) { blocks.push(data.slice(off, off + row[5])); off += row[5]; }
+    for (i = 0; i < blocks.length; i++) eccs.push(rsEcc(blocks[i], ecLen));
+    var out = [], maxLen = Math.max(row[3], row[4] ? row[5] : 0), c, bl;
+    for (c = 0; c < maxLen; c++) for (bl = 0; bl < blocks.length; bl++) if (c < blocks[bl].length) out.push(blocks[bl][c]);
+    for (c = 0; c < ecLen; c++) for (bl = 0; bl < eccs.length; bl++) out.push(eccs[bl][c]);
+    return out;
+  }
+  function create(text, ecl) {
+    ecl = ecl || 'M';
+    var bytes = new TextEncoder().encode(text);
+    var ver = pickVersion(bytes.length, ecl);
+    if (!ver) { ecl = 'L'; ver = pickVersion(bytes.length, 'L'); }
+    if (!ver) return null;
+    var size = ver * 4 + 17, mod = [], fn = [], i, j;
+    for (i = 0; i < size; i++) { mod.push(new Uint8Array(size)); fn.push(new Uint8Array(size)); }
+    function setF(x, y, v) { mod[y][x] = v ? 1 : 0; fn[y][x] = 1; }
+    function finder(cx, cy) {
+      for (var dy = -4; dy <= 4; dy++) for (var dx = -4; dx <= 4; dx++) {
+        var xx = cx + dx, yy = cy + dy, d = Math.max(Math.abs(dx), Math.abs(dy));
+        if (xx >= 0 && xx < size && yy >= 0 && yy < size) setF(xx, yy, d !== 2 && d !== 4);
+      }
+    }
+    finder(3, 3); finder(size - 4, 3); finder(3, size - 4);
+    for (i = 0; i < size; i++) { if (!fn[6][i]) setF(i, 6, i % 2 === 0); if (!fn[i][6]) setF(6, i, i % 2 === 0); }
+    var ap = ALIGN[ver - 1], n = ap.length;
+    for (i = 0; i < n; i++) for (j = 0; j < n; j++) {
+      if ((i === 0 && j === 0) || (i === 0 && j === n - 1) || (i === n - 1 && j === 0)) continue;
+      for (var dy2 = -2; dy2 <= 2; dy2++) for (var dx2 = -2; dx2 <= 2; dx2++)
+        setF(ap[j] + dx2, ap[i] + dy2, Math.max(Math.abs(dx2), Math.abs(dy2)) !== 1);
+    }
+    if (ver >= 7) {
+      var rem = ver;
+      for (i = 0; i < 12; i++) rem = (rem << 1) ^ ((rem >>> 11) * 0x1F25);
+      var vbits = (ver << 12) | rem;
+      for (i = 0; i < 18; i++) {
+        var bit = (vbits >>> i) & 1, a = size - 11 + (i % 3), b = Math.floor(i / 3);
+        setF(a, b, bit); setF(b, a, bit);
+      }
+    }
+    function drawFormat(mask) {
+      var d = (EC_BITS[ecl] << 3) | mask, r = d, k;
+      for (k = 0; k < 10; k++) r = (r << 1) ^ ((r >>> 9) * 0x537);
+      var bits = ((d << 10) | r) ^ 0x5412;
+      function gb(x) { return (bits >>> x) & 1; }
+      for (k = 0; k <= 5; k++) setF(8, k, gb(k));
+      setF(8, 7, gb(6)); setF(8, 8, gb(7)); setF(7, 8, gb(8));
+      for (k = 9; k < 15; k++) setF(14 - k, 8, gb(k));
+      for (k = 0; k < 8; k++) setF(size - 1 - k, 8, gb(k));
+      for (k = 8; k < 15; k++) setF(8, size - 15 + k, gb(k));
+      setF(8, size - 8, 1);
+    }
+    drawFormat(0);
+    var cw = buildCodewords(bytes, ver, ecl), bitIdx = 0, upward = true;
+    for (var col = size - 1; col > 0; col -= 2) {
+      if (col === 6) col = 5;
+      for (var t2 = 0; t2 < size; t2++) {
+        var y = upward ? size - 1 - t2 : t2;
+        for (var k2 = 0; k2 < 2; k2++) {
+          var x = col - k2;
+          if (fn[y][x]) continue;
+          mod[y][x] = bitIdx < cw.length * 8 ? (cw[bitIdx >> 3] >>> (7 - (bitIdx & 7))) & 1 : 0;
+          bitIdx++;
+        }
+      }
+      upward = !upward;
+    }
+    function maskFn(m, y, x) {
+      switch (m) {
+        case 0: return (y + x) % 2 === 0;
+        case 1: return y % 2 === 0;
+        case 2: return x % 3 === 0;
+        case 3: return (y + x) % 3 === 0;
+        case 4: return (Math.floor(y / 2) + Math.floor(x / 3)) % 2 === 0;
+        case 5: return ((y * x) % 2) + ((y * x) % 3) === 0;
+        case 6: return (((y * x) % 2) + ((y * x) % 3)) % 2 === 0;
+        default: return (((y + x) % 2) + ((y * x) % 3)) % 2 === 0;
+      }
+    }
+    function applyMask(m) {
+      for (var yy = 0; yy < size; yy++) for (var xx = 0; xx < size; xx++)
+        if (!fn[yy][xx] && maskFn(m, yy, xx)) mod[yy][xx] ^= 1;
+    }
+    var P3A = [1,0,1,1,1,0,1,0,0,0,0], P3B = [0,0,0,0,1,0,1,1,1,0,1];
+    function penalty() {
+      var s = 0, yy, xx, run, prev, dark = 0, p;
+      for (yy = 0; yy < size; yy++) {
+        run = 1; prev = -1;
+        for (xx = 0; xx < size; xx++) {
+          if (mod[yy][xx] === prev) { run++; if (run === 5) s += 3; else if (run > 5) s++; } else { prev = mod[yy][xx]; run = 1; }
+          if (mod[yy][xx]) dark++;
+        }
+      }
+      for (xx = 0; xx < size; xx++) {
+        run = 1; prev = -1;
+        for (yy = 0; yy < size; yy++) {
+          if (mod[yy][xx] === prev) { run++; if (run === 5) s += 3; else if (run > 5) s++; } else { prev = mod[yy][xx]; run = 1; }
+        }
+      }
+      for (yy = 0; yy < size - 1; yy++) for (xx = 0; xx < size - 1; xx++) {
+        var v = mod[yy][xx];
+        if (v === mod[yy][xx + 1] && v === mod[yy + 1][xx] && v === mod[yy + 1][xx + 1]) s += 3;
+      }
+      for (yy = 0; yy < size; yy++) for (xx = 0; xx + 11 <= size; xx++) {
+        var okA = true, okB = true;
+        for (p = 0; p < 11; p++) { if (mod[yy][xx + p] !== P3A[p]) okA = false; if (mod[yy][xx + p] !== P3B[p]) okB = false; }
+        if (okA || okB) s += 40;
+      }
+      for (xx = 0; xx < size; xx++) for (yy = 0; yy + 11 <= size; yy++) {
+        var okA2 = true, okB2 = true;
+        for (p = 0; p < 11; p++) { if (mod[yy + p][xx] !== P3A[p]) okA2 = false; if (mod[yy + p][xx] !== P3B[p]) okB2 = false; }
+        if (okA2 || okB2) s += 40;
+      }
+      var total = size * size;
+      s += (Math.ceil(Math.abs(dark * 20 - total * 10) / total) - 1) * 10;
+      return s;
+    }
+    var best = 0, bestScore = Infinity;
+    for (var m2 = 0; m2 < 8; m2++) {
+      applyMask(m2); drawFormat(m2);
+      var sc = penalty();
+      if (sc < bestScore) { bestScore = sc; best = m2; }
+      applyMask(m2);
+    }
+    applyMask(best); drawFormat(best);
+    return { size: size, modules: mod, version: ver };
+  }
+  function toSvg(qr, fg, bg) {
+    var quiet = 4, dim = qr.size + quiet * 2, d = '';
+    for (var y = 0; y < qr.size; y++) for (var x = 0; x < qr.size; x++)
+      if (qr.modules[y][x]) d += 'M' + (x + quiet) + ' ' + (y + quiet) + 'h1v1h-1z';
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + dim + ' ' + dim + '" shape-rendering="crispEdges" role="img" aria-label="共有リンクのQRコード">' +
+      '<rect width="' + dim + '" height="' + dim + '" fill="' + (bg || '#ffffff') + '"/>' +
+      '<path d="' + d + '" fill="' + (fg || '#1b3f5e') + '"/></svg>';
+  }
+  return { create: create, toSvg: toSvg };
+})();
+
+/* ============================================================
+   5. 小道具
+   ============================================================ */
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+function fmtDate(ts) {
+  var d = new Date(ts);
+  return d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日';
+}
+function fmtDateTime(ts) {
+  var d = new Date(ts), h = d.getHours(), m = d.getMinutes();
+  return fmtDate(ts) + ' ' + (h < 10 ? '0' + h : h) + ':' + (m < 10 ? '0' + m : m);
+}
+function daysLeft(exp) { return Math.ceil((exp - Date.now()) / 86400000); }
+function toast(msg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('on');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(function () { el.classList.remove('on'); }, 2200);
+}
+function copyText(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(function () { toast('コピーしました'); }, fallback);
+  } else fallback();
+  function fallback() {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); toast('コピーしました'); }
+    catch (e) { toast('コピーできませんでした。手動で選択してください'); }
+    document.body.removeChild(ta);
+  }
+}
+var ICO = {
+  open: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M20 4 11 13"/><path d="M18 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"/></svg>',
+  share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="m8.3 10.8 7.4-4.3M8.3 13.2l7.4 4.3"/></svg>',
+  link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>',
+  copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
+  mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>',
+  qr: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14h1M14 20h3M20 17v4"/></svg>',
+  trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/></svg>',
+  close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg>',
+  clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.2 2"/></svg>',
+  heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5S3.5 15 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 5.8-8.5 11.3-8.5 11.3Z"/></svg>',
+  shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg>',
+  car: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5h15M5 16.5v2h3v-2M16 16.5v2h3v-2"/><path d="M3.6 13 5 8.6A2 2 0 0 1 6.9 7.2h10.2A2 2 0 0 1 19 8.6L20.4 13v3.5H3.6Z"/><path d="M6.8 14.6h.01M17.2 14.6h.01"/></svg>',
+  building: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V5.5A1.5 1.5 0 0 1 5.5 4h7A1.5 1.5 0 0 1 14 5.5V21"/><path d="M14 10h4.5A1.5 1.5 0 0 1 20 11.5V21M2.5 21h19M7 8h4M7 12h4M7 16h4M17 14h.5M17 17.5h.5"/></svg>',
+  gift: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="12" rx="2"/><path d="M3 13h18M12 9v12"/><path d="M12 9S10.5 4 8 4a2.2 2.2 0 0 0 0 5M12 9s1.5-5 4-5a2.2 2.2 0 0 1 0 5"/></svg>',
+  chart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 20.5h17M6.5 20.5v-6M11 20.5V8M15.5 20.5v-9M20 20.5V4.5"/></svg>',
+  warn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5 2.8 20h18.4L12 4.5Z"/><path d="M12 10v4M12 17.2h.01"/></svg>'
+};
+var TOOL_ICO = { seimei: 'heart', shibou: 'shield', kaigo: 'heart', souzoku: 'gift', hojin: 'building', hojinsim: 'chart', jidousha: 'car', nankai: 'warn', lifeplan: 'chart' };
+
+/* ============================================================
+   6. モーダル
+   ============================================================ */
+function modal(title, bodyHtml, footHtml, wide) {
+  var root = document.getElementById('modalRoot');
+  root.innerHTML =
+    '<div class="modal" id="mOverlay"><div class="modal-box' + (wide ? ' wide' : '') + '">' +
+      '<div class="modal-head"><h3>' + title + '</h3><button class="x-btn" id="mClose" aria-label="閉じる">' + ICO.close + '</button></div>' +
+      '<div class="modal-body">' + bodyHtml + '</div>' +
+      (footHtml ? '<div class="modal-foot">' + footHtml + '</div>' : '') +
+    '</div></div>';
+  document.getElementById('mClose').onclick = closeModal;
+  document.getElementById('mOverlay').onclick = function (e) { if (e.target.id === 'mOverlay') closeModal(); };
+  [].forEach.call(root.querySelectorAll('[data-mclose]'), function (b) { b.onclick = closeModal; });
+  document.addEventListener('keydown', escClose);
+  return root;
+}
+function escClose(e) { if (e.key === 'Escape') closeModal(); }
+function closeModal() {
+  document.getElementById('modalRoot').innerHTML = '';
+  document.removeEventListener('keydown', escClose);
+}
+
+/* ---------- 共有リンクの作成 ---------- */
+function openShare(toolId) {
+  var t = tool(toolId);
+  if (!toolUrl(t)) {
+    modal('公開URLが未登録です',
+      '<div class="note note-amber">' + ICO.warn + ' <b>「' + esc(t.name) + '」の公開URLがまだ登録されていません。</b><br>' +
+      '共有リンクは「インターネット上に公開されたツールのURL」を包んで作るしくみのため、先に公開URLの登録が必要です。' +
+      'ツール一覧のカードにあるURL欄に貼り付けて保存してください（例: <code>https://○○○.github.io/△△△/</code>）。</div>',
+      '<button class="btn btn-ghost" data-mclose>閉じる</button>');
+    return;
+  }
+  if (!shareBase()) {
+    modal('先に「共有ページのURL」を設定してください',
+      '<div class="note note-amber">' + ICO.warn + ' <b>この管理画面自体の公開URLが未設定です。</b><br>' +
+      '共有リンクはこの管理画面（＝閲覧期限を判定するページ）を経由します。設定画面で、この管理画面を公開した先のURLを登録してください。<br>' +
+      'まだどこにも公開していない場合は、このHTMLを <code>index.html</code> という名前で GitHub Pages や Netlify にアップロードしてから、そのURLを登録してください。</div>',
+      '<button class="btn btn-navy" id="toSettings">設定を開く</button>');
+    document.getElementById('toSettings').onclick = function () { closeModal(); openSettings(); };
+    return;
+  }
+  modal('共有リンクを作る',
+    '<div class="note note-sky" style="margin-bottom:16px;">' + ICO.clock + ' 共有先：<b>' + esc(t.name) + '</b><br>' +
+      'お渡ししたリンクは<b>発行から最大1週間</b>で開けなくなります。</div>' +
+    '<div class="field"><label>お客様のお名前（任意）</label>' +
+      '<input type="text" id="shName" placeholder="例：山田" autocomplete="off">' +
+      '<div class="hint">共有ページに「山田 様へ」と表示されます。空欄でもかまいません。</div></div>' +
+    '<div class="field"><label>閲覧できる期間</label><div class="radio-row" id="shDays">' +
+      '<label><input type="radio" name="d" value="1">1日</label>' +
+      '<label><input type="radio" name="d" value="3">3日</label>' +
+      '<label class="on"><input type="radio" name="d" value="7" checked>7日（既定）</label>' +
+    '</div><div class="hint">1週間を超える期間は設定できません。</div></div>',
+    '<button class="btn btn-ghost" id="shCancel">やめる</button><button class="btn btn-primary" id="shGo">' + ICO.link + 'リンクを作成</button>');
+
+  var box = document.getElementById('shDays');
+  box.onclick = function (e) {
+    var lb = e.target.closest('label'); if (!lb) return;
+    [].forEach.call(box.querySelectorAll('label'), function (l) { l.classList.remove('on'); });
+    lb.classList.add('on'); lb.querySelector('input').checked = true;
+  };
+  document.getElementById('shCancel').onclick = closeModal;
+  document.getElementById('shGo').onclick = function () {
+    var days = box.querySelector('input:checked').value;
+    var rec = makeShare(toolId, days, document.getElementById('shName').value.trim());
+    showShareResult(rec);
+    renderLinks();
+  };
+}
+
+function shareMessage(rec) {
+  var t = tool(rec.t), s = state.settings;
+  return (rec.n ? rec.n + ' 様\n\n' : '') +
+    'お世話になっております。' + s.office + 'です。\n' +
+    '先日お話ししました「' + t.name + '」のページをお送りします。\n\n' +
+    rec.url + '\n\n' +
+    '※ こちらのリンクは ' + fmtDateTime(rec.exp) + ' まで有効です。\n' +
+    '　 期限を過ぎた場合や、うまく開けない場合は、お手数ですがご連絡ください。\n\n' +
+    s.office + '\n' + s.contact;
+}
+
+function showShareResult(rec) {
+  var t = tool(rec.t);
+  var qr = QRGen.create(rec.url, 'M');
+  modal('共有リンクができました',
+    '<div class="note note-green" style="margin-bottom:16px;">' + ICO.shield + ' <b>' + esc(t.name) + '</b><br>' +
+      (rec.n ? esc(rec.n) + ' 様へ／' : '') + '有効期限：<b>' + fmtDateTime(rec.exp) + '</b>まで（あと' + daysLeft(rec.exp) + '日）</div>' +
+    '<div class="field"><label>共有リンク</label><div class="share-url">' +
+      '<input type="text" id="shUrl" readonly value="' + esc(rec.url) + '">' +
+      '<button class="btn btn-navy btn-sm" id="shCopy">' + ICO.copy + 'コピー</button></div></div>' +
+    '<div class="field"><label>そのまま送れる文面</label>' +
+      '<textarea id="shMsg" readonly>' + esc(shareMessage(rec)) + '</textarea>' +
+      '<div class="hint">メール・LINE・SMSにそのまま貼り付けてお使いいただけます。</div></div>' +
+    (qr ? '<div class="qr-box">' + QRGen.toSvg(qr) + '<p>その場でお客様のスマートフォンから読み取っていただけます</p></div>'
+        : '<div class="note note-amber">リンクが長すぎるためQRコードは作成できませんでした。</div>'),
+    '<button class="btn btn-ghost btn-sm" id="shCopyMsg">' + ICO.copy + '文面をコピー</button>' +
+    '<button class="btn btn-ghost btn-sm" id="shMail">' + ICO.mail + 'メールで送る</button>' +
+    '<button class="btn btn-ghost btn-sm" id="shLine">LINEで送る</button>' +
+    '<button class="btn btn-navy btn-sm" id="shPreview">' + ICO.open + '開いて確認</button>', true);
+
+  document.getElementById('shCopy').onclick = function () { copyText(rec.url); };
+  document.getElementById('shCopyMsg').onclick = function () { copyText(shareMessage(rec)); };
+  document.getElementById('shMail').onclick = function () {
+    var subj = '【' + state.settings.office + '】' + tool(rec.t).name;
+    location.href = 'mailto:?subject=' + encodeURIComponent(subj) + '&body=' + encodeURIComponent(shareMessage(rec));
+  };
+  document.getElementById('shLine').onclick = function () {
+    window.open('https://line.me/R/msg/text/?' + encodeURIComponent(shareMessage(rec)), '_blank', 'noopener');
+  };
+  document.getElementById('shPreview').onclick = function () { window.open(rec.url, '_blank', 'noopener'); };
+  document.getElementById('shUrl').onclick = function () { this.select(); };
+}
+
+/* ---------- 設定 ---------- */
+function openSettingsFor(t) { openSettings(); }
+function openSettings() {
+  var s = state.settings;
+  var guess = (location.protocol === 'http:' || location.protocol === 'https:') ? location.origin + location.pathname : '';
+  modal('設定',
+    '<div class="field"><label>この管理画面を公開したURL（共有リンクの土台）</label>' +
+      '<input type="text" id="stBase" placeholder="https://○○○.github.io/hoken-hub/" value="' + esc(s.base) + '">' +
+      '<div class="hint">共有リンクは「このURL＋#s=…」の形で発行されます。' +
+      (guess ? '空欄のままなら、いま開いているURL（<code>' + esc(guess) + '</code>）を使います。' : 'いまは手元のファイルとして開いているため、公開URLの登録が必要です。') +
+      '</div></div>' +
+    '<div class="field"><label>差出人の名前（共有ページに表示されます）</label>' +
+      '<input type="text" id="stOffice" value="' + esc(s.office) + '"></div>' +
+    '<div class="field"><label>連絡先（期限切れのときの再発行のご案内に使います）</label>' +
+      '<input type="text" id="stContact" value="' + esc(s.contact) + '"></div>' +
+    '<div class="note note-sky">' + ICO.warn + ' 登録したURLや発行済みリンクは<b>この端末のブラウザだけ</b>に保存されます。別のパソコンでも同じ設定を使いたいときは、下の「設定を書き出す」で保存したファイルを、その端末で読み込んでください。</div>',
+    '<button class="btn btn-ghost btn-sm" id="stExport">設定を書き出す</button>' +
+    '<button class="btn btn-ghost btn-sm" id="stImport">設定を読み込む</button>' +
+    '<button class="btn btn-primary" id="stSave">保存する</button>');
+
+  document.getElementById('stSave').onclick = function () {
+    var b = document.getElementById('stBase').value.trim();
+    if (b && !/^https?:\/\//.test(b)) { toast('URLは https:// から始めてください'); return; }
+    if (b && b.indexOf('#') >= 0) b = b.split('#')[0];
+    s.base = b;
+    s.office = document.getElementById('stOffice').value.trim() || '株式会社Office-M';
+    s.contact = document.getElementById('stContact').value.trim();
+    save(); closeModal(); renderAll(); toast('保存しました');
+  };
+  document.getElementById('stExport').onclick = function () {
+    var blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = '保険ツール管理画面_設定.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 3000);
+  };
+  document.getElementById('stImport').onclick = function () {
+    var inp = document.createElement('input');
+    inp.type = 'file'; inp.accept = 'application/json,.json';
+    inp.onchange = function () {
+      var f = inp.files[0]; if (!f) return;
+      var fr = new FileReader();
+      fr.onload = function () {
+        try {
+          var o = JSON.parse(fr.result);
+          if (o.urls) state.urls = o.urls;
+          if (o.links) state.links = o.links;
+          if (o.settings) for (var k in o.settings) state.settings[k] = o.settings[k];
+          save(); closeModal(); renderAll(); toast('設定を読み込みました');
+        } catch (e) { toast('読み込めませんでした'); }
+      };
+      fr.readAsText(f);
+    };
+    inp.click();
+  };
+}
+
+/* ---------- 使い方 ---------- */
+function openHelp() {
+  modal('使い方',
+    '<div class="help">' +
+    '<h4>0. パスワードについて</h4>' +
+    '<p>この管理画面を開くときにパスワードを入力します。「この端末では30日間、次回から省略する」にチェックを入れておけば、次からはそのまま開きます。' +
+    '共有のパソコンで使ったときや、他の方に画面を見られたくないときは、右上の<b>「ロックする」</b>で記憶を消せます。' +
+    '<b>お客様にお渡しした共有リンクにはパスワードはかかりません</b>（お客様には期限つきの閲覧ページだけが表示されます）。</p>' +
+    '<div class="note note-amber">' + ICO.warn + ' パスワードの確認もブラウザの中で行っています。' +
+    'HTMLの中にパスワードそのものは書いていませんが、<b>技術に詳しい方であれば回避できる程度のもの</b>とお考えください。' +
+    'お客様情報など、外に出て困る内容はこの画面に入力しないでください。</div>' +
+    '<h4>1. まずやること：公開URLの登録</h4>' +
+    '<p>各ツールを GitHub Pages や tiiny.site などに公開したら、そのURLを「ツール一覧」のカードにあるURL欄に貼り付けてください。入力するとその場で保存されます。<b>公開URLを登録したツールだけ、共有リンクを発行できます。</b></p>' +
+    '<h4>2. 提案のとき</h4>' +
+    '<p>「今日の提案から始める」の<b>医療保険の提案</b>／<b>死亡保険の提案</b>から、その場でお見せするツールを開けます。手元のパソコンでこのファイルを直接開いている場合は同じフォルダにあるHTMLを、インターネット上で開いている場合は登録した公開URLを開きます。</p>' +
+    '<h4>3. お客様への共有（1週間で見られなくなります）</h4>' +
+    '<ol>' +
+      '<li>「共有リンクを作る」を押し、お名前と期間（最長7日）を選びます</li>' +
+      '<li>できたリンクを、コピー・メール・LINE・QRコードのいずれかでお渡しします</li>' +
+      '<li>期限を過ぎると、リンクを開いても「有効期限が切れました」という案内だけが表示されます</li>' +
+    '</ol>' +
+    '<h4>4. この管理画面自体も公開が必要です</h4>' +
+    '<p>共有リンクは <code>https://…/#s=…</code> の形で、<b>この管理画面のURL</b>を土台にします。' +
+    'このHTMLを <code>index.html</code> という名前でGitHub PagesやNetlifyにアップロードし、そのURLを「設定」に登録してください。' +
+    'お客様がリンクを開くと管理画面ではなく、期限を確認する共有ページだけが表示されます。</p>' +
+    '<h4>5. 閲覧期限について（正直なところ）</h4>' +
+    '<div class="note note-amber">' + ICO.warn + ' このしくみは<b>サーバーを持たない（費用ゼロの）構成</b>のため、期限の判定はお客様のブラウザの中で行っています。' +
+    'リンクの中身は書き換え検知が付いているので、期限だけを後ろにずらすことはできません。ただし、' +
+    '<b>お客様がツールのページを直接ブックマークした場合や、パソコンの日付を変更した場合には、期限後もご覧になれてしまいます。</b>' +
+    '「そっと見られなくする」ための機能であり、機密情報の保護には使えません。厳密な期限管理が必要な場合はご相談ください。</div>' +
+    '<h4>6. 発行したリンクを期限前に止めたいとき</h4>' +
+    '<p>公開先のフォルダ（この管理画面と同じ場所）に <code>hoken-share-revoked.json</code> というファイルを置き、止めたいリンクのIDを次のように書いてアップロードすると、そのリンクは開けなくなります。IDは「発行した共有リンク」の一覧に表示されています。</p>' +
+    '<p><code>["abc123xy", "def456zw"]</code></p>' +
+    '<h4>7. 設定の保管</h4>' +
+    '<p>登録したURLと発行履歴は、いまお使いの端末のブラウザに保存されます。パソコンを変えるときや、念のためのバックアップには「設定 → 設定を書き出す」をお使いください。</p>' +
+    '</div>',
+    '<button class="btn btn-navy" data-mclose>閉じる</button>', true);
+}
+
+/* ============================================================
+   7. 管理画面の描画
+   ============================================================ */
+function renderPresets() {
+  var mainHtml = '', subHtml = '';
+  PRESETS.forEach(function (p) {
+    var t = tool(p.main), has = !!toolUrl(t);
+    if (p.big) {
+      mainHtml +=
+        '<div class="preset ' + (p.id === 'death' ? 'p-death' : '') + '">' +
+          '<span class="preset-tag">' + ICO.shield + esc(p.tag) + '</span>' +
+          '<h3>' + esc(p.label) + '</h3>' +
+          '<p class="p-tool">お見せするツール：' + esc(t.name) + '</p>' +
+          '<div class="p-flow">' + p.flow + '</div>' +
+          '<div class="p-actions">' +
+            '<button class="btn btn-primary" data-open="' + p.main + '">' + ICO.open + 'ツールを開く</button>' +
+            '<button class="btn btn-ghost" data-share="' + p.main + '"' + (has ? '' : ' title="公開URLの登録が必要です"') + '>' + ICO.share + '共有リンクを作る</button>' +
+          '</div>' +
+          '<div class="p-subs"><span class="lb">あわせて使う：</span>' +
+            p.subs.map(function (s) {
+              return '<button class="chip" data-open="' + s + '">' + ICO.open + esc(tool(s).name) + '</button>';
+            }).join('') +
+          '</div>' +
+        '</div>';
+    } else {
+      subHtml +=
+        '<div class="preset-mini">' +
+          '<h4>' + esc(p.label) + '</h4>' +
+          '<p>' + esc(t.name) + '</p>' +
+          '<div class="p-actions">' +
+            '<button class="btn btn-navy btn-sm" data-open="' + p.main + '">' + ICO.open + '開く</button>' +
+            '<button class="btn btn-ghost btn-sm" data-share="' + p.main + '">' + ICO.share + '共有</button>' +
+          '</div>' +
+        '</div>';
+    }
+  });
+  document.getElementById('presetMain').innerHTML = mainHtml;
+  document.getElementById('presetSub').innerHTML = subHtml;
+}
+
+var curFilter = 'all';
+function renderFilters() {
+  document.getElementById('filters').innerHTML = CATS.map(function (c) {
+    var n = c.id === 'all' ? TOOLS.length : TOOLS.filter(function (t) { return t.cat === c.id; }).length;
+    return '<button class="filter' + (curFilter === c.id ? ' on' : '') + '" data-filter="' + c.id + '">' + esc(c.label) + '（' + n + '）</button>';
+  }).join('');
+}
+
+function renderTools() {
+  var list = TOOLS.filter(function (t) { return curFilter === 'all' || t.cat === curFilter; });
+  document.getElementById('toolGrid').innerHTML = list.map(function (t) {
+    var u = toolUrl(t), has = !!u;
+    return '<div class="card c-' + t.cat + '">' +
+      '<div class="card-top">' +
+        '<div class="card-ico">' + ICO[TOOL_ICO[t.id] || 'shield'] + '</div>' +
+        '<div><h3>' + esc(t.name) + '</h3><div class="owner">' + esc(t.owner) + '　<span class="badge b-' + t.cat + '">' + esc(CAT_LABEL[t.cat]) + '</span></div></div>' +
+      '</div>' +
+      '<p class="desc">' + esc(t.desc) + '</p>' +
+      '<div class="url-row">' +
+        '<label>' + ICO.link + '公開URL　<span class="badge ' + (has ? 'b-ok">登録済み' : 'b-ng">未登録') + '</span><span class="saved" data-saved="' + t.id + '">保存しました</span></label>' +
+        '<input type="text" data-url="' + t.id + '" value="' + esc(u) + '" placeholder="https://…（公開したらここに貼り付け）" spellcheck="false">' +
+      '</div>' +
+      '<div class="card-actions">' +
+        '<button class="btn btn-navy btn-sm" data-open="' + t.id + '">' + ICO.open + '開く</button>' +
+        '<button class="btn btn-ghost btn-sm" data-share="' + t.id + '">' + ICO.share + '共有リンク</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function renderLinks() {
+  var host = document.getElementById('linkList');
+  if (!state.links.length) {
+    host.innerHTML = '<div class="empty">まだ共有リンクはありません。ツールの「共有リンク」ボタンから作成できます。</div>';
+    return;
+  }
+  var rows = state.links.map(function (r) {
+    var t = tool(r.t), left = daysLeft(r.exp), dead = left <= 0;
+    var cls = dead ? 'dead' : (left <= 2 ? 'warn' : 'ok');
+    return '<tr>' +
+      '<td class="nm">' + esc(t ? t.name : r.t) + (r.n ? '<br><span style="font-weight:400;color:var(--muted);font-size:.76rem;">' + esc(r.n) + ' 様</span>' : '') + '</td>' +
+      '<td>' + fmtDate(r.iat) + '</td>' +
+      '<td>' + fmtDate(r.exp) + '</td>' +
+      '<td class="remain ' + cls + '">' + (dead ? '期限切れ' : 'あと' + left + '日') + '</td>' +
+      '<td><code style="font-size:.72rem;">' + esc(r.k) + '</code></td>' +
+      '<td><div class="acts">' +
+        '<button class="btn btn-ghost btn-sm" data-lcopy="' + r.k + '" title="リンクをコピー">' + ICO.copy + '</button>' +
+        '<button class="btn btn-ghost btn-sm" data-lmsg="' + r.k + '" title="文面とQRを表示">' + ICO.qr + '</button>' +
+        '<button class="btn btn-ghost btn-sm" data-ldel="' + r.k + '" title="履歴から削除">' + ICO.trash + '</button>' +
+      '</div></td></tr>';
+  }).join('');
+  var expired = state.links.filter(function (r) { return daysLeft(r.exp) <= 0; }).length;
+  host.innerHTML = '<div class="tbl-scroll"><table class="tbl"><thead><tr>' +
+    '<th>ツール／お渡し先</th><th>発行日</th><th>期限</th><th>残り</th><th>ID</th><th>操作</th>' +
+    '</tr></thead><tbody>' + rows + '</tbody></table></div>' +
+    (expired ? '<div style="margin-top:10px;text-align:right;"><button class="btn btn-ghost btn-sm" id="clearExpired">' + ICO.trash + '期限切れ' + expired + '件を履歴から消す</button></div>' : '');
+  if (expired) document.getElementById('clearExpired').onclick = function () {
+    state.links = state.links.filter(function (r) { return daysLeft(r.exp) > 0; });
+    save(); renderLinks(); toast('期限切れの履歴を消しました');
+  };
+}
+
+function renderWarn() {
+  var host = document.getElementById('setupWarn');
+  var noUrl = TOOLS.filter(function (t) { return !toolUrl(t); }).length;
+  var msgs = [];
+  if (!shareBase()) msgs.push('この管理画面の公開URLが未設定です。共有リンクを発行するには「設定」で登録してください。');
+  if (noUrl) msgs.push('公開URLが未登録のツールが ' + noUrl + ' 件あります。登録すると共有リンクを作れるようになります。');
+  host.innerHTML = msgs.length
+    ? '<div class="note note-amber" style="margin-top:18px;">' + ICO.warn + ' ' + msgs.map(esc).join('<br>' + ICO.warn + ' ') + '</div>'
+    : '';
+}
+
+function renderAll() { renderWarn(); renderPresets(); renderFilters(); renderTools(); renderLinks(); }
+
+/* ---------- 管理画面のイベント ---------- */
+function bindAdmin() {
+  document.getElementById('btnHelp').onclick = openHelp;
+  document.getElementById('btnSettings').onclick = openSettings;
+  document.getElementById('btnLock').onclick = function () { forgetAuth(); location.reload(); };
+
+  document.getElementById('admin').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-open],[data-share],[data-filter],[data-lcopy],[data-lmsg],[data-ldel]');
+    if (!b) return;
+    if (b.dataset.open) openTool(b.dataset.open);
+    else if (b.dataset.share) openShare(b.dataset.share);
+    else if (b.dataset.filter) { curFilter = b.dataset.filter; renderFilters(); renderTools(); }
+    else if (b.dataset.lcopy) {
+      var r1 = findLink(b.dataset.lcopy);
+      if (r1) { if (daysLeft(r1.exp) <= 0) toast('このリンクは期限切れです'); copyText(r1.url); }
+    } else if (b.dataset.lmsg) {
+      var r2 = findLink(b.dataset.lmsg); if (r2) showShareResult(r2);
+    } else if (b.dataset.ldel) {
+      state.links = state.links.filter(function (r) { return r.k !== b.dataset.ldel; });
+      save(); renderLinks(); toast('履歴から削除しました');
+    }
+  });
+
+  /* URL欄は入力したその場で保存する */
+  document.getElementById('toolGrid').addEventListener('input', function (e) {
+    var inp = e.target.closest('[data-url]'); if (!inp) return;
+    var id = inp.dataset.url, v = inp.value.trim();
+    if (v) state.urls[id] = v; else delete state.urls[id];
+    save();
+    var flag = document.querySelector('[data-saved="' + id + '"]');
+    if (flag) {
+      flag.classList.add('on'); clearTimeout(flag._t);
+      flag._t = setTimeout(function () { flag.classList.remove('on'); }, 1400);
+      var badge = flag.previousElementSibling;   /* 「登録済み／未登録」バッジをその場で切り替える */
+      if (badge && badge.classList.contains('badge')) {
+        badge.className = 'badge ' + (v ? 'b-ok' : 'b-ng');
+        badge.textContent = v ? '登録済み' : '未登録';
+      }
+    }
+    clearTimeout(renderAll._t);
+    renderAll._t = setTimeout(function () { renderWarn(); renderPresets(); }, 600);
+  });
+}
+function findLink(k) { for (var i = 0; i < state.links.length; i++) if (state.links[i].k === k) return state.links[i]; return null; }
+
+/* ============================================================
+   8. 共有ゲート（お客様が共有リンクを開いたとき）
+   ============================================================ */
+function gateShell(inner) { return '<div class="gate-card ' + inner.cls + '">' + inner.html + '</div>'; }
+
+function renderGate(token) {
+  var host = document.getElementById('gate');
+  host.classList.remove('hide');
+  document.getElementById('admin').classList.add('hide');
+
+  var p = unpack(token);
+  var office = (p && p.o) || state.settings.office;
+  var bar = '<div class="gate-bar"><div class="wrap">' +
+    '<span class="g-brand">' + ICO.shield + esc(office) + '</span>' +
+    (p && p.e ? '<span class="g-exp">' + ICO.clock + ' ' + fmtDateTime(p.e * 1000) + ' まで閲覧できます</span>' : '') +
+    '</div></div>';
+
+  function show(cls, iconHtml, html) {
+    host.innerHTML = bar + '<div class="wrap">' + gateShell({ cls: cls, html: '<div class="g-ico">' + iconHtml + '</div>' + html }) + '</div>';
+  }
+  function foot() {
+    var c = (p && p.c) || state.settings.contact;
+    return '<div class="g-foot">お心当たりのない場合や、うまく開けない場合は、お手数ですが下記までご連絡ください。<br>' +
+      esc(office) + (c ? '　<a href="mailto:' + esc(c) + '">' + esc(c) + '</a>' : '') + '</div>';
+  }
+
+  if (!p || !p.u || !p.e) {
+    show('error', ICO.warn,
+      '<h1>リンクを読み取れませんでした</h1>' +
+      '<p class="g-desc">お送りしたリンクが途中で切れている可能性があります。メールやメッセージ内のURLを、最後（末尾の記号まで）すべてコピーしてお試しください。<br>それでも開けない場合は、お手数ですが再発行をご依頼ください。</p>' + foot());
+    return;
+  }
+
+  var expMs = p.e * 1000;
+  if (Date.now() > expMs) {
+    show('expired', ICO.clock,
+      '<div class="g-to">' + (p.n ? esc(p.n) + ' 様' : '') + '</div>' +
+      '<h1>閲覧期限が過ぎました</h1>' +
+      '<p class="g-desc">こちらのページは <b>' + fmtDateTime(expMs) + '</b> までの公開でした。<br>' +
+      'もう一度ご覧になりたい場合は、お手数ですが下記までご連絡ください。あらためてリンクをお送りします。</p>' + foot());
+    return;
+  }
+
+  /* 期限前に止めたいリンクがあれば、公開先の hoken-share-revoked.json に ID を追加する運用 */
+  var t = tool(p.t), left = Math.max(1, Math.ceil((expMs - Date.now()) / 86400000));
+  show('', ICO.shield,
+    '<div class="g-to">' + (p.n ? esc(p.n) + ' 様へ' : '') + '</div>' +
+    '<h1>' + esc(t ? t.name : 'ご案内資料') + '</h1>' +
+    (t ? '<p class="g-desc">' + esc(t.desc) + (t.owner ? '<br><span style="font-size:.78rem;">作成：' + esc(t.owner) + '</span>' : '') + '</p>' : '') +
+    '<div class="gate-meta"><span>' + ICO.clock + ' ' + fmtDateTime(expMs) + ' まで</span><span' + (left <= 2 ? ' class="warn"' : '') + '>あと' + left + '日</span></div>' +
+    '<button class="btn btn-primary" id="gOpen" style="font-size:1rem;padding:13px 30px;">' + ICO.open + 'ページを開く</button>' +
+    '<div style="margin-top:12px;font-size:.8rem;"><a href="#" id="gNew">新しいタブで開く</a></div>' +
+    foot());
+
+  var url = p.u;
+  document.getElementById('gOpen').onclick = function () { showFrame(url, expMs, office); };
+  document.getElementById('gNew').onclick = function (e) { e.preventDefault(); window.open(url, '_blank', 'noopener'); };
+
+  /* 失効リストの確認（ファイルが無ければ何もしない） */
+  try {
+    fetch('hoken-share-revoked.json', { cache: 'no-store' }).then(function (r) {
+      return r.ok ? r.json() : null;
+    }).then(function (list) {
+      if (list && list.indexOf && list.indexOf(p.k) >= 0) {
+        show('expired', ICO.clock,
+          '<h1>このリンクは停止されています</h1>' +
+          '<p class="g-desc">恐れ入りますが、こちらのリンクは公開を終了しました。あらためてご覧になりたい場合はご連絡ください。</p>' + foot());
+      }
+    }).catch(function () {});
+  } catch (e) {}
+}
+
+function showFrame(url, expMs, office) {
+  var host = document.getElementById('gate');
+  host.classList.add('framed');
+  document.body.style.padding = '0';
+  host.innerHTML =
+    '<div class="gate-bar"><div class="wrap">' +
+      '<span class="g-brand">' + ICO.shield + esc(office) + '</span>' +
+      '<span class="g-exp">' + ICO.clock + ' ' + fmtDateTime(expMs) + ' まで</span>' +
+    '</div></div>' +
+    '<iframe id="gateFrame" src="' + esc(url) + '" title="共有ページ"></iframe>' +
+    '<div class="frame-help">うまく表示されない場合は <a href="' + esc(url) + '" target="_blank" rel="noopener">こちらから新しいタブで開いてください</a></div>';
+}
+
+/* ============================================================
+   9. 起動
+   ============================================================ */
+function startAdmin() {
+  document.getElementById('lock').classList.add('hide');
+  document.getElementById('admin').classList.remove('hide');
+  if (location.protocol === 'file:') {
+    document.getElementById('tbSub').textContent = '手元のフォルダから開いています（ツールは同じフォルダのHTMLを開きます）';
+  }
+  renderAll();
+  bindAdmin();
+}
+
+function showLock() {
+  var host = document.getElementById('lock');
+  host.classList.remove('hide');
+  var pass = document.getElementById('lockPass'), err = document.getElementById('lockErr');
+  document.getElementById('lockForm').onsubmit = function (e) {
+    e.preventDefault();
+    if (sha256(PASS_SALT + pass.value) === PASS_HASH) {
+      if (document.getElementById('lockKeep').checked) rememberAuth();
+      startAdmin();
+    } else {
+      err.textContent = 'パスワードが違います。';
+      pass.select();
+    }
+  };
+  pass.oninput = function () { err.textContent = ''; };
+  pass.focus();
+}
+
+load();
+var hash = location.hash || '';
+if (hash.indexOf('#s=') === 0) {
+  renderGate(hash.slice(3));          /* 共有リンクはパスワード不要 */
+} else if (isAuthed()) {
+  startAdmin();
+} else {
+  showLock();
+}
+window.addEventListener('hashchange', function () { location.reload(); });
+
+})();
+</script>
+</body>
+</html>
