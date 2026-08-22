@@ -14,8 +14,12 @@
   --bg:#fff8f2;
   --white:#ffffff;
   --text:#33404d;
-  --muted:#5c6874;
+  /* 本文グレー：クリーム背景で7.46:1（WCAG AAA）。旧#5c6874は5.41でAA止まりだった */
+  --muted:#49535c;
+  /* 装飾の罫線。基準の対象外なので薄いまま */
   --line:#efe2d8;
+  /* 操作パーツの輪郭。WCAG 1.4.11の非テキスト3:1を満たす（3.56:1） */
+  --ui-line:#96806c;
   --shadow:0 6px 20px rgba(130,100,80,.09);
   --shadow-sm:0 3px 10px rgba(130,100,80,.07);
 
@@ -24,7 +28,10 @@
   --red-bg:#fdeee9;
   --red-border:#f4d0c6;
   --coral:#f0846a;
-  --coral-text:#d9552f;
+  /* 強調文字：旧#d9552fは3.77:1でAA未達だった。5.69:1に */
+  --coral-text:#ad3f1d;
+  /* スライダー等の操作パーツ用。非テキスト3:1を満たす（3.82:1） */
+  --ui-accent:#d4573a;
 
   --green:#2c7a4b;
   --green-bg:#e8f6ef;
@@ -46,28 +53,56 @@
   --berry-bg:#fbeef6;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;font-size:16px;}
-/* 左右の余白が広い画面ほど文字を大きくして見やすさに還元する */
-@media(min-width:600px){ html{font-size:17px;} }
-@media(min-width:1000px){ html{font-size:18px;} }
+/* rem基準。ブラウザの文字サイズ設定を尊重するため px 直指定はしない。
+   画面が広いほど少しだけ大きく。行長は em 指定なので、拡大しても40字のまま */
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;font-size:100%;}
+@media(min-width:600px){ html{font-size:105%;} }
+@media(min-width:1000px){ html{font-size:110%;} }
+
+/* ---------- 書体 ----------
+   本文はゴシック、見出し・ブランド・数字は明朝。
+   根拠：九州大学（デザイン学研究 2018/2019）で、見出しは全年代が同じ基準で
+   判断するのに対し、本文フォントでは高齢者群だけが明確に乖離した。
+   明朝体の横画の細さが原因とされ、加齢によるコントラスト感度の低下は
+   まさにこの細い横線の帯を直撃する。見出しの明朝は読みやすさを損なわないので残す。
+   外部フォントは読み込まない（外部参照ゼロ・費用ゼロを維持）。 */
+:root{
+  --font-gothic:"Hiragino Sans","Hiragino Kaku Gothic ProN",Meiryo,"Yu Gothic",YuGothic,"Noto Sans JP","Noto Sans CJK JP",sans-serif;
+  --font-mincho:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho",YuMincho,"游明朝体","游明朝","MS PMincho","ＭＳ Ｐ明朝",serif;
+}
 body{
-  font-family:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho",YuMincho,"游明朝体","游明朝","MS PMincho","ＭＳ Ｐ明朝",serif;
+  font-family:var(--font-gothic);
   color:var(--text);
   background:var(--bg);
-  font-size:1.09rem;
-  line-height:1.95;
-  letter-spacing:.03em;
+  font-size:1.125rem;   /* 18px。デジタル庁の下限16px、WAI-AGEの12〜14pt(≒16〜18.7px)の上寄り */
+  line-height:1.85;
+  /* 和文に字送りを足さない。佐川ら（照明学会・高齢者を含む実験）で文字間は狭いほど
+     読みやすく、この傾向は年齢差で変わらなかった。デジタル庁も letter-spacing:0。
+     和文は分かち書きしないので、字間を空けると語のまとまりが壊れる */
+  letter-spacing:0;
   padding-bottom:40px;
   overflow-wrap:break-word;
 }
-@media(min-width:768px){
-  body{font-size:1.16rem;letter-spacing:.04em;}
+h1,h2,h3,h4,.brand,.step-pill,.money-total .vl,.quiz-done .score,.verdict-answer{
+  font-family:var(--font-mincho);
 }
+/* 段落間はフォントサイズの2倍以上（WCAG 1.4.12） */
+p + p{margin-top:1.1em;}
+
+/* ---------- 行長：和文40字以内（WCAG 1.4.8／デジタル庁） ----------
+   18px×40字＝720px。.wrap は900pxのままカード・グリッドに使い、
+   地の文だけこの幅に収める */
+.measure{max-width:42rem;}  /* ≒672px＝37字 */
 img,svg{max-width:100%;vertical-align:middle;}
 button{font-family:inherit;}
 a{color:var(--navy-2);}
 .wrap{max-width:900px;margin:0 auto;padding:0 16px;}
-.nowrap{white-space:nowrap;}
+/* 語句のまとまりを保つ nowrap は使わない。装飾的な効果しかない一方で、
+   ブラウザの文字拡大時に見出しを画面外へ押し出す最大の原因だった。
+   和文はどこでも改行できるので、自然な折り返しでも読みやすさは落ちない
+   （WCAG 1.4.4：拡大しても内容や機能が失われないこと）。
+   クラスはHTML側に残してあるが、折り返しを妨げない */
+.nowrap{white-space:normal;}
 
 /* ---------- ヘッダー ---------- */
 .hero{
@@ -78,7 +113,7 @@ a{color:var(--navy-2);}
 }
 .brand{
   display:flex;align-items:center;gap:10px;
-  font-size:.92rem;font-weight:700;letter-spacing:.02em;color:var(--navy);
+  font-size:1rem;font-weight:700;letter-spacing:.02em;color:var(--navy);
 }
 .brand .ico{
   width:36px;height:36px;flex:0 0 36px;
@@ -86,7 +121,7 @@ a{color:var(--navy-2);}
   background:var(--navy);border-radius:12px;
 }
 .brand .ico svg{width:20px;height:20px;stroke:#fff;}
-.brand small{display:block;font-weight:500;color:var(--muted);font-size:.82rem;letter-spacing:.04em;line-height:1.55;}
+.brand small{display:block;font-weight:500;color:var(--muted);font-size:.9375rem;letter-spacing:.04em;line-height:1.7;}
 .hero-flex{display:flex;flex-direction:column;}
 .hero h1{
   font-size:1.58rem;line-height:1.45;font-weight:800;
@@ -114,7 +149,7 @@ a{color:var(--navy-2);}
   border:2px solid #ffffff;
   color:var(--navy);text-decoration:none;
   padding:11px 17px;border-radius:999px;
-  font-size:.94rem;font-weight:700;min-height:48px;
+  font-size:1.0625rem;font-weight:700;min-height:48px;
   box-shadow:var(--shadow-sm);
 }
 .hero-nav a:active{background:#eefaf2;}
@@ -140,16 +175,16 @@ section{padding:40px 0 46px;}
 }
 .spot-circle svg{width:52px;height:52px;}
 .step-pill{
-  display:inline-flex;align-items:center;gap:9px;
+  display:inline-flex;align-items:center;gap:9px;max-width:100%;flex-wrap:wrap;
   background:var(--amber-bg);color:var(--navy);
-  font-size:.88rem;font-weight:700;letter-spacing:.02em;
+  font-size:1rem;font-weight:700;letter-spacing:.02em;
   padding:6px 18px 6px 7px;border-radius:999px;margin-bottom:12px;
   box-shadow:var(--shadow-sm);
 }
 .step-pill i{
   width:28px;height:28px;flex:0 0 28px;border-radius:50%;
   background:linear-gradient(135deg,#2c7a4b,#a8601a);
-  color:#fff;font-style:normal;font-weight:800;font-size:.95rem;
+  color:#fff;font-style:normal;font-weight:800;font-size:1.0625rem;
   display:flex;align-items:center;justify-content:center;
 }
 .step-pill.plain{padding:7px 18px;}
@@ -166,7 +201,7 @@ h2::after{
 @media(min-width:768px){h2{font-size:1.68rem;}}
 .sec-lead{color:var(--muted);font-size:1rem;margin-bottom:22px;}
 .note{
-  font-size:.9rem;color:var(--muted);line-height:1.85;
+  font-size:1rem;color:var(--muted);line-height:1.85;
   background:var(--white);border-radius:16px;
   padding:14px 16px;margin-top:20px;
   display:flex;gap:9px;align-items:flex-start;
@@ -185,7 +220,7 @@ h2::after{
 .guide-msg{
   position:relative;background:var(--white);
   border:2px solid #cfe9d8;border-radius:18px;
-  padding:12px 16px;font-size:.95rem;line-height:1.75;
+  padding:12px 16px;font-size:1.0625rem;line-height:1.75;
 }
 .guide-msg::before{
   content:"";position:absolute;left:-9px;top:20px;
@@ -214,16 +249,16 @@ h2::after{
 .qlink:hover{border-color:var(--mint);}
 .qlink .pair{
   display:flex;align-items:center;gap:7px;flex-wrap:wrap;
-  font-size:1.02rem;font-weight:800;color:var(--navy);line-height:1.55;
+  font-size:1.02rem;font-weight:800;color:var(--navy);line-height:1.7;
 }
 .qlink .pair .vs{
-  font-size:.76rem;font-weight:800;color:var(--coral-text);
+  font-size:.875rem;font-weight:800;color:var(--coral-text);
   background:var(--red-bg);border-radius:999px;padding:2px 10px;
 }
-.qlink .ask{font-size:.87rem;color:var(--muted);line-height:1.75;}
+.qlink .ask{font-size:1rem;color:var(--muted);line-height:1.75;}
 .qlink .go{
   display:inline-flex;align-items:center;gap:4px;margin-top:3px;
-  font-size:.84rem;font-weight:800;color:var(--coral-text);
+  font-size:1rem;font-weight:800;color:var(--coral-text);
 }
 .qlink .go svg{width:14px;height:14px;flex:0 0 14px;stroke:var(--coral-text);}
 /* リンクで飛んだ先を、見出しの手前で止める */
@@ -243,7 +278,7 @@ h2::after{
   display:flex;align-items:center;justify-content:center;
 }
 .def-ico svg{width:34px;height:34px;}
-.def-lead{font-size:.97rem;color:var(--muted);line-height:1.9;margin-bottom:16px;}
+.def-lead{font-size:1.0625rem;color:var(--muted);line-height:1.9;margin-bottom:16px;}
 @media(min-width:768px){.def-h{font-size:1.26rem;}}
 .ic-red{background:var(--red-bg);}
 .ic-blue{background:var(--sky-bg);}
@@ -257,7 +292,7 @@ h2::after{
   padding:20px 14px 8px;margin:6px 0 26px;text-align:center;
 }
 .venn-box svg{width:100%;max-width:520px;height:auto;}
-.venn-cap{font-size:.88rem;color:var(--muted);padding:6px 8px 12px;line-height:1.8;}
+.venn-cap{font-size:1rem;color:var(--muted);padding:6px 8px 12px;line-height:1.8;}
 @media(max-width:520px){.venn-box{padding:14px 4px 6px;}}
 .cards{display:grid;grid-template-columns:1fr;gap:14px;}
 @media(min-width:700px){.cards{grid-template-columns:repeat(2,1fr);}}
@@ -273,10 +308,10 @@ h2::after{
 }
 .risk-card .icon svg{width:44px;height:44px;}
 .risk-card h3{font-size:1.02rem;color:var(--navy);margin-bottom:2px;}
-.risk-card p{font-size:.93rem;color:var(--muted);margin-top:8px;line-height:1.85;}
+.risk-card p{font-size:1.0625rem;color:var(--muted);margin-top:8px;line-height:1.85;}
 .judge-chip{
   display:inline-flex;align-items:center;gap:6px;
-  font-size:.82rem;font-weight:700;padding:4px 13px;border-radius:999px;margin-top:4px;
+  font-size:.9375rem;font-weight:700;padding:4px 13px;border-radius:999px;margin-top:4px;
 }
 .judge-chip.ng{background:var(--red-bg);color:var(--red-dark);border:1.5px solid var(--red-border);}
 .judge-chip.ok{background:var(--green-bg);color:var(--green);border:1.5px solid var(--green-border);}
@@ -289,7 +324,7 @@ h2::after{
 }
 .band .quiz-shell{background:var(--bg);box-shadow:none;border:2px solid var(--line);}
 .q-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-.q-count{font-size:.9rem;font-weight:700;color:var(--muted);}
+.q-count{font-size:1rem;font-weight:700;color:var(--muted);}
 .q-count span{color:var(--coral-text);font-size:1.15rem;}
 .dots{display:flex;gap:6px;}
 .dots i{width:10px;height:10px;border-radius:50%;background:#e8dbd0;}
@@ -323,12 +358,12 @@ h2::after{
 .verdict.show{display:block;}
 .verdict-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
 .verdict-answer{font-size:1.25rem;font-weight:800;color:var(--navy);}
-.result-chip{font-size:.85rem;font-weight:800;padding:4px 14px;border-radius:999px;}
+.result-chip{font-size:.9375rem;font-weight:800;padding:4px 14px;border-radius:999px;}
 .result-chip.correct{background:var(--green-bg);color:var(--green);}
 .result-chip.wrong{background:var(--red-bg);color:var(--red-dark);}
-.verdict .expl{font-size:.97rem;line-height:1.95;margin-bottom:12px;}
+.verdict .expl{font-size:1.0625rem;line-height:1.95;margin-bottom:12px;}
 .verdict .kv{
-  font-size:.92rem;line-height:1.85;background:var(--sky-bg);
+  font-size:1rem;line-height:1.85;background:var(--sky-bg);
   border-radius:12px;padding:9px 13px;margin-top:8px;
 }
 .verdict .kv b{color:var(--sky);}
@@ -347,7 +382,7 @@ h2::after{
 .btn-ghost{
   display:block;width:100%;min-height:50px;margin-top:12px;
   background:var(--white);color:var(--navy-2);
-  font-size:.95rem;font-weight:700;
+  font-size:1.0625rem;font-weight:700;
   border:2px solid var(--sky-border);border-radius:16px;cursor:pointer;
 }
 .btn-ghost:active{background:var(--sky-bg);}
@@ -360,14 +395,14 @@ h2::after{
 .quiz-done .score .num{font-size:2rem;color:var(--coral-text);}
 .quiz-done .cmt{
   background:var(--white);border-radius:16px;padding:14px 16px;
-  font-size:.97rem;line-height:1.95;margin:14px 0;
+  font-size:1.0625rem;line-height:1.95;margin:14px 0;
   border:2px solid var(--amber-border);
 }
 .wrong-list{margin:14px 0;}
-.wrong-list h4{font-size:.95rem;color:var(--navy);margin-bottom:8px;}
+.wrong-list h4{font-size:1.0625rem;color:var(--navy);margin-bottom:8px;}
 .wrong-list .w-item{
   background:var(--white);border-radius:14px;padding:11px 14px;
-  font-size:.9rem;line-height:1.8;margin-bottom:8px;
+  font-size:1rem;line-height:1.8;margin-bottom:8px;
   border-left:4px solid var(--mint);box-shadow:var(--shadow-sm);
 }
 
@@ -376,16 +411,16 @@ h2::after{
   background:var(--white);border-radius:22px;box-shadow:var(--shadow-sm);
   padding:18px 14px;margin:8px 0 24px;overflow-x:auto;
 }
-.type-table{width:100%;border-collapse:collapse;min-width:560px;font-size:.9rem;}
+.type-table{width:100%;border-collapse:collapse;min-width:560px;font-size:1rem;}
 .type-table th,.type-table td{
   padding:10px 10px;text-align:center;border-bottom:1.5px solid var(--line);
   line-height:1.7;vertical-align:middle;
 }
-.type-table th{background:var(--navy-soft);color:var(--navy);font-size:.86rem;}
+.type-table th{background:var(--navy-soft);color:var(--navy);font-size:.9375rem;}
 .type-table th:first-child{border-radius:12px 0 0 12px;}
 .type-table th:last-child{border-radius:0 12px 12px 0;}
-.type-table td:first-child{text-align:left;font-weight:700;color:var(--navy);font-size:.88rem;}
-.type-table small{display:block;color:var(--muted);font-weight:500;font-size:.78rem;}
+.type-table td:first-child{text-align:left;font-weight:700;color:var(--navy);font-size:1rem;}
+.type-table small{display:block;color:var(--muted);font-weight:500;font-size:1rem;}
 .mark-ok,.mark-ng,.mark-tri{font-weight:800;font-size:1.05rem;}
 .mark-ok{color:var(--green);}
 .mark-ng{color:var(--red);}
@@ -395,33 +430,52 @@ h2::after{
   padding:22px 18px;margin-top:26px;
 }
 .sim-box h3{font-size:1.12rem;color:var(--navy);margin-bottom:4px;}
-.sim-box .sub{font-size:.9rem;color:var(--muted);margin-bottom:18px;}
+.sim-box .sub{font-size:1rem;color:var(--muted);margin-bottom:18px;}
 .sim-ctrl{margin-bottom:18px;}
 .sim-ctrl label{
   display:flex;justify-content:space-between;align-items:baseline;gap:10px;
-  font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:6px;
+  font-size:1.0625rem;font-weight:700;color:var(--navy);margin-bottom:6px;
 }
 .sim-ctrl label > span{flex:1 1 auto;line-height:1.65;}
-.sim-ctrl label small{display:block;font-weight:500;color:var(--muted);font-size:.8rem;line-height:1.6;}
+.sim-ctrl label small{display:block;font-weight:500;color:var(--muted);font-size:1rem;line-height:1.7;}
 .sim-ctrl label output{flex:0 0 auto;color:var(--coral-text);font-size:1.15rem;font-weight:800;white-space:nowrap;}
+/* スライダーは WCAG 2.5.8 上「ひとつのターゲット」として扱われるため、
+   つまみではなくコントロール全体の高さが判定対象。34px→48pxに拡大し、
+   つまみも44pxへ（旧28pxはAppleの絶対下限であって設計目標ではない）。
+   見た目のトラックは細いまま、当たり判定だけを広げている */
 input[type=range]{
-  width:100%;height:34px;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;
+  width:100%;height:48px;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;
 }
-input[type=range]::-webkit-slider-runnable-track{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--sunny),var(--coral));}
+input[type=range]::-webkit-slider-runnable-track{height:12px;border-radius:6px;background:linear-gradient(90deg,var(--sunny),var(--ui-accent));}
 input[type=range]::-webkit-slider-thumb{
-  -webkit-appearance:none;appearance:none;width:28px;height:28px;border-radius:50%;
-  background:var(--white);border:3px solid var(--coral);margin-top:-9px;
+  -webkit-appearance:none;appearance:none;width:44px;height:44px;border-radius:50%;
+  background:var(--white);border:4px solid var(--ui-accent);margin-top:-16px;
   box-shadow:var(--shadow-sm);
 }
-input[type=range]::-moz-range-track{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--sunny),var(--coral));}
-input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--white);border:3px solid var(--coral);}
-.seg-label{font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:8px;display:block;}
+input[type=range]::-moz-range-track{height:12px;border-radius:6px;background:linear-gradient(90deg,var(--sunny),var(--ui-accent));}
+input[type=range]::-moz-range-thumb{width:40px;height:40px;border-radius:50%;background:var(--white);border:4px solid var(--ui-accent);}
+input[type=range]:focus-visible{outline:3px solid var(--sky);outline-offset:2px;}
+
+/* スライダーを引けない人でも値を動かせるように、±ボタンと数値表示を添える。
+   これが無いと、手の震えや細かい操作が苦手な人はこの機能に到達できない */
+.sim-stepper{display:flex;align-items:center;gap:12px;margin-top:6px;}
+.sim-stepper button{
+  width:56px;height:56px;flex:0 0 56px;border-radius:16px;cursor:pointer;
+  background:var(--white);border:2px solid var(--ui-line);
+  font-size:1.6rem;font-weight:700;line-height:1;color:var(--navy);
+  display:flex;align-items:center;justify-content:center;
+}
+.sim-stepper button:active{background:var(--navy-soft);}
+.sim-stepper button:focus-visible{outline:3px solid var(--sky);outline-offset:2px;}
+.sim-stepper .sim-range{flex:1;}
+.sim-stepper .sim-range input[type=range]{display:block;}
+.seg-label{font-size:1.0625rem;font-weight:700;color:var(--navy);margin-bottom:8px;display:block;}
 .seg{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
 .seg label{
   flex:1 1 0;min-width:92px;
   display:flex;align-items:center;justify-content:center;gap:7px;
   background:var(--bg);border:2px solid var(--line);border-radius:14px;
-  padding:11px 8px;font-size:.95rem;font-weight:700;color:var(--navy);cursor:pointer;
+  padding:11px 8px;font-size:1.0625rem;font-weight:700;color:var(--navy);cursor:pointer;
   min-height:52px;text-align:center;
 }
 .seg label input{width:20px;height:20px;accent-color:var(--mint);flex:0 0 20px;}
@@ -434,15 +488,18 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
   transition:width .2s;
 }
 .tl-goal{
-  position:absolute;top:-34px;transform:translateX(-50%);
-  font-size:.78rem;font-weight:800;color:var(--red-dark);
-  text-align:center;line-height:1.3;white-space:nowrap;
+  position:absolute;top:-46px;transform:translateX(-50%);
+  font-size:1rem;font-weight:800;color:var(--red-dark);
+  text-align:center;line-height:1.35;
+  /* left:75%で中央寄せなので、幅がトラックの50%以内なら右端は必ず収まる。
+     nowrap をやめて折り返しを許し、文字拡大時にも画面外へ出さない */
+  max-width:min(11em,50%);
 }
 .tl-goal::after{
   content:"";display:block;width:3px;height:30px;margin:2px auto 0;
   background:var(--red);border-radius:2px;
 }
-.tl-labels{display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted);margin-top:6px;}
+.tl-labels{display:flex;justify-content:space-between;font-size:1rem;color:var(--muted);margin-top:6px;}
 .sim-sub-h{
   display:flex;align-items:center;gap:8px;
   font-size:1rem;font-weight:800;color:var(--navy);
@@ -453,41 +510,41 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .sim-results{display:grid;grid-template-columns:1fr;gap:12px;margin-top:6px;}
 @media(min-width:700px){.sim-results{grid-template-columns:repeat(3,1fr);}}
 .sim-r{border-radius:18px;padding:14px 15px;border:2px solid var(--line);background:var(--bg);}
-.sim-r h4{font-size:.9rem;color:var(--navy);margin-bottom:6px;line-height:1.6;}
-.sim-r h4 small{display:block;font-weight:500;color:var(--muted);font-size:.76rem;}
+.sim-r h4{font-size:1rem;color:var(--navy);margin-bottom:6px;line-height:1.7;}
+.sim-r h4 small{display:block;font-weight:500;color:var(--muted);font-size:.9375rem;}
 .sim-r .r-chip{
-  display:inline-block;font-size:.95rem;font-weight:800;
+  display:inline-block;font-size:1.0625rem;font-weight:800;
   padding:5px 16px;border-radius:999px;margin-bottom:6px;
 }
 .sim-r.ok{border-color:var(--green-border);background:var(--green-bg);}
 .sim-r.ok .r-chip{background:var(--white);color:var(--green);}
 .sim-r.ng{border-color:var(--red-border);background:var(--red-bg);}
 .sim-r.ng .r-chip{background:var(--white);color:var(--red-dark);}
-.sim-r p{font-size:.84rem;color:var(--muted);line-height:1.75;}
+.sim-r p{font-size:1rem;color:var(--muted);line-height:1.75;}
 /* お金の内訳 */
 .money-box{
   background:var(--bg);border:2px solid var(--line);border-radius:18px;
   padding:14px 16px;margin-top:6px;
 }
 .money-row{
-  display:flex;justify-content:space-between;align-items:baseline;gap:12px;
-  font-size:.93rem;line-height:1.9;padding:7px 0;border-bottom:1px dashed var(--line);
+  display:flex;justify-content:space-between;align-items:baseline;gap:6px 12px;flex-wrap:wrap;
+  font-size:1.0625rem;line-height:1.9;padding:7px 0;border-bottom:1px dashed var(--line);
 }
 .money-row:last-of-type{border-bottom:none;}
 .money-row .lb{color:var(--navy);font-weight:700;}
-.money-row .lb small{display:block;font-weight:500;color:var(--muted);font-size:.78rem;line-height:1.6;}
+.money-row .lb small{display:block;font-weight:500;color:var(--muted);font-size:1rem;line-height:1.7;}
 .money-row .vl{font-weight:800;white-space:nowrap;font-size:1.02rem;color:var(--navy);}
 .money-row.warn .vl{color:var(--red-dark);}
 .money-row.back .vl{color:var(--green);}
 .money-total{
-  display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+  display:flex;justify-content:space-between;align-items:baseline;gap:6px 12px;flex-wrap:wrap;
   margin-top:10px;padding:12px 14px;border-radius:14px;
   background:var(--white);border:2px solid var(--amber-border);
 }
-.money-total .lb{font-size:.95rem;font-weight:800;color:var(--navy);}
+.money-total .lb{font-size:1.0625rem;font-weight:800;color:var(--navy);}
 .money-total .vl{font-size:1.5rem;font-weight:800;color:var(--coral-text);white-space:nowrap;}
 .money-msg{
-  font-size:.9rem;line-height:1.85;color:var(--muted);
+  font-size:1rem;line-height:1.85;color:var(--muted);
   background:var(--amber-bg);border-radius:14px;padding:11px 14px;margin-top:12px;
 }
 
@@ -498,8 +555,10 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
   display:flex;align-items:center;gap:14px;text-align:left;
   background:var(--white);border:none;border-radius:20px;
   padding:16px 16px;cursor:pointer;box-shadow:var(--shadow);
-  font-family:inherit;transition:transform .12s;
+  /* button はUA既定の13.3pxを持つので、明示的に本文サイズへ戻す */
+  font-family:inherit;font-size:1rem;transition:transform .12s;
 }
+.case-card:focus-visible{outline:3px solid var(--sky);outline-offset:2px;}
 .case-card:active{transform:scale(.985);}
 .case-card .art{
   width:64px;height:64px;flex:0 0 64px;border-radius:18px;
@@ -508,12 +567,12 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .case-card .art svg{width:42px;height:42px;}
 .case-card .t{flex:1;}
 .case-card .chip{
-  display:inline-block;font-size:.74rem;font-weight:800;
+  display:inline-block;font-size:.875rem;font-weight:800;
   padding:2px 11px;border-radius:999px;margin-bottom:4px;
 }
-.case-card h3{font-size:.99rem;color:var(--navy);line-height:1.6;}
+.case-card h3{font-size:1.0625rem;color:var(--navy);line-height:1.7;}
 .case-card .more{
-  font-size:.8rem;color:var(--coral-text);font-weight:700;
+  font-size:1rem;color:var(--coral-text);font-weight:700;
   display:inline-flex;align-items:center;gap:4px;margin-top:4px;
 }
 .case-card .more svg{width:14px;height:14px;stroke:var(--coral-text);}
@@ -524,7 +583,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .c-berry{background:var(--berry-bg);color:var(--berry);}
 .case-card .amt{
   display:inline-block;margin-left:7px;
-  font-size:.74rem;font-weight:800;
+  font-size:.875rem;font-weight:800;
   padding:2px 11px;border-radius:999px;
   background:var(--white);color:var(--green);border:1.5px solid var(--green-border);
 }
@@ -533,10 +592,10 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
   background:var(--white);border-radius:18px;padding:14px 18px;margin-bottom:18px;
   border-left:6px solid var(--mint);box-shadow:var(--shadow-sm);
 }
-.model-note strong{display:block;font-size:.92rem;color:var(--green);margin-bottom:4px;}
-.model-note .mn-row{display:block;font-size:.95rem;line-height:1.9;color:var(--navy);}
+.model-note strong{display:block;font-size:1rem;color:var(--green);margin-bottom:4px;}
+.model-note .mn-row{display:block;font-size:1.0625rem;line-height:1.9;color:var(--navy);}
 .model-note .mn-row b{color:var(--coral-text);}
-.model-note .mn-note{display:block;font-size:.82rem;color:var(--muted);line-height:1.8;margin-top:6px;}
+.model-note .mn-note{display:block;font-size:.9375rem;color:var(--muted);line-height:1.8;margin-top:6px;}
 .rule3-box{
   margin-top:28px;background:var(--white);border-radius:22px;
   padding:20px 20px 16px;box-shadow:var(--shadow-sm);
@@ -549,7 +608,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .rule3-box ol{list-style:none;counter-reset:r3;}
 .rule3-box ol li{
   counter-increment:r3;position:relative;
-  padding:0 0 12px 44px;font-size:.95rem;line-height:1.9;
+  padding:0 0 12px 44px;font-size:1.0625rem;line-height:1.9;
 }
 .rule3-box ol li::before{
   content:counter(r3);position:absolute;left:0;top:2px;
@@ -558,7 +617,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
   font-weight:800;font-size:1rem;
   display:flex;align-items:center;justify-content:center;
 }
-.rule3-note{font-size:.8rem;color:var(--muted);border-top:1.5px dashed var(--line);padding-top:10px;line-height:1.8;}
+.rule3-note{font-size:1rem;color:var(--muted);border-top:1.5px dashed var(--line);padding-top:10px;line-height:1.8;}
 
 /* ---------- モーダル ---------- */
 .cmodal{position:fixed;inset:0;z-index:60;display:none;}
@@ -575,12 +634,15 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
   background:var(--white);padding:18px 52px 12px 20px;
   border-bottom:1.5px solid var(--line);z-index:2;
 }
+/* 閉じるボタンは40px→56px。WCAG 2.5.5(44px)を下回っていたうえ、
+   隅に置かれるボタンは高齢者のタップ位置のばらつきが最も大きい場所 */
 .cmodal-close{
-  position:absolute;right:12px;top:12px;
-  width:40px;height:40px;border-radius:50%;
-  background:var(--bg);border:none;cursor:pointer;
+  position:absolute;right:10px;top:10px;
+  width:56px;height:56px;border-radius:50%;
+  background:var(--bg);border:2px solid var(--ui-line);cursor:pointer;
   display:flex;align-items:center;justify-content:center;
 }
+.cmodal-close:focus-visible{outline:3px solid var(--sky);outline-offset:2px;}
 .cmodal-close svg{width:18px;height:18px;stroke:var(--navy);}
 .cmodal-ico{
   width:56px;height:56px;flex:0 0 56px;border-radius:16px;
@@ -588,15 +650,15 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 }
 .cmodal-ico svg{width:38px;height:38px;}
 .cmodal-chip{
-  display:inline-block;font-size:.74rem;font-weight:800;
+  display:inline-block;font-size:.875rem;font-weight:800;
   padding:2px 11px;border-radius:999px;margin-bottom:3px;
 }
-.cmodal-title{font-size:1.08rem;color:var(--navy);line-height:1.55;}
+.cmodal-title{font-size:1.08rem;color:var(--navy);line-height:1.7;}
 .cmodal-body{padding:16px 20px 22px;}
 .cmodal-block{margin-bottom:18px;}
 .cmodal-label{
   display:inline-flex;align-items:center;gap:7px;
-  font-size:.86rem;font-weight:800;padding:5px 14px;border-radius:999px;margin-bottom:9px;
+  font-size:.9375rem;font-weight:800;padding:5px 14px;border-radius:999px;margin-bottom:9px;
 }
 .cmodal-label svg{width:17px;height:17px;}
 .lb-blue{background:var(--sky-bg);color:var(--sky);}
@@ -608,12 +670,12 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .cmodal-quote{
   background:var(--bg);border-left:4px solid var(--mint);
   border-radius:0 14px 14px 0;padding:12px 15px;
-  font-size:.95rem;line-height:1.9;color:var(--text);
+  font-size:1.0625rem;line-height:1.9;color:var(--text);
 }
-.cmodal-quote small{display:block;text-align:right;color:var(--muted);margin-top:4px;font-size:.8rem;}
-.cmodal-p{font-size:.95rem;line-height:1.95;margin-bottom:8px;}
+.cmodal-quote small{display:block;text-align:right;color:var(--muted);margin-top:4px;font-size:1rem;}
+.cmodal-p{font-size:1.0625rem;line-height:1.95;margin-bottom:8px;}
 .cmodal-note{
-  font-size:.8rem;color:var(--muted);line-height:1.8;margin-top:14px;
+  font-size:1rem;color:var(--muted);line-height:1.8;margin-top:14px;
   border-top:1.5px dashed var(--line);padding-top:12px;
 }
 
@@ -624,20 +686,24 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
   font-size:1.02rem;color:var(--navy);margin-bottom:8px;
 }
 .score-box h3 svg{width:22px;height:22px;stroke:var(--sky);}
-.score-box p{font-size:.95rem;line-height:1.9;}
+.score-box p{font-size:1.0625rem;line-height:1.9;}
 .checklist{display:grid;grid-template-columns:1fr;gap:10px;}
 .chk-group{
-  font-size:.9rem;font-weight:800;color:var(--amber-deep);
+  font-size:1rem;font-weight:800;color:var(--amber-deep);
   margin:14px 0 2px;letter-spacing:.03em;
 }
 .chk-group:first-child{margin-top:0;}
 .chk{
   display:flex;align-items:center;gap:12px;
-  background:var(--bg);border:2px solid var(--line);border-radius:16px;
-  padding:12px 14px;cursor:pointer;font-size:.95rem;line-height:1.7;
+  background:var(--bg);border:2px solid var(--ui-line);border-radius:16px;
+  padding:14px;cursor:pointer;font-size:1.0625rem;line-height:1.8;
+  min-height:56px;
   transition:border-color .15s, background .15s;
 }
-.chk input{width:24px;height:24px;flex:0 0 24px;accent-color:var(--green);cursor:pointer;}
+/* label が input を包んでいるので、当たり判定は行全体（56px以上）。
+   それでも枠自体を28pxに上げ、指と視認の両方で見つけやすくする */
+.chk input{width:28px;height:28px;flex:0 0 28px;accent-color:var(--green);cursor:pointer;}
+.chk:focus-within{outline:3px solid var(--sky);outline-offset:2px;}
 .chk .art{
   width:44px;height:44px;flex:0 0 44px;border-radius:50%;
   background:var(--white);box-shadow:var(--shadow-sm);
@@ -647,56 +713,98 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .chk:has(input:checked){background:var(--green-bg);border-color:var(--green-border);}
 .chk-msg{
   margin-top:16px;background:var(--amber-bg);border-radius:16px;
-  padding:14px 16px;font-size:.95rem;line-height:1.9;
+  padding:14px 16px;font-size:1.0625rem;line-height:1.9;
 }
 details.finder{
   margin-top:26px;background:var(--bg);border-radius:18px;
   padding:4px 18px;border:1.5px solid var(--line);
 }
 details.finder summary{
-  cursor:pointer;font-size:.98rem;font-weight:700;color:var(--navy);
+  cursor:pointer;font-size:1.0625rem;font-weight:700;color:var(--navy);
   padding:12px 0;list-style-position:inside;
 }
-details.finder ul{padding:2px 0 8px 22px;font-size:.92rem;color:var(--text);}
+details.finder ul{padding:2px 0 8px 22px;font-size:1rem;color:var(--text);}
 details.finder li{margin-bottom:7px;line-height:1.85;}
-details.finder p{font-size:.92rem;padding:0 0 14px;line-height:1.9;}
+details.finder p{font-size:1rem;padding:0 0 14px;line-height:1.9;}
 
 /* ---------- CTA ---------- */
 .cta-box{
   background:var(--white);border-radius:24px;box-shadow:var(--shadow);
   padding:24px 20px;margin-top:30px;text-align:center;
 }
-.cta-box h3{font-size:1.2rem;color:var(--navy);margin-bottom:8px;line-height:1.6;}
-.cta-box .cta-lead{font-size:.95rem;color:var(--muted);text-align:left;margin-bottom:14px;line-height:1.95;}
+.cta-box h3{font-size:1.2rem;color:var(--navy);margin-bottom:8px;line-height:1.7;}
+.cta-box .cta-lead{font-size:1.0625rem;color:var(--muted);text-align:left;margin-bottom:14px;line-height:1.95;}
 .cta-box ul{list-style:none;text-align:left;margin-bottom:14px;}
 .cta-box ul li{
   display:flex;gap:9px;align-items:flex-start;
-  font-size:.94rem;line-height:1.85;margin-bottom:6px;
+  font-size:1.0625rem;line-height:1.85;margin-bottom:6px;
 }
 .cta-box ul li svg{width:19px;height:19px;flex:0 0 19px;stroke:var(--mint);margin-top:6px;}
-.co{font-size:.98rem;font-weight:800;color:var(--navy);margin-top:18px;}
-.addr{font-size:.87rem;color:var(--muted);line-height:1.7;}
-.tip{font-size:.87rem;color:var(--amber-deep);margin-top:10px;}
+.co{font-size:1.0625rem;font-weight:800;color:var(--navy);margin-top:18px;}
+.addr{font-size:1rem;color:var(--muted);line-height:1.7;}
+.tip{font-size:1rem;color:var(--amber-deep);margin-top:10px;}
 .cta-mini{
   margin-top:18px;background:var(--bg);border:2px solid var(--amber-border);
   border-radius:18px;padding:14px 16px;text-align:center;
 }
-.cta-mini p{font-size:.92rem;line-height:1.85;margin-bottom:10px;text-align:left;}
+.cta-mini p{font-size:1rem;line-height:1.85;margin-bottom:10px;text-align:left;}
 .cta-mini a{
   display:inline-flex;align-items:center;gap:8px;
   background:var(--white);border:2px solid var(--mint);
-  color:var(--green);text-decoration:none;font-weight:800;font-size:.95rem;
+  color:var(--green);text-decoration:none;font-weight:800;font-size:1.0625rem;
   border-radius:999px;padding:9px 20px;
 }
 .cta-mini a svg{width:18px;height:18px;stroke:var(--green);}
 
 /* ---------- フッター免責 ---------- */
 footer.disclaimer{padding:26px 16px 30px;max-width:900px;margin:0 auto;}
-footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
+footer.disclaimer p{font-size:1rem;color:var(--muted);line-height:1.9;}
 
 @media print{
   .hero-nav,.cta-mini{display:none !important;}
   body{background:#fff;}
+}
+
+/* ---------- 行長の制限（WCAG 1.4.8：和文40字以内） ----------
+   18px×40字＝720px。地の文だけを絞り、カード・グリッド・図は900pxのまま使う */
+.hero .lead,
+.sec-lead,
+.def-lead,
+.guide-msg,
+.note span,
+.venn-cap,
+.money-msg,
+.rule3-note,
+.chk-msg,
+.cta-box .cta-lead,
+details.finder p,
+details.finder ul,
+footer.disclaimer p{
+  max-width:40em;
+}
+.rule3-box ol li{max-width:38em;}
+.cmodal-p,.cmodal-quote{max-width:38em;}
+
+/* ---------- 上に戻るボタン ----------
+   NN/g：セクションごとに繰り返すリンクは予測可能すぎて無視されるので、
+   ページに1つだけ、固定で置く。数画面ぶんスクロールしてから現れる */
+.to-top{
+  position:fixed;right:16px;bottom:16px;z-index:40;
+  width:56px;height:56px;border-radius:50%;
+  background:var(--white);border:2px solid var(--ui-line);
+  box-shadow:0 4px 14px rgba(80,60,45,.22);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.to-top.show{opacity:1;pointer-events:auto;}
+.to-top svg{width:26px;height:26px;stroke:var(--navy);}
+.to-top:focus-visible{outline:3px solid var(--sky);outline-offset:2px;}
+@media print{.to-top{display:none !important;}}
+
+/* いま読んでいるセクションをヒーローのメニューで示す。
+   NN/g：固定表示の目次は現在地を示すべき。位置が分かるだけで戻り読みが楽になる */
+.hero-nav a[aria-current="true"]{
+  background:var(--green-bg);border-color:var(--mint);
 }
 </style>
 </head>
@@ -808,7 +916,7 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
     <!-- ===== ①-1 要介護度 ===== -->
     <div class="def-block" id="def-level">
       <h3 class="def-h"><span class="def-ico ic-green" data-art="icBadge" aria-hidden="true"></span>状態：「要介護」の中の、どこから？</h3>
-      <p class="def-lead">要介護認定は<strong>非該当（自立）・要支援1〜2・要介護1〜5</strong> の8段階。公的介護保険は要支援1から使えますが、<strong>民間の介護保険がお金を出す線は、もっと上に引かれている</strong>ことがほとんどです。「認定が下りた＝保険が出る」ではありません。</p>
+      <p class="def-lead">要介護認定は非該当（自立）・要支援1〜2・要介護1〜5 の8段階。公的介護保険は要支援1から使えますが、<strong>民間の介護保険がお金を出す線は、もっと上に引かれている</strong>ことがほとんどです。「認定が下りた＝保険が出る」ではありません。</p>
 
       <div class="venn-box">
         <svg viewBox="0 0 520 300" role="img" aria-label="要介護度の8段階を階段で示し、公的介護保険は要支援1から、民間の介護保険は要介護2以上から使えることが多いことを示す図">
@@ -839,9 +947,10 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
           <path d="M86 34v182" stroke="#27587f" stroke-width="2.5" stroke-dasharray="7 5" fill="none"/>
           <text x="92" y="26" font-size="14" font-weight="bold" fill="#27587f">公的介護保険はここから使える（要支援1〜）</text>
           <!-- 民間のライン -->
-          <path d="M266 56h236" stroke="#c2453f" stroke-width="3" stroke-dasharray="7 5" fill="none"/>
-          <path d="M266 56v96" stroke="#c2453f" stroke-width="3" stroke-dasharray="7 5" fill="none"/>
-          <text x="272" y="50" font-size="14" font-weight="bold" fill="#a63631">民間の介護保険は、このあたりから（要介護2以上が多い）</text>
+          <path d="M266 76h236" stroke="#c2453f" stroke-width="3" stroke-dasharray="7 5" fill="none"/>
+          <path d="M266 76v76" stroke="#c2453f" stroke-width="3" stroke-dasharray="7 5" fill="none"/>
+          <text x="272" y="52" font-size="14" font-weight="bold" fill="#a63631">民間の介護保険は、このあたりから</text>
+          <text x="272" y="70" font-size="14" font-weight="bold" fill="#a63631">（要介護2以上が多い）</text>
           <!-- 谷間 -->
           <rect x="94" y="104" width="168" height="46" rx="12" fill="#fdf3e2" stroke="#a85c12" stroke-width="1.8"/>
           <text x="178" y="122" font-size="13" font-weight="bold" fill="#a85c12" text-anchor="middle">公的は使えるのに、</text>
@@ -924,7 +1033,7 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
           <div class="icon ic-berry" data-art="icDementia" aria-hidden="true"></div>
           <h3>若年性認知症（初老期における認知症）</h3>
           <span class="judge-chip ok">40〜64歳でも対象</span>
-          <p>アルツハイマー病、血管性認知症、レビー小体型認知症など。<strong>特定疾病に入っているので、40〜64歳でも公的介護保険が使えます</strong>。働き盛りで発症し、収入と介護が同時に問題になる典型例。<strong>傷病手当金・障害年金・自立支援医療</strong>など、介護保険以外の制度も同時に検討する場面です。</p>
+          <p>アルツハイマー病、血管性認知症、レビー小体型認知症など。<strong>特定疾病に入っているので、40〜64歳でも公的介護保険が使えます</strong>。働き盛りで発症し、収入と介護が同時に問題になる典型例。傷病手当金・障害年金・自立支援医療など、介護保険以外の制度も同時に検討する場面です。</p>
         </div>
         <div class="risk-card">
           <div class="icon ic-blue" data-art="icBrain" aria-hidden="true"></div>
@@ -938,7 +1047,7 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
     <!-- ===== ①-3 お金の範囲 ===== -->
     <div class="def-block" id="def-money">
       <h3 class="def-h"><span class="def-ico ic-amber" data-art="icWallet" aria-hidden="true"></span>お金：「1割負担」は、どこまでの話か</h3>
-      <p class="def-lead">公的介護保険の自己負担は原則1割（一定以上の所得で2割・3割）。ただしこれは<strong>「区分支給限度基準額の範囲内で、対象サービスを使ったとき」</strong>の話です。線の外側には、<strong>10割払う費用</strong>がしっかり待っています。</p>
+      <p class="def-lead">公的介護保険の自己負担は原則1割（一定以上の所得で2割・3割）。ただしこれは「区分支給限度基準額の範囲内で、対象サービスを使ったとき」の話です。線の外側には、<strong>10割払う費用</strong>がしっかり待っています。</p>
 
       <div class="venn-box">
         <svg viewBox="0 0 520 300" role="img" aria-label="介護にかかるお金全体の中に公的介護保険の対象サービスがあり、そのさらに内側に限度額の範囲内という円がある入れ子の図">
@@ -1143,11 +1252,11 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
 
       <div class="sim-ctrl">
         <label for="simLevel"><span>要介護度<small>認定結果通知書に書いてあります</small></span><output id="simLevelOut">要介護2</output></label>
-        <input type="range" id="simLevel" min="0" max="7" step="1" value="4">
+        <div class="sim-stepper"><button type="button" data-step="simLevel" data-dir="-1" aria-label="要介護度をひとつ下げる">−</button><span class="sim-range"><input type="range" id="simLevel" min="0" max="7" step="1" value="4" aria-describedby="simLevelOut"></span><button type="button" data-step="simLevel" data-dir="1" aria-label="要介護度をひとつ上げる">＋</button></div>
       </div>
       <div class="sim-ctrl">
         <label for="simDays"><span>その状態が続いている日数</span><output id="simDaysOut">90日</output></label>
-        <input type="range" id="simDays" min="0" max="240" step="5" value="90">
+        <div class="sim-stepper"><button type="button" data-step="simDays" data-dir="-1" aria-label="日数を減らす">−</button><span class="sim-range"><input type="range" id="simDays" min="0" max="240" step="5" value="90" aria-describedby="simDaysOut"></span><button type="button" data-step="simDays" data-dir="1" aria-label="日数を増やす">＋</button></div>
       </div>
 
       <div class="timeline" aria-hidden="true">
@@ -1192,7 +1301,7 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
       </div>
       <div class="sim-ctrl">
         <label for="simUse"><span>ひと月に使った在宅サービスの費用<small>1〜3割を引く前の、10割の金額</small></span><output id="simUseOut">20万円</output></label>
-        <input type="range" id="simUse" min="0" max="450000" step="5000" value="200000">
+        <div class="sim-stepper"><button type="button" data-step="simUse" data-dir="-1" aria-label="金額を減らす">−</button><span class="sim-range"><input type="range" id="simUse" min="0" max="450000" step="5000" value="200000" aria-describedby="simUseOut"></span><button type="button" data-step="simUse" data-dir="1" aria-label="金額を増やす">＋</button></div>
       </div>
 
       <div class="money-box">
@@ -1284,7 +1393,7 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
       </h3>
       <ol>
         <li><strong>介護のお金は、申請しないと戻らない。</strong>高額介護サービス費も、住宅改修費も、障害者控除も、負担限度額認定も、すべて「申請主義」。役所から自動で振り込まれることはありません（高額介護サービス費は、初回に申請すれば以後は自動振込になる市区町村が多くあります）。</li>
-        <li><strong>迷ったら、ケアマネジャーと地域包括支援センターに聞く。</strong>聞くだけタダです。市区町村の介護保険担当課も同じ。<strong>介護保険被保険者証・負担割合証・認定結果通知書</strong>の3点が、いちばんの手がかりになります。</li>
+        <li><strong>迷ったら、ケアマネジャーと地域包括支援センターに聞く。</strong>聞くだけタダです。市区町村の介護保険担当課も同じ。介護保険被保険者証・負担割合証・認定結果通知書の3点が、いちばんの手がかりになります。</li>
         <li><strong>税金の還付は、5年さかのぼれる。</strong>障害者控除やおむつ代の医療費控除に気づかず申告していた年分は、<strong>還付申告なら5年以内</strong>にさかのぼって取り戻せることがあります（更正の請求は原則、申告期限から5年）。「もう遅い」と思う前に、まず確認を。</li>
       </ol>
       <p class="rule3-note">※支給・控除の可否や金額は、ご本人の状況・所得・お住まいの市区町村の取扱いによります。本ページの金額はあくまで一例です。</p>
@@ -1401,6 +1510,10 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
   <p style="margin-top:10px;">公的介護保険・税・社会保険に関する記載は、2026年8月時点の制度にもとづく一般的な説明です。制度は改正されることがあり、認定・助成・申請書類の取扱いは市区町村によって異なります。本ページの金額はいずれも記載の前提での試算であり、区分支給限度基準額は地域区分による単価差（おおむね1単位10円〜11.40円）で変動します。実際のお取り扱いは、お住まいの市区町村の介護保険担当課・地域包括支援センター、および所轄の税務署にご確認ください。個別の税務相談は当社で承ります。</p>
   <p style="margin-top:10px;">作成：株式会社Office-M（2026年8月）</p>
 </footer>
+
+<button type="button" class="to-top" id="toTop" aria-label="ページの先頭に戻る">
+  <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
 
 <!-- ================= 演目詳細モーダル ================= -->
 <div class="cmodal" id="caseModal" aria-hidden="true">
@@ -2028,6 +2141,20 @@ function simUpdate(){
   }
   document.getElementById('mMsg').innerHTML = msg;
 }
+/* ±ボタン：スライダーを引けなくても値を動かせるようにする */
+document.querySelectorAll('.sim-stepper button[data-step]').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var el = document.getElementById(btn.getAttribute('data-step'));
+    if(!el) return;
+    var step = parseFloat(el.step) || 1;
+    var dir  = parseFloat(btn.getAttribute('data-dir'));
+    var next = (parseFloat(el.value) || 0) + step * dir;
+    next = Math.min(parseFloat(el.max), Math.max(parseFloat(el.min), next));
+    el.value = next;
+    simUpdate();
+  });
+});
+
 simLevel.addEventListener('input', simUpdate);
 simDays.addEventListener('input', simUpdate);
 simUse.addEventListener('input', simUpdate);
@@ -2220,6 +2347,40 @@ function chkUpdate(){
   }
 }
 chkBoxes.forEach(function(c){ c.addEventListener('change', chkUpdate); });
+
+/* ---------- 上に戻る／現在地の表示 ---------- */
+var toTop = document.getElementById('toTop');
+var navLinks = [].slice.call(document.querySelectorAll('.hero-nav a[href^="#"]'));
+var navTargets = navLinks.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+
+toTop.addEventListener('click', function(){
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+
+var ticking = false;
+function onScroll(){
+  if(ticking) return;
+  ticking = true;
+  window.requestAnimationFrame(function(){
+    /* 2画面ぶん下がったら「上に戻る」を出す */
+    if(window.scrollY > window.innerHeight * 2) toTop.classList.add('show');
+    else toTop.classList.remove('show');
+
+    /* いま画面の上寄りにあるセクションを現在地とする */
+    var cur = -1;
+    for(var i = 0; i < navTargets.length; i++){
+      var t = navTargets[i];
+      if(t && t.getBoundingClientRect().top <= window.innerHeight * 0.35) cur = i;
+    }
+    for(var j = 0; j < navLinks.length; j++){
+      if(j === cur) navLinks[j].setAttribute('aria-current','true');
+      else navLinks[j].removeAttribute('aria-current');
+    }
+    ticking = false;
+  });
+}
+window.addEventListener('scroll', onScroll, {passive:true});
+onScroll();
 
 })();
 </script>
