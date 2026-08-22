@@ -68,7 +68,7 @@ a{color:var(--navy-2);}
 .tb-btn svg{width:16px;height:16px;}
 
 /* ---------- セクション見出し ---------- */
-.sec{margin-top:var(--sp-8);}
+.sec{margin-top:var(--sp-8);scroll-margin-top:90px;}
 .sec-head{margin-bottom:var(--sp-4);}
 .sec-head h2{font-family:var(--mincho);font-size:var(--fs-xl);color:var(--navy);letter-spacing:.06em;font-weight:600;
   display:inline-block;padding-bottom:5px;border-bottom:4px solid var(--coral);border-radius:2px;}
@@ -87,6 +87,33 @@ a{color:var(--navy-2);}
 .btn-sm{padding:8px 16px;font-size:var(--fs-sm);}
 .btn-sm svg{width:14px;height:14px;}
 .btn[disabled]{opacity:.42;cursor:not-allowed;box-shadow:none;}
+
+/* ---------- 分野の選択（1段目） ---------- */
+.cat-pick{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:var(--sp-4);}
+.cat-card{border-radius:24px;padding:var(--sp-8) var(--sp-5);text-align:center;cursor:pointer;
+  border:2px solid transparent;transition:.16s;display:flex;flex-direction:column;align-items:center;gap:var(--sp-3);}
+.cat-card:hover{transform:translateY(-4px);box-shadow:var(--shadow);}
+.cat-life{background:linear-gradient(160deg,#fdeee9 0%,#fff8f2 75%);border-color:#f4d0c6;}
+.cat-sonpo{background:linear-gradient(160deg,#e8f4fb 0%,#fff8f2 75%);border-color:#c6e2f2;}
+.cat-plan{background:linear-gradient(160deg,#e8f6ef 0%,#fff8f2 75%);border-color:#c3e5d3;}
+.cat-card .c-art{width:112px;height:112px;border-radius:50%;background:rgba(255,255,255,.85);
+  display:flex;align-items:center;justify-content:center;flex:none;}
+.cat-card .c-art svg{width:70px;height:70px;}
+.cat-card h3{font-family:var(--mincho);font-size:var(--fs-xl);color:var(--navy);letter-spacing:.05em;font-weight:600;}
+.cat-card .c-n{font-size:var(--fs-sm);color:var(--muted);}
+.cat-all{text-align:center;margin-top:var(--sp-5);}
+.cat-all button{background:none;border:none;cursor:pointer;color:var(--navy-2);font-size:var(--fs-sm);
+  text-decoration:underline;padding:11px 16px;min-height:44px;}
+
+/* ---------- 選んだ分野の見出し（2段目） ---------- */
+.back-bar{display:flex;align-items:center;gap:var(--sp-3);flex-wrap:wrap;margin-bottom:var(--sp-4);}
+.back-btn{display:inline-flex;align-items:center;gap:7px;background:var(--white);border:1px solid var(--line);
+  border-radius:999px;padding:11px 18px;font-size:var(--fs-sm);font-weight:700;color:var(--navy);cursor:pointer;transition:.15s;}
+.back-btn:hover{border-color:#cfe0ec;background:var(--navy-soft);}
+.back-btn svg{width:15px;height:15px;}
+.now-cat{display:inline-flex;align-items:center;gap:9px;font-family:var(--mincho);font-size:var(--fs-lg);
+  color:var(--navy);letter-spacing:.06em;}
+.now-cat .n-art{width:38px;height:38px;} .now-cat .n-art svg{width:38px;height:38px;}
 
 /* ---------- ツール一覧 ---------- */
 .filters{display:flex;gap:var(--sp-2);flex-wrap:wrap;margin-bottom:var(--sp-4);}
@@ -301,11 +328,9 @@ a{color:var(--navy-2);}
 
     <!-- ツール一覧 -->
     <section class="sec">
-      <div class="sec-head">
-        <h2>ツール一覧</h2>
-        <p>カードをクリックすると、そのツールが開きます。公開URLの登録は右上の「設定」から行えます。</p>
-      </div>
-      <div class="filters" id="filters"></div>
+      <div class="sec-head" id="toolHead"></div>
+      <div class="cat-pick" id="catPick"></div>
+      <div id="backBar"></div>
       <div class="grid" id="toolGrid"></div>
     </section>
 
@@ -375,6 +400,20 @@ var TOOLS = [
     id: 'nankai', short: '火災保険', cat: 'sonpo', name: '南海トラフ地震と保険の備えチェック',
     owner: 'ニッサン総合保険企画株式会社', local: 'ニッサン総合保険_南海トラフ啓発ツール.html', url: 'https://office-m-nakatani.github.io/nissansougou-general-insurance-/',
     desc: '南海トラフ地震の想定リスク（47都道府県対応）と、火災保険・自動車保険・地震保険の補償範囲を○×クイズで確認します。'
+  },
+  {
+    id: 'ichijo', short: '一条ライフプラン', cat: 'plan',
+    name: '一条工務店の家 ライフプラン試算（非公式）',
+    owner: '株式会社Office-M', local: '',
+    url: 'https://office-m-nakatani.github.io/lifeplan/ichijo.html',
+    desc: '一条工務店の高性能住宅と一般住宅を30年で数字比較。光熱費・太陽光・メンテナンス費まで含めて、買った後の暮らしをご夫婦の数字で見える化します。'
+  },
+  {
+    id: 'shoken', short: '湘建ライフプラン', cat: 'plan',
+    name: 'SHOKEN マンション投資ライフプラン',
+    owner: '株式会社湘建 様向け', local: '',
+    url: 'https://office-m-nakatani.github.io/lifeplan/oneroom.html',
+    desc: 'マンション投資をライフプランにそのまま組み込む試算。所得税・住民税の還付（損益通算）、家賃収入、団信、10年後売却や買い増しまで反映します。'
   },
   {
     id: 'lifeplan', short: 'ライフプラン', cat: 'plan', name: 'ご夫婦のライフプランシミュレーター',
@@ -814,6 +853,7 @@ function copyText(text) {
   }
 }
 var ICO = {
+  back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
   open: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M20 4 11 13"/><path d="M18 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"/></svg>',
   share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="m8.3 10.8 7.4-4.3M8.3 13.2l7.4 4.3"/></svg>',
   link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>',
@@ -841,6 +881,8 @@ var TOOL_ART = {
   hojinsim: '<svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#fdf3e2"/><path d="M10 46c8-2 12-18 18-24 5-5 10-5 15 0 5 6 7 16 11 22" fill="none" stroke="#f0846a" stroke-width="5" stroke-linecap="round"/><path d="M40 22v-9" stroke="#27587f" stroke-width="3" stroke-linecap="round"/><path d="M40 13h11l-3.5 4 3.5 4H40Z" fill="#c2453f"/><circle cx="40" cy="23" r="4" fill="#fff" stroke="#c2453f" stroke-width="2.5"/></svg>',
   jidousha: '<svg aria-hidden="true" viewBox="0 0 48 48"><path d="M12 12a7 7 0 0 1 12-4.5A8.5 8.5 0 0 1 39 12.5 6.5 6.5 0 0 1 37.5 25H14a6.5 6.5 0 0 1-2-13Z" fill="#9fb3c8"/><path d="m16 28-2 5M24 28l-2 5M32 28l-2 5" fill="none" stroke="#63b8dd" stroke-width="2.8" stroke-linecap="round"/><path d="M11 38l1.8-5a3 3 0 0 1 2.8-2h16.8a3 3 0 0 1 2.8 2l1.8 5" fill="#f0846a"/><rect x="8" y="37" width="32" height="6" rx="3" fill="#d9603f"/><path d="M2 42c5-3.5 9.5-3.5 14.5 0s9.5 3.5 14.5 0c4-2.8 8.5-3 15-.6V48H2Z" fill="#63b8dd"/></svg>',
   nankai: '<svg aria-hidden="true" viewBox="0 0 48 48"><circle cx="41" cy="8" r="3.5" fill="#cfeaf7"/><path d="M4 35C4 18 14 7 29 7c-9 2-14 8-15 15.5 3.5-4 8.5-5 12.5-1.5-5.5-.2-8.5 2.2-9.5 6.5-.7 3-1 5-1 7.5Z" fill="#63b8dd"/><circle cx="26" cy="22" r="4.6" fill="#a8dcef"/><path d="M2 36c5-5 11-5 16 0s11 5 16 0c3.5-3.4 8-4 12-1.6V46H2Z" fill="#a8dcef"/><path d="M2 41c5-4 11-4 16 0s11 4 16 0c3.5-3 8-3.4 12-1.2V46H2Z" fill="#63b8dd"/></svg>',
+  ichijo: '<svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="24" fill="#e8f4fb"/><path d="M32 14 14 30h4v18h28V30h4L32 14Z" fill="#63b8dd"/><rect x="27" y="36" width="10" height="12" rx="2" fill="#fff"/></svg>',
+  shoken: '<svg aria-hidden="true" viewBox="0 0 48 48"><rect x="4" y="20" width="12" height="22" rx="2.5" fill="#bfe6f5"/><rect x="18" y="11" width="13" height="31" rx="2.5" fill="#fff" stroke="#9fb3c8" stroke-width="1.8"/><rect x="33" y="24" width="11" height="18" rx="2.5" fill="#fbe8c8"/><path d="M7.5 26h5M7.5 32h5M21.5 17h6M21.5 24h6M21.5 31h6M36 29h5M36 35h5" stroke="#9fb3c8" stroke-width="2.4" stroke-linecap="round"/><path d="M3 43h42" stroke="#e8d9c4" stroke-width="4" stroke-linecap="round"/></svg>',
   lifeplan: '<svg aria-hidden="true" viewBox="0 0 64 64">\' + \'<rect x="8" y="42" width="13" height="14" rx="3" fill="#dceaf5"/>\' + \'<rect x="25" y="32" width="13" height="24" rx="3" fill="#f7c34e"/>\' + \'<rect x="42" y="18" width="13" height="38" rx="3" fill="#f0846a"/>\' + \'<path d="M10 30l14-9 13 5 15-14" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>\' + \'<path d="M45 11h8v8" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>\' + \'</svg>',
 };
 
@@ -1072,22 +1114,55 @@ function openHelp() {
 /* ============================================================
    7. 管理画面の描画
    ============================================================ */
-var curFilter = 'all';
-function renderFilters() {
-  document.getElementById('filters').innerHTML = CATS.map(function (c) {
-    var n = c.id === 'all' ? TOOLS.length : TOOLS.filter(function (t) { return t.cat === c.id; }).length;
-    return '<button class="filter' + (curFilter === c.id ? ' on' : '') + '" data-filter="' + c.id + '">' + esc(c.label) + '（' + n + '）</button>';
+/* 分野を選んでから、その中のツールを選ぶ。null のあいだは分野の選択画面 */
+var curCat = null;
+var CAT_ART = { life: 'seimei', sonpo: 'jidousha', plan: 'lifeplan' };
+var CAT_NOTE = {
+  life: '医療・死亡・介護・相続・法人',
+  sonpo: '自動車・火災',
+  plan: '住宅・教育・老後の見える化'
+};
+
+function catCount(id) { return TOOLS.filter(function (t) { return t.cat === id; }).length; }
+
+function renderCats() {
+  var head = document.getElementById('toolHead');
+  var pick = document.getElementById('catPick');
+  var back = document.getElementById('backBar');
+  if (curCat) {
+    var c = CATS.filter(function (x) { return x.id === curCat; })[0];
+    head.innerHTML = '';
+    pick.innerHTML = '';
+    back.innerHTML = '<div class="back-bar">' +
+      '<button class="back-btn" id="btnBackCat">' + ICO.back + '分野を選び直す</button>' +
+      '<span class="now-cat"><span class="n-art">' + (TOOL_ART[CAT_ART[curCat]] || '') + '</span>' +
+      (c ? esc(c.label) : '') + '（' + (curCat === 'all' ? TOOLS.length : catCount(curCat)) + '件）</span>' +
+      '</div>';
+    var bb = document.getElementById('btnBackCat');
+    if (bb) bb.onclick = function () { curCat = null; renderCats(); renderTools(); };
+    return;
+  }
+  head.innerHTML = '<h2>どの分野をお使いですか</h2>' +
+    '<p>分野を選ぶと、その中のツールが並びます。カードをクリックすればそのまま開きます。</p>';
+  back.innerHTML = '<div class="cat-all"><button data-cat="all">分野を分けずに全' + TOOLS.length + '件を見る</button></div>';
+  pick.innerHTML = CATS.filter(function (c) { return c.id !== 'all'; }).map(function (c) {
+    return '<div class="cat-card cat-' + c.id + '" data-cat="' + c.id + '" tabindex="0" role="button" aria-label="' + esc(c.label) + ' を選ぶ">' +
+      '<span class="c-art">' + (TOOL_ART[CAT_ART[c.id]] || '') + '</span>' +
+      '<h3>' + esc(c.label) + '</h3>' +
+      '<span class="c-n">' + esc(CAT_NOTE[c.id] || '') + '　' + catCount(c.id) + '件</span>' +
+    '</div>';
   }).join('');
 }
 
-/* カード全体が「開く」ボタン。共有リンクだけは中のボタンで受ける */
 function renderTools() {
-  var list = TOOLS.filter(function (t) { return curFilter === 'all' || t.cat === curFilter; });
-  document.getElementById('toolGrid').innerHTML = list.map(function (t) {
+  var host = document.getElementById('toolGrid');
+  if (!curCat) { host.innerHTML = ''; return; }
+  var list = TOOLS.filter(function (t) { return curCat === 'all' || t.cat === curCat; });
+  host.innerHTML = list.map(function (t) {
     return '<div class="card c-' + t.cat + '" data-card="' + t.id + '" tabindex="0" role="button" aria-label="' + esc(t.name) + ' を開く">' +
       '<div class="card-art">' + (TOOL_ART[t.id] || '') + '</div>' +
       '<h3 title="' + esc(t.name) + '">' + esc(t.short) + '</h3>' +
-      '<div class="owner">' + esc(t.owner) + '</div>' +
+      (t.owner ? '<div class="owner">' + esc(t.owner) + '</div>' : '') +
       '<p class="desc">' + esc(t.desc) + '</p>' +
       '<div class="card-foot">' +
         '<span class="card-open">' + ICO.open + '開く</span>' +
@@ -1142,7 +1217,7 @@ function renderWarn() {
     : '';
 }
 
-function renderAll() { renderWarn(); renderFilters(); renderTools(); renderLinks(); }
+function renderAll() { renderWarn(); renderCats(); renderTools(); renderLinks(); }
 
 /* ---------- 管理画面のイベント ---------- */
 function bindAdmin() {
@@ -1154,11 +1229,13 @@ function bindAdmin() {
   document.getElementById('admin').addEventListener('keydown', function (e) {
     if (e.key !== 'Enter' && e.key !== ' ') return;
     var c = e.target.closest && e.target.closest('[data-card]');
-    if (c && e.target === c) { e.preventDefault(); openTool(c.dataset.card); }
+    if (c && e.target === c) { e.preventDefault(); openTool(c.dataset.card); return; }
+    var k = e.target.closest && e.target.closest('[data-cat]');
+    if (k && e.target === k) { e.preventDefault(); curCat = k.dataset.cat; renderCats(); renderTools(); }
   });
 
   document.getElementById('admin').addEventListener('click', function (e) {
-    var b = e.target.closest('[data-open],[data-share],[data-filter],[data-lcopy],[data-lmsg],[data-ldel]');
+    var b = e.target.closest('[data-open],[data-share],[data-cat],[data-lcopy],[data-lmsg],[data-ldel]');
     if (!b) {
       var c = e.target.closest('[data-card]');
       if (c) openTool(c.dataset.card);
@@ -1166,7 +1243,7 @@ function bindAdmin() {
     }
     if (b.dataset.open) openTool(b.dataset.open);
     else if (b.dataset.share) openShare(b.dataset.share);
-    else if (b.dataset.filter) { curFilter = b.dataset.filter; renderFilters(); renderTools(); }
+    else if (b.dataset.cat) { curCat = b.dataset.cat; renderCats(); renderTools(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
     else if (b.dataset.lcopy) {
       var r1 = findLink(b.dataset.lcopy);
       if (r1) { if (daysLeft(r1.exp) <= 0) toast('このリンクは期限切れです'); copyText(r1.url); }
