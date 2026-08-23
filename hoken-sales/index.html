@@ -305,10 +305,6 @@ a{color:var(--navy-2);}
 .tile .t-sub{font-size:var(--fs-xs);color:var(--muted);}
 .tile.t-coral .t-value{color:var(--coral-text);}
 .tile.t-green .t-value{color:var(--green);}
-.kpi-week{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:var(--sp-2);margin-bottom:var(--sp-4);}
-.kw{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:10px 8px;text-align:center;}
-.kw b{display:block;font-size:var(--fs-lg);color:var(--navy);}
-.kw span{font-size:var(--fs-xs);color:var(--muted);font-weight:700;}
 
 /* ---------- ファネル ---------- */
 .funnel{display:grid;gap:var(--sp-2);}
@@ -563,8 +559,6 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21h16v-7H4v7Z"/><path d="M4 14c1.6 0 1.6-1.4 3.2-1.4S8.8 14 10.4 14s1.6-1.4 3.2-1.4S15.2 14 16.8 14s1.6-1.4 3.2-1.4"/><path d="M8 9V7M12 9V6M16 9V7"/></svg>
           お誕生日登録</button>
       </div>
-
-      <div class="kpi-week" id="kpiWeek"></div>
 
       <!-- カレンダー：日付を選ぶと、その日の記録と入力フォームの日付が切り替わる -->
       <div class="card">
@@ -1709,23 +1703,7 @@ function afterActChange(){
   if (detailCustId && !$('custDetail').classList.contains('hide')) openDetail(detailCustId);
 }
 
-function weekRange(){
-  var now = new Date();
-  var day = (now.getDay() + 6) % 7; /* 月曜はじまり */
-  var mon = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day);
-  var sun = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + 6);
-  function s(d){ return d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2) + '-' + ('0'+d.getDate()).slice(-2); }
-  return [s(mon), s(sun)];
-}
-
 function renderAct(){
-  var wr = weekRange();
-  var host = $('kpiWeek');
-  host.innerHTML = STAGES.map(function(s){
-    var n = state.activities.filter(function(a){ return a.type === s.k && a.date >= wr[0] && a.date <= wr[1]; }).length;
-    return '<div class="kw"><b>' + n + '</b><span>今週の' + esc(s.label) + '</span></div>';
-  }).join('');
-
   renderCal();
 }
 
