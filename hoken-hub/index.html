@@ -154,6 +154,21 @@ a{color:var(--navy-2);}
 .b-plan{background:var(--green-bg);color:var(--green);}
 .b-ok{background:var(--green-bg);color:var(--green);} .b-ng{background:var(--amber-bg);color:var(--amber);}
 
+/* ---------- 社員教育（社内用・共有リンクの対象外） ---------- */
+.training-banner{background:linear-gradient(160deg,#fdf3e2 0%,#fff8f2 70%);border:2px solid var(--amber-border);
+  border-radius:22px;padding:var(--sp-5) var(--sp-6);display:flex;align-items:center;gap:var(--sp-5);
+  cursor:pointer;transition:.16s;flex-wrap:wrap;}
+.training-banner:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
+.training-banner .t-art{width:64px;height:64px;flex:none;background:rgba(255,255,255,.85);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;}
+.training-banner .t-art svg{width:42px;height:42px;}
+.training-banner .t-body{flex:1 1 300px;min-width:0;}
+.training-banner h3{font-family:var(--mincho);font-size:var(--fs-lg);color:var(--navy);letter-spacing:.05em;font-weight:600;}
+.training-banner p{font-size:var(--fs-sm);color:var(--muted);line-height:var(--lh-base);max-width:40em;margin-top:4px;}
+.training-banner .t-go{display:inline-flex;align-items:center;gap:7px;font-size:var(--fs-base);font-weight:700;
+  color:var(--amber);white-space:nowrap;}
+.training-banner .t-go svg{width:17px;height:17px;}
+
 /* ---------- 発行した共有リンク（表ではなくカードの並びにする） ---------- */
 .link-list{display:flex;flex-direction:column;gap:var(--sp-3);}
 .link-row{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:var(--sp-4);
@@ -336,6 +351,20 @@ a{color:var(--navy-2);}
       <div class="cat-pick" id="catPick"></div>
       <div id="backBar"></div>
       <div class="grid" id="toolGrid"></div>
+    </section>
+
+    <!-- 社員教育（社内用） -->
+    <section class="sec">
+      <div class="sec-head">
+        <h2>社員教育（社内用）</h2>
+        <p>お客様向けではありません。理解度テスト（5分野×100問）・今日のワンポイント・ロープレお題などで、スタッフの知識を鍛える画面です。共有リンクの対象外です。</p>
+      </div>
+      <div class="training-banner" id="trainingBanner" tabindex="0" role="button" aria-label="社員教育ツールを開く">
+        <span class="t-art"><svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#ffeee3"/><path d="M8 64c0-13 11-20 24-20s24 7 24 20H8Z" fill="#f0846a"/><rect x="27" y="39" width="10" height="11" rx="5" fill="#f7cdb4"/><path d="m25 45 7 9 7-9 3.4 1.8L32 61 21.6 46.8Z" fill="#fff"/><ellipse cx="32" cy="28" rx="16" ry="17" fill="#5c4030"/><ellipse cx="32" cy="30" rx="12.5" ry="13.5" fill="#f7cdb4"/><path d="M19.5 27c0-9 5.6-14.5 12.5-14.5S44.5 18 44.5 27c-1.6-3.6-4.2-5.7-7.2-6.6-2.6 2.4-7 3.8-10.9 3.2-1.4 1-2.4 2.1-2.9 3.4Z" fill="#5c4030"/><circle cx="27" cy="30" r="1.6" fill="#3d3028"/><circle cx="37" cy="30" r="1.6" fill="#3d3028"/><path d="M29.4 35.6c1.6 1.7 3.6 1.7 5.2 0" fill="none" stroke="#3d3028" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+        <span class="t-body"><h3>保険知識トレーニング</h3>
+        <p>理解度テスト・朝礼の1問・面談で使う数字早見表・NGトーク添削・ロープレお題ガチャ。</p></span>
+        <span class="t-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M20 4 11 13"/><path d="M18 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"/></svg>開く</span>
+      </div>
     </section>
 
     <!-- 発行済み共有リンク -->
@@ -1272,6 +1301,17 @@ function bindAdmin() {
   document.getElementById('btnHelp').onclick = openHelp;
   document.getElementById('btnSettings').onclick = openSettings;
   document.getElementById('btnLock').onclick = function () { forgetAuth(); location.reload(); };
+  var tb = document.getElementById('trainingBanner');
+  if (tb) {
+    var openTraining = function () {
+      var target = location.protocol === 'file:'
+        ? encodeURI('保険社員教育ツール.html')
+        : 'https://office-m-nakatani.github.io/office-m/hoken-training/';
+      window.open(target, '_blank', 'noopener');
+    };
+    tb.onclick = openTraining;
+    tb.onkeydown = function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openTraining(); } };
+  }
 
   /* カード全体を押すとツールが開く（中の共有リンクボタンが押されたときは開かない） */
   document.getElementById('admin').addEventListener('keydown', function (e) {
