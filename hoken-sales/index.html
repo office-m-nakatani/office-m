@@ -184,13 +184,22 @@ a{color:var(--navy-2);}
   border:1px solid var(--line);border-radius:12px;overflow:hidden;}
 .cal-dow{background:var(--navy-soft);text-align:center;font-size:var(--fs-xs);font-weight:700;color:var(--muted);padding:6px 0;}
 .cal-dow.sun{color:var(--red-text);} .cal-dow.sat{color:var(--sky);}
-.cal-cell{background:var(--white);min-height:84px;padding:4px 4px 6px;border:0;cursor:pointer;text-align:left;
-  display:flex;flex-direction:column;gap:2px;font:inherit;color:inherit;}
+.cal-cell{background:var(--white);min-height:84px;padding:4px 4px 6px;position:relative;
+  display:flex;flex-direction:column;gap:2px;}
 .cal-cell:hover{background:#fffaf5;}
+/* セル全体が「日付を選ぶ」ボタン。中身はその上に重ねて表示する */
+.cal-pick{position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent;cursor:pointer;padding:0;}
+.cal-pick:focus-visible{outline:3px solid var(--sky);outline-offset:-3px;}
+.cal-cell > .cd,.cal-cell > .cal-ev,.cal-cell > .cal-more{position:relative;pointer-events:none;}
+/* 日付の右端の＋。その日の記録をすぐ入力できる */
+.cal-add{position:absolute;top:3px;right:3px;width:26px;height:26px;border-radius:8px;border:1.5px solid var(--line);
+  background:var(--white);color:var(--coral-btn);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;}
+.cal-add svg{width:14px;height:14px;}
+.cal-add:hover{background:var(--coral-bg);border-color:var(--coral-border);}
+.cal-add:focus-visible{outline:3px solid var(--sky);outline-offset:1px;}
 .cal-cell.out{background:#faf6f1;}
 .cal-cell.out .cd{color:#6f6358;}   /* 前後の月の日付。薄くしすぎるとコントラスト不足になる */
 .cal-cell.sel{box-shadow:inset 0 0 0 2.5px var(--coral-btn);}
-.cal-cell:focus-visible{outline:3px solid var(--sky);outline-offset:-3px;}
 .cal-cell .cd{align-self:flex-start;font-size:var(--fs-xs);font-weight:700;color:var(--text);
   min-width:22px;padding:2px 5px;border-radius:7px;text-align:center;}
 .cal-cell.sun .cd{color:var(--red-text);} .cal-cell.sat .cd{color:var(--sky);}
@@ -1465,10 +1474,15 @@ function renderCal(){
     if (d.getDay() === 6) cls.push('sat');
     if (s === today) cls.push('today');
     if (s === selDate) cls.push('sel');
-    html += '<button type="button" class="' + cls.join(' ') + '" data-d="' + s + '"' +
+    var mdLabel = (d.getMonth()+1) + '月' + d.getDate() + '日';
+    html += '<div class="' + cls.join(' ') + '" data-d="' + s + '">' +
+      '<button type="button" class="cal-pick" data-d="' + s + '"' +
       (s === selDate ? ' aria-current="date"' : '') +
-      ' aria-label="' + esc((d.getMonth()+1) + '月' + d.getDate() + '日' + (evs.length ? '　記録' + evs.length + '件' : '　記録なし') +
-        (bds.length ? '　誕生日' + bds.length + '人' : '')) + '">' +
+      ' aria-label="' + esc(mdLabel + (evs.length ? '　記録' + evs.length + '件' : '　記録なし') +
+        (bds.length ? '　誕生日' + bds.length + '人' : '')) + '"></button>' +
+      '<button type="button" class="cal-add" data-add="' + s + '" aria-label="' + esc(mdLabel + 'に記録を追加') + '">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>' +
+      '</button>' +
       '<span class="cd">' + d.getDate() + '</span>' +
       bds.slice(0, cap).map(function(o){
         return '<span class="cal-ev bd">' + esc(o.c.name) + ' ' + o.age + '歳</span>';
@@ -1482,11 +1496,19 @@ function renderCal(){
         var rest = bds.length + evs.length - shown;
         return rest > 0 ? '<span class="cal-more">ほか' + rest + '件</span>' : '';
       })() +
-      '</button>';
+      '</div>';
   }
   $('calGrid').innerHTML = html;
-  $('calGrid').querySelectorAll('.cal-cell').forEach(function(b){
+  $('calGrid').querySelectorAll('.cal-pick').forEach(function(b){
     b.addEventListener('click', function(){ selectDate(b.getAttribute('data-d')); });
+  });
+  $('calGrid').querySelectorAll('.cal-add').forEach(function(b){
+    b.addEventListener('click', function(ev){
+      ev.stopPropagation();
+      var ds = b.getAttribute('data-add');
+      selectDate(ds);
+      openActNew(ds);
+    });
   });
   renderDay();
 }
@@ -1531,12 +1553,7 @@ function renderDay(){
   }).join('');
   if (!evs.length && !bds.length) html += '<p class="day-none">この日の記録はまだありません。下の「活動を記録する」から追加できます。</p>';
   $('dayPanel').innerHTML = html;
-  $('dayAdd').addEventListener('click', function(){
-    $('afDate').value = selDate;
-    $('afCust').scrollIntoView({ block: 'center' });
-    var b = document.querySelector('#afTypes .type-btn');
-    if (b) b.focus();
-  });
+  $('dayAdd').addEventListener('click', function(){ openActNew(selDate); });
   $('dayPanel').querySelectorAll('[data-e]').forEach(function(b){
     b.addEventListener('click', function(){ openActEdit(b.getAttribute('data-e')); });
   });
@@ -1554,7 +1571,7 @@ window.addEventListener('resize', function(){
 });
 
 /* ---------- 活動の編集シート ---------- */
-var aeId = null, aeType = null;
+var aeId = null, aeType = null, aeNew = false;
 
 function setAeType(t){
   aeType = t;
@@ -1584,19 +1601,48 @@ function toggleAeTime(){
 }
 $('aeAllday').addEventListener('change', toggleAeTime);
 
-function openActEdit(id){
-  var a = state.activities.filter(function(x){ return x.id === id; })[0];
-  if (!a) return;
-  aeId = id;
-  var c = custById(a.cid);
+function fillAeSelectors(missingCid){
   $('aeCust').innerHTML = '<option value="">選択してください</option>' +
     state.customers.slice().sort(function(x, y){ return (y.created||0) - (x.created||0); })
       .map(function(x){ return '<option value="' + esc(x.id) + '">' + esc(x.name) + (x.company ? '（' + esc(x.company) + '）' : '') + '</option>'; }).join('') +
-    (c ? '' : '<option value="' + esc(a.cid) + '">（削除済み顧客）</option>');
-  $('aeCust').value = a.cid;
+    (missingCid ? '<option value="' + esc(missingCid) + '">（削除済み顧客）</option>' : '');
   $('aePtype').innerHTML = state.rates.map(function(r){
     return '<option value="' + esc(r.id) + '">' + esc(r.label) + '</option>';
   }).join('');
+}
+/* カレンダーの＋から、その日の記録を新しく作る */
+function openActNew(dateStr){
+  aeNew = true; aeId = null;
+  fillAeSelectors(null);
+  $('aeCust').value = '';
+  $('aeDate').value = dateStr || selDate || todayStr();
+  $('aeAllday').checked = true;
+  $('aeStart').value = ''; $('aeEnd').value = '';
+  toggleAeTime();
+  ['aePlace','aeWho','aeMemo','aeCompany','aeProduct','aeInsured','aeAmt','aePayNote','aeInit','aeRenew','aeYears'].forEach(function(id){ $(id).value = ''; });
+  $('aeMode').value = 'm';
+  $('aePtype').value = state.rates[0].id;
+  pickState.ae = { kind:null, pid:'', renews:null };
+  $('aePickNote').classList.add('hide');
+  setAeType(null);
+  renderPicker('ae');
+  $('aeTitle').textContent = '活動を記録する';
+  $('aeWhen').textContent = fmtJpDate($('aeDate').value);
+  $('aeDel').classList.add('hide');
+  $('aeErr').textContent = '';
+  $('aeOvl').classList.remove('hide');
+  document.body.style.overflow = 'hidden';
+  document.querySelector('#aeTypes .type-btn').focus();
+}
+function openActEdit(id){
+  var a = state.activities.filter(function(x){ return x.id === id; })[0];
+  if (!a) return;
+  aeNew = false; aeId = id;
+  var c = custById(a.cid);
+  fillAeSelectors(c ? null : a.cid);
+  $('aeCust').value = a.cid;
+  $('aeTitle').textContent = '活動の編集';
+  $('aeDel').classList.remove('hide');
 
   $('aeDate').value = a.date;
   $('aeAllday').checked = !a.start;
@@ -1638,7 +1684,7 @@ function openActEdit(id){
 function closeActEdit(){
   $('aeOvl').classList.add('hide');
   document.body.style.overflow = '';
-  aeId = null;
+  aeId = null; aeNew = false;
 }
 $('aeClose').addEventListener('click', closeActEdit);
 $('aeCancel').addEventListener('click', closeActEdit);
@@ -1646,6 +1692,7 @@ $('aeOvl').addEventListener('click', function(ev){ if (ev.target === $('aeOvl'))
 document.addEventListener('keydown', function(ev){ if (ev.key === 'Escape' && !$('aeOvl').classList.contains('hide')) closeActEdit(); });
 
 $('aeSave').addEventListener('click', function(){
+  if (aeNew) { saveNewFromSheet(); return; }
   var a = state.activities.filter(function(x){ return x.id === aeId; })[0];
   if (!a) return;
   var err = $('aeErr'); err.textContent = '';
@@ -1683,6 +1730,43 @@ $('aeSave').addEventListener('click', function(){
   closeActEdit();
   afterActChange();
 });
+
+function saveNewFromSheet(){
+  var err = $('aeErr'); err.textContent = '';
+  if (!aeType) { err.textContent = '活動の種類（AP〜契約）を選んでください。'; return; }
+  var cid = $('aeCust').value;
+  if (!cid) { err.textContent = '顧客を選んでください。顧客管理タブから追加できます。'; return; }
+  var date = $('aeDate').value || todayStr();
+  var off = $('aeAllday').checked;
+  var st = off ? '' : $('aeStart').value, en = off ? '' : $('aeEnd').value;
+  if (st && en && en < st) { err.textContent = '終了時刻は開始時刻より後にしてください。'; return; }
+
+  var act = { id: uid('a'), cid: cid, type: aeType, date: date, start: st, end: en,
+    place: $('aePlace').value.trim(), who: $('aeWho').value.trim(), memo: $('aeMemo').value.trim() };
+  if (aeType === 'KY') {
+    var amt = +$('aeAmt').value || 0;
+    if (!amt) { err.textContent = '契約の保険料を入れてください。'; return; }
+    var k = { id: uid('k'), cid: cid, actId: act.id, date: date,
+      company: $('aeCompany').value.trim(), product: $('aeProduct').value.trim(),
+      ptype: $('aePtype').value, insured: $('aeInsured').value.trim(),
+      pid: pickState.ae.pid || '', renews: pickState.ae.renews || null,
+      amt: amt, mode: $('aeMode').value, payNote: $('aePayNote').value.trim(),
+      init: +$('aeInit').value || 0, renew: +$('aeRenew').value || 0, years: +$('aeYears').value || 0 };
+    state.contracts.push(k);
+    act.contractId = k.id;
+  }
+  state.activities.push(act);
+  var c = custById(cid);
+  if (c) {
+    var order = STAGES.map(function(sg){ return sg.k; });
+    if (order.indexOf(aeType) > order.indexOf(c.stage)) c.stage = aeType;
+    if (aeType === 'KY') c.status = 'won';
+  }
+  save();
+  selDate = date;
+  closeActEdit();
+  afterActChange();
+}
 
 $('aeDel').addEventListener('click', function(){
   var a = state.activities.filter(function(x){ return x.id === aeId; })[0];
