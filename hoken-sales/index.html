@@ -235,9 +235,13 @@ a{color:var(--navy-2);}
 .sheet-body{padding:var(--sp-4) var(--sp-5);}
 .sheet-foot{display:flex;gap:var(--sp-3);flex-wrap:wrap;padding:var(--sp-4) var(--sp-5);border-top:1px solid var(--line);}
 .sheet-foot .btn-del{margin-left:auto;color:var(--red-text);border-color:var(--coral-border);}
-.chk{display:inline-flex;align-items:center;gap:8px;font-size:var(--fs-sm);font-weight:700;color:var(--text);
-  min-height:44px;cursor:pointer;}
-.chk input{width:24px;height:24px;}
+.chk,.fld label.chk{display:inline-flex;align-items:center;gap:12px;font-size:var(--fs-base);font-weight:700;color:var(--text);
+  min-height:48px;cursor:pointer;border:1.5px solid var(--line);border-radius:12px;padding:8px 16px;background:#fdfaf6;
+  transition:.15s;}
+.chk:hover{border-color:var(--navy-2);}
+.chk input{width:24px;height:24px;flex:none;accent-color:var(--navy);cursor:pointer;}
+.chk.on,.fld label.chk.on{background:var(--navy-soft);border-color:var(--navy-2);color:var(--navy);}
+.chk span{letter-spacing:.02em;}
 
 /* ---------- 時刻の選択（時→分の順に押して決める） ---------- */
 .time-wrap{position:relative;}
@@ -428,10 +432,10 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
         <div><h2>見込み数字</h2><p>確定コミッションとパイプラインの期待値をひと目で</p></div>
       </div>
       <div class="tiles">
-        <div class="tile t-green"><div class="t-label">今月の確定初年度C</div><div class="t-value" id="tileMonth"></div><div class="t-sub" id="tileMonthSub"></div></div>
-        <div class="tile"><div class="t-label">今年の確定初年度C（1〜12月）</div><div class="t-value" id="tileYear"></div><div class="t-sub" id="tileYearSub"></div></div>
+        <div class="tile t-green"><div class="t-label">今月の確定 初年度コミッション</div><div class="t-value" id="tileMonth"></div><div class="t-sub" id="tileMonthSub"></div></div>
+        <div class="tile"><div class="t-label">今年の確定 初年度コミッション（1〜12月）</div><div class="t-value" id="tileYear"></div><div class="t-sub" id="tileYearSub"></div></div>
         <div class="tile t-coral"><div class="t-label">パイプライン期待値（確度加重）</div><div class="t-value" id="tilePipe"></div><div class="t-sub" id="tilePipeSub"></div></div>
-        <div class="tile"><div class="t-label">来年の継続C見込み</div><div class="t-value" id="tileRenew"></div><div class="t-sub">登録済み契約の継続コミッションから</div></div>
+        <div class="tile"><div class="t-label">来年の継続コミッション見込み</div><div class="t-value" id="tileRenew"></div><div class="t-sub">登録済み契約の継続コミッションから</div></div>
       </div>
       <div class="frm-actions">
         <button class="btn btn-primary btn-sm" id="qaAct"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>活動を記録</button>
@@ -442,7 +446,7 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
     <div class="sec">
       <div class="card">
         <h3 style="color:var(--navy);font-size:var(--fs-md);margin-bottom:4px;">営業ファネル（進行中の顧客）</h3>
-        <p class="sec-note" style="margin-top:0;">AP → FF → プレゼン → クロージング → 契約。棒の長さは人数、右の金額は確度をかけた初年度C期待値。</p>
+        <p class="sec-note" style="margin-top:0;">AP → FF → プレゼン → クロージング → 契約。棒の長さは人数、右の金額は確度をかけた初年度コミッションの期待値。</p>
         <div class="funnel" id="funnel"></div>
       </div>
     </div>
@@ -461,7 +465,7 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
     <div class="sec">
       <div class="card">
         <h3 style="color:var(--navy);font-size:var(--fs-md);margin-bottom:4px;">継続コミッションの見込み（今後5年）</h3>
-        <p class="sec-note" style="margin-top:0;">登録した契約の「継続C×継続年数」を年ごとに合計。継続率100%を前提とした上限の目安。</p>
+        <p class="sec-note" style="margin-top:0;">登録した契約の「継続コミッション×継続年数」を年ごとに合計。継続率100%を前提とした上限の目安。</p>
         <div class="chart" id="rchart" role="img" aria-label="継続コミッション見込みの棒グラフ"></div>
       </div>
     </div>
@@ -748,7 +752,7 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
           <svg class="kn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></summary>
         <div class="kn-body">
           <p>契約から一定期間（例：1〜2年）内に解約・失効すると、受け取った初年度コミッションの全部または一部を<b>返す</b>ルールが一般的です（経過月数に応じて逓減）。</p>
-          <p>見込み数字を読むときは「契約＝確定収入」ではなく、<b>初期は仮の数字</b>という感覚を持つこと。このツールの継続C見込みも継続率100%前提の上限値として見てください。</p>
+          <p>見込み数字を読むときは「契約＝確定収入」ではなく、<b>初期は仮の数字</b>という感覚を持つこと。このツールの継続コミッション見込みも継続率100%前提の上限値として見てください。</p>
         </div>
       </details>
 
@@ -804,7 +808,7 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
         <div class="fld"><label for="aeEnd">終了時刻</label>
           <div class="time-wrap"><input type="text" class="time-input" id="aeEnd" inputmode="numeric" autocomplete="off" placeholder="例：12:00"></div>
           <div class="hint">開始の2時間後が自動で入ります</div></div>
-        <div class="fld full"><label class="chk"><input type="checkbox" id="aeAllday">終日にする（時刻を使わない）</label></div>
+        <div class="fld full"><label class="chk" id="aeAlldayLabel"><input type="checkbox" id="aeAllday"><span>終日にする（時刻を使わない）</span></label></div>
         <div class="fld"><label for="aeCust">顧客（誰と）</label>
           <input type="text" id="aeCust" list="custDatalist" autocomplete="off" placeholder="名前を入力、または一覧から選ぶ">
           <datalist id="custDatalist"></datalist>
@@ -1026,7 +1030,7 @@ function calcAnp(amt, mode){
   if (mode === 's') return amt * (state.set.singleAnpPct / 100);
   return amt;
 }
-/* 初年度C概算：一時払は保険料×率、それ以外はANP×率 */
+/* 初年度コミッションの概算：一時払は保険料×率、それ以外はANP×率 */
 function estInitComm(ptypeId, amt, mode){
   var r = rateById(ptypeId);
   amt = +amt || 0;
@@ -1165,7 +1169,7 @@ function openDetail(id){
   var statusBadge = c.status === 'lost' ? '<span class="badge bg-lost">失注</span>'
     : c.status === 'hold' ? '<span class="badge bg-hold">保留</span>'
     : c.status === 'won' ? '<span class="badge bg-KY">成約</span>' : '<span class="badge bg-AP">進行中</span>';
-  var exp = +c.expAmt ? (esc(fmtYenFull(c.expAmt)) + '（' + esc(MODES[c.expMode]||'') + '）→ 見込み初年度C ' + esc(fmtYen(custExpComm(c)))) : '未設定';
+  var exp = +c.expAmt ? (esc(fmtYenFull(c.expAmt)) + '（' + esc(MODES[c.expMode]||'') + '）→ 見込みの初年度コミッション ' + esc(fmtYen(custExpComm(c)))) : '未設定';
   $('cdCard').innerHTML =
     '<div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;">' +
       '<div><div style="font-family:var(--mincho);font-size:var(--fs-lg);color:var(--navy);font-weight:600;">' + esc(c.name) + '</div>' +
@@ -1234,8 +1238,8 @@ function contractCardHtml(k){
       (k.insured ? '<dt>被保険者</dt><dd>' + esc(k.insured) + '</dd>' : '') +
       '<dt>保険料</dt><dd>' + esc(fmtYenFull(k.amt)) + '（' + esc(MODES[k.mode]||'') + (k.payNote ? '・' + esc(k.payNote) : '') + '）</dd>' +
       '<dt>換算ANP</dt><dd>' + esc(fmtYen(calcAnp(k.amt, k.mode))) + '</dd>' +
-      '<dt>初年度C</dt><dd style="color:var(--green);">' + esc(fmtYenFull(k.init)) + '</dd>' +
-      '<dt>継続C</dt><dd>' + esc(renewLabel(k)) + '</dd>' +
+      '<dt>初年度コミッション</dt><dd style="color:var(--green);">' + esc(fmtYenFull(k.init)) + '</dd>' +
+      '<dt>継続コミッション</dt><dd>' + esc(renewLabel(k)) + '</dd>' +
     '</dl></div>';
 }
 
@@ -1256,8 +1260,8 @@ function actRowHtml(a){
     (meta.length ? '<div class="tl-meta">' + esc(meta.join('　')) + '</div>' : '') +
     (a.memo ? '<div class="tl-meta">' + esc(a.memo) + '</div>' : '') +
     (k ? '<div class="tl-meta" style="color:var(--green);font-weight:700;">' +
-      esc([k.company, k.product].filter(Boolean).join(' ')) + '　初年度C ' + esc(fmtYen(k.init)) +
-      (renewYears(k) ? '／継続C ' + esc(renewLabel(k)) : '') + '</div>' : '') +
+      esc([k.company, k.product].filter(Boolean).join(' ')) + '　初年度コミッション ' + esc(fmtYen(k.init)) +
+      (renewYears(k) ? '／継続コミッション ' + esc(renewLabel(k)) : '') + '</div>' : '') +
     '</span>' +
     '<span class="tl-del" style="display:flex;gap:6px;">' +
     '<button class="icon-btn" data-edit="' + esc(a.id) + '" aria-label="この記録を編集">' +
@@ -1423,10 +1427,10 @@ function renderDay(){
       '<b>' + esc(actName(a)) + '</b></span>' +
       (meta.length ? '<span class="tl-meta">' + esc(meta.join('　')) + '</span>' : '') +
       (k ? '<span class="tl-meta" style="color:var(--green);font-weight:700;">' +
-        esc([k.company, k.product].filter(Boolean).join(' ')) + '　初年度C ' + esc(fmtYen(k.init)) + '</span>' : '') +
+        esc([k.company, k.product].filter(Boolean).join(' ')) + '　初年度コミッション ' + esc(fmtYen(k.init)) + '</span>' : '') +
       '</span><span class="day-go">編集</span></button>';
   }).join('');
-  if (!evs.length && !bds.length) html += '<p class="day-none">この日の記録はまだありません。下の「活動を記録する」から追加できます。</p>';
+  if (!evs.length && !bds.length) html += '<p class="day-none">この日の記録はまだありません。日付の「＋」か、右上の「この日に記録する」から追加できます。</p>';
   $('dayPanel').innerHTML = html;
   $('dayAdd').addEventListener('click', function(){ openActNew(selDate); });
   $('dayPanel').querySelectorAll('[data-e]').forEach(function(b){
@@ -1470,6 +1474,7 @@ $('aeMode').addEventListener('change', updateAeAnp);
 $('aeEst').addEventListener('click', function(){ estimateInto('ae'); });
 function toggleAeTime(){
   var off = $('aeAllday').checked;
+  $('aeAlldayLabel').classList.toggle('on', off);
   $('aeStart').disabled = off; $('aeEnd').disabled = off;
   if (off) { $('aeStart').value = ''; $('aeEnd').value = ''; }
 }
@@ -1610,7 +1615,7 @@ $('aeSave').addEventListener('click', function(){
     if (!k) { k = { id: uid('k'), actId: a.id }; state.contracts.push(k); a.contractId = k.id; }
     for (var key in vals) if (Object.prototype.hasOwnProperty.call(vals, key)) k[key] = vals[key];
   } else if (k) {
-    if (!confirm('種類を「' + stageLabel(aeType) + '」に変えると、この記録に紐づく契約データ（初年度C ' + fmtYen(k.init) + '）も削除されます。よろしいですか？')) return;
+    if (!confirm('種類を「' + stageLabel(aeType) + '」に変えると、この記録に紐づく契約データ（初年度コミッション ' + fmtYen(k.init) + '）も削除されます。よろしいですか？')) return;
     state.contracts = state.contracts.filter(function(x){ return x.id !== k.id; });
     delete a.contractId;
   }
@@ -1799,16 +1804,17 @@ function openTimePicker(id){
       var mm = +b.getAttribute('data-m');
       var base = normTime($(id).value) || (pad2(new Date().getHours()) + ':00');
       setTime(id, base.split(':')[0] + ':' + pad2(mm), true);
-      openTimePickerRefresh(id);
+      /* 分まで決まったら閉じる（開いたままだと下のボタンが押せない）。
+         ここで入力欄にフォーカスを戻すと、また一覧が開いてしまうので戻さない。 */
+      closeTimePicker();
     });
   });
   pop.querySelector('[data-tp="clear"]').addEventListener('click', function(){
     $(id).value = '';
     if (TIME_PAIR[id] && !endTouched[TIME_PAIR[id]]) $(TIME_PAIR[id]).value = '';
     closeTimePicker();
-    $(id).focus();
   });
-  pop.querySelector('[data-tp="close"]').addEventListener('click', function(){ closeTimePicker(); $(id).focus(); });
+  pop.querySelector('[data-tp="close"]').addEventListener('click', function(){ closeTimePicker(); });
 }
 /* 選び直したときに押されている場所を描き直す */
 function openTimePickerRefresh(id){
@@ -1845,7 +1851,7 @@ document.addEventListener('click', function(ev){
   if (ev.target.closest && (ev.target.closest('.tp') || ev.target === $(tpField))) return;
   closeTimePicker();
 });
-document.addEventListener('keydown', function(ev){ if (ev.key === 'Escape' && tpField) closeTimePicker(); });
+document.addEventListener('keydown', function(ev){ if (ev.key === 'Escape' && tpField) { closeTimePicker(); document.activeElement.blur(); } });
 
 /* ============================================================
    5-2. 商品ピッカー（種類 → 推奨商品 → 取り扱い商品）
@@ -2202,11 +2208,11 @@ function renderNum(){
   }).join('');
   var xlab = months.map(function(v, i){ return '<span>' + (i+1) + '月</span>'; }).join('');
   $('mchart').innerHTML = '<div class="bars">' + bars + '</div><div class="bar-x">' + xlab + '</div>';
-  $('mtable').innerHTML = '<table class="tbl"><thead><tr><th>月</th><th class="num">確定初年度C</th></tr></thead><tbody>' +
+  $('mtable').innerHTML = '<table class="tbl"><thead><tr><th>月</th><th class="num">確定 初年度コミッション</th></tr></thead><tbody>' +
     months.map(function(v, i){ return '<tr><td>' + (i+1) + '月</td><td class="num">' + esc(fmtYenFull(v)) + '</td></tr>'; }).join('') +
     '</tbody></table>';
 
-  /* ---- 継続C見込み（今後5年） ---- */
+  /* ---- 継続コミッション見込み（今後5年） ---- */
   var years = [];
   for (var yy = 1; yy <= 5; yy++) {
     var target = y + yy, total = 0;
@@ -2230,7 +2236,7 @@ function renderNum(){
     var ob = STAGES.map(function(s){return s.k;}).indexOf(b.stage);
     return ob - oa;
   });
-  $('pipeTable').innerHTML = '<thead><tr><th>顧客</th><th>ステージ</th><th class="num">確度</th><th class="num">見込みANP</th><th class="num">初年度C期待値</th></tr></thead><tbody>' +
+  $('pipeTable').innerHTML = '<thead><tr><th>顧客</th><th>ステージ</th><th class="num">確度</th><th class="num">見込みANP</th><th class="num">初年度コミッション期待値</th></tr></thead><tbody>' +
     (rows.length ? rows.map(function(c){
       var p = state.probs[c.stage] || 0;
       return '<tr><td>' + esc(c.name) + '</td><td><span class="badge bg-' + c.stage + '">' + esc(stageLabel(c.stage)) + '</span></td>' +
@@ -2244,7 +2250,10 @@ $('mtableBtn').addEventListener('click', function(){
   $('mtableBtn').setAttribute('aria-expanded', String(!open));
   $('mtableBtn').textContent = open ? '表で見る' : '表を閉じる';
 });
-$('qaAct').addEventListener('click', function(){ showTab('act'); });
+$('qaAct').addEventListener('click', function(){
+  showTab('act');
+  setTimeout(function(){ openActNew(selDate || todayStr()); }, 0);   /* そのまま記録シートを開く */
+});
 $('qaCust').addEventListener('click', function(){ showTab('cust'); setTimeout(function(){ openCustForm(null); }, 0); });
 
 /* ============================================================
@@ -2312,7 +2321,7 @@ $('impJson').addEventListener('change', function(){
   this.value = '';
 });
 $('expCsv').addEventListener('click', function(){
-  var head = ['契約日','顧客','保険会社','商品名','商品タイプ','被保険者','保険料(円)','払い方','払込期間メモ','換算ANP(円)','初年度C(円)','継続C(円/年)','継続年数','継続Cの内訳(年ごと)'];
+  var head = ['契約日','顧客','保険会社','商品名','商品タイプ','被保険者','保険料(円)','払い方','払込期間メモ','換算ANP(円)','初年度コミッション(円)','継続コミッション(円/年)','継続年数','継続コミッションの内訳(年ごと)'];
   var rows = state.contracts.map(function(k){
     var c = custById(k.cid);
     return [k.date, c ? c.name : (k.guest || ''), k.company, k.product, rateById(k.ptype).label, k.insured,
