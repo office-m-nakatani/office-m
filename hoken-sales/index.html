@@ -102,7 +102,7 @@ a{color:var(--navy-2);}
 .frm{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:var(--sp-3) var(--sp-4);}
 .frm .full{grid-column:1 / -1;}
 .fld label{display:block;font-size:var(--fs-xs);font-weight:700;color:var(--navy);margin-bottom:4px;letter-spacing:.03em;}
-.fld input[type=text],.fld input[type=number],.fld input[type=date],.fld input[type=password],.fld select,.fld textarea{
+.fld input[type=text],.fld input[type=number],.fld input[type=date],.fld input[type=time],.fld input[type=password],.fld select,.fld textarea{
   width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px;background:#fff;}
 .fld textarea{min-height:70px;resize:vertical;}
 .fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--navy-2);outline:none;box-shadow:0 0 0 3px var(--navy-soft);}
@@ -122,6 +122,7 @@ a{color:var(--navy-2);}
 .bg-KY{background:var(--green-bg);border-color:var(--green-border);color:var(--green);}
 .bg-lost{background:#f1f1f1;border-color:#ddd;color:#666;}
 .bg-hold{background:#f4f1fb;border-color:#ddd5f0;color:#5b4a91;}
+.bg-bd{background:#fdf6e3;border-color:#ecd9a8;color:#7d5413;}   /* 誕生日 */
 
 /* ---------- 顧客一覧 ---------- */
 .toolrow{display:flex;gap:var(--sp-3);flex-wrap:wrap;align-items:center;margin-bottom:var(--sp-4);}
@@ -174,6 +175,93 @@ a{color:var(--navy-2);}
 .contract-box h3{font-size:var(--fs-md);color:var(--green);margin-bottom:var(--sp-3);}
 .anp-note{font-size:var(--fs-sm);background:var(--white);border:1px solid var(--green-border);border-radius:10px;
   padding:8px 12px;margin-top:var(--sp-2);}
+
+/* ---------- カレンダー（月表示＋その日の記録） ---------- */
+.cal-head{display:flex;align-items:center;gap:var(--sp-3);flex-wrap:wrap;margin-bottom:var(--sp-3);}
+.cal-title{font-family:var(--mincho);font-size:var(--fs-lg);font-weight:700;color:var(--navy);}
+.cal-nav{display:flex;gap:6px;margin-left:auto;align-items:center;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+.cal-dow{background:var(--navy-soft);text-align:center;font-size:var(--fs-xs);font-weight:700;color:var(--muted);padding:6px 0;}
+.cal-dow.sun{color:var(--red-text);} .cal-dow.sat{color:var(--sky);}
+.cal-cell{background:var(--white);min-height:84px;padding:4px 4px 6px;border:0;cursor:pointer;text-align:left;
+  display:flex;flex-direction:column;gap:2px;font:inherit;color:inherit;}
+.cal-cell:hover{background:#fffaf5;}
+.cal-cell.out{background:#faf6f1;}
+.cal-cell.out .cd{color:#6f6358;}   /* 前後の月の日付。薄くしすぎるとコントラスト不足になる */
+.cal-cell.sel{box-shadow:inset 0 0 0 2.5px var(--coral-btn);}
+.cal-cell:focus-visible{outline:3px solid var(--sky);outline-offset:-3px;}
+.cal-cell .cd{align-self:flex-start;font-size:var(--fs-xs);font-weight:700;color:var(--text);
+  min-width:22px;padding:2px 5px;border-radius:7px;text-align:center;}
+.cal-cell.sun .cd{color:var(--red-text);} .cal-cell.sat .cd{color:var(--sky);}
+.cal-cell.today .cd{background:var(--navy);color:#fff;}
+.cal-ev{display:block;font-size:11px;line-height:1.4;font-weight:700;border:1px solid;border-radius:5px;
+  padding:1px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cal-ev.bd{background:#fdf6e3;border-color:#ecd9a8;color:#7d5413;}
+.cal-more{font-size:10px;color:var(--muted);padding-left:3px;}
+.day-row.bd{cursor:default;border-color:#ecd9a8;background:#fdf9f0;}
+.cal-legend{display:flex;gap:var(--sp-2);flex-wrap:wrap;margin-top:var(--sp-3);}
+.cal-legend .badge{font-size:10px;padding:2px 9px;}
+/* その日の記録 */
+.day-panel{margin-top:var(--sp-4);border-top:1px solid var(--line);padding-top:var(--sp-4);display:grid;gap:var(--sp-2);}
+.day-head{display:flex;align-items:center;gap:var(--sp-3);flex-wrap:wrap;}
+.day-head b{font-size:var(--fs-md);color:var(--navy);}
+.day-head .day-n{font-size:var(--fs-xs);color:var(--muted);font-weight:700;}
+.day-head .btn{margin-left:auto;}
+.day-row{display:flex;gap:var(--sp-3);align-items:flex-start;width:100%;text-align:left;background:var(--white);
+  border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;font:inherit;color:inherit;transition:.15s;}
+.day-row:hover{border-color:var(--navy-2);}
+.day-row .day-time{flex:none;min-width:5.4em;font-size:var(--fs-xs);font-weight:700;color:var(--muted);padding-top:3px;}
+.day-row .day-body{flex:1;font-size:var(--fs-sm);display:flex;flex-direction:column;gap:3px;align-items:flex-start;}
+.day-row .day-go{flex:none;font-size:var(--fs-xs);font-weight:700;color:var(--coral-text);padding-top:3px;}
+.day-none{font-size:var(--fs-sm);color:var(--muted);}
+/* ---------- 編集シート ---------- */
+.ovl{position:fixed;inset:0;background:rgba(27,63,94,.45);display:flex;align-items:center;justify-content:center;
+  padding:14px;z-index:80;}
+.sheet{background:var(--white);border-radius:18px;width:100%;max-width:600px;max-height:92vh;overflow:auto;
+  box-shadow:0 18px 50px rgba(60,40,30,.32);}
+.sheet-head{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line);
+  position:sticky;top:0;background:var(--white);z-index:1;}
+.sheet-head b{font-size:var(--fs-md);color:var(--navy);}
+.sheet-body{padding:var(--sp-4) var(--sp-5);}
+.sheet-foot{display:flex;gap:var(--sp-3);flex-wrap:wrap;padding:var(--sp-4) var(--sp-5);border-top:1px solid var(--line);}
+.sheet-foot .btn-del{margin-left:auto;color:var(--red-text);border-color:var(--coral-border);}
+.chk{display:inline-flex;align-items:center;gap:8px;font-size:var(--fs-sm);font-weight:700;color:var(--text);
+  min-height:44px;cursor:pointer;}
+.chk input{width:24px;height:24px;}
+
+/* ---------- 商品ピッカー（種類 → 推奨商品 → 取り扱い商品） ---------- */
+.pick{display:grid;grid-template-columns:minmax(240px,1fr) minmax(240px,1.2fr);gap:var(--sp-4);align-items:start;}
+.pick-h{font-size:var(--fs-xs);font-weight:700;color:var(--muted);margin-bottom:6px;display:block;}
+.rec-list{display:flex;flex-direction:column;gap:6px;}
+.rec-btn{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:1.5px solid var(--green-border);
+  background:var(--white);border-radius:12px;padding:9px 12px;min-height:44px;cursor:pointer;font:inherit;}
+.rec-btn:hover,.rec-btn:focus-visible{border-color:var(--green);background:var(--green-bg);}
+.rec-btn .rc-name{font-weight:700;color:var(--navy);font-size:var(--fs-sm);}
+.rec-btn .rc-sub{font-size:var(--fs-xs);color:var(--muted);}
+.rec-btn .rc-rate{margin-left:auto;font-size:var(--fs-xs);font-weight:700;color:var(--green);white-space:nowrap;}
+.rec-none{font-size:var(--fs-xs);color:var(--muted);}
+.pick-note{margin-top:var(--sp-2);font-size:var(--fs-sm);background:var(--white);border:1px solid var(--green-border);
+  border-radius:10px;padding:8px 12px;}
+/* ---------- 商品・手数料マスタ（経営者用） ---------- */
+.pm-wrap{overflow-x:auto;}
+.pm-table{width:100%;border-collapse:collapse;font-size:var(--fs-sm);min-width:1060px;}
+.pm-table td:nth-child(1) input{min-width:150px;}   /* 保険会社 */
+.pm-table td:nth-child(2) input{min-width:200px;}   /* 商品名 */
+.pm-table td:nth-child(3) select{min-width:130px;}  /* 種類 */
+.pm-table td:nth-child(4) select{min-width:150px;}  /* 払込タイプ */
+.pm-table td:nth-child(7) input{min-width:150px;}   /* 2年目以降 */
+.pm-table td:nth-child(8) input{min-width:150px;}   /* メモ */
+.pm-table th{background:var(--navy-soft);color:var(--navy);font-size:var(--fs-xs);text-align:left;padding:8px 10px;white-space:nowrap;}
+.pm-table td{border-bottom:1px solid var(--line);padding:6px 8px;vertical-align:middle;}
+.pm-table input[type=text],.pm-table input[type=number],.pm-table select{width:100%;min-width:80px;border:1.5px solid var(--line);
+  border-radius:8px;padding:7px 9px;min-height:40px;background:#fdfaf6;font-size:var(--fs-sm);}
+.pm-table input[type=checkbox]{width:24px;height:24px;}
+.pm-table .pm-num input{text-align:right;}
+.pm-locked input,.pm-locked select{background:#f5f0ea;color:var(--muted);pointer-events:none;}
+.pm-meta{font-size:var(--fs-xs);color:var(--muted);margin-top:var(--sp-3);}
+.pm-code{width:100%;min-height:76px;border:1.5px solid var(--line);border-radius:10px;padding:9px 11px;
+  font-size:var(--fs-xs);background:#fdfaf6;font-family:ui-monospace,Menlo,Consolas,monospace;}
 
 /* ---------- KPI・統計 ---------- */
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--sp-3);}
@@ -253,6 +341,13 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
   .bar{min-width:24px;}
   .bar-x{gap:2px;}
   .bar-x span:nth-child(even){visibility:hidden;}
+  /* カレンダー：狭い画面では1日ぶんの高さを詰め、予定は2件まで＋「ほかN件」 */
+  .cal-cell{min-height:64px;padding:3px 2px 4px;}
+  .cal-cell .cd{font-size:11px;padding:1px 4px;min-width:20px;}
+  .cal-ev{font-size:10px;padding:0 3px;}
+  .day-row{padding:10px 12px;}
+  .day-row .day-time{min-width:4.6em;}
+  .pick{grid-template-columns:1fr;}
 }
 </style>
 </head>
@@ -377,6 +472,8 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
           <div class="fld"><label for="cfKana">ふりがな</label><input type="text" id="cfKana"></div>
           <div class="fld"><label for="cfCompany">会社・職業</label><input type="text" id="cfCompany"></div>
           <div class="fld"><label for="cfTel">連絡先</label><input type="text" id="cfTel"></div>
+          <div class="fld"><label for="cfBirth">誕生日</label><input type="date" id="cfBirth">
+            <div class="hint">入れるとカレンダーに「◯歳の誕生日」が出ます</div></div>
           <div class="fld"><label for="cfSource">紹介元・きっかけ</label><input type="text" id="cfSource"></div>
           <div class="fld"><label for="cfStage">現在のステージ</label><select id="cfStage"></select></div>
           <div class="fld"><label for="cfProd">想定商品タイプ</label><select id="cfProd"></select></div>
@@ -424,10 +521,32 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
     <div class="sec">
       <div class="sec-head">
         <span class="sh-art"><svg aria-hidden="true" viewBox="0 0 64 64"><rect x="12" y="10" width="40" height="46" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/><rect x="24" y="5" width="16" height="10" rx="4" fill="#27587f"/><path d="m19 26 4 4 7-8" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="34" y="25" width="12" height="3.5" rx="1.75" fill="#d9cfc4"/><path d="m19 40 4 4 7-8" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="34" y="39" width="12" height="3.5" rx="1.75" fill="#d9cfc4"/></svg></span>
-        <div><h2>営業活動</h2><p>誰と・どこで・何をしたかを1分で記録</p></div>
+        <div><h2>営業活動</h2><p>カレンダーで日付を選び、誰と・どこで・何をしたかを1分で記録</p></div>
       </div>
 
       <div class="kpi-week" id="kpiWeek"></div>
+
+      <!-- カレンダー：日付を選ぶと、その日の記録と入力フォームの日付が切り替わる -->
+      <div class="card">
+        <div class="cal-head">
+          <span class="cal-title" id="calTitle"></span>
+          <div class="cal-nav">
+            <button class="icon-btn" id="calPrev" aria-label="前の月">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+            <button class="btn btn-ghost btn-sm" id="calToday">今日</button>
+            <button class="icon-btn" id="calNext" aria-label="次の月">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></button>
+          </div>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+        <div class="cal-legend">
+          <span class="badge bg-AP">AP</span><span class="badge bg-FF">FF</span>
+          <span class="badge bg-PZ">プレゼン</span><span class="badge bg-CL">クロージング</span>
+          <span class="badge bg-KY">契約</span>
+          <span class="badge bg-bd">誕生日（顧客カルテの誕生日から表示）</span>
+        </div>
+        <div class="day-panel" id="dayPanel"></div>
+      </div>
 
       <div class="card">
         <h3 style="color:var(--navy);font-size:var(--fs-md);margin-bottom:var(--sp-3);">活動を記録する</h3>
@@ -442,7 +561,11 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
           </div>
         </div>
         <div class="frm">
-          <div class="fld"><label for="afDate">日付</label><input type="date" id="afDate"></div>
+          <div class="fld"><label for="afDate">日付</label><input type="date" id="afDate">
+            <div class="hint">カレンダーの日付をクリックしても切り替わります</div></div>
+          <div class="fld"><label for="afStart">開始時刻</label><input type="time" id="afStart">
+            <div class="hint">空欄なら終日あつかい</div></div>
+          <div class="fld"><label for="afEnd">終了時刻</label><input type="time" id="afEnd"></div>
           <div class="fld"><label for="afCust">顧客（誰と）</label><select id="afCust"></select>
             <div class="hint">いない場合は先に顧客管理で追加</div></div>
           <div class="fld"><label for="afPlace">場所（どこで）</label><input type="text" id="afPlace" placeholder="例：顧客宅、事務所、オンライン"></div>
@@ -453,7 +576,23 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
         <!-- 契約のときだけ開く -->
         <div class="contract-box hide" id="afContract">
           <h3>契約の内容</h3>
-          <div class="frm">
+          <!-- 商品の種類 → 推奨商品（横）→ 取り扱い商品（下）。選ぶと保険会社・商品名・料率が入る -->
+          <div class="pick">
+            <div>
+              <span class="pick-h">商品の種類（クリックすると推奨商品が出ます）</span>
+              <div class="chips" id="acKinds"></div>
+            </div>
+            <div>
+              <span class="pick-h">推奨商品</span>
+              <div class="rec-list" id="acRec"></div>
+              <div class="fld" style="margin-top:var(--sp-3);">
+                <label for="acPick">取り扱い保険会社の商品から選ぶ</label>
+                <select id="acPick"></select>
+              </div>
+            </div>
+          </div>
+          <div class="pick-note hide" id="acPickNote"></div>
+          <div class="frm" style="margin-top:var(--sp-3);">
             <div class="fld"><label for="acCompany">保険会社</label><input type="text" id="acCompany"></div>
             <div class="fld"><label for="acProduct">商品名</label><input type="text" id="acProduct"></div>
             <div class="fld"><label for="acPtype">商品タイプ（料率表と連動）</label><select id="acPtype"></select></div>
@@ -523,6 +662,57 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
 
         <div class="frm-actions"><button class="btn btn-primary" id="rateSave">設定を保存</button>
           <span id="rateSaved" style="color:var(--green);font-weight:700;font-size:var(--fs-sm);align-self:center;"></span></div>
+      </div>
+    </div>
+
+    <!-- ================= 商品・手数料マスタ（経営者用） ================= -->
+    <div class="sec">
+      <div class="sec-head">
+        <span class="sh-art"><svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#fdf3e2"/><rect x="14" y="20" width="36" height="28" rx="4" fill="#fffdf8" stroke="#966417" stroke-width="2.6"/><path d="M24 20v-4a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v4" fill="none" stroke="#966417" stroke-width="2.6"/><path d="M14 31h36" stroke="#966417" stroke-width="2.2"/><rect x="28" y="27" width="8" height="8" rx="2" fill="#f7c34e"/></svg></span>
+        <div><h2>商品・手数料マスタ（代理店経営者用）</h2>
+          <p>ここに入れた商品と料率が、メンバーの「推奨商品」と概算コミッションに反映されます</p></div>
+      </div>
+
+      <div class="callout warn"><b>この表は経営者が管理する欄です。</b>料率は保険会社・チャネル・代理店委託契約ごとに異なり非公開です。
+        自社の手数料規程（税込か税抜か、支払時期、チャージバックの条件）を確認して入力してください。
+        入れた内容はこの端末に保存され、下の「メンバーに配る」で各メンバーの端末に取り込みます。</div>
+
+      <div class="card">
+        <div class="frm-actions" style="margin-top:0;margin-bottom:var(--sp-3);">
+          <button class="btn btn-ghost btn-sm" id="pmLockBtn">編集する（経営者用）</button>
+          <span id="pmLockNote" style="font-size:var(--fs-sm);color:var(--muted);font-weight:700;align-self:center;">いまは表示のみです</span>
+        </div>
+        <div class="pm-wrap">
+          <table class="pm-table" id="pmTable">
+            <thead><tr>
+              <th>保険会社</th><th>商品名</th><th>種類</th><th>払込タイプ</th>
+              <th style="text-align:center;">推奨</th>
+              <th class="num">初年度（%）</th><th>2年目以降（%・カンマ区切り）</th><th>メモ</th><th></th>
+            </tr></thead>
+            <tbody id="pmBody"></tbody>
+          </table>
+        </div>
+        <div class="frm-actions">
+          <button class="btn btn-ghost btn-sm" id="pmAdd">商品を追加する</button>
+        </div>
+        <p class="sec-note">例：マニュライフ生命／こだわり外貨終身（5L）／終身保険／初年度 <b>80</b>／2年目以降 <b>10,10,10,10</b>
+          … 初年度は税込80%、2〜5年目が各10%という意味です。率のかかり先は換算年払保険料（ANP）、一時払だけは保険料そのものです。</p>
+
+        <h3 style="color:var(--navy);font-size:var(--fs-md);margin:var(--sp-5) 0 var(--sp-2);">メンバーへの配布</h3>
+        <div class="frm-actions" style="margin-top:0;">
+          <button class="btn btn-primary btn-sm" id="pmShare">メンバー用リンクをコピー</button>
+          <button class="btn btn-ghost btn-sm" id="pmExport">マスタをJSONで書き出す</button>
+          <label class="btn btn-ghost btn-sm" style="cursor:pointer;">配布ファイルを読み込む<input type="file" id="pmImport" accept=".json" class="hide"></label>
+        </div>
+        <div class="fld" style="margin-top:var(--sp-3);">
+          <label for="pmCode">配布コード（貼り付けて取り込む）</label>
+          <textarea class="pm-code" id="pmCode" placeholder="経営者から送られてきたコードを貼り付けて「取り込む」を押します"></textarea>
+        </div>
+        <div class="frm-actions" style="margin-top:var(--sp-2);">
+          <button class="btn btn-ghost btn-sm" id="pmPaste">貼り付けたコードを取り込む</button>
+          <span id="pmMsg" style="font-weight:700;font-size:var(--fs-sm);align-self:center;"></span>
+        </div>
+        <p class="pm-meta" id="pmMeta"></p>
       </div>
     </div>
 
@@ -627,6 +817,83 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
 </main>
 
 <footer>保険営業ダッシュボード｜社内利用専用・データはこの端末にのみ保存されます</footer>
+
+<!-- ================= 活動の編集（カレンダーから開く） ================= -->
+<div class="ovl hide" id="aeOvl" role="dialog" aria-modal="true" aria-labelledby="aeTitle">
+  <div class="sheet">
+    <div class="sheet-head">
+      <button class="icon-btn" id="aeClose" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+      <b id="aeTitle">活動の編集</b>
+      <span id="aeWhen" style="margin-left:auto;font-size:var(--fs-xs);color:var(--muted);font-weight:700;"></span>
+    </div>
+    <div class="sheet-body">
+      <div class="fld" style="margin-bottom:var(--sp-3);">
+        <label>活動の種類</label>
+        <div class="type-grid" id="aeTypes">
+          <button class="type-btn" data-type="AP" aria-pressed="false">AP<small>アプローチ</small></button>
+          <button class="type-btn" data-type="FF" aria-pressed="false">FF<small>ファクトファインディング</small></button>
+          <button class="type-btn" data-type="PZ" aria-pressed="false">プレゼン<small>提案・設計書</small></button>
+          <button class="type-btn" data-type="CL" aria-pressed="false">クロージング<small>意思確認</small></button>
+          <button class="type-btn" data-type="KY" aria-pressed="false">契約<small>申込・成立</small></button>
+        </div>
+      </div>
+      <div class="frm">
+        <div class="fld"><label for="aeDate">日付</label><input type="date" id="aeDate"></div>
+        <div class="fld"><label for="aeStart">開始時刻</label><input type="time" id="aeStart"></div>
+        <div class="fld"><label for="aeEnd">終了時刻</label><input type="time" id="aeEnd"></div>
+        <div class="fld full"><label class="chk"><input type="checkbox" id="aeAllday">終日にする（時刻を使わない）</label></div>
+        <div class="fld"><label for="aeCust">顧客（誰と）</label><select id="aeCust"></select></div>
+        <div class="fld"><label for="aePlace">場所（どこで）</label><input type="text" id="aePlace" placeholder="例：顧客宅、事務所、オンライン"></div>
+        <div class="fld full"><label for="aeWho">同席者・相手メモ</label><input type="text" id="aeWho" placeholder="例：奥様同席、社長と経理部長"></div>
+        <div class="fld full"><label for="aeMemo">内容メモ</label><textarea id="aeMemo" placeholder="話した内容・次のアクションなど"></textarea></div>
+      </div>
+
+      <!-- 契約のときだけ開く（記録フォームと同じ項目） -->
+      <div class="contract-box hide" id="aeContract">
+        <h3>契約の内容</h3>
+        <div class="pick">
+          <div>
+            <span class="pick-h">商品の種類</span>
+            <div class="chips" id="aeKinds"></div>
+          </div>
+          <div>
+            <span class="pick-h">推奨商品</span>
+            <div class="rec-list" id="aeRec"></div>
+            <div class="fld" style="margin-top:var(--sp-3);">
+              <label for="aePick">取り扱い保険会社の商品から選ぶ</label>
+              <select id="aePick"></select>
+            </div>
+          </div>
+        </div>
+        <div class="pick-note hide" id="aePickNote"></div>
+        <div class="frm" style="margin-top:var(--sp-3);">
+          <div class="fld"><label for="aeCompany">保険会社</label><input type="text" id="aeCompany"></div>
+          <div class="fld"><label for="aeProduct">商品名</label><input type="text" id="aeProduct"></div>
+          <div class="fld"><label for="aePtype">商品タイプ（料率表と連動）</label><select id="aePtype"></select></div>
+          <div class="fld"><label for="aeInsured">被保険者</label><input type="text" id="aeInsured"></div>
+          <div class="fld"><label for="aeAmt">保険料（円）</label><input type="number" id="aeAmt" min="0" step="1000"></div>
+          <div class="fld"><label for="aeMode">払い方</label><select id="aeMode">
+            <option value="m">月払</option><option value="h">半年払</option><option value="y">年払</option><option value="s">一時払</option></select></div>
+          <div class="fld"><label for="aePayNote">払込期間メモ</label><input type="text" id="aePayNote" placeholder="例：65歳払込、5年払込（5L）"></div>
+          <div class="fld"><label for="aeInit">初年度コミッション（円）</label><input type="number" id="aeInit" min="0" step="100"></div>
+          <div class="fld"><label for="aeRenew">継続コミッション（円／年）</label><input type="number" id="aeRenew" min="0" step="100"></div>
+          <div class="fld"><label for="aeYears">継続年数（年）</label><input type="number" id="aeYears" min="0" max="30" step="1"></div>
+        </div>
+        <div class="anp-note" id="aeAnp"></div>
+        <div class="frm-actions" style="margin-top:var(--sp-3);">
+          <button class="btn btn-ghost btn-sm" id="aeEst">料率表から概算を入れる</button>
+        </div>
+      </div>
+      <div class="err" id="aeErr" role="alert" style="color:var(--red-text);font-size:var(--fs-sm);font-weight:700;min-height:1.6em;margin-top:var(--sp-2);"></div>
+    </div>
+    <div class="sheet-foot">
+      <button class="btn btn-primary" id="aeSave">保存する</button>
+      <button class="btn btn-ghost" id="aeCancel">閉じる</button>
+      <button class="btn btn-ghost btn-del" id="aeDel">この記録を削除</button>
+    </div>
+  </div>
+</div>
 </div>
 
 <script>
@@ -736,11 +1003,35 @@ var DEFAULT_RATES = [
   { id:'l5',     label:'短期払 5年払込（5L）',      init:15, renew:2, years:4 },
   { id:'single', label:'一時払（率は保険料に対して）', init:2,  renew:0, years:0 }
 ];
+/* 商品の種類（推奨商品・取り扱い商品の絞り込みに使う） */
+var KINDS = [
+  { k:'shushin', label:'終身保険' },
+  { k:'teiki',   label:'定期・収入保障' },
+  { k:'iryo',    label:'医療保険' },
+  { k:'gan',     label:'がん保険' },
+  { k:'kaigo',   label:'介護・就業不能' },
+  { k:'nenkin',  label:'個人年金・貯蓄' },
+  { k:'gakushi', label:'学資・こども' },
+  { k:'hojin',   label:'法人・事業保険' },
+  { k:'other',   label:'その他' }
+];
+function kindLabel(k){ for (var i=0;i<KINDS.length;i++) if (KINDS[i].k === k) return KINDS[i].label; return 'その他'; }
+
+/* 商品・手数料マスタの初期値
+   【注意】実際の料率は保険会社・代理店委託契約ごとに異なり公開もされていない。
+   ここに入っているのは「入れ方の見本」として登録した1件だけ。経営者が自社の数値に入れ替えて使う。 */
+var DEFAULT_PRODUCTS = [
+  { id:'p_sample_manulife', company:'マニュライフ生命', name:'こだわり外貨終身（5L）', kind:'shushin',
+    ptype:'l5', rec:true, init:80, renews:[10,10,10,10], note:'初年度80%（税込）・2〜5年目 各10%（入れ方の見本）' }
+];
+
 var state = null;
 function defaultState(){
   return { customers:[], activities:[], contracts:[],
     probs:{ AP:10, FF:25, PZ:50, CL:75 },
     rates: JSON.parse(JSON.stringify(DEFAULT_RATES)),
+    products: JSON.parse(JSON.stringify(DEFAULT_PRODUCTS)),
+    master: { rev:1, updated:'', by:'' },
     set:{ singleAnpPct:10 } };
 }
 function load(){
@@ -751,6 +1042,8 @@ function load(){
     o.probs = Object.assign(d.probs, o.probs || {});
     o.set = Object.assign(d.set, o.set || {});
     if (!o.rates || !o.rates.length) o.rates = d.rates;
+    if (!o.products) o.products = d.products;            /* 旧バージョンのデータを開いたとき */
+    o.master = Object.assign(d.master, o.master || {});
     o.contracts = o.contracts || [];
     o.activities = o.activities || [];
     return o;
@@ -868,6 +1161,7 @@ function openCustForm(cust){
   $('cfKana').value = cust ? (cust.kana||'') : '';
   $('cfCompany').value = cust ? (cust.company||'') : '';
   $('cfTel').value = cust ? (cust.tel||'') : '';
+  $('cfBirth').value = cust ? (cust.birth||'') : '';
   $('cfSource').value = cust ? (cust.source||'') : '';
   $('cfStage').value = cust ? cust.stage : 'AP';
   $('cfProd').value = cust ? (cust.prodType||'level') : 'level';
@@ -885,7 +1179,7 @@ $('cfSave').addEventListener('click', function(){
   var c = editCustId ? custById(editCustId) : null;
   if (!c) { c = { id: uid('c'), created: Date.now(), status:'active' }; state.customers.push(c); }
   c.name = name; c.kana = $('cfKana').value.trim(); c.company = $('cfCompany').value.trim();
-  c.tel = $('cfTel').value.trim(); c.source = $('cfSource').value.trim();
+  c.tel = $('cfTel').value.trim(); c.birth = $('cfBirth').value; c.source = $('cfSource').value.trim();
   c.stage = $('cfStage').value; c.prodType = $('cfProd').value;
   c.expAmt = +$('cfAmt').value || 0; c.expMode = $('cfMode').value;
   c.memo = $('cfMemo').value.trim();
@@ -919,6 +1213,7 @@ function openDetail(id){
     '<dl class="kv">' +
       '<dt>会社・職業</dt><dd>' + esc(c.company || '—') + '</dd>' +
       '<dt>連絡先</dt><dd>' + esc(c.tel || '—') + '</dd>' +
+      '<dt>誕生日</dt><dd>' + (c.birth ? esc(c.birth) + '（' + esc(birthNote(c)) + '）' : '—') + '</dd>' +
       '<dt>紹介元</dt><dd>' + esc(c.source || '—') + '</dd>' +
       '<dt>見込み保険料</dt><dd>' + exp + '</dd>' +
       (c.memo ? '<dt>メモ</dt><dd>' + esc(c.memo) + '</dd>' : '') +
@@ -960,6 +1255,7 @@ function openDetail(id){
   $('cdTimeline').innerHTML = acts.length ? acts.map(actRowHtml).join('')
     : '<p class="sec-note" style="margin:0;">まだ活動記録がありません。</p>';
   bindActDeletes($('cdTimeline'), function(){ openDetail(id); });
+  bindActEdits($('cdTimeline'));
 }
 $('cdBack').addEventListener('click', function(){ detailCustId = null; renderCust(); });
 
@@ -974,7 +1270,7 @@ function contractCardHtml(k){
       '<dt>保険料</dt><dd>' + esc(fmtYenFull(k.amt)) + '（' + esc(MODES[k.mode]||'') + (k.payNote ? '・' + esc(k.payNote) : '') + '）</dd>' +
       '<dt>換算ANP</dt><dd>' + esc(fmtYen(calcAnp(k.amt, k.mode))) + '</dd>' +
       '<dt>初年度C</dt><dd style="color:var(--green);">' + esc(fmtYenFull(k.init)) + '</dd>' +
-      '<dt>継続C</dt><dd>' + (k.renew ? esc(fmtYenFull(k.renew)) + '／年 × ' + (+k.years||0) + '年' : 'なし') + '</dd>' +
+      '<dt>継続C</dt><dd>' + esc(renewLabel(k)) + '</dd>' +
     '</dl></div>';
 }
 
@@ -1000,7 +1296,7 @@ function setActType(t){
     b.setAttribute('aria-pressed', b.getAttribute('data-type') === t ? 'true' : 'false');
   });
   $('afContract').classList.toggle('hide', t !== 'KY');
-  if (t === 'KY') updateAnpNote();
+  if (t === 'KY') { updateAnpNote(); renderPicker('ac'); }
 }
 document.querySelectorAll('#afTypes .type-btn').forEach(function(b){
   b.addEventListener('click', function(){ setActType(b.getAttribute('data-type')); });
@@ -1016,16 +1312,7 @@ function updateAnpNote(){
 }
 $('acAmt').addEventListener('input', updateAnpNote);
 $('acMode').addEventListener('change', updateAnpNote);
-$('acEst').addEventListener('click', function(){
-  var amt = +$('acAmt').value || 0;
-  if (!amt) { $('acAmt').focus(); return; }
-  var pt = $('acPtype').value;
-  var mode = $('acMode').value;
-  var r = rateById(pt);
-  $('acInit').value = Math.round(estInitComm(pt, amt, mode));
-  $('acRenew').value = Math.round(calcAnp(amt, mode) * (r.renew / 100));
-  $('acYears').value = r.years;
-});
+$('acEst').addEventListener('click', function(){ estimateInto('ac'); });
 
 $('afSave').addEventListener('click', function(){
   var err = $('afErr'); err.textContent = '';
@@ -1033,7 +1320,9 @@ $('afSave').addEventListener('click', function(){
   var cid = $('afCust').value;
   if (!cid) { err.textContent = '顧客を選んでください。顧客管理タブから追加できます。'; return; }
   var date = $('afDate').value || todayStr();
-  var act = { id: uid('a'), cid: cid, type: actType, date: date,
+  var st = $('afStart').value, en = $('afEnd').value;
+  if (st && en && en < st) { err.textContent = '終了時刻は開始時刻より後にしてください。'; return; }
+  var act = { id: uid('a'), cid: cid, type: actType, date: date, start: st, end: en,
     place: $('afPlace').value.trim(), who: $('afWho').value.trim(), memo: $('afMemo').value.trim() };
   var c = custById(cid);
 
@@ -1043,6 +1332,7 @@ $('afSave').addEventListener('click', function(){
     var k = { id: uid('k'), cid: cid, actId: act.id, date: date,
       company: $('acCompany').value.trim(), product: $('acProduct').value.trim(),
       ptype: $('acPtype').value, insured: $('acInsured').value.trim(),
+      pid: pickState.ac.pid || '', renews: pickState.ac.renews || null,
       amt: amt, mode: $('acMode').value, payNote: $('acPayNote').value.trim(),
       init: +$('acInit').value || 0, renew: +$('acRenew').value || 0, years: +$('acYears').value || 0 };
     state.contracts.push(k);
@@ -1056,8 +1346,10 @@ $('afSave').addEventListener('click', function(){
     if (actType === 'KY') c.status = 'won';
   }
   save();
-  ['afPlace','afWho','afMemo','acCompany','acProduct','acInsured','acAmt','acPayNote','acInit','acRenew','acYears'].forEach(function(id){ $(id).value = ''; });
+  ['afPlace','afWho','afMemo','afStart','afEnd','acCompany','acProduct','acInsured','acAmt','acPayNote','acInit','acRenew','acYears'].forEach(function(id){ $(id).value = ''; });
   setActType(null);
+  resetPicker('ac');
+  selDate = date;
   renderAct();
   err.style.color = 'var(--green)';
   err.textContent = '記録しました。';
@@ -1072,17 +1364,26 @@ function actRowHtml(a){
   if (a.who) meta.push('同席：' + a.who);
   var k = a.contractId ? state.contracts.filter(function(x){ return x.id === a.contractId; })[0] : null;
   return '<div class="tl-row" data-act="' + esc(a.id) + '">' +
-    '<span class="tl-date">' + esc(a.date) + '</span>' +
+    '<span class="tl-date">' + esc(a.date) + (a.start ? '<br>' + esc(timeLabel(a)) : '') + '</span>' +
     '<span class="tl-body">' + typeBadge + ' <b>' + esc(c ? c.name : '（削除済み顧客）') + '</b>' +
     (meta.length ? '<div class="tl-meta">' + esc(meta.join('　')) + '</div>' : '') +
     (a.memo ? '<div class="tl-meta">' + esc(a.memo) + '</div>' : '') +
     (k ? '<div class="tl-meta" style="color:var(--green);font-weight:700;">' +
       esc([k.company, k.product].filter(Boolean).join(' ')) + '　初年度C ' + esc(fmtYen(k.init)) +
-      (k.renew ? '／継続C ' + esc(fmtYen(k.renew)) + '×' + (+k.years||0) + '年' : '') + '</div>' : '') +
+      (renewYears(k) ? '／継続C ' + esc(renewLabel(k)) : '') + '</div>' : '') +
     '</span>' +
-    '<span class="tl-del"><button class="icon-btn" data-del="' + esc(a.id) + '" aria-label="この記録を削除">' +
+    '<span class="tl-del" style="display:flex;gap:6px;">' +
+    '<button class="icon-btn" data-edit="' + esc(a.id) + '" aria-label="この記録を編集">' +
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m14.5 5.5 4 4"/></svg>' +
+    '</button>' +
+    '<button class="icon-btn" data-del="' + esc(a.id) + '" aria-label="この記録を削除">' +
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>' +
     '</button></span></div>';
+}
+function bindActEdits(host){
+  host.querySelectorAll('[data-edit]').forEach(function(b){
+    b.addEventListener('click', function(ev){ ev.stopPropagation(); openActEdit(b.getAttribute('data-edit')); });
+  });
 }
 function bindActDeletes(host, after){
   host.querySelectorAll('[data-del]').forEach(function(b){
@@ -1097,6 +1398,307 @@ function bindActDeletes(host, after){
       save(); after();
     });
   });
+}
+
+/* ------------------------------------------------------------
+   カレンダー（月表示）
+   日付をクリック → その日の記録一覧＋記録フォームの日付が切り替わる。
+   記録をクリック → 編集シート（時刻・場所・同席者・契約の内容まで直せる）。
+   ------------------------------------------------------------ */
+var DOW = ['日','月','火','水','木','金','土'];
+var calY = null, calM = null;   /* 表示中の年・月（0-11） */
+var selDate = null;             /* 選択中の日付 yyyy-mm-dd */
+
+function ymd(d){ return d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2) + '-' + ('0'+d.getDate()).slice(-2); }
+function parseYmd(s){ var p = String(s || '').split('-'); return new Date(+p[0], (+p[1] || 1) - 1, +p[2] || 1); }
+function fmtJpDate(s){ var d = parseYmd(s); return (d.getMonth()+1) + '月' + d.getDate() + '日（' + DOW[d.getDay()] + '）'; }
+function timeLabel(a){ return a.start ? (a.start + (a.end ? '〜' + a.end : '')) : '終日'; }
+function actsOn(dateStr){
+  return state.activities.filter(function(a){ return a.date === dateStr; })
+    .sort(function(a, b){
+      var x = a.start || '99:99', y = b.start || '99:99';
+      return x < y ? -1 : x > y ? 1 : (a.id < b.id ? -1 : 1);
+    });
+}
+/* 誕生日：その日に何歳になるかを出す（顧客カルテの誕生日から計算） */
+function birthdaysOn(dateStr){
+  var d = parseYmd(dateStr);
+  return state.customers.filter(function(c){
+    if (!c.birth || c.status === 'lost') return false;
+    var b = parseYmd(c.birth);
+    return b.getMonth() === d.getMonth() && b.getDate() === d.getDate() && d.getFullYear() >= b.getFullYear();
+  }).map(function(c){
+    return { c: c, age: d.getFullYear() - parseYmd(c.birth).getFullYear() };
+  });
+}
+function birthNote(c){
+  if (!c.birth) return '';
+  var b = parseYmd(c.birth), now = new Date();
+  var passed = (now.getMonth() > b.getMonth()) || (now.getMonth() === b.getMonth() && now.getDate() > b.getDate());
+  var y = now.getFullYear() + (passed ? 1 : 0);
+  return y + '年' + (b.getMonth()+1) + '月' + b.getDate() + '日で' + (y - b.getFullYear()) + '歳';
+}
+
+function contractById(id){ for (var i=0;i<state.contracts.length;i++) if (state.contracts[i].id === id) return state.contracts[i]; return null; }
+
+function renderCal(){
+  if (calY === null) { var t = new Date(); calY = t.getFullYear(); calM = t.getMonth(); }
+  if (!selDate) selDate = todayStr();
+  $('calTitle').textContent = calY + '年 ' + (calM + 1) + '月';
+
+  var first = new Date(calY, calM, 1);
+  var start = new Date(calY, calM, 1 - first.getDay());   /* 日曜はじまり */
+  var today = todayStr();
+  var cap = window.innerWidth <= 640 ? 2 : 3;             /* 1マスに出す件数 */
+  var html = DOW.map(function(d, i){
+    return '<div class="cal-dow' + (i === 0 ? ' sun' : i === 6 ? ' sat' : '') + '">' + d + '</div>';
+  }).join('');
+
+  for (var i = 0; i < 42; i++) {
+    var d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+    var s = ymd(d);
+    var evs = actsOn(s);
+    var bds = birthdaysOn(s);
+    var cls = ['cal-cell'];
+    if (d.getMonth() !== calM) cls.push('out');
+    if (d.getDay() === 0) cls.push('sun');
+    if (d.getDay() === 6) cls.push('sat');
+    if (s === today) cls.push('today');
+    if (s === selDate) cls.push('sel');
+    html += '<button type="button" class="' + cls.join(' ') + '" data-d="' + s + '"' +
+      (s === selDate ? ' aria-current="date"' : '') +
+      ' aria-label="' + esc((d.getMonth()+1) + '月' + d.getDate() + '日' + (evs.length ? '　記録' + evs.length + '件' : '　記録なし') +
+        (bds.length ? '　誕生日' + bds.length + '人' : '')) + '">' +
+      '<span class="cd">' + d.getDate() + '</span>' +
+      bds.slice(0, cap).map(function(o){
+        return '<span class="cal-ev bd">' + esc(o.c.name) + ' ' + o.age + '歳</span>';
+      }).join('') +
+      evs.slice(0, Math.max(cap - bds.length, 1)).map(function(a){
+        var c = custById(a.cid);
+        return '<span class="cal-ev bg-' + a.type + '">' + esc(c ? c.name : '（削除済み）') + '</span>';
+      }).join('') +
+      (function(){
+        var shown = Math.min(bds.length, cap) + Math.min(evs.length, Math.max(cap - bds.length, 1));
+        var rest = bds.length + evs.length - shown;
+        return rest > 0 ? '<span class="cal-more">ほか' + rest + '件</span>' : '';
+      })() +
+      '</button>';
+  }
+  $('calGrid').innerHTML = html;
+  $('calGrid').querySelectorAll('.cal-cell').forEach(function(b){
+    b.addEventListener('click', function(){ selectDate(b.getAttribute('data-d')); });
+  });
+  renderDay();
+}
+
+function selectDate(s){
+  selDate = s;
+  var d = parseYmd(s);
+  calY = d.getFullYear(); calM = d.getMonth();
+  $('afDate').value = s;
+  renderCal();
+}
+
+function renderDay(){
+  var evs = actsOn(selDate);
+  var bds = birthdaysOn(selDate);
+  var html = '<div class="day-head"><b>' + esc(fmtJpDate(selDate)) + '</b>' +
+    '<span class="day-n">' + (evs.length ? '記録' + evs.length + '件' : '記録なし') +
+    (bds.length ? '・誕生日' + bds.length + '人' : '') + '</span>' +
+    '<button class="btn btn-ghost btn-sm" id="dayAdd">この日に記録する</button></div>';
+  html += bds.map(function(o){
+    return '<div class="day-row bd">' +
+      '<span class="day-time">終日</span>' +
+      '<span class="day-body"><span><span class="badge bg-bd">誕生日</span> ' +
+      '<b>' + esc(o.c.name) + '</b> さん　' + o.age + '歳</span>' +
+      '<span class="tl-meta">お祝いの連絡・保障の見直しのきっかけに</span></span>' +
+      '<span class="day-go" style="color:var(--muted);">' + esc(o.c.birth) + '</span></div>';
+  }).join('');
+  html += evs.map(function(a){
+    var c = custById(a.cid);
+    var meta = [];
+    if (a.place) meta.push('場所：' + a.place);
+    if (a.who) meta.push('同席：' + a.who);
+    var k = a.contractId ? contractById(a.contractId) : null;
+    return '<button type="button" class="day-row" data-e="' + esc(a.id) + '">' +
+      '<span class="day-time">' + esc(timeLabel(a)) + '</span>' +
+      '<span class="day-body"><span><span class="badge bg-' + a.type + '">' + esc(stageLabel(a.type)) + '</span> ' +
+      '<b>' + esc(c ? c.name : '（削除済み顧客）') + '</b></span>' +
+      (meta.length ? '<span class="tl-meta">' + esc(meta.join('　')) + '</span>' : '') +
+      (k ? '<span class="tl-meta" style="color:var(--green);font-weight:700;">' +
+        esc([k.company, k.product].filter(Boolean).join(' ')) + '　初年度C ' + esc(fmtYen(k.init)) + '</span>' : '') +
+      '</span><span class="day-go">編集</span></button>';
+  }).join('');
+  if (!evs.length && !bds.length) html += '<p class="day-none">この日の記録はまだありません。下の「活動を記録する」から追加できます。</p>';
+  $('dayPanel').innerHTML = html;
+  $('dayAdd').addEventListener('click', function(){
+    $('afDate').value = selDate;
+    $('afCust').scrollIntoView({ block: 'center' });
+    var b = document.querySelector('#afTypes .type-btn');
+    if (b) b.focus();
+  });
+  $('dayPanel').querySelectorAll('[data-e]').forEach(function(b){
+    b.addEventListener('click', function(){ openActEdit(b.getAttribute('data-e')); });
+  });
+}
+
+$('calPrev').addEventListener('click', function(){ calM--; if (calM < 0) { calM = 11; calY--; } renderCal(); });
+$('calNext').addEventListener('click', function(){ calM++; if (calM > 11) { calM = 0; calY++; } renderCal(); });
+$('calToday').addEventListener('click', function(){ selectDate(todayStr()); });
+$('afDate').addEventListener('change', function(){ if (this.value) selectDate(this.value); });
+/* 画面幅が狭い⇔広いをまたいだときだけ、1マスの件数を組み直す */
+var calNarrow = window.innerWidth <= 640;
+window.addEventListener('resize', function(){
+  var now = window.innerWidth <= 640;
+  if (now !== calNarrow) { calNarrow = now; if (!$('tab-act').classList.contains('hide')) renderCal(); }
+});
+
+/* ---------- 活動の編集シート ---------- */
+var aeId = null, aeType = null;
+
+function setAeType(t){
+  aeType = t;
+  document.querySelectorAll('#aeTypes .type-btn').forEach(function(b){
+    b.setAttribute('aria-pressed', b.getAttribute('data-type') === t ? 'true' : 'false');
+  });
+  $('aeContract').classList.toggle('hide', t !== 'KY');
+  if (t === 'KY') { updateAeAnp(); renderPicker('ae'); }
+}
+document.querySelectorAll('#aeTypes .type-btn').forEach(function(b){
+  b.addEventListener('click', function(){ setAeType(b.getAttribute('data-type')); });
+});
+function updateAeAnp(){
+  var amt = +$('aeAmt').value || 0;
+  var mode = $('aeMode').value;
+  $('aeAnp').innerHTML = amt
+    ? '換算ANP：<b>' + esc(fmtYen(calcAnp(amt, mode))) + '</b>' + (mode === 's' ? '（一時払は保険料の' + state.set.singleAnpPct + '%換算）' : '')
+    : '保険料を入れると換算ANPが出ます（月払×12・半年払×2・年払×1・一時払×' + state.set.singleAnpPct + '%）';
+}
+$('aeAmt').addEventListener('input', updateAeAnp);
+$('aeMode').addEventListener('change', updateAeAnp);
+$('aeEst').addEventListener('click', function(){ estimateInto('ae'); });
+function toggleAeTime(){
+  var off = $('aeAllday').checked;
+  $('aeStart').disabled = off; $('aeEnd').disabled = off;
+  if (off) { $('aeStart').value = ''; $('aeEnd').value = ''; }
+}
+$('aeAllday').addEventListener('change', toggleAeTime);
+
+function openActEdit(id){
+  var a = state.activities.filter(function(x){ return x.id === id; })[0];
+  if (!a) return;
+  aeId = id;
+  var c = custById(a.cid);
+  $('aeCust').innerHTML = '<option value="">選択してください</option>' +
+    state.customers.slice().sort(function(x, y){ return (y.created||0) - (x.created||0); })
+      .map(function(x){ return '<option value="' + esc(x.id) + '">' + esc(x.name) + (x.company ? '（' + esc(x.company) + '）' : '') + '</option>'; }).join('') +
+    (c ? '' : '<option value="' + esc(a.cid) + '">（削除済み顧客）</option>');
+  $('aeCust').value = a.cid;
+  $('aePtype').innerHTML = state.rates.map(function(r){
+    return '<option value="' + esc(r.id) + '">' + esc(r.label) + '</option>';
+  }).join('');
+
+  $('aeDate').value = a.date;
+  $('aeAllday').checked = !a.start;
+  $('aeStart').value = a.start || '';
+  $('aeEnd').value = a.end || '';
+  $('aePlace').value = a.place || '';
+  $('aeWho').value = a.who || '';
+  $('aeMemo').value = a.memo || '';
+  toggleAeTime();
+
+  var k = a.contractId ? contractById(a.contractId) : null;
+  $('aeCompany').value = k ? (k.company || '') : '';
+  $('aeProduct').value = k ? (k.product || '') : '';
+  $('aePtype').value = k ? k.ptype : state.rates[0].id;
+  $('aeInsured').value = k ? (k.insured || '') : '';
+  $('aeAmt').value = k ? (k.amt || '') : '';
+  $('aeMode').value = k ? (k.mode || 'm') : 'm';
+  $('aePayNote').value = k ? (k.payNote || '') : '';
+  $('aeInit').value = k ? (k.init || '') : '';
+  $('aeRenew').value = k ? (k.renew || '') : '';
+  $('aeYears').value = k ? (k.years || '') : '';
+
+  pickState.ae = { kind: (k && productById(k.pid)) ? productById(k.pid).kind : null,
+    pid: (k && k.pid) ? k.pid : '', renews: (k && k.renews && k.renews.length) ? k.renews.slice() : null };
+  var pnote = $('aePickNote');
+  var pp = productById(pickState.ae.pid);
+  if (pp) {
+    pnote.classList.remove('hide');
+    pnote.innerHTML = '<b>' + esc(pp.company) + '　' + esc(pp.name) + '</b>　料率：初年度 ' + (+pp.init || 0) + '%／' + esc(renewsText(pp.renews));
+  } else { pnote.classList.add('hide'); }
+  setAeType(a.type);
+  renderPicker('ae');
+  $('aeWhen').textContent = fmtJpDate(a.date);
+  $('aeErr').textContent = '';
+  $('aeOvl').classList.remove('hide');
+  document.body.style.overflow = 'hidden';
+  $('aeClose').focus();
+}
+function closeActEdit(){
+  $('aeOvl').classList.add('hide');
+  document.body.style.overflow = '';
+  aeId = null;
+}
+$('aeClose').addEventListener('click', closeActEdit);
+$('aeCancel').addEventListener('click', closeActEdit);
+$('aeOvl').addEventListener('click', function(ev){ if (ev.target === $('aeOvl')) closeActEdit(); });
+document.addEventListener('keydown', function(ev){ if (ev.key === 'Escape' && !$('aeOvl').classList.contains('hide')) closeActEdit(); });
+
+$('aeSave').addEventListener('click', function(){
+  var a = state.activities.filter(function(x){ return x.id === aeId; })[0];
+  if (!a) return;
+  var err = $('aeErr'); err.textContent = '';
+  if (!aeType) { err.textContent = '活動の種類（AP〜契約）を選んでください。'; return; }
+  var cid = $('aeCust').value;
+  if (!cid) { err.textContent = '顧客を選んでください。'; return; }
+  var date = $('aeDate').value || a.date;
+  var off = $('aeAllday').checked;
+  var st = off ? '' : $('aeStart').value, en = off ? '' : $('aeEnd').value;
+  if (st && en && en < st) { err.textContent = '終了時刻は開始時刻より後にしてください。'; return; }
+
+  var k = a.contractId ? contractById(a.contractId) : null;
+  if (aeType === 'KY') {
+    var amt = +$('aeAmt').value || 0;
+    if (!amt) { err.textContent = '契約の保険料を入れてください。'; return; }
+    var vals = { cid: cid, date: date, company: $('aeCompany').value.trim(), product: $('aeProduct').value.trim(),
+      ptype: $('aePtype').value, insured: $('aeInsured').value.trim(), amt: amt, mode: $('aeMode').value,
+      pid: pickState.ae.pid || '', renews: pickState.ae.renews || null,
+      payNote: $('aePayNote').value.trim(), init: +$('aeInit').value || 0,
+      renew: +$('aeRenew').value || 0, years: +$('aeYears').value || 0 };
+    if (!k) { k = { id: uid('k'), actId: a.id }; state.contracts.push(k); a.contractId = k.id; }
+    for (var key in vals) if (Object.prototype.hasOwnProperty.call(vals, key)) k[key] = vals[key];
+  } else if (k) {
+    if (!confirm('種類を「' + stageLabel(aeType) + '」に変えると、この記録に紐づく契約データ（初年度C ' + fmtYen(k.init) + '）も削除されます。よろしいですか？')) return;
+    state.contracts = state.contracts.filter(function(x){ return x.id !== k.id; });
+    delete a.contractId;
+  }
+
+  a.cid = cid; a.type = aeType; a.date = date; a.start = st; a.end = en;
+  a.place = $('aePlace').value.trim();
+  a.who = $('aeWho').value.trim();
+  a.memo = $('aeMemo').value.trim();
+  save();
+  selDate = date;
+  closeActEdit();
+  afterActChange();
+});
+
+$('aeDel').addEventListener('click', function(){
+  var a = state.activities.filter(function(x){ return x.id === aeId; })[0];
+  if (!a) return;
+  if (!confirm('この活動記録を削除しますか？' + (a.contractId ? '（紐づく契約データも消えます）' : ''))) return;
+  state.activities = state.activities.filter(function(x){ return x.id !== a.id; });
+  if (a.contractId) state.contracts = state.contracts.filter(function(x){ return x.id !== a.contractId; });
+  save();
+  closeActEdit();
+  afterActChange();
+});
+
+/* 編集シートは営業活動タブからも顧客詳細からも開くので、両方を描き直す */
+function afterActChange(){
+  renderAct();
+  if (detailCustId && !$('custDetail').classList.contains('hide')) openDetail(detailCustId);
 }
 
 function weekRange(){
@@ -1132,7 +1734,286 @@ function renderAct(){
   $('actList').innerHTML = acts.map(actRowHtml).join('');
   $('actEmpty').classList.toggle('hide', state.activities.length > 0);
   bindActDeletes($('actList'), renderAct);
+  bindActEdits($('actList'));
+  renderCal();
 }
+
+/* ============================================================
+   5-2. 商品ピッカー（種類 → 推奨商品 → 取り扱い商品）
+   ac＝記録フォーム、ae＝編集シート。どちらも同じ関数で動かす。
+   ============================================================ */
+var pickState = { ac:{ kind:null, pid:'', renews:null }, ae:{ kind:null, pid:'', renews:null } };
+
+function productById(id){ for (var i=0;i<state.products.length;i++) if (state.products[i].id === id) return state.products[i]; return null; }
+function renewsText(arr){
+  if (!arr || !arr.length) return '継続なし';
+  var same = arr.every(function(v){ return +v === +arr[0]; });
+  return same ? ('2〜' + (arr.length + 1) + '年目 各' + (+arr[0]) + '%')
+              : arr.map(function(v, i){ return (i+2) + '年目' + (+v) + '%'; }).join('・');
+}
+/* 継続コミッション：年ごとの配列があればそれを、無ければ「毎年同じ額×年数」 */
+function renewAt(k, n){
+  if (n < 1) return 0;
+  if (k.renews && k.renews.length) return +k.renews[n-1] || 0;
+  return n <= (+k.years || 0) ? (+k.renew || 0) : 0;
+}
+function renewYears(k){ return (k.renews && k.renews.length) ? k.renews.length : (+k.years || 0); }
+function renewLabel(k){
+  var n = renewYears(k);
+  if (!n) return 'なし';
+  if (k.renews && k.renews.length) {
+    var same = k.renews.every(function(v){ return +v === +k.renews[0]; });
+    if (!same) {
+      var sum = 0;
+      k.renews.forEach(function(v){ sum += +v || 0; });
+      return '2年目 ' + fmtYen(k.renews[0]) + 'ほか（' + n + '年で計 ' + fmtYen(sum) + '）';
+    }
+    return fmtYenFull(k.renews[0]) + '／年 × ' + n + '年';
+  }
+  return fmtYenFull(k.renew) + '／年 × ' + n + '年';
+}
+
+function renderPicker(px){
+  var ps = pickState[px];
+  var host = $(px + 'Kinds');
+  host.innerHTML = KINDS.map(function(o){
+    return '<button type="button" class="chip" data-kind="' + o.k + '" aria-pressed="' + (ps.kind === o.k) + '">' + esc(o.label) + '</button>';
+  }).join('');
+  host.querySelectorAll('.chip').forEach(function(ch){
+    ch.addEventListener('click', function(){
+      ps.kind = (ps.kind === ch.getAttribute('data-kind')) ? null : ch.getAttribute('data-kind');
+      renderPicker(px);
+    });
+  });
+
+  var list = state.products.filter(function(p){ return !ps.kind || p.kind === ps.kind; });
+  var recs = list.filter(function(p){ return p.rec; });
+  var rhost = $(px + 'Rec');
+  rhost.innerHTML = !ps.kind
+    ? '<p class="rec-none">左で商品の種類を選ぶと、推奨商品がここに出ます。</p>'
+    : (recs.length
+        ? recs.map(function(p){
+            return '<button type="button" class="rec-btn" data-pid="' + esc(p.id) + '">' +
+              '<span><span class="rc-name">' + esc(p.name) + '</span><br>' +
+              '<span class="rc-sub">' + esc(p.company) + '</span></span>' +
+              '<span class="rc-rate">初年度 ' + (+p.init || 0) + '%</span></button>';
+          }).join('')
+        : '<p class="rec-none">この種類の推奨商品はまだありません。下の一覧から選ぶか、「手数料・設定」タブの商品マスタに追加してください。</p>');
+  rhost.querySelectorAll('[data-pid]').forEach(function(b){
+    b.addEventListener('click', function(){ applyProduct(px, b.getAttribute('data-pid')); });
+  });
+
+  /* 推奨以外も使うので、取り扱い商品を保険会社ごとに全部出す */
+  var groups = {}, order = [];
+  list.forEach(function(p){
+    var co = p.company || '（会社名なし）';
+    if (!groups[co]) { groups[co] = []; order.push(co); }
+    groups[co].push(p);
+  });
+  var html = '<option value="">選択してください</option>';
+  order.forEach(function(co){
+    html += '<optgroup label="' + esc(co) + '">' + groups[co].map(function(p){
+      return '<option value="' + esc(p.id) + '">' + esc(p.name) + (p.rec ? '（推奨）' : '') + '</option>';
+    }).join('') + '</optgroup>';
+  });
+  $(px + 'Pick').innerHTML = html;
+  $(px + 'Pick').value = ps.pid || '';
+}
+
+function applyProduct(px, pid){
+  var p = productById(pid);
+  var ps = pickState[px];
+  ps.pid = pid; ps.renews = null;
+  if (!p) { $(px + 'PickNote').classList.add('hide'); renderPicker(px); return; }
+  ps.kind = p.kind;
+  $(px + 'Company').value = p.company || '';
+  $(px + 'Product').value = p.name || '';
+  if (p.ptype) $(px + 'Ptype').value = p.ptype;
+  var note = $(px + 'PickNote');
+  note.classList.remove('hide');
+  note.innerHTML = '<b>' + esc(p.company) + '　' + esc(p.name) + '</b>　料率：初年度 ' + (+p.init || 0) + '%／' + esc(renewsText(p.renews)) +
+    (p.note ? '　<span style="color:var(--muted);">' + esc(p.note) + '</span>' : '') +
+    '<br>保険料を入れて「料率表から概算を入れる」を押すと、この率でコミッションが入ります。';
+  renderPicker(px);
+  if (+$(px + 'Amt').value) estimateInto(px);
+}
+
+/* 概算：商品マスタが選ばれていればその率、選ばれていなければ料率表を使う */
+function estimateInto(px){
+  var amt = +$(px + 'Amt').value || 0;
+  if (!amt) { $(px + 'Amt').focus(); return; }
+  var mode = $(px + 'Mode').value;
+  var ps = pickState[px];
+  var p = productById(ps.pid);
+  if (p) {
+    var base = (mode === 's' || p.ptype === 'single') ? amt : calcAnp(amt, mode);
+    $(px + 'Init').value = Math.round(base * ((+p.init || 0) / 100));
+    var rs = (p.renews || []).map(function(v){ return Math.round(base * ((+v || 0) / 100)); });
+    ps.renews = rs.length ? rs : null;
+    $(px + 'Renew').value = rs.length ? rs[0] : 0;
+    $(px + 'Years').value = rs.length;
+  } else {
+    var pt = $(px + 'Ptype').value, r = rateById(pt);
+    $(px + 'Init').value = Math.round(estInitComm(pt, amt, mode));
+    $(px + 'Renew').value = Math.round(calcAnp(amt, mode) * (r.renew / 100));
+    $(px + 'Years').value = r.years;
+    ps.renews = null;
+  }
+}
+/* 手で直したら「年ごとの率」は使わない（入力した金額が優先） */
+['ac','ae'].forEach(function(px){
+  ['Renew','Years','Init'].forEach(function(f){
+    $(px + f).addEventListener('input', function(){ pickState[px].renews = null; });
+  });
+  $(px + 'Pick').addEventListener('change', function(){ applyProduct(px, this.value); });
+});
+function resetPicker(px){
+  pickState[px] = { kind:null, pid:'', renews:null };
+  $(px + 'PickNote').classList.add('hide');
+  renderPicker(px);
+}
+
+/* ============================================================
+   5-3. 商品・手数料マスタ（代理店経営者用）
+   経営者がここに入れた内容を、リンク／ファイルでメンバーの端末に配る。
+   ============================================================ */
+var pmLocked = true;
+
+function parseRenews(text){
+  return String(text || '').split(/[,、\s]+/).filter(function(v){ return v !== ''; })
+    .map(function(v){ return Math.max(0, Math.min(100, +v || 0)); });
+}
+function renderMaster(){
+  var body = $('pmBody');
+  body.innerHTML = state.products.map(function(p, i){
+    return '<tr data-p="' + i + '">' +
+      '<td><input type="text" data-f="company" value="' + esc(p.company || '') + '" aria-label="保険会社"></td>' +
+      '<td><input type="text" data-f="name" value="' + esc(p.name || '') + '" aria-label="商品名"></td>' +
+      '<td><select data-f="kind" aria-label="種類">' + KINDS.map(function(o){
+        return '<option value="' + o.k + '"' + (p.kind === o.k ? ' selected' : '') + '>' + esc(o.label) + '</option>';
+      }).join('') + '</select></td>' +
+      '<td><select data-f="ptype" aria-label="払込タイプ">' + state.rates.map(function(r){
+        return '<option value="' + esc(r.id) + '"' + (p.ptype === r.id ? ' selected' : '') + '>' + esc(r.label) + '</option>';
+      }).join('') + '</select></td>' +
+      '<td style="text-align:center;"><input type="checkbox" data-f="rec"' + (p.rec ? ' checked' : '') + ' aria-label="推奨商品にする"></td>' +
+      '<td class="pm-num"><input type="number" min="0" max="200" step="0.5" data-f="init" value="' + (+p.init || 0) + '" aria-label="初年度率"></td>' +
+      '<td><input type="text" data-f="renews" value="' + esc((p.renews || []).join(',')) + '" placeholder="10,10,10,10" aria-label="2年目以降の率"></td>' +
+      '<td><input type="text" data-f="note" value="' + esc(p.note || '') + '" aria-label="メモ"></td>' +
+      '<td><button class="icon-btn" data-del="' + i + '" aria-label="この商品を削除">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>' +
+      '</button></td></tr>';
+  }).join('') || '<tr><td colspan="9" style="color:var(--muted);padding:14px;">まだ商品が登録されていません。「商品を追加する」から登録してください。</td></tr>';
+
+  body.querySelectorAll('[data-f]').forEach(function(el){
+    el.addEventListener('change', function(){
+      var i = +el.closest('tr').getAttribute('data-p');
+      var p = state.products[i];
+      if (!p) return;
+      var f = el.getAttribute('data-f');
+      if (f === 'rec') p.rec = el.checked;
+      else if (f === 'init') p.init = +el.value || 0;
+      else if (f === 'renews') { p.renews = parseRenews(el.value); el.value = p.renews.join(','); }
+      else p[f] = el.value;
+      touchMaster();
+      renderMasterMeta();
+      ['ac','ae'].forEach(function(px){ renderPicker(px); });
+    });
+  });
+  body.querySelectorAll('[data-del]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var i = +b.getAttribute('data-del');
+      var p = state.products[i];
+      if (!p) return;
+      if (!confirm('「' + (p.company || '') + ' ' + (p.name || '') + '」を商品マスタから削除しますか？')) return;
+      state.products.splice(i, 1);
+      touchMaster(); renderMaster(); renderMasterMeta();
+      ['ac','ae'].forEach(function(px){ renderPicker(px); });
+    });
+  });
+  applyPmLock();
+  renderMasterMeta();
+}
+function applyPmLock(){
+  $('pmTable').classList.toggle('pm-locked', pmLocked);
+  $('pmAdd').disabled = pmLocked;
+  $('pmLockBtn').textContent = pmLocked ? '編集する（経営者用）' : '編集を終わる';
+  $('pmLockNote').textContent = pmLocked ? 'いまは表示のみです' : '編集中：変更はすぐ保存されます';
+}
+function touchMaster(){
+  state.master.rev = (+state.master.rev || 1) + 1;
+  state.master.updated = todayStr();
+  save();
+}
+function renderMasterMeta(){
+  var n = state.products.length, rec = state.products.filter(function(p){ return p.rec; }).length;
+  $('pmMeta').textContent = '登録 ' + n + '商品（うち推奨 ' + rec + '）　版 ' + (+state.master.rev || 1) +
+    (state.master.updated ? '　最終更新 ' + state.master.updated : '') +
+    (state.master.by ? '　配布元 ' + state.master.by : '');
+}
+$('pmLockBtn').addEventListener('click', function(){ pmLocked = !pmLocked; applyPmLock(); });
+$('pmAdd').addEventListener('click', function(){
+  state.products.push({ id: uid('p'), company:'', name:'', kind:'shushin', ptype:'level', rec:false, init:0, renews:[], note:'' });
+  touchMaster(); renderMaster();
+});
+
+/* ---- 配布（バックエンドを使わないので、リンク／ファイルで渡す） ---- */
+function masterPayload(){
+  return { v:1, kind:'officem-hoken-sales-master', rev:+state.master.rev || 1,
+    updated: state.master.updated || todayStr(), by: state.master.by || '', products: state.products };
+}
+function encodeMaster(o){ return btoa(unescape(encodeURIComponent(JSON.stringify(o)))); }
+function decodeMaster(s){ return JSON.parse(decodeURIComponent(escape(atob(String(s).trim())))); }
+function pmSay(msg, ok){
+  var el = $('pmMsg');
+  el.style.color = ok ? 'var(--green)' : 'var(--red-text)';
+  el.textContent = msg;
+  setTimeout(function(){ el.textContent = ''; }, 6000);
+}
+function importMaster(o, quiet){
+  if (!o || o.kind !== 'officem-hoken-sales-master' || !o.products) { pmSay('この内容は商品マスタではありません。', false); return false; }
+  if (!quiet && !confirm('商品マスタを取り込みます（' + o.products.length + '商品・版' + (o.rev || 1) + '）。いまの商品マスタは置き換わります。よろしいですか？\n※ 顧客・活動・契約の記録はそのまま残ります。')) return false;
+  state.products = o.products;
+  state.master = { rev:+o.rev || 1, updated:o.updated || todayStr(), by:o.by || '' };
+  save();
+  renderMaster();
+  ['ac','ae'].forEach(function(px){ resetPicker(px); });
+  pmSay('取り込みました（' + o.products.length + '商品）。', true);
+  return true;
+}
+$('pmShare').addEventListener('click', function(){
+  var who = prompt('配布元の名前（メンバーの画面に表示されます）', state.master.by || '');
+  if (who === null) return;
+  state.master.by = who.trim();
+  state.master.updated = todayStr();
+  save(); renderMasterMeta();
+  var link = location.href.split('#')[0] + '#m=' + encodeMaster(masterPayload());
+  var done = function(){ pmSay('リンクをコピーしました。メンバーに送ってください。', true); };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(link).then(done, function(){ $('pmCode').value = link; pmSay('下の欄にリンクを出しました。コピーして送ってください。', true); });
+  } else { $('pmCode').value = link; pmSay('下の欄にリンクを出しました。コピーして送ってください。', true); }
+  if (link.length > 6000) pmSay('商品が多いのでリンクが長くなりました。うまく送れないときはJSONファイルで配ってください。', false);
+});
+$('pmExport').addEventListener('click', function(){
+  download('hoken-master-' + todayStr() + '.json', JSON.stringify(masterPayload(), null, 1), 'application/json');
+});
+$('pmImport').addEventListener('change', function(){
+  var f = this.files && this.files[0];
+  if (!f) return;
+  var reader = new FileReader();
+  reader.onload = function(){
+    try { importMaster(JSON.parse(reader.result)); }
+    catch (e) { pmSay('読み込めませんでした。配布されたJSONファイルを選んでください。', false); }
+  };
+  reader.readAsText(f);
+  this.value = '';
+});
+$('pmPaste').addEventListener('click', function(){
+  var t = $('pmCode').value.trim();
+  if (!t) { $('pmCode').focus(); return; }
+  var code = t.indexOf('#m=') >= 0 ? t.split('#m=')[1] : t;
+  try { if (importMaster(decodeMaster(code))) $('pmCode').value = ''; }
+  catch (e) { pmSay('コードを読み取れませんでした。配布されたリンクかコードをそのまま貼り付けてください。', false); }
+});
 
 /* ============================================================
    6. 見込み数字
@@ -1169,7 +2050,7 @@ function renderNum(){
   state.contracts.forEach(function(k){
     var cy = +((k.date||'').slice(0,4)) || y;
     var offset = (y + 1) - cy;   /* 来年が契約から何年目の継続か */
-    if (offset >= 1 && offset <= (+k.years||0)) renewNext += (+k.renew||0);
+    renewNext += renewAt(k, offset);
   });
   $('tileRenew').textContent = fmtYen(renewNext);
 
@@ -1225,7 +2106,7 @@ function renderNum(){
     state.contracts.forEach(function(k){
       var cy = +((k.date||'').slice(0,4)) || y;
       var off = target - cy;
-      if (off >= 1 && off <= (+k.years||0)) total += (+k.renew||0);
+      total += renewAt(k, off);
     });
     years.push({ y: target, v: total });
   }
@@ -1274,6 +2155,7 @@ function renderRate(){
       '<input type="number" id="prob' + s.k + '" min="0" max="100" step="5" value="' + (state.probs[s.k]||0) + '"></div>';
   }).join('');
   $('setSingleAnp').value = state.set.singleAnpPct;
+  renderMaster();
 }
 $('rateSave').addEventListener('click', function(){
   document.querySelectorAll('#rateBody input').forEach(function(inp){
@@ -1323,20 +2205,22 @@ $('impJson').addEventListener('change', function(){
   this.value = '';
 });
 $('expCsv').addEventListener('click', function(){
-  var head = ['契約日','顧客','保険会社','商品名','商品タイプ','被保険者','保険料(円)','払い方','払込期間メモ','換算ANP(円)','初年度C(円)','継続C(円/年)','継続年数'];
+  var head = ['契約日','顧客','保険会社','商品名','商品タイプ','被保険者','保険料(円)','払い方','払込期間メモ','換算ANP(円)','初年度C(円)','継続C(円/年)','継続年数','継続Cの内訳(年ごと)'];
   var rows = state.contracts.map(function(k){
     var c = custById(k.cid);
     return [k.date, c ? c.name : '', k.company, k.product, rateById(k.ptype).label, k.insured,
-      k.amt, MODES[k.mode]||'', k.payNote, Math.round(calcAnp(k.amt, k.mode)), k.init, k.renew, k.years];
+      k.amt, MODES[k.mode]||'', k.payNote, Math.round(calcAnp(k.amt, k.mode)), k.init,
+      (k.renews && k.renews.length) ? k.renews[0] : k.renew, renewYears(k),
+      (k.renews && k.renews.length) ? k.renews.join(' / ') : ''];
   });
   var csv = '﻿' + [head].concat(rows).map(function(r){ return r.map(csvCell).join(','); }).join('\r\n');
   download('hoken-contracts-' + todayStr() + '.csv', csv, 'text/csv');
 });
 $('expActCsv').addEventListener('click', function(){
-  var head = ['日付','種別','顧客','場所','同席者','メモ'];
+  var head = ['日付','開始','終了','種別','顧客','場所','同席者','メモ'];
   var rows = state.activities.slice().sort(function(a,b){ return a.date < b.date ? -1 : 1; }).map(function(a){
     var c = custById(a.cid);
-    return [a.date, stageLabel(a.type), c ? c.name : '', a.place, a.who, a.memo];
+    return [a.date, a.start || '', a.end || '', stageLabel(a.type), c ? c.name : '', a.place, a.who, a.memo];
   });
   var csv = '﻿' + [head].concat(rows).map(function(r){ return r.map(csvCell).join(','); }).join('\r\n');
   download('hoken-activities-' + todayStr() + '.csv', csv, 'text/csv');
@@ -1360,7 +2244,20 @@ function startApp(){
   fillCustSelectors();
   fillActSelectors();
   $('afDate').value = todayStr();
+  renderPicker('ac'); renderPicker('ae');
+  takeSharedMaster();
   showTab('num');
+}
+/* 経営者から届いた「メンバー用リンク」（#m=…）で開いたとき、商品マスタを取り込む */
+function takeSharedMaster(){
+  var h = location.hash || '';
+  if (h.indexOf('#m=') !== 0) return;
+  var code = h.slice(3);
+  history.replaceState(null, '', location.href.split('#')[0]);   /* URLに残さない */
+  try {
+    var o = decodeMaster(code);
+    if (importMaster(o)) { showTab('rate'); }
+  } catch (e) { alert('リンクの商品マスタを読み取れませんでした。経営者にJSONファイルでの配布をお願いしてください。'); }
 }
 function showLock(){
   $('lock').classList.remove('hide');
