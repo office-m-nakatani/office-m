@@ -224,6 +224,7 @@ a{color:var(--navy-2);}
 .day-row .day-body{flex:1;font-size:var(--fs-sm);display:flex;flex-direction:column;gap:3px;align-items:flex-start;}
 .day-row .day-go{flex:none;font-size:var(--fs-xs);font-weight:700;color:var(--coral-text);padding-top:3px;}
 .day-none{font-size:var(--fs-sm);color:var(--muted);}
+.head-action{margin-left:auto;white-space:nowrap;}
 /* ---------- 編集シート ---------- */
 .ovl{position:fixed;inset:0;background:rgba(27,63,94,.45);display:flex;align-items:center;justify-content:center;
   padding:14px;z-index:80;}
@@ -380,6 +381,9 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
   .day-row{padding:10px 12px;}
   .day-row .day-time{min-width:4.6em;}
   .pick{grid-template-columns:1fr;}
+  /* 見出しの右のボタンは、狭い画面では下に回して横いっぱいに */
+  .sec-head{flex-wrap:wrap;}
+  .head-action{margin-left:0;width:100%;justify-content:center;}
 }
 </style>
 </head>
@@ -411,12 +415,12 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
 
 <nav class="tabs" aria-label="ページ切り替え">
   <div class="wrap" role="tablist">
-    <button class="tab" role="tab" id="tabBtnNum" data-tab="num" aria-selected="true">
+    <button class="tab" role="tab" id="tabBtnAct" data-tab="act" aria-selected="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17M8.5 14.5l2.2 2.2 4.6-4.6"/></svg>営業活動</button>
+    <button class="tab" role="tab" id="tabBtnNum" data-tab="num" aria-selected="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg>見込み数字</button>
     <button class="tab" role="tab" id="tabBtnCust" data-tab="cust" aria-selected="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3 2.8-4.5 5.5-4.5S13.9 16 14.5 19"/><circle cx="17" cy="9" r="2.4"/><path d="M15.6 14.7c2.6-.3 4.6 1 5.2 3.8"/></svg>顧客管理</button>
-    <button class="tab" role="tab" id="tabBtnAct" data-tab="act" aria-selected="false">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17M8.5 14.5l2.2 2.2 4.6-4.6"/></svg>営業活動</button>
     <button class="tab" role="tab" id="tabBtnRate" data-tab="rate" aria-selected="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19 12a7 7 0 0 0-.2-1.6l2-1.5-2-3.4-2.3 1a7 7 0 0 0-2.7-1.6L13.5 2h-3l-.3 2.9a7 7 0 0 0-2.7 1.6l-2.3-1-2 3.4 2 1.5A7 7 0 0 0 5 12c0 .5.1 1.1.2 1.6l-2 1.5 2 3.4 2.3-1a7 7 0 0 0 2.7 1.6l.3 2.9h3l.3-2.9a7 7 0 0 0 2.7-1.6l2.3 1 2-3.4-2-1.5c.1-.5.2-1 .2-1.6Z"/></svg>手数料・設定</button>
   </div>
@@ -554,6 +558,9 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
       <div class="sec-head">
         <span class="sh-art"><svg aria-hidden="true" viewBox="0 0 64 64"><rect x="12" y="10" width="40" height="46" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/><rect x="24" y="5" width="16" height="10" rx="4" fill="#27587f"/><path d="m19 26 4 4 7-8" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="34" y="25" width="12" height="3.5" rx="1.75" fill="#d9cfc4"/><path d="m19 40 4 4 7-8" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="34" y="39" width="12" height="3.5" rx="1.75" fill="#d9cfc4"/></svg></span>
         <div><h2>営業活動</h2><p>カレンダーで日付を選び、誰と・どこで・何をしたかを1分で記録</p></div>
+        <button class="btn btn-ghost btn-sm head-action" id="bdBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21h16v-7H4v7Z"/><path d="M4 14c1.6 0 1.6-1.4 3.2-1.4S8.8 14 10.4 14s1.6-1.4 3.2-1.4S15.2 14 16.8 14s1.6-1.4 3.2-1.4"/><path d="M8 9V7M12 9V6M16 9V7"/></svg>
+          お誕生日登録</button>
       </div>
 
       <div class="kpi-week" id="kpiWeek"></div>
@@ -780,6 +787,35 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
 </main>
 
 <footer>保険営業ダッシュボード｜社内利用専用・データはこの端末にのみ保存されます</footer>
+
+<!-- ================= お誕生日の登録 ================= -->
+<div class="ovl hide" id="bdOvl" role="dialog" aria-modal="true" aria-labelledby="bdTitle">
+  <div class="sheet">
+    <div class="sheet-head">
+      <button class="icon-btn" id="bdClose" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+      <b id="bdTitle">お誕生日の登録</b>
+    </div>
+    <div class="sheet-body">
+      <div class="frm">
+        <div class="fld"><label for="bdName">お名前</label>
+          <input type="text" id="bdName" list="custDatalist" autocomplete="off" placeholder="名前を入力、または一覧から選ぶ">
+          <div class="hint">一覧にない名前は、新しい顧客として登録します</div></div>
+        <div class="fld"><label for="bdDate">誕生日</label><input type="date" id="bdDate">
+          <div class="hint">カレンダーに「◯歳の誕生日」として毎年出ます</div></div>
+      </div>
+      <div class="frm-actions" style="margin-top:var(--sp-3);">
+        <button class="btn btn-primary btn-sm" id="bdSave">登録する</button>
+        <span id="bdErr" role="alert" style="font-weight:700;font-size:var(--fs-sm);align-self:center;"></span>
+      </div>
+      <h3 style="color:var(--navy);font-size:var(--fs-md);margin:var(--sp-5) 0 var(--sp-2);">登録済みの誕生日</h3>
+      <div class="timeline" id="bdList"></div>
+    </div>
+    <div class="sheet-foot">
+      <button class="btn btn-ghost" id="bdCancel">閉じる</button>
+    </div>
+  </div>
+</div>
 
 <!-- ================= 活動の編集（カレンダーから開く） ================= -->
 <div class="ovl hide" id="aeOvl" role="dialog" aria-modal="true" aria-labelledby="aeTitle">
@@ -1042,7 +1078,7 @@ function custExpComm(c){ return estInitComm(c.prodType, c.expAmt, c.expMode); }
 /* ============================================================
    3. タブ切り替え
    ============================================================ */
-var TABS = ['num','cust','act','rate'];
+var TABS = ['act','num','cust','rate'];
 function showTab(key){
   TABS.forEach(function(t){
     $('tab-' + t).classList.toggle('hide', t !== key);
@@ -1853,6 +1889,84 @@ document.addEventListener('click', function(ev){
 });
 document.addEventListener('keydown', function(ev){ if (ev.key === 'Escape' && tpField) { closeTimePicker(); document.activeElement.blur(); } });
 
+/* ------------------------------------------------------------
+   お誕生日の登録（営業活動の右上のボタンから開く）
+   登録済みの顧客なら誕生日を入れるだけ。一覧にない名前は新しい顧客として登録する。
+   ------------------------------------------------------------ */
+function nextBirthday(c){
+  var b = parseYmd(c.birth), now = new Date();
+  var passed = (now.getMonth() > b.getMonth()) || (now.getMonth() === b.getMonth() && now.getDate() > b.getDate());
+  var y = now.getFullYear() + (passed ? 1 : 0);
+  return { date: new Date(y, b.getMonth(), b.getDate()), age: y - b.getFullYear() };
+}
+function renderBdList(){
+  var list = state.customers.filter(function(c){ return c.birth; })
+    .map(function(c){ var n = nextBirthday(c); return { c:c, at:n.date, age:n.age }; })
+    .sort(function(x, y){ return x.at - y.at; });
+  $('bdList').innerHTML = list.length ? list.map(function(o){
+    var b = parseYmd(o.c.birth);
+    return '<div class="tl-row">' +
+      '<span class="tl-date">' + (b.getMonth()+1) + '月' + b.getDate() + '日</span>' +
+      '<span class="tl-body"><b>' + esc(o.c.name) + '</b>' +
+      '<div class="tl-meta">次は ' + o.at.getFullYear() + '年 ' + (o.at.getMonth()+1) + '月' + o.at.getDate() + '日で ' + o.age + '歳</div></span>' +
+      '<span class="tl-del"><button class="icon-btn" data-bd="' + esc(o.c.id) + '" aria-label="' + esc(o.c.name) + 'の誕生日を消す">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>' +
+      '</button></span></div>';
+  }).join('') : '<p class="day-none">まだ登録がありません。上の欄から登録できます。</p>';
+  $('bdList').querySelectorAll('[data-bd]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var c = custById(b.getAttribute('data-bd'));
+      if (!c) return;
+      if (!confirm('「' + c.name + '」の誕生日を消しますか？（顧客カルテは残ります）')) return;
+      c.birth = '';
+      save(); renderBdList(); renderAct();
+    });
+  });
+}
+function openBdSheet(){
+  fillAeSelectors();
+  $('bdName').value = ''; $('bdDate').value = '';
+  $('bdErr').textContent = '';
+  renderBdList();
+  $('bdOvl').classList.remove('hide');
+  document.body.style.overflow = 'hidden';
+  $('bdName').focus();
+}
+function closeBdSheet(){
+  $('bdOvl').classList.add('hide');
+  document.body.style.overflow = '';
+}
+$('bdBtn').addEventListener('click', openBdSheet);
+$('bdClose').addEventListener('click', closeBdSheet);
+$('bdCancel').addEventListener('click', closeBdSheet);
+$('bdOvl').addEventListener('click', function(ev){ if (ev.target === $('bdOvl')) closeBdSheet(); });
+document.addEventListener('keydown', function(ev){
+  if (ev.key === 'Escape' && !tpField && !$('bdOvl').classList.contains('hide')) closeBdSheet();
+});
+$('bdSave').addEventListener('click', function(){
+  var err = $('bdErr');
+  err.style.color = 'var(--red-text)';
+  var name = $('bdName').value.trim();
+  if (!name) { err.textContent = 'お名前を入れてください。'; $('bdName').focus(); return; }
+  var d = $('bdDate').value;
+  if (!d) { err.textContent = '誕生日を選んでください。'; $('bdDate').focus(); return; }
+  var who = resolveWho(name);
+  var c = who.cid ? custById(who.cid) : null;
+  if (!c) {
+    c = { id: uid('c'), created: Date.now(), status:'active', name: name, kana:'', company:'', tel:'',
+      source:'', stage:'AP', prodType: state.rates[0].id, expAmt:0, expMode:'m', memo:'' };
+    state.customers.push(c);
+  }
+  c.birth = d;
+  save();
+  fillCustSelectors(); fillAeSelectors();
+  renderBdList(); renderAct();
+  $('bdName').value = ''; $('bdDate').value = '';
+  err.style.color = 'var(--green)';
+  err.textContent = '「' + c.name + '」の誕生日を登録しました。';
+  setTimeout(function(){ err.textContent = ''; }, 4000);
+});
+
 /* ============================================================
    5-2. 商品ピッカー（種類 → 推奨商品 → 取り扱い商品）
    ac＝記録フォーム、ae＝編集シート。どちらも同じ関数で動かす。
@@ -2313,7 +2427,7 @@ $('impJson').addEventListener('change', function(){
       if (!confirm('現在のデータをこのバックアップで置き換えますか？（顧客' + o.customers.length + '人・契約' + (o.contracts||[]).length + '件）')) return;
       localStorage.setItem(LS_KEY, JSON.stringify(o));
       state = load();
-      fillCustSelectors(); showTab('num');
+      fillCustSelectors(); showTab('act');
       alert('読み込みました。');
     } catch (e) { alert('読み込めませんでした。JSONバックアップファイルを選んでください。'); }
   };
@@ -2346,7 +2460,7 @@ $('wipeBtn').addEventListener('click', function(){
   if (!confirm('本当に削除しますか？ この操作は元に戻せません（JSONバックアップを取っていない場合は先に書き出してください）。')) return;
   localStorage.removeItem(LS_KEY);
   state = defaultState(); save();
-  fillCustSelectors(); showTab('num');
+  fillCustSelectors(); showTab('act');
 });
 
 /* ============================================================
@@ -2359,7 +2473,7 @@ function startApp(){
   fillCustSelectors();
   renderPicker('ae');
   takeSharedMaster();
-  showTab('num');
+  showTab('act');   /* 開いたらすぐ今日の予定と記録が見える */
 }
 /* 経営者から届いた「メンバー用リンク」（#m=…）で開いたとき、商品マスタを取り込む */
 function takeSharedMaster(){
