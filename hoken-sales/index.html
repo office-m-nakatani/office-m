@@ -239,6 +239,25 @@ a{color:var(--navy-2);}
   min-height:44px;cursor:pointer;}
 .chk input{width:24px;height:24px;}
 
+/* ---------- 時刻の選択（時→分の順に押して決める） ---------- */
+.time-wrap{position:relative;}
+.time-input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px;
+  background:#fdfaf6;font-size:var(--fs-base);font-weight:700;color:var(--text);cursor:pointer;font-family:inherit;}
+.time-input:focus{border-color:var(--navy-2);outline:none;box-shadow:0 0 0 3px var(--navy-soft);}
+.time-input:disabled{background:#f1ece6;color:var(--muted);cursor:not-allowed;}
+.tp{position:absolute;top:calc(100% + 6px);left:0;z-index:70;background:var(--white);border:1.5px solid var(--line);
+  border-radius:14px;box-shadow:0 14px 34px rgba(60,40,30,.22);padding:var(--sp-3);width:320px;
+  max-width:min(320px,calc(100vw - 32px));}
+.tp.right{left:auto;right:0;}
+.tp-h{font-size:var(--fs-xs);font-weight:700;color:var(--muted);margin:0 0 6px;}
+.tp-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;}
+.tp-btn{min-height:40px;border:1.5px solid var(--line);background:var(--white);border-radius:9px;cursor:pointer;
+  font-size:var(--fs-sm);font-weight:700;color:var(--navy);padding:0;font-family:inherit;}
+.tp-btn:hover{background:var(--navy-soft);}
+.tp-btn[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff;}
+.tp-foot{display:flex;gap:var(--sp-2);margin-top:var(--sp-3);}
+.tp-foot .btn{flex:1;justify-content:center;}
+
 /* ---------- 商品ピッカー（種類 → 推奨商品 → 取り扱い商品） ---------- */
 .pick{display:grid;grid-template-columns:minmax(240px,1fr) minmax(240px,1.2fr);gap:var(--sp-4);align-items:start;}
 .pick-h{font-size:var(--fs-xs);font-weight:700;color:var(--muted);margin-bottom:6px;display:block;}
@@ -572,9 +591,12 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
         <div class="frm">
           <div class="fld"><label for="afDate">日付</label><input type="date" id="afDate">
             <div class="hint">カレンダーの日付をクリックしても切り替わります</div></div>
-          <div class="fld"><label for="afStart">開始時刻</label><input type="time" id="afStart">
-            <div class="hint">空欄なら終日あつかい</div></div>
-          <div class="fld"><label for="afEnd">終了時刻</label><input type="time" id="afEnd"></div>
+          <div class="fld"><label for="afStart">開始時刻</label>
+            <div class="time-wrap"><input type="text" class="time-input" id="afStart" inputmode="numeric" autocomplete="off" placeholder="例：10:00"></div>
+            <div class="hint">クリックすると時間を選べます（空欄なら終日）</div></div>
+          <div class="fld"><label for="afEnd">終了時刻</label>
+            <div class="time-wrap"><input type="text" class="time-input" id="afEnd" inputmode="numeric" autocomplete="off" placeholder="例：12:00"></div>
+            <div class="hint">開始の2時間後が自動で入ります</div></div>
           <div class="fld"><label for="afCust">顧客（誰と）</label><select id="afCust"></select>
             <div class="hint">いない場合は先に顧客管理で追加</div></div>
           <div class="fld"><label for="afPlace">場所（どこで）</label><input type="text" id="afPlace" placeholder="例：顧客宅、事務所、オンライン"></div>
@@ -849,8 +871,11 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
       </div>
       <div class="frm">
         <div class="fld"><label for="aeDate">日付</label><input type="date" id="aeDate"></div>
-        <div class="fld"><label for="aeStart">開始時刻</label><input type="time" id="aeStart"></div>
-        <div class="fld"><label for="aeEnd">終了時刻</label><input type="time" id="aeEnd"></div>
+        <div class="fld"><label for="aeStart">開始時刻</label>
+          <div class="time-wrap"><input type="text" class="time-input" id="aeStart" inputmode="numeric" autocomplete="off" placeholder="例：10:00"></div></div>
+        <div class="fld"><label for="aeEnd">終了時刻</label>
+          <div class="time-wrap"><input type="text" class="time-input" id="aeEnd" inputmode="numeric" autocomplete="off" placeholder="例：12:00"></div>
+          <div class="hint">開始の2時間後が自動で入ります</div></div>
         <div class="fld full"><label class="chk"><input type="checkbox" id="aeAllday">終日にする（時刻を使わない）</label></div>
         <div class="fld"><label for="aeCust">顧客（誰と）</label><select id="aeCust"></select></div>
         <div class="fld"><label for="aePlace">場所（どこで）</label><input type="text" id="aePlace" placeholder="例：顧客宅、事務所、オンライン"></div>
@@ -1329,7 +1354,7 @@ $('afSave').addEventListener('click', function(){
   var cid = $('afCust').value;
   if (!cid) { err.textContent = '顧客を選んでください。顧客管理タブから追加できます。'; return; }
   var date = $('afDate').value || todayStr();
-  var st = $('afStart').value, en = $('afEnd').value;
+  var st = normTime($('afStart').value), en = normTime($('afEnd').value);
   if (st && en && en < st) { err.textContent = '終了時刻は開始時刻より後にしてください。'; return; }
   var act = { id: uid('a'), cid: cid, type: actType, date: date, start: st, end: en,
     place: $('afPlace').value.trim(), who: $('afWho').value.trim(), memo: $('afMemo').value.trim() };
@@ -1358,6 +1383,7 @@ $('afSave').addEventListener('click', function(){
   ['afPlace','afWho','afMemo','afStart','afEnd','acCompany','acProduct','acInsured','acAmt','acPayNote','acInit','acRenew','acYears'].forEach(function(id){ $(id).value = ''; });
   setActType(null);
   resetPicker('ac');
+  resetTimePair('af');
   selDate = date;
   renderAct();
   err.style.color = 'var(--green)';
@@ -1618,6 +1644,7 @@ function openActNew(dateStr){
   $('aeDate').value = dateStr || selDate || todayStr();
   $('aeAllday').checked = true;
   $('aeStart').value = ''; $('aeEnd').value = '';
+  resetTimePair('ae');
   toggleAeTime();
   ['aePlace','aeWho','aeMemo','aeCompany','aeProduct','aeInsured','aeAmt','aePayNote','aeInit','aeRenew','aeYears'].forEach(function(id){ $(id).value = ''; });
   $('aeMode').value = 'm';
@@ -1648,6 +1675,7 @@ function openActEdit(id){
   $('aeAllday').checked = !a.start;
   $('aeStart').value = a.start || '';
   $('aeEnd').value = a.end || '';
+  endTouched.aeEnd = !!a.end;
   $('aePlace').value = a.place || '';
   $('aeWho').value = a.who || '';
   $('aeMemo').value = a.memo || '';
@@ -1689,7 +1717,10 @@ function closeActEdit(){
 $('aeClose').addEventListener('click', closeActEdit);
 $('aeCancel').addEventListener('click', closeActEdit);
 $('aeOvl').addEventListener('click', function(ev){ if (ev.target === $('aeOvl')) closeActEdit(); });
-document.addEventListener('keydown', function(ev){ if (ev.key === 'Escape' && !$('aeOvl').classList.contains('hide')) closeActEdit(); });
+document.addEventListener('keydown', function(ev){
+  /* 時間の一覧が開いているときは、そちらだけ閉じる */
+  if (ev.key === 'Escape' && !tpField && !$('aeOvl').classList.contains('hide')) closeActEdit();
+});
 
 $('aeSave').addEventListener('click', function(){
   if (aeNew) { saveNewFromSheet(); return; }
@@ -1701,7 +1732,7 @@ $('aeSave').addEventListener('click', function(){
   if (!cid) { err.textContent = '顧客を選んでください。'; return; }
   var date = $('aeDate').value || a.date;
   var off = $('aeAllday').checked;
-  var st = off ? '' : $('aeStart').value, en = off ? '' : $('aeEnd').value;
+  var st = off ? '' : normTime($('aeStart').value), en = off ? '' : normTime($('aeEnd').value);
   if (st && en && en < st) { err.textContent = '終了時刻は開始時刻より後にしてください。'; return; }
 
   var k = a.contractId ? contractById(a.contractId) : null;
@@ -1738,7 +1769,7 @@ function saveNewFromSheet(){
   if (!cid) { err.textContent = '顧客を選んでください。顧客管理タブから追加できます。'; return; }
   var date = $('aeDate').value || todayStr();
   var off = $('aeAllday').checked;
-  var st = off ? '' : $('aeStart').value, en = off ? '' : $('aeEnd').value;
+  var st = off ? '' : normTime($('aeStart').value), en = off ? '' : normTime($('aeEnd').value);
   if (st && en && en < st) { err.textContent = '終了時刻は開始時刻より後にしてください。'; return; }
 
   var act = { id: uid('a'), cid: cid, type: aeType, date: date, start: st, end: en,
@@ -1821,6 +1852,138 @@ function renderAct(){
   bindActEdits($('actList'));
   renderCal();
 }
+
+/* ============================================================
+   5-1b. 時刻の選択
+   クリックすると「何時か」を先に選ぶ（分は00が既定）。分はあとから直せる。
+   開始時刻を決めると、終了時刻は2時間後を自動で入れる（自分で直したらそのまま）。
+   ============================================================ */
+var TIME_PAIR = { afStart:'afEnd', aeStart:'aeEnd' };
+var endTouched = { afEnd:false, aeEnd:false };
+var tpField = null;   /* いま開いている時刻欄のid */
+
+function pad2(n){ return ('0' + n).slice(-2); }
+function normTime(v){
+  v = String(v == null ? '' : v).trim().replace(/[：]/g, ':').replace(/[０-９]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); });
+  if (!v) return '';
+  var m = v.match(/^(\d{1,2}):(\d{1,2})$/) || v.match(/^(\d{1,2})()$/) || v.match(/^(\d{1,2})(\d{2})$/);
+  if (!m) return '';
+  var h = +m[1], mi = +(m[2] || 0);
+  if (h > 23 || mi > 59) return '';
+  return pad2(h) + ':' + pad2(mi);
+}
+function addHours(t, n){
+  var p = String(t || '').split(':');
+  if (p.length !== 2) return '';
+  var total = (+p[0]) * 60 + (+p[1]) + n * 60;
+  if (total >= 24 * 60) total = 23 * 60 + 59;      /* 日をまたがない */
+  return pad2(Math.floor(total / 60)) + ':' + pad2(total % 60);
+}
+/* fromUser＝時間ボタンで選んだとき。終了時刻は「まだ自分で直していない」ときだけ2時間後にする。
+   入力中の欄を横から書き換えないよう、フォーカス中の欄には触らない。 */
+function setTime(id, val, fromUser){
+  $(id).value = val;
+  var endId = TIME_PAIR[id];
+  if (endId && val && !endTouched[endId] && !$(endId).disabled &&
+      document.activeElement !== $(endId) && (fromUser || !$(endId).value)) {
+    $(endId).value = addHours(val, 2);
+  }
+  if (fromUser && (id === 'afEnd' || id === 'aeEnd')) endTouched[id] = true;
+}
+function resetTimePair(px){ endTouched[px + 'End'] = false; }
+
+function closeTimePicker(){
+  var el = document.querySelector('.tp');
+  if (el) el.parentNode.removeChild(el);
+  tpField = null;
+}
+function openTimePicker(id){
+  if ($(id).disabled) return;
+  if (tpField === id) return;
+  closeTimePicker();
+  tpField = id;
+  var cur = normTime($(id).value);
+  var curH = cur ? +cur.split(':')[0] : null;
+  var curM = cur ? +cur.split(':')[1] : null;
+  var pop = document.createElement('div');
+  pop.className = 'tp';
+  var hours = '';
+  for (var h = 0; h < 24; h++) {
+    hours += '<button type="button" class="tp-btn" data-h="' + h + '" aria-pressed="' + (curH === h) + '">' + h + '時</button>';
+  }
+  var mins = '';
+  [0,5,10,15,20,25,30,35,40,45,50,55].forEach(function(mi){
+    mins += '<button type="button" class="tp-btn" data-m="' + mi + '" aria-pressed="' + (curM === mi) + '">' + pad2(mi) + '分</button>';
+  });
+  pop.innerHTML = '<p class="tp-h">時間を選ぶ（分は00になります）</p><div class="tp-grid">' + hours + '</div>' +
+    '<p class="tp-h" style="margin-top:10px;">分を選ぶ</p><div class="tp-grid">' + mins + '</div>' +
+    '<div class="tp-foot"><button type="button" class="btn btn-ghost btn-sm" data-tp="clear">空にする</button>' +
+    '<button type="button" class="btn btn-primary btn-sm" data-tp="close">決定</button></div>';
+  $(id).parentNode.appendChild(pop);
+  /* シートやカードの右からはみ出すときは右寄せにする */
+  var host = pop.closest('.sheet') || pop.closest('.card') || document.body;
+  var limit = Math.min(window.innerWidth - 8, host.getBoundingClientRect().right - 8);
+  if (pop.getBoundingClientRect().right > limit) pop.classList.add('right');
+
+  pop.querySelectorAll('[data-h]').forEach(function(b){
+    b.addEventListener('click', function(){
+      /* 何時かを選んだ時点では分は00。分はこのあと下の列で直せる */
+      setTime(id, pad2(+b.getAttribute('data-h')) + ':00', true);
+      openTimePickerRefresh(id);
+    });
+  });
+  pop.querySelectorAll('[data-m]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var mm = +b.getAttribute('data-m');
+      var base = normTime($(id).value) || (pad2(new Date().getHours()) + ':00');
+      setTime(id, base.split(':')[0] + ':' + pad2(mm), true);
+      openTimePickerRefresh(id);
+    });
+  });
+  pop.querySelector('[data-tp="clear"]').addEventListener('click', function(){
+    $(id).value = '';
+    if (TIME_PAIR[id] && !endTouched[TIME_PAIR[id]]) $(TIME_PAIR[id]).value = '';
+    closeTimePicker();
+    $(id).focus();
+  });
+  pop.querySelector('[data-tp="close"]').addEventListener('click', function(){ closeTimePicker(); $(id).focus(); });
+}
+/* 選び直したときに押されている場所を描き直す */
+function openTimePickerRefresh(id){
+  var cur = normTime($(id).value);
+  var curH = cur ? +cur.split(':')[0] : null, curM = cur ? +cur.split(':')[1] : null;
+  var pop = document.querySelector('.tp');
+  if (!pop) return;
+  pop.querySelectorAll('[data-h]').forEach(function(b){ b.setAttribute('aria-pressed', String(+b.getAttribute('data-h') === curH)); });
+  pop.querySelectorAll('[data-m]').forEach(function(b){ b.setAttribute('aria-pressed', String(+b.getAttribute('data-m') === curM)); });
+}
+
+['afStart','afEnd','aeStart','aeEnd'].forEach(function(id){
+  var el = $(id);
+  el.addEventListener('focus', function(){ openTimePicker(id); });
+  el.addEventListener('click', function(){ openTimePicker(id); });
+  el.addEventListener('input', function(){
+    if (id === 'afEnd' || id === 'aeEnd') { endTouched[id] = true; return; }
+    /* 手で「10:00」まで打てた時点で、空の終了時刻に2時間後を入れておく */
+    var v = normTime(el.value);
+    var endId = TIME_PAIR[id];
+    if (v && endId && !endTouched[endId] && !$(endId).disabled && !$(endId).value &&
+        document.activeElement !== $(endId)) {
+      $(endId).value = addHours(v, 2);
+    }
+  });
+  el.addEventListener('change', function(){
+    var v = normTime(el.value);
+    el.value = v;
+    if (v) setTime(id, v, false);
+  });
+});
+document.addEventListener('click', function(ev){
+  if (!tpField) return;
+  if (ev.target.closest && (ev.target.closest('.tp') || ev.target === $(tpField))) return;
+  closeTimePicker();
+});
+document.addEventListener('keydown', function(ev){ if (ev.key === 'Escape' && tpField) closeTimePicker(); });
 
 /* ============================================================
    5-2. 商品ピッカー（種類 → 推奨商品 → 取り扱い商品）
