@@ -1,0 +1,2274 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="相場が下がったときに何を見ればよいのかを、過去に実際に起きた下落と、高値を回復するまでにかかった年数という事実から確認できる啓発ツール。含み損と実現損の違い、積立の平均取得単価のしくみまで。将来の見通しは扱いません。株式会社Office-M作成の情報提供資料。">
+<title>相場が下がったときの「あわてる・あわてない」チェック｜株式会社Office-M</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='4' y='8' width='56' height='48' rx='8' fill='%2363b8dd'/%3E%3Cpath d='M12 22l12 14 8-8 20 14' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --navy:#1b3f5e;
+  --navy-2:#27587f;
+  --navy-soft:#eaf1f7;
+  --bg:#fff8f2;
+  --white:#ffffff;
+  --text:#33404d;
+  --muted:#5c6874;
+  --line:#efe2d8;
+  --shadow:0 6px 20px rgba(130,100,80,.09);
+  --shadow-sm:0 3px 10px rgba(130,100,80,.07);
+
+  --red:#c2453f;
+  --red-dark:#a63631;
+  --red-bg:#fdeee9;
+  --red-border:#f4d0c6;
+  --coral:#f0846a;
+  --coral-text:#c2451f;
+
+  --green:#2c7a4b;
+  --green-bg:#e8f6ef;
+  --green-border:#c3e5d3;
+  --mint:#4fbf9b;
+
+  --amber:#8f6015;
+  --amber-deep:#a85c12;
+  --amber-bg:#fdf3e2;
+  --amber-border:#f2dcae;
+  --sunny:#f7c34e;
+
+  --sky:#24729f;
+  --sky-bg:#e8f4fb;
+  --sky-border:#c6e2f2;
+
+  --berry:#8f4574;
+  --berry-bg:#fbeef6;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+/* スマホでも17pxを基準にする（注記・出典まわりが12pxまで小さくなっていたため） */
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;font-size:17px;}
+/* 左右の余白が広い画面ほど文字を大きくして見やすさに還元する */
+@media(min-width:1000px){ html{font-size:18px;} }
+body{
+  font-family:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho",YuMincho,"游明朝体","游明朝","MS PMincho","ＭＳ Ｐ明朝",serif;
+  color:var(--text);
+  background:var(--bg);
+  font-size:1.09rem;
+  line-height:1.95;
+  letter-spacing:.03em;
+  padding-bottom:40px;
+  overflow-wrap:break-word;
+}
+@media(min-width:768px){
+  body{font-size:1.16rem;letter-spacing:.04em;}
+}
+img,svg{max-width:100%;vertical-align:middle;}
+button{font-family:inherit;}
+/* キーボード操作でいまどこにいるかを、はっきり見せる（既定の1本線は細くて見えない） */
+a:focus-visible,button:focus-visible,summary:focus-visible,
+input:focus-visible,label:focus-visible,[tabindex]:focus-visible{
+  outline:3px solid var(--navy-2);
+  outline-offset:3px;
+  border-radius:6px;
+}
+a{color:var(--navy-2);}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px;}
+/* 広い画面では、本文の1行を約40字までに抑える（日本語の読みやすい行長の目安）。
+   カード内の短い文には効かせず、横幅いっぱいに伸びる長文だけを対象にする */
+@media(min-width:700px){
+  .guide-msg,.def-lead,.sec-lead,.sub-lead,.age-note,.note,
+  .mikane ol li,.mikane .caution,.rule3-box ol li,.rule3-note,
+  .cta-lead,details.finder p,details.finder li,footer.disclaimer p{
+    max-width:40em;
+  }
+  /* 中央寄せの箱の中にあるものは、中央のまま幅だけ詰める */
+  .venn-cap,.life-cap{max-width:40em;margin-left:auto;margin-right:auto;}
+}
+.nowrap{white-space:nowrap;}
+
+/* ---------- ヘッダー ---------- */
+.hero{
+  background:linear-gradient(168deg,#fbe6e6 0%,#fdf1ea 46%,#ddf0fb 100%);
+  color:var(--navy);
+  padding:24px 0 30px;
+  overflow:hidden;
+}
+.brand{
+  display:flex;align-items:center;gap:10px;
+  font-size:.92rem;font-weight:700;letter-spacing:.02em;color:var(--navy);
+}
+.brand .ico{
+  width:36px;height:36px;flex:0 0 36px;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--navy);border-radius:12px;
+}
+.brand .ico svg{width:20px;height:20px;stroke:#fff;}
+.brand small{display:block;font-weight:500;color:var(--muted);font-size:.82rem;letter-spacing:.04em;line-height:1.55;}
+.hero-flex{display:flex;flex-direction:column;}
+.hero h1{
+  font-size:1.58rem;line-height:1.45;font-weight:800;
+  margin:20px 0 12px;letter-spacing:.01em;color:var(--navy);
+}
+.hero h1 .accent{
+  background:linear-gradient(transparent 62%, #ffd9a8 62%);
+  padding:0 2px;
+}
+.hero .lead{font-size:1rem;color:var(--text);max-width:640px;}
+/* 文字間隔をユーザーが広げても見出しが切れないよう、狭い画面では折り返しを許す
+   （通常の表示では1行に収まるため、見た目は変わらない）— WCAG 1.4.12 */
+@media(max-width:520px){ .hero h1 .nowrap{white-space:normal;} }
+.hero-scene{margin:16px auto 0;width:100%;max-width:400px;}
+.hero-scene svg{width:100%;height:auto;display:block;}
+@media(min-width:768px){
+  .hero{padding:30px 0 40px;}
+  .hero h1{font-size:1.95rem;}
+  .hero .lead{font-size:1.06rem;}
+  .hero-flex{flex-direction:row;align-items:center;gap:28px;}
+  .hero-copy{flex:1;}
+  .hero-scene{flex:0 0 340px;margin:0;}
+}
+.hero-nav{display:flex;flex-wrap:wrap;gap:9px;margin-top:20px;}
+.hero-nav a{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--white);
+  border:2px solid #ffffff;
+  color:var(--navy);text-decoration:none;
+  padding:11px 17px;border-radius:999px;
+  font-size:.94rem;font-weight:700;min-height:48px;
+  box-shadow:var(--shadow-sm);
+}
+.hero-nav a:active{background:#fff4e9;}
+.hero-nav a svg{width:18px;height:18px;stroke:var(--coral);flex:0 0 18px;}
+
+/* ---------- セクション共通 ---------- */
+section{padding:40px 0 46px;}
+.band{background:var(--white);}
+.band-sky{background:var(--sky-bg);}
+.band-blush{background:#fdf1eb;}
+.band-mint{background:var(--green-bg);}
+.round-top{
+  border-radius:30px 30px 0 0;
+  margin-top:-24px;position:relative;z-index:1;
+  padding-top:42px;
+}
+.sec-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;}
+.sec-head .spot{flex:0 0 84px;}
+.spot-circle{
+  width:84px;height:84px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.spot-circle svg{width:52px;height:52px;}
+.step-pill{
+  display:inline-flex;align-items:center;gap:9px;
+  background:var(--amber-bg);color:var(--navy);
+  font-size:.88rem;font-weight:700;letter-spacing:.02em;
+  padding:6px 18px 6px 7px;border-radius:999px;margin-bottom:12px;
+  box-shadow:var(--shadow-sm);
+}
+.step-pill i{
+  width:28px;height:28px;flex:0 0 28px;border-radius:50%;
+  background:linear-gradient(135deg,#c2452a,#a8601a);
+  color:#fff;font-style:normal;font-weight:800;font-size:.95rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.step-pill.plain{padding:7px 18px;}
+h2{
+  font-size:1.4rem;line-height:1.5;color:var(--navy);
+  font-weight:800;letter-spacing:.01em;
+  position:relative;padding-bottom:12px;margin-bottom:10px;
+}
+h2::after{
+  content:"";position:absolute;left:0;bottom:0;
+  width:54px;height:5px;border-radius:3px;
+  background:linear-gradient(90deg,var(--coral),var(--sunny));
+}
+@media(min-width:768px){h2{font-size:1.68rem;}}
+.sec-lead{color:var(--muted);font-size:1rem;margin-bottom:22px;}
+.sub-title{font-size:1.1rem;color:var(--navy);}
+.note{
+  font-size:.9rem;color:var(--muted);line-height:1.85;
+  background:var(--white);border-radius:16px;
+  padding:14px 16px;margin-top:20px;
+  display:flex;gap:9px;align-items:flex-start;
+  box-shadow:var(--shadow-sm);
+}
+.note svg{width:20px;height:20px;flex:0 0 20px;stroke:var(--coral);margin-top:4px;}
+.band-sky .note,.band-blush .note{box-shadow:none;border:1px solid var(--line);}
+
+/* ---------- ガイド（吹き出し） ---------- */
+.guide{display:flex;align-items:flex-start;gap:12px;margin-bottom:20px;}
+.guide-ava{
+  width:58px;height:58px;flex:0 0 58px;border-radius:50%;
+  overflow:hidden;display:block;box-shadow:var(--shadow-sm);
+}
+.guide-ava svg{width:100%;height:100%;display:block;}
+.guide-msg{
+  position:relative;background:var(--white);
+  border:2px solid #ffe0cf;border-radius:18px;
+  padding:12px 16px;font-size:.95rem;line-height:1.75;
+}
+.guide-msg::before{
+  content:"";position:absolute;left:-9px;top:20px;
+  width:14px;height:14px;background:var(--white);
+  border-left:2px solid #ffe0cf;border-bottom:2px solid #ffe0cf;
+  transform:rotate(45deg);
+}
+
+/* ---------- セクション1：ちがいを問いかけるリンク ---------- */
+.qlink-lead{
+  display:flex;align-items:center;gap:9px;
+  font-size:1rem;font-weight:800;color:var(--navy);
+  margin:26px 0 12px;
+}
+.qlink-lead svg{width:23px;height:23px;flex:0 0 23px;stroke:var(--coral);}
+.qlinks{display:grid;grid-template-columns:1fr;gap:12px;}
+@media(min-width:700px){.qlinks{grid-template-columns:repeat(3,1fr);}}
+.qlink{
+  display:flex;flex-direction:column;gap:5px;
+  background:var(--white);border:2px solid var(--line);border-radius:18px;
+  padding:15px 16px 13px;text-decoration:none;color:inherit;
+  box-shadow:var(--shadow-sm);
+  transition:border-color .15s, transform .12s;
+}
+.qlink:active{transform:scale(.985);}
+.qlink:hover{border-color:var(--coral);}
+.qlink .pair{
+  display:flex;align-items:center;gap:7px;flex-wrap:wrap;
+  font-size:1.02rem;font-weight:800;color:var(--navy);line-height:1.55;
+}
+.qlink .pair .vs{
+  font-size:.8rem;font-weight:800;color:var(--red-dark);
+  background:var(--red-bg);border-radius:999px;padding:2px 10px;
+}
+.qlink .ask{font-size:.87rem;color:var(--muted);line-height:1.75;}
+.qlink .go{
+  display:inline-flex;align-items:center;gap:4px;margin-top:3px;
+  font-size:.84rem;font-weight:800;color:var(--coral-text);
+}
+.qlink .go svg{width:14px;height:14px;flex:0 0 14px;stroke:var(--coral-text);}
+/* リンクで飛んだ先を、見出しの手前で止める */
+.def-block[id]{scroll-margin-top:18px;}
+
+/* ---------- セクション1：定義のブロック ---------- */
+.def-block{
+  margin-top:34px;padding-top:26px;border-top:2px dashed var(--line);
+}
+.def-block:first-of-type{margin-top:18px;padding-top:0;border-top:none;}
+.def-h{
+  display:flex;align-items:center;gap:12px;
+  font-size:1.14rem;line-height:1.5;color:var(--navy);margin-bottom:8px;
+}
+.def-ico{
+  width:52px;height:52px;flex:0 0 52px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.def-ico svg{width:34px;height:34px;}
+.def-lead{font-size:.97rem;color:var(--muted);line-height:1.9;margin-bottom:16px;}
+@media(min-width:768px){.def-h{font-size:1.26rem;}}
+
+/* ---------- セクション1：心疾患の輪 ---------- */
+.venn-box{
+  background:var(--white);border-radius:22px;box-shadow:var(--shadow);
+  padding:20px 14px 8px;margin:6px 0 26px;text-align:center;
+}
+.venn-box svg{width:100%;max-width:520px;height:auto;}
+.venn-cap{font-size:.88rem;color:var(--muted);padding:6px 8px 12px;line-height:1.8;}
+@media(max-width:520px){.venn-box{padding:14px 4px 6px;}}
+.cards{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.cards{grid-template-columns:repeat(2,1fr);}}
+.risk-card{
+  position:relative;background:var(--white);
+  border-radius:20px;padding:20px 20px 18px;
+  box-shadow:var(--shadow);
+}
+.risk-card .icon{
+  width:68px;height:68px;border-radius:50%;
+  background:var(--navy-soft);
+  display:flex;align-items:center;justify-content:center;margin-bottom:12px;
+}
+.risk-card .icon svg{width:44px;height:44px;}
+.risk-card .icon.ic-red{background:var(--red-bg);}
+.risk-card .icon.ic-blue{background:var(--sky-bg);}
+.risk-card .icon.ic-amber{background:var(--amber-bg);}
+.risk-card .icon.ic-green{background:var(--green-bg);}
+.risk-card h3{font-size:1.02rem;color:var(--navy);margin-bottom:2px;}
+.risk-card p{font-size:.93rem;color:var(--muted);margin-top:8px;line-height:1.85;}
+.judge-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:.82rem;font-weight:700;padding:4px 13px;border-radius:999px;margin-top:4px;
+}
+.judge-chip.ng{background:var(--red-bg);color:var(--red-dark);border:1.5px solid var(--red-border);}
+.judge-chip.ok{background:var(--green-bg);color:var(--green);border:1.5px solid var(--green-border);}
+.judge-chip.maybe{background:var(--amber-bg);color:var(--amber-deep);border:1.5px solid var(--amber-border);}
+
+/* ---------- 罹患年齢のデータ（セクション1の各解説に添える） ---------- */
+.age-note{
+  display:flex;gap:10px;align-items:flex-start;
+  background:var(--white);border-radius:14px;
+  border-left:5px solid var(--sky);
+  padding:11px 15px;margin-bottom:16px;
+  font-size:.9rem;line-height:1.85;
+  box-shadow:var(--shadow-sm);
+}
+.age-note svg{width:19px;height:19px;flex:0 0 19px;stroke:var(--sky);margin-top:5px;}
+.age-note b{color:var(--sky);font-size:.98rem;}
+.age-note small{display:block;color:var(--muted);font-size:.81rem;line-height:1.7;margin-top:2px;}
+
+/* ---------- セクション6：医療費のかかりどき ---------- */
+.life-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px 14px;margin:6px 0 26px;
+}
+.life-box h3{font-size:1.08rem;color:var(--navy);margin-bottom:4px;}
+.life-box .sub{font-size:.9rem;color:var(--muted);margin-bottom:14px;}
+.life-box svg{width:100%;max-width:620px;height:auto;display:block;margin:0 auto;}
+.life-cap{font-size:.85rem;color:var(--muted);line-height:1.8;padding:10px 4px 4px;}
+.big3{display:grid;grid-template-columns:1fr;gap:12px;margin-top:16px;}
+@media(min-width:700px){.big3{grid-template-columns:repeat(3,1fr);}}
+.big3 .b{
+  background:var(--bg);border:2px solid var(--line);border-radius:16px;
+  padding:13px 15px;text-align:center;
+}
+.big3 .b .n{display:block;font-size:1.5rem;font-weight:800;color:var(--coral-text);line-height:1.4;}
+.big3 .b .l{display:block;font-size:.86rem;color:var(--navy);font-weight:700;line-height:1.7;}
+.big3 .b .s{display:block;font-size:.81rem;color:var(--muted);line-height:1.7;margin-top:3px;}
+
+.sub-h{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.1rem;color:var(--navy);margin:30px 0 6px;
+}
+.sub-h svg{width:24px;height:24px;flex:0 0 24px;stroke:var(--coral);}
+.sub-lead{font-size:.95rem;color:var(--muted);line-height:1.9;margin-bottom:16px;}
+.age-cards{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.age-cards{grid-template-columns:repeat(3,1fr);}}
+.age-card{
+  background:var(--white);border-radius:20px;box-shadow:var(--shadow);
+  padding:18px 18px 15px;
+}
+.age-card .ttl{
+  display:flex;align-items:center;gap:9px;
+  font-size:1rem;font-weight:800;color:var(--navy);margin-bottom:10px;
+}
+.age-card .ttl .ico{
+  width:38px;height:38px;flex:0 0 38px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.age-card .ttl .ico svg{width:26px;height:26px;}
+.age-card .rows{border-top:1.5px dashed var(--line);padding-top:9px;}
+.age-card .row{
+  display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  font-size:.92rem;line-height:1.9;
+}
+.age-card .row span{color:var(--muted);}
+.age-card .row b{font-size:1.28rem;font-weight:800;color:var(--red-dark);white-space:nowrap;}
+.age-card .kind{
+  display:inline-block;font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:8px;
+  background:var(--sky-bg);color:var(--sky);
+}
+.age-card .cmt{font-size:.87rem;color:var(--text);line-height:1.85;margin-top:10px;}
+.age-card .src{font-size:.8rem;color:var(--muted);line-height:1.7;margin-top:9px;
+  border-top:1.5px dashed var(--line);padding-top:8px;}
+
+/* 未来の自分への仕送り */
+.mikane{
+  margin-top:28px;background:var(--white);border-radius:24px;
+  box-shadow:var(--shadow);padding:22px 20px 18px;
+}
+.mikane h3{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.1rem;color:var(--navy);margin-bottom:12px;
+}
+.mikane h3 svg{width:25px;height:25px;flex:0 0 25px;stroke:var(--mint);}
+.mikane ol{list-style:none;counter-reset:mk;}
+.mikane ol li{
+  counter-increment:mk;position:relative;
+  padding:0 0 14px 46px;font-size:.96rem;line-height:1.9;
+}
+.mikane ol li::before{
+  content:counter(mk);position:absolute;left:0;top:2px;
+  width:32px;height:32px;border-radius:50%;
+  background:var(--sky-bg);color:var(--sky);
+  font-weight:800;font-size:1.02rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.mikane ol li b{color:var(--coral-text);}
+.mikane .caution{
+  background:var(--amber-bg);border-radius:16px;padding:14px 16px;
+  font-size:.9rem;line-height:1.9;
+  border-left:5px solid var(--sunny);
+}
+.mikane .caution strong:first-child{display:block;color:var(--amber-deep);margin-bottom:3px;}
+.mikane .caution b{color:var(--coral-text);}
+
+/* ---------- セクション2：クイズ ---------- */
+.quiz-shell{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px 24px;
+}
+.band .quiz-shell{background:var(--bg);box-shadow:none;border:2px solid var(--line);}
+.q-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.q-count{font-size:.9rem;font-weight:700;color:var(--muted);}
+.q-count span{color:var(--coral-text);font-size:1.15rem;}
+.dots{display:flex;gap:6px;}
+.dots i{width:10px;height:10px;border-radius:50%;background:#e8dbd0;}
+.dots i.done{background:var(--mint);}
+.dots i.now{background:var(--coral);}
+.q-body{display:flex;gap:14px;align-items:flex-start;margin:14px 0 18px;}
+.q-body .icon{
+  width:64px;height:64px;flex:0 0 64px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.q-body .icon svg{width:40px;height:40px;}
+.q-body p{font-size:1.06rem;font-weight:700;color:var(--navy);line-height:1.8;}
+.ans-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.ans-btn{
+  min-height:64px;border-radius:18px;cursor:pointer;
+  font-size:1.1rem;font-weight:800;letter-spacing:.06em;
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  border:2.5px solid;transition:transform .12s;
+}
+.ans-btn:active{transform:scale(.97);}
+.ans-btn svg{width:26px;height:26px;}
+.ans-btn.yes{background:var(--green-bg);border-color:var(--green-border);color:var(--green);}
+.ans-btn.no{background:var(--red-bg);border-color:var(--red-border);color:var(--red-dark);}
+.ans-btn:disabled{opacity:.45;cursor:default;}
+.verdict{
+  display:none;margin-top:18px;background:var(--white);
+  border:2px solid var(--amber-border);border-radius:20px;
+  padding:18px 18px 16px;
+}
+.verdict.show{display:block;}
+.verdict-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+.verdict-answer{font-size:1.25rem;font-weight:800;color:var(--navy);}
+.result-chip{
+  font-size:.85rem;font-weight:800;padding:4px 14px;border-radius:999px;
+}
+.result-chip.correct{background:var(--green-bg);color:var(--green);}
+.result-chip.wrong{background:var(--red-bg);color:var(--red-dark);}
+.verdict .expl{font-size:.97rem;line-height:1.95;margin-bottom:12px;}
+.verdict .kv{
+  font-size:.92rem;line-height:1.85;background:var(--sky-bg);
+  border-radius:12px;padding:9px 13px;margin-top:8px;
+}
+.verdict .kv b{color:var(--sky);}
+.verdict .kv.kv-wana{background:var(--red-bg);}
+.verdict .kv.kv-wana b{color:var(--red-dark);}
+.btn-primary{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  width:100%;min-height:58px;margin-top:16px;
+  background:linear-gradient(135deg,#cf4a22,#c2401c);
+  color:#fff;font-size:1.05rem;font-weight:800;letter-spacing:.04em;
+  border:none;border-radius:18px;cursor:pointer;
+  box-shadow:0 5px 14px rgba(194,64,28,.34);
+}
+.btn-primary:active{transform:translateY(1px);}
+.btn-primary svg{width:22px;height:22px;stroke:#fff;}
+.btn-ghost{
+  display:block;width:100%;min-height:50px;margin-top:12px;
+  background:var(--white);color:var(--navy-2);
+  font-size:.95rem;font-weight:700;
+  border:2px solid var(--sky-border);border-radius:16px;cursor:pointer;
+}
+.btn-ghost:active{background:var(--sky-bg);}
+.quiz-done{display:none;}
+.quiz-done.show{display:block;}
+.quiz-done .score{
+  font-size:1.15rem;font-weight:800;color:var(--navy);
+  text-align:center;margin:8px 0 6px;
+}
+.quiz-done .score .num{font-size:2rem;color:var(--coral-text);}
+.quiz-done .cmt{
+  background:var(--white);border-radius:16px;padding:14px 16px;
+  font-size:.97rem;line-height:1.95;margin:14px 0;
+  border:2px solid var(--amber-border);
+}
+.wrong-list{margin:14px 0;}
+.wrong-list h4{font-size:.95rem;color:var(--navy);margin-bottom:8px;}
+.wrong-list .w-item{
+  background:var(--white);border-radius:14px;padding:11px 14px;
+  font-size:.9rem;line-height:1.8;margin-bottom:8px;
+  border-left:4px solid var(--coral);box-shadow:var(--shadow-sm);
+}
+
+/* ---------- セクション3：払込免除の解剖 ---------- */
+.type-table-box{
+  background:var(--white);border-radius:22px;box-shadow:var(--shadow-sm);
+  padding:18px 14px;margin:8px 0 24px;overflow-x:auto;
+}
+.type-table{width:100%;border-collapse:collapse;min-width:520px;font-size:.9rem;}
+.type-table th,.type-table td{
+  padding:10px 10px;text-align:center;border-bottom:1.5px solid var(--line);
+  line-height:1.7;vertical-align:middle;
+}
+.type-table th{background:var(--navy-soft);color:var(--navy);font-size:.86rem;}
+.type-table th:first-child{border-radius:12px 0 0 12px;}
+.type-table th:last-child{border-radius:0 12px 12px 0;}
+.type-table td:first-child{text-align:left;font-weight:700;color:var(--navy);font-size:.88rem;}
+.type-table small{display:block;color:var(--muted);font-weight:500;font-size:.81rem;}
+.mark-ok,.mark-ng,.mark-tri{font-weight:800;font-size:1.05rem;}
+.mark-ok{color:var(--green);}
+.mark-ng{color:var(--red);}
+.mark-tri{color:var(--amber);}
+.sim-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px;margin-top:26px;
+}
+.sim-box h3{font-size:1.12rem;color:var(--navy);margin-bottom:4px;}
+.sim-box .sub{font-size:.9rem;color:var(--muted);margin-bottom:18px;}
+.sim-ctrl{margin-bottom:18px;}
+.sim-ctrl label{
+  display:flex;justify-content:space-between;align-items:baseline;
+  font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:6px;
+}
+.sim-ctrl label output{color:var(--coral-text);font-size:1.15rem;font-weight:800;}
+input[type=range]{
+  width:100%;height:34px;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;
+}
+input[type=range]::-webkit-slider-runnable-track{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--sunny),var(--coral));}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:28px;height:28px;border-radius:50%;
+  background:var(--white);border:3px solid var(--coral);margin-top:-9px;
+  box-shadow:var(--shadow-sm);
+}
+input[type=range]::-moz-range-track{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--sunny),var(--coral));}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--white);border:3px solid var(--coral);}
+.sim-check{
+  display:flex;align-items:center;gap:10px;
+  background:var(--sky-bg);border-radius:14px;padding:11px 14px;
+  font-size:.95rem;font-weight:700;color:var(--navy);cursor:pointer;
+}
+.sim-check input{width:22px;height:22px;accent-color:var(--sky);}
+.timeline{margin:48px 0 8px;}
+.tl-track{
+  position:relative;height:14px;border-radius:7px;background:#f0e4d8;
+}
+.tl-fill{
+  position:absolute;left:0;top:0;height:14px;border-radius:7px;
+  background:linear-gradient(90deg,var(--sunny),var(--coral));
+  transition:width .2s;
+}
+.tl-goal{
+  position:absolute;top:-34px;transform:translateX(-50%);
+  font-size:.81rem;font-weight:800;color:var(--red-dark);
+  text-align:center;line-height:1.3;white-space:nowrap;
+}
+.tl-goal::after{
+  content:"";display:block;width:3px;height:30px;margin:2px auto 0;
+  background:var(--red);border-radius:2px;
+}
+.tl-labels{display:flex;justify-content:space-between;font-size:.81rem;color:var(--muted);margin-top:6px;}
+.sim-results{display:grid;grid-template-columns:1fr;gap:12px;margin-top:20px;}
+@media(min-width:700px){.sim-results{grid-template-columns:repeat(3,1fr);}}
+.sim-r{
+  border-radius:18px;padding:14px 15px;border:2px solid var(--line);background:var(--bg);
+}
+.sim-r h4{font-size:.9rem;color:var(--navy);margin-bottom:6px;line-height:1.6;}
+.sim-r h4 small{display:block;font-weight:500;color:var(--muted);font-size:.8rem;}
+.sim-r .r-chip{
+  display:inline-block;font-size:.95rem;font-weight:800;
+  padding:5px 16px;border-radius:999px;margin-bottom:6px;
+}
+.sim-r.ok{border-color:var(--green-border);background:var(--green-bg);}
+.sim-r.ok .r-chip{background:var(--white);color:var(--green);}
+.sim-r.ng{border-color:var(--red-border);background:var(--red-bg);}
+.sim-r.ng .r-chip{background:var(--white);color:var(--red-dark);}
+.sim-r p{font-size:.84rem;color:var(--muted);line-height:1.75;}
+
+/* ---------- セクション4：あるある劇場 ---------- */
+.case-grid{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.case-grid{grid-template-columns:repeat(2,1fr);}}
+.case-card{
+  display:flex;align-items:center;gap:14px;text-align:left;
+  background:var(--white);border:none;border-radius:20px;
+  padding:16px 16px;cursor:pointer;box-shadow:var(--shadow);
+  font-family:inherit;transition:transform .12s;
+}
+.case-card:active{transform:scale(.985);}
+.case-card .art{
+  width:64px;height:64px;flex:0 0 64px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+}
+.case-card .art svg{width:42px;height:42px;}
+.case-card .t{flex:1;}
+.case-card .chip{
+  display:inline-block;font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:4px;
+}
+.case-card h3{font-size:.99rem;color:var(--navy);line-height:1.6;}
+.case-card .more{
+  font-size:.8rem;color:var(--coral-text);font-weight:700;
+  display:inline-flex;align-items:center;gap:4px;margin-top:4px;
+}
+.case-card .more svg{width:14px;height:14px;stroke:var(--coral-text);}
+.c-red{background:var(--red-bg);color:var(--red-dark);}
+.c-blue{background:var(--sky-bg);color:var(--sky);}
+.c-green{background:var(--green-bg);color:var(--green);}
+.c-amber{background:var(--amber-bg);color:var(--amber-deep);}
+.c-berry{background:var(--berry-bg);color:var(--berry);}
+.case-card .amt{
+  display:inline-block;margin-left:7px;
+  font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;
+  background:var(--white);color:var(--green);border:1.5px solid var(--green-border);
+}
+
+/* ---------- セクション5：逆転劇場 ---------- */
+#sec5 .case-card{box-shadow:0 6px 20px rgba(60,120,80,.12);}
+.model-note{
+  background:var(--white);border-radius:18px;padding:14px 18px;margin-bottom:18px;
+  border-left:6px solid var(--mint);box-shadow:var(--shadow-sm);
+}
+.model-note strong{display:block;font-size:.92rem;color:var(--green);margin-bottom:4px;}
+.model-note .mn-row{display:block;font-size:.95rem;line-height:1.9;color:var(--navy);}
+.model-note .mn-row b{color:var(--coral-text);}
+.model-note .mn-note{display:block;font-size:.82rem;color:var(--muted);line-height:1.8;margin-top:6px;}
+.rule3-box{
+  margin-top:28px;background:var(--white);border-radius:22px;
+  padding:20px 20px 16px;box-shadow:var(--shadow-sm);
+}
+.rule3-box h3{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.06rem;color:var(--navy);margin-bottom:12px;
+}
+.rule3-box h3 svg{width:24px;height:24px;flex:0 0 24px;stroke:var(--green);}
+.rule3-box ol{list-style:none;counter-reset:r3;}
+.rule3-box ol li{
+  counter-increment:r3;position:relative;
+  padding:0 0 12px 44px;font-size:.95rem;line-height:1.9;
+}
+.rule3-box ol li::before{
+  content:counter(r3);position:absolute;left:0;top:2px;
+  width:30px;height:30px;border-radius:50%;
+  background:var(--green-bg);color:var(--green);
+  font-weight:800;font-size:1rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.rule3-note{font-size:.8rem;color:var(--muted);border-top:1.5px dashed var(--line);padding-top:10px;line-height:1.8;}
+/* ---------- モーダル ---------- */
+.cmodal{position:fixed;inset:0;z-index:60;display:none;}
+.cmodal.show{display:block;}
+.cmodal-back{position:absolute;inset:0;background:rgba(40,30,25,.5);}
+.cmodal-panel{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(94vw,640px);max-height:88vh;overflow-y:auto;
+  background:var(--white);border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.25);
+  -webkit-overflow-scrolling:touch;
+}
+.cmodal-head{
+  position:sticky;top:0;display:flex;gap:14px;align-items:center;
+  background:var(--white);padding:18px 52px 12px 20px;
+  border-bottom:1.5px solid var(--line);z-index:2;
+}
+.cmodal-close{
+  position:absolute;right:12px;top:12px;
+  width:40px;height:40px;border-radius:50%;
+  background:var(--bg);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.cmodal-close svg{width:18px;height:18px;stroke:var(--navy);}
+.cmodal-ico{
+  width:56px;height:56px;flex:0 0 56px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+}
+.cmodal-ico svg{width:38px;height:38px;}
+.cmodal-chip{
+  display:inline-block;font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:3px;
+}
+.cmodal-title{font-size:1.08rem;color:var(--navy);line-height:1.55;}
+.cmodal-body{padding:16px 20px 22px;}
+.cmodal-block{margin-bottom:18px;}
+.cmodal-label{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:.86rem;font-weight:800;padding:5px 14px;border-radius:999px;margin-bottom:9px;
+}
+.cmodal-label svg{width:17px;height:17px;}
+.lb-blue{background:var(--sky-bg);color:var(--sky);}
+.lb-blue svg{stroke:var(--sky);}
+.lb-red{background:var(--red-bg);color:var(--red-dark);}
+.lb-red svg{stroke:var(--red-dark);}
+.lb-green{background:var(--green-bg);color:var(--green);}
+.lb-green svg{stroke:var(--green);}
+.cmodal-quote{
+  background:var(--bg);border-left:4px solid var(--coral);
+  border-radius:0 14px 14px 0;padding:12px 15px;
+  font-size:.95rem;line-height:1.9;color:var(--text);
+}
+.cmodal-quote small{display:block;text-align:right;color:var(--muted);margin-top:4px;font-size:.8rem;}
+.cmodal-p{font-size:.95rem;line-height:1.95;margin-bottom:8px;}
+.cmodal-note{
+  font-size:.8rem;color:var(--muted);line-height:1.8;margin-top:14px;
+  border-top:1.5px dashed var(--line);padding-top:12px;
+}
+
+/* ---------- まとめ・チェックリスト ---------- */
+.score-box{
+  background:var(--sky-bg);border-radius:20px;padding:18px 18px 14px;margin-bottom:24px;
+}
+.score-box h3{
+  display:flex;align-items:center;gap:8px;
+  font-size:1.02rem;color:var(--navy);margin-bottom:8px;
+}
+.score-box h3 svg{width:22px;height:22px;stroke:var(--sky);}
+.score-box p{font-size:.95rem;line-height:1.9;}
+.checklist{display:grid;grid-template-columns:1fr;gap:10px;}
+.chk-group{
+  font-size:.9rem;font-weight:800;color:var(--amber-deep);
+  margin:14px 0 2px;letter-spacing:.03em;
+}
+.chk-group:first-child{margin-top:0;}
+.chk{
+  display:flex;align-items:center;gap:12px;
+  background:var(--bg);border:2px solid var(--line);border-radius:16px;
+  padding:12px 14px;cursor:pointer;font-size:.95rem;line-height:1.7;
+  transition:border-color .15s, background .15s;
+}
+.chk input{width:24px;height:24px;flex:0 0 24px;accent-color:var(--green);cursor:pointer;}
+.chk .art{
+  width:44px;height:44px;flex:0 0 44px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.chk .art svg{width:28px;height:28px;}
+.chk:has(input:checked){background:var(--green-bg);border-color:var(--green-border);}
+.chk-msg{
+  margin-top:16px;background:var(--amber-bg);border-radius:16px;
+  padding:14px 16px;font-size:.95rem;line-height:1.9;
+}
+details.finder{
+  margin-top:26px;background:var(--bg);border-radius:18px;
+  padding:4px 18px;border:1.5px solid var(--line);
+}
+details.finder summary{
+  cursor:pointer;font-size:.98rem;font-weight:700;color:var(--navy);
+  padding:12px 0;list-style-position:inside;
+}
+details.finder ul{padding:2px 0 8px 22px;font-size:.92rem;color:var(--text);}
+details.finder li{margin-bottom:7px;line-height:1.85;}
+details.finder p{font-size:.92rem;padding:0 0 14px;line-height:1.9;}
+
+/* ---------- CTA ---------- */
+.cta-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:24px 20px;margin-top:30px;text-align:center;
+}
+.cta-box h3{font-size:1.2rem;color:var(--navy);margin-bottom:8px;line-height:1.6;}
+.cta-box .cta-lead{font-size:.95rem;color:var(--muted);text-align:left;margin-bottom:14px;line-height:1.95;}
+.cta-box ul{list-style:none;text-align:left;margin-bottom:14px;}
+.cta-box ul li{
+  display:flex;gap:9px;align-items:flex-start;
+  font-size:.94rem;line-height:1.85;margin-bottom:6px;
+}
+.cta-box ul li svg{width:19px;height:19px;flex:0 0 19px;stroke:var(--mint);margin-top:6px;}
+.co{font-size:.98rem;font-weight:800;color:var(--navy);margin-top:18px;}
+.addr{font-size:.87rem;color:var(--muted);line-height:1.7;}
+.tip{font-size:.87rem;color:var(--amber-deep);margin-top:10px;}
+.cta-mini{
+  margin-top:18px;background:var(--bg);border:2px solid var(--amber-border);
+  border-radius:18px;padding:14px 16px;text-align:center;
+}
+.cta-mini p{font-size:.92rem;line-height:1.85;margin-bottom:10px;text-align:left;}
+.cta-mini a{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--white);border:2px solid var(--coral);
+  color:var(--coral-text);text-decoration:none;font-weight:800;font-size:.95rem;
+  border-radius:999px;padding:9px 20px;
+}
+.cta-mini a svg{width:18px;height:18px;stroke:var(--coral-text);}
+
+
+/* ---------- フッター免責 ---------- */
+footer.disclaimer{
+  padding:26px 16px 30px;max-width:900px;margin:0 auto;
+}
+footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
+
+@media print{
+  .hero-nav,.cta-mini{display:none !important;}
+  body{background:#fff;}
+}
+
+/* ---------- このページ独自：シミュレーターの合計表示 ---------- */
+.sim-total{
+  background:var(--navy-soft);border-radius:18px;
+  padding:15px 16px;margin-top:18px;text-align:center;
+}
+.sim-total .lead{font-size:.88rem;color:var(--muted);line-height:1.8;margin-bottom:6px;}
+.sim-total .big{
+  display:block;font-size:1.5rem;font-weight:800;color:var(--navy);line-height:1.6;
+}
+.sim-total .big b{color:var(--coral-text);font-size:1.9rem;}
+.sim-total .sub2{display:block;font-size:.88rem;color:var(--muted);line-height:1.8;margin-top:6px;}
+/* 使いみちの色分け（出ていくお金／戻るお金） */
+.tl-fill.back{background:linear-gradient(90deg,var(--mint),var(--green));}
+</style>
+</head>
+<body>
+
+<!-- ================= ヒーロー ================= -->
+<header class="hero">
+  <div class="wrap">
+    <div class="brand">
+      <span class="ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg>
+      </span>
+      <span>株式会社Office-M<small>会計を母体に、数字の「小さな字」まで読み解いてご案内します</small></span>
+    </div>
+    <div class="hero-flex">
+      <div class="hero-copy">
+        <h1>下がった日に、<br><span class="nowrap"><span class="accent">見るべき</span>ものが</span><span class="nowrap">あります。</span></h1>
+        <p class="lead">「もう終わりだ」「いや、いまが好機だ」——相場が下がるたびに、どちらの声も大きくなります。<strong>このページでは、そのどちらも扱いません。</strong>将来の相場がどうなるかは誰にも分からず、当社もそれを書く立場にないからです。かわりに書けることが2つあります。ひとつは、<strong>過去に実際に起きた下落と、高値を回復するまでにかかった年数</strong>という事実。もうひとつは、<strong>積立の平均取得単価がどう計算されるか</strong>という算数です。この2つを知っておくと、下がった日に見出しではなくご自分の数字を見られるようになります。○×クイズだけなら3分、ぜんぶ読んで10分ほど。</p>
+        <nav class="hero-nav" aria-label="ページ内メニュー">
+          <a href="#sec1"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h9"/></svg>3つの線引き</a>
+          <a href="#sec2"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/></svg>○×ワナクイズ</a>
+          <a href="#sec3"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="16" r="3"/><path d="M18 6 6 18"/></svg>過去の下落を解剖</a>
+          <a href="#sec4"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0-3.3 11 3 3 0 0 1 1.1 1.9l.03.35h4.34l.03-.35a3 3 0 0 1 1.1-1.9A6 6 0 0 0 12 3Z"/><path d="M9.8 19.2h4.4M10.7 21.7h2.6"/></svg>あるある劇場</a>
+          <a href="#sec5"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="8" width="17" height="12.5" rx="2.5"/><path d="M3.5 12h17M12 8v12.5"/></svg>逆転劇場</a>
+          <a href="#sec6"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5h16M7 16V9.5M12 16V5.5M17 16v-4"/></svg>回復年数の話</a>
+        </nav>
+      </div>
+      <div class="hero-scene" aria-hidden="true">
+        <svg viewBox="0 0 360 212">
+          <circle cx="310" cy="38" r="32" fill="#ffd9a8" opacity=".45"/><circle cx="310" cy="38" r="21" fill="#f7c34e"/>
+          <ellipse cx="60" cy="32" rx="26" ry="10" fill="#fff" opacity=".95"/><ellipse cx="92" cy="40" rx="17" ry="7" fill="#fff" opacity=".8"/>
+          <path d="M0 168h360v44H0Z" fill="#ffe9c7"/><path d="M0 176c40-10 90-12 150-8 60 4 120 4 210-6v50H0Z" fill="#b3e3b8"/>
+          <!-- 下がって戻る線（過去の一例のイメージ） -->
+          <path d="M110 160h230" stroke="#d9cfc4" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M112 110c22 6 38 34 60 42 24 9 40-20 62-34 20-13 38-16 58-24" fill="none" stroke="#63b8dd" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="172" cy="152" r="5.5" fill="#c2453f"/>
+          <circle cx="292" cy="94" r="5.5" fill="#2c7a4b"/>
+          <path d="M112 88h180" stroke="#c2451f" stroke-width="2.5" stroke-dasharray="6 5"/>
+          <text x="114" y="80" font-size="12.5" font-weight="bold" fill="#c2451f">何年かかったか</text>
+          <!-- 案内役 -->
+          <path d="M20 180c0-15 6.5-33 15-33s15 18 15 33v2H20Z" fill="#63b8dd"/><circle cx="35" cy="136" r="11" fill="#f7cdb4"/>
+          <path d="M24 134c1-9 5.5-13 11-13s10 4 11 13c-3.3-4-7-5.3-11-5.3s-7.7 1.3-11 5.3Z" fill="#5c4030"/>
+          <circle cx="31" cy="136.5" r="1.4" fill="#3d3028"/><circle cx="39" cy="136.5" r="1.4" fill="#3d3028"/>
+          <path d="M32 141c1.4 1.5 4 1.5 5.4 0" fill="none" stroke="#3d3028" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= セクション1：3つの線引き ================= -->
+<section id="sec1">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>1</i><span>あわてる前に引く線</span></span>
+        <h2>下がったときの<span class="nowrap">線は3本</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotLine" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">最初にお断りしておきます。このページには<strong>相場の見通しは一切書きません</strong>。そのかわり、下がった日に確かめられることを3本の線に整理しました。<strong>「下がった」とは何と比べてなのか</strong>、<strong>「戻った」というニュースは自分の口座の話なのか</strong>、そして<strong>過去の下落は回復までに何年かかったのか</strong>。この3本を引くだけで、見出しに引っぱられずに自分の数字を見られるようになります。</p>
+    </div>
+
+    <p class="qlink-lead">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/></svg>
+      この3つ、答えられますか？
+    </p>
+    <div class="qlinks">
+      <a class="qlink" href="#def-1">
+        <span class="pair">下がった<span class="vs">は</span>何と比べて</span>
+        <span class="ask">含み損と、確定した損の違いは？</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+      </a>
+      <a class="qlink" href="#def-2">
+        <span class="pair">戻った<span class="vs">は</span>誰の話</span>
+        <span class="ask">指数が戻れば、自分も戻る？</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+      </a>
+      <a class="qlink" href="#def-3">
+        <span class="pair">回復<span class="vs">に</span>かかった年数</span>
+        <span class="ask">過去は、何年かかりましたか？</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+      </a>
+    </div>
+
+    <!-- ============ 1本目：「下がった」の線 ============ -->
+    <div class="def-block" id="def-1">
+      <h3 class="def-h"><span class="def-ico ic-red" data-art="icSagari" aria-hidden="true"></span>1本目：「下がった」は何と比べてか、の線</h3>
+      <p class="def-lead">同じ「下がった」でも、中身は3種類あります。<strong>直近の高値と比べて下がった</strong>のか、<strong>ご自分が買った値段と比べて下がった</strong>のか、それとも<strong>すでに売って損が確定した</strong>のか。ニュースが伝えるのは1つ目で、家計に効いてくるのは2つ目と3つ目です。とくに、売らずに持っているだけの状態（含み損）と、売って確定した状態（実現損）では、<strong>税金の計算上の扱いがまったく違います</strong>。個別の税額計算・申告については税理士にご確認ください。</p>
+      <p class="age-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <span>上場株式等を売って生じた損失は、確定申告をすることで同じ年の上場株式等の利益などと<b>損益通算</b>でき、控除しきれない分は<b>翌年以後3年間</b>にわたって繰り越すことができます。ただし<b>NISA口座で生じた損失はこの対象になりません</b>。<small>根拠：租税特別措置法（2026年8月時点）。適用の可否は取引の内容によります</small></span>
+      </p>
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="含み損と実現損を分けた図。売っていない状態と、売って確定した状態では税金の扱いが違うことを示している">
+          <text x="260" y="30" text-anchor="middle" font-size="19" font-weight="bold" fill="#1b3f5e">含み損と、確定した損</text>
+          <rect x="30" y="48" width="460" height="160" rx="18" fill="#eaf1f7"/>
+          <rect x="44" y="62" width="286" height="132" rx="12" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="3"/>
+          <text x="187" y="96" text-anchor="middle" font-size="19" font-weight="bold" fill="#2c7a4b">売っていない（含み損）</text>
+          <text x="187" y="126" text-anchor="middle" font-size="15" fill="#2c7a4b">評価額が動いているだけの状態</text>
+          <text x="187" y="152" text-anchor="middle" font-size="14" font-weight="bold" fill="#2c7a4b">税金の計算上は損失ではない</text>
+          <text x="187" y="178" text-anchor="middle" font-size="13" fill="#2c7a4b">評価額はこの先も上下します</text>
+          <path d="M338 42v172" stroke="#c2451f" stroke-width="3" stroke-dasharray="7 6"/>
+          <rect x="350" y="62" width="126" height="132" rx="12" fill="#fdeee9" stroke="#c2453f" stroke-width="3"/>
+          <text x="413" y="98" text-anchor="middle" font-size="17" font-weight="bold" fill="#a63631">売った</text>
+          <text x="413" y="122" text-anchor="middle" font-size="17" font-weight="bold" fill="#a63631">（実現損）</text>
+          <text x="413" y="150" text-anchor="middle" font-size="13" fill="#a63631">損益通算の対象</text>
+          <text x="413" y="174" text-anchor="middle" font-size="13" fill="#a63631">NISAは対象外</text>
+          <text x="260" y="234" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2451f">同じ下落でも、扱いが変わります</text>
+          <text x="260" y="266" text-anchor="middle" font-size="13.5" fill="#5c6874">売る前に、どの口座にあるのかを確かめてください</text>
+        </svg>
+        <p class="venn-cap">※この図は税金の扱いの違いを大まかに示したものです。損益通算や繰越控除の適用の可否は、口座の種類、取引の内容、確定申告の有無によって変わります。個別の税額計算・申告については税理士にご確認ください。</p>
+      </div>
+      <div class="cards">
+        <div class="risk-card">
+          <div class="icon ic-blue" data-art="icTanka" aria-hidden="true"></div>
+          <h3>直近高値との差</h3>
+          <span class="judge-chip maybe">ニュースの数字</span>
+          <p>報道でよく使われるのは、直近の高値からどれだけ下がったかという数字です。<strong>ご自分が買った値段とは関係のない基準</strong>なので、この数字だけを見ても自分の損益は分かりません。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-amber" data-art="icTanka" aria-hidden="true"></div>
+          <h3>取得単価との差</h3>
+          <span class="judge-chip maybe">自分の数字</span>
+          <p>ご自分が買った値段の平均と、いまの値段の差です。<strong>これが本当の意味での自分の損益</strong>で、口座の画面に取得単価として表示されています。まずここを見るのが出発点になります。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-green" data-art="icKaifuku" aria-hidden="true"></div>
+          <h3>含み損のまま</h3>
+          <span class="judge-chip ok">まだ確定していない</span>
+          <p>売らずに持っている状態です。評価額は日々動き、<strong>この先も上下します</strong>。税金の計算上は損失として扱われないため、他の利益と相殺することもできません。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-red" data-art="icChui" aria-hidden="true"></div>
+          <h3>NISA口座の損</h3>
+          <span class="judge-chip ng">通算できません</span>
+          <p>NISA口座で生じた損失は、税制上ないものとして扱われます。<strong>特定口座の利益と相殺することも、翌年以降に繰り越すこともできません</strong>。非課税という利点の裏側にあたる扱いです。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 2本目：「戻った」の線 ============ -->
+    <div class="def-block" id="def-2">
+      <h3 class="def-h"><span class="def-ico ic-blue" data-art="icKaifuku" aria-hidden="true"></span>2本目：「戻った」は誰の話か、の線</h3>
+      <p class="def-lead">「最高値を回復」という見出しが出たとき、それは<strong>その指数が、その通貨で、配当を含めずに計算した水準の話</strong>です。ご自分の口座が同じように戻っているとは限りません。<strong>買った時期が違えば取得単価が違い</strong>、<strong>外国の資産なら為替の影響が乗り</strong>、<strong>保有している間ずっとコストが引かれ</strong>、<strong>持っているものが指数と同じ構成とは限らない</strong>からです。逆に、指数がまだ戻っていなくても自分の口座は買値を超えている、ということもあります。</p>
+      <p class="age-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <span>投資信託の<b>信託報酬</b>は、保有している間、日々の基準価額から差し引かれます。値上がりしても値下がりしても、保有しているかぎり<b>毎日かかり続ける</b>費用です。<small>根拠：交付目論見書および運用報告書に記載されます。料率は商品により異なります</small></span>
+      </p>
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="指数が戻ることと自分の資産が戻ることは別であることを示す図。取得単価、為替、コスト、銘柄構成の4つが違いを生む">
+          <text x="260" y="30" text-anchor="middle" font-size="19" font-weight="bold" fill="#1b3f5e">指数と、自分の口座</text>
+          <rect x="30" y="48" width="460" height="160" rx="18" fill="#eaf1f7"/>
+          <rect x="44" y="62" width="150" height="132" rx="12" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="3"/>
+          <text x="119" y="96" text-anchor="middle" font-size="17" font-weight="bold" fill="#2c7a4b">指数の水準</text>
+          <text x="119" y="122" text-anchor="middle" font-size="13.5" fill="#2c7a4b">ニュースの主語</text>
+          <text x="119" y="148" text-anchor="middle" font-size="13.5" fill="#2c7a4b">その通貨・配当抜き</text>
+          <text x="119" y="174" text-anchor="middle" font-size="13.5" fill="#2c7a4b">誰にも共通の数字</text>
+          <path d="M202 42v172" stroke="#c2451f" stroke-width="3" stroke-dasharray="7 6"/>
+          <rect x="214" y="62" width="262" height="132" rx="12" fill="#fdeee9" stroke="#c2453f" stroke-width="3"/>
+          <text x="345" y="94" text-anchor="middle" font-size="17" font-weight="bold" fill="#a63631">自分の口座の評価額</text>
+          <text x="345" y="122" text-anchor="middle" font-size="14" fill="#a63631">買った時期でちがう取得単価</text>
+          <text x="345" y="146" text-anchor="middle" font-size="14" fill="#a63631">為替とコストが乗る</text>
+          <text x="345" y="174" text-anchor="middle" font-size="13.5" font-weight="bold" fill="#a63631">同じ動きになるとは限らない</text>
+          <text x="260" y="234" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2451f">戻ったかどうかは、取得単価と比べて決まります</text>
+          <text x="260" y="266" text-anchor="middle" font-size="13.5" fill="#5c6874">指数が戻っていなくても自分は買値の上、ということもあります</text>
+        </svg>
+        <p class="venn-cap">※指数の水準は、その指数を算出・公表している機関が定めた方法で計算されたものです。配当や分配金を含む計算方法の指数もあり、報道で使われる水準とは異なることがあります。</p>
+      </div>
+      <div class="cards">
+        <div class="risk-card">
+          <div class="icon ic-blue" data-art="icTanka" aria-hidden="true"></div>
+          <h3>買った時期のちがい</h3>
+          <span class="judge-chip maybe">取得単価で決まる</span>
+          <p>同じ商品を持っていても、いつ買ったかで取得単価は変わります。<strong>指数が高値を回復しても、それより高い値段で買っていれば含み損のまま</strong>ですし、その逆もあります。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-amber" data-art="icKawase" aria-hidden="true"></div>
+          <h3>為替の影響</h3>
+          <span class="judge-chip maybe">円建てに換算される</span>
+          <p>外国の資産に投資するものは、現地の価格と為替の両方が円建ての評価額に効きます。<strong>現地の価格が下がっていなくても、為替の動きだけで円建ての基準価額が下がることがあります</strong>。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-red" data-art="qYen" aria-hidden="true"></div>
+          <h3>コストの積み重ね</h3>
+          <span class="judge-chip ng">毎日かかります</span>
+          <p>信託報酬は保有している間ずっと差し引かれ、売買には手数料がかかることもあります。<strong>値動きとは関係なく確実に発生する</strong>ので、長く持つほど積み重なります。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-red" data-art="icChui" aria-hidden="true"></div>
+          <h3>個別の企業の株式</h3>
+          <span class="judge-chip ng">戻らない例もあります</span>
+          <p>指数は多くの銘柄をまとめた数字ですが、<strong>個別の企業の株式は、株価が戻らないまま上場廃止になることもあります</strong>。指数の話を、個別の銘柄にそのまま当てはめることはできません。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 3本目：回復にかかった年数 ============ -->
+    <div class="def-block" id="def-3">
+      <h3 class="def-h"><span class="def-ico ic-amber" data-art="icNengen" aria-hidden="true"></span>3本目：回復にかかった年数、の線</h3>
+      <p class="def-lead">ここが、このページでいちばんお伝えしたい事実です。過去に起きた大きな下落について、<strong>その指数が下落前の高値を回復するまでにかかった年数はまちまちで、数か月のこともあれば、30年を超えたこともあります</strong>。これは起きたことの記録であって、<strong>将来も同じようになるという意味ではありません</strong>。回復した例があるということは、次も回復するという約束ではなく、まして「だからいま買うべき」「だから持ち続けるべき」という話でもありません。ここでは年数という事実だけを並べます。</p>
+      <p class="age-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <span>日経平均株価が<b>1989年12月末</b>につけた終値の最高値を再び上回ったのは、<b>2024年2月</b>のことでした。その間、約<b>34年</b>が経過しています。<small>根拠：日本経済新聞社が算出・公表する日経平均株価の終値。配当は含みません</small></span>
+      </p>
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="過去の下落から高値を回復するまでの年数を並べた図。6か月から34年まで大きな幅がある">
+          <text x="260" y="30" text-anchor="middle" font-size="19" font-weight="bold" fill="#1b3f5e">回復までの年数はまちまち</text>
+          <rect x="30" y="48" width="460" height="160" rx="18" fill="#eaf1f7"/>
+          <path d="M56 148h420" stroke="#5c6874" stroke-width="3" stroke-linecap="round"/>
+          <path d="M56 142v12M176 142v12M296 142v12M464 142v12" stroke="#5c6874" stroke-width="2"/>
+          <circle cx="62" cy="148" r="9" fill="#2c7a4b"/>
+          <text x="62" y="182" text-anchor="middle" font-size="14" font-weight="bold" fill="#2c7a4b">6か月</text>
+          <circle cx="121" cy="148" r="9" fill="#63b8dd"/>
+          <text x="126" y="122" text-anchor="middle" font-size="14" font-weight="bold" fill="#24729f">5年5か月</text>
+          <circle cx="236" cy="148" r="9" fill="#f7c34e"/>
+          <text x="236" y="182" text-anchor="middle" font-size="14" font-weight="bold" fill="#8f6015">15年</text>
+          <circle cx="464" cy="148" r="9" fill="#c2453f"/>
+          <text x="452" y="122" text-anchor="middle" font-size="14" font-weight="bold" fill="#a63631">34年</text>
+          <text x="56" y="76" font-size="13" fill="#5c6874">短い例</text>
+          <text x="476" y="76" text-anchor="end" font-size="13" fill="#5c6874">長い例</text>
+          <text x="260" y="234" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2451f">これは起きたことの記録です</text>
+          <text x="260" y="266" text-anchor="middle" font-size="13.5" fill="#5c6874">将来も同じようになるという意味ではありません</text>
+        </svg>
+        <p class="venn-cap">※左から順に、2020年の米国の代表的な株価指数、2007年からの米国の代表的な株価指数、2000年からの米国の店頭市場の総合指数、1989年末からの日経平均株価の例です。いずれも指数の水準（配当を含まない）による概数で、通貨も算出方法も異なります。詳しい年月は次のセクションの表をご覧ください。</p>
+      </div>
+      <div class="cards">
+        <div class="risk-card">
+          <div class="icon ic-green" data-art="icNengen" aria-hidden="true"></div>
+          <h3>数か月だった例</h3>
+          <span class="judge-chip ok">約6か月</span>
+          <p>2020年2月から3月にかけての下落では、米国の代表的な株価指数が同じ年の8月に下落前の高値を上回りました。<strong>短い期間で回復した例</strong>として記録されています。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-blue" data-art="icNengen" aria-hidden="true"></div>
+          <h3>5年ほどかかった例</h3>
+          <span class="judge-chip maybe">約5年5か月</span>
+          <p>2007年10月からの下落では、米国の代表的な株価指数が下落前の高値を上回ったのは2013年3月でした。<strong>その間に5年以上が経っています</strong>。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-amber" data-art="icNengen" aria-hidden="true"></div>
+          <h3>15年ほどかかった例</h3>
+          <span class="judge-chip maybe">約15年</span>
+          <p>2000年3月からの下落では、米国の店頭市場の総合指数が高値を上回ったのは2015年4月でした。<strong>途中で使う予定があれば、待てない長さ</strong>です。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-red" data-art="icNengen" aria-hidden="true"></div>
+          <h3>30年を超えた例</h3>
+          <span class="judge-chip ng">約34年</span>
+          <p>日経平均株価が1989年12月末の終値の最高値を上回ったのは2024年2月でした。<strong>ひとつの相場に、これだけの年数がかかった記録があります</strong>。将来を示すものではありません。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>3本の線を引くと、下がった日にすべきことがはっきりします。<strong>ニュースの数字ではなく自分の取得単価を見る、どの口座にあるかを確かめる、そのお金をいつ使う予定かを思い出す。</strong>この3つです。なお、ここで触れた税金の扱いは一般的なしくみの説明です。<strong>個別の税額計算・申告については税理士にご確認ください。</strong></span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション2：○×クイズ ================= -->
+<section id="sec2" class="band round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>2</i><span>思い込みをチェック</span></span>
+        <h2>下がった日の<span class="nowrap">○×ワナ</span>クイズ8問</h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotQuiz" aria-hidden="true"></span></div>
+    </div>
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">ここからは8問のクイズです。すべて<strong>過去に実際に起きたこと</strong>か、<strong>制度として決まっていること</strong>がモデルで、将来の値動きを当てる問題はひとつもありません。相場が落ち着いているときに解いておくのがいちばん効きます。3分ほどで終わりますので、直感でどうぞ。</p>
+    </div>
+    <div class="quiz-shell">
+      <div id="quizPlay">
+        <div class="q-top">
+          <div class="q-count">質問 <span id="qNum">1</span> ／ 8</div>
+          <div class="dots" id="qDots" aria-hidden="true"></div>
+        </div>
+        <div class="q-body">
+          <div class="icon" id="qIcon" aria-hidden="true"></div>
+          <p id="qText"></p>
+        </div>
+        <div class="ans-row">
+          <button type="button" class="ans-btn yes" id="btnYes">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/></svg>
+            <span id="lblYes">そのとおり</span>
+          </button>
+          <button type="button" class="ans-btn no" id="btnNo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            <span id="lblNo">ちがう</span>
+          </button>
+        </div>
+        <div class="verdict" id="verdict" aria-live="polite">
+          <div class="verdict-head">
+            <span class="verdict-answer" id="vAnswer"></span>
+            <span class="result-chip" id="vChip"></span>
+          </div>
+          <p class="expl" id="vExpl"></p>
+          <div class="kv kv-wana"><b>ワナの正体：</b><span id="vWana"></span></div>
+          <div class="kv"><b>確認ポイント：</b><span id="vCheck"></span></div>
+        </div>
+        <button type="button" class="btn-primary" id="btnNext" style="display:none;">
+          次の質問へ
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+        <button type="button" class="btn-ghost" id="btnStopHere" style="display:none;">ここまでの結果を見る（残りはあとでも大丈夫です）</button>
+      </div>
+
+      <div class="quiz-done" id="quizDone">
+        <p class="score">クイズおつかれさまでした！　<span class="nowrap"><span id="doneTotal">8</span>問中 <span class="num" id="doneScore">0</span> 問正解</span></p>
+        <p class="cmt" id="doneCmt"></p>
+        <div class="wrong-list" id="wrongList" style="display:none;"></div>
+        <div data-cta-mini></div>
+        <button type="button" class="btn-ghost" id="btnMailSelf">この結果を自分（またはご家族）に送る</button>
+        <button type="button" class="btn-ghost" id="btnPrint">印刷して取引残高報告書と一緒に保管する</button>
+        <button type="button" class="btn-ghost" id="btnRetry">もう一度挑戦する</button>
+      </div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>各問の解説は、2026年8月時点で公表されている過去の記録と、一般的な税制上の取扱いを前提にした説明です。指数の水準は算出方法や通貨が異なり、いずれも将来を示すものではありません。「あれ、うちはどうだったかな」と思ったところが、手元の書類を出すタイミングです。</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション3：過去の下落を解剖 ================= -->
+<section id="sec3" class="band-sky round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>3</i><span>いちばん多い誤解</span></span>
+        <h2>「すぐ戻る」を<span class="nowrap">解剖する</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotCalc" aria-hidden="true"></span></div>
+    </div>
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">「下がってもすぐ戻りますよね」——よくいただく言葉です。お答えできるのは、<strong>過去はこうでした</strong>という記録だけ。すぐ戻った例も、何十年もかかった例も、どちらも実際にありました。ここではその年数を表にして並べ、そのあとで<strong>積立の平均取得単価がどう計算されるか</strong>という算数を、シミュレーターで動かしてみます。どちらも予想ではありません。</p>
+    </div>
+    <p class="sec-lead">まず、過去に起きた大きな下落と、その指数が下落前の高値を再び上回るまでにかかった期間です。いずれも指数の水準（配当を含まない）による概数で、通貨も算出方法も異なります。</p>
+    <div class="type-table-box">
+      <table class="type-table" aria-label="過去の下落の大きさと、高値を回復するまでにかかった期間を並べた表">
+        <thead><tr><th>いつの出来事か</th><th>高値からの下落<small>終値ベースの概数</small></th><th>高値を上回るまで<small>同じ指数で</small></th></tr></thead>
+        <tbody>
+          <tr><td>2020年2月〜3月<br><small>米国の代表的な株価指数</small></td><td>約34%</td><td><span class="mark-ok">約6か月</span><br>2020年8月</td></tr>
+          <tr><td>2007年10月〜2009年3月<br><small>米国の代表的な株価指数</small></td><td>約57%</td><td>約5年5か月<br>2013年3月</td></tr>
+          <tr><td>2000年3月〜2002年10月<br><small>米国の店頭市場の総合指数</small></td><td>約78%</td><td>約15年<br>2015年4月</td></tr>
+          <tr><td>1989年12月〜2009年3月<br><small>日経平均株価</small></td><td>約82%</td><td>約34年<br>2024年2月</td></tr>
+        </tbody>
+      </table>
+      <p class="venn-cap">※各指数を算出・公表している機関が公表する終値をもとにした概数です。配当や分配金は含まれておらず、通貨も算出方法も指数ごとに異なります。ここに並べたのは過去に起きたことの記録であり、将来の値動きや回復の有無を示すものではありません。回復しないまま推移する場合もあり、個別の企業の株式では株価が戻らないまま上場廃止となることもあります。</p>
+    </div>
+
+    <p class="sec-lead">つづいて算数の話です。毎月一定額を買い続けたとき、<strong>平均取得単価がどう決まるか</strong>を確かめてみます。値動きは3つの形から選ぶだけで、これは<strong>説明のために決め打ちした形</strong>であり、予想ではありません。</p>
+    <div class="sim-box">
+      <h3>体感シミュレーター「平均取得単価はいくらになるか」</h3>
+      <p class="sub">毎月の積立額と回数、そして値動きの形を選ぶと、平均取得単価と最終時点の評価額が出ます。このページの説明用に単純化した概算です。</p>
+      <div class="sim-ctrl">
+        <label for="simA">毎月の積立額<output id="simAOut">30,000円</output></label>
+        <input type="number" id="simA" value="30000" min="1000" max="200000" step="1000" inputmode="numeric" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;">
+        <p style="font-size:.8rem;color:#5c6874;margin-top:5px;">単位は円。例：月3万円なら 30000。</p>
+      </div>
+      <div class="sim-ctrl">
+        <label for="simD">積み立てる回数（か月）<output id="simDOut">24回</output></label>
+        <input type="number" id="simD" value="24" min="6" max="240" step="6" inputmode="numeric" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;">
+        <p style="font-size:.8rem;color:#5c6874;margin-top:5px;">6〜240の範囲で入力してください。出発時の価格は1口あたり1万円としています。</p>
+      </div>
+      <div class="sim-ctrl">
+        <label for="simB">値動きの形（決め打ちの想定です）</label>
+        <select id="simB" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;">
+          <option value="1">4割下がったあと、出発した水準まで戻った</option>
+          <option value="2" selected>4割下がったまま、戻っていない</option>
+          <option value="3">一度も下がらず、4割上がった</option>
+        </select>
+      </div>
+      <label class="sim-check"><input type="checkbox" id="simC" checked>同じ総額を最初にまとめて買った場合も並べる</label>
+      <div class="timeline" aria-hidden="true">
+        <div class="tl-track"><div class="tl-fill" id="tlFill" style="width:2%;"></div>
+          <div class="tl-goal" style="left:66%;">1万円<br>出発時の価格</div></div>
+        <div class="tl-labels"><span>0円</span><span>7,500円</span><span>15,000円</span></div>
+      </div>
+      <div class="sim-results" aria-live="polite">
+        <div class="sim-r" id="simR1"><h4>買えた口数<small>積立総額との関係</small></h4><span class="r-chip" id="simR1Chip"></span><p id="simR1Txt"></p></div>
+        <div class="sim-r" id="simR2"><h4>最終時点の評価額<small>手数料・税金は考慮せず</small></h4><span class="r-chip" id="simR2Chip"></span><p id="simR2Txt"></p></div>
+        <div class="sim-r" id="simR3"><h4>まとめて買った場合<small>同じ総額を出発時に</small></h4><span class="r-chip" id="simR3Chip"></span><p id="simR3Txt"></p></div>
+      </div>
+      <div class="sim-total">
+        <span class="lead" id="simTotalLead">この形の値動きなら</span>
+        <span class="big" id="simTotalBig"></span><span class="sub2" id="simTotalSub"></span>
+      </div>
+      <p class="venn-cap" style="margin-top:10px;">※3つの値動きは、しくみを体感していただくために決め打ちした形であり、実際の値動きを予想したものではありません。売買手数料、信託報酬、分配金、税金、為替の影響はいずれも考慮していません。積立と一括のどちらが有利になるかは、そのあとの値動きによって決まり、事前に知ることはできません。実際の税額は税理士にご確認ください。</p>
+    </div>
+
+    <div class="mikane" style="margin-top:26px;">
+      <h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>本当に困るのは、下落そのものではありません</h3>
+      <ol>
+        <li><strong>使う日が動かせないこと。</strong>下がった年に、どうしても現金が必要な予定が重なっていると、値段を選べません。困るのは下落ではなく、下落と支出の日が重なることです。</li>
+        <li><strong>決め方を決めていないこと。</strong>下がった日に、はじめてどうするかを考えると、判断の材料がその日の見出しだけになります。落ち着いているときに決めておけることは意外に多いものです。</li>
+        <li><strong>自分の数字を知らないこと。</strong>取得単価も、どの口座にあるかも、コストも分からないままだと、何が起きているのか判断のしようがありません。</li>
+      </ol>
+      <p class="caution"><strong>いちばん多い行き違いは「戻ったニュース」と「自分の口座」を同じものだと思うこと。</strong>指数の水準は<b>その通貨で、配当を含めず</b>計算された、誰にとっても共通の数字です。一方でご自分の評価額は、<b>買った時期・為替・コスト・持っている中身</b>によって決まります。ニュースが最高値を伝えていても含み損のままということはありますし、その逆もあります。<b>比べる相手は指数ではなく、ご自分の取得単価</b>です。</p>
+    </div>
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>当社は、相場が今後どう動くかについて見通しを述べる立場にありません。このページに書いたのは、<strong>過去に起きたことの記録</strong>と、<strong>計算のしくみ</strong>だけです。売るか持つかといった判断は、ご自身の資金の予定にもとづいて、ご自身でお決めください。</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション4：あるある劇場 ================= -->
+<section id="sec4" class="band-blush round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>4</i><span>実話がモデルの寸劇集</span></span>
+        <h2>下がった日のあるある劇場</h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotTheater" aria-hidden="true"></span></div>
+    </div>
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">ここからは6つの寸劇です。どれも「値動きを読み違えた」話ではなく、<strong>しくみを知らないまま下がった日を迎えた</strong>という話。気になる演目をタップしてみてください。</p>
+    </div>
+    <div class="case-grid" id="caseGrid"></div>
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>各演目は一般的な内容をもとにした創作例で、実在の個人・事案とは関係ありません。金額はいずれも「たとえば」の数字です。実際の取扱いは、口座の種類、取引の内容、ご契約の内容によって変わります。</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション5：逆転劇場 ================= -->
+<section id="sec5" class="band-mint round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>5</i><span>知って得する側の話</span></span>
+        <h2>逆転劇場〜こんな知識が、<span class="nowrap">味方します〜</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotGift" aria-hidden="true"></span></div>
+    </div>
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">ここからは切り替えて、<strong>知っていたから、あわてずに済んだ</strong>という話を8つ。値動きを当てた話はひとつもありません。どれも<strong>制度のしくみ</strong>と<strong>自分の数字</strong>を知っていたおかげ、という話です。</p>
+    </div>
+    <div class="model-note">
+      <strong>このページの「助かった」の目安</strong>
+      <span class="mn-row">40代・会社員・毎月3万円を積み立てているご家庭を想定した、たとえばの話です</span>
+      <span class="mn-note">※実際の効果は、口座の種類、取引の内容、確定申告の有無、ご家庭の資金の予定によって変わります。将来の値動きや回復の有無を示すものではありません。</span>
+    </div>
+    <div class="case-grid" id="goodGrid"></div>
+    <div class="rule3-box">
+      <h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg>あわてないための「下がった日の3か条」</h3>
+      <ol>
+        <li><strong>見るのは見出しではなく取得単価。</strong>ニュースの下落率は直近の高値との比較です。ご自分の損益は、口座に表示されている平均取得単価といまの価格を比べて初めて分かります。</li>
+        <li><strong>どの口座にあるかを先に確かめる。</strong>NISA口座か特定口座か一般口座かで、損が出たときに選べる手が変わります。売ってから知ると、選び直せません。</li>
+        <li><strong>そのお金を使う日を思い出す。</strong>近いうちに使う予定があるお金かどうかで、考えるべきことがまったく変わります。値動きの予想ではなく、ご自分の予定の確認です。</li>
+      </ol>
+      <p class="rule3-note">※金額はいずれも一例です。税制上の取扱いの適用の可否は要件と事実関係により異なります。個別の税額計算・申告については税理士にご確認ください。当社は将来の相場について見通しを述べる立場にありません。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション6：数字の話 ================= -->
+<section id="sec6" class="band-sky round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>6</i><span>数字の話をひとつだけ</span></span>
+        <h2>数字で見る<span class="nowrap">回復の年数</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotCal" aria-hidden="true"></span></div>
+    </div>
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">最後に数字の話をひとつだけ。ここに並べるのは、<strong>過去に起きたことの記録</strong>です。数か月で戻った例もあれば、30年を超えた例もありました。<strong>この幅こそが、いちばん大事な数字</strong>だと考えています。繰り返しになりますが、これは将来を示すものではありませんし、当社は今後の相場について見通しを述べる立場にありません。</p>
+    </div>
+    <div class="life-box">
+      <h3>高値を再び上回るまでにかかった期間</h3>
+      <p class="sub">いずれも各指数の終値（配当を含まない）による概数です。通貨も算出方法も異なります</p>
+      <svg viewBox="0 56 380 196" role="img" aria-label="過去の3つの下落について、高値を再び上回るまでにかかった年数を比べた棒グラフ。約5年5か月、約15年、約34年">
+        <path d="M18 170h344" stroke="#d9cfc4" stroke-width="2" stroke-linecap="round"/>
+        <rect x="42" y="155" width="46" height="15" rx="4" fill="#c6e2f2"/>
+        <text x="65" y="147" text-anchor="middle" font-size="14" font-weight="bold" fill="#24729f">約5.4年</text>
+        <text x="65" y="190" text-anchor="middle" font-size="12.5" fill="#5c6874">2007年10月から</text>
+        <text x="65" y="206" text-anchor="middle" font-size="11" fill="#5c6874">米国の株価指数</text>
+        <rect x="152" y="129" width="46" height="41" rx="4" fill="#f7c34e"/>
+        <text x="175" y="121" text-anchor="middle" font-size="14" font-weight="bold" fill="#8f6015">約15年</text>
+        <text x="175" y="190" text-anchor="middle" font-size="12.5" fill="#5c6874">2000年3月から</text>
+        <text x="175" y="206" text-anchor="middle" font-size="11" fill="#5c6874">米国の総合指数</text>
+        <rect x="262" y="76" width="46" height="94" rx="4" fill="#f0846a"/>
+        <text x="285" y="68" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2451f">約34年</text>
+        <text x="285" y="190" text-anchor="middle" font-size="12.5" fill="#5c6874">1989年12月から</text>
+        <text x="285" y="206" text-anchor="middle" font-size="11" fill="#a63631">日経平均株価</text>
+        <text x="190" y="240" text-anchor="middle" font-size="13" font-weight="bold" fill="#a63631">同じ物差しでは測れない幅があります</text>
+      </svg>
+      <p class="life-cap">※日経平均株価は日本経済新聞社が算出・公表する終値、米国の指数は各指数を算出・公表する機関が公表する終値によります。いずれも配当を含まない水準で、通貨も算出方法も異なります。棒の高さは年数に比例させた概数です。2020年の下落（約6か月で回復）は、この目盛りでは表示できない短さのため入れていません。過去の記録であり、将来を示すものではありません。</p>
+      <div class="big3">
+        <span class="b"><span class="n">約22.6%</span><span class="l">1日の下落率の記録</span><span class="s">1987年10月19日の米国</span></span>
+        <span class="b"><span class="n">約6か月</span><span class="l">短く回復した例</span><span class="s">2020年の米国の株価指数</span></span>
+        <span class="b"><span class="n">約34年</span><span class="l">長くかかった例</span><span class="s">1989年末からの日経平均</span></span>
+      </div>
+    </div>
+    <h3 class="sub-h"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>使う時期によって、見え方が変わります</h3>
+    <p class="sub-lead">同じ下落でも、そのお金をいつ使う予定かによって、考えるべきことが変わります。3枚を、ご自分にあてはまるところから読んでみてください。</p>
+    <div class="age-cards">
+      <div class="age-card">
+        <p class="ttl"><span class="ico ic-red" data-art="icJikan" aria-hidden="true"></span>3年以内に使うお金</p>
+        <span class="kind">日付が動かせない</span>
+        <div class="rows">
+          <p class="row"><span>過去の回復年数</span><b>数か月〜34年</b></p>
+          <p class="row"><span>待てる年数</span><b>3年まで</b></p>
+        </div>
+        <p class="cmt">支払いの期日が決まっているお金です。<strong>下がった年でも売らざるを得ない</strong>ことがあります。過去の回復年数の幅と、待てる年数を並べてみてください。</p>
+        <p class="src">※回復年数は過去の記録であり将来を示しません</p>
+      </div>
+      <div class="age-card">
+        <p class="ttl"><span class="ico ic-amber" data-art="icNengen" aria-hidden="true"></span>10年ほど先に使うお金</p>
+        <span class="kind">期日をずらせるか</span>
+        <div class="rows">
+          <p class="row"><span>過去の回復年数</span><b>数か月〜34年</b></p>
+          <p class="row"><span>待てる年数</span><b>10年前後</b></p>
+        </div>
+        <p class="cmt">進学や住宅の頭金など、金額も時期も後から動きやすい支出です。<strong>期日をずらせるかどうか</strong>で、考えられる幅が変わります。</p>
+        <p class="src">※ずらせるかどうかはご家庭により異なります</p>
+      </div>
+      <div class="age-card">
+        <p class="ttl"><span class="ico ic-blue" data-art="icKaifuku" aria-hidden="true"></span>使う時期を決めていないお金</p>
+        <span class="kind">下がった日に決めることに</span>
+        <div class="rows">
+          <p class="row"><span>過去の回復年数</span><b>数か月〜34年</b></p>
+          <p class="row"><span>待てる年数</span><b>決めていない</b></p>
+        </div>
+        <p class="cmt">いちばん多いのがこの状態です。<strong>使う時期を決めていないと、下がった日にはじめて考えることになります</strong>。今日決められるのはここです。</p>
+        <p class="src">※金額の決め方はご家庭の事情によります</p>
+      </div>
+    </div>
+    <div class="mikane">
+      <h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5V9.2M12 9.2 7.6 5M12 9.2 16.4 5"/><circle cx="12" cy="15" r="8.2"/></svg>だから、いまできることは3つだけ</h3>
+      <ol>
+        <li><strong>取得単価を見る。</strong>ニュースの下落率ではなく、口座に表示されているご自分の平均取得単価を確認します。ここが分かって初めて、自分にとって下がったのかどうかが言えます。</li>
+        <li><strong>口座の種類を確かめる。</strong>NISA口座か特定口座か一般口座か。損が出たときに選べる手が変わります。売ってしまってからでは選び直せません。</li>
+        <li><strong>使う日を書き出す。</strong>そのお金を何年後に使う予定かを、口座ごとに書きます。値動きの予想ではなく、ご自分の予定の確認です。</li>
+      </ol>
+      <p class="caution"><strong>そして、いちばん大事なこと</strong>このページは、売ることも持ち続けることも、買い増すことも勧めていません。当社は<b>将来の相場について見通しを述べる立場にありません</b>。お伝えできるのは、<b>過去に起きたことの記録</b>と<b>計算のしくみ</b>だけです。そのうえで、どうするかを決めるのはご自身です。決めるための材料が足りないと感じたら、そこはお手伝いできます。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= まとめ ================= -->
+<section id="matome" class="band round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill plain">まとめ</span>
+        <h2>あなたのあわてないチェック</h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotCheck" aria-hidden="true"></span></div>
+    </div>
+    <p class="sec-lead">最後に、いまの状況を確認してみましょう。あてはまるもの・できたものをタップ（クリック）してください。</p>
+    <div class="score-box">
+      <h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/></svg>クイズの結果</h3>
+      <div id="sumScore"><p>まだクイズに挑戦していません。<a href="#sec2">②の○×クイズ</a>で、思い込みをチェックしてみてください。</p></div>
+    </div>
+    <div class="checklist" id="checklist">
+      <p class="chk-group">口座を開けば、今日わかること</p>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkPc" aria-hidden="true"></span><span><strong>平均取得単価を見た</strong>いま持っているものを、自分がいくらで買ったのか。口座の保有商品一覧に表示されています。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkInvoice" aria-hidden="true"></span><span><strong>どの口座にあるかを整理した</strong>NISA口座か特定口座か一般口座か。損が出たときに選べる手が変わります。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkReceipt" aria-hidden="true"></span><span><strong>含み損と確定した損を分けた</strong>売らずに持っているだけの分と、今年すでに売って損益が確定した分を、取引履歴で分けて確認します。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkPdf" aria-hidden="true"></span><span><strong>信託報酬を確認した</strong>保有している投資信託の信託報酬が年率何パーセントかを、交付目論見書か運用報告書で見ます。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkShield" aria-hidden="true"></span><span><strong>外国の資産と為替ヘッジを確認した</strong>外国の資産が含まれているか、為替ヘッジがあるかどうかを交付目論見書で確認します。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkHome" aria-hidden="true"></span><span><strong>使う時期を口座ごとに書き出した</strong>そのお金を何年後に使う予定か。紙の上で構いません。書けないものに印をつけます。</span></label>
+      <p class="chk-group">次に、誰かに聞くこと</p>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkAoiro" aria-hidden="true"></span><span><strong>確定した損の申告について確認する</strong>特定口座や一般口座で実現した損があるなら、損益通算や繰越控除ができるかを税理士に確認します。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkPeople" aria-hidden="true"></span><span><strong>積立額の変更・停止の手続きを聞いた</strong>金融機関に、金額の変更や一時停止の方法と、反映までの日数を確認しておきます。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkBank" aria-hidden="true"></span><span><strong>知らない相手からの勧誘は登録を確認する</strong>「元本は減りません」といった説明を受けたら、その場で契約せず、金融庁の一覧で登録業者かを確認します。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkBack" aria-hidden="true"></span><span><strong>使う日と金額の見取り図を見てもらう予定を立てた</strong>いつ、いくら必要かの整理は、一度まとめて見てもらうと早く片づきます。</span></label>
+    </div>
+    <div class="chk-msg" id="chkMsg">あてはまるものにチェックを入れてみてください。今日おうちで確認できる項目と、次に誰かに聞く項目が混じっています。</div>
+    <div data-cta-mini></div>
+    <details class="finder">
+      <summary>「下がったとき、何から見ればいいですか」への答え</summary>
+      <ul>
+        <li><strong>まず、取得単価。</strong>ニュースの下落率ではなく、口座に表示されているご自分の平均取得単価を見ます。</li>
+        <li>つぎに、口座の種類。NISA口座か特定口座か一般口座かで、損が出たときの扱いが変わります。</li>
+        <li>そのうえで、使う日。近いうちに使う予定があるかどうかで、考えるべきことがまったく変わります。</li>
+        <li>この3つが分からないうちは、その日に何かを決めないという選び方もあります。</li>
+      </ul>
+      <p>この順番でいちばん大事なのは、<strong>その日に判断の材料を集めようとしないこと</strong>です。材料は、落ち着いているときにしか集められません。今日集めておけば、次の下落の日には見るだけで済みます。</p>
+    </details>
+    <details class="finder" style="margin-top:14px;">
+      <summary>「じゃあこうすればいい？」——対策のワナ</summary>
+      <ul>
+        <li>下がったから増やす、下がったから全部やめる。どちらも<strong>その日の値動きを理由にした判断</strong>で、当社はどちらもお勧めする立場にありません。</li>
+        <li>「損を取り戻せる」という勧誘は、下がった直後に増えます。説明の中身より先に、登録された業者かどうかを確認してください。</li>
+        <li>非課税だからと値動きのあるものを1か所に寄せると、損が出たときに他の口座の利益と相殺できません。</li>
+        <li>売って現金にするまでには数営業日かかります。支払いの期日が迫っている支出には、その日数が効いてきます。</li>
+      </ul>
+      <p>順番さえ守れば大丈夫です。<strong>自分の数字を知る、口座の種類を確かめる、使う日を思い出す</strong>。この3つの順で進めれば、その日の見出しに判断を預けずに済みます。</p>
+    </details>
+    <div class="cta-box" id="soudan">
+      <h3>見取り図を、<span class="nowrap">いっしょに</span></h3>
+      <p class="cta-lead">このページの内容は、あくまで一般的なしくみと過去の記録の話。<strong>ご自身の場合にどうなるか</strong>は、実際の口座の中身、取引の内容、これからの資金の予定で決まります。こんなご相談をよくお受けしています。</p>
+      <ul>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>いくつかの口座に分かれていて、全体でいくらあるか把握できていない</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>近いうちに大きな支出の予定があり、どこから出すか整理したい</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>今年損が確定したので、申告が必要かどうかを整理しておきたい</span></li>
+      </ul>
+      <p class="cta-lead">お時間の目安は30分ほど。資料が揃っていなくても大丈夫、揃えるところからお手伝いします。なお当社は、将来の相場の見通しや個別の銘柄の売買についてお答えする立場にありません。<strong>個別具体的な税務相談・税務書類の作成・税務代理は、税理士が対応します。</strong>いただいた個人情報は、ご相談への対応のみに使用し、ご本人の同意なく第三者に提供しません。</p>
+      <p class="co">株式会社Office-M</p>
+      <p class="addr">受付：平日 9:00〜17:00</p>
+      <p class="tip">直近の取引残高報告書と、年間取引報告書がお手元にあると、その場での確認がより早く進みます。</p>
+    </div>
+  </div>
+</section>
+
+<!-- 募集文書審査：未了。委託先保険会社の承認番号の要否を確認のうえ公開すること -->
+<footer class="disclaimer">
+  <p>本資料は、株式会社Office-Mが、相場が下落したときに確認できることの一般的なしくみをご理解いただくために作成した情報提供資料です。<strong>将来の相場の動向、値上がり・値下がりの見通し、回復の有無や時期について、一切の判断を示すものではありません。</strong>本文で挙げた過去の下落と回復までの期間は、各指数を算出・公表する機関が公表している終値（配当を含まない）にもとづく概数であり、通貨も算出方法も異なります。過去にそうであったことは、将来も同様となることを意味しません。回復しないまま推移する場合や、個別の企業の株式が株価の回復を見ないまま上場廃止となる場合もあります。記載内容は2026年8月時点の法令等にもとづく一般的な取扱いであり、個別の事案への当てはめは、口座の種類、取引の内容、他の所得の状況によって結論が変わります。シミュレーターの値動きは説明のために決め打ちした想定であり、手数料・信託報酬・分配金・税金・為替の影響を考慮しない簡易な概算です。実際の投資成果を示すものではありません。<strong>個別具体的な税務相談・税務書類の作成・税務代理は、税理士が対応します。</strong>本資料の内容によって生じた結果について、当社は責任を負いかねます。</p>
+  <p style="margin-top:10px;">主な根拠：租税特別措置法、所得税法、金融商品取引法。過去の指数の水準は、日本経済新聞社が算出・公表する日経平均株価および米国の各指数を算出・公表する機関が公表する終値によるおおまかな数です。制度は改正されることがあります。最新の内容は、国税庁・金融庁および各指数の公表元のページでご確認ください。無登録の業者による勧誘については、金融庁が注意喚起を行っています。</p>
+  <p style="margin-top:10px;">作成：株式会社Office-M（2026年8月）</p>
+</footer>
+<!-- ================= 演目詳細モーダル ================= -->
+<div class="cmodal" id="caseModal" aria-hidden="true">
+  <div class="cmodal-back" id="caseModalBack"></div>
+  <div class="cmodal-panel" role="dialog" aria-modal="true" aria-labelledby="caseModalTitle">
+    <div class="cmodal-head" id="caseModalHead">
+      <button type="button" class="cmodal-close" id="caseModalClose" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <div class="cmodal-ico" id="caseModalIco" aria-hidden="true"></div>
+      <div>
+        <span class="cmodal-chip" id="caseModalChip"></span>
+        <h3 class="cmodal-title" id="caseModalTitle"></h3>
+      </div>
+    </div>
+    <div class="cmodal-body">
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 15.5a2 2 0 0 1-2 2H8l-4 3.5v-15a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"/></svg>
+          <span id="caseModalLbl1">ご相談で伺ったお話（脚色あり）</span>
+        </div>
+        <blockquote class="cmodal-quote" id="caseModalStory"></blockquote>
+      </div>
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-red" id="caseModalLbl2Wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+          <span id="caseModalLbl2">何が起きたのか</span>
+        </div>
+        <div id="caseModalWhat"></div>
+      </div>
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-green">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
+          <span id="caseModalLbl3">こう確認すれば防げます</span>
+        </div>
+        <div id="caseModalHow"></div>
+      </div>
+      <div data-cta-mini></div>
+      <p class="cmodal-note">※演目は一般的な内容をもとにした創作例で、実在の個人・法人・事案とは関係ありません。税務の取扱いは事実関係により異なります。実際の判断は、顧問税理士または所轄の税務署にご確認ください。</p>
+    </div>
+  </div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- 案内役のイラスト ---------- */
+var SVG_GUIDE =
+  '<svg viewBox="0 0 64 64">' +
+  '<circle cx="32" cy="32" r="32" fill="#ffeee3"/>' +
+  '<path d="M8 64c0-13 11-20 24-20s24 7 24 20H8Z" fill="#f0846a"/>' +
+  '<rect x="27" y="39" width="10" height="11" rx="5" fill="#f7cdb4"/>' +
+  '<path d="M25 45l7 9 7-9 3.4 1.8L32 61 21.6 46.8Z" fill="#fff"/>' +
+  '<ellipse cx="32" cy="28" rx="16" ry="17" fill="#5c4030"/>' +
+  '<ellipse cx="32" cy="30" rx="12.5" ry="13.5" fill="#f7cdb4"/>' +
+  '<path d="M19.5 27c0-9 5.6-14.5 12.5-14.5S44.5 18 44.5 27c-1.6-3.6-4.2-5.7-7.2-6.6-2.6 2.4-7 3.8-10.9 3.2-1.4 1-2.4 2.1-2.9 3.4Z" fill="#5c4030"/>' +
+  '<circle cx="27" cy="30" r="1.6" fill="#3d3028"/><circle cx="37" cy="30" r="1.6" fill="#3d3028"/>' +
+  '<path d="M29.4 35.6c1.6 1.7 3.6 1.7 5.2 0" fill="none" stroke="#3d3028" stroke-width="1.6" stroke-linecap="round"/>' +
+  '</svg>';
+
+document.querySelectorAll('[data-guide]').forEach(function(el){ el.innerHTML = SVG_GUIDE; });
+
+/* ---------- スポット・アイコン ---------- */
+var S = 'fill="none" stroke-linecap="round" stroke-linejoin="round"';
+var ARTS = {
+  spotLine:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="6" y="16" width="22" height="32" rx="5" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="2.5"/>' +
+    '<rect x="36" y="16" width="22" height="32" rx="5" fill="#fdf3e2" stroke="#8f6015" stroke-width="2.5"/>' +
+    '<path d="M32 8v48" stroke="#c2451f" stroke-width="3" stroke-dasharray="5 4" stroke-linecap="round"/>' +
+    '<path d="m12 32 4 4 8-8" fill="none" stroke="#2c7a4b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M42 27l10 10M52 27l-10 10" stroke="#8f6015" stroke-width="3" stroke-linecap="round"/>' +
+    '</svg>',
+  spotQuiz:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="24" fill="#e8f4fb"/>' +
+    '<path d="M25 26.5c.6-4.2 3.6-6.6 7.4-6.6 4.2 0 7.4 2.8 7.4 6.8 0 3.4-2 5.2-4.4 6.8-2 1.3-2.9 2.3-2.9 4.5" fill="none" stroke="#24729f" stroke-width="3.4" stroke-linecap="round"/>' +
+    '<circle cx="32.4" cy="45" r="2.6" fill="#f0846a"/>' +
+    '</svg>',
+  spotCalc:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="14" y="6" width="36" height="52" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<rect x="20" y="12" width="24" height="12" rx="4" fill="#27587f"/>' +
+    '<path d="M24 18h16" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>' +
+    '<circle cx="24" cy="32" r="3.6" fill="#c6e2f2"/><circle cx="32" cy="32" r="3.6" fill="#c6e2f2"/><circle cx="40" cy="32" r="3.6" fill="#c6e2f2"/>' +
+    '<circle cx="24" cy="42" r="3.6" fill="#c6e2f2"/><circle cx="32" cy="42" r="3.6" fill="#c6e2f2"/><circle cx="40" cy="42" r="3.6" fill="#f7c34e"/>' +
+    '<circle cx="24" cy="51" r="3.6" fill="#c6e2f2"/><circle cx="32" cy="51" r="3.6" fill="#c6e2f2"/><circle cx="40" cy="51" r="3.6" fill="#f0846a"/>' +
+    '</svg>',
+  spotTheater:
+    '<svg viewBox="0 0 64 64">' +
+    '<path d="M8 10h48v8c0 4-3 7-7 7H15c-4 0-7-3-7-7Z" fill="#c2453f"/>' +
+    '<path d="M10 14c4 22 4 30 3 40h8c-2-12-1-24 3-40Z" fill="#a63631"/>' +
+    '<path d="M54 14c-4 22-4 30-3 40h-8c2-12 1-24-3-40Z" fill="#a63631"/>' +
+    '<circle cx="32" cy="38" r="13" fill="#ffeee3"/>' +
+    '<circle cx="27.5" cy="35.5" r="1.8" fill="#3d3028"/><circle cx="36.5" cy="35.5" r="1.8" fill="#3d3028"/>' +
+    '<path d="M27 42c3 3 7 3 10 0" fill="none" stroke="#3d3028" stroke-width="2" stroke-linecap="round"/>' +
+    '</svg>',
+  spotGift:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="8" y="24" width="48" height="34" rx="6" fill="#fffdf8" stroke="#c3e5d3" stroke-width="2.5"/>' +
+    '<rect x="8" y="24" width="48" height="12" rx="6" fill="#4fbf9b"/>' +
+    '<rect x="28" y="24" width="8" height="34" fill="#2c7a4b"/>' +
+    '<path d="M32 24s-6-.7-8.5-3.2a3.6 3.6 0 0 1 5.1-5.1C31.1 18.2 32 24 32 24Z" fill="#f7c34e"/>' +
+    '<path d="M32 24s6-.7 8.5-3.2a3.6 3.6 0 0 0-5.1-5.1C32.9 18.2 32 24 32 24Z" fill="#f7c34e"/>' +
+    '<circle cx="47" cy="15" r="6.5" fill="#f0846a"/>' +
+    '<path d="M44.5 15h5M47 12.5v5" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>' +
+    '</svg>',
+  spotCal:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="8" y="12" width="48" height="44" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<path d="M8 24h48" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<rect x="8" y="12" width="48" height="12" rx="7" fill="#27587f"/>' +
+    '<path d="M20 6v10M44 6v10" stroke="#1b3f5e" stroke-width="4" stroke-linecap="round"/>' +
+    '<rect x="15" y="30" width="8" height="7" rx="2" fill="#c6e2f2"/>' +
+    '<rect x="28" y="30" width="8" height="7" rx="2" fill="#f0846a"/>' +
+    '<rect x="41" y="30" width="8" height="7" rx="2" fill="#c6e2f2"/>' +
+    '<rect x="15" y="42" width="8" height="7" rx="2" fill="#f7c34e"/>' +
+    '<rect x="28" y="42" width="8" height="7" rx="2" fill="#c6e2f2"/>' +
+    '<rect x="41" y="42" width="8" height="7" rx="2" fill="#f0846a"/>' +
+    '</svg>',
+  spotCheck:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="12" y="10" width="40" height="46" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<rect x="24" y="5" width="16" height="10" rx="4" fill="#27587f"/>' +
+    '<path d="m19 26 4 4 7-8" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<rect x="34" y="25" width="12" height="3.5" rx="1.75" fill="#d9cfc4"/>' +
+    '<path d="m19 40 4 4 7-8" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<rect x="34" y="39" width="12" height="3.5" rx="1.75" fill="#d9cfc4"/>' +
+    '</svg>',
+
+  icKousai:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<path d="M10 12v7a5 5 0 0 0 10 0v-7M15 24v14"/>' +
+    '<path d="M33 12c-3 0-5 3-5 8s2 6 5 6 5-1 5-6-2-8-5-8ZM33 26v12"/>' +
+    '<path d="M9 42h12M27 42h12"/>' +
+    '</svg>',
+  icKaigi:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<circle cx="11" cy="12" r="4.5"/><circle cx="37" cy="12" r="4.5"/>' +
+    '<path d="M4 24c0-4 3.2-6.5 7-6.5s7 2.5 7 6.5M30 24c0-4 3.2-6.5 7-6.5s7 2.5 7 6.5"/>' +
+    '<ellipse cx="24" cy="25" rx="7" ry="2.6"/>' +
+    '<path d="M5 29h38M11 29v11M37 29v11"/>' +
+    '</svg>',
+  icHitori:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<circle cx="24" cy="11" r="5"/>' +
+    '<path d="M16 22c0-3.4 3.6-5 8-5s8 1.6 8 5"/>' +
+    '<path d="M10 29h28c0 6-6 10-14 10s-14-4-14-10Z"/>' +
+    '<path d="M8 42h32"/>' +
+    '</svg>',
+  icShain:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<circle cx="12" cy="14" r="4.5"/><circle cx="24" cy="11" r="4.5"/><circle cx="36" cy="14" r="4.5"/>' +
+    '<path d="M4 26c0-3.6 3.6-6 8-6s8 2.4 8 6M16 24c0-3.6 3.6-6 8-6s8 2.4 8 6M28 26c0-3.6 3.6-6 8-6s8 2.4 8 6"/>' +
+    '<path d="M8 34h32v6a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2Z"/>' +
+    '</svg>',
+  icShuzen:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M29 8a8 8 0 0 0-9.6 10.6L8 30v8h8l11.4-11.4A8 8 0 0 0 38 17l-6 3-4-4 3-6a8 8 0 0 0-2-2Z"/>' +
+    '<path d="m13 33 2 2"/>' +
+    '</svg>',
+  icPaint:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<rect x="8" y="8" width="24" height="10" rx="3"/>' +
+    '<path d="M32 13h6a3 3 0 0 1 3 3v5a3 3 0 0 1-3 3H24v6"/>' +
+    '<rect x="19" y="30" width="10" height="12" rx="3"/>' +
+    '</svg>',
+  icUpgrade:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<rect x="7" y="26" width="10" height="14" rx="2"/>' +
+    '<rect x="19" y="18" width="10" height="22" rx="2"/>' +
+    '<rect x="31" y="8" width="10" height="32" rx="2"/>' +
+    '<path d="M6 44h36"/>' +
+    '</svg>',
+  icBuild:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M8 42V16l16-9 16 9v26"/>' +
+    '<path d="M6 42h36"/>' +
+    '<rect x="15" y="22" width="7" height="7" rx="1.5"/><rect x="26" y="22" width="7" height="7" rx="1.5"/>' +
+    '<path d="M19 42v-8h10v8"/>' +
+    '</svg>',
+  icGaichu:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<rect x="6" y="16" width="36" height="22" rx="4"/>' +
+    '<path d="M18 16v-3a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v3"/>' +
+    '<path d="M6 24h36M20 27h8"/>' +
+    '</svg>',
+  icJikan:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<circle cx="24" cy="25" r="15"/>' +
+    '<path d="M24 16v9l6 4"/>' +
+    '<path d="M17 7h14"/>' +
+    '</svg>',
+  icDoc2:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<rect x="11" y="6" width="26" height="36" rx="4"/>' +
+    '<path d="M17 16h14M17 23h14M17 30h8"/>' +
+    '</svg>',
+  icKazoku:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.3">' +
+    '<circle cx="15" cy="14" r="5"/><circle cx="33" cy="14" r="5"/>' +
+    '<path d="M6 30c0-5 4-8 9-8s9 3 9 8M24 30c0-5 4-8 9-8s9 3 9 8"/>' +
+    '<circle cx="24" cy="30" r="4"/>' +
+    '<path d="M17 42c0-4 3-6 7-6s7 2 7 6"/>' +
+    '</svg>',
+  icZeimusho:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.3">' +
+    '<path d="M6 18 24 8l18 10"/>' +
+    '<path d="M9 18v18M17 18v18M31 18v18M39 18v18"/>' +
+    '<path d="M5 42h38M8 36h32"/>' +
+    '</svg>',
+  icCity:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.3">' +
+    '<rect x="7" y="14" width="16" height="28" rx="2"/>' +
+    '<rect x="25" y="22" width="16" height="20" rx="2"/>' +
+    '<path d="M12 20h6M12 27h6M12 34h6M30 28h6M30 35h6"/>' +
+    '<path d="M5 42h38"/>' +
+    '</svg>',
+  icHoken:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M24 6 9 11v11c0 9.5 6.4 17.4 15 19.6 8.6-2.2 15-10.1 15-19.6V11L24 6Z"/>' +
+    '<path d="M24 17v12M18 23h12"/>' +
+    '</svg>',
+
+  qFood:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<circle cx="24" cy="24" r="9.5"/><circle cx="24" cy="24" r="4.5"/>' +
+    '<path d="M8 8v8a3 3 0 0 0 6 0V8M11 16v24"/>' +
+    '<path d="M40 8c-3 1.2-5 4.6-5 9s2 5 5 5M40 8v32"/>' +
+    '</svg>',
+  qCar:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M8 30v6h5M40 30v6h-5"/>' +
+    '<path d="M6 30l3-10a4 4 0 0 1 3.8-2.8h22.4A4 4 0 0 1 39 20l3 10Z"/>' +
+    '<circle cx="14" cy="30" r="2.4"/><circle cx="34" cy="30" r="2.4"/>' +
+    '<path d="M20 8h8M24 4v8" stroke-width="2.8"/>' +
+    '</svg>',
+  qDock:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<path d="M14 7v9a8 8 0 0 0 16 0V7"/>' +
+    '<path d="M22 24v6a8 8 0 0 0 16 0v-4"/>' +
+    '<circle cx="38" cy="22" r="4"/>' +
+    '<path d="M10 7h8M26 7h8"/>' +
+    '</svg>',
+  qHouse:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M6 22 24 8l18 14"/>' +
+    '<path d="M10 20v20h28V20"/>' +
+    '<path d="M24 20v20" stroke-dasharray="4 3"/>' +
+    '<path d="M14 27h6M28 27h6"/>' +
+    '</svg>',
+  qPc:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<rect x="9" y="10" width="30" height="21" rx="3"/>' +
+    '<path d="M5 36h38l-3 4H8Z"/>' +
+    '</svg>',
+  qSuit:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M18 6h12l-6 8Z"/>' +
+    '<path d="M24 14 21 42h6Z"/>' +
+    '<path d="M18 6 9 12v30h8M30 6l9 6v30h-8"/>' +
+    '</svg>',
+  qShield:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<path d="M24 5 8 11v12c0 10 6.8 18.5 16 21 9.2-2.5 16-11 16-21V11L24 5Z"/>' +
+    '<path d="m18 18 6 8 6-8M24 26v9M19.5 28.5h9M19.5 32.5h9"/>' +
+    '</svg>',
+  qYen:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<circle cx="24" cy="24" r="17"/>' +
+    '<path d="m17 14 7 10 7-10M24 24v10M18.5 26.5h11M18.5 31.5h11"/>' +
+    '</svg>',
+  qInvoice:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<path d="M11 6h26v36l-4.3-3-4.4 3-4.3-3-4.4 3-4.3-3-4.3 3Z"/>' +
+    '<path d="M17 15h14M17 22h14M17 29h8"/>' +
+    '</svg>',
+  qTruck:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<path d="M4 12h22v22H4Z"/>' +
+    '<path d="M26 20h9l7 7v7h-16Z"/>' +
+    '<circle cx="14" cy="37" r="4"/><circle cx="34" cy="37" r="4"/>' +
+    '</svg>',
+  qPlane:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M24 5c2.5 0 4 4 4 10v6l14 8v4l-14-4v8l5 4v3l-9-2-9 2v-3l5-4v-8l-14 4v-4l14-8v-6c0-6 1.5-10 4-10Z"/>' +
+    '</svg>',
+  qSeed:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<path d="M24 42V20"/>' +
+    '<path d="M24 20c0-7 5-12 12-12 0 7-5 12-12 12ZM24 26c0-6-4-10-10-10 0 6 4 10 10 10Z"/>' +
+    '<path d="M12 42h24"/>' +
+    '</svg>',
+  qTrash:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M9 13h30M18 13V9a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v4"/>' +
+    '<path d="M13 13l2 26a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3l2-26"/>' +
+    '<path d="M20 20v15M28 20v15"/>' +
+    '</svg>',
+
+  chkReceipt:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2451f" stroke-width="2.3">' +
+    '<path d="M11 6h26v36l-4.3-3-4.4 3-4.3-3-4.4 3-4.3-3-4.3 3Z"/>' +
+    '<path d="M17 16h14M17 24h14M17 31h8"/>' +
+    '</svg>',
+  chkHome:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<path d="M6 22 24 8l18 14"/><path d="M10 20v20h28V20"/><path d="M24 20v20" stroke-dasharray="4 3"/>' +
+    '</svg>',
+  chkPeople:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.3">' +
+    '<circle cx="15" cy="15" r="5"/><circle cx="33" cy="15" r="5"/>' +
+    '<path d="M6 33c0-5 4-8 9-8s9 3 9 8M24 33c0-5 4-8 9-8s9 3 9 8"/>' +
+    '</svg>',
+  chkPc:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.3">' +
+    '<rect x="9" y="10" width="30" height="21" rx="3"/><path d="M5 36h38l-3 4H8Z"/>' +
+    '</svg>',
+  chkPdf:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.3">' +
+    '<path d="M13 6h16l8 8v28a2 2 0 0 1-2 2H13a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"/>' +
+    '<path d="M29 6v9h8"/><path d="M17 26h12M17 33h8"/>' +
+    '</svg>',
+  chkInvoice:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<rect x="7" y="12" width="34" height="24" rx="3"/>' +
+    '<path d="M12 18v12M17 18v12M22 18v12M27 18v12M32 18v12M37 18v12"/>' +
+    '</svg>',
+  chkBank:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.3">' +
+    '<path d="M6 19 24 9l18 10"/><path d="M11 19v17M20 19v17M28 19v17M37 19v17"/><path d="M6 41h36"/>' +
+    '</svg>',
+  chkAoiro:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#27587f" stroke-width="2.3">' +
+    '<rect x="10" y="7" width="28" height="34" rx="4"/>' +
+    '<path d="m17 22 4 4 10-10"/><path d="M17 33h14"/>' +
+    '</svg>',
+  chkShield:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.3">' +
+    '<path d="M24 6 10 11v11c0 9 6 16.5 14 18.7C32 38.5 38 31 38 22V11L24 6Z"/>' +
+    '<path d="m18 22 6 6 6-8"/>' +
+    '</svg>',
+  chkBack:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.3">' +
+    '<path d="M9 24a15 15 0 1 0 4.4-10.6"/>' +
+    '<path d="M8 8v8h8"/><path d="M24 17v8l6 4"/>' +
+    '</svg>',
+  icSagari:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M6 12l12 14 8-7 16 17"/><path d="M42 26v10H32"/><path d="M5 42h38"/>' +
+    '</svg>',
+  icKaifuku:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<path d="M6 14v22c0 0 8-16 18-16s10 12 18 12"/><path d="M5 42h38"/>' +
+    '</svg>',
+  icTanka:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<rect x="7" y="9" width="34" height="30" rx="4"/><path d="M14 20h20M14 28h12"/>' +
+    '<path d="M31 26l4 4 6-8"/>' +
+    '</svg>',
+  icNengen:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<circle cx="24" cy="25" r="16"/><path d="M24 15v11l7 4"/><path d="M16 4h16"/>' +
+    '</svg>',
+  icKawase:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<path d="M8 18h30l-7-7M40 30H10l7 7"/>' +
+    '</svg>',
+  icChui:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2451f" stroke-width="2.5">' +
+    '<path d="M24 7 4 41h40Z"/><path d="M24 20v10M24 35h.01"/>' +
+    '</svg>',
+};
+document.querySelectorAll('[data-art]').forEach(function(el){
+  var key = el.getAttribute('data-art');
+  if(ARTS[key]) el.innerHTML = ARTS[key];
+});
+
+/* ---------- ミニCTA ---------- */
+var CTA_MINI =
+  '<div class="cta-mini"><p>書類が全部そろっていなくても大丈夫です。どこの口座に何があるか、おおよそ分かれば話は進みます。</p>' +
+  '<a href="#soudan">' +
+  '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="m3 7 9 6 9-6"/></svg>' +
+  '無料で相談してみる</a></div>';
+document.querySelectorAll('[data-cta-mini]').forEach(function(el){ el.innerHTML = CTA_MINI; });
+
+/* ---------- セクション2：○×クイズ ---------- */
+/* a: true = そのとおり（○が正解）, false = ちがう（×が正解） */
+var QUIZ = [
+  {
+    icon:'icNengen', a:true,
+    q:'日経平均株価が1989年12月末につけた終値の最高値を再び上回ったのは、2024年のことである',
+    expl:'そのとおりです。日経平均株価は1989年12月末に終値で3万8千円台の最高値をつけたあと下落し、2009年3月には7千円台まで下がりました。終値でこの1989年末の水準を再び上回ったのは2024年2月で、およそ34年が経過しています。これは指数の水準（配当を含まない）で見た記録であり、この間に買った人がどうだったかは、買った時期や商品によってまったく異なります。また、この記録は将来も同じようになるという意味ではありません。',
+    wana:'バブル後の下落は歴史の話として知っていても、回復までの年数までは意識されていないためです。',
+    check:'ご自分が持っているものを、いつごろ買ったのかを取引残高報告書で確認する。'
+  },
+  {
+    icon:'icChui', a:false,
+    q:'過去の大きな下落はいずれも高値を回復しているので、下がっても待っていれば必ず元に戻る',
+    expl:'そうとは言えません。このページで挙げた例は、いずれも「その指数が、結果として高値を上回った」という記録にすぎません。回復までにかかった年数は数か月から30年を超えるものまで幅があり、そのあいだに使う予定があれば待つことはできません。さらに、指数ではなく個別の企業の株式では、株価が戻らないまま上場廃止になることもあります。過去に回復した例があることは、将来の回復を保証するものではありません。当社は将来の相場について見通しを述べる立場にありません。',
+    wana:'回復した例だけが記憶に残りやすく、回復しなかったものは記録として目に入りにくいためです。',
+    check:'そのお金を何年後に使う予定なのかを、口座ごとに書き出してみる。'
+  },
+  {
+    icon:'icTanka', a:true,
+    q:'毎月同じ金額を買い続けると、価格が下がった月ほど多くの口数を買えるため、平均取得単価は各月の価格を単純に平均した額より低くなる',
+    expl:'そのとおりです。同じ金額で買うと、価格が低い月にはより多くの口数を、価格が高い月には少ない口数を買うことになります。その結果、買った口数で重みづけした平均取得単価は、各月の価格をそのまま足して割った単純平均より低くなります。これは値動きの予測ではなく、割り算の性質から必ずそうなる算数です。ただし、平均取得単価が低いことと、利益が出ることはまったく別の話です。売る時点の価格が平均取得単価を下回っていれば、損失になります。',
+    wana:'算数の性質の話と、もうかるかどうかの話が、同じものとして語られがちなためです。',
+    check:'口座の画面で、いま保有しているものの平均取得単価がいくらになっているかを見る。'
+  },
+  {
+    icon:'icSagari', a:false,
+    q:'平均取得単価が下がっていけば、売るときに損をすることはない',
+    expl:'そうではありません。平均取得単価は、あくまで自分が買った値段の平均です。売るときの価格がその平均取得単価を下回っていれば、その差が損失になります。価格が下がり続けている局面では、平均取得単価も下がりますが、売却時の価格はそれをさらに下回っていることがあります。加えて、売買の手数料や保有中の信託報酬も差し引かれます。平均取得単価が下がったという事実だけを見て、損をしないと考えることはできません。',
+    wana:'単価が下がるという言葉が、有利になったという意味に聞こえてしまうためです。',
+    check:'いまの評価額と、これまでに投じた金額の合計を並べて見てみる。'
+  },
+  {
+    icon:'qYen', a:true,
+    q:'値下がりした投資信託を売らずに持っているだけの状態では、税金の計算上は損失として扱われない',
+    expl:'そのとおりです。税金の計算では、売却などによって損益が確定した時点ではじめて損失として扱われます。売らずに保有しているだけの含み損は、評価額が下がっているという状態にすぎず、他の利益と相殺することはできません。逆に、売って損失が確定した場合には、上場株式等の一定の取引について確定申告をすることで損益通算や繰越控除ができる場合があります。ただしNISA口座の損失はこの対象外です。適用の可否は取引の内容によりますので、個別の税額計算・申告については税理士にご確認ください。',
+    wana:'口座の画面に赤字で表示されるため、すでに損が確定したように見えてしまうためです。',
+    check:'今年すでに売って損益が確定した取引があるか、取引履歴で確認する。'
+  },
+  {
+    icon:'icChui', a:false,
+    q:'NISA口座で出た損失は、特定口座で出た利益と相殺できる',
+    expl:'できません。NISA口座で生じた損失は、税制上ないものとして扱われます。そのため、特定口座や一般口座で生じた利益と損益通算することも、翌年以降に繰り越して控除することもできません。売却益や分配金が非課税になるという利点の、ちょうど裏側にあたる取扱いです。どの口座で何を持っているかによって、下がったときの選べる手が変わるということでもあります。まずは保有しているものがどの口座にあるのかを把握しておくことが大切です。',
+    wana:'非課税という言葉から、税金の面ではすべて有利になると思い込んでしまうためです。',
+    check:'取引残高報告書で、保有しているものがNISA口座か特定口座か一般口座かを確認する。'
+  },
+  {
+    icon:'icKawase', a:true,
+    q:'外国の資産に投資する投資信託では、現地の価格が下がっていなくても、為替の動きだけで円建ての基準価額が下がることがある',
+    expl:'そのとおりです。外国の資産に投資するものは、現地通貨での価格と、その通貨と円との交換比率の両方が、円建ての基準価額に影響します。そのため、現地の価格が変わらなくても、為替の動き次第で円建ての評価額が下がることがありますし、その逆もあります。為替ヘッジを行う商品では、その影響を抑える仕組みがありますが、ヘッジにも費用がかかります。なお、為替が今後どう動くかについて当社は見通しを述べる立場になく、ここでは仕組みだけをお伝えしています。',
+    wana:'基準価額が下がった原因を、投資先の値動きだけで説明しようとしてしまうためです。',
+    check:'保有している投資信託に外国の資産が含まれているか、為替ヘッジの有無を交付目論見書で確認する。'
+  },
+  {
+    icon:'icSagari', a:false,
+    q:'1987年10月のブラックマンデーで、米国の代表的な株価平均が1日に下げた率は1割ほどだった',
+    expl:'1割ではありません。1987年10月19日、米国の代表的な工業株の株価平均は1日で2割を超える下落となりました。下落率はおよそ22.6パーセントで、1日の下げ幅としてはきわめて大きな記録です。ここでお伝えしたいのは数字そのものより、1日でこれだけ動いた日が実際にあったという事実です。値動きのあるものを持つ以上、こうした日が来ることは想定に含めておく必要があります。なお、これは過去の記録であり、将来の値動きを示すものではありません。',
+    wana:'1日で2割を超える下落が現実に起きたという実感が、数字として持ちにくいためです。',
+    check:'いま持っている金額が1日で2割動いたら、生活に影響が出るかどうかを考えてみる。'
+  }
+];
+
+var qIdx = 0, qScore = 0, qAnswered = false, qAnsweredCount = 0;
+var wrongItems = [];
+
+var elNum   = document.getElementById('qNum');
+var elDots  = document.getElementById('qDots');
+var elIcon  = document.getElementById('qIcon');
+var elText  = document.getElementById('qText');
+var btnYes  = document.getElementById('btnYes');
+var btnNo   = document.getElementById('btnNo');
+var lblYes  = document.getElementById('lblYes');
+var lblNo   = document.getElementById('lblNo');
+var elVerd  = document.getElementById('verdict');
+var elVAns  = document.getElementById('vAnswer');
+var elVChip = document.getElementById('vChip');
+var elVExpl = document.getElementById('vExpl');
+var elVWana = document.getElementById('vWana');
+var elVChk  = document.getElementById('vCheck');
+var btnNext = document.getElementById('btnNext');
+var btnStop = document.getElementById('btnStopHere');
+var quizPlay = document.getElementById('quizPlay');
+var quizDone = document.getElementById('quizDone');
+
+function renderDots(){
+  var html = '';
+  for(var i = 0; i < QUIZ.length; i++){
+    html += '<i class="' + (i < qIdx ? 'done' : (i === qIdx ? 'now' : '')) + '"></i>';
+  }
+  elDots.innerHTML = html;
+}
+
+function renderQ(){
+  var item = QUIZ[qIdx];
+  elNum.textContent = qIdx + 1;
+  elIcon.innerHTML = ARTS[item.icon] || '';
+  elText.textContent = item.q;
+  lblYes.textContent = item.yes || 'そのとおり';
+  lblNo.textContent = item.no || 'ちがう';
+  btnYes.disabled = false;
+  btnNo.disabled = false;
+  qAnswered = false;
+  elVerd.classList.remove('show');
+  btnNext.style.display = 'none';
+  btnStop.style.display = 'none';
+  renderDots();
+}
+
+function answer(ansYes){
+  if(qAnswered) return;
+  qAnswered = true;
+  qAnsweredCount++;
+  btnYes.disabled = true;
+  btnNo.disabled = true;
+  var item = QUIZ[qIdx];
+  var correct = (ansYes === item.a);
+  if(correct) qScore++;
+  else wrongItems.push(item);
+  elVAns.textContent = '正解は「' + (item.a ? (item.yes || 'そのとおり') : (item.no || 'ちがう')) + '」';
+  elVChip.textContent = correct ? 'ご名答！' : 'ざんねん、ここがワナ';
+  elVChip.className = 'result-chip ' + (correct ? 'correct' : 'wrong');
+  elVExpl.textContent = item.expl;
+  elVWana.textContent = item.wana;
+  elVChk.textContent = item.check;
+  elVerd.classList.add('show');
+  btnNext.style.display = 'flex';
+  if(qIdx >= QUIZ.length - 1){
+    btnNext.innerHTML = '結果を見る <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  } else if(qIdx >= 2){
+    btnStop.style.display = 'block';
+  }
+}
+
+function doneComment(score, total){
+  var full = (total === QUIZ.length);
+  if(score === total && full){
+    return '全問正解です。あなたはもう、下がった日に見出しだけで判断する人ではありません。あとは、ご自分の口座の数字に当てはめるだけ。当てはめてみて気になるところが出てきたら、そのときにご相談ください。';
+  }
+  var r = score / total;
+  if(r >= 0.75){
+    return 'かなりの好成績です。ただ、クイズで間違えても失うのは1問ですが、実際の口座で「そういうしくみだと思っていた」が起こると、取り返しに何年もかかることがあります。惜しかった問題こそ、手元の書類で答え合わせを。';
+  }
+  if(r >= 0.4){
+    return 'だいたい半分がワナにかかりました。ご安心ください、ご相談でお会いする方も同じくらいです。下落そのものより、しくみを知らないまま下落の日を迎えることのほうが、あわてる原因になります。落ち着いている今のうちに確認しておきましょう。';
+  }
+  return '見事にワナへ飛び込みました。でも、それが普通です。むしろクイズで引っかかっておけば、実際に相場が動いた日に引っかからずに済みます。今日が人生でいちばん落ち着いて数字を見られる日かもしれません。';
+}
+
+function showDone(){
+  quizPlay.style.display = 'none';
+  quizDone.classList.add('show');
+  document.getElementById('doneTotal').textContent = qAnsweredCount;
+  document.getElementById('doneScore').textContent = qScore;
+  document.getElementById('doneCmt').textContent = doneComment(qScore, qAnsweredCount);
+  var wl = document.getElementById('wrongList');
+  if(wrongItems.length){
+    var html = '<h4>ワナにかかった問題（＝口座で確かめたい項目）</h4>';
+    for(var i = 0; i < wrongItems.length; i++){
+      html += '<div class="w-item"><strong>' + wrongItems[i].q + '</strong><br>確認ポイント：' + wrongItems[i].check + '</div>';
+    }
+    wl.innerHTML = html;
+    wl.style.display = 'block';
+  } else {
+    wl.style.display = 'none';
+  }
+  var sum = document.getElementById('sumScore');
+  sum.innerHTML = '<p>○×クイズの結果：<strong>' + qAnsweredCount + '問中 ' + qScore + '問正解</strong>でした。' +
+    (wrongItems.length ? '間違えた問題は、そのまま「口座で確認したいことリスト」になります。' : 'この調子で、下のチェックリストもどうぞ。') + '</p>';
+}
+
+btnYes.addEventListener('click', function(){ answer(true); });
+btnNo.addEventListener('click', function(){ answer(false); });
+btnNext.addEventListener('click', function(){
+  if(qIdx >= QUIZ.length - 1){ showDone(); return; }
+  qIdx++;
+  renderQ();
+  var shell = document.querySelector('.quiz-shell');
+  if(shell.getBoundingClientRect().top < 0) shell.scrollIntoView({behavior:'smooth'});
+});
+btnStop.addEventListener('click', showDone);
+document.getElementById('btnRetry').addEventListener('click', function(){
+  qIdx = 0; qScore = 0; qAnsweredCount = 0; wrongItems = [];
+  quizDone.classList.remove('show');
+  quizPlay.style.display = 'block';
+  btnNext.innerHTML = '次の質問へ <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  renderQ();
+});
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+document.getElementById('btnMailSelf').addEventListener('click', function(){
+  var body = '「相場が下がったときのチェック」の結果メモ\n\n' +
+    '○×クイズ：' + qAnsweredCount + '問中 ' + qScore + '問正解\n\n';
+  if(wrongItems.length){
+    body += '【確認したいこと】\n';
+    for(var i = 0; i < wrongItems.length; i++){
+      body += '・' + wrongItems[i].check + '\n';
+    }
+  }
+  body += '\n（このメモを、取引残高報告書や年間取引報告書と一緒に保管しておくと、次に確認するときに役立ちます）\n';
+  location.href = 'mailto:?subject=' + encodeURIComponent('相場が下がったときのあわてる・あわてないチェック結果') + '&body=' + encodeURIComponent(body);
+});
+
+renderQ();
+
+/* ---------- セクション3：シミュレーター ---------- */
+var simA = document.getElementById('simA'), simB = document.getElementById('simB'),
+    simC = document.getElementById('simC'), simD = document.getElementById('simD');
+var START_PRICE = 10000;
+function priceAt(i, n, pat){
+  var t = (n > 1) ? (i / (n - 1)) : 0;
+  if(pat === '1'){ return START_PRICE * (0.6 + 0.4 * Math.abs(2 * t - 1)); }
+  if(pat === '2'){ return START_PRICE * (1 - 0.4 * t); }
+  return START_PRICE * (1 + 0.4 * t);
+}
+function yen(x){ return Math.round(x).toLocaleString('ja-JP') + '円'; }
+function man(x){ return (Math.round(x / 1000) / 10).toLocaleString('ja-JP') + '万円'; }
+function sign(x){ return (x >= 0 ? 'プラス' : 'マイナス') + Math.abs(Math.round(x * 1000) / 10) + '%'; }
+function setR(id, ok, chipTxt, txt){
+  document.getElementById(id).className = 'sim-r ' + (ok ? 'ok' : 'ng');
+  document.getElementById(id + 'Chip').textContent = chipTxt;
+  document.getElementById(id + 'Txt').textContent = txt;
+}
+function simUpdate(){
+  var a = +simA.value || 0, n = Math.round(+simD.value || 0), pat = simB.value, showLump = simC.checked;
+  if(n < 6){ n = 6; } if(n > 240){ n = 240; }
+  document.getElementById('simAOut').textContent = a.toLocaleString('ja-JP') + '円';
+  document.getElementById('simDOut').textContent = n + '回';
+
+  var units = 0, i;
+  for(i = 0; i < n; i++){ units += a / priceAt(i, n, pat); }
+  var total = a * n;
+  var avg = units > 0 ? (total / units) : START_PRICE;
+  var last = priceAt(n - 1, n, pat);
+  var value = units * last;
+  var ratio = total > 0 ? (value / total - 1) : 0;
+  var lumpUnits = total / START_PRICE;
+  var lumpValue = lumpUnits * last;
+  var lumpRatio = total > 0 ? (lumpValue / total - 1) : 0;
+
+  document.getElementById('tlFill').style.width = Math.max(2, Math.min(100, avg / 15000 * 100)) + '%';
+
+  setR('simR1', avg <= START_PRICE, '約' + (Math.round(units * 10) / 10).toLocaleString('ja-JP') + '口',
+    '積立総額' + yen(total) + 'で、合計およそ' + (Math.round(units * 10) / 10).toLocaleString('ja-JP') +
+    '口を買った計算になります。価格が低い回ほど多くの口数を買えるため、平均取得単価は各回の価格の単純平均より低くなります。');
+  setR('simR2', ratio >= 0, sign(ratio),
+    '最終時点の価格' + yen(last) + 'で評価すると' + yen(value) + 'です。投じた' + yen(total) +
+    'に対して' + sign(ratio) + 'になります。手数料・信託報酬・分配金・税金は考慮していません。');
+  if(showLump){
+    setR('simR3', lumpRatio >= 0, sign(lumpRatio),
+      '同じ' + yen(total) + 'を出発時の価格' + yen(START_PRICE) + 'でまとめて買った場合、最終時点の評価は' +
+      yen(lumpValue) + 'で' + sign(lumpRatio) + 'です。どちらが有利になるかは、そのあとの値動きによって決まります。');
+  } else {
+    setR('simR3', true, '表示していません', '「同じ総額を最初にまとめて買った場合も並べる」にチェックを入れると、比較の数字が表示されます。');
+  }
+
+  var big = document.getElementById('simTotalBig'), sub = document.getElementById('simTotalSub');
+  var lead = document.getElementById('simTotalLead');
+  lead.textContent = 'この形の値動きなら、平均取得単価は';
+  big.innerHTML = '約 <b>' + yen(avg) + '</b>';
+  sub.textContent = '出発時の価格' + yen(START_PRICE) + 'に対して約' +
+    (Math.round(avg / START_PRICE * 1000) / 10) + '%。積立総額は' + man(total) +
+    'で、最終時点の評価は' + man(value) + '（' + sign(ratio) + '）。値動きの形は決め打ちの想定で、予想ではありません。';
+}
+simA.addEventListener('input', simUpdate);
+simD.addEventListener('input', simUpdate);
+simB.addEventListener('change', simUpdate);
+simC.addEventListener('change', simUpdate);
+simUpdate();
+
+/* ---------- セクション4：あるある劇場 ---------- */
+var CASES = [
+  {
+    art:'icSagari', cls:'c-red', chip:'第一幕：決めていなかった',
+    title:'下がった日に、はじめてどうするかを考えた',
+    story:'「ニュースで大きく下がったと聞いて、その日の夜に画面を開いたんです。赤い数字を見て、頭が真っ白になって。誰かに相談したくても夜中だし、検索すると正反対のことばかり書いてある。結局、朝いちばんで一部を売りました。<strong>売った理由を自分で説明できない</strong>のがいちばん嫌でした。その後どうなったかより、あの日の自分の決め方が今も引っかかっています」<small>——香川県の40代会社員 Aさん（脚色あり）</small>',
+    what:'<p class="cmodal-p">起きているのは、値動きの読み違いではなく<strong>判断の材料が足りない状態で決めさせられている</strong>ということです。取得単価がいくらか、どの口座にあるか、そのお金をいつ使う予定か。これらが分からないまま画面を開くと、残る材料はその日の見出しと気分だけになります。</p><p class="cmodal-p">当社は、売るべきか持つべきかについて申し上げる立場にありません。ただ、<strong>どういうときにどうするかを、落ち着いているうちに決めておく</strong>ことはできます。決めてあれば、下がった日にやるのは実行だけになります。</p>',
+    how:'<p class="cmodal-p">今日できるのは、紙に3つ書くことです。<strong>いま持っているものの取得単価</strong>、<strong>どの口座にあるか</strong>、<strong>そのお金を何年後に使う予定か</strong>。この3つがそろっていれば、次に下がった日の材料になります。</p><p class="cmodal-p">そのうえで、どうなったら何をするかを、ご自分の言葉で書き添えてください。書けない部分があるなら、それが相談すべき論点です。値動きの予想ではなく、ご自分の予定の整理として考えてみてください。</p>'
+  },
+  {
+    art:'icNengen', cls:'c-amber', chip:'第二幕：使う日が動かせない',
+    title:'来春の学費を、下がった年に取り崩すことになった',
+    story:'「子どもの入学が翌春に決まっていて、そのための資金を値動きのあるものに置いていました。年明けに大きく下がって、それでも3月には払わないといけない。<strong>値段を選べない</strong>というのが、こんなに苦しいとは思いませんでした。たとえば200万円のつもりが、それより少ない額で取り崩すことになって。使う日が決まっているお金だったのに、と何度も思いました」<small>——香川県の50代自営業 Bさん（脚色あり）</small>',
+    what:'<p class="cmodal-p">下落そのものより、<strong>下落と支出の日が重なったこと</strong>が問題でした。使う日が動かせない支出は、値段を選ぶ余地がありません。過去の記録では、高値を回復するまでの年数は数か月から30年を超えるものまで幅がありました。数か月後に必要なお金にとって、その幅はあまりに大きすぎます。</p><p class="cmodal-p">これは商品の良し悪しの話ではなく、<strong>お金の側の予定と、置き場所の性質が合っていたか</strong>という話です。</p>',
+    how:'<p class="cmodal-p">口座ごとに<strong>そのお金を何年後に使う予定か</strong>を書き出してください。1年以内に使う予定がはっきりしているお金があるなら、その分だけでも値動きのない置き場所に移すかどうかを考える材料になります。</p><p class="cmodal-p">なお、移すかどうかの判断はご自身で決めていただくことです。当社は将来の値動きについて見通しを述べる立場になく、お手伝いできるのは<strong>予定と金額の見取り図をつくるところまで</strong>です。</p>'
+  },
+  {
+    art:'icChui', cls:'c-berry', chip:'第三幕：非課税の裏側',
+    title:'損が出たのに、どこにも使えなかった',
+    story:'「非課税だと聞いて、値動きのあるものはその口座にまとめていました。ある年に大きく下がって、思い切って一部を売ったんです。同じ年に別の口座では利益が出ていたので、相殺できると思っていました。ところが担当の方に、その口座の損はないものとして扱われますと言われて。<strong>非課税というのは、利益が出たときだけの話だった</strong>と、そのとき理解しました」<small>——香川県の50代自営業 Cさん（脚色あり）</small>',
+    what:'<p class="cmodal-p">NISA口座で生じた損失は、税制上ないものとして扱われます。そのため、特定口座や一般口座の利益と<strong>損益通算することも、翌年以降に繰り越して控除することもできません</strong>。売却益や分配金が非課税になるという利点の、ちょうど裏側にあたる取扱いです。</p><p class="cmodal-p">この違いは、下がったときにはじめて表に出ます。上がっている間は誰も気づかないので、<strong>落ち着いているときに確認しておく</strong>ほかありません。</p>',
+    how:'<p class="cmodal-p">取引残高報告書を出して、<strong>保有しているものがどの口座にあるか</strong>を一覧にしてください。NISA口座か、特定口座（源泉徴収あり・なし）か、一般口座か。この3つで、下がったときに選べる手が変わります。</p><p class="cmodal-p">特定口座や一般口座で実現した損失は、確定申告によって損益通算や繰越控除ができる場合があります。適用の可否は取引の内容によりますので、<strong>個別の税額計算・申告については税理士にご確認ください。</strong></p>'
+  },
+  {
+    art:'icKawase', cls:'c-blue', chip:'第四幕：戻ったのは誰',
+    title:'最高値のニュースを見たのに、自分は含み損だった',
+    story:'「最高値を更新したというニュースを見て、これで自分の口座も戻っただろうと思って開いたんです。ところが、まだマイナスのままで。よく見たら、私が買ったのはその指数が高かった時期で、しかも外国の資産が入っていて為替も違っていた。<strong>ニュースの主語は自分ではなかった</strong>んだと、そのとき気づきました。がっかりというより、そもそも比べる相手を間違えていたなと」<small>——香川県の30代会社員 Dさん（脚色あり）</small>',
+    what:'<p class="cmodal-p">指数の水準は、その指数を算出する機関が定めた方法で、決まった通貨で、多くの場合は配当を含めずに計算された数字です。一方でご自分の評価額は、<strong>買った時期による取得単価、為替、保有中に差し引かれるコスト、持っている中身</strong>によって決まります。</p><p class="cmodal-p">同じ方向に動くことは多くても、同じ数字になるわけではありません。<strong>比べる相手は指数ではなく、ご自分の取得単価</strong>です。逆に、指数が戻っていなくても自分は買値の上、ということもあります。</p>',
+    how:'<p class="cmodal-p">口座の画面で<strong>平均取得単価</strong>を見てください。多くの証券会社で、保有商品の一覧に表示されています。この数字といまの価格を比べるのが、自分にとっての「戻った・戻っていない」です。</p><p class="cmodal-p">外国の資産が含まれている場合は、交付目論見書で<strong>為替ヘッジの有無</strong>も確認しておくと、基準価額が動いた理由を切り分けられるようになります。</p>'
+  },
+  {
+    art:'icSagari', cls:'c-green', chip:'第五幕：金額が大きすぎた',
+    title:'毎日画面を開くようになって、仕事が手につかなくなった',
+    story:'「余裕資金のつもりで始めたのですが、気づいたら生活費の予備まで回していました。下がりはじめてから、朝も昼も画面を開くようになって。金額としてはたとえば数十万円の含み損でしたが、それより<strong>眠れなくなったことのほうが問題</strong>でした。妻に言われて、金額を減らしました。いくらまでなら平気か、を決めていなかったのが原因だったと思います」<small>——香川県の40代会社員 Eさん（脚色あり）</small>',
+    what:'<p class="cmodal-p">値動きのあるものを持つと、<strong>金額に比例して気持ちも動きます</strong>。1日で2割を超えて動いた日が過去に実際にあったことを踏まえると、いくらまでなら生活に影響が出ないかという目盛りを、自分で持っておく必要があります。</p><p class="cmodal-p">これは「気にしなければよい」という話ではありません。<strong>気になる金額を持っていること自体が、その人にとって合っていない</strong>というだけのことです。適切な金額は人によって違います。</p>',
+    how:'<p class="cmodal-p">いま持っている金額が<strong>1日で2割動いたら、生活に影響が出るか</strong>を考えてみてください。影響が出ると感じるなら、その金額が自分の目盛りを超えているという合図です。</p><p class="cmodal-p">生活費の予備をいくら持つかも、あわせて確認してください。収入が途切れたときに何か月分あれば動けるか、というご家庭ごとの数字です。金額の決め方に迷ったら、家計の全体像を一度整理するところからお手伝いできます。</p>'
+  },
+  {
+    art:'icChui', cls:'c-red', chip:'第六幕：下がった日の勧誘',
+    title:'「元本は減りません」という説明を受けた',
+    story:'「相場が大きく下がった直後に、面識のない相手から連絡がありました。損を取り戻せる方法がある、こちらは<strong>元本は減りませんから安心してください</strong>、と。不安なときだったので、正直ぐらつきました。家族に話したら、そんなうまい話があるかと言われて。あとで調べたら、その会社は登録された業者ではありませんでした。<strong>不安なときほど狙われる</strong>のだと実感しました」<small>——香川県の60代 Fさん（脚色あり）</small>',
+    what:'<p class="cmodal-p">相場が下がった直後は、不安を抱えた人が増える時期でもあります。そこに向けて<strong>損失を取り戻せる、値下がりの心配がない、といった説明</strong>が持ちかけられることがあります。金融商品取引業の登録を受けていない者による勧誘は、法令に違反する行為です。</p><p class="cmodal-p">値動きのある商品について、値下がりしないと言い切れる説明は成り立ちません。<strong>説明の中身より、まず相手が登録された業者かどうかを確かめる</strong>のが確実です。</p>',
+    how:'<p class="cmodal-p">その場では契約せず、<strong>金融庁が公表している免許・登録を受けた金融機関の一覧</strong>で相手を確認してください。名称が見当たらない、あるいは急かされる場合は、それだけで取引を見送る理由になります。</p><p class="cmodal-p">ご家族や、日ごろ相談している相手に一度話すという手順を決めておくと、迷ったときに立ち止まれます。心配なときは、消費生活センターや金融サービス利用者相談室といった公的な窓口にも相談できます。</p>'
+  }
+];
+
+/* ---------- セクション5：逆転劇場 ---------- */
+var GOOD_CASES = [
+  {
+    art:'icTanka', cls:'c-blue', chip:'第一話：繰越控除を知っていた', amt:'3年間使えた',
+    title:'損が出た年に申告して、翌年以降に生かせた',
+    story:'「特定口座で、その年に損が確定していました。放っておこうと思ったのですが、確定申告をすれば損を翌年以降に繰り越せると聞いて、申告することにしました。たとえば数十万円の損でしたが、翌々年に利益が出たときに、その分と差し引きできて。<strong>申告するかどうかで結果が変わる</strong>とは知りませんでした。手続きは税理士の先生に確認しながら進めました」<small>——香川県の40代自営業 Gさん（脚色あり）</small>',
+    what:'<p class="cmodal-p">上場株式等を売却して生じた損失は、確定申告をすることで、同じ年の上場株式等の譲渡益や、申告分離課税を選択した配当所得などと<strong>損益通算</strong>できます。控除しきれなかった分は、<strong>翌年以後3年間にわたって繰り越す</strong>ことができます。</p><p class="cmodal-p">ここで大事なのは、<strong>申告しなければ繰り越せない</strong>という点です。また、繰り越した年についても、続けて確定申告をしていく必要があります。NISA口座の損失はこの対象外です。</p>',
+    how:'<p class="cmodal-p">年間取引報告書を用意して、その年に確定した損益を確認してください。<strong>特定口座（源泉徴収あり）でも、申告することで通算や繰越ができる場合があります</strong>。</p><p class="cmodal-p">ただし、申告することで合計所得金額が変わり、扶養や社会保険料の判定に影響することがあります。<strong>個別の税額計算・申告については税理士にご確認ください。</strong>当社では、資料の整理と論点の洗い出しをお手伝いしています。</p>'
+  },
+  {
+    art:'icKawase', cls:'c-amber', chip:'第二話：為替を切り分けた', amt:'理由が分かった',
+    title:'基準価額が下がった理由を、自分で切り分けられた',
+    story:'「保有している投資信託の基準価額が下がったので、投資先が悪くなったのかと思いました。運用報告書を見たら、現地の通貨で見た価格はほとんど変わっていなくて、円との交換比率が動いた影響が大きかったんです。<strong>下がった理由が分かるだけで、こんなに落ち着く</strong>とは思いませんでした。あわてて売らずに済みましたし、次からは同じ見方ができます」<small>——香川県の30代会社員 Hさん（脚色あり）</small>',
+    what:'<p class="cmodal-p">外国の資産に投資する投資信託の円建ての基準価額は、<strong>現地通貨での価格</strong>と<strong>その通貨と円との交換比率</strong>の両方で決まります。どちらが動いたのかを切り分けないと、下がった理由を取り違えます。</p><p class="cmodal-p">為替ヘッジを行う商品では、この影響を抑える仕組みがありますが、ヘッジには費用がかかります。なお、為替が今後どう動くかについて当社は見通しを述べる立場になく、ここでは仕組みだけをお伝えしています。</p>',
+    how:'<p class="cmodal-p">交付目論見書と運用報告書で、<strong>投資先の地域・通貨</strong>と<strong>為替ヘッジの有無</strong>を確認してください。運用報告書には、基準価額の変動要因の内訳が載っていることがあります。</p><p class="cmodal-p">商品を選ぶ場面でも、ヘッジのあり・なしはコストと値動きの性質の両方に関わります。どちらが優れているという話ではなく、性質が違うということです。</p>'
+  },
+  {
+    art:'icNengen', cls:'c-green', chip:'第三話：使う日で分けていた', amt:'取り崩さずに済んだ',
+    title:'使う時期で分けていたから、下がった年に売らずに済んだ',
+    story:'「積立を始めるとき、このお金は何年後に使いますかと聞かれて、その場で紙に書き出しました。1年以内に使うお金、10年ほど先のお金、当面使わないお金。それぞれ置き場所を分けたんです。下がった年に車の買い替えが重なりましたが、<strong>取り崩したのは値動きのない口座から</strong>で済みました。分けていなかったら、下がっているものを売っていたと思います」<small>——香川県の40代会社員 Iさん（脚色あり）</small>',
+    what:'<p class="cmodal-p">使う時期でお金を分けておくと、<strong>不測の支出が出たときに崩す先が決まっている</strong>状態になります。分けていないと、そのとき手をつけやすいところから崩すことになり、結果として値段を選べない売却になりがちです。</p><p class="cmodal-p">これは値動きを予想する話ではありません。<strong>支出の日を先に決めておく</strong>という、家計の側の整理です。過去の記録では回復までの年数に大きな幅があったので、近い支出ほどこの整理が効いてきます。</p>',
+    how:'<p class="cmodal-p">紙とペンだけでできます。いま貯めている先を全部書き出し、それぞれに<strong>何年後に使う予定か</strong>を書き添えてください。書けないものがあれば、それは予定の決まっていないお金です。</p><p class="cmodal-p">1年以内に使う予定がはっきりしている金額を先に確保しておくと、値動きのある部分について考える余裕が生まれます。金額の決め方は、ご家庭の事情によって変わります。</p>'
+  },
+  {
+    art:'icTanka', cls:'c-blue', chip:'第四話：やめずに減らす', amt:'続け方を選べた',
+    title:'積立額を下げられると知っていて、解約せずに済んだ',
+    story:'「収入が減った年に、積立をやめようかと思いました。金融機関に聞いたら、金額の変更も一時停止もいつでもできると言われて。<strong>全部やめるか続けるかの二択ではなかった</strong>んです。いったん金額を下げて、翌年に戻しました。やめる手続きをする前に一本電話しただけで、選択肢が増えたことになります」<small>——香川県の30代会社員 Jさん（脚色あり）</small>',
+    what:'<p class="cmodal-p">積立の設定は、多くの場合<strong>金額の変更や一時停止が可能</strong>です。解約して現金化することとは別の手続きで、保有しているものはそのまま残ります。制度や金融機関によって手続きの方法や反映までの期間は異なります。</p><p class="cmodal-p">なお、iDeCoのように掛金の変更が年に1回に限られる制度もあります。<strong>使っている制度ごとに条件が違う</strong>ので、あらかじめ確認しておくと、必要になったときに動けます。</p>',
+    how:'<p class="cmodal-p">利用している金融機関のサイトや窓口で、<strong>積立額の変更手続き</strong>と<strong>一時停止の手続き</strong>の方法を確認しておいてください。手続きから反映までに日数がかかることがあります。</p><p class="cmodal-p">続けるか減らすか止めるかは、ご自身の家計の状況で決めていただくことです。当社は将来の値動きについて見通しを述べる立場になく、お手伝いできるのは手順と選択肢の整理までです。</p>'
+  },
+  {
+    art:'qYen', cls:'c-berry', chip:'第五話：非課税枠の復活', amt:'慌てずに売れた',
+    title:'枠が翌年に戻ると知っていたから、必要な分だけ売れた',
+    story:'「非課税の枠は一度使ったら終わりだと思い込んでいて、必要なときも売るのをためらっていました。調べてみたら、売却した分は買ったときの金額をもとに<strong>翌年に枠が戻る</strong>しくみだと分かって。住まいの修繕でまとまったお金が要ったとき、必要な分だけ売りました。しくみを知らないままだったら、別のところから無理に工面していたと思います」<small>——香川県の40代会社員 Kさん（脚色あり）</small>',
+    what:'<p class="cmodal-p">NISAの生涯にわたる非課税保有限度額は、保有している商品を売却すると、その商品を<strong>買ったときの金額（簿価）にあたる分だけ、翌年以降にあらためて使えるようになります</strong>。値上がりや値下がりの分ではなく、買ったときの金額が基準です。</p><p class="cmodal-p">ただし、年間に投資できる枠の上限は別にあるため、翌年に一度に使い切れるとは限りません。また、売る時点の価格が買った価格を下回っていれば損失になり、その損失は他の口座の利益と相殺できません。<strong>枠が戻ることと、損をしないことは別の話</strong>です。</p>',
+    how:'<p class="cmodal-p">証券会社の口座画面で、<strong>使った枠と残っている枠</strong>を確認してください。多くの場合、年間の枠と生涯の限度額が分けて表示されています。</p><p class="cmodal-p">売却して現金が口座に入るまでには数営業日かかります。支払いの期日が決まっている支出にあてる場合は、その日数も見込んでおいてください。</p>'
+  },
+  {
+    art:'icNengen', cls:'c-amber', chip:'第六話：年数を先に見ていた', amt:'驚かずに済んだ',
+    title:'過去の回復年数を先に見ていたので、その日に驚かなかった',
+    story:'「始めるときに、過去にどれくらい下がったことがあるのかを一覧で見せてもらったんです。数か月で戻った例も、何十年もかかった例もあると。<strong>そういうことが起きうる世界なのだと分かったうえで</strong>始めました。実際に大きく下がった日も、想定の中にある出来事として受け止められて。もちろん気持ちのよいものではありませんでしたが、驚きはしませんでした」<small>——香川県の50代会社員 Lさん（脚色あり）</small>',
+    what:'<p class="cmodal-p">過去の記録を先に見ておくことは、<strong>値動きを予想することとはまったく違います</strong>。予想はできませんが、「どのくらいのことが起きた記録があるか」を知っておくことはできます。</p><p class="cmodal-p">回復までにかかった年数は、数か月から30年を超えるものまで幅がありました。この幅を知ったうえで金額と使う時期を決めれば、下がった日に判断をやり直す必要が減ります。ただし、過去の記録は将来を示すものではありません。</p>',
+    how:'<p class="cmodal-p">このページの③の表を印刷して、手元に置いておいてください。<strong>下がった日に読み返す資料</strong>として使っていただくのがいちばん役に立つ形です。</p><p class="cmodal-p">そのうえで、いま持っている金額が同じくらい動いたときに生活に影響が出るかを考えてみてください。影響が出ると感じるなら、金額の側を見直す材料になります。</p>'
+  },
+  {
+    art:'icTanka', cls:'c-red', chip:'第七話：コストを確認した', amt:'毎日効く費用',
+    title:'信託報酬は毎日引かれると知って、確認する習慣がついた',
+    story:'「値動きばかり見ていて、費用のことは考えたことがありませんでした。交付目論見書を見たら、信託報酬が年率で書いてあって、これは保有している間ずっと日々引かれると。<strong>値上がりしても値下がりしても関係なくかかる</strong>と聞いて、見方が変わりました。それ以来、何かを選ぶときは必ずこの欄を見るようになりました」<small>——香川県の30代自営業 Mさん（脚色あり）</small>',
+    what:'<p class="cmodal-p">投資信託の信託報酬は、保有している間、日々の基準価額から差し引かれます。<strong>相場が上がっていても下がっていても、保有しているかぎりかかり続ける</strong>費用です。ほかに、売買時の手数料や、解約時に差し引かれる費用がある商品もあります。</p><p class="cmodal-p">値動きは予想できませんが、<strong>費用は事前に確認できる数少ない要素</strong>です。だからこそ、確認しておく価値があります。ただし費用の高い低いだけで商品の良し悪しが決まるわけではありません。</p>',
+    how:'<p class="cmodal-p">交付目論見書の費用の欄と、運用報告書の実際にかかった費用の記載を確認してください。<strong>年率何パーセントか</strong>という数字が書かれています。</p><p class="cmodal-p">保有している商品が複数ある場合は、一覧にして並べてみると全体像がつかめます。金額に換算すると実感しやすくなります。</p>'
+  },
+  {
+    art:'icChui', cls:'c-green', chip:'第八話：登録業者を確認した', amt:'その場で断れた',
+    title:'「元本は減りません」と言われて、まず登録を確認した',
+    story:'「下がった直後に、知らない相手から連絡がありました。損を取り戻せます、こちらは<strong>元本が減ることはありません</strong>、と。以前このページのような資料を読んでいたので、まず登録された業者かどうかを確認しようと思いました。金融庁の一覧に名前がなくて、その場でお断りしました。<strong>説明の中身で判断しようとしなかった</strong>のがよかったのだと思います」<small>——香川県の60代 Nさん（脚色あり）</small>',
+    what:'<p class="cmodal-p">金融商品取引業の登録を受けていない者による勧誘は、法令に違反する行為です。相場が大きく動いた直後は、不安を抱えた人に向けてこうした勧誘が行われることがあります。</p><p class="cmodal-p">値動きのある商品について、値下がりしないと言い切れる説明は成り立ちません。ただ、説明の中身を専門的に検証するのは簡単ではないので、<strong>まず相手が登録された業者かどうかを確かめる</strong>という順番が現実的です。</p>',
+    how:'<p class="cmodal-p">金融庁が公表している<strong>免許・登録を受けた金融機関の一覧</strong>で、相手の名称を確認してください。見当たらない場合や、その場での決断を急かされる場合は、それだけで見送る理由になります。</p><p class="cmodal-p">その場では契約せず、いったん持ち帰ってご家族や日ごろ相談している相手に話す、という手順をあらかじめ決めておいてください。心配なときは、消費生活センターや金融サービス利用者相談室といった公的な窓口にも相談できます。</p>'
+  }
+];
+
+var modal = document.getElementById('caseModal');
+var CASE_LBL = {
+  bad:['よく伺うお話をもとにした創作例（脚色あり）', '何が起きたのか', 'こう確認すれば防げます'],
+  good:['よくある、うれしい誤算（創作例・脚色あり）', 'なぜそうなるのか', '使うための条件']
+};
+
+function renderCases(gridId, list, kind){
+  var grid = document.getElementById(gridId);
+  list.forEach(function(c){
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'case-card';
+    btn.innerHTML =
+      '<span class="art ' + c.cls + '">' + ARTS[c.art] + '</span>' +
+      '<span class="t"><span class="chip ' + c.cls + '">' + c.chip + '</span>' +
+      (c.amt ? '<span class="amt">' + c.amt + '</span>' : '') +
+      '<h3>' + c.title + '</h3>' +
+      '<span class="more">くわしく見る<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></span></span>';
+    btn.addEventListener('click', function(){ openCase(c, kind); });
+    grid.appendChild(btn);
+  });
+}
+
+function openCase(c, kind){
+  var lbl = CASE_LBL[kind] || CASE_LBL.bad;
+  document.getElementById('caseModalLbl1').textContent = lbl[0];
+  document.getElementById('caseModalLbl2').textContent = lbl[1];
+  document.getElementById('caseModalLbl3').textContent = lbl[2];
+  document.getElementById('caseModalLbl2Wrap').className =
+    'cmodal-label ' + (kind === 'good' ? 'lb-green' : 'lb-red');
+  document.getElementById('caseModalIco').className = 'cmodal-ico ' + c.cls;
+  document.getElementById('caseModalIco').innerHTML = ARTS[c.art];
+  document.getElementById('caseModalChip').className = 'cmodal-chip ' + c.cls;
+  document.getElementById('caseModalChip').textContent = c.chip;
+  document.getElementById('caseModalTitle').textContent = c.title;
+  document.getElementById('caseModalStory').innerHTML = c.story;
+  document.getElementById('caseModalWhat').innerHTML = c.what;
+  document.getElementById('caseModalHow').innerHTML = c.how;
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+  modal.querySelector('.cmodal-panel').scrollTop = 0;
+}
+
+renderCases('caseGrid', CASES, 'bad');
+renderCases('goodGrid', GOOD_CASES, 'good');
+
+function closeCase(){
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+document.getElementById('caseModalClose').addEventListener('click', closeCase);
+document.getElementById('caseModalBack').addEventListener('click', closeCase);
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && modal.classList.contains('show')) closeCase();
+});
+
+/* ---------- まとめ：チェックリスト ---------- */
+var chkBoxes = document.querySelectorAll('#checklist input[type=checkbox]');
+var chkMsg = document.getElementById('chkMsg');
+function chkUpdate(){
+  var n = 0;
+  chkBoxes.forEach(function(c){ if(c.checked) n++; });
+  var total = chkBoxes.length;
+  if(n === 0){
+    chkMsg.textContent = 'あてはまるものにチェックを入れてみてください。今日おうちで確認できる項目と、次に誰かに聞く項目が混じっています。';
+  } else if(n <= 2){
+    chkMsg.textContent = 'チェック' + n + '個。まずは1つだけ。ご自分がいくらで買ったのかという取得単価を見るところから始めると、残りの項目が一気に進みます。';
+  } else if(n <= 5){
+    chkMsg.textContent = 'チェック' + n + '個。半分ほど整いました。残っているのは、口座の種類ごとの税金の扱いと、使う時期の整理が中心のはずです。書類を並べれば片づきます。';
+  } else if(n < total){
+    chkMsg.textContent = 'チェック' + n + '個。ここまで確認できている方は、ご相談でもめったにお会いしません。あと少しで「値動きを見て一喜一憂する」から「自分の数字を見る」に変わります。';
+  } else {
+    chkMsg.textContent = '全項目チェックです。あなたは、下がった日に見出しではなくご自分の数字を見られる状態にあります。あとは年に一度、使う時期の予定と照らして確認していきましょう。';
+  }
+}
+chkBoxes.forEach(function(c){ c.addEventListener('change', chkUpdate); });
+
+})();
+</script>
+</body>
+</html>

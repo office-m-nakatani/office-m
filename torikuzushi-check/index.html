@@ -1,0 +1,2185 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="老後資金が何歳までもつのかを、定額取り崩しと定率取り崩しの違い、年金と支出の差である毎月の赤字、長生きの三つの線引きから確認できる啓発ツールです。○×クイズ8問と体感シミュレーターつき。株式会社Office-M作成の情報提供資料。">
+<title>老後資金の「もつ・もたない」チェック｜株式会社Office-M</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='6' y='10' width='52' height='44' rx='8' fill='%2363b8dd'/%3E%3Cpath d='M16 42V26M28 42V20M40 42V32M14 48h36' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --navy:#1b3f5e;
+  --navy-2:#27587f;
+  --navy-soft:#eaf1f7;
+  --bg:#fff8f2;
+  --white:#ffffff;
+  --text:#33404d;
+  --muted:#5c6874;
+  --line:#efe2d8;
+  --shadow:0 6px 20px rgba(130,100,80,.09);
+  --shadow-sm:0 3px 10px rgba(130,100,80,.07);
+
+  --red:#c2453f;
+  --red-dark:#a63631;
+  --red-bg:#fdeee9;
+  --red-border:#f4d0c6;
+  --coral:#f0846a;
+  --coral-text:#c2451f;
+
+  --green:#2c7a4b;
+  --green-bg:#e8f6ef;
+  --green-border:#c3e5d3;
+  --mint:#4fbf9b;
+
+  --amber:#8f6015;
+  --amber-deep:#a85c12;
+  --amber-bg:#fdf3e2;
+  --amber-border:#f2dcae;
+  --sunny:#f7c34e;
+
+  --sky:#24729f;
+  --sky-bg:#e8f4fb;
+  --sky-border:#c6e2f2;
+
+  --berry:#8f4574;
+  --berry-bg:#fbeef6;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+/* スマホでも17pxを基準にする（注記・出典まわりが12pxまで小さくなっていたため） */
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;font-size:17px;}
+/* 左右の余白が広い画面ほど文字を大きくして見やすさに還元する */
+@media(min-width:1000px){ html{font-size:18px;} }
+body{
+  font-family:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho",YuMincho,"游明朝体","游明朝","MS PMincho","ＭＳ Ｐ明朝",serif;
+  color:var(--text);
+  background:var(--bg);
+  font-size:1.09rem;
+  line-height:1.95;
+  letter-spacing:.03em;
+  padding-bottom:40px;
+  overflow-wrap:break-word;
+}
+@media(min-width:768px){
+  body{font-size:1.16rem;letter-spacing:.04em;}
+}
+img,svg{max-width:100%;vertical-align:middle;}
+button{font-family:inherit;}
+/* キーボード操作でいまどこにいるかを、はっきり見せる（既定の1本線は細くて見えない） */
+a:focus-visible,button:focus-visible,summary:focus-visible,
+input:focus-visible,label:focus-visible,[tabindex]:focus-visible{
+  outline:3px solid var(--navy-2);
+  outline-offset:3px;
+  border-radius:6px;
+}
+a{color:var(--navy-2);}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px;}
+/* 広い画面では、本文の1行を約40字までに抑える（日本語の読みやすい行長の目安）。
+   カード内の短い文には効かせず、横幅いっぱいに伸びる長文だけを対象にする */
+@media(min-width:700px){
+  .guide-msg,.def-lead,.sec-lead,.sub-lead,.age-note,.note,
+  .mikane ol li,.mikane .caution,.rule3-box ol li,.rule3-note,
+  .cta-lead,details.finder p,details.finder li,footer.disclaimer p{
+    max-width:40em;
+  }
+  /* 中央寄せの箱の中にあるものは、中央のまま幅だけ詰める */
+  .venn-cap,.life-cap{max-width:40em;margin-left:auto;margin-right:auto;}
+}
+.nowrap{white-space:nowrap;}
+
+/* ---------- ヘッダー ---------- */
+.hero{
+  background:linear-gradient(168deg,#fbe6e6 0%,#fdf1ea 46%,#ddf0fb 100%);
+  color:var(--navy);
+  padding:24px 0 30px;
+  overflow:hidden;
+}
+.brand{
+  display:flex;align-items:center;gap:10px;
+  font-size:.92rem;font-weight:700;letter-spacing:.02em;color:var(--navy);
+}
+.brand .ico{
+  width:36px;height:36px;flex:0 0 36px;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--navy);border-radius:12px;
+}
+.brand .ico svg{width:20px;height:20px;stroke:#fff;}
+.brand small{display:block;font-weight:500;color:var(--muted);font-size:.82rem;letter-spacing:.04em;line-height:1.55;}
+.hero-flex{display:flex;flex-direction:column;}
+.hero h1{
+  font-size:1.58rem;line-height:1.45;font-weight:800;
+  margin:20px 0 12px;letter-spacing:.01em;color:var(--navy);
+}
+.hero h1 .accent{
+  background:linear-gradient(transparent 62%, #ffd9a8 62%);
+  padding:0 2px;
+}
+.hero .lead{font-size:1rem;color:var(--text);max-width:640px;}
+/* 文字間隔をユーザーが広げても見出しが切れないよう、狭い画面では折り返しを許す
+   （通常の表示では1行に収まるため、見た目は変わらない）— WCAG 1.4.12 */
+@media(max-width:520px){ .hero h1 .nowrap{white-space:normal;} }
+.hero-scene{margin:16px auto 0;width:100%;max-width:400px;}
+.hero-scene svg{width:100%;height:auto;display:block;}
+@media(min-width:768px){
+  .hero{padding:30px 0 40px;}
+  .hero h1{font-size:1.95rem;}
+  .hero .lead{font-size:1.06rem;}
+  .hero-flex{flex-direction:row;align-items:center;gap:28px;}
+  .hero-copy{flex:1;}
+  .hero-scene{flex:0 0 340px;margin:0;}
+}
+.hero-nav{display:flex;flex-wrap:wrap;gap:9px;margin-top:20px;}
+.hero-nav a{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--white);
+  border:2px solid #ffffff;
+  color:var(--navy);text-decoration:none;
+  padding:11px 17px;border-radius:999px;
+  font-size:.94rem;font-weight:700;min-height:48px;
+  box-shadow:var(--shadow-sm);
+}
+.hero-nav a:active{background:#fff4e9;}
+.hero-nav a svg{width:18px;height:18px;stroke:var(--coral);flex:0 0 18px;}
+
+/* ---------- セクション共通 ---------- */
+section{padding:40px 0 46px;}
+.band{background:var(--white);}
+.band-sky{background:var(--sky-bg);}
+.band-blush{background:#fdf1eb;}
+.band-mint{background:var(--green-bg);}
+.round-top{
+  border-radius:30px 30px 0 0;
+  margin-top:-24px;position:relative;z-index:1;
+  padding-top:42px;
+}
+.sec-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;}
+.sec-head .spot{flex:0 0 84px;}
+.spot-circle{
+  width:84px;height:84px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.spot-circle svg{width:52px;height:52px;}
+.step-pill{
+  display:inline-flex;align-items:center;gap:9px;
+  background:var(--amber-bg);color:var(--navy);
+  font-size:.88rem;font-weight:700;letter-spacing:.02em;
+  padding:6px 18px 6px 7px;border-radius:999px;margin-bottom:12px;
+  box-shadow:var(--shadow-sm);
+}
+.step-pill i{
+  width:28px;height:28px;flex:0 0 28px;border-radius:50%;
+  background:linear-gradient(135deg,#c2452a,#a8601a);
+  color:#fff;font-style:normal;font-weight:800;font-size:.95rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.step-pill.plain{padding:7px 18px;}
+h2{
+  font-size:1.4rem;line-height:1.5;color:var(--navy);
+  font-weight:800;letter-spacing:.01em;
+  position:relative;padding-bottom:12px;margin-bottom:10px;
+}
+h2::after{
+  content:"";position:absolute;left:0;bottom:0;
+  width:54px;height:5px;border-radius:3px;
+  background:linear-gradient(90deg,var(--coral),var(--sunny));
+}
+@media(min-width:768px){h2{font-size:1.68rem;}}
+.sec-lead{color:var(--muted);font-size:1rem;margin-bottom:22px;}
+.sub-title{font-size:1.1rem;color:var(--navy);}
+.note{
+  font-size:.9rem;color:var(--muted);line-height:1.85;
+  background:var(--white);border-radius:16px;
+  padding:14px 16px;margin-top:20px;
+  display:flex;gap:9px;align-items:flex-start;
+  box-shadow:var(--shadow-sm);
+}
+.note svg{width:20px;height:20px;flex:0 0 20px;stroke:var(--coral);margin-top:4px;}
+.band-sky .note,.band-blush .note{box-shadow:none;border:1px solid var(--line);}
+
+/* ---------- ガイド（吹き出し） ---------- */
+.guide{display:flex;align-items:flex-start;gap:12px;margin-bottom:20px;}
+.guide-ava{
+  width:58px;height:58px;flex:0 0 58px;border-radius:50%;
+  overflow:hidden;display:block;box-shadow:var(--shadow-sm);
+}
+.guide-ava svg{width:100%;height:100%;display:block;}
+.guide-msg{
+  position:relative;background:var(--white);
+  border:2px solid #ffe0cf;border-radius:18px;
+  padding:12px 16px;font-size:.95rem;line-height:1.75;
+}
+.guide-msg::before{
+  content:"";position:absolute;left:-9px;top:20px;
+  width:14px;height:14px;background:var(--white);
+  border-left:2px solid #ffe0cf;border-bottom:2px solid #ffe0cf;
+  transform:rotate(45deg);
+}
+
+/* ---------- セクション1：ちがいを問いかけるリンク ---------- */
+.qlink-lead{
+  display:flex;align-items:center;gap:9px;
+  font-size:1rem;font-weight:800;color:var(--navy);
+  margin:26px 0 12px;
+}
+.qlink-lead svg{width:23px;height:23px;flex:0 0 23px;stroke:var(--coral);}
+.qlinks{display:grid;grid-template-columns:1fr;gap:12px;}
+@media(min-width:700px){.qlinks{grid-template-columns:repeat(3,1fr);}}
+.qlink{
+  display:flex;flex-direction:column;gap:5px;
+  background:var(--white);border:2px solid var(--line);border-radius:18px;
+  padding:15px 16px 13px;text-decoration:none;color:inherit;
+  box-shadow:var(--shadow-sm);
+  transition:border-color .15s, transform .12s;
+}
+.qlink:active{transform:scale(.985);}
+.qlink:hover{border-color:var(--coral);}
+.qlink .pair{
+  display:flex;align-items:center;gap:7px;flex-wrap:wrap;
+  font-size:1.02rem;font-weight:800;color:var(--navy);line-height:1.55;
+}
+.qlink .pair .vs{
+  font-size:.8rem;font-weight:800;color:var(--red-dark);
+  background:var(--red-bg);border-radius:999px;padding:2px 10px;
+}
+.qlink .ask{font-size:.87rem;color:var(--muted);line-height:1.75;}
+.qlink .go{
+  display:inline-flex;align-items:center;gap:4px;margin-top:3px;
+  font-size:.84rem;font-weight:800;color:var(--coral-text);
+}
+.qlink .go svg{width:14px;height:14px;flex:0 0 14px;stroke:var(--coral-text);}
+/* リンクで飛んだ先を、見出しの手前で止める */
+.def-block[id]{scroll-margin-top:18px;}
+
+/* ---------- セクション1：定義のブロック ---------- */
+.def-block{
+  margin-top:34px;padding-top:26px;border-top:2px dashed var(--line);
+}
+.def-block:first-of-type{margin-top:18px;padding-top:0;border-top:none;}
+.def-h{
+  display:flex;align-items:center;gap:12px;
+  font-size:1.14rem;line-height:1.5;color:var(--navy);margin-bottom:8px;
+}
+.def-ico{
+  width:52px;height:52px;flex:0 0 52px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.def-ico svg{width:34px;height:34px;}
+.def-lead{font-size:.97rem;color:var(--muted);line-height:1.9;margin-bottom:16px;}
+@media(min-width:768px){.def-h{font-size:1.26rem;}}
+
+/* ---------- セクション1：心疾患の輪 ---------- */
+.venn-box{
+  background:var(--white);border-radius:22px;box-shadow:var(--shadow);
+  padding:20px 14px 8px;margin:6px 0 26px;text-align:center;
+}
+.venn-box svg{width:100%;max-width:520px;height:auto;}
+.venn-cap{font-size:.88rem;color:var(--muted);padding:6px 8px 12px;line-height:1.8;}
+@media(max-width:520px){.venn-box{padding:14px 4px 6px;}}
+.cards{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.cards{grid-template-columns:repeat(2,1fr);}}
+.risk-card{
+  position:relative;background:var(--white);
+  border-radius:20px;padding:20px 20px 18px;
+  box-shadow:var(--shadow);
+}
+.risk-card .icon{
+  width:68px;height:68px;border-radius:50%;
+  background:var(--navy-soft);
+  display:flex;align-items:center;justify-content:center;margin-bottom:12px;
+}
+.risk-card .icon svg{width:44px;height:44px;}
+.risk-card .icon.ic-red{background:var(--red-bg);}
+.risk-card .icon.ic-blue{background:var(--sky-bg);}
+.risk-card .icon.ic-amber{background:var(--amber-bg);}
+.risk-card .icon.ic-green{background:var(--green-bg);}
+.risk-card h3{font-size:1.02rem;color:var(--navy);margin-bottom:2px;}
+.risk-card p{font-size:.93rem;color:var(--muted);margin-top:8px;line-height:1.85;}
+.judge-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:.82rem;font-weight:700;padding:4px 13px;border-radius:999px;margin-top:4px;
+}
+.judge-chip.ng{background:var(--red-bg);color:var(--red-dark);border:1.5px solid var(--red-border);}
+.judge-chip.ok{background:var(--green-bg);color:var(--green);border:1.5px solid var(--green-border);}
+.judge-chip.maybe{background:var(--amber-bg);color:var(--amber-deep);border:1.5px solid var(--amber-border);}
+
+/* ---------- 罹患年齢のデータ（セクション1の各解説に添える） ---------- */
+.age-note{
+  display:flex;gap:10px;align-items:flex-start;
+  background:var(--white);border-radius:14px;
+  border-left:5px solid var(--sky);
+  padding:11px 15px;margin-bottom:16px;
+  font-size:.9rem;line-height:1.85;
+  box-shadow:var(--shadow-sm);
+}
+.age-note svg{width:19px;height:19px;flex:0 0 19px;stroke:var(--sky);margin-top:5px;}
+.age-note b{color:var(--sky);font-size:.98rem;}
+.age-note small{display:block;color:var(--muted);font-size:.81rem;line-height:1.7;margin-top:2px;}
+
+/* ---------- セクション6：医療費のかかりどき ---------- */
+.life-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px 14px;margin:6px 0 26px;
+}
+.life-box h3{font-size:1.08rem;color:var(--navy);margin-bottom:4px;}
+.life-box .sub{font-size:.9rem;color:var(--muted);margin-bottom:14px;}
+.life-box svg{width:100%;max-width:620px;height:auto;display:block;margin:0 auto;}
+.life-cap{font-size:.85rem;color:var(--muted);line-height:1.8;padding:10px 4px 4px;}
+.big3{display:grid;grid-template-columns:1fr;gap:12px;margin-top:16px;}
+@media(min-width:700px){.big3{grid-template-columns:repeat(3,1fr);}}
+.big3 .b{
+  background:var(--bg);border:2px solid var(--line);border-radius:16px;
+  padding:13px 15px;text-align:center;
+}
+.big3 .b .n{display:block;font-size:1.5rem;font-weight:800;color:var(--coral-text);line-height:1.4;}
+.big3 .b .l{display:block;font-size:.86rem;color:var(--navy);font-weight:700;line-height:1.7;}
+.big3 .b .s{display:block;font-size:.81rem;color:var(--muted);line-height:1.7;margin-top:3px;}
+
+.sub-h{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.1rem;color:var(--navy);margin:30px 0 6px;
+}
+.sub-h svg{width:24px;height:24px;flex:0 0 24px;stroke:var(--coral);}
+.sub-lead{font-size:.95rem;color:var(--muted);line-height:1.9;margin-bottom:16px;}
+.age-cards{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.age-cards{grid-template-columns:repeat(3,1fr);}}
+.age-card{
+  background:var(--white);border-radius:20px;box-shadow:var(--shadow);
+  padding:18px 18px 15px;
+}
+.age-card .ttl{
+  display:flex;align-items:center;gap:9px;
+  font-size:1rem;font-weight:800;color:var(--navy);margin-bottom:10px;
+}
+.age-card .ttl .ico{
+  width:38px;height:38px;flex:0 0 38px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.age-card .ttl .ico svg{width:26px;height:26px;}
+.age-card .rows{border-top:1.5px dashed var(--line);padding-top:9px;}
+.age-card .row{
+  display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  font-size:.92rem;line-height:1.9;
+}
+.age-card .row span{color:var(--muted);}
+.age-card .row b{font-size:1.28rem;font-weight:800;color:var(--red-dark);white-space:nowrap;}
+.age-card .kind{
+  display:inline-block;font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:8px;
+  background:var(--sky-bg);color:var(--sky);
+}
+.age-card .cmt{font-size:.87rem;color:var(--text);line-height:1.85;margin-top:10px;}
+.age-card .src{font-size:.8rem;color:var(--muted);line-height:1.7;margin-top:9px;
+  border-top:1.5px dashed var(--line);padding-top:8px;}
+
+/* 未来の自分への仕送り */
+.mikane{
+  margin-top:28px;background:var(--white);border-radius:24px;
+  box-shadow:var(--shadow);padding:22px 20px 18px;
+}
+.mikane h3{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.1rem;color:var(--navy);margin-bottom:12px;
+}
+.mikane h3 svg{width:25px;height:25px;flex:0 0 25px;stroke:var(--mint);}
+.mikane ol{list-style:none;counter-reset:mk;}
+.mikane ol li{
+  counter-increment:mk;position:relative;
+  padding:0 0 14px 46px;font-size:.96rem;line-height:1.9;
+}
+.mikane ol li::before{
+  content:counter(mk);position:absolute;left:0;top:2px;
+  width:32px;height:32px;border-radius:50%;
+  background:var(--sky-bg);color:var(--sky);
+  font-weight:800;font-size:1.02rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.mikane ol li b{color:var(--coral-text);}
+.mikane .caution{
+  background:var(--amber-bg);border-radius:16px;padding:14px 16px;
+  font-size:.9rem;line-height:1.9;
+  border-left:5px solid var(--sunny);
+}
+.mikane .caution strong:first-child{display:block;color:var(--amber-deep);margin-bottom:3px;}
+.mikane .caution b{color:var(--coral-text);}
+
+/* ---------- セクション2：クイズ ---------- */
+.quiz-shell{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px 24px;
+}
+.band .quiz-shell{background:var(--bg);box-shadow:none;border:2px solid var(--line);}
+.q-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.q-count{font-size:.9rem;font-weight:700;color:var(--muted);}
+.q-count span{color:var(--coral-text);font-size:1.15rem;}
+.dots{display:flex;gap:6px;}
+.dots i{width:10px;height:10px;border-radius:50%;background:#e8dbd0;}
+.dots i.done{background:var(--mint);}
+.dots i.now{background:var(--coral);}
+.q-body{display:flex;gap:14px;align-items:flex-start;margin:14px 0 18px;}
+.q-body .icon{
+  width:64px;height:64px;flex:0 0 64px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.q-body .icon svg{width:40px;height:40px;}
+.q-body p{font-size:1.06rem;font-weight:700;color:var(--navy);line-height:1.8;}
+.ans-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.ans-btn{
+  min-height:64px;border-radius:18px;cursor:pointer;
+  font-size:1.1rem;font-weight:800;letter-spacing:.06em;
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  border:2.5px solid;transition:transform .12s;
+}
+.ans-btn:active{transform:scale(.97);}
+.ans-btn svg{width:26px;height:26px;}
+.ans-btn.yes{background:var(--green-bg);border-color:var(--green-border);color:var(--green);}
+.ans-btn.no{background:var(--red-bg);border-color:var(--red-border);color:var(--red-dark);}
+.ans-btn:disabled{opacity:.45;cursor:default;}
+.verdict{
+  display:none;margin-top:18px;background:var(--white);
+  border:2px solid var(--amber-border);border-radius:20px;
+  padding:18px 18px 16px;
+}
+.verdict.show{display:block;}
+.verdict-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+.verdict-answer{font-size:1.25rem;font-weight:800;color:var(--navy);}
+.result-chip{
+  font-size:.85rem;font-weight:800;padding:4px 14px;border-radius:999px;
+}
+.result-chip.correct{background:var(--green-bg);color:var(--green);}
+.result-chip.wrong{background:var(--red-bg);color:var(--red-dark);}
+.verdict .expl{font-size:.97rem;line-height:1.95;margin-bottom:12px;}
+.verdict .kv{
+  font-size:.92rem;line-height:1.85;background:var(--sky-bg);
+  border-radius:12px;padding:9px 13px;margin-top:8px;
+}
+.verdict .kv b{color:var(--sky);}
+.verdict .kv.kv-wana{background:var(--red-bg);}
+.verdict .kv.kv-wana b{color:var(--red-dark);}
+.btn-primary{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  width:100%;min-height:58px;margin-top:16px;
+  background:linear-gradient(135deg,#cf4a22,#c2401c);
+  color:#fff;font-size:1.05rem;font-weight:800;letter-spacing:.04em;
+  border:none;border-radius:18px;cursor:pointer;
+  box-shadow:0 5px 14px rgba(194,64,28,.34);
+}
+.btn-primary:active{transform:translateY(1px);}
+.btn-primary svg{width:22px;height:22px;stroke:#fff;}
+.btn-ghost{
+  display:block;width:100%;min-height:50px;margin-top:12px;
+  background:var(--white);color:var(--navy-2);
+  font-size:.95rem;font-weight:700;
+  border:2px solid var(--sky-border);border-radius:16px;cursor:pointer;
+}
+.btn-ghost:active{background:var(--sky-bg);}
+.quiz-done{display:none;}
+.quiz-done.show{display:block;}
+.quiz-done .score{
+  font-size:1.15rem;font-weight:800;color:var(--navy);
+  text-align:center;margin:8px 0 6px;
+}
+.quiz-done .score .num{font-size:2rem;color:var(--coral-text);}
+.quiz-done .cmt{
+  background:var(--white);border-radius:16px;padding:14px 16px;
+  font-size:.97rem;line-height:1.95;margin:14px 0;
+  border:2px solid var(--amber-border);
+}
+.wrong-list{margin:14px 0;}
+.wrong-list h4{font-size:.95rem;color:var(--navy);margin-bottom:8px;}
+.wrong-list .w-item{
+  background:var(--white);border-radius:14px;padding:11px 14px;
+  font-size:.9rem;line-height:1.8;margin-bottom:8px;
+  border-left:4px solid var(--coral);box-shadow:var(--shadow-sm);
+}
+
+/* ---------- セクション3：払込免除の解剖 ---------- */
+.type-table-box{
+  background:var(--white);border-radius:22px;box-shadow:var(--shadow-sm);
+  padding:18px 14px;margin:8px 0 24px;overflow-x:auto;
+}
+.type-table{width:100%;border-collapse:collapse;min-width:520px;font-size:.9rem;}
+.type-table th,.type-table td{
+  padding:10px 10px;text-align:center;border-bottom:1.5px solid var(--line);
+  line-height:1.7;vertical-align:middle;
+}
+.type-table th{background:var(--navy-soft);color:var(--navy);font-size:.86rem;}
+.type-table th:first-child{border-radius:12px 0 0 12px;}
+.type-table th:last-child{border-radius:0 12px 12px 0;}
+.type-table td:first-child{text-align:left;font-weight:700;color:var(--navy);font-size:.88rem;}
+.type-table small{display:block;color:var(--muted);font-weight:500;font-size:.81rem;}
+.mark-ok,.mark-ng,.mark-tri{font-weight:800;font-size:1.05rem;}
+.mark-ok{color:var(--green);}
+.mark-ng{color:var(--red);}
+.mark-tri{color:var(--amber);}
+.sim-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px;margin-top:26px;
+}
+.sim-box h3{font-size:1.12rem;color:var(--navy);margin-bottom:4px;}
+.sim-box .sub{font-size:.9rem;color:var(--muted);margin-bottom:18px;}
+.sim-ctrl{margin-bottom:18px;}
+.sim-ctrl label{
+  display:flex;justify-content:space-between;align-items:baseline;
+  font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:6px;
+}
+.sim-ctrl label output{color:var(--coral-text);font-size:1.15rem;font-weight:800;}
+input[type=range]{
+  width:100%;height:34px;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;
+}
+input[type=range]::-webkit-slider-runnable-track{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--sunny),var(--coral));}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:28px;height:28px;border-radius:50%;
+  background:var(--white);border:3px solid var(--coral);margin-top:-9px;
+  box-shadow:var(--shadow-sm);
+}
+input[type=range]::-moz-range-track{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--sunny),var(--coral));}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--white);border:3px solid var(--coral);}
+.sim-check{
+  display:flex;align-items:center;gap:10px;
+  background:var(--sky-bg);border-radius:14px;padding:11px 14px;
+  font-size:.95rem;font-weight:700;color:var(--navy);cursor:pointer;
+}
+.sim-check input{width:22px;height:22px;accent-color:var(--sky);}
+.timeline{margin:48px 0 8px;}
+.tl-track{
+  position:relative;height:14px;border-radius:7px;background:#f0e4d8;
+}
+.tl-fill{
+  position:absolute;left:0;top:0;height:14px;border-radius:7px;
+  background:linear-gradient(90deg,var(--sunny),var(--coral));
+  transition:width .2s;
+}
+.tl-goal{
+  position:absolute;top:-34px;transform:translateX(-50%);
+  font-size:.81rem;font-weight:800;color:var(--red-dark);
+  text-align:center;line-height:1.3;white-space:nowrap;
+}
+.tl-goal::after{
+  content:"";display:block;width:3px;height:30px;margin:2px auto 0;
+  background:var(--red);border-radius:2px;
+}
+.tl-labels{display:flex;justify-content:space-between;font-size:.81rem;color:var(--muted);margin-top:6px;}
+.sim-results{display:grid;grid-template-columns:1fr;gap:12px;margin-top:20px;}
+@media(min-width:700px){.sim-results{grid-template-columns:repeat(3,1fr);}}
+.sim-r{
+  border-radius:18px;padding:14px 15px;border:2px solid var(--line);background:var(--bg);
+}
+.sim-r h4{font-size:.9rem;color:var(--navy);margin-bottom:6px;line-height:1.6;}
+.sim-r h4 small{display:block;font-weight:500;color:var(--muted);font-size:.8rem;}
+.sim-r .r-chip{
+  display:inline-block;font-size:.95rem;font-weight:800;
+  padding:5px 16px;border-radius:999px;margin-bottom:6px;
+}
+.sim-r.ok{border-color:var(--green-border);background:var(--green-bg);}
+.sim-r.ok .r-chip{background:var(--white);color:var(--green);}
+.sim-r.ng{border-color:var(--red-border);background:var(--red-bg);}
+.sim-r.ng .r-chip{background:var(--white);color:var(--red-dark);}
+.sim-r p{font-size:.84rem;color:var(--muted);line-height:1.75;}
+
+/* ---------- セクション4：あるある劇場 ---------- */
+.case-grid{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.case-grid{grid-template-columns:repeat(2,1fr);}}
+.case-card{
+  display:flex;align-items:center;gap:14px;text-align:left;
+  background:var(--white);border:none;border-radius:20px;
+  padding:16px 16px;cursor:pointer;box-shadow:var(--shadow);
+  font-family:inherit;transition:transform .12s;
+}
+.case-card:active{transform:scale(.985);}
+.case-card .art{
+  width:64px;height:64px;flex:0 0 64px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+}
+.case-card .art svg{width:42px;height:42px;}
+.case-card .t{flex:1;}
+.case-card .chip{
+  display:inline-block;font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:4px;
+}
+.case-card h3{font-size:.99rem;color:var(--navy);line-height:1.6;}
+.case-card .more{
+  font-size:.8rem;color:var(--coral-text);font-weight:700;
+  display:inline-flex;align-items:center;gap:4px;margin-top:4px;
+}
+.case-card .more svg{width:14px;height:14px;stroke:var(--coral-text);}
+.c-red{background:var(--red-bg);color:var(--red-dark);}
+.c-blue{background:var(--sky-bg);color:var(--sky);}
+.c-green{background:var(--green-bg);color:var(--green);}
+.c-amber{background:var(--amber-bg);color:var(--amber-deep);}
+.c-berry{background:var(--berry-bg);color:var(--berry);}
+.case-card .amt{
+  display:inline-block;margin-left:7px;
+  font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;
+  background:var(--white);color:var(--green);border:1.5px solid var(--green-border);
+}
+
+/* ---------- セクション5：逆転劇場 ---------- */
+#sec5 .case-card{box-shadow:0 6px 20px rgba(60,120,80,.12);}
+.model-note{
+  background:var(--white);border-radius:18px;padding:14px 18px;margin-bottom:18px;
+  border-left:6px solid var(--mint);box-shadow:var(--shadow-sm);
+}
+.model-note strong{display:block;font-size:.92rem;color:var(--green);margin-bottom:4px;}
+.model-note .mn-row{display:block;font-size:.95rem;line-height:1.9;color:var(--navy);}
+.model-note .mn-row b{color:var(--coral-text);}
+.model-note .mn-note{display:block;font-size:.82rem;color:var(--muted);line-height:1.8;margin-top:6px;}
+.rule3-box{
+  margin-top:28px;background:var(--white);border-radius:22px;
+  padding:20px 20px 16px;box-shadow:var(--shadow-sm);
+}
+.rule3-box h3{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.06rem;color:var(--navy);margin-bottom:12px;
+}
+.rule3-box h3 svg{width:24px;height:24px;flex:0 0 24px;stroke:var(--green);}
+.rule3-box ol{list-style:none;counter-reset:r3;}
+.rule3-box ol li{
+  counter-increment:r3;position:relative;
+  padding:0 0 12px 44px;font-size:.95rem;line-height:1.9;
+}
+.rule3-box ol li::before{
+  content:counter(r3);position:absolute;left:0;top:2px;
+  width:30px;height:30px;border-radius:50%;
+  background:var(--green-bg);color:var(--green);
+  font-weight:800;font-size:1rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.rule3-note{font-size:.8rem;color:var(--muted);border-top:1.5px dashed var(--line);padding-top:10px;line-height:1.8;}
+/* ---------- モーダル ---------- */
+.cmodal{position:fixed;inset:0;z-index:60;display:none;}
+.cmodal.show{display:block;}
+.cmodal-back{position:absolute;inset:0;background:rgba(40,30,25,.5);}
+.cmodal-panel{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(94vw,640px);max-height:88vh;overflow-y:auto;
+  background:var(--white);border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.25);
+  -webkit-overflow-scrolling:touch;
+}
+.cmodal-head{
+  position:sticky;top:0;display:flex;gap:14px;align-items:center;
+  background:var(--white);padding:18px 52px 12px 20px;
+  border-bottom:1.5px solid var(--line);z-index:2;
+}
+.cmodal-close{
+  position:absolute;right:12px;top:12px;
+  width:40px;height:40px;border-radius:50%;
+  background:var(--bg);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.cmodal-close svg{width:18px;height:18px;stroke:var(--navy);}
+.cmodal-ico{
+  width:56px;height:56px;flex:0 0 56px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+}
+.cmodal-ico svg{width:38px;height:38px;}
+.cmodal-chip{
+  display:inline-block;font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:3px;
+}
+.cmodal-title{font-size:1.08rem;color:var(--navy);line-height:1.55;}
+.cmodal-body{padding:16px 20px 22px;}
+.cmodal-block{margin-bottom:18px;}
+.cmodal-label{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:.86rem;font-weight:800;padding:5px 14px;border-radius:999px;margin-bottom:9px;
+}
+.cmodal-label svg{width:17px;height:17px;}
+.lb-blue{background:var(--sky-bg);color:var(--sky);}
+.lb-blue svg{stroke:var(--sky);}
+.lb-red{background:var(--red-bg);color:var(--red-dark);}
+.lb-red svg{stroke:var(--red-dark);}
+.lb-green{background:var(--green-bg);color:var(--green);}
+.lb-green svg{stroke:var(--green);}
+.cmodal-quote{
+  background:var(--bg);border-left:4px solid var(--coral);
+  border-radius:0 14px 14px 0;padding:12px 15px;
+  font-size:.95rem;line-height:1.9;color:var(--text);
+}
+.cmodal-quote small{display:block;text-align:right;color:var(--muted);margin-top:4px;font-size:.8rem;}
+.cmodal-p{font-size:.95rem;line-height:1.95;margin-bottom:8px;}
+.cmodal-note{
+  font-size:.8rem;color:var(--muted);line-height:1.8;margin-top:14px;
+  border-top:1.5px dashed var(--line);padding-top:12px;
+}
+
+/* ---------- まとめ・チェックリスト ---------- */
+.score-box{
+  background:var(--sky-bg);border-radius:20px;padding:18px 18px 14px;margin-bottom:24px;
+}
+.score-box h3{
+  display:flex;align-items:center;gap:8px;
+  font-size:1.02rem;color:var(--navy);margin-bottom:8px;
+}
+.score-box h3 svg{width:22px;height:22px;stroke:var(--sky);}
+.score-box p{font-size:.95rem;line-height:1.9;}
+.checklist{display:grid;grid-template-columns:1fr;gap:10px;}
+.chk-group{
+  font-size:.9rem;font-weight:800;color:var(--amber-deep);
+  margin:14px 0 2px;letter-spacing:.03em;
+}
+.chk-group:first-child{margin-top:0;}
+.chk{
+  display:flex;align-items:center;gap:12px;
+  background:var(--bg);border:2px solid var(--line);border-radius:16px;
+  padding:12px 14px;cursor:pointer;font-size:.95rem;line-height:1.7;
+  transition:border-color .15s, background .15s;
+}
+.chk input{width:24px;height:24px;flex:0 0 24px;accent-color:var(--green);cursor:pointer;}
+.chk .art{
+  width:44px;height:44px;flex:0 0 44px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.chk .art svg{width:28px;height:28px;}
+.chk:has(input:checked){background:var(--green-bg);border-color:var(--green-border);}
+.chk-msg{
+  margin-top:16px;background:var(--amber-bg);border-radius:16px;
+  padding:14px 16px;font-size:.95rem;line-height:1.9;
+}
+details.finder{
+  margin-top:26px;background:var(--bg);border-radius:18px;
+  padding:4px 18px;border:1.5px solid var(--line);
+}
+details.finder summary{
+  cursor:pointer;font-size:.98rem;font-weight:700;color:var(--navy);
+  padding:12px 0;list-style-position:inside;
+}
+details.finder ul{padding:2px 0 8px 22px;font-size:.92rem;color:var(--text);}
+details.finder li{margin-bottom:7px;line-height:1.85;}
+details.finder p{font-size:.92rem;padding:0 0 14px;line-height:1.9;}
+
+/* ---------- CTA ---------- */
+.cta-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:24px 20px;margin-top:30px;text-align:center;
+}
+.cta-box h3{font-size:1.2rem;color:var(--navy);margin-bottom:8px;line-height:1.6;}
+.cta-box .cta-lead{font-size:.95rem;color:var(--muted);text-align:left;margin-bottom:14px;line-height:1.95;}
+.cta-box ul{list-style:none;text-align:left;margin-bottom:14px;}
+.cta-box ul li{
+  display:flex;gap:9px;align-items:flex-start;
+  font-size:.94rem;line-height:1.85;margin-bottom:6px;
+}
+.cta-box ul li svg{width:19px;height:19px;flex:0 0 19px;stroke:var(--mint);margin-top:6px;}
+.co{font-size:.98rem;font-weight:800;color:var(--navy);margin-top:18px;}
+.addr{font-size:.87rem;color:var(--muted);line-height:1.7;}
+.tip{font-size:.87rem;color:var(--amber-deep);margin-top:10px;}
+.cta-mini{
+  margin-top:18px;background:var(--bg);border:2px solid var(--amber-border);
+  border-radius:18px;padding:14px 16px;text-align:center;
+}
+.cta-mini p{font-size:.92rem;line-height:1.85;margin-bottom:10px;text-align:left;}
+.cta-mini a{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--white);border:2px solid var(--coral);
+  color:var(--coral-text);text-decoration:none;font-weight:800;font-size:.95rem;
+  border-radius:999px;padding:9px 20px;
+}
+.cta-mini a svg{width:18px;height:18px;stroke:var(--coral-text);}
+
+
+/* ---------- フッター免責 ---------- */
+footer.disclaimer{
+  padding:26px 16px 30px;max-width:900px;margin:0 auto;
+}
+footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
+
+@media print{
+  .hero-nav,.cta-mini{display:none !important;}
+  body{background:#fff;}
+}
+
+/* ---------- このページ独自：シミュレーターの合計表示 ---------- */
+.sim-total{
+  background:var(--navy-soft);border-radius:18px;
+  padding:15px 16px;margin-top:18px;text-align:center;
+}
+.sim-total .lead{font-size:.88rem;color:var(--muted);line-height:1.8;margin-bottom:6px;}
+.sim-total .big{
+  display:block;font-size:1.5rem;font-weight:800;color:var(--navy);line-height:1.6;
+}
+.sim-total .big b{color:var(--coral-text);font-size:1.9rem;}
+.sim-total .sub2{display:block;font-size:.88rem;color:var(--muted);line-height:1.8;margin-top:6px;}
+/* 使いみちの色分け（出ていくお金／戻るお金） */
+.tl-fill.back{background:linear-gradient(90deg,var(--mint),var(--green));}
+</style>
+</head>
+<body>
+
+<!-- ================= ヒーロー ================= -->
+<header class="hero">
+  <div class="wrap">
+    <div class="brand">
+      <span class="ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg>
+      </span>
+      <span>株式会社Office-M<small>会計を母体に、数字の「小さな字」まで読み解いてご案内します</small></span>
+    </div>
+    <div class="hero-flex">
+      <div class="hero-copy">
+        <h1>その老後資金、<br><span class="nowrap"><span class="accent">何歳まで</span>もつか、</span><span class="nowrap">ご存じですか。</span></h1>
+        <p class="lead">「二千万円あれば、なんとかなるでしょう」「うちは年金が少ないから、どうせ足りない」——よく伺うのはこの二つですが、どちらも通帳とねんきん定期便を見ないと言えないことです。老後資金がもつかどうかを決めるのは、残高そのものではなく、<strong>毎月いくら足りないのか</strong>と、<strong>どう取り崩すのか</strong>と、<strong>何年ぶんそれを続けるのか</strong>の三つだけ。定額と定率の違い、年金と支出の差、そして長生きという前提。○×クイズだけなら3分、ぜんぶ読むと10分ほどです。最後はぜひ、お手元の通帳でご確認ください。</p>
+        <nav class="hero-nav" aria-label="ページ内メニュー">
+          <a href="#sec1"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h9"/></svg>3つの線引き</a>
+          <a href="#sec2"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/></svg>○×ワナクイズ</a>
+          <a href="#sec3"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="16" r="3"/><path d="M18 6 6 18"/></svg>定額と定率を解剖</a>
+          <a href="#sec4"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0-3.3 11 3 3 0 0 1 1.1 1.9l.03.35h4.34l.03-.35a3 3 0 0 1 1.1-1.9A6 6 0 0 0 12 3Z"/><path d="M9.8 19.2h4.4M10.7 21.7h2.6"/></svg>あるある劇場</a>
+          <a href="#sec5"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="8" width="17" height="12.5" rx="2.5"/><path d="M3.5 12h17M12 8v12.5"/></svg>逆転劇場（味方する制度）</a>
+          <a href="#sec6"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5h16M7 16V9.5M12 16V5.5M17 16v-4"/></svg>長生きの話</a>
+        </nav>
+      </div>
+      <div class="hero-scene" aria-hidden="true">
+        <svg viewBox="0 0 360 212">
+          <circle cx="310" cy="38" r="32" fill="#ffd9a8" opacity=".45"/><circle cx="310" cy="38" r="21" fill="#f7c34e"/>
+          <ellipse cx="60" cy="32" rx="26" ry="10" fill="#fff" opacity=".95"/><ellipse cx="92" cy="40" rx="17" ry="7" fill="#fff" opacity=".8"/>
+          <path d="M0 168h360v44H0Z" fill="#ffe9c7"/><path d="M0 176c40-10 90-12 150-8 60 4 120 4 210-6v50H0Z" fill="#b3e3b8"/>
+          <!-- 主役：減っていく残高 -->
+          <rect x="116" y="76" width="26" height="92" rx="4" fill="#63b8dd"/>
+          <rect x="150" y="98" width="26" height="70" rx="4" fill="#8ecbe6"/>
+          <rect x="184" y="118" width="26" height="50" rx="4" fill="#c6e2f2"/>
+          <rect x="218" y="138" width="26" height="30" rx="4" fill="#ffd9a8"/>
+          <rect x="252" y="156" width="26" height="12" rx="4" fill="#f0846a"/>
+          <path d="M112 68c50 4 108 44 176 88" fill="none" stroke="#c2451f" stroke-width="3" stroke-dasharray="7 6"/>
+          <text x="292" y="132" font-size="13" font-weight="bold" fill="#c2451f">いつまで？</text>
+          <!-- 案内役 -->
+          <path d="M20 180c0-15 6.5-33 15-33s15 18 15 33v2H20Z" fill="#63b8dd"/><circle cx="35" cy="136" r="11" fill="#f7cdb4"/>
+          <path d="M24 134c1-9 5.5-13 11-13s10 4 11 13c-3.3-4-7-5.3-11-5.3s-7.7 1.3-11 5.3Z" fill="#5c4030"/>
+          <circle cx="31" cy="136.5" r="1.4" fill="#3d3028"/><circle cx="39" cy="136.5" r="1.4" fill="#3d3028"/>
+          <path d="M32 141c1.4 1.5 4 1.5 5.4 0" fill="none" stroke="#3d3028" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= セクション1：3つの線引き ================= -->
+<section id="sec1">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>1</i><span>今日いちばん大事な線引き</span></span>
+        <h2>もつか、もたないか。<span class="nowrap">線は3本です</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotLine" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">クイズの前に、3分だけ整理させてください。老後資金の話でつまずくのは、たいていこの<strong>3本の線</strong>です。<strong>毎月いくら足りないのか</strong>、<strong>定額で取り崩すのか定率で取り崩すのか</strong>、<strong>それを何年続ける前提なのか</strong>。この3つを押さえるだけで、「二千万円あれば安心」と「どうせ足りない」の、どちらの思い込みからも自由になれます。</p>
+    </div>
+
+    <p class="qlink-lead">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/></svg>
+      この3つ、答えられますか？
+    </p>
+    <div class="qlinks">
+      <a class="qlink" href="#def-1">
+        <span class="pair">定額<span class="vs">と</span>定率</span>
+        <span class="ask">どちらが先に尽きると思いますか？</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+      </a>
+      <a class="qlink" href="#def-2">
+        <span class="pair">年金<span class="vs">と</span>支出</span>
+        <span class="ask">毎月いくら足りないか、言えますか？</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+      </a>
+      <a class="qlink" href="#def-3">
+        <span class="pair">使い切る<span class="vs">と</span>長生き</span>
+        <span class="ask">何歳までの計画になっていますか？</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+      </a>
+    </div>
+
+    <!-- ▼1本目：定額と定率 ▼ -->
+    <div class="def-block" id="def-1">
+      <h3 class="def-h"><span class="def-ico ic-blue" data-art="icTeigaku" aria-hidden="true"></span>1本目：定額で崩すのか、定率で崩すのか</h3>
+      <p class="def-lead">同じ残高でも、崩し方が違うと結末がまったく変わります。<strong>定額</strong>は「毎月6万円」のように金額を決めて崩す方法で、金額が一定なので生活の予定は立てやすい代わりに、<strong>残高がゼロになる日が必ず来ます</strong>。<strong>定率</strong>は「そのときの残高の年4%」のように割合で崩す方法で、残高が減れば引き出す額も自動で減るため、計算上はゼロになりません。そのかわり、受け取れる金額が年々小さくなっていきます。</p>
+      <p class="age-note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <span>1,500万円を毎月6万円ずつ定額で取り崩すと、単純計算で<b>250か月＝20年10か月</b>。65歳から始めれば<b>85歳ごろ</b>にゼロになります<small>根拠：1,500万円÷6万円の割り算のみ。運用・物価変動・臨時支出は考慮していません</small></span></p>
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="定額取り崩しは残高がゼロになり、定率取り崩しは受け取れる額が減っていくことを比べた図">
+          <text x="260" y="30" text-anchor="middle" font-size="19" font-weight="bold" fill="#1b3f5e">同じ1,500万円でも、結末が違う</text>
+          <rect x="30" y="48" width="460" height="160" rx="18" fill="#eaf1f7"/>
+          <rect x="44" y="62" width="286" height="132" rx="12" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="3"/>
+          <text x="187" y="94" text-anchor="middle" font-size="20" font-weight="bold" fill="#2c7a4b">定額（毎月6万円）</text>
+          <text x="187" y="122" text-anchor="middle" font-size="16" fill="#2c7a4b">金額はずっと変わらない</text>
+          <text x="187" y="150" text-anchor="middle" font-size="15" font-weight="bold" fill="#2c7a4b">でも、いつか残高はゼロ</text>
+          <text x="187" y="176" text-anchor="middle" font-size="14" fill="#2c7a4b">65歳開始なら85歳ごろ</text>
+          <path d="M338 42v172" stroke="#c2451f" stroke-width="3" stroke-dasharray="7 6"/>
+          <rect x="350" y="62" width="126" height="132" rx="12" fill="#fdeee9" stroke="#c2453f" stroke-width="3"/>
+          <text x="413" y="98" text-anchor="middle" font-size="18" font-weight="bold" fill="#a63631">定率（年4%）</text>
+          <text x="413" y="124" text-anchor="middle" font-size="13" fill="#a63631">ゼロにはならない</text>
+          <text x="413" y="148" text-anchor="middle" font-size="13" fill="#a63631">かわりに額が減る</text>
+          <text x="413" y="172" text-anchor="middle" font-size="13" fill="#a63631">初月は月5.0万円</text>
+          <text x="260" y="238" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2451f">「尽きる」か「足りなくなる」か</text>
+          <text x="260" y="268" text-anchor="middle" font-size="13.5" fill="#5c6874">どちらにも弱点があります</text>
+        </svg>
+        <p class="venn-cap">※図の金額は、このページの説明用に単純化した例です。実際には運用の有無、物価や年金額の変動、まとまった臨時支出によって結果は変わります。定率の「年4%」も、あくまで説明のために置いた数字で、この率が安全だという意味ではありません。</p></div>
+      <div class="cards">
+        <div class="risk-card"><div class="icon ic-blue" data-art="icTeigaku" aria-hidden="true"></div>
+          <h3>定額で崩している</h3><span class="judge-chip ok">予定は立てやすい</span>
+          <p>毎月同じ額が入るので、生活のリズムを崩さずに済みます。ただし<strong>ゼロになる時期がはっきり決まる</strong>ぶん、その年齢を知らないまま続けるのがいちばん危ない使い方です。</p></div>
+        <div class="risk-card"><div class="icon ic-green" data-art="icTeiritsu" aria-hidden="true"></div>
+          <h3>定率で崩している</h3><span class="judge-chip maybe">尽きないが減る</span>
+          <p>残高に率を掛けるので、計算上はいつまでも残ります。そのかわり<strong>受け取れる額は毎年小さくなります</strong>。生活費の下限を割ってしまわないかを、先に確かめておく必要があります。</p></div>
+        <div class="risk-card"><div class="icon ic-amber" data-art="icAkaji" aria-hidden="true"></div>
+          <h3>決めずに、そのつど下ろしている</h3><span class="judge-chip maybe">いちばん多い</span>
+          <p>実はこれがいちばん多いやり方です。悪いわけではありませんが、<strong>年にいくら使ったのかが誰にも分からない</strong>ため、気づいたときには残高だけが減っています。まず1年ぶんを数えるところからです。</p></div>
+        <div class="risk-card"><div class="icon ic-red" data-art="icJumyou" aria-hidden="true"></div>
+          <h3>「足りなくなったら考える」</h3><span class="judge-chip ng">先送りが高くつく</span>
+          <p>足りなくなってからできることは、そう多くありません。<strong>選択肢がいちばん多いのは、まだ困っていない今日</strong>です。働き方も、住まいも、受け取り方も、今なら選べます。</p></div>
+      </div>
+    </div>
+
+    <!-- ▼2本目：年金と支出の差 ▼ -->
+    <div class="def-block" id="def-2">
+      <h3 class="def-h"><span class="def-ico ic-red" data-art="icAkaji" aria-hidden="true"></span>2本目：毎月の赤字が、すべての主役</h3>
+      <p class="def-lead">老後資金の話は、つい「いくら貯めたか」から始まります。けれど資産が何年もつかを決めているのは、残高ではなく<strong>収入と支出の差</strong>です。年金などの収入が月20万円で、支出が月26万円なら、赤字は月6万円。この6万円が、毎月あなたの残高から出ていく金額です。<strong>赤字が1万円変われば、資産がもつ年数は数年単位で動きます</strong>。逆に言えば、残高を増やすより、赤字を1万円小さくするほうが早いこともあります。</p>
+      <p class="age-note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <span>65歳以上の夫婦のみ無職世帯では、毎月の家計が<b>2万円台から4万円台の不足</b>になる年が続いています<small>根拠：総務省統計局「家計調査（家計収支編）」。年によって金額が動くため、幅のある書き方にしています。ご自身の数字は通帳と家計簿でご確認ください</small></span></p>
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="収入からはみ出した支出の分が毎月の赤字になり、その赤字が資産から出ていくことを示した図">
+          <text x="260" y="30" text-anchor="middle" font-size="19" font-weight="bold" fill="#1b3f5e">はみ出した分が、毎月の赤字</text>
+          <rect x="30" y="48" width="460" height="160" rx="18" fill="#eaf1f7"/>
+          <rect x="44" y="62" width="216" height="132" rx="12" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="3"/>
+          <text x="152" y="96" text-anchor="middle" font-size="19" font-weight="bold" fill="#2c7a4b">収入（年金など）</text>
+          <text x="152" y="126" text-anchor="middle" font-size="16" fill="#2c7a4b">たとえば月20万円</text>
+          <text x="152" y="156" text-anchor="middle" font-size="14" fill="#2c7a4b">ここは毎月入ってくる</text>
+          <text x="152" y="180" text-anchor="middle" font-size="13" fill="#2c7a4b">定期便で確認できます</text>
+          <path d="M268 42v172" stroke="#c2451f" stroke-width="3" stroke-dasharray="7 6"/>
+          <rect x="280" y="62" width="196" height="132" rx="12" fill="#fdeee9" stroke="#c2453f" stroke-width="3"/>
+          <text x="378" y="96" text-anchor="middle" font-size="19" font-weight="bold" fill="#a63631">支出（暮らし）</text>
+          <text x="378" y="126" text-anchor="middle" font-size="16" fill="#a63631">たとえば月26万円</text>
+          <text x="378" y="156" text-anchor="middle" font-size="15" font-weight="bold" fill="#a63631">差の6万円が赤字</text>
+          <text x="378" y="180" text-anchor="middle" font-size="13" fill="#a63631">ここを資産から出す</text>
+          <text x="260" y="238" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2451f">月6万円なら年72万円が出ていく</text>
+          <text x="260" y="268" text-anchor="middle" font-size="13.5" fill="#5c6874">残高ではなく、この差が主役です</text>
+        </svg>
+        <p class="venn-cap">※金額はいずれも説明のための例です。収入には公的年金のほか、企業年金、就労収入、家賃収入などが入ることがあります。支出には固定資産税や自動車の買い替え、住宅の修繕、医療や介護の費用といった、毎月は出ていかない支出も年割りで入れておくと実態に近づきます。</p></div>
+      <div class="cards">
+        <div class="risk-card"><div class="icon ic-blue" data-art="icTsucho" aria-hidden="true"></div>
+          <h3>赤字を数えたことがある</h3><span class="judge-chip ok">いちばん強い</span>
+          <p>1年ぶんの引き出し合計を出すだけで十分です。<strong>通帳の年間出金額から、収入以外の入金を引く</strong>。これができている方は、すでに大半の方より先を歩いています。</p></div>
+        <div class="risk-card"><div class="icon ic-amber" data-art="icHatarku" aria-hidden="true"></div>
+          <h3>まだ働いている</h3><span class="judge-chip maybe">今のうちが勝負</span>
+          <p>就労収入があるうちは赤字が小さく見えます。<strong>働き方が変わった後の赤字</strong>で計算しないと、実態より明るい数字になります。辞めた後の家計で一度試算しておくと安心です。</p></div>
+        <div class="risk-card"><div class="icon ic-red" data-art="icShuzen" aria-hidden="true"></div>
+          <h3>大きな支出を数えていない</h3><span class="judge-chip ng">見落とし1位</span>
+          <p>屋根や外壁の修繕、給湯器、車の買い替え。<strong>10年に1度の支出は、毎月の家計簿に出てきません</strong>。年割りにして赤字に足しておくと、後から慌てずに済みます。</p></div>
+        <div class="risk-card"><div class="icon ic-green" data-art="icKazoku" aria-hidden="true"></div>
+          <h3>ひとりになった後を見ていない</h3><span class="judge-chip maybe">忘れられがち</span>
+          <p>夫婦のどちらかが亡くなると、世帯の年金額は変わります。<strong>支出は半分にはなりません</strong>。ひとり暮らしになった後の収支も、いずれ必要になる計算です。</p></div>
+      </div>
+    </div>
+
+    <!-- ▼3本目：使い切る前提と長生き ▼ -->
+    <div class="def-block" id="def-3">
+      <h3 class="def-h"><span class="def-ico ic-amber" data-art="icJumyou" aria-hidden="true"></span>3本目：何歳までの計画になっていますか</h3>
+      <p class="def-lead">取り崩しの計画には、必ず<strong>終わりの年齢</strong>が入っています。自分では決めていないつもりでも、「85歳ごろに尽きる」という計算になっていれば、それは85歳までの計画です。ここでよく起きるのが、<strong>平均寿命を終わりの年齢だと思ってしまう</strong>ことです。平均寿命はあくまで平均で、それより長く生きる方も相当数いらっしゃいます。長生きは喜ばしいことですが、お金の計画の上では「想定より長く続く」という形で表れます。</p>
+      <p class="age-note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <span>65歳の方の平均余命は、男性でおおむね<b>19年</b>、女性でおおむね<b>24年</b>とされています。つまり平均でも<b>85歳前後から90歳前後</b>までは続く計算です<small>根拠：厚生労働省「簡易生命表」の概数。年により変動します。平均であって、上限ではありません</small></span></p>
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="想定した年齢より長生きした場合に、資金が足りない期間が生まれることを示した図">
+          <text x="260" y="30" text-anchor="middle" font-size="19" font-weight="bold" fill="#1b3f5e">計画の終わりと、人生の終わり</text>
+          <rect x="30" y="48" width="460" height="160" rx="18" fill="#eaf1f7"/>
+          <rect x="44" y="62" width="256" height="132" rx="12" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="3"/>
+          <text x="172" y="96" text-anchor="middle" font-size="19" font-weight="bold" fill="#2c7a4b">お金がもつ期間</text>
+          <text x="172" y="126" text-anchor="middle" font-size="16" fill="#2c7a4b">65歳から85歳ごろまで</text>
+          <text x="172" y="156" text-anchor="middle" font-size="15" font-weight="bold" fill="#2c7a4b">ここまでは計算どおり</text>
+          <text x="172" y="180" text-anchor="middle" font-size="13" fill="#2c7a4b">1,500万円を月6万円で</text>
+          <path d="M308 42v172" stroke="#c2451f" stroke-width="3" stroke-dasharray="7 6"/>
+          <rect x="320" y="62" width="156" height="132" rx="12" fill="#fdeee9" stroke="#c2453f" stroke-width="3"/>
+          <text x="398" y="96" text-anchor="middle" font-size="18" font-weight="bold" fill="#a63631">その先の10年</text>
+          <text x="398" y="124" text-anchor="middle" font-size="14" fill="#a63631">85歳から95歳まで</text>
+          <text x="398" y="150" text-anchor="middle" font-size="14" font-weight="bold" fill="#a63631">収入だけで暮らす</text>
+          <text x="398" y="174" text-anchor="middle" font-size="13" fill="#a63631">介護が重なる時期</text>
+          <text x="260" y="238" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2451f">怖いのは、尽きた後に続く時間</text>
+          <text x="260" y="268" text-anchor="middle" font-size="13.5" fill="#5c6874">そこは体力も落ちている時期です</text>
+        </svg>
+        <p class="venn-cap">※年齢はいずれも例です。実際には、公的年金は生きているかぎり受け取れるため、資産が尽きても収入がゼロになるわけではありません。問題になるのは「年金だけで暮らせる支出になっているか」で、そこが今日いちばん確かめておきたい点です。</p></div>
+      <div class="cards">
+        <div class="risk-card"><div class="icon ic-green" data-art="icHoken" aria-hidden="true"></div>
+          <h3>終身で受け取れる収入がある</h3><span class="judge-chip ok">長生きに強い</span>
+          <p>公的年金のように<strong>生きているかぎり続く収入</strong>は、長生きへの備えそのものです。まずは、ねんきん定期便で今の見込み額を確認しておきましょう。</p></div>
+        <div class="risk-card"><div class="icon ic-amber" data-art="icJikan" aria-hidden="true"></div>
+          <h3>受け取り期間が決まっている</h3><span class="judge-chip maybe">切れ目に注意</span>
+          <p>期間の決まった受け取りは、<strong>終わる年齢が来ます</strong>。何歳で切れるのかを書き出して、その後の収支がどうなるかを見ておくと、慌てずに済みます。</p></div>
+        <div class="risk-card"><div class="icon ic-red" data-art="icKaigoTe" aria-hidden="true"></div>
+          <h3>介護費用を別に置いていない</h3><span class="judge-chip ng">後半に集中する</span>
+          <p>介護や医療の負担は、多くの場合<strong>人生の後半に集中します</strong>。生活費の財布と同じところから出す前提だと、いちばん必要な時期に選択肢がなくなります。</p></div>
+        <div class="risk-card"><div class="icon ic-blue" data-art="icKazoku" aria-hidden="true"></div>
+          <h3>家族と話したことがある</h3><span class="judge-chip ok">これが最強</span>
+          <p>金額そのものより、<strong>どこに何があるかを誰かが知っている</strong>ことのほうが効きます。判断が難しくなってからでは、口座ひとつ動かすのにも時間がかかります。</p></div>
+      </div>
+    </div>
+
+    <div class="note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>3本の線に共通するのは、どれも<strong>今日、紙とペンで確かめられる</strong>ということです。残高、毎月の赤字、始める年齢。この3つが決まれば、あとは割り算で見当がつきます。なお、公的年金や退職金の受け取りには税金が関わることがあります。<strong>個別の税額計算・申告については税理士にご確認ください。</strong></span></div>
+  </div></section>
+
+<!-- ================= セクション2：○×クイズ ================= -->
+<section id="sec2" class="band round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>2</i><span>思い込みをチェック</span></span>
+        <h2>あなたの老後資金、<span class="nowrap">○×ワナ</span>クイズ8問</h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotQuiz" aria-hidden="true"></span></div>
+    </div>
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">ここからは8問の○×クイズです。ひっかけ問題を作ったつもりはありません。<strong>すべて実在の決まりごとや、実際に起きる計算</strong>がモデルです。それでも半分くらいは引っかかります。引っかかった問題こそ、あとで通帳とねんきん定期便を出す合図だと思ってください。所要3分ほどです。</p>
+    <div class="quiz-shell">
+      <div id="quizPlay">
+        <div class="q-top">
+          <div class="q-count">質問 <span id="qNum">1</span> ／ 8</div>
+          <div class="dots" id="qDots" aria-hidden="true"></div>
+        </div>
+        <div class="q-body">
+          <div class="icon" id="qIcon" aria-hidden="true"></div>
+          <p id="qText"></p>
+        </div>
+        <div class="ans-row">
+          <button type="button" class="ans-btn yes" id="btnYes">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/></svg>
+            <span id="lblYes">もつ</span>
+          </button>
+          <button type="button" class="ans-btn no" id="btnNo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            <span id="lblNo">もたない</span>
+          </button>
+        </div>
+        <div class="verdict" id="verdict" aria-live="polite">
+          <div class="verdict-head">
+            <span class="verdict-answer" id="vAnswer"></span>
+            <span class="result-chip" id="vChip"></span>
+          </div>
+          <p class="expl" id="vExpl"></p>
+          <div class="kv kv-wana"><b>ワナの正体：</b><span id="vWana"></span></div>
+          <div class="kv"><b>確認ポイント：</b><span id="vCheck"></span></div>
+        </div>
+        <button type="button" class="btn-primary" id="btnNext" style="display:none;">
+          次の質問へ
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+        <button type="button" class="btn-ghost" id="btnStopHere" style="display:none;">ここまでの結果を見る（残りはあとでも大丈夫です）</button>
+      </div>
+
+      <div class="quiz-done" id="quizDone">
+        <p class="score">クイズおつかれさまでした！　<span class="nowrap"><span id="doneTotal">8</span>問中 <span class="num" id="doneScore">0</span> 問正解</span></p>
+        <p class="cmt" id="doneCmt"></p>
+        <div class="wrong-list" id="wrongList" style="display:none;"></div>
+        <div data-cta-mini></div>
+        <button type="button" class="btn-ghost" id="btnMailSelf">この結果を自分（またはご家族）に送る</button>
+        <button type="button" class="btn-ghost" id="btnPrint">印刷して通帳・ねんきん定期便と一緒に保管する</button>
+        <button type="button" class="btn-ghost" id="btnRetry">もう一度挑戦する</button>
+      </div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>各問の解説は、一般的な取扱いを前提とした説明です。実際の年金額・受け取り方・税金の扱いは、加入歴やご家族の状況、契約の内容によって変わります。「うちはどうだろう」と思ったところが、手元の書類を出すタイミングです。</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション3：定額と定率を解剖 ================= -->
+<section id="sec3" class="band-sky round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>3</i><span>いちばん多い誤解</span></span>
+        <h2>取り崩し方を<span class="nowrap">解剖します</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotCalc" aria-hidden="true"></span></div>
+    </div>
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">「二千万円あれば足りますか」というご質問には、実は答えようがありません。<strong>毎月いくら足りないのか</strong>が決まっていないからです。ここでは同じ1,500万円を、定額と定率の二つの方法で崩してみます。数字を並べると、どちらにも良いところと弱点があることがはっきりします。そのうえで、ご自身の数字を入れて試せるようにしました。</p>
+    </div>
+    <p class="sec-lead">前提はどちらも同じです。65歳から取り崩し始め、毎月6万円の赤字を埋めるために使う、取り崩し用の資産が1,500万円。運用は考えず、割り算と掛け算だけで比べています。</p>
+    <div class="type-table-box">
+      <table class="type-table" aria-label="1,500万円を定額と定率で取り崩した場合の比較">
+        <thead><tr><th>65歳・1,500万円<small>毎月6万円の赤字</small></th><th>定額<small>毎月6万円</small></th><th>定率<small>年4%</small></th></tr></thead>
+        <tbody>
+          <tr><td>最初の月に受け取る額</td><td><span class="mark-ok">6.0万円</span></td><td>5.0万円</td></tr>
+          <tr><td>必要額に届くか</td><td>届く（尽きるまで）</td><td><span class="mark-ok">初月から1万円不足</span></td></tr>
+          <tr><td>いつ尽きるか</td><td>250か月＝約20年10か月</td><td>計算上はゼロにならない</td></tr>
+          <tr><td>残高がゼロになる年齢</td><td><span class="mark-ok">85歳ごろ</span></td><td>——</td></tr>
+          <tr><td>年々の受取額</td><td>変わらない</td><td>少しずつ小さくなる</td></tr>
+        </tbody></table>
+      <p class="venn-cap">※運用、物価の変動、年金額の改定、税金や社会保険料、まとまった臨時支出は反映していません。定率の「年4%」は説明のために置いた率で、この率が安全だという意味ではありません。実際にはご自身の資産の中身と支出の形によって結果が変わります。</p></div>
+    <p class="sec-lead">では、ご自身の数字ではどうなるでしょうか。下の4つを入れると、資産がもつ年齢が出ます。</p>
+    <div class="sim-box">
+      <h3>体感シミュレーター「その資金、何歳までもちますか」</h3>
+      <p class="sub">取り崩しに使える資産、毎月の赤字、始める年齢、崩し方の4つを入れると、必要な額を取り崩し続けられる年齢が出ます。このページの説明用に単純化した概算です。</p>
+      <div class="sim-ctrl">
+        <label for="simA">取り崩しに使える資産<output id="simAOut">1,500万円</output></label>
+        <input type="number" id="simA" value="1500" min="0" max="20000" step="50" inputmode="numeric" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;">
+        <p style="font-size:.8rem;color:#5c6874;margin-top:5px;">単位は万円。預貯金と、いつでも取り崩せる資産の合計を入れてください（入力例：1500）</p></div>
+      <div class="sim-ctrl">
+        <label for="simD">毎月の赤字（支出ひく収入）<output id="simDOut">6万円</output></label>
+        <input type="number" id="simD" value="6" min="0" max="60" step="1" inputmode="numeric" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;">
+        <p style="font-size:.8rem;color:#5c6874;margin-top:5px;">単位は万円。毎月の支出から、年金などの収入を引いた差です（入力例：6）</p></div>
+      <div class="sim-ctrl"><label for="simE">取り崩しを始める年齢</label>
+        <select id="simE" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;"><option value="60">60歳から</option><option value="65" selected>65歳から</option><option value="70">70歳から</option><option value="75">75歳から</option></select></div>
+      <div class="sim-ctrl"><label for="simB">崩し方</label>
+        <select id="simB" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;"><option value="1">定額（毎月おなじ額を崩す）</option><option value="2">定率（そのときの残高の年4%）</option><option value="3">定率（そのときの残高の年6%）</option></select></div>
+      <label class="sim-check"><input type="checkbox" id="simC">支出を見直して、毎月の赤字を1万円小さくした場合で計算する</label>
+      <div class="timeline" aria-hidden="true"><div class="tl-track"><div class="tl-fill" id="tlFill" style="width:2%;"></div>
+          <div class="tl-goal" style="left:87.5%;">95歳<br>ここまで見ておきたい</div></div>
+        <div class="tl-labels"><span>60歳</span><span>80歳</span><span>100歳</span></div></div>
+      <div class="sim-results" aria-live="polite">
+        <div class="sim-r" id="simR1"><h4>運用しない場合<small>年0%として計算</small></h4><span class="r-chip" id="simR1Chip"></span><p id="simR1Txt"></p></div>
+        <div class="sim-r" id="simR2"><h4>年2%で推移したと仮定<small>あくまで仮定です</small></h4><span class="r-chip" id="simR2Chip"></span><p id="simR2Txt"></p></div>
+        <div class="sim-r" id="simR3"><h4>年2%下がったと仮定<small>こちらも同じ確かさ</small></h4><span class="r-chip" id="simR3Chip"></span><p id="simR3Txt"></p></div>
+      </div>
+      <div class="sim-total">
+        <span class="lead" id="simTotalLead">この条件なら</span>
+        <span class="big" id="simTotalBig"></span><span class="sub2" id="simTotalSub"></span></div>
+      <p class="venn-cap" style="margin-top:10px;">※運用しない場合を基本の数字として表示しています。上がる仮定と下がる仮定は、どちらも同じ確からしさの「仮定」として並べています。今後の相場や金利がどうなるかを示すものではありません。値動きのある商品には元本の保証がなく、購入時の金額を下回る（元本割れとなる）ことがあります。物価の変動、年金額の改定、税金や社会保険料、まとまった臨時支出、医療や介護の費用は反映していません。実際の税額・申告については税理士にご確認ください。</p></div>
+    <div class="mikane" style="margin-top:26px;">
+      <h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>本当に怖いのは、残高が減ることではありません</h3>
+      <ol>
+        <li><strong>尽きた後に、時間が残ること。</strong>資産がゼロになっても公的年金は続きます。問題は、そのとき年金だけで暮らせる支出になっているかどうかです。ここが整っていれば、尽きること自体は破綻ではありません。</li>
+        <li><strong>いちばん体力がない時期に、選択肢がなくなること。</strong>働き方を変える、住まいを小さくする、といった手は、元気なうちにしか打てません。85歳で初めて考え始めるのと、70歳で考え始めるのとでは、選べる幅がまるで違います。</li>
+        <li><strong>誰も、いくら残っているかを知らないこと。</strong>口座が分散していると、ご本人が判断しづらくなったときに家族が動けません。金額の大小より、把握できているかどうかが効いてきます。</li>
+      </ol>
+      <p class="caution"><strong>いちばん多い失敗は、赤字を数えないまま残高だけ見ていることです。</strong>「<b>1,500万円</b>もあるから大丈夫」と「毎月<b>6万円</b>足りない」は、実は同じことを言っています。前者は残高の話、後者は年数の話で、後者に直した瞬間に<b>約20年10か月</b>という具体的な数字が出ます。数字が出れば、打つ手も具体的になります。逆に、数えないかぎり不安だけが続きます。</p></div>
+    <div data-cta-mini></div>
+    <div class="note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>定額と定率は、どちらが正しいという話ではありません。実際には、生活費の下限は定額で確保し、それを超える部分は定率にする、というように組み合わせることもできます。大切なのは、<strong>自分がどちらの方法で崩しているかを知っていること</strong>です。</span></div>
+  </div></section>
+
+<!-- ================= セクション4：あるある劇場 ================= -->
+<section id="sec4" class="band-blush round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>4</i><span>ご相談でよく伺うお話</span></span>
+        <h2>老後資金あるある劇場</h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotTheater" aria-hidden="true"></span></div>
+    </div>
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">ここからは6つの寸劇です。どれも「そんなことある？」ではなく「うちもそうかも」と思っていただける話ばかりのはずです。気になる演目をタップして、中身をご覧ください。</p>
+    </div>
+    <div class="case-grid" id="caseGrid"></div>
+    <div class="note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>各演目は一般的な内容をもとにした創作例で、実在の個人・事案とは関係ありません。実際の取扱いは、加入歴・ご家族の状況・お住まいの自治体・契約の内容によって変わります。</span></div>
+  </div></section>
+
+<!-- ================= セクション5：逆転劇場 ================= -->
+<section id="sec5" class="band-mint round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>5</i><span>知って得する側の話</span></span>
+        <h2>逆転劇場〜こんな制度が、<span class="nowrap">味方します〜</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotGift" aria-hidden="true"></span></div>
+    </div>
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">ここまで、減る話ばかりで気が重くなったかもしれません。ここからは切り替えます。<strong>知っていれば味方になってくれる制度</strong>の話です。どれも申請や届出が必要なものが多く、知らないまま過ぎると使えないまま終わります。8つ並べました。</p>
+    </div>
+    <div class="model-note"><strong>このページの「減る／助かる金額」の目安</strong><span class="mn-row">65歳の夫婦2人世帯・取り崩し用の資産1,500万円・毎月の赤字6万円・持ち家という前提で計算しています</span>
+      <span class="mn-note">※実際の効果は、ご家族の構成、加入歴、所得、お住まいの自治体、その年の制度内容によって変わります。制度には申請期限や届出の要件があるものが多く、期限を過ぎると使えないことがあります。</span></div>
+    <div class="case-grid" id="goodGrid"></div>
+    <div class="rule3-box">
+      <h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg>取りこぼさないための「老後資金の3か条」</h3>
+      <ol>
+        <li><strong>制度は、申請しないと動かない。</strong>高額療養費も、高額介護サービス費も、住宅改修の給付も、多くは自分から申請して初めて使えます。窓口が自動で調べて振り込んでくれるものばかりではありません。困ってから調べるのではなく、名前だけでも先に知っておくことが備えになります。</li>
+        <li><strong>手取りで考える。</strong>年金にも税金や社会保険料がかかることがあります。額面で計画を立てると、実際の生活で足りなくなります。源泉徴収票や振込通知を見て、実際に使える金額で赤字を計算してください。個別の税額計算・申告については税理士にご確認ください。</li>
+        <li><strong>元気なうちに決めておく。</strong>働き方も、住まいも、受け取り方も、選べるのは判断できるうちだけです。決めたことを紙に書いてご家族に伝えておけば、その紙が将来いちばん役に立ちます。</li>
+      </ol>
+      <p class="rule3-note">※金額はいずれも一例です。適用の可否は要件と事実関係により異なります。手続の期限は個別にご確認ください。</p></div>
+    <div data-cta-mini></div>
+  </div></section>
+
+<!-- ================= セクション6：長生きの話 ================= -->
+<section id="sec6" class="band-sky round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>6</i><span>数字の話をひとつだけ</span></span>
+        <h2>平均寿命ではなく<span class="nowrap">長生きの話</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotCal" aria-hidden="true"></span></div>
+    </div>
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">最後に数字の話をひとつだけ。老後資金の計画で使うべきなのは、平均寿命ではなく<strong>何歳まで備えるか</strong>です。厚生労働省の簡易生命表によると、65歳の方の平均余命は男性でおおむね19年、女性でおおむね24年。ただし平均は上限ではありません。<strong>95歳までを見ておく</strong>と、多くの場合は落ち着いて構えられます。</p>
+    </div>
+    <div class="life-box">
+      <h3>95歳までに、何年ぶんの赤字を埋めるのか</h3><p class="sub">毎月6万円の赤字が、95歳まで続くとした場合の必要額（割り算のみ）</p>
+      <svg viewBox="0 56 380 196" role="img" aria-label="65歳、70歳、75歳から取り崩しを始めた場合に、95歳までに必要となる金額を比べた棒グラフ">
+        <path d="M18 170h344" stroke="#d9cfc4" stroke-width="2" stroke-linecap="round"/>
+        <rect x="42" y="76" width="46" height="94" rx="4" fill="#f0846a"/><text x="65" y="68" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2451f">2,160万</text><text x="65" y="190" text-anchor="middle" font-size="12.5" fill="#5c6874">65歳から</text><text x="65" y="206" text-anchor="middle" font-size="11" fill="#5c6874">30年ぶん</text>
+        <rect x="152" y="92" width="46" height="78" rx="4" fill="#f7c34e"/><text x="175" y="84" text-anchor="middle" font-size="14" font-weight="bold" fill="#8f6015">1,800万</text><text x="175" y="190" text-anchor="middle" font-size="12.5" fill="#5c6874">70歳から</text><text x="175" y="206" text-anchor="middle" font-size="11" fill="#5c6874">25年ぶん</text>
+        <rect x="262" y="108" width="46" height="62" rx="4" fill="#c6e2f2"/><text x="285" y="100" text-anchor="middle" font-size="14" font-weight="bold" fill="#24729f">1,440万</text><text x="285" y="190" text-anchor="middle" font-size="12.5" fill="#5c6874">75歳から</text><text x="285" y="206" text-anchor="middle" font-size="11" fill="#5c6874">20年ぶん</text>
+        <text x="190" y="240" text-anchor="middle" font-size="13" font-weight="bold" fill="#a63631">5年ずらすと360万円動く</text>
+      </svg>
+      <p class="life-cap">※月6万円かける12か月かける年数、という割り算だけの数字です。運用、物価の変動、年金額の改定、税金や社会保険料、まとまった臨時支出は含みません。平均余命の数値は厚生労働省「簡易生命表」の概数で、年により変動します。</p>
+      <div class="big3">
+        <span class="b"><span class="n">約19年</span><span class="l">65歳男性の平均余命</span><span class="s">おおむね84歳ごろまで</span></span>
+        <span class="b"><span class="n">約24年</span><span class="l">65歳女性の平均余命</span><span class="s">おおむね89歳ごろまで</span></span>
+        <span class="b"><span class="n">2〜4万円台</span><span class="l">高齢無職世帯の月の不足</span><span class="s">年により動きます</span></span></div></div>
+    <h3 class="sub-h"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>始める年齢で、必要額はこう変わります</h3>
+    <p class="sub-lead">同じ毎月6万円の赤字でも、取り崩しを始める年齢が違えば、95歳までに必要な額は変わります。3つ並べて比べてみてください。数字はすべて割り算だけで出しています。</p>
+    <div class="age-cards">
+      <div class="age-card"><p class="ttl"><span class="ico ic-red" data-art="icJikan" aria-hidden="true"></span>65歳から崩す</p>
+        <span class="kind">いちばん一般的な形</span>
+        <div class="rows"><p class="row"><span>95歳までの年数</span><b>30年</b></p><p class="row"><span>必要な取り崩し総額</span><b>2,160万円</b></p><p class="row"><span>1,500万円だと</span><b>660万円不足</b></p></div>
+        <p class="cmt">退職と同時に取り崩しが始まる、いちばん多い形です。期間が長いぶん必要額も大きくなります。ここが足りない場合、赤字を小さくするか、始める年齢をずらすかの二択になります。</p><p class="src">※月6万円の赤字が95歳まで続くとした場合の割り算</p></div>
+      <div class="age-card"><p class="ttl"><span class="ico ic-amber" data-art="icHatarku" aria-hidden="true"></span>70歳から崩す</p>
+        <span class="kind">5年遅らせた場合</span>
+        <div class="rows"><p class="row"><span>95歳までの年数</span><b>25年</b></p><p class="row"><span>必要な取り崩し総額</span><b>1,800万円</b></p><p class="row"><span>1,500万円だと</span><b>300万円不足</b></p></div>
+        <p class="cmt">5年遅らせるだけで必要額が360万円下がります。その間の収入があれば、資産そのものも減りません。ただし、何歳まで働けるかは健康と仕事の事情によります。</p><p class="src">※働き続けることを勧めるものではなく、選択肢としての数字です</p></div>
+      <div class="age-card"><p class="ttl"><span class="ico ic-blue" data-art="icJumyou" aria-hidden="true"></span>75歳から崩す</p>
+        <span class="kind">10年遅らせた場合</span>
+        <div class="rows"><p class="row"><span>95歳までの年数</span><b>20年</b></p><p class="row"><span>必要な取り崩し総額</span><b>1,440万円</b></p><p class="row"><span>1,500万円だと</span><b>足りる計算</b></p></div>
+        <p class="cmt">同じ1,500万円でも、始める年齢が10年違えば足りるかどうかが逆転します。年金の繰下げを組み合わせると、そもそもの赤字自体が小さくなることもあります。</p><p class="src">※繰下げをした場合の年金額は、ねんきんネット等でご確認ください</p></div>
+    </div>
+    <div class="mikane">
+      <h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5V9.2M12 9.2 7.6 5M12 9.2 16.4 5"/><circle cx="12" cy="15" r="8.2"/></svg>だから、いまできることは3つだけ</h3>
+      <ol>
+        <li><strong>数える。</strong>取り崩しに使える資産の合計と、毎月の赤字。この2つを紙に書き出すだけで、もつ年数が割り算で出ます。通帳とねんきん定期便があれば、30分で終わります。ここが決まらないと、ほかのどんな工夫も効き目を測れません。</li>
+        <li><strong>分ける。</strong>毎月の生活費と、まとまった支出と、長生きへの備え。この3つを口座の上で分けると、赤字が自動的に見えるようになります。分けた一覧は紙一枚にまとめて、ご家族が分かる場所へ。</li>
+        <li><strong>決めておく。</strong>何歳から取り崩すか、定額か定率か、年金をいつから受け取るか。決めて紙に書いておけば、判断が難しくなった後もその紙が働いてくれます。決めるのは元気なうちにしかできません。</li>
+      </ol>
+      <p class="caution"><strong>そして、いちばん大事なこと</strong>老後資金の不安の正体は、金額の大きさではなく<b>数字になっていないこと</b>です。1,500万円で毎月6万円なら<b>約20年10か月</b>。この一行が出た瞬間に、不安は課題に変わります。課題になれば、赤字を1万円下げる、始める年齢を2年ずらす、といった手が打てます。<b>今日</b>できるのは、電卓を一度たたくことだけです。</p></div>
+  </div></section>
+
+<!-- ================= まとめ ================= -->
+<section id="matome" class="band round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill plain">まとめ</span>
+        <h2>あなたの老後資金チェック</h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotCheck" aria-hidden="true"></span></div>
+    </div>
+    <p class="sec-lead">最後に、いまの状況を確認してみましょう。あてはまるもの・できたものをタップ（クリック）してください。</p>
+    <div class="score-box"><h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/></svg>クイズの結果</h3>
+      <div id="sumScore"><p>まだクイズに挑戦していません。<a href="#sec2">②の○×クイズ</a>で、思い込みをチェックしてみてください。</p></div></div>
+    <div class="checklist" id="checklist">
+      <p class="chk-group">今日、おうちで数えれば分かること</p>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkBank" aria-hidden="true"></span><span><strong>取り崩しに使える資産の合計を言える</strong>預貯金と、いつでも取り崩せる資産の合計です。通帳と残高照会を集めれば、今日中に出ます。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkReceipt" aria-hidden="true"></span><span><strong>毎月の赤字を数えたことがある</strong>1年ぶんの引き出し合計から、収入以外の入金を引くだけでも十分な目安になります。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkPdf" aria-hidden="true"></span><span><strong>ねんきん定期便の見込み額を見た</strong>毎年の誕生月に届きます。ねんきんネットでも確認できます。額面と手取りが違う点にご注意を。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkHome" aria-hidden="true"></span><span><strong>次の大きな修繕がいつごろか見当がついている</strong>屋根、外壁、給湯器、車の買い替え。年割りにして毎月の赤字に足しておきましょう。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkPc" aria-hidden="true"></span><span><strong>定額で崩しているか、定率で崩しているか答えられる</strong>「そのつど下ろしている」も立派な答えです。まずは自分の型を知ることからです。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkShield" aria-hidden="true"></span><span><strong>資産が尽きても収入が続くことを知っている</strong>公的年金は生きているかぎり続きます。問題は、年金だけで暮らせる支出になっているかどうかです。</span></label>
+      <p class="chk-group">今日、ご家族とできること・次に誰かに聞くこと</p>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkPeople" aria-hidden="true"></span><span><strong>資産の一覧を紙一枚にまとめてある</strong>金融機関名、支店、おおよその残高、連絡先。ご家族が分かる場所に置いてください。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkAoiro" aria-hidden="true"></span><span><strong>ひとりになった後の収支を見当づけている</strong>お二人ぶんの定期便を並べて、どちらか一方になった場合を見ておきましょう。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkInvoice" aria-hidden="true"></span><span><strong>年金や退職金の税金について確認する先を知っている</strong>額面と手取りは違います。個別の税額計算・申告については税理士にご確認ください。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkBack" aria-hidden="true"></span><span><strong>何歳から、どう取り崩すかを一度誰かと整理した</strong>ひとりで決めきらなくて大丈夫です。数字を持って話すと、選択肢がはっきりします。</span></label>
+    </div>
+    <div class="chk-msg" id="chkMsg">あてはまるものにチェックを入れてみてください。今日おうちで数えれば分かる項目と、次に誰かに聞く項目が混じっています。</div>
+    <div data-cta-mini></div>
+    <details class="finder"><summary>「で、何から手をつければいいの？」への答え</summary>
+      <ul>
+        <li><strong>まず、通帳と残高照会を集めて合計を出す。</strong>1円単位でなくてかまいません。10万円単位の概算で十分です。</li>
+        <li>次に、1年ぶんの引き出し合計を出す。ここから収入以外の入金を引けば、年間の赤字になります。12で割れば毎月の赤字です。</li>
+        <li>その2つを、このページのシミュレーターに入れる。何歳までもつのかが出ます。</li>
+        <li>全部そろわなくても大丈夫です。分かるものだけで一度計算してみると、抜けている項目のほうが先に見えてきます。</li>
+      </ul>
+      <p>この順番なら、いちばん重い作業でも1時間ほどです。多くの方が「思っていたより悪くなかった」か「思っていたより早く動いたほうがいい」のどちらかにたどり着きます。どちらでも、分かってしまえば次の一歩は軽くなります。</p></details>
+    <details class="finder" style="margin-top:14px;"><summary>「じゃあ、こうすればいい？」——対策のワナ</summary>
+      <ul>
+        <li><strong>定率にすれば尽きないから安心、とは言えません。</strong>尽きない代わりに、受け取れる額が年々小さくなります。生活費の下限を割り込まないかを先に確かめてください。</li>
+        <li><strong>運用すれば減りが遅くなる、とも言えません。</strong>増える年もあれば減る年もあり、取り崩しの初期に下がると回復しにくくなります。下がった場合にも暮らせる形かどうかが判断軸です。</li>
+        <li><strong>繰下げが必ず有利、とも言えません。</strong>増額は生涯続きますが、受け取らない期間の生活費や、税金・社会保険料への影響もあります。総額がどうなるかは受け取る期間次第です。</li>
+        <li><strong>節約だけで解決しようとしないでください。</strong>赤字を1万円下げるのは強力ですが、暮らしの質を下げすぎると長続きしません。働き方、住まい、受け取り方も含めて、複数の手を組み合わせるほうが現実的です。</li>
+      </ul>
+      <p>順番さえ守れば大丈夫です。数える、分ける、決めておく。この3つを、元気なうちに一度やっておく。それだけで、その後の20年から30年がずいぶん違ってきます。</p></details>
+    <div class="cta-box" id="soudan">
+      <h3>一度、数字にして<span class="nowrap">みませんか</span></h3>
+      <p class="cta-lead">このページの内容は、あくまで一般的なしくみの話です。<strong>ご自身の場合にどうなるか</strong>は、実際の資産の中身と、毎月の収支と、これからの働き方で決まります。こんなご相談をよくお受けしています。</p>
+      <ul>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>通帳が何冊もあって、そもそも合計が分からない</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>年金をいつから受け取るか決めかねている</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>親の介護費用と、自分たちの老後資金が混ざってしまっている</span></li>
+      </ul>
+      <p class="cta-lead">お時間の目安は30分ほど。資料が揃っていなくても大丈夫、揃えるところからお手伝いします。<strong>個別具体的な税務相談・税務書類の作成・税務代理は、税理士が対応します。</strong>いただいた個人情報は、ご相談への対応のみに使用し、ご本人の同意なく第三者に提供しません。</p>
+      <p class="co">株式会社Office-M</p><p class="addr">受付：平日 9:00〜17:00</p>
+      <p class="tip">ねんきん定期便がお手元にあると、その場での確認がより早く進みます。</p></div>
+  </div></section>
+
+<!-- 募集文書審査：未了。委託先保険会社の承認番号の要否を確認のうえ公開すること -->
+<footer class="disclaimer">
+  <p>本資料は、株式会社Office-Mが老後の資産の取り崩しに関する一般的なしくみをご理解いただくために作成した情報提供資料です。記載内容は2026年8月時点の法令等にもとづく一般的な取扱いであり、個別の事案への当てはめは、加入歴・ご家族の状況・所得・お住まいの自治体・ご契約の内容によって結論が変わります。シミュレーターの結果はいずれも簡易な概算であり、実際に受け取れる金額や必要になる金額を示すものではありません。運用に関する記載は、いずれも「年◯％で推移したと仮定した場合」という条件つきの試算であり、将来の運用成果や相場の見通しを示すものではありません。値動きのある商品には元本や利回りの保証がなく、市場の変動等により購入時の金額を下回る（元本割れとなる）ことがあります。本資料は特定の商品・運用会社・金融機関を推奨するものではありません。実際の判断にあたっては、必ず年金事務所・お住まいの市町村・ご契約先の金融機関、および税理士にご確認ください。<strong>個別具体的な税務相談・税務書類の作成・税務代理は、税理士が対応します。</strong>本資料の内容によって生じた結果について、当社は責任を負いかねます。</p>
+  <p style="margin-top:10px;">主な根拠：国民年金法、厚生年金保険法、健康保険法、高齢者の医療の確保に関する法律、介護保険法、所得税法。統計は厚生労働省「簡易生命表」および総務省統計局「家計調査」の公表値をもとにした概数で、年により変動します。制度は改正されることがあります。最新の内容は厚生労働省、日本年金機構、お住まいの市町村、国税庁の各ページでご確認ください。</p>
+  <p style="margin-top:10px;">作成：株式会社Office-M（2026年8月）</p>
+</footer>
+<!-- ================= 演目詳細モーダル ================= -->
+<div class="cmodal" id="caseModal" aria-hidden="true">
+  <div class="cmodal-back" id="caseModalBack"></div>
+  <div class="cmodal-panel" role="dialog" aria-modal="true" aria-labelledby="caseModalTitle">
+    <div class="cmodal-head" id="caseModalHead">
+      <button type="button" class="cmodal-close" id="caseModalClose" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <div class="cmodal-ico" id="caseModalIco" aria-hidden="true"></div>
+      <div>
+        <span class="cmodal-chip" id="caseModalChip"></span>
+        <h3 class="cmodal-title" id="caseModalTitle"></h3>
+      </div>
+    </div>
+    <div class="cmodal-body">
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 15.5a2 2 0 0 1-2 2H8l-4 3.5v-15a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"/></svg>
+          <span id="caseModalLbl1">ご相談で伺ったお話（脚色あり）</span>
+        </div>
+        <blockquote class="cmodal-quote" id="caseModalStory"></blockquote>
+      </div>
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-red" id="caseModalLbl2Wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+          <span id="caseModalLbl2">何が起きたのか</span>
+        </div>
+        <div id="caseModalWhat"></div>
+      </div>
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-green">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
+          <span id="caseModalLbl3">こう確認すれば防げます</span>
+        </div>
+        <div id="caseModalHow"></div>
+      </div>
+      <div data-cta-mini></div>
+      <p class="cmodal-note">※演目は一般的な内容をもとにした創作例で、実在の個人・法人・事案とは関係ありません。税務の取扱いは事実関係により異なります。実際の判断は、顧問税理士または所轄の税務署にご確認ください。</p>
+    </div>
+  </div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- 案内役のイラスト ---------- */
+var SVG_GUIDE =
+  '<svg viewBox="0 0 64 64">' +
+  '<circle cx="32" cy="32" r="32" fill="#ffeee3"/>' +
+  '<path d="M8 64c0-13 11-20 24-20s24 7 24 20H8Z" fill="#f0846a"/>' +
+  '<rect x="27" y="39" width="10" height="11" rx="5" fill="#f7cdb4"/>' +
+  '<path d="M25 45l7 9 7-9 3.4 1.8L32 61 21.6 46.8Z" fill="#fff"/>' +
+  '<ellipse cx="32" cy="28" rx="16" ry="17" fill="#5c4030"/>' +
+  '<ellipse cx="32" cy="30" rx="12.5" ry="13.5" fill="#f7cdb4"/>' +
+  '<path d="M19.5 27c0-9 5.6-14.5 12.5-14.5S44.5 18 44.5 27c-1.6-3.6-4.2-5.7-7.2-6.6-2.6 2.4-7 3.8-10.9 3.2-1.4 1-2.4 2.1-2.9 3.4Z" fill="#5c4030"/>' +
+  '<circle cx="27" cy="30" r="1.6" fill="#3d3028"/><circle cx="37" cy="30" r="1.6" fill="#3d3028"/>' +
+  '<path d="M29.4 35.6c1.6 1.7 3.6 1.7 5.2 0" fill="none" stroke="#3d3028" stroke-width="1.6" stroke-linecap="round"/>' +
+  '</svg>';
+
+document.querySelectorAll('[data-guide]').forEach(function(el){ el.innerHTML = SVG_GUIDE; });
+
+/* ---------- スポット・アイコン ---------- */
+var S = 'fill="none" stroke-linecap="round" stroke-linejoin="round"';
+var ARTS = {
+  spotLine:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="6" y="16" width="22" height="32" rx="5" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="2.5"/>' +
+    '<rect x="36" y="16" width="22" height="32" rx="5" fill="#fdf3e2" stroke="#8f6015" stroke-width="2.5"/>' +
+    '<path d="M32 8v48" stroke="#c2451f" stroke-width="3" stroke-dasharray="5 4" stroke-linecap="round"/>' +
+    '<path d="m12 32 4 4 8-8" fill="none" stroke="#2c7a4b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M42 27l10 10M52 27l-10 10" stroke="#8f6015" stroke-width="3" stroke-linecap="round"/>' +
+    '</svg>',
+  spotQuiz:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="24" fill="#e8f4fb"/>' +
+    '<path d="M25 26.5c.6-4.2 3.6-6.6 7.4-6.6 4.2 0 7.4 2.8 7.4 6.8 0 3.4-2 5.2-4.4 6.8-2 1.3-2.9 2.3-2.9 4.5" fill="none" stroke="#24729f" stroke-width="3.4" stroke-linecap="round"/>' +
+    '<circle cx="32.4" cy="45" r="2.6" fill="#f0846a"/>' +
+    '</svg>',
+  spotCalc:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="14" y="6" width="36" height="52" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<rect x="20" y="12" width="24" height="12" rx="4" fill="#27587f"/>' +
+    '<path d="M24 18h16" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>' +
+    '<circle cx="24" cy="32" r="3.6" fill="#c6e2f2"/><circle cx="32" cy="32" r="3.6" fill="#c6e2f2"/><circle cx="40" cy="32" r="3.6" fill="#c6e2f2"/>' +
+    '<circle cx="24" cy="42" r="3.6" fill="#c6e2f2"/><circle cx="32" cy="42" r="3.6" fill="#c6e2f2"/><circle cx="40" cy="42" r="3.6" fill="#f7c34e"/>' +
+    '<circle cx="24" cy="51" r="3.6" fill="#c6e2f2"/><circle cx="32" cy="51" r="3.6" fill="#c6e2f2"/><circle cx="40" cy="51" r="3.6" fill="#f0846a"/>' +
+    '</svg>',
+  spotTheater:
+    '<svg viewBox="0 0 64 64">' +
+    '<path d="M8 10h48v8c0 4-3 7-7 7H15c-4 0-7-3-7-7Z" fill="#c2453f"/>' +
+    '<path d="M10 14c4 22 4 30 3 40h8c-2-12-1-24 3-40Z" fill="#a63631"/>' +
+    '<path d="M54 14c-4 22-4 30-3 40h-8c2-12 1-24-3-40Z" fill="#a63631"/>' +
+    '<circle cx="32" cy="38" r="13" fill="#ffeee3"/>' +
+    '<circle cx="27.5" cy="35.5" r="1.8" fill="#3d3028"/><circle cx="36.5" cy="35.5" r="1.8" fill="#3d3028"/>' +
+    '<path d="M27 42c3 3 7 3 10 0" fill="none" stroke="#3d3028" stroke-width="2" stroke-linecap="round"/>' +
+    '</svg>',
+  spotGift:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="8" y="24" width="48" height="34" rx="6" fill="#fffdf8" stroke="#c3e5d3" stroke-width="2.5"/>' +
+    '<rect x="8" y="24" width="48" height="12" rx="6" fill="#4fbf9b"/>' +
+    '<rect x="28" y="24" width="8" height="34" fill="#2c7a4b"/>' +
+    '<path d="M32 24s-6-.7-8.5-3.2a3.6 3.6 0 0 1 5.1-5.1C31.1 18.2 32 24 32 24Z" fill="#f7c34e"/>' +
+    '<path d="M32 24s6-.7 8.5-3.2a3.6 3.6 0 0 0-5.1-5.1C32.9 18.2 32 24 32 24Z" fill="#f7c34e"/>' +
+    '<circle cx="47" cy="15" r="6.5" fill="#f0846a"/>' +
+    '<path d="M44.5 15h5M47 12.5v5" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>' +
+    '</svg>',
+  spotCal:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="8" y="12" width="48" height="44" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<path d="M8 24h48" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<rect x="8" y="12" width="48" height="12" rx="7" fill="#27587f"/>' +
+    '<path d="M20 6v10M44 6v10" stroke="#1b3f5e" stroke-width="4" stroke-linecap="round"/>' +
+    '<rect x="15" y="30" width="8" height="7" rx="2" fill="#c6e2f2"/>' +
+    '<rect x="28" y="30" width="8" height="7" rx="2" fill="#f0846a"/>' +
+    '<rect x="41" y="30" width="8" height="7" rx="2" fill="#c6e2f2"/>' +
+    '<rect x="15" y="42" width="8" height="7" rx="2" fill="#f7c34e"/>' +
+    '<rect x="28" y="42" width="8" height="7" rx="2" fill="#c6e2f2"/>' +
+    '<rect x="41" y="42" width="8" height="7" rx="2" fill="#f0846a"/>' +
+    '</svg>',
+  spotCheck:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="12" y="10" width="40" height="46" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<rect x="24" y="5" width="16" height="10" rx="4" fill="#27587f"/>' +
+    '<path d="m19 26 4 4 7-8" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<rect x="34" y="25" width="12" height="3.5" rx="1.75" fill="#d9cfc4"/>' +
+    '<path d="m19 40 4 4 7-8" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<rect x="34" y="39" width="12" height="3.5" rx="1.75" fill="#d9cfc4"/>' +
+    '</svg>',
+
+  icKousai:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<path d="M10 12v7a5 5 0 0 0 10 0v-7M15 24v14"/>' +
+    '<path d="M33 12c-3 0-5 3-5 8s2 6 5 6 5-1 5-6-2-8-5-8ZM33 26v12"/>' +
+    '<path d="M9 42h12M27 42h12"/>' +
+    '</svg>',
+  icKaigi:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<circle cx="11" cy="12" r="4.5"/><circle cx="37" cy="12" r="4.5"/>' +
+    '<path d="M4 24c0-4 3.2-6.5 7-6.5s7 2.5 7 6.5M30 24c0-4 3.2-6.5 7-6.5s7 2.5 7 6.5"/>' +
+    '<ellipse cx="24" cy="25" rx="7" ry="2.6"/>' +
+    '<path d="M5 29h38M11 29v11M37 29v11"/>' +
+    '</svg>',
+  icHitori:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<circle cx="24" cy="11" r="5"/>' +
+    '<path d="M16 22c0-3.4 3.6-5 8-5s8 1.6 8 5"/>' +
+    '<path d="M10 29h28c0 6-6 10-14 10s-14-4-14-10Z"/>' +
+    '<path d="M8 42h32"/>' +
+    '</svg>',
+  icShain:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<circle cx="12" cy="14" r="4.5"/><circle cx="24" cy="11" r="4.5"/><circle cx="36" cy="14" r="4.5"/>' +
+    '<path d="M4 26c0-3.6 3.6-6 8-6s8 2.4 8 6M16 24c0-3.6 3.6-6 8-6s8 2.4 8 6M28 26c0-3.6 3.6-6 8-6s8 2.4 8 6"/>' +
+    '<path d="M8 34h32v6a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2Z"/>' +
+    '</svg>',
+  icShuzen:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M29 8a8 8 0 0 0-9.6 10.6L8 30v8h8l11.4-11.4A8 8 0 0 0 38 17l-6 3-4-4 3-6a8 8 0 0 0-2-2Z"/>' +
+    '<path d="m13 33 2 2"/>' +
+    '</svg>',
+  icPaint:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<rect x="8" y="8" width="24" height="10" rx="3"/>' +
+    '<path d="M32 13h6a3 3 0 0 1 3 3v5a3 3 0 0 1-3 3H24v6"/>' +
+    '<rect x="19" y="30" width="10" height="12" rx="3"/>' +
+    '</svg>',
+  icUpgrade:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<rect x="7" y="26" width="10" height="14" rx="2"/>' +
+    '<rect x="19" y="18" width="10" height="22" rx="2"/>' +
+    '<rect x="31" y="8" width="10" height="32" rx="2"/>' +
+    '<path d="M6 44h36"/>' +
+    '</svg>',
+  icBuild:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M8 42V16l16-9 16 9v26"/>' +
+    '<path d="M6 42h36"/>' +
+    '<rect x="15" y="22" width="7" height="7" rx="1.5"/><rect x="26" y="22" width="7" height="7" rx="1.5"/>' +
+    '<path d="M19 42v-8h10v8"/>' +
+    '</svg>',
+  icGaichu:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<rect x="6" y="16" width="36" height="22" rx="4"/>' +
+    '<path d="M18 16v-3a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v3"/>' +
+    '<path d="M6 24h36M20 27h8"/>' +
+    '</svg>',
+  icJikan:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<circle cx="24" cy="25" r="15"/>' +
+    '<path d="M24 16v9l6 4"/>' +
+    '<path d="M17 7h14"/>' +
+    '</svg>',
+  icDoc2:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<rect x="11" y="6" width="26" height="36" rx="4"/>' +
+    '<path d="M17 16h14M17 23h14M17 30h8"/>' +
+    '</svg>',
+  icKazoku:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.3">' +
+    '<circle cx="15" cy="14" r="5"/><circle cx="33" cy="14" r="5"/>' +
+    '<path d="M6 30c0-5 4-8 9-8s9 3 9 8M24 30c0-5 4-8 9-8s9 3 9 8"/>' +
+    '<circle cx="24" cy="30" r="4"/>' +
+    '<path d="M17 42c0-4 3-6 7-6s7 2 7 6"/>' +
+    '</svg>',
+  icZeimusho:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.3">' +
+    '<path d="M6 18 24 8l18 10"/>' +
+    '<path d="M9 18v18M17 18v18M31 18v18M39 18v18"/>' +
+    '<path d="M5 42h38M8 36h32"/>' +
+    '</svg>',
+  icCity:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.3">' +
+    '<rect x="7" y="14" width="16" height="28" rx="2"/>' +
+    '<rect x="25" y="22" width="16" height="20" rx="2"/>' +
+    '<path d="M12 20h6M12 27h6M12 34h6M30 28h6M30 35h6"/>' +
+    '<path d="M5 42h38"/>' +
+    '</svg>',
+  icHoken:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M24 6 9 11v11c0 9.5 6.4 17.4 15 19.6 8.6-2.2 15-10.1 15-19.6V11L24 6Z"/>' +
+    '<path d="M24 17v12M18 23h12"/>' +
+    '</svg>',
+
+  qFood:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<circle cx="24" cy="24" r="9.5"/><circle cx="24" cy="24" r="4.5"/>' +
+    '<path d="M8 8v8a3 3 0 0 0 6 0V8M11 16v24"/>' +
+    '<path d="M40 8c-3 1.2-5 4.6-5 9s2 5 5 5M40 8v32"/>' +
+    '</svg>',
+  qCar:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M8 30v6h5M40 30v6h-5"/>' +
+    '<path d="M6 30l3-10a4 4 0 0 1 3.8-2.8h22.4A4 4 0 0 1 39 20l3 10Z"/>' +
+    '<circle cx="14" cy="30" r="2.4"/><circle cx="34" cy="30" r="2.4"/>' +
+    '<path d="M20 8h8M24 4v8" stroke-width="2.8"/>' +
+    '</svg>',
+  qDock:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<path d="M14 7v9a8 8 0 0 0 16 0V7"/>' +
+    '<path d="M22 24v6a8 8 0 0 0 16 0v-4"/>' +
+    '<circle cx="38" cy="22" r="4"/>' +
+    '<path d="M10 7h8M26 7h8"/>' +
+    '</svg>',
+  qHouse:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M6 22 24 8l18 14"/>' +
+    '<path d="M10 20v20h28V20"/>' +
+    '<path d="M24 20v20" stroke-dasharray="4 3"/>' +
+    '<path d="M14 27h6M28 27h6"/>' +
+    '</svg>',
+  qPc:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<rect x="9" y="10" width="30" height="21" rx="3"/>' +
+    '<path d="M5 36h38l-3 4H8Z"/>' +
+    '</svg>',
+  qSuit:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M18 6h12l-6 8Z"/>' +
+    '<path d="M24 14 21 42h6Z"/>' +
+    '<path d="M18 6 9 12v30h8M30 6l9 6v30h-8"/>' +
+    '</svg>',
+  qShield:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<path d="M24 5 8 11v12c0 10 6.8 18.5 16 21 9.2-2.5 16-11 16-21V11L24 5Z"/>' +
+    '<path d="m18 18 6 8 6-8M24 26v9M19.5 28.5h9M19.5 32.5h9"/>' +
+    '</svg>',
+  qYen:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<circle cx="24" cy="24" r="17"/>' +
+    '<path d="m17 14 7 10 7-10M24 24v10M18.5 26.5h11M18.5 31.5h11"/>' +
+    '</svg>',
+  qInvoice:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<path d="M11 6h26v36l-4.3-3-4.4 3-4.3-3-4.4 3-4.3-3-4.3 3Z"/>' +
+    '<path d="M17 15h14M17 22h14M17 29h8"/>' +
+    '</svg>',
+  qTruck:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<path d="M4 12h22v22H4Z"/>' +
+    '<path d="M26 20h9l7 7v7h-16Z"/>' +
+    '<circle cx="14" cy="37" r="4"/><circle cx="34" cy="37" r="4"/>' +
+    '</svg>',
+  qPlane:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M24 5c2.5 0 4 4 4 10v6l14 8v4l-14-4v8l5 4v3l-9-2-9 2v-3l5-4v-8l-14 4v-4l14-8v-6c0-6 1.5-10 4-10Z"/>' +
+    '</svg>',
+  qSeed:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<path d="M24 42V20"/>' +
+    '<path d="M24 20c0-7 5-12 12-12 0 7-5 12-12 12ZM24 26c0-6-4-10-10-10 0 6 4 10 10 10Z"/>' +
+    '<path d="M12 42h24"/>' +
+    '</svg>',
+  qTrash:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M9 13h30M18 13V9a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v4"/>' +
+    '<path d="M13 13l2 26a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3l2-26"/>' +
+    '<path d="M20 20v15M28 20v15"/>' +
+    '</svg>',
+
+  chkReceipt:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2451f" stroke-width="2.3">' +
+    '<path d="M11 6h26v36l-4.3-3-4.4 3-4.3-3-4.4 3-4.3-3-4.3 3Z"/>' +
+    '<path d="M17 16h14M17 24h14M17 31h8"/>' +
+    '</svg>',
+  chkHome:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<path d="M6 22 24 8l18 14"/><path d="M10 20v20h28V20"/><path d="M24 20v20" stroke-dasharray="4 3"/>' +
+    '</svg>',
+  chkPeople:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.3">' +
+    '<circle cx="15" cy="15" r="5"/><circle cx="33" cy="15" r="5"/>' +
+    '<path d="M6 33c0-5 4-8 9-8s9 3 9 8M24 33c0-5 4-8 9-8s9 3 9 8"/>' +
+    '</svg>',
+  chkPc:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.3">' +
+    '<rect x="9" y="10" width="30" height="21" rx="3"/><path d="M5 36h38l-3 4H8Z"/>' +
+    '</svg>',
+  chkPdf:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.3">' +
+    '<path d="M13 6h16l8 8v28a2 2 0 0 1-2 2H13a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"/>' +
+    '<path d="M29 6v9h8"/><path d="M17 26h12M17 33h8"/>' +
+    '</svg>',
+  chkInvoice:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<rect x="7" y="12" width="34" height="24" rx="3"/>' +
+    '<path d="M12 18v12M17 18v12M22 18v12M27 18v12M32 18v12M37 18v12"/>' +
+    '</svg>',
+  chkBank:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.3">' +
+    '<path d="M6 19 24 9l18 10"/><path d="M11 19v17M20 19v17M28 19v17M37 19v17"/><path d="M6 41h36"/>' +
+    '</svg>',
+  chkAoiro:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#27587f" stroke-width="2.3">' +
+    '<rect x="10" y="7" width="28" height="34" rx="4"/>' +
+    '<path d="m17 22 4 4 10-10"/><path d="M17 33h14"/>' +
+    '</svg>',
+  chkShield:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.3">' +
+    '<path d="M24 6 10 11v11c0 9 6 16.5 14 18.7C32 38.5 38 31 38 22V11L24 6Z"/>' +
+    '<path d="m18 22 6 6 6-8"/>' +
+    '</svg>',
+  chkBack:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.3">' +
+    '<path d="M9 24a15 15 0 1 0 4.4-10.6"/>' +
+    '<path d="M8 8v8h8"/><path d="M24 17v8l6 4"/>' +
+    '</svg>',
+  icTeigaku:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M6 42h36"/>' +
+    '<path d="M11 34V22M20 34V22M29 34V22M38 34V22"/>' +
+    '<path d="M8 16h32"/>' +
+    '</svg>',
+  icTeiritsu:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<path d="M6 42h36"/>' +
+    '<path d="M11 34V14M20 34V20M29 34V26M38 34V30"/>' +
+    '<path d="M9 10c10 6 20 12 32 16"/>' +
+    '</svg>',
+  icAkaji:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<rect x="7" y="12" width="34" height="24" rx="4"/>' +
+    '<path d="M16 24h16"/>' +
+    '<path d="M24 6v6M24 36v6"/>' +
+    '</svg>',
+  icJumyou:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<path d="M14 6h20M14 42h20"/>' +
+    '<path d="M16 6c0 8 8 12 8 18s-8 10-8 18M32 6c0 8-8 12-8 18s8 10 8 18"/>' +
+    '</svg>',
+  icKaigoTe:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<path d="M10 42V26c0-4 3-6 6-6h6"/>' +
+    '<path d="M22 20l10-8 6 6-10 10"/>' +
+    '<circle cx="33" cy="36" r="6"/>' +
+    '</svg>',
+  icTsucho:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<rect x="8" y="8" width="32" height="32" rx="4"/>' +
+    '<path d="M18 8v32"/>' +
+    '<path d="M24 18h10M24 26h10M24 34h6"/>' +
+    '</svg>',
+  icHatarku:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<rect x="7" y="16" width="34" height="24" rx="4"/>' +
+    '<path d="M18 16v-4a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v4"/>' +
+    '<path d="M7 26h34"/>' +
+    '</svg>',
+};
+document.querySelectorAll('[data-art]').forEach(function(el){
+  var key = el.getAttribute('data-art');
+  if(ARTS[key]) el.innerHTML = ARTS[key];
+});
+
+/* ---------- ミニCTA ---------- */
+var CTA_MINI =
+  '<div class="cta-mini"><p>通帳がぜんぶ見つからなくても大丈夫です。金融機関の名前と、だいたいの残高が分かれば話は進みます。</p>' +
+  '<a href="#soudan">' +
+  '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="m3 7 9 6 9-6"/></svg>' +
+  '無料で相談してみる</a></div>';
+document.querySelectorAll('[data-cta-mini]').forEach(function(el){ el.innerHTML = CTA_MINI; });
+
+/* ---------- セクション2：○×クイズ ---------- */
+/* a: true = もつ（○が正解）, false = もたない（×が正解） */
+var QUIZ = [
+  {
+    icon:'icTeigaku', a:false, yes:'はい', no:'いいえ',
+    q:'公的年金は、いったん受け取り始めたら金額はずっと同じで、物価や賃金が変わっても増えも減りもしない。',
+    expl:'いいえ。公的年金の額は毎年度改定される仕組みになっています。物価や賃金の動きに合わせて改定され、さらに、支え手の減少や平均余命の伸びを反映して改定率を調整する仕組みも入っています。つまり、増える年もあれば、物価の上がり方に追いつかない年もあります。ここでお伝えしたいのは今後どうなるかではなく、金額が固定ではないという事実です。取り崩しの計画を立てるときに、年金額を一円単位で固定して考えると、実際とはずれていきます。毎年6月ごろに届く通知で、その年度の金額を確かめる習慣をつけてください。',
+    wana:'年金は決まった額が振り込まれる、という毎月の実感が強いため、制度としても固定だと感じてしまいます。',
+    check:'直近の年金額改定通知書、または毎年届くねんきん定期便で、今の見込み額を確認しましょう。'
+  },
+  {
+    icon:'icTeigaku', a:true, yes:'はい', no:'いいえ',
+    q:'毎月同じ金額を取り崩す定額の方法は、残高が減っても引き出す額が変わらないので、資産が尽きる時期がはっきりする。',
+    expl:'はい。定額はいちばん分かりやすい方法で、生活の予定も立てやすい代わりに、必ず終わりが来ます。たとえば1,500万円を毎月6万円ずつ取り崩すと、単純な割り算で250か月、およそ20年10か月です。65歳から始めれば85歳ごろに残高がゼロになります。ここで大切なのは、尽きること自体が悪いのではないという点です。尽きる年齢が分かっていれば、その前に働き方や住まいを変える、支出を下げる、受け取り方を変えるといった手が打てます。危ないのは、尽きる年齢を知らないまま同じ額を引き出し続けることです。',
+    wana:'割り算をすればすぐ分かることなのに、残高の大きさに安心してしまい、年数に直す機会がないまま過ぎていきます。',
+    check:'取り崩しに使える金融資産の合計を、毎月の赤字で割ってみましょう。それが、もつ年数のいちばん粗い目安です。'
+  },
+  {
+    icon:'icTeiritsu', a:true, yes:'はい', no:'いいえ',
+    q:'残高の一定割合を取り崩す定率の方法は、計算上は残高がゼロにならないが、そのかわり受け取れる金額は年々小さくなっていく。',
+    expl:'はい。定率は「そのときの残高の年4%」のように割合で崩すため、残高が減れば引き出す額も自動的に減ります。掛け算を続けるだけなので、計算上はいつまでもゼロになりません。長生きに強い方法だと言われるのはこのためです。ただし弱点もはっきりしています。残高1,500万円で年4%なら、初月に引き出せるのは月5万円ほど。毎月6万円足りない家計では、開始した月から1万円足りないことになります。尽きないことと、暮らせることは別の話です。定率を使うなら、必要な生活費の下限を先に決めて、それを割り込まないかを確かめてから始めてください。',
+    wana:'尽きないという言葉が強すぎて、受け取れる額が減っていく側面が意識から落ちてしまいます。',
+    check:'定率で始めるつもりなら、初年度に引き出せる額を計算し、毎月の赤字と比べてみましょう。'
+  },
+  {
+    icon:'icJikan', a:false, yes:'はい', no:'いいえ',
+    q:'公的年金の受け取りを遅らせる繰下げをしても、遅らせた分だけ受け取り開始が遅くなるので、生涯に受け取る総額は結局どの年齢でも同じになる。',
+    expl:'いいえ。繰下げをすると、1か月遅らせるごとに0.7%増額され、その増えた額が生涯続きます。2022年4月からは75歳まで繰り下げられるようになり、最大で84%の増額です。逆に繰上げをすると減額され、こちらも生涯続きます。総額がどうなるかは、何歳まで受け取り続けるかで変わるため、どの選び方が有利かを一律には言えません。長く受け取るほど繰下げ側が積み上がり、早く受け取り始めた側は早い時期の手取りが厚くなります。健康状態、働き方、ご家族の年金、税や社会保険料への影響まで含めて決める話ですので、思いつきで決めずに一度整理することをおすすめします。',
+    wana:'もらえる期間が短くなるのだから帳消しだろう、という直感が働きますが、増額は生涯続くため単純な引き算にはなりません。',
+    check:'ねんきん定期便やねんきんネットで、繰下げ・繰上げをした場合の見込み額を確かめておきましょう。'
+  },
+  {
+    icon:'icHatarku', a:true, yes:'はい', no:'いいえ',
+    q:'取り崩しを始める年齢を数年遅らせるだけでも、資産がもつ年齢は大きく変わる。',
+    expl:'はい。しかも効き方が二重です。まず、取り崩さない期間のぶん残高が減りません。さらに、その間に収入があれば赤字そのものが小さくなります。たとえば95歳までを見るとき、65歳から毎月6万円の赤字を埋めるには2,160万円が必要ですが、70歳からなら1,800万円、75歳からなら1,440万円です。同じ生活水準でも、必要額はこれだけ動きます。もちろん、何歳まで働けるかは健康や仕事の事情によりますし、無理をして働くことを勧めているわけではありません。ただ、選択肢のひとつとして数字を知っておくと、判断がしやすくなります。',
+    wana:'数年の違いは小さいと感じますが、赤字が減る効果と取り崩さない効果が重なるため、年数に直すと差が大きく出ます。',
+    check:'今の働き方をあと何年続けられそうか、ご家族と話してみましょう。5年の差が数百万円に相当します。'
+  },
+  {
+    icon:'icTeiritsu', a:false, yes:'はい', no:'いいえ',
+    q:'資産を運用しながら取り崩せば、取り崩すだけの場合より必ず資産の減りは遅くなる。',
+    expl:'いいえ。運用には値動きがあり、増える年もあれば減る年もあります。増減の順番によって結果が変わる点にも注意が必要です。取り崩しを始めた直後に大きく値下がりすると、減った資産から生活費を引き出すことになるため、その後に値が戻っても元の水準まで回復しにくくなります。逆に、後半に値下がりが来た場合とは結果が変わります。ここで大切なのは、どちらになるかを予想することではなく、どちらもありうると認めたうえで、下がったときにも暮らせる形にしておくことです。生活費の何年ぶんかを値動きのない形で分けておく、というのはそのための工夫のひとつです。',
+    wana:'長い目で見れば増えるという説明を、毎年増えるという意味だと受け取ってしまいがちです。',
+    check:'値動きのあるお金と、当面の生活費に使うお金が、口座の上で分かれているかを確認しましょう。'
+  },
+  {
+    icon:'icZeimusho', a:false, yes:'はい', no:'いいえ',
+    q:'公的年金は、いくら受け取っても所得税や住民税はかからない。',
+    expl:'いいえ。公的年金等は原則として雑所得にあたり、公的年金等控除を差し引いたうえで課税の対象になります。受け取る額や年齢、ほかの所得によっては、所得税や住民税がかかります。一定の要件にあてはまる方は確定申告が不要とされる仕組みもありますが、その場合でも医療費控除などで還付を受けるために申告したほうがよいことがあります。国民健康保険料や介護保険料が所得によって決まる点も、手取りに影響します。つまり、額面と手取りは別物だということです。取り崩しの計画は手取りで立ててください。個別の税額計算・申告については税理士にご確認ください。',
+    wana:'給与と違って天引きの実感が薄く、年金は非課税だと思い込んでいる方がとても多い項目です。',
+    check:'公的年金等の源泉徴収票を見て、額面と実際の振込額の差を確かめてみましょう。'
+  },
+  {
+    icon:'icKaigoTe', a:true, yes:'はい', no:'いいえ',
+    q:'介護や住宅の修繕のような、いつか来る大きな支出は、毎月の生活費とは別に分けて考えたほうがよい。',
+    expl:'はい。毎月の家計簿には出てこないのに、来るときは数十万円から数百万円単位で来るのがこの種の支出です。屋根や外壁の修繕、給湯器の交換、車の買い替え、介護に伴う住宅改修や施設への入居費用。生活費と同じ財布で見ていると、たまたま大きな支出が重なった年に、計画が一気に崩れます。おすすめは、想定額を年数で割って毎月の赤字に足しておくことです。たとえば20年で400万円かかりそうなら、月あたり1万7千円ほど。こうしておくと、実際に支出が来たときも計画の中の出来事になります。金額はあくまで一例で、住まいの状況によって大きく変わります。',
+    wana:'毎月出ていかない支出は家計簿に現れないため、存在しないものとして計算から抜け落ちます。',
+    check:'お住まいの築年数と、次の大きな修繕がいつごろになりそうかを書き出してみましょう。'
+  }
+];
+
+var qIdx = 0, qScore = 0, qAnswered = false, qAnsweredCount = 0;
+var wrongItems = [];
+
+var elNum   = document.getElementById('qNum');
+var elDots  = document.getElementById('qDots');
+var elIcon  = document.getElementById('qIcon');
+var elText  = document.getElementById('qText');
+var btnYes  = document.getElementById('btnYes');
+var btnNo   = document.getElementById('btnNo');
+var lblYes  = document.getElementById('lblYes');
+var lblNo   = document.getElementById('lblNo');
+var elVerd  = document.getElementById('verdict');
+var elVAns  = document.getElementById('vAnswer');
+var elVChip = document.getElementById('vChip');
+var elVExpl = document.getElementById('vExpl');
+var elVWana = document.getElementById('vWana');
+var elVChk  = document.getElementById('vCheck');
+var btnNext = document.getElementById('btnNext');
+var btnStop = document.getElementById('btnStopHere');
+var quizPlay = document.getElementById('quizPlay');
+var quizDone = document.getElementById('quizDone');
+
+function renderDots(){
+  var html = '';
+  for(var i = 0; i < QUIZ.length; i++){
+    html += '<i class="' + (i < qIdx ? 'done' : (i === qIdx ? 'now' : '')) + '"></i>';
+  }
+  elDots.innerHTML = html;
+}
+
+function renderQ(){
+  var item = QUIZ[qIdx];
+  elNum.textContent = qIdx + 1;
+  elIcon.innerHTML = ARTS[item.icon] || '';
+  elText.textContent = item.q;
+  lblYes.textContent = item.yes || 'もつ';
+  lblNo.textContent = item.no || 'もたない';
+  btnYes.disabled = false;
+  btnNo.disabled = false;
+  qAnswered = false;
+  elVerd.classList.remove('show');
+  btnNext.style.display = 'none';
+  btnStop.style.display = 'none';
+  renderDots();
+}
+
+function answer(ansYes){
+  if(qAnswered) return;
+  qAnswered = true;
+  qAnsweredCount++;
+  btnYes.disabled = true;
+  btnNo.disabled = true;
+  var item = QUIZ[qIdx];
+  var correct = (ansYes === item.a);
+  if(correct) qScore++;
+  else wrongItems.push(item);
+  elVAns.textContent = '正解は「' + (item.a ? (item.yes || 'もつ') : (item.no || 'もたない')) + '」';
+  elVChip.textContent = correct ? 'ご名答！' : 'ざんねん、ここがワナ';
+  elVChip.className = 'result-chip ' + (correct ? 'correct' : 'wrong');
+  elVExpl.textContent = item.expl;
+  elVWana.textContent = item.wana;
+  elVChk.textContent = item.check;
+  elVerd.classList.add('show');
+  btnNext.style.display = 'flex';
+  if(qIdx >= QUIZ.length - 1){
+    btnNext.innerHTML = '結果を見る <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  } else if(qIdx >= 2){
+    btnStop.style.display = 'block';
+  }
+}
+
+function doneComment(score, total){
+  var full = (total === QUIZ.length);
+  if(score === total && full){
+    return '全問正解です。あなたはもう「二千万円あれば安心」とも「どうせ足りない」とも言わない人になりました。あとは、その物差しをご自分の通帳とねんきん定期便に当てはめるだけです。当てはめた結果が気になったら、いつでもお持ちください。';
+  }
+  var r = score / total;
+  if(r >= 0.75){
+    return 'かなりの好成績です。ただ、クイズで間違えても失うのは一問ですが、実際の取り崩しで「思っていたのと違う」が起きると、失うのは十年分の選択肢です。惜しかった問題こそ、お手元の数字で答え合わせをしてみてください。';
+  }
+  if(r >= 0.4){
+    return '半分ほどがワナにかかりました。ご安心ください、ご相談でお会いする方もだいたい同じところでつまずきます。つまり、普通に暮らしていると気づかないようにできているのが取り崩しの話です。だからこそ、取り崩しが始まる前に一度だけ数えておくのが近道になります。';
+  }
+  return 'ワナに気持ちよくかかりました。でも、それが普通です。むしろクイズで引っかかっておけば、本番の取り崩しで引っかからずに済みます。今日が人生でいちばん老後資金にくわしい日です。この勢いで、通帳の棚卸しまでいきましょう。';
+}
+
+function showDone(){
+  quizPlay.style.display = 'none';
+  quizDone.classList.add('show');
+  document.getElementById('doneTotal').textContent = qAnsweredCount;
+  document.getElementById('doneScore').textContent = qScore;
+  document.getElementById('doneCmt').textContent = doneComment(qScore, qAnsweredCount);
+  var wl = document.getElementById('wrongList');
+  if(wrongItems.length){
+    var html = '<h4>ワナにかかった問題（＝通帳と定期便で確かめたい項目）</h4>';
+    for(var i = 0; i < wrongItems.length; i++){
+      html += '<div class="w-item"><strong>' + wrongItems[i].q + '</strong><br>確認ポイント：' + wrongItems[i].check + '</div>';
+    }
+    wl.innerHTML = html;
+    wl.style.display = 'block';
+  } else {
+    wl.style.display = 'none';
+  }
+  var sum = document.getElementById('sumScore');
+  sum.innerHTML = '<p>○×クイズの結果：<strong>' + qAnsweredCount + '問中 ' + qScore + '問正解</strong>でした。' +
+    (wrongItems.length ? '間違えた問題は、そのまま「通帳と定期便で確かめたいことリスト」になります。' : 'この調子で、下のチェックリストもどうぞ。') + '</p>';
+}
+
+btnYes.addEventListener('click', function(){ answer(true); });
+btnNo.addEventListener('click', function(){ answer(false); });
+btnNext.addEventListener('click', function(){
+  if(qIdx >= QUIZ.length - 1){ showDone(); return; }
+  qIdx++;
+  renderQ();
+  var shell = document.querySelector('.quiz-shell');
+  if(shell.getBoundingClientRect().top < 0) shell.scrollIntoView({behavior:'smooth'});
+});
+btnStop.addEventListener('click', showDone);
+document.getElementById('btnRetry').addEventListener('click', function(){
+  qIdx = 0; qScore = 0; qAnsweredCount = 0; wrongItems = [];
+  quizDone.classList.remove('show');
+  quizPlay.style.display = 'block';
+  btnNext.innerHTML = '次の質問へ <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  renderQ();
+});
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+document.getElementById('btnMailSelf').addEventListener('click', function(){
+  var body = '「老後資金のもつ・もたないチェック」の結果メモ\n\n' +
+    '○×クイズ：' + qAnsweredCount + '問中 ' + qScore + '問正解\n\n';
+  if(wrongItems.length){
+    body += '【確認したいこと】\n';
+    for(var i = 0; i < wrongItems.length; i++){
+      body += '・' + wrongItems[i].check + '\n';
+    }
+  }
+  body += '\n（このメモを通帳・ねんきん定期便・保険証券と一緒に保管しておくと、次に数えるときに役立ちます）\n';
+  location.href = 'mailto:?subject=' + encodeURIComponent('老後資金のもつ・もたないチェック結果') + '&body=' + encodeURIComponent(body);
+});
+
+renderQ();
+
+/* ---------- セクション3：シミュレーター ---------- */
+var simA = document.getElementById('simA'), simB = document.getElementById('simB'),
+    simC = document.getElementById('simC'), simD = document.getElementById('simD'),
+    simE = document.getElementById('simE');
+function man(x){ return Math.round(x).toLocaleString('ja-JP') + '万円'; }
+function man1(x){ return (Math.round(x * 10) / 10).toLocaleString('ja-JP') + '万円'; }
+function setR(id, ok, chipTxt, txt){
+  document.getElementById(id).className = 'sim-r ' + (ok ? 'ok' : 'ng');
+  document.getElementById(id + 'Chip').textContent = chipTxt;
+  document.getElementById(id + 'Txt').textContent = txt;
+}
+/* 定額：毎月 d 万円を崩したとき、何か月もつか（最大 720 か月＝60年） */
+function monthsFlat(a, d, g){
+  if(d <= 0) return 720;
+  var b = a, r = g / 12, m = 0;
+  while(m < 720){ b = b * (1 + r) - d; m++; if(b <= 0) return m; }
+  return 720;
+}
+/* 定率：残高 × 率 が必要額 d を下回るまで何か月か */
+function monthsRate(a, d, g, rate){
+  var b = a, r = g / 12, m = 0;
+  while(m < 720){
+    var w = b * rate / 12;
+    if(w < d) return m;
+    b = b * (1 + r) - w; m++;
+  }
+  return 720;
+}
+function ageText(start, m){
+  if(m >= 720) return '100歳を超えても続きます';
+  return Math.floor(start + m / 12) + '歳ごろ';
+}
+function simUpdate(){
+  var a = +simA.value || 0, mode = +simB.value, start = +simE.value;
+  var d = (+simD.value || 0) - (simC.checked ? 1 : 0);
+  if(d < 0) d = 0;
+  document.getElementById('simAOut').textContent = a.toLocaleString('ja-JP') + '万円';
+  document.getElementById('simDOut').textContent = (+simD.value || 0) + '万円';
+  var rate = mode === 2 ? 0.04 : (mode === 3 ? 0.06 : 0);
+  function calc(g){ return mode === 1 ? monthsFlat(a, d, g) : monthsRate(a, d, g, rate); }
+  var m0 = calc(0), mUp = calc(0.02), mDn = calc(-0.02);
+  var fill = (start + m0 / 12 - 60) / 40 * 100;
+  document.getElementById('tlFill').style.width = Math.max(2, Math.min(100, fill)) + '%';
+
+  var lbl0 = ageText(start, m0), lblUp = ageText(start, mUp), lblDn = ageText(start, mDn);
+  setR('simR1', m0 >= (95 - start) * 12, lbl0,
+       '運用による増減を見込まず、割り算だけで出した数字です。この条件で必要額を取り崩し続けられるのは ' + lbl0 + ' までという計算になります。');
+  setR('simR2', mUp >= (95 - start) * 12, lblUp,
+       'もし年2%で推移したと仮定した場合は ' + lblUp + ' まで。あくまで仮定であって、そうなるという意味ではありません。');
+  setR('simR3', mDn >= (95 - start) * 12, lblDn,
+       'もし年2%下がる形で推移したと仮定した場合は ' + lblDn + ' まで。上の仮定と同じ確からしさで起こりうる姿です。');
+
+  var big = document.getElementById('simTotalBig'), sub = document.getElementById('simTotalSub'),
+      lead = document.getElementById('simTotalLead');
+  if(d <= 0){
+    lead.textContent = '毎月の赤字がない場合';
+    big.innerHTML = '取り崩しは <b>不要</b> という計算です';
+    sub.textContent = '収入だけで支出をまかなえている状態です。資産は、まとまった支出と長生きへの備えとして残ります。';
+    return;
+  }
+  if(mode !== 1 && a * rate / 12 < d){
+    lead.textContent = 'この条件では';
+    big.innerHTML = '定率だと <b>初月から不足</b> します';
+    sub.textContent = '最初の月に引き出せるのは約' + man1(a * rate / 12) + '。必要額の' + man(d) + 'に届きません。定率は尽きにくい代わりに、足りないことがあります。';
+  } else {
+    lead.textContent = start + '歳から取り崩すと';
+    big.innerHTML = '必要な額を崩せるのは <b>' + lbl0 + '</b> まで';
+    var need = d * 12 * (95 - start);
+    sub.textContent = '95歳まで同じ赤字が続くとすると、必要なのは約' + man(need) + '。運用しない場合の計算です。';
+  }
+}
+simA.addEventListener('input', simUpdate); simD.addEventListener('input', simUpdate);
+simB.addEventListener('change', simUpdate); simE.addEventListener('change', simUpdate);
+simC.addEventListener('change', simUpdate);
+simUpdate();
+
+/* ---------- セクション4：あるある劇場 ---------- */
+var CASES = [
+  {
+    art:'icTeigaku', cls:'c-red', chip:'第一幕：静かに減る',
+    title:'85歳の誕生日に、残高の桁が変わっていた',
+    story:'「退職金を含めて1,500万円ありました。年金だけだと毎月6万円ほど足りないので、そのぶんを引き出して暮らしていたんです。毎月同じ額ですから、家計は安定していました。ところが80歳を過ぎたあたりから、通帳の残高が急に少なく見えるようになって。数えてみたら、あと5年ももたない。20年かけて、月6万円が1,440万円になっていたわけです。頭では分かっていたはずなのに、毎月の6万円と20年ぶんの1,440万円が、私の中で結びついていませんでした」<small>——香川県の80代・元会社員（脚色あり）</small>',
+    what:'<p class="cmodal-p">起きていたのは、ただの掛け算です。<strong>月6万円は、20年で1,440万円</strong>。この二つが同じものだと実感できるかどうかが、老後資金の分かれ目になります。毎月の引き出しは家計簿の中では小さな数字ですが、20年という時間を掛けた瞬間に、退職金と同じ大きさになります。</p><p class="cmodal-p">しかもこの方の場合、80歳を過ぎてから気づいたため、打てる手が限られていました。<strong>働き方を変える、住まいを小さくする、といった選択肢は、元気なうちにしか使えません。</strong></p>',
+    how:'<p class="cmodal-p">やることは一つだけです。<strong>取り崩しに使える資産の合計を、毎月の赤字で割ってみる。</strong>1,500万円を6万円で割れば250か月、およそ20年10か月。65歳から始めれば85歳ごろという数字が出ます。この数字が出た時点で、対策は具体的になります。</p><p class="cmodal-p">割り算の結果が95歳を超えていれば、ひとまず安心してよい水準です。届かないなら、赤字を1万円小さくするか、始める年齢を数年遅らせるか、受け取り方を変えるか。<strong>今日、電卓ひとつでできることです。</strong></p>'
+  },
+  {
+    art:'icTsucho', cls:'c-amber', chip:'第二幕：最初の三年',
+    title:'退職して最初の3年で、思ったより使っていた',
+    story:'「長年働いてきたご褒美のつもりでした。家の水回りを直して、車を買い替えて、夫婦で旅行にも行きました。ひとつひとつは納得のいく使い方でしたし、後悔もしていません。ただ、3年で500万円ほど減っていたことに、あとから気づきました。退職直後は時間もあって体も元気ですから、いちばんお金を使う時期なんですね。そこを想定していなかったのが失敗でした」<small>——香川県の60代・元会社員の妻（脚色あり）</small>',
+    what:'<p class="cmodal-p">退職直後は、<strong>時間と体力があって、支出が増えやすい時期</strong>です。これは悪いことではなく、むしろ人生の使いどころでもあります。問題は、その時期の支出を「毎月の赤字」とは別枠で見ていなかったことです。</p><p class="cmodal-p">毎月6万円の赤字で計算していた方が、最初の3年で別に500万円を使えば、<strong>その分だけ残高が尽きる時期が7年ほど早まります</strong>。金額はあくまでたとえばの数字ですが、この構図はよく起こります。</p>',
+    how:'<p class="cmodal-p">退職前後にやりたいことがあるなら、<strong>先にその予算を分けてしまう</strong>のがおすすめです。「この300万円は使う分」と決めておけば、残りで何年もつかがはっきりします。使うことを我慢する話ではなく、使う分と暮らす分を分ける話です。</p><p class="cmodal-p">すでに使った後でも大丈夫です。<strong>今の残高から数え直せば、今日からの計画になります。</strong>過去は変えられませんが、これからの年数は今日から数えられます。</p>'
+  },
+  {
+    art:'icTeiritsu', cls:'c-berry', chip:'第三幕：尽きないのに足りない',
+    title:'「これなら尽きない」と始めた定率で、生活が回らなくなった',
+    story:'「残高の年4%ずつ崩せば計算上ゼロにならないと聞いて、これだと思ったんです。1,500万円ありましたから、年60万円、月に直せば5万円。ところがうちは毎月6万円足りない家計でした。始めた最初の月から1万円足りなくて、結局その分は別の口座から下ろすことに。しかも残高が減ると引き出せる額も減っていくので、年々じりじり苦しくなっていきました。尽きないという言葉に、安心しすぎていました」<small>——香川県の70代・自営業を引退（脚色あり）</small>',
+    what:'<p class="cmodal-p">定率の弱点がそのまま出た形です。<strong>尽きないことと、暮らせることは別の話</strong>です。1,500万円の年4%は年60万円、月に直せば5万円。必要額が月6万円なら、初月から1万円足りません。</p><p class="cmodal-p">さらに、残高が減れば引き出せる額も減ります。定率は長生きに強い方法ですが、<strong>生活費の下限を割り込むかどうかを先に確かめておかないと、この形になります。</strong></p>',
+    how:'<p class="cmodal-p">定率で始めるなら、まず<strong>初年度に引き出せる額を計算して、毎月の赤字と比べる</strong>ことです。届かないなら、その差をどうするかを先に決めておきます。</p><p class="cmodal-p">実際によく使われるのは組み合わせです。<strong>生活費の下限は定額で確保し、それを超える部分だけ定率にする。</strong>あるいは、当面の数年ぶんは値動きのない形で分けておく。どれが合うかは家計の形によりますので、数字を持ってご相談ください。</p>'
+  },
+  {
+    art:'icKazoku', cls:'c-blue', chip:'第四幕：ひとりになって',
+    title:'夫が亡くなった後、世帯の年金が思ったより減った',
+    story:'「主人が亡くなって、しばらくは葬儀や手続きで気が回りませんでした。落ち着いてから振込額を見て、驚いたんです。二人ぶんあった年金が、思っていたよりずっと減っていて。遺族の年金があるとは聞いていたのですが、主人の年金がそのまま続くわけではないんですね。支出のほうは、光熱費が少し減ったくらいで、固定資産税も家の維持費も同じままでした」<small>——香川県の70代・女性（脚色あり）</small>',
+    what:'<p class="cmodal-p">世帯の収入は減る一方で、<strong>支出は半分にはならない</strong>——ここが見落とされがちな点です。住まいの費用、固定資産税、火災保険、通信、車の維持費といった支出は、ひとりになってもほとんど変わりません。</p><p class="cmodal-p">遺族の年金の仕組みは、加入歴やご年齢、生計の関係によって受け取れる種類や額が変わります。<strong>一律に「いくら」と言えるものではない</strong>ため、事前に見当をつけておくことがそのまま備えになります。</p>',
+    how:'<p class="cmodal-p">お二人それぞれのねんきん定期便を並べて、<strong>どちらか一方になった場合の世帯収入</strong>を見当づけておきましょう。年金事務所や年金相談の窓口で確認することもできます。</p><p class="cmodal-p">そのうえで、ひとりになった後の支出を書き出してみてください。<strong>減る支出と、減らない支出を分けるだけで、必要な備えの大きさが見えてきます。</strong>これは縁起の悪い話ではなく、残された方が困らないための準備です。</p>'
+  },
+  {
+    art:'icKaigoTe', cls:'c-red', chip:'第五幕：同じ財布',
+    title:'施設の費用を生活費と同じ財布から出していた',
+    story:'「母の介護が始まって、最初は在宅で何とかなっていました。でも転倒をきっかけに施設へ入ることになって、費用が毎月かかるようになったんです。母の年金では足りない分を、私たち夫婦の生活費の口座から出していました。半年ほど経って、自分たちの老後資金が思った以上に減っていることに気づきました。母のためのお金と、自分たちのためのお金を、分けて考えていなかったんです」<small>——香川県の50代・会社員（脚色あり）</small>',
+    what:'<p class="cmodal-p">介護費用は、<strong>いつ始まるか分からないのに、始まると毎月続く</strong>という性質があります。しかも支える側の家計から出ていくことが多く、支える側の老後資金がそのまま削られます。</p><p class="cmodal-p">この方の場合、いちばんの問題は金額そのものではなく、<strong>どこからいくら出ているのかを、誰も集計していなかった</strong>ことでした。半年経ってから気づいたため、途中で軌道修正する機会を逃しています。</p>',
+    how:'<p class="cmodal-p">まず<strong>財布を分けること</strong>です。ご本人の年金と資産から出す分と、支える側から出す分を、口座の上で分けます。分ければ、毎月いくら足りないのかが自動的に見えます。</p><p class="cmodal-p">そのうえで、介護保険の負担割合、高額介護サービス費、医療と介護の負担を合算する仕組みなど、<strong>使える制度を市町村の窓口や地域包括支援センターで確認</strong>してください。制度は申請しないと動かないものが多く、知っているかどうかで負担が変わります。</p>'
+  },
+  {
+    art:'icTsucho', cls:'c-green', chip:'第六幕：どこにいくら',
+    title:'そもそも「いくらあるか」を、誰も把握していなかった',
+    story:'「父が入院して、支払いのために口座を確認しようとしたのですが、どこの銀行に口座があるのか分からなくて。通帳が見つかったのは3行ぶんでしたが、家を片づけていたら別の銀行の書類も出てきました。証券会社からの郵便もありました。結局、全部を把握するのに2か月ほどかかりました。父は元気なうちに『ちゃんとしてある』と言っていたのですが、ちゃんとしてあるのは父の頭の中だけだったんです」<small>——香川県の50代・会社員（脚色あり）</small>',
+    what:'<p class="cmodal-p">老後資金の話で、金額より先に問題になるのがこれです。<strong>把握できていない資産は、あってもないのと同じ</strong>になります。判断が難しくなってからでは、ご家族が動くのに時間も手間もかかります。</p><p class="cmodal-p">また、口座が分散していると、そもそも「毎月いくら赤字なのか」も数えられません。<strong>取り崩しの計画は、資産の一覧がないと立ちません。</strong></p>',
+    how:'<p class="cmodal-p">紙一枚で十分です。<strong>金融機関の名前、支店、おおよその残高、連絡先。</strong>金額は概算でかまいません。これを1枚にまとめて、ご家族が分かる場所に置いておくだけで、状況が変わります。</p><p class="cmodal-p">証券口座や保険、確定拠出年金など、通帳のないものも忘れずに。<strong>年に一度、誕生月に見直す</strong>と決めておくと続きます。相続が発生したときの手続きにも、この一覧がそのまま効いてきます。なお、相続に伴う申告や税額の計算については税理士にご確認ください。</p>'
+  }
+];
+
+/* ---------- セクション5：逆転劇場 ---------- */
+var GOOD_CASES = [
+  {
+    art:'icHoken', cls:'c-blue', chip:'第一話：高額療養費制度', amt:'負担に上限がある',
+    title:'入院費が心配だったが、自己負担には上限があった',
+    story:'「70代の父が2か月入院しました。手術もあって、請求書を見るのが怖かったんです。ところが窓口で高額療養費制度のことを教えてもらって、限度額適用認定証を出したら、ひと月の自己負担がぐっと抑えられました。医療費で老後資金が消えるものだと思い込んでいたので、正直、拍子抜けしました。もちろん食事代や差額ベッド代は別にかかりましたが、想像していた金額とはまるで違いました」<small>——香川県の40代・会社員（脚色あり）</small>',
+    what:'<p class="cmodal-p">公的医療保険には、<strong>1か月あたりの自己負担額に上限を設ける仕組み</strong>があります。上限額は年齢と所得によって段階が分かれており、その上限を超えた分は払い戻される、あるいは事前の手続きで窓口負担そのものが上限までになります。</p><p class="cmodal-p">「医療費でいくらかかるか分からない」という不安の大部分は、この仕組みを知ることで輪郭がはっきりします。<strong>老後資金の計画でも、医療費を青天井で見積もる必要はありません。</strong></p>',
+    how:'<p class="cmodal-p">入院や高額な外来が分かった時点で、<strong>加入している健康保険の窓口に限度額適用認定証を申請</strong>します。マイナ保険証を使う場合は認定証がなくても限度額までの窓口負担にできる仕組みがあります。</p><p class="cmodal-p">ただし注意点があります。<strong>入院中の食事代、差額ベッド代、先進医療の費用などは対象外</strong>です。また月をまたぐと計算がリセットされます。世帯で合算できる仕組みや、負担が続いた場合にさらに上限が下がる仕組みもありますので、詳しくは加入先の窓口でご確認ください。</p>'
+  },
+  {
+    art:'icJikan', cls:'c-green', chip:'第二話：年金の繰下げ受給', amt:'増額が生涯続く',
+    title:'受け取りを遅らせたら、増えた額が一生続いた',
+    story:'「65歳になっても仕事が続いていたので、年金を受け取らずにいました。特に深く考えたわけではなく、必要がなかったからです。70歳で受け取り始めたとき、金額を見て驚きました。かなり増えていて、しかもその額が一生続くと聞いて。もちろん5年ぶん受け取らなかったわけですから、いいことばかりではありません。でも、長く生きるほど効いてくる仕組みだと理解できました」<small>——香川県の70代・元自営業（脚色あり）</small>',
+    what:'<p class="cmodal-p">公的年金の繰下げは、<strong>1か月遅らせるごとに0.7%増額</strong>され、その増額が生涯続く仕組みです。2022年4月からは75歳まで繰り下げられるようになり、最大で84%の増額になります。</p><p class="cmodal-p">大切なのは、これが<strong>終身で続く収入を厚くする手段</strong>だという点です。長生きへの備えとして考えると、意味がはっきりします。ただし、受け取らなかった期間の収入をどうするかという問題は残ります。</p>',
+    how:'<p class="cmodal-p">繰下げの間の生活費をどうするか、ご家族の年金との関係、税金や社会保険料への影響まで含めて考える必要があります。<strong>増えた年金額に応じて、税や保険料の負担も変わることがあります。</strong>また、老齢基礎年金と老齢厚生年金は別々に繰り下げることもできます。</p><p class="cmodal-p">どの選び方が有利かは、何歳まで受け取り続けるか、ほかにどんな収入があるかによって変わるため、一律には言えません。<strong>ねんきんネットや年金事務所で見込み額を確認したうえで判断してください。</strong>税金の影響については税理士にご確認ください。</p>'
+  },
+  {
+    art:'icHatarku', cls:'c-amber', chip:'第三話：在職老齢年金の仕組み', amt:'働き方を選べた',
+    title:'働きながらの年金の仕組みを知って、働き方を決められた',
+    story:'「65歳を過ぎても週4日で働いていました。年金は働くと止まると聞いていたので、どうせもらえないと思っていたんです。ところが調べてみると、給与と年金の合計が一定の基準を超えた場合に、超えた分の一部が調整される仕組みでした。うちの働き方なら影響はほとんどありませんでした。知らないまま仕事を減らしていたら、収入を自分から減らしていたことになります」<small>——香川県の60代・パート勤務（脚色あり）</small>',
+    what:'<p class="cmodal-p">厚生年金に加入しながら働く場合、<strong>賃金と老齢厚生年金の合計額が一定の基準を超えると、年金の一部が支給停止になる</strong>仕組みがあります。基準額は年度によって見直されます。</p><p class="cmodal-p">ここで多い誤解が「働くと年金がもらえない」というものです。実際には<strong>基準を超えた場合に、超えた分に応じて調整される</strong>のであって、働けば全額止まるわけではありません。また老齢基礎年金は対象外です。</p>',
+    how:'<p class="cmodal-p">ご自身の年金見込み額と、これからの働き方での賃金を持って、<strong>年金事務所で調整の有無を確認</strong>してください。基準額は年度ごとに変わるため、最新の金額で見る必要があります。</p><p class="cmodal-p">あわせて、働くことで厚生年金の加入期間が延び、将来の年金額が増えるという面もあります。<strong>手取り、健康、生活のリズムまで含めて決めるのが本筋</strong>で、年金の調整だけで働き方を決めてしまうのはもったいない選択です。</p>'
+  },
+  {
+    art:'icKaigoTe', cls:'c-berry', chip:'第四話：高額介護サービス費', amt:'月の負担に上限',
+    title:'介護の自己負担にも、月ごとの上限があった',
+    story:'「母のデイサービスとヘルパーの費用が毎月かさんで、年金だけでは足りなくなっていました。ケアマネジャーさんに相談したら、高額介護サービス費という仕組みを教えてもらって。所得に応じて、ひと月の自己負担に上限があるんですね。申請したら、超えた分が戻ってきました。それまでは、かかるだけかかるものだと思って払っていました」<small>——香川県の50代・会社員（脚色あり）</small>',
+    what:'<p class="cmodal-p">介護保険のサービスを使ったときの自己負担にも、<strong>ひと月あたりの上限を設ける仕組み</strong>があります。上限額は世帯の所得によって段階が分かれ、超えた分はあとから払い戻されます。</p><p class="cmodal-p">さらに、医療の自己負担と介護の自己負担を年間で合算し、合計が高くなった場合に負担を軽くする仕組みもあります。<strong>医療と介護が同時に必要になる時期ほど、この合算が効いてきます。</strong></p>',
+    how:'<p class="cmodal-p">お住まいの<strong>市町村の介護保険担当窓口に申請</strong>します。一度申請すると、その後は該当したときに自動で振り込まれる自治体が多いですが、取扱いは自治体によって異なります。</p><p class="cmodal-p">対象になるのは介護保険サービスの自己負担分で、<strong>福祉用具の購入費、住宅改修費、施設での食費や居住費、日常生活費などは対象外</strong>です。まずはケアマネジャーか市町村の窓口に、いま払っている費用の内訳を見せて相談するのが早道です。</p>'
+  },
+  {
+    art:'icKazoku', cls:'c-blue', chip:'第五話：遺族の年金', amt:'収入が途切れない',
+    title:'夫を亡くした後も、収入がゼロにはならなかった',
+    story:'「主人が亡くなったとき、これからどうやって暮らそうかと本当に不安でした。年金事務所で手続きをしたら、遺族の年金を受け取れることが分かって。金額は主人が受け取っていた額そのままではありませんでしたが、それでも収入が途切れずに済みました。あのとき手続きの案内をしてもらえていなければ、申請そのものをしていなかったと思います」<small>——香川県の70代・女性（脚色あり）</small>',
+    what:'<p class="cmodal-p">公的年金には、<strong>亡くなった方に生計を維持されていた遺族に支給される年金</strong>があります。国民年金からの遺族基礎年金、厚生年金からの遺族厚生年金があり、亡くなった方の加入歴、遺族の年齢や続柄、子の有無によって受け取れる種類と額が変わります。</p><p class="cmodal-p">また、一定の年齢の妻に加算される仕組みや、ご自身の老齢年金との調整もあります。<strong>一律にいくらとは言えないため、事前に見当をつけておくことがそのまま備え</strong>になります。</p>',
+    how:'<p class="cmodal-p">請求しなければ支給は始まりません。<strong>年金事務所または市区町村の窓口で手続き</strong>が必要です。時効の定めもありますので、後回しにしないでください。</p><p class="cmodal-p">また、ご自身の老齢年金との関係で、どの組み合わせで受け取るのが実際の手取りとして多くなるかが変わります。<strong>元気なうちに、お二人ぶんのねんきん定期便を並べて確認</strong>しておくと、いざというときに落ち着いて動けます。健康保険や税の扱いも変わりますので、税金については税理士にご確認ください。</p>'
+  },
+  {
+    art:'icShuzen', cls:'c-green', chip:'第六話：介護保険の住宅改修', amt:'改修費に給付',
+    title:'手すりの工事に、介護保険から給付が出た',
+    story:'「母が家の中で転んでから、廊下と浴室に手すりをつけることにしました。全額自己負担のつもりで見積もりをもらったのですが、ケアマネジャーさんから介護保険の住宅改修が使えると聞いて。事前に申請が必要だと教えてもらえたのが幸いでした。工事を先に始めていたら対象外だったそうです。危うく、知らずに全額払うところでした」<small>——香川県の60代・女性（脚色あり）</small>',
+    what:'<p class="cmodal-p">要介護・要支援の認定を受けている方が、住まいに手すりを付ける、段差を解消する、滑りにくい床材に変える、といった改修をする場合、<strong>介護保険から費用の一部が給付される仕組み</strong>があります。</p><p class="cmodal-p">上限額が定められており、自己負担割合に応じた分を除いた額が給付されます。<strong>転倒を防ぐことは、結果として医療費や介護費用を抑えることにもつながります。</strong></p>',
+    how:'<p class="cmodal-p">いちばん大事な条件は<strong>工事の前に申請すること</strong>です。着工してからでは対象になりません。ケアマネジャーや市町村の窓口に相談し、必要な書類をそろえてから工事にかかります。</p><p class="cmodal-p">対象となる工事の種類は定められており、どんな改修でもよいわけではありません。また、自治体が独自に上乗せしている助成制度がある場合もあります。<strong>まずはお住まいの市町村の窓口と、担当のケアマネジャーに相談してください。</strong></p>'
+  },
+  {
+    art:'icZeimusho', cls:'c-amber', chip:'第七話：退職金の受け取り方', amt:'手取りが変わる',
+    title:'退職金の受け取り方で、手元に残る額が変わった',
+    story:'「退職金を一時金で受け取るか、年金形式で受け取るか選べると言われて、正直どちらでもいいと思っていました。ただ、税金の扱いが違うと聞いて調べてみたんです。一時金なら退職所得として扱われて、勤続年数に応じた控除がある。年金形式なら雑所得になる。受け取り方だけで手元に残る額が変わると知って、慌てて確認しました」<small>——香川県の60代・元会社員（脚色あり）</small>',
+    what:'<p class="cmodal-p">退職金を一時金で受け取る場合は<strong>退職所得</strong>として扱われ、勤続年数に応じた退職所得控除が使えます。年金形式で受け取る場合は<strong>公的年金等の雑所得</strong>として、公的年金等控除の対象になります。</p><p class="cmodal-p">どちらが手取りとして多くなるかは、勤続年数、退職金の額、ほかの所得、受け取る時期、社会保険料への影響によって変わります。<strong>一律にどちらが有利とは言えません。</strong></p>',
+    how:'<p class="cmodal-p">まず、勤務先の制度で<strong>どんな受け取り方が選べるのか</strong>、選択の期限はいつかを確認してください。選べる期間が限られていることが多く、過ぎると変更できません。</p><p class="cmodal-p">そのうえで、退職所得の受給に関する申告書の提出の有無、確定拠出年金がある場合の受け取り時期との関係など、確認すべき点がいくつもあります。<strong>金額が大きいだけに、思い込みで決めないでください。個別の税額計算・申告については税理士にご確認ください。</strong></p>'
+  },
+  {
+    art:'icTsucho', cls:'c-blue', chip:'第八話：財布を分ける', amt:'赤字が見える',
+    title:'口座を3つに分けたら、毎月の赤字がひと目で分かった',
+    story:'「制度の話ではないのですが、いちばん効いたのがこれでした。年金が振り込まれる口座、生活費を出す口座、いざというときの口座。この3つに分けて、生活費の口座には毎月決めた額だけ移すようにしたんです。そうしたら、足りない月と余る月がはっきり見えるようになって。今では毎月いくら足りないか、すぐ答えられます。この数字が分かってから、不安がずいぶん減りました」<small>——香川県の60代・元会社員の妻（脚色あり）</small>',
+    what:'<p class="cmodal-p">制度ではありませんが、効果は制度に劣りません。<strong>財布を分けると、毎月の赤字が自動的に計測される</strong>ようになります。取り崩し用の口座から生活費用の口座へいくら移したか、その合計が年間の取り崩し額そのものです。</p><p class="cmodal-p">このページのシミュレーターも、毎月の赤字が分からないと使えません。<strong>赤字を数える仕組みを作ることが、すべての計画の出発点</strong>になります。</p>',
+    how:'<p class="cmodal-p">難しいことはありません。<strong>年金などの入金口座、毎月の生活費口座、まとまった支出と長生きに備える口座</strong>の3つに分けるだけです。生活費口座には毎月決めた額を移し、そこから引き落としをまとめます。</p><p class="cmodal-p">分けた口座は、ご家族が分かるように一覧にしておいてください。<strong>金融機関名と支店、おおよその残高を紙一枚に。</strong>年に一度、誕生月に見直すと決めておくと続きます。口座を増やしすぎると管理が大変になるので、3つ程度がちょうどよい数です。</p>'
+  }
+];
+
+var modal = document.getElementById('caseModal');
+var CASE_LBL = {
+  bad:['よく伺うお話をもとにした創作例（脚色あり）', '何が起きたのか', 'こう確認すれば防げます'],
+  good:['よくある、うれしい誤算（創作例・脚色あり）', 'なぜ助かったのか', '使うための条件']
+};
+
+function renderCases(gridId, list, kind){
+  var grid = document.getElementById(gridId);
+  list.forEach(function(c){
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'case-card';
+    btn.innerHTML =
+      '<span class="art ' + c.cls + '">' + ARTS[c.art] + '</span>' +
+      '<span class="t"><span class="chip ' + c.cls + '">' + c.chip + '</span>' +
+      (c.amt ? '<span class="amt">' + c.amt + '</span>' : '') +
+      '<h3>' + c.title + '</h3>' +
+      '<span class="more">くわしく見る<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></span></span>';
+    btn.addEventListener('click', function(){ openCase(c, kind); });
+    grid.appendChild(btn);
+  });
+}
+
+function openCase(c, kind){
+  var lbl = CASE_LBL[kind] || CASE_LBL.bad;
+  document.getElementById('caseModalLbl1').textContent = lbl[0];
+  document.getElementById('caseModalLbl2').textContent = lbl[1];
+  document.getElementById('caseModalLbl3').textContent = lbl[2];
+  document.getElementById('caseModalLbl2Wrap').className =
+    'cmodal-label ' + (kind === 'good' ? 'lb-green' : 'lb-red');
+  document.getElementById('caseModalIco').className = 'cmodal-ico ' + c.cls;
+  document.getElementById('caseModalIco').innerHTML = ARTS[c.art];
+  document.getElementById('caseModalChip').className = 'cmodal-chip ' + c.cls;
+  document.getElementById('caseModalChip').textContent = c.chip;
+  document.getElementById('caseModalTitle').textContent = c.title;
+  document.getElementById('caseModalStory').innerHTML = c.story;
+  document.getElementById('caseModalWhat').innerHTML = c.what;
+  document.getElementById('caseModalHow').innerHTML = c.how;
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+  modal.querySelector('.cmodal-panel').scrollTop = 0;
+}
+
+renderCases('caseGrid', CASES, 'bad');
+renderCases('goodGrid', GOOD_CASES, 'good');
+
+function closeCase(){
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+document.getElementById('caseModalClose').addEventListener('click', closeCase);
+document.getElementById('caseModalBack').addEventListener('click', closeCase);
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && modal.classList.contains('show')) closeCase();
+});
+
+/* ---------- まとめ：チェックリスト ---------- */
+var chkBoxes = document.querySelectorAll('#checklist input[type=checkbox]');
+var chkMsg = document.getElementById('chkMsg');
+function chkUpdate(){
+  var n = 0;
+  chkBoxes.forEach(function(c){ if(c.checked) n++; });
+  var total = chkBoxes.length;
+  if(n === 0){
+    chkMsg.textContent = 'あてはまるものにチェックを入れてみてください。今日おうちで数えれば分かる項目と、次に誰かに聞く項目が混じっています。';
+  } else if(n <= 2){
+    chkMsg.textContent = 'チェック' + n + '個。正直につけていただけたのが何よりです。まずは「取り崩しに使えるお金を一枚の紙に書き出す」からで大丈夫。ここが決まらないと、ほかの数字が全部ぼやけます。';
+  } else if(n <= 5){
+    chkMsg.textContent = 'チェック' + n + '個。ここまで分かっていれば、あとは毎月の赤字と、取り崩しを始める年齢を決めるだけです。残りの項目は通帳とねんきん定期便がそろえば一気に進みます。';
+  } else if(n < total){
+    chkMsg.textContent = 'チェック' + n + '個。ここまで確認できている方には、ご相談でもめったにお会いしません。あと少しで「なんとなく心配」から「こう取り崩すと決めてある」に変わります。';
+  } else {
+    chkMsg.textContent = '全項目チェックです。あなたの老後資金は、もう「あるはず」ではなく「何歳まで、どう取り崩すか決めてある」状態です。あとは五年に一度、前提が変わっていないかを見直していきましょう。';
+  }
+}
+chkBoxes.forEach(function(c){ c.addEventListener('change', chkUpdate); });
+
+})();
+</script>
+</body>
+</html>

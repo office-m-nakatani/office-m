@@ -1,0 +1,2456 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="確定申告が自分に必要なのか、しないと損なのかを○×クイズで確認できる啓発ツール。年末調整で終わる人・終わらない人の線、20万円ルールと住民税の落とし穴、5年さかのぼれる還付申告まで。株式会社Office-M作成の情報提供資料。">
+<title>確定申告の「要る・要らない」チェック｜株式会社Office-M</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='12' y='6' width='40' height='52' rx='6' fill='%23f0846a'/%3E%3Cpath d='M22 24h20M22 34h20M22 44h12' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --navy:#1b3f5e;
+  --navy-2:#27587f;
+  --navy-soft:#eaf1f7;
+  --bg:#fff8f2;
+  --white:#ffffff;
+  --text:#33404d;
+  --muted:#5c6874;
+  --line:#efe2d8;
+  --shadow:0 6px 20px rgba(130,100,80,.09);
+  --shadow-sm:0 3px 10px rgba(130,100,80,.07);
+
+  --red:#c2453f;
+  --red-dark:#a63631;
+  --red-bg:#fdeee9;
+  --red-border:#f4d0c6;
+  --coral:#f0846a;
+  --coral-text:#c2451f;
+
+  --green:#2c7a4b;
+  --green-bg:#e8f6ef;
+  --green-border:#c3e5d3;
+  --mint:#4fbf9b;
+
+  --amber:#8f6015;
+  --amber-deep:#a85c12;
+  --amber-bg:#fdf3e2;
+  --amber-border:#f2dcae;
+  --sunny:#f7c34e;
+
+  --sky:#24729f;
+  --sky-bg:#e8f4fb;
+  --sky-border:#c6e2f2;
+
+  --berry:#8f4574;
+  --berry-bg:#fbeef6;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+/* スマホでも17pxを基準にする（注記・出典まわりが12pxまで小さくなっていたため） */
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;font-size:17px;}
+/* 左右の余白が広い画面ほど文字を大きくして見やすさに還元する */
+@media(min-width:1000px){ html{font-size:18px;} }
+body{
+  font-family:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho",YuMincho,"游明朝体","游明朝","MS PMincho","ＭＳ Ｐ明朝",serif;
+  color:var(--text);
+  background:var(--bg);
+  font-size:1.09rem;
+  line-height:1.95;
+  letter-spacing:.03em;
+  padding-bottom:40px;
+  overflow-wrap:break-word;
+}
+@media(min-width:768px){
+  body{font-size:1.16rem;letter-spacing:.04em;}
+}
+img,svg{max-width:100%;vertical-align:middle;}
+button{font-family:inherit;}
+/* キーボード操作でいまどこにいるかを、はっきり見せる（既定の1本線は細くて見えない） */
+a:focus-visible,button:focus-visible,summary:focus-visible,
+input:focus-visible,label:focus-visible,[tabindex]:focus-visible{
+  outline:3px solid var(--navy-2);
+  outline-offset:3px;
+  border-radius:6px;
+}
+a{color:var(--navy-2);}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px;}
+/* 広い画面では、本文の1行を約40字までに抑える（日本語の読みやすい行長の目安）。
+   カード内の短い文には効かせず、横幅いっぱいに伸びる長文だけを対象にする */
+@media(min-width:700px){
+  .guide-msg,.def-lead,.sec-lead,.sub-lead,.age-note,.note,
+  .mikane ol li,.mikane .caution,.rule3-box ol li,.rule3-note,
+  .cta-lead,details.finder p,details.finder li,footer.disclaimer p{
+    max-width:40em;
+  }
+  /* 中央寄せの箱の中にあるものは、中央のまま幅だけ詰める */
+  .venn-cap,.life-cap{max-width:40em;margin-left:auto;margin-right:auto;}
+}
+.nowrap{white-space:nowrap;}
+
+/* ---------- ヘッダー ---------- */
+.hero{
+  background:linear-gradient(168deg,#fbe6e6 0%,#fdf1ea 46%,#ddf0fb 100%);
+  color:var(--navy);
+  padding:24px 0 30px;
+  overflow:hidden;
+}
+.brand{
+  display:flex;align-items:center;gap:10px;
+  font-size:.92rem;font-weight:700;letter-spacing:.02em;color:var(--navy);
+}
+.brand .ico{
+  width:36px;height:36px;flex:0 0 36px;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--navy);border-radius:12px;
+}
+.brand .ico svg{width:20px;height:20px;stroke:#fff;}
+.brand small{display:block;font-weight:500;color:var(--muted);font-size:.82rem;letter-spacing:.04em;line-height:1.55;}
+.hero-flex{display:flex;flex-direction:column;}
+.hero h1{
+  font-size:1.58rem;line-height:1.45;font-weight:800;
+  margin:20px 0 12px;letter-spacing:.01em;color:var(--navy);
+}
+.hero h1 .accent{
+  background:linear-gradient(transparent 62%, #ffd9a8 62%);
+  padding:0 2px;
+}
+.hero .lead{font-size:1rem;color:var(--text);max-width:640px;}
+/* 文字間隔をユーザーが広げても見出しが切れないよう、狭い画面では折り返しを許す
+   （通常の表示では1行に収まるため、見た目は変わらない）— WCAG 1.4.12 */
+@media(max-width:520px){ .hero h1 .nowrap{white-space:normal;} }
+.hero-scene{margin:16px auto 0;width:100%;max-width:400px;}
+.hero-scene svg{width:100%;height:auto;display:block;}
+@media(min-width:768px){
+  .hero{padding:30px 0 40px;}
+  .hero h1{font-size:1.95rem;}
+  .hero .lead{font-size:1.06rem;}
+  .hero-flex{flex-direction:row;align-items:center;gap:28px;}
+  .hero-copy{flex:1;}
+  .hero-scene{flex:0 0 340px;margin:0;}
+}
+.hero-nav{display:flex;flex-wrap:wrap;gap:9px;margin-top:20px;}
+.hero-nav a{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--white);
+  border:2px solid #ffffff;
+  color:var(--navy);text-decoration:none;
+  padding:11px 17px;border-radius:999px;
+  font-size:.94rem;font-weight:700;min-height:48px;
+  box-shadow:var(--shadow-sm);
+}
+.hero-nav a:active{background:#fff4e9;}
+.hero-nav a svg{width:18px;height:18px;stroke:var(--coral);flex:0 0 18px;}
+
+/* ---------- セクション共通 ---------- */
+section{padding:40px 0 46px;}
+.band{background:var(--white);}
+.band-sky{background:var(--sky-bg);}
+.band-blush{background:#fdf1eb;}
+.band-mint{background:var(--green-bg);}
+.round-top{
+  border-radius:30px 30px 0 0;
+  margin-top:-24px;position:relative;z-index:1;
+  padding-top:42px;
+}
+.sec-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;}
+.sec-head .spot{flex:0 0 84px;}
+.spot-circle{
+  width:84px;height:84px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.spot-circle svg{width:52px;height:52px;}
+.step-pill{
+  display:inline-flex;align-items:center;gap:9px;
+  background:var(--amber-bg);color:var(--navy);
+  font-size:.88rem;font-weight:700;letter-spacing:.02em;
+  padding:6px 18px 6px 7px;border-radius:999px;margin-bottom:12px;
+  box-shadow:var(--shadow-sm);
+}
+.step-pill i{
+  width:28px;height:28px;flex:0 0 28px;border-radius:50%;
+  background:linear-gradient(135deg,#c2452a,#a8601a);
+  color:#fff;font-style:normal;font-weight:800;font-size:.95rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.step-pill.plain{padding:7px 18px;}
+h2{
+  font-size:1.4rem;line-height:1.5;color:var(--navy);
+  font-weight:800;letter-spacing:.01em;
+  position:relative;padding-bottom:12px;margin-bottom:10px;
+}
+h2::after{
+  content:"";position:absolute;left:0;bottom:0;
+  width:54px;height:5px;border-radius:3px;
+  background:linear-gradient(90deg,var(--coral),var(--sunny));
+}
+@media(min-width:768px){h2{font-size:1.68rem;}}
+.sec-lead{color:var(--muted);font-size:1rem;margin-bottom:22px;}
+.sub-title{font-size:1.1rem;color:var(--navy);}
+.note{
+  font-size:.9rem;color:var(--muted);line-height:1.85;
+  background:var(--white);border-radius:16px;
+  padding:14px 16px;margin-top:20px;
+  display:flex;gap:9px;align-items:flex-start;
+  box-shadow:var(--shadow-sm);
+}
+.note svg{width:20px;height:20px;flex:0 0 20px;stroke:var(--coral);margin-top:4px;}
+.band-sky .note,.band-blush .note{box-shadow:none;border:1px solid var(--line);}
+
+/* ---------- ガイド（吹き出し） ---------- */
+.guide{display:flex;align-items:flex-start;gap:12px;margin-bottom:20px;}
+.guide-ava{
+  width:58px;height:58px;flex:0 0 58px;border-radius:50%;
+  overflow:hidden;display:block;box-shadow:var(--shadow-sm);
+}
+.guide-ava svg{width:100%;height:100%;display:block;}
+.guide-msg{
+  position:relative;background:var(--white);
+  border:2px solid #ffe0cf;border-radius:18px;
+  padding:12px 16px;font-size:.95rem;line-height:1.75;
+}
+.guide-msg::before{
+  content:"";position:absolute;left:-9px;top:20px;
+  width:14px;height:14px;background:var(--white);
+  border-left:2px solid #ffe0cf;border-bottom:2px solid #ffe0cf;
+  transform:rotate(45deg);
+}
+
+/* ---------- セクション1：ちがいを問いかけるリンク ---------- */
+.qlink-lead{
+  display:flex;align-items:center;gap:9px;
+  font-size:1rem;font-weight:800;color:var(--navy);
+  margin:26px 0 12px;
+}
+.qlink-lead svg{width:23px;height:23px;flex:0 0 23px;stroke:var(--coral);}
+.qlinks{display:grid;grid-template-columns:1fr;gap:12px;}
+@media(min-width:700px){.qlinks{grid-template-columns:repeat(3,1fr);}}
+.qlink{
+  display:flex;flex-direction:column;gap:5px;
+  background:var(--white);border:2px solid var(--line);border-radius:18px;
+  padding:15px 16px 13px;text-decoration:none;color:inherit;
+  box-shadow:var(--shadow-sm);
+  transition:border-color .15s, transform .12s;
+}
+.qlink:active{transform:scale(.985);}
+.qlink:hover{border-color:var(--coral);}
+.qlink .pair{
+  display:flex;align-items:center;gap:7px;flex-wrap:wrap;
+  font-size:1.02rem;font-weight:800;color:var(--navy);line-height:1.55;
+}
+.qlink .pair .vs{
+  font-size:.8rem;font-weight:800;color:var(--red-dark);
+  background:var(--red-bg);border-radius:999px;padding:2px 10px;
+}
+.qlink .ask{font-size:.87rem;color:var(--muted);line-height:1.75;}
+.qlink .go{
+  display:inline-flex;align-items:center;gap:4px;margin-top:3px;
+  font-size:.84rem;font-weight:800;color:var(--coral-text);
+}
+.qlink .go svg{width:14px;height:14px;flex:0 0 14px;stroke:var(--coral-text);}
+/* リンクで飛んだ先を、見出しの手前で止める */
+.def-block[id]{scroll-margin-top:18px;}
+
+/* ---------- セクション1：定義のブロック ---------- */
+.def-block{
+  margin-top:34px;padding-top:26px;border-top:2px dashed var(--line);
+}
+.def-block:first-of-type{margin-top:18px;padding-top:0;border-top:none;}
+.def-h{
+  display:flex;align-items:center;gap:12px;
+  font-size:1.14rem;line-height:1.5;color:var(--navy);margin-bottom:8px;
+}
+.def-ico{
+  width:52px;height:52px;flex:0 0 52px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.def-ico svg{width:34px;height:34px;}
+.def-lead{font-size:.97rem;color:var(--muted);line-height:1.9;margin-bottom:16px;}
+@media(min-width:768px){.def-h{font-size:1.26rem;}}
+
+/* ---------- セクション1：心疾患の輪 ---------- */
+.venn-box{
+  background:var(--white);border-radius:22px;box-shadow:var(--shadow);
+  padding:20px 14px 8px;margin:6px 0 26px;text-align:center;
+}
+.venn-box svg{width:100%;max-width:520px;height:auto;}
+.venn-cap{font-size:.88rem;color:var(--muted);padding:6px 8px 12px;line-height:1.8;}
+@media(max-width:520px){.venn-box{padding:14px 4px 6px;}}
+.cards{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.cards{grid-template-columns:repeat(2,1fr);}}
+.risk-card{
+  position:relative;background:var(--white);
+  border-radius:20px;padding:20px 20px 18px;
+  box-shadow:var(--shadow);
+}
+.risk-card .icon{
+  width:68px;height:68px;border-radius:50%;
+  background:var(--navy-soft);
+  display:flex;align-items:center;justify-content:center;margin-bottom:12px;
+}
+.risk-card .icon svg{width:44px;height:44px;}
+.risk-card .icon.ic-red{background:var(--red-bg);}
+.risk-card .icon.ic-blue{background:var(--sky-bg);}
+.risk-card .icon.ic-amber{background:var(--amber-bg);}
+.risk-card .icon.ic-green{background:var(--green-bg);}
+.risk-card h3{font-size:1.02rem;color:var(--navy);margin-bottom:2px;}
+.risk-card p{font-size:.93rem;color:var(--muted);margin-top:8px;line-height:1.85;}
+.judge-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:.82rem;font-weight:700;padding:4px 13px;border-radius:999px;margin-top:4px;
+}
+.judge-chip.ng{background:var(--red-bg);color:var(--red-dark);border:1.5px solid var(--red-border);}
+.judge-chip.ok{background:var(--green-bg);color:var(--green);border:1.5px solid var(--green-border);}
+.judge-chip.maybe{background:var(--amber-bg);color:var(--amber-deep);border:1.5px solid var(--amber-border);}
+
+/* ---------- 罹患年齢のデータ（セクション1の各解説に添える） ---------- */
+.age-note{
+  display:flex;gap:10px;align-items:flex-start;
+  background:var(--white);border-radius:14px;
+  border-left:5px solid var(--sky);
+  padding:11px 15px;margin-bottom:16px;
+  font-size:.9rem;line-height:1.85;
+  box-shadow:var(--shadow-sm);
+}
+.age-note svg{width:19px;height:19px;flex:0 0 19px;stroke:var(--sky);margin-top:5px;}
+.age-note b{color:var(--sky);font-size:.98rem;}
+.age-note small{display:block;color:var(--muted);font-size:.81rem;line-height:1.7;margin-top:2px;}
+
+/* ---------- セクション6：医療費のかかりどき ---------- */
+.life-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px 14px;margin:6px 0 26px;
+}
+.life-box h3{font-size:1.08rem;color:var(--navy);margin-bottom:4px;}
+.life-box .sub{font-size:.9rem;color:var(--muted);margin-bottom:14px;}
+.life-box svg{width:100%;max-width:620px;height:auto;display:block;margin:0 auto;}
+.life-cap{font-size:.85rem;color:var(--muted);line-height:1.8;padding:10px 4px 4px;}
+.big3{display:grid;grid-template-columns:1fr;gap:12px;margin-top:16px;}
+@media(min-width:700px){.big3{grid-template-columns:repeat(3,1fr);}}
+.big3 .b{
+  background:var(--bg);border:2px solid var(--line);border-radius:16px;
+  padding:13px 15px;text-align:center;
+}
+.big3 .b .n{display:block;font-size:1.5rem;font-weight:800;color:var(--coral-text);line-height:1.4;}
+.big3 .b .l{display:block;font-size:.86rem;color:var(--navy);font-weight:700;line-height:1.7;}
+.big3 .b .s{display:block;font-size:.81rem;color:var(--muted);line-height:1.7;margin-top:3px;}
+
+.sub-h{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.1rem;color:var(--navy);margin:30px 0 6px;
+}
+.sub-h svg{width:24px;height:24px;flex:0 0 24px;stroke:var(--coral);}
+.sub-lead{font-size:.95rem;color:var(--muted);line-height:1.9;margin-bottom:16px;}
+.age-cards{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.age-cards{grid-template-columns:repeat(3,1fr);}}
+.age-card{
+  background:var(--white);border-radius:20px;box-shadow:var(--shadow);
+  padding:18px 18px 15px;
+}
+.age-card .ttl{
+  display:flex;align-items:center;gap:9px;
+  font-size:1rem;font-weight:800;color:var(--navy);margin-bottom:10px;
+}
+.age-card .ttl .ico{
+  width:38px;height:38px;flex:0 0 38px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.age-card .ttl .ico svg{width:26px;height:26px;}
+.age-card .rows{border-top:1.5px dashed var(--line);padding-top:9px;}
+.age-card .row{
+  display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  font-size:.92rem;line-height:1.9;
+}
+.age-card .row span{color:var(--muted);}
+.age-card .row b{font-size:1.28rem;font-weight:800;color:var(--red-dark);white-space:nowrap;}
+.age-card .kind{
+  display:inline-block;font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:8px;
+  background:var(--sky-bg);color:var(--sky);
+}
+.age-card .cmt{font-size:.87rem;color:var(--text);line-height:1.85;margin-top:10px;}
+.age-card .src{font-size:.8rem;color:var(--muted);line-height:1.7;margin-top:9px;
+  border-top:1.5px dashed var(--line);padding-top:8px;}
+
+/* 未来の自分への仕送り */
+.mikane{
+  margin-top:28px;background:var(--white);border-radius:24px;
+  box-shadow:var(--shadow);padding:22px 20px 18px;
+}
+.mikane h3{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.1rem;color:var(--navy);margin-bottom:12px;
+}
+.mikane h3 svg{width:25px;height:25px;flex:0 0 25px;stroke:var(--mint);}
+.mikane ol{list-style:none;counter-reset:mk;}
+.mikane ol li{
+  counter-increment:mk;position:relative;
+  padding:0 0 14px 46px;font-size:.96rem;line-height:1.9;
+}
+.mikane ol li::before{
+  content:counter(mk);position:absolute;left:0;top:2px;
+  width:32px;height:32px;border-radius:50%;
+  background:var(--sky-bg);color:var(--sky);
+  font-weight:800;font-size:1.02rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.mikane ol li b{color:var(--coral-text);}
+.mikane .caution{
+  background:var(--amber-bg);border-radius:16px;padding:14px 16px;
+  font-size:.9rem;line-height:1.9;
+  border-left:5px solid var(--sunny);
+}
+.mikane .caution strong:first-child{display:block;color:var(--amber-deep);margin-bottom:3px;}
+.mikane .caution b{color:var(--coral-text);}
+
+/* ---------- セクション2：クイズ ---------- */
+.quiz-shell{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px 24px;
+}
+.band .quiz-shell{background:var(--bg);box-shadow:none;border:2px solid var(--line);}
+.q-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.q-count{font-size:.9rem;font-weight:700;color:var(--muted);}
+.q-count span{color:var(--coral-text);font-size:1.15rem;}
+.dots{display:flex;gap:6px;}
+.dots i{width:10px;height:10px;border-radius:50%;background:#e8dbd0;}
+.dots i.done{background:var(--mint);}
+.dots i.now{background:var(--coral);}
+.q-body{display:flex;gap:14px;align-items:flex-start;margin:14px 0 18px;}
+.q-body .icon{
+  width:64px;height:64px;flex:0 0 64px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.q-body .icon svg{width:40px;height:40px;}
+.q-body p{font-size:1.06rem;font-weight:700;color:var(--navy);line-height:1.8;}
+.ans-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.ans-btn{
+  min-height:64px;border-radius:18px;cursor:pointer;
+  font-size:1.1rem;font-weight:800;letter-spacing:.06em;
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  border:2.5px solid;transition:transform .12s;
+}
+.ans-btn:active{transform:scale(.97);}
+.ans-btn svg{width:26px;height:26px;}
+.ans-btn.yes{background:var(--green-bg);border-color:var(--green-border);color:var(--green);}
+.ans-btn.no{background:var(--red-bg);border-color:var(--red-border);color:var(--red-dark);}
+.ans-btn:disabled{opacity:.45;cursor:default;}
+.verdict{
+  display:none;margin-top:18px;background:var(--white);
+  border:2px solid var(--amber-border);border-radius:20px;
+  padding:18px 18px 16px;
+}
+.verdict.show{display:block;}
+.verdict-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+.verdict-answer{font-size:1.25rem;font-weight:800;color:var(--navy);}
+.result-chip{
+  font-size:.85rem;font-weight:800;padding:4px 14px;border-radius:999px;
+}
+.result-chip.correct{background:var(--green-bg);color:var(--green);}
+.result-chip.wrong{background:var(--red-bg);color:var(--red-dark);}
+.verdict .expl{font-size:.97rem;line-height:1.95;margin-bottom:12px;}
+.verdict .kv{
+  font-size:.92rem;line-height:1.85;background:var(--sky-bg);
+  border-radius:12px;padding:9px 13px;margin-top:8px;
+}
+.verdict .kv b{color:var(--sky);}
+.verdict .kv.kv-wana{background:var(--red-bg);}
+.verdict .kv.kv-wana b{color:var(--red-dark);}
+.btn-primary{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  width:100%;min-height:58px;margin-top:16px;
+  background:linear-gradient(135deg,#cf4a22,#c2401c);
+  color:#fff;font-size:1.05rem;font-weight:800;letter-spacing:.04em;
+  border:none;border-radius:18px;cursor:pointer;
+  box-shadow:0 5px 14px rgba(194,64,28,.34);
+}
+.btn-primary:active{transform:translateY(1px);}
+.btn-primary svg{width:22px;height:22px;stroke:#fff;}
+.btn-ghost{
+  display:block;width:100%;min-height:50px;margin-top:12px;
+  background:var(--white);color:var(--navy-2);
+  font-size:.95rem;font-weight:700;
+  border:2px solid var(--sky-border);border-radius:16px;cursor:pointer;
+}
+.btn-ghost:active{background:var(--sky-bg);}
+.quiz-done{display:none;}
+.quiz-done.show{display:block;}
+.quiz-done .score{
+  font-size:1.15rem;font-weight:800;color:var(--navy);
+  text-align:center;margin:8px 0 6px;
+}
+.quiz-done .score .num{font-size:2rem;color:var(--coral-text);}
+.quiz-done .cmt{
+  background:var(--white);border-radius:16px;padding:14px 16px;
+  font-size:.97rem;line-height:1.95;margin:14px 0;
+  border:2px solid var(--amber-border);
+}
+.wrong-list{margin:14px 0;}
+.wrong-list h4{font-size:.95rem;color:var(--navy);margin-bottom:8px;}
+.wrong-list .w-item{
+  background:var(--white);border-radius:14px;padding:11px 14px;
+  font-size:.9rem;line-height:1.8;margin-bottom:8px;
+  border-left:4px solid var(--coral);box-shadow:var(--shadow-sm);
+}
+
+/* ---------- セクション3：払込免除の解剖 ---------- */
+.type-table-box{
+  background:var(--white);border-radius:22px;box-shadow:var(--shadow-sm);
+  padding:18px 14px;margin:8px 0 24px;overflow-x:auto;
+}
+.type-table{width:100%;border-collapse:collapse;min-width:520px;font-size:.9rem;}
+.type-table th,.type-table td{
+  padding:10px 10px;text-align:center;border-bottom:1.5px solid var(--line);
+  line-height:1.7;vertical-align:middle;
+}
+.type-table th{background:var(--navy-soft);color:var(--navy);font-size:.86rem;}
+.type-table th:first-child{border-radius:12px 0 0 12px;}
+.type-table th:last-child{border-radius:0 12px 12px 0;}
+.type-table td:first-child{text-align:left;font-weight:700;color:var(--navy);font-size:.88rem;}
+.type-table small{display:block;color:var(--muted);font-weight:500;font-size:.81rem;}
+.mark-ok,.mark-ng,.mark-tri{font-weight:800;font-size:1.05rem;}
+.mark-ok{color:var(--green);}
+.mark-ng{color:var(--red);}
+.mark-tri{color:var(--amber);}
+.sim-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px;margin-top:26px;
+}
+.sim-box h3{font-size:1.12rem;color:var(--navy);margin-bottom:4px;}
+.sim-box .sub{font-size:.9rem;color:var(--muted);margin-bottom:18px;}
+.sim-ctrl{margin-bottom:18px;}
+.sim-ctrl label{
+  display:flex;justify-content:space-between;align-items:baseline;
+  font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:6px;
+}
+.sim-ctrl label output{color:var(--coral-text);font-size:1.15rem;font-weight:800;}
+input[type=range]{
+  width:100%;height:34px;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;
+}
+input[type=range]::-webkit-slider-runnable-track{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--sunny),var(--coral));}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:28px;height:28px;border-radius:50%;
+  background:var(--white);border:3px solid var(--coral);margin-top:-9px;
+  box-shadow:var(--shadow-sm);
+}
+input[type=range]::-moz-range-track{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--sunny),var(--coral));}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--white);border:3px solid var(--coral);}
+.sim-check{
+  display:flex;align-items:center;gap:10px;
+  background:var(--sky-bg);border-radius:14px;padding:11px 14px;
+  font-size:.95rem;font-weight:700;color:var(--navy);cursor:pointer;
+}
+.sim-check input{width:22px;height:22px;accent-color:var(--sky);}
+.timeline{margin:48px 0 8px;}
+.tl-track{
+  position:relative;height:14px;border-radius:7px;background:#f0e4d8;
+}
+.tl-fill{
+  position:absolute;left:0;top:0;height:14px;border-radius:7px;
+  background:linear-gradient(90deg,var(--sunny),var(--coral));
+  transition:width .2s;
+}
+.tl-goal{
+  position:absolute;top:-34px;transform:translateX(-50%);
+  font-size:.81rem;font-weight:800;color:var(--red-dark);
+  text-align:center;line-height:1.3;white-space:nowrap;
+}
+.tl-goal::after{
+  content:"";display:block;width:3px;height:30px;margin:2px auto 0;
+  background:var(--red);border-radius:2px;
+}
+.tl-labels{display:flex;justify-content:space-between;font-size:.81rem;color:var(--muted);margin-top:6px;}
+.sim-results{display:grid;grid-template-columns:1fr;gap:12px;margin-top:20px;}
+@media(min-width:700px){.sim-results{grid-template-columns:repeat(3,1fr);}}
+.sim-r{
+  border-radius:18px;padding:14px 15px;border:2px solid var(--line);background:var(--bg);
+}
+.sim-r h4{font-size:.9rem;color:var(--navy);margin-bottom:6px;line-height:1.6;}
+.sim-r h4 small{display:block;font-weight:500;color:var(--muted);font-size:.8rem;}
+.sim-r .r-chip{
+  display:inline-block;font-size:.95rem;font-weight:800;
+  padding:5px 16px;border-radius:999px;margin-bottom:6px;
+}
+.sim-r.ok{border-color:var(--green-border);background:var(--green-bg);}
+.sim-r.ok .r-chip{background:var(--white);color:var(--green);}
+.sim-r.ng{border-color:var(--red-border);background:var(--red-bg);}
+.sim-r.ng .r-chip{background:var(--white);color:var(--red-dark);}
+.sim-r p{font-size:.84rem;color:var(--muted);line-height:1.75;}
+
+/* ---------- セクション4：あるある劇場 ---------- */
+.case-grid{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.case-grid{grid-template-columns:repeat(2,1fr);}}
+.case-card{
+  display:flex;align-items:center;gap:14px;text-align:left;
+  background:var(--white);border:none;border-radius:20px;
+  padding:16px 16px;cursor:pointer;box-shadow:var(--shadow);
+  font-family:inherit;transition:transform .12s;
+}
+.case-card:active{transform:scale(.985);}
+.case-card .art{
+  width:64px;height:64px;flex:0 0 64px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+}
+.case-card .art svg{width:42px;height:42px;}
+.case-card .t{flex:1;}
+.case-card .chip{
+  display:inline-block;font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:4px;
+}
+.case-card h3{font-size:.99rem;color:var(--navy);line-height:1.6;}
+.case-card .more{
+  font-size:.8rem;color:var(--coral-text);font-weight:700;
+  display:inline-flex;align-items:center;gap:4px;margin-top:4px;
+}
+.case-card .more svg{width:14px;height:14px;stroke:var(--coral-text);}
+.c-red{background:var(--red-bg);color:var(--red-dark);}
+.c-blue{background:var(--sky-bg);color:var(--sky);}
+.c-green{background:var(--green-bg);color:var(--green);}
+.c-amber{background:var(--amber-bg);color:var(--amber-deep);}
+.c-berry{background:var(--berry-bg);color:var(--berry);}
+.case-card .amt{
+  display:inline-block;margin-left:7px;
+  font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;
+  background:var(--white);color:var(--green);border:1.5px solid var(--green-border);
+}
+
+/* ---------- セクション5：逆転劇場 ---------- */
+#sec5 .case-card{box-shadow:0 6px 20px rgba(60,120,80,.12);}
+.model-note{
+  background:var(--white);border-radius:18px;padding:14px 18px;margin-bottom:18px;
+  border-left:6px solid var(--mint);box-shadow:var(--shadow-sm);
+}
+.model-note strong{display:block;font-size:.92rem;color:var(--green);margin-bottom:4px;}
+.model-note .mn-row{display:block;font-size:.95rem;line-height:1.9;color:var(--navy);}
+.model-note .mn-row b{color:var(--coral-text);}
+.model-note .mn-note{display:block;font-size:.82rem;color:var(--muted);line-height:1.8;margin-top:6px;}
+.rule3-box{
+  margin-top:28px;background:var(--white);border-radius:22px;
+  padding:20px 20px 16px;box-shadow:var(--shadow-sm);
+}
+.rule3-box h3{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.06rem;color:var(--navy);margin-bottom:12px;
+}
+.rule3-box h3 svg{width:24px;height:24px;flex:0 0 24px;stroke:var(--green);}
+.rule3-box ol{list-style:none;counter-reset:r3;}
+.rule3-box ol li{
+  counter-increment:r3;position:relative;
+  padding:0 0 12px 44px;font-size:.95rem;line-height:1.9;
+}
+.rule3-box ol li::before{
+  content:counter(r3);position:absolute;left:0;top:2px;
+  width:30px;height:30px;border-radius:50%;
+  background:var(--green-bg);color:var(--green);
+  font-weight:800;font-size:1rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.rule3-note{font-size:.8rem;color:var(--muted);border-top:1.5px dashed var(--line);padding-top:10px;line-height:1.8;}
+/* ---------- モーダル ---------- */
+.cmodal{position:fixed;inset:0;z-index:60;display:none;}
+.cmodal.show{display:block;}
+.cmodal-back{position:absolute;inset:0;background:rgba(40,30,25,.5);}
+.cmodal-panel{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(94vw,640px);max-height:88vh;overflow-y:auto;
+  background:var(--white);border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.25);
+  -webkit-overflow-scrolling:touch;
+}
+.cmodal-head{
+  position:sticky;top:0;display:flex;gap:14px;align-items:center;
+  background:var(--white);padding:18px 52px 12px 20px;
+  border-bottom:1.5px solid var(--line);z-index:2;
+}
+.cmodal-close{
+  position:absolute;right:12px;top:12px;
+  width:40px;height:40px;border-radius:50%;
+  background:var(--bg);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.cmodal-close svg{width:18px;height:18px;stroke:var(--navy);}
+.cmodal-ico{
+  width:56px;height:56px;flex:0 0 56px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+}
+.cmodal-ico svg{width:38px;height:38px;}
+.cmodal-chip{
+  display:inline-block;font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:3px;
+}
+.cmodal-title{font-size:1.08rem;color:var(--navy);line-height:1.55;}
+.cmodal-body{padding:16px 20px 22px;}
+.cmodal-block{margin-bottom:18px;}
+.cmodal-label{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:.86rem;font-weight:800;padding:5px 14px;border-radius:999px;margin-bottom:9px;
+}
+.cmodal-label svg{width:17px;height:17px;}
+.lb-blue{background:var(--sky-bg);color:var(--sky);}
+.lb-blue svg{stroke:var(--sky);}
+.lb-red{background:var(--red-bg);color:var(--red-dark);}
+.lb-red svg{stroke:var(--red-dark);}
+.lb-green{background:var(--green-bg);color:var(--green);}
+.lb-green svg{stroke:var(--green);}
+.cmodal-quote{
+  background:var(--bg);border-left:4px solid var(--coral);
+  border-radius:0 14px 14px 0;padding:12px 15px;
+  font-size:.95rem;line-height:1.9;color:var(--text);
+}
+.cmodal-quote small{display:block;text-align:right;color:var(--muted);margin-top:4px;font-size:.8rem;}
+.cmodal-p{font-size:.95rem;line-height:1.95;margin-bottom:8px;}
+.cmodal-note{
+  font-size:.8rem;color:var(--muted);line-height:1.8;margin-top:14px;
+  border-top:1.5px dashed var(--line);padding-top:12px;
+}
+
+/* ---------- まとめ・チェックリスト ---------- */
+.score-box{
+  background:var(--sky-bg);border-radius:20px;padding:18px 18px 14px;margin-bottom:24px;
+}
+.score-box h3{
+  display:flex;align-items:center;gap:8px;
+  font-size:1.02rem;color:var(--navy);margin-bottom:8px;
+}
+.score-box h3 svg{width:22px;height:22px;stroke:var(--sky);}
+.score-box p{font-size:.95rem;line-height:1.9;}
+.checklist{display:grid;grid-template-columns:1fr;gap:10px;}
+.chk-group{
+  font-size:.9rem;font-weight:800;color:var(--amber-deep);
+  margin:14px 0 2px;letter-spacing:.03em;
+}
+.chk-group:first-child{margin-top:0;}
+.chk{
+  display:flex;align-items:center;gap:12px;
+  background:var(--bg);border:2px solid var(--line);border-radius:16px;
+  padding:12px 14px;cursor:pointer;font-size:.95rem;line-height:1.7;
+  transition:border-color .15s, background .15s;
+}
+.chk input{width:24px;height:24px;flex:0 0 24px;accent-color:var(--green);cursor:pointer;}
+.chk .art{
+  width:44px;height:44px;flex:0 0 44px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.chk .art svg{width:28px;height:28px;}
+.chk:has(input:checked){background:var(--green-bg);border-color:var(--green-border);}
+.chk-msg{
+  margin-top:16px;background:var(--amber-bg);border-radius:16px;
+  padding:14px 16px;font-size:.95rem;line-height:1.9;
+}
+details.finder{
+  margin-top:26px;background:var(--bg);border-radius:18px;
+  padding:4px 18px;border:1.5px solid var(--line);
+}
+details.finder summary{
+  cursor:pointer;font-size:.98rem;font-weight:700;color:var(--navy);
+  padding:12px 0;list-style-position:inside;
+}
+details.finder ul{padding:2px 0 8px 22px;font-size:.92rem;color:var(--text);}
+details.finder li{margin-bottom:7px;line-height:1.85;}
+details.finder p{font-size:.92rem;padding:0 0 14px;line-height:1.9;}
+
+/* ---------- CTA ---------- */
+.cta-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:24px 20px;margin-top:30px;text-align:center;
+}
+.cta-box h3{font-size:1.2rem;color:var(--navy);margin-bottom:8px;line-height:1.6;}
+.cta-box .cta-lead{font-size:.95rem;color:var(--muted);text-align:left;margin-bottom:14px;line-height:1.95;}
+.cta-box ul{list-style:none;text-align:left;margin-bottom:14px;}
+.cta-box ul li{
+  display:flex;gap:9px;align-items:flex-start;
+  font-size:.94rem;line-height:1.85;margin-bottom:6px;
+}
+.cta-box ul li svg{width:19px;height:19px;flex:0 0 19px;stroke:var(--mint);margin-top:6px;}
+.co{font-size:.98rem;font-weight:800;color:var(--navy);margin-top:18px;}
+.addr{font-size:.87rem;color:var(--muted);line-height:1.7;}
+.tip{font-size:.87rem;color:var(--amber-deep);margin-top:10px;}
+.cta-mini{
+  margin-top:18px;background:var(--bg);border:2px solid var(--amber-border);
+  border-radius:18px;padding:14px 16px;text-align:center;
+}
+.cta-mini p{font-size:.92rem;line-height:1.85;margin-bottom:10px;text-align:left;}
+.cta-mini a{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--white);border:2px solid var(--coral);
+  color:var(--coral-text);text-decoration:none;font-weight:800;font-size:.95rem;
+  border-radius:999px;padding:9px 20px;
+}
+.cta-mini a svg{width:18px;height:18px;stroke:var(--coral-text);}
+
+
+/* ---------- フッター免責 ---------- */
+footer.disclaimer{
+  padding:26px 16px 30px;max-width:900px;margin:0 auto;
+}
+footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
+
+@media print{
+  .hero-nav,.cta-mini{display:none !important;}
+  body{background:#fff;}
+}
+
+/* ---------- このページ独自：シミュレーターの合計表示 ---------- */
+.sim-total{
+  background:var(--navy-soft);border-radius:18px;
+  padding:15px 16px;margin-top:18px;text-align:center;
+}
+.sim-total .lead{font-size:.88rem;color:var(--muted);line-height:1.8;margin-bottom:6px;}
+.sim-total .big{
+  display:block;font-size:1.5rem;font-weight:800;color:var(--navy);line-height:1.6;
+}
+.sim-total .big b{color:var(--coral-text);font-size:1.9rem;}
+.sim-total .sub2{display:block;font-size:.88rem;color:var(--muted);line-height:1.8;margin-top:6px;}
+/* 使いみちの色分け（出ていくお金／戻るお金） */
+.tl-fill.back{background:linear-gradient(90deg,var(--mint),var(--green));}
+</style>
+</head>
+<body>
+
+<!-- ================= ヒーロー ================= -->
+<header class="hero">
+  <div class="wrap">
+    <div class="brand">
+      <span class="ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg>
+      </span>
+      <span>株式会社Office-M<small>会計を母体に、数字の「小さな字」まで読み解いてご案内します</small></span>
+    </div>
+    <div class="hero-flex">
+      <div class="hero-copy">
+        <h1>その確定申告、<br><span class="nowrap"><span class="accent">ほんとうに要る</span>のか、</span><span class="nowrap">ご存じですか。</span></h1>
+        <p class="lead">「会社員だから関係ない」「副業は20万円以下だから何もしなくていい」——どちらもよく聞きますが、どちらも半分しか当たっていません。確定申告には<strong>しなければならない人</strong>と、<strong>しなくてもいいけれど、すると税金が戻る人</strong>の2種類があります。やっかいなのは、後者は誰も教えてくれないこと。税務署は「払いすぎですよ」とは言ってこないのです。年末調整で終わる人の線、20万円ルールの本当の意味、5年さかのぼれる還付申告。○×クイズだけなら3分、ぜんぶ読むと10分ほど。最後はぜひ、ご自宅の源泉徴収票でご確認を。</p>
+        <nav class="hero-nav" aria-label="ページ内メニュー">
+          <a href="#sec1"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h9"/></svg>3つの線引き</a>
+          <a href="#sec2"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/><circle cx="12" cy="12" r="9"/></svg>○×ワナクイズ</a>
+          <a href="#sec3"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h12v16H6zM10 8h4M10 12h4M10 16h4"/></svg>いくら戻る？</a>
+          <a href="#sec4"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0-3.3 11 3 3 0 0 1 1.1 1.9l.03.35h4.34l.03-.35a3 3 0 0 1 1.1-1.9A6 6 0 0 0 12 3Z"/><path d="M9.8 19.2h4.4M10.7 21.7h2.6"/></svg>あるある劇場</a>
+          <a href="#sec5"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="8" width="17" height="12.5" rx="2.5"/><path d="M3.5 12h17M12 8v12.5M12 8S8.5 7.6 7.2 6.3a2.1 2.1 0 0 1 3-3C11.5 4.6 12 8 12 8Zm0 0s3.5-.4 4.8-1.7a2.1 2.1 0 0 0-3-3C12.5 4.6 12 8 12 8Z"/></svg>逆転劇場（戻る制度）</a>
+          <a href="#sec6"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5h16M7 16V9.5M12 16V5.5M17 16v-4"/></svg>2千万人の内訳</a>
+        </nav>
+      </div>
+      <div class="hero-scene" aria-hidden="true">
+        <svg viewBox="0 0 360 212">
+          <circle cx="312" cy="36" r="30" fill="#ffd9a8" opacity=".45"/>
+          <circle cx="312" cy="36" r="20" fill="#f7c34e"/>
+          <ellipse cx="58" cy="30" rx="26" ry="10" fill="#fff" opacity=".95"/>
+          <ellipse cx="88" cy="38" rx="17" ry="8" fill="#fff" opacity=".8"/>
+          <path d="M0 168h360v44H0Z" fill="#ffe9c7"/>
+          <path d="M0 176c40-10 90-12 150-8 60 4 120 4 210-6v50H0Z" fill="#b3e3b8"/>
+          <!-- 申告書 -->
+          <rect x="112" y="58" width="96" height="110" rx="8" fill="#fffdf8" stroke="#efe2d8" stroke-width="3"/>
+          <path d="M126 78h68M126 94h68M126 110h44" stroke="#c6e2f2" stroke-width="6" stroke-linecap="round"/>
+          <rect x="126" y="126" width="68" height="28" rx="5" fill="#fdeee9" stroke="#f0846a" stroke-width="2.5"/>
+          <path d="M136 140h20M164 132l14 16M178 132l-14 16" stroke="#f0846a" stroke-width="3" stroke-linecap="round"/>
+          <!-- 電卓 -->
+          <rect x="228" y="96" width="66" height="72" rx="8" fill="#63b8dd"/>
+          <rect x="236" y="104" width="50" height="18" rx="4" fill="#fffdf8"/>
+          <circle cx="246" cy="134" r="5" fill="#fffdf8"/><circle cx="261" cy="134" r="5" fill="#fffdf8"/><circle cx="276" cy="134" r="5" fill="#fffdf8"/>
+          <circle cx="246" cy="150" r="5" fill="#fffdf8"/><circle cx="261" cy="150" r="5" fill="#fffdf8"/>
+          <rect x="271" y="145" width="10" height="16" rx="4" fill="#f7c34e"/>
+          <!-- 案内役 -->
+          <path d="M20 180c0-15 6.5-33 15-33s15 18 15 33v2H20Z" fill="#f0846a"/>
+          <circle cx="35" cy="136" r="11" fill="#f7cdb4"/>
+          <path d="M24 134c1-9 5.5-13 11-13s10 4 11 13c-3.3-4-7-5.3-11-5.3s-7.7 1.3-11 5.3Z" fill="#5c4030"/>
+          <circle cx="31" cy="136.5" r="1.4" fill="#3d3028"/><circle cx="39" cy="136.5" r="1.4" fill="#3d3028"/>
+          <path d="M32 141c1.4 1.5 4 1.5 5.4 0" fill="none" stroke="#3d3028" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= セクション1：3つの線引き ================= -->
+<section id="sec1">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>1</i><span>今日いちばん大事な線引き</span></span>
+        <h2>要るか、要らないか。<span class="nowrap">線は3本</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotLine" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">クイズの前に、線引きの授業を3分だけ。確定申告でつまずくのは、たいてい<strong>この3本の線</strong>です。<strong>年末調整で終わるのか</strong>、<strong>20万円ルールはどこまで効くのか</strong>、そして<strong>「要る」と「したほうが得」はどう違うのか</strong>。この3つを押さえるだけで、「会社員だから関係ない」という思い込みからも、「申告なんて面倒」というあきらめからも自由になれます。</p>
+    </div>
+
+    <p class="qlink-lead">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/><circle cx="12" cy="12" r="9"/></svg>
+      この3つ、答えられますか？
+    </p>
+    <div class="qlinks">
+      <a class="qlink" href="#def-nencho">
+        <span class="pair">年末調整<span class="vs">で</span>終わる人</span>
+        <span class="ask">給与が2,000万円を超えたら、どうなる？</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+      </a>
+      <a class="qlink" href="#def-20man">
+        <span class="pair">20万円<span class="vs">の</span>ルール</span>
+        <span class="ask">20万円以下なら、本当に何もしなくていい？</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+      </a>
+      <a class="qlink" href="#def-kanpu">
+        <span class="pair">要る<span class="vs">と</span>したほうが得</span>
+        <span class="ask">去年の医療費は、もう間に合わない？</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+      </a>
+    </div>
+
+    <!-- ===== 1-1 年末調整で終わる人・終わらない人 ===== -->
+    <div class="def-block" id="def-nencho">
+      <h3 class="def-h"><span class="def-ico ic-blue" data-art="icShain" aria-hidden="true"></span>1本目：年末調整で終わる人・終わらない人</h3>
+      <p class="def-lead">日本の会社員のほとんどは、確定申告をしません。会社が毎月の給与から所得税を天引きし（源泉徴収）、12月に1年分をまとめて精算してくれるからです。これが<strong>年末調整</strong>。つまり会社員は、会社が代わりに申告のようなことをしてくれている状態です。ただし、この仕組みには<strong>ふたつの穴</strong>があります。ひとつは「年末調整の対象から外れる人」、もうひとつは「年末調整では扱えない控除」です。</p>
+
+      <p class="age-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <span>期限のこと：確定申告の受付は原則<b>2月16日から3月15日</b>まで（曜日により前後します）。ところが<b>税金が戻る申告（還付申告）だけは1月1日から受け付けてもらえ、期限も5年</b>あります。混雑する3月に並ぶ必要は、実はありません。
+        <small>根拠：所得税法120条・122条ほか。納付の期限も原則3月15日です（振替納税を選ぶと引き落としは4月中旬になります）。</small></span>
+      </p>
+
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="会社員は年末調整で完了するが、給与2000万円超や副業所得20万円超などの人は確定申告が必要になることを示す図">
+          <text x="260" y="30" text-anchor="middle" font-size="19" font-weight="bold" fill="#1b3f5e">給与をもらっている人の分かれ道</text>
+          <rect x="30" y="48" width="460" height="160" rx="18" fill="#eaf1f7"/>
+          <rect x="44" y="62" width="286" height="132" rx="12" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="3"/>
+          <text x="187" y="100" text-anchor="middle" font-size="20" font-weight="bold" fill="#2c7a4b">年末調整で完了</text>
+          <text x="187" y="130" text-anchor="middle" font-size="16" fill="#2c7a4b">1か所の給与だけの人</text>
+          <text x="187" y="158" text-anchor="middle" font-size="15" font-weight="bold" fill="#2c7a4b">申告はしなくてよい</text>
+          <text x="187" y="180" text-anchor="middle" font-size="12.5" fill="#5c6874">※ただし「したほうが得」は別の話</text>
+          <path d="M338 42v172" stroke="#c2451f" stroke-width="3" stroke-dasharray="7 6"/>
+          <rect x="350" y="62" width="126" height="132" rx="12" fill="#fdeee9" stroke="#c2453f" stroke-width="3"/>
+          <text x="413" y="100" text-anchor="middle" font-size="18" font-weight="bold" fill="#a63631">申告が必要</text>
+          <text x="413" y="126" text-anchor="middle" font-size="13" fill="#a63631">給与2,000万円超</text>
+          <text x="413" y="148" text-anchor="middle" font-size="13" fill="#a63631">他の所得20万円超</text>
+          <text x="413" y="170" text-anchor="middle" font-size="13" fill="#a63631">2か所から給与</text>
+          <text x="260" y="234" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2451f">会社員の9割前後は、左側で終わります</text>
+          <text x="260" y="266" text-anchor="middle" font-size="13.5" fill="#5c6874">問題は、左側の人にも「戻るお金」があること</text>
+        </svg>
+        <p class="venn-cap">※このほか、同族会社の役員などがその会社から地代・貸付金の利息を受け取っている場合は、金額が20万円以下でも申告が必要です。年の途中で退職して再就職していない方も、年末調整を受けていないので<strong>自分で精算する側</strong>になります。</p>
+      </div>
+
+      <div class="cards">
+        <div class="risk-card">
+          <div class="icon ic-green" data-art="icShain" aria-hidden="true"></div>
+          <h3>1か所の給与だけ</h3>
+          <span class="judge-chip ok">年末調整で完了</span>
+          <p>毎月の天引きと12月の精算で、所得税の計算は終わっています。ただし医療費控除・ふるさと納税・住宅ローン控除の1年目だけは<strong>年末調整では扱えません</strong>。この3つに心当たりがあるなら、話は変わります。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-red" data-art="icYen" aria-hidden="true"></div>
+          <h3>給与収入が2,000万円超</h3>
+          <span class="judge-chip ng">申告が必要</span>
+          <p>この場合、そもそも<strong>会社が年末調整をしてはいけない</strong>ことになっています。誰も精算してくれないので、自分で確定申告をします。「会社がやってくれていると思っていた」がいちばん危ないパターンです。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-amber" data-art="qSuit" aria-hidden="true"></div>
+          <h3>2か所以上から給与</h3>
+          <span class="judge-chip maybe">原則、必要</span>
+          <p>年末調整をしてもらえるのは<strong>1か所だけ</strong>。掛け持ちのアルバイト、副業先の給与、非常勤の役員報酬などがある場合、従たる給与と他の所得の合計が20万円を超えると申告が必要になります。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-blue" data-art="icNenkinsha" aria-hidden="true"></div>
+          <h3>公的年金をもらっている</h3>
+          <span class="judge-chip ok">400万円以下なら不要</span>
+          <p>公的年金等の収入が<strong>年400万円以下</strong>で、他の所得が20万円以下なら、確定申告はいりません（申告不要制度）。ただし医療費控除や生命保険料控除を使うと<strong>戻ることが多い</strong>ので、この層こそ「したほうが得」の宝庫です。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 1-2 20万円ルール ===== -->
+    <div class="def-block" id="def-20man">
+      <h3 class="def-h"><span class="def-ico ic-red" data-art="icPercent" aria-hidden="true"></span>2本目：20万円ルールは、住民税には効かない</h3>
+      <p class="def-lead">副業の相談でいちばん多い誤解が、これです。「20万円以下なら申告しなくていい」——正確には、<strong>所得税の確定申告はしなくてよい</strong>という意味です。住民税には、この20万円ルールがありません。つまり所得税では見逃してもらえても、<strong>住民税の申告は別途必要</strong>になります。もうひとつ大事なのは、20万円は「売上」ではなく<strong>所得（売上から経費を引いたあとの金額）</strong>だということ。ここを取り違えると、判定そのものが狂います。</p>
+
+      <p class="age-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <span>もうひとつの注意：確定申告をするなら、<b>20万円以下の所得も含めて全部書く</b>のがルールです。「医療費控除で申告するけれど、副業の15万円は20万円以下だから書かない」は通りません。申告するなら、まるごと。しないなら、住民税だけ市区町村へ。
+        <small>根拠：所得税法121条（確定所得申告を要しない場合）、地方税法317条の2（市町村民税の申告）。判断に迷う場合は、お住まいの市区町村の窓口でもご確認いただけます。</small></span>
+      </p>
+
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="給与以外の所得が20万円以下でも所得税の申告は不要だが住民税の申告は必要になることを示す図">
+          <text x="260" y="28" text-anchor="middle" font-size="18" font-weight="bold" fill="#1b3f5e">副業の所得が20万円以下だったら</text>
+          <rect x="24" y="46" width="216" height="120" rx="12" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="2.5"/>
+          <text x="132" y="76" text-anchor="middle" font-size="16" font-weight="bold" fill="#2c7a4b">所得税</text>
+          <text x="132" y="104" text-anchor="middle" font-size="15" font-weight="bold" fill="#2c7a4b">確定申告は不要</text>
+          <text x="132" y="128" text-anchor="middle" font-size="12.5" fill="#5c6874">給与1か所の人にかぎる</text>
+          <text x="132" y="150" text-anchor="middle" font-size="12.5" fill="#5c6874">申告するなら全部書く</text>
+          <rect x="280" y="46" width="216" height="120" rx="12" fill="#fdeee9" stroke="#c2453f" stroke-width="2.5"/>
+          <text x="388" y="76" text-anchor="middle" font-size="16" font-weight="bold" fill="#a63631">住民税</text>
+          <text x="388" y="104" text-anchor="middle" font-size="15" font-weight="bold" fill="#a63631">申告は必要</text>
+          <text x="388" y="128" text-anchor="middle" font-size="12.5" fill="#5c6874">20万円ルールがない</text>
+          <text x="388" y="150" text-anchor="middle" font-size="12.5" fill="#5c6874">市区町村へ出します</text>
+          <path d="M260 176v20" stroke="#c2451f" stroke-width="3" stroke-linecap="round"/>
+          <path d="m252 190 8 10 8-10" fill="none" stroke="#c2451f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="110" y="206" width="300" height="46" rx="12" fill="#fdf3e2" stroke="#8f6015" stroke-width="3"/>
+          <text x="260" y="235" text-anchor="middle" font-size="16" font-weight="bold" fill="#8f6015">確定申告をすれば、両方すみます</text>
+          <text x="260" y="278" text-anchor="middle" font-size="13.5" fill="#5c6874">確定申告のデータは市区町村へ送られます</text>
+        </svg>
+        <p class="venn-cap">※20万円は<strong>所得</strong>の金額です。フリマアプリやネット販売なら「売れた金額－仕入れ－送料－手数料」、原稿料や講演料なら「受け取った金額－経費」。なお、生活に使っていた家財を売った場合は原則として課税されません（1個30万円を超える貴金属・書画骨とうなどを除きます）。</p>
+      </div>
+
+      <div class="cards">
+        <div class="risk-card">
+          <div class="icon ic-amber" data-art="qPc" aria-hidden="true"></div>
+          <h3>副業の所得が15万円</h3>
+          <span class="judge-chip maybe">所得税は不要・住民税は必要</span>
+          <p>所得税の確定申告はいりませんが、住民税の申告は必要です。放っておくと、あとから市区町村に把握されたときに<strong>本来の住民税＋延滞金</strong>という形で届くことがあります。金額は小さくても、手続きは残ります。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-red" data-art="qInvoice" aria-hidden="true"></div>
+          <h3>売上が50万円、経費が35万円</h3>
+          <span class="judge-chip ok">所得は15万円</span>
+          <p>判定に使うのは売上ではなく<strong>所得</strong>です。ただし、経費として引くには<strong>領収書などの記録</strong>が要ります。レシートを捨ててしまうと、売上50万円がそのまま所得として扱われかねません。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-blue" data-art="icKabu" aria-hidden="true"></div>
+          <h3>特定口座（源泉徴収あり）の利益</h3>
+          <span class="judge-chip ok">はじめから申告不要</span>
+          <p>証券会社が税金を天引きして納めてくれているので、20万円ルール以前に申告不要を選べます。ただし<strong>損失が出た年は、申告したほうが得</strong>になることがあります（⑤逆転劇場の第六話）。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-berry" data-art="icHoken" aria-hidden="true"></div>
+          <h3>満期保険金を受け取った</h3>
+          <span class="judge-chip maybe">一時所得として判定</span>
+          <p>受け取った金額そのものではなく、<strong>受取額－払った保険料－50万円</strong>、さらにその<strong>2分の1</strong>が課税の対象です。この金額が20万円以下なら、給与1か所の会社員は申告不要。全額に税金がかかるわけではありません。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 1-3 要る/したほうが得 ===== -->
+    <div class="def-block" id="def-kanpu">
+      <h3 class="def-h"><span class="def-ico ic-green" data-art="icKanpu" aria-hidden="true"></span>3本目：「要る」と「したほうが得」は別の話</h3>
+      <p class="def-lead">確定申告には2種類あります。ひとつは<strong>しなければならない申告</strong>。期限は3月15日で、遅れると加算税や延滞税がつきます。もうひとつが<strong>してもしなくてもいいけれど、すると税金が戻る申告</strong>——これが<strong>還付申告</strong>です。こちらは<strong>その年の翌年1月1日から5年間</strong>できます。つまり、今日この瞬間も、過去5年分の見直しができるということです。</p>
+
+      <p class="age-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <span>覚えておくと得をする一行：<b>還付申告は5年さかのぼれます</b>。手術をした年、家族が入院した年、住宅ローンを組んだ年、年の途中で退職した年。そのどれかが過去5年の中にあるなら、まだ間に合う可能性があります。
+        <small>根拠：所得税法122条（還付等を受けるための申告）、国税通則法74条（還付金等の消滅時効）。ただし、すでに確定申告をした年分について訂正する場合は「更正の請求」となり、原則として申告期限から5年以内です。</small></span>
+      </p>
+
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="義務としての確定申告と、税金が戻る還付申告の期限と性格の違いを示す図">
+          <text x="260" y="28" text-anchor="middle" font-size="18" font-weight="bold" fill="#1b3f5e">同じ「確定申告」でも、性格が違います</text>
+          <rect x="24" y="46" width="216" height="132" rx="12" fill="#fdeee9" stroke="#c2453f" stroke-width="2.5"/>
+          <text x="132" y="76" text-anchor="middle" font-size="16" font-weight="bold" fill="#a63631">しなければならない</text>
+          <text x="132" y="102" text-anchor="middle" font-size="13.5" fill="#5c6874">期限は3月15日</text>
+          <text x="132" y="124" text-anchor="middle" font-size="13.5" fill="#5c6874">遅れると加算税・延滞税</text>
+          <text x="132" y="146" text-anchor="middle" font-size="13.5" fill="#5c6874">たいてい、納める側</text>
+          <text x="132" y="166" text-anchor="middle" font-size="12.5" fill="#a63631">放置がいちばん高くつく</text>
+          <rect x="280" y="46" width="216" height="132" rx="12" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="2.5"/>
+          <text x="388" y="76" text-anchor="middle" font-size="16" font-weight="bold" fill="#2c7a4b">したほうが得</text>
+          <text x="388" y="102" text-anchor="middle" font-size="13.5" fill="#5c6874">1月1日から5年間</text>
+          <text x="388" y="124" text-anchor="middle" font-size="13.5" fill="#5c6874">遅れても罰はない</text>
+          <text x="388" y="146" text-anchor="middle" font-size="13.5" fill="#5c6874">たいてい、戻る側</text>
+          <text x="388" y="166" text-anchor="middle" font-size="12.5" fill="#2c7a4b">誰も教えてくれない</text>
+          <text x="260" y="210" text-anchor="middle" font-size="15" font-weight="bold" fill="#1b3f5e">戻る側の代表は、この3つ</text>
+          <rect x="30" y="224" width="146" height="46" rx="8" fill="#eaf1f7"/>
+          <text x="103" y="244" text-anchor="middle" font-size="13" fill="#27587f">医療費控除</text>
+          <text x="103" y="262" text-anchor="middle" font-size="11.5" fill="#5c6874">年10万円が目安</text>
+          <rect x="186" y="224" width="146" height="46" rx="8" fill="#fdf3e2"/>
+          <text x="259" y="244" text-anchor="middle" font-size="13" fill="#8f6015">寄附金控除</text>
+          <text x="259" y="262" text-anchor="middle" font-size="11.5" fill="#5c6874">ふるさと納税</text>
+          <rect x="342" y="224" width="146" height="46" rx="8" fill="#e8f6ef"/>
+          <text x="415" y="244" text-anchor="middle" font-size="13" fill="#2c7a4b">住宅ローン控除</text>
+          <text x="415" y="262" text-anchor="middle" font-size="11.5" fill="#5c6874">1年目だけ申告</text>
+        </svg>
+        <p class="venn-cap">※このほか、年の途中で退職して再就職しなかった方、雑損控除（災害・盗難）を受ける方、株式の損失を繰り越す方なども「したほうが得」の側です。<strong>税務署から「払いすぎですよ」と連絡が来ることはありません</strong>。取りに行かないかぎり、戻ってこないお金です。</p>
+      </div>
+
+      <div class="cards">
+        <div class="risk-card">
+          <div class="icon ic-green" data-art="icIryo" aria-hidden="true"></div>
+          <h3>1年の医療費が10万円超</h3>
+          <span class="judge-chip ok">戻る可能性あり</span>
+          <p>生計を一にする<strong>家族全員分を合算</strong>できます。通院の電車代・バス代も対象。ただし保険金や高額療養費で戻った分は差し引きます。所得が200万円未満の方は、10万円ではなく<strong>所得の5%</strong>が下限です。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-amber" data-art="icFurusato" aria-hidden="true"></div>
+          <h3>ふるさと納税をした</h3>
+          <span class="judge-chip maybe">やり方が2つある</span>
+          <p>寄附先が5自治体以内で他に申告することがなければ<strong>ワンストップ特例</strong>、それ以外は確定申告。注意すべきは、<strong>確定申告をするとワンストップ特例が無効になる</strong>こと（④あるある劇場の第二幕）。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-blue" data-art="qHouse" aria-hidden="true"></div>
+          <h3>住宅ローンを組んだ1年目</h3>
+          <span class="judge-chip ng">申告しないと使えない</span>
+          <p>住宅ローン控除は<strong>初年度だけ確定申告が必要</strong>で、2年目以降は年末調整でできます。1年目を出し忘れると、その年の控除が受けられません（還付申告として5年以内なら手当てできる場合があります）。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-berry" data-art="icJikan" aria-hidden="true"></div>
+          <h3>年の途中で退職した</h3>
+          <span class="judge-chip ok">戻ることが多い</span>
+          <p>毎月の天引きは「1年間その給与が続く」前提の概算です。年の途中で辞めて再就職しなかった方は<strong>払いすぎになっているのが普通</strong>。誰も精算してくれないので、自分で取りに行くしかありません。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>3本の線に共通するのは、<strong>「誰かがやってくれている」という思い込み</strong>です。年末調整は万能ではなく、20万円ルールは住民税には効かず、戻るお金は取りに行かないと戻りません。まず必要なのは、対策でも節税でもなく、<strong>源泉徴収票を1枚探すこと</strong>です。※記載は一般的な取扱いであり、個別の税額計算・申告については税理士にご確認ください。</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション2：○×クイズ ================= -->
+<section id="sec2" class="band round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>2</i><span>思い込みをチェック</span></span>
+        <h2>要る？要らない？　<span class="nowrap">申告ワナクイズ</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotQuiz" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">ここからが本番です。笑いどころもありますが、<strong>すべて実際の決まりごとがモデル</strong>。「要る」と思ったら○、「要らない」と思ったら×を押してください。問題によっては、選択肢の言葉が変わります。全問正解できた方は、ぜひご家族にも教えてあげてください。</p>
+    </div>
+    <div class="quiz-shell">
+      <div id="quizPlay">
+        <div class="q-top">
+          <div class="q-count">質問 <span id="qNum">1</span> ／ 8</div>
+          <div class="dots" id="qDots" aria-hidden="true"></div>
+        </div>
+        <div class="q-body">
+          <div class="icon" id="qIcon" aria-hidden="true"></div>
+          <p id="qText"></p>
+        </div>
+        <div class="ans-row">
+          <button type="button" class="ans-btn yes" id="btnYes">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/></svg>
+            <span id="lblYes">要る</span>
+          </button>
+          <button type="button" class="ans-btn no" id="btnNo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            <span id="lblNo">要らない</span>
+          </button>
+        </div>
+        <div class="verdict" id="verdict" aria-live="polite">
+          <div class="verdict-head">
+            <span class="verdict-answer" id="vAnswer"></span>
+            <span class="result-chip" id="vChip"></span>
+          </div>
+          <p class="expl" id="vExpl"></p>
+          <div class="kv kv-wana"><b>ワナの正体：</b><span id="vWana"></span></div>
+          <div class="kv"><b>確認ポイント：</b><span id="vCheck"></span></div>
+        </div>
+        <button type="button" class="btn-primary" id="btnNext" style="display:none;">
+          次の質問へ
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+        <button type="button" class="btn-ghost" id="btnStopHere" style="display:none;">ここまでの結果を見る（残りはあとでも大丈夫です）</button>
+      </div>
+
+      <div class="quiz-done" id="quizDone">
+        <p class="score">クイズおつかれさまでした！　<span class="nowrap"><span id="doneTotal">8</span>問中 <span class="num" id="doneScore">0</span> 問正解</span></p>
+        <p class="cmt" id="doneCmt"></p>
+        <div class="wrong-list" id="wrongList" style="display:none;"></div>
+        <div data-cta-mini></div>
+        <button type="button" class="btn-ghost" id="btnMailSelf">この結果を自分（またはご家族）に送る</button>
+        <button type="button" class="btn-ghost" id="btnPrint">印刷して源泉徴収票と一緒に保管する</button>
+        <button type="button" class="btn-ghost" id="btnRetry">もう一度挑戦する</button>
+      </div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>クイズの「要る・要らない」は、一般的な取扱いを前提とした例です。実際の判定は、収入の種類・金額・ご家族の状況によって変わります。「うちはどうだろう」と思ったら、それが源泉徴収票を出すベストタイミングです。</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション3：いくら戻るのか ================= -->
+<section id="sec3" class="band-sky round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>3</i><span>手間と金額を天秤に</span></span>
+        <h2>年末調整で終わる人、<span class="nowrap">終わらない人</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotCalc" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">「面倒なわりに、たいして戻らないんでしょう」——ご相談でよく聞くひと言です。ここだけは、数字でお答えします。医療費が30万円かかった年、ふるさと納税を5万円した年。その2つが重なるだけで、戻る金額は<strong>数万円</strong>になります。手続きは、書類が揃っていれば1時間ほどです。</p>
+    </div>
+
+    <p class="sec-lead">まず、どの控除が<strong>年末調整でできて</strong>、どれが<strong>確定申告に行かないと使えない</strong>のかを整理しておきましょう。会社員がお金を取りこぼすのは、たいてい右の列です。</p>
+
+    <div class="type-table-box">
+      <table class="type-table" aria-label="控除を年末調整でできるものと確定申告が必要なものに分けた比較表">
+        <thead>
+          <tr>
+            <th>おもな控除</th>
+            <th>年末調整<small>会社に出す</small></th>
+            <th>確定申告<small>自分で出す</small></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>生命保険料控除・地震保険料控除</td>
+            <td><span class="mark-ok">できる</span></td>
+            <td>できる</td>
+          </tr>
+          <tr>
+            <td>扶養控除・配偶者控除<small>※判定は12月31日</small></td>
+            <td><span class="mark-ok">できる</span></td>
+            <td>できる</td>
+          </tr>
+          <tr>
+            <td>iDeCo・小規模企業共済の掛金</td>
+            <td><span class="mark-ok">できる</span></td>
+            <td>できる</td>
+          </tr>
+          <tr>
+            <td>医療費控除<small>※家族分を合算</small></td>
+            <td>できない</td>
+            <td><span class="mark-ok">ここだけ</span></td>
+          </tr>
+          <tr>
+            <td>寄附金控除<small>※ふるさと納税</small></td>
+            <td>できない</td>
+            <td><span class="mark-ok">ここだけ</span></td>
+          </tr>
+          <tr>
+            <td>雑損控除<small>※災害・盗難</small></td>
+            <td>できない</td>
+            <td><span class="mark-ok">ここだけ</span></td>
+          </tr>
+          <tr>
+            <td>住宅ローン控除の1年目</td>
+            <td>できない</td>
+            <td><span class="mark-ok">ここだけ</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="venn-cap">※ふるさと納税は、寄附先が5自治体以内で確定申告をしない場合にかぎり<strong>ワンストップ特例</strong>が使えます。確定申告をすると、この特例は無効になります。住宅ローン控除は2年目以降なら年末調整でできます。</p>
+    </div>
+
+    <p class="sec-lead">そのうえで、ご自宅の数字を入れてみてください。<strong>そもそも申告が要るのか</strong>と、<strong>したらいくら戻りそうか</strong>が、その場で分かります。</p>
+
+    <div class="sim-box">
+      <h3>体感シミュレーター「うちは、要る？　いくら戻る？」</h3>
+      <p class="sub">1年分の金額を入れてください。金額はこのページの説明用に単純化した概算で、実際の税額を示すものではありません。</p>
+
+      <div class="sim-ctrl">
+        <label for="simKyuyo">給与の年収（万円）</label>
+        <input type="number" id="simKyuyo" min="0" max="9999" step="10" value="500" inputmode="numeric" style="width:100%;height:46px;border:2px solid var(--line);border-radius:12px;padding:0 12px;font-size:1.05rem;font-weight:700;color:var(--navy);background:var(--white);">
+      </div>
+      <div class="sim-ctrl">
+        <label for="simOther">給与以外の所得（万円）</label>
+        <input type="number" id="simOther" min="0" max="9999" step="1" value="15" inputmode="numeric" style="width:100%;height:46px;border:2px solid var(--line);border-radius:12px;padding:0 12px;font-size:1.05rem;font-weight:700;color:var(--navy);background:var(--white);">
+      </div>
+      <div class="sim-ctrl">
+        <label for="simIryo">1年に払った医療費（万円）</label>
+        <input type="number" id="simIryo" min="0" max="9999" step="1" value="25" inputmode="numeric" style="width:100%;height:46px;border:2px solid var(--line);border-radius:12px;padding:0 12px;font-size:1.05rem;font-weight:700;color:var(--navy);background:var(--white);">
+      </div>
+      <div class="sim-ctrl">
+        <label for="simFuru">ふるさと納税の寄附額（万円）</label>
+        <input type="number" id="simFuru" min="0" max="999" step="1" value="5" inputmode="numeric" style="width:100%;height:46px;border:2px solid var(--line);border-radius:12px;padding:0 12px;font-size:1.05rem;font-weight:700;color:var(--navy);background:var(--white);">
+      </div>
+      <div class="sim-ctrl">
+        <label for="simRate">所得税率の目安</label>
+        <select id="simRate" style="width:100%;height:46px;border:2px solid var(--line);border-radius:12px;padding:0 12px;font-size:1.05rem;font-weight:700;color:var(--navy);background:var(--white);">
+          <option value="5">5%（課税所得195万円以下のめやす）</option>
+          <option value="10" selected>10%（課税所得195万〜330万円）</option>
+          <option value="20">20%（課税所得330万〜695万円）</option>
+          <option value="23">23%（課税所得695万〜900万円）</option>
+          <option value="33">33%（課税所得900万〜1,800万円）</option>
+        </select>
+      </div>
+
+      <div class="timeline" aria-hidden="true">
+        <div class="tl-track">
+          <div class="tl-fill back" id="tlFill" style="width:20%;"></div>
+          <div class="tl-goal" style="left:50%;">5万円の線<br>（ここを超えると腰が上がります）</div>
+        </div>
+        <div class="tl-labels"><span>戻る額 0円</span><span>5万円</span><span>10万円</span></div>
+      </div>
+
+      <div class="sim-results" aria-live="polite">
+        <div class="sim-r" id="simR1">
+          <h4>そもそも、申告は要る？<small>しなければならない側かどうか</small></h4>
+          <span class="r-chip" id="simR1Chip"></span>
+          <p id="simR1Txt"></p>
+        </div>
+        <div class="sim-r" id="simR2">
+          <h4>医療費控除で戻る目安<small>所得税の還付＋翌年の住民税の減少</small></h4>
+          <span class="r-chip" id="simR2Chip"></span>
+          <p id="simR2Txt"></p>
+        </div>
+        <div class="sim-r" id="simR3">
+          <h4>ふるさと納税で戻る目安<small>上限の範囲内におさまっている前提</small></h4>
+          <span class="r-chip" id="simR3Chip"></span>
+          <p id="simR3Txt"></p>
+        </div>
+      </div>
+
+      <div class="sim-total">
+        <span class="lead" id="simTotalLead">この条件なら</span>
+        <span class="big" id="simTotalBig"></span>
+        <span class="sub2" id="simTotalSub"></span>
+      </div>
+
+      <p class="sim-note venn-cap" style="margin-top:10px;">※前提：医療費控除の下限を一律10万円として計算しています（総所得金額等が200万円未満の方は、10万円ではなくその5%が下限になります）。保険金・高額療養費などで補てんされた金額、セルフメディケーション税制、住民税の所得割の上限、ふるさと納税の控除限度額は考慮していません。復興特別所得税（2.1%）も含めていません。住民税は一律10%として計算しています。実際の金額は必ず税理士または所轄の税務署にご確認ください。</p>
+    </div>
+
+    <div class="mikane" style="margin-top:26px;">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+        だから、面倒がるほどの手間ではありません
+      </h3>
+      <ol>
+        <li><strong>必要な書類は、たいてい4つ。</strong>源泉徴収票、医療費の領収書（または医療費のお知らせ）、寄附金の受領証明書、保険料控除証明書。<b>引き出しをひとつ開ければ揃う</b>ご家庭がほとんどです。</li>
+        <li><strong>並ばなくても出せます。</strong>還付申告は1月1日から受け付けています。書面での郵送提出のほか、電子申告という方法もあります。<b>3月の混雑に付き合う必要はありません</b>。</li>
+        <li><strong>そして、5年ある。</strong>今年の分が間に合わなくても、来年でも再来年でも取り戻せます。焦らなくていい代わりに、<b>忘れるといちばん損</b>をします。</li>
+      </ol>
+      <p class="caution">
+        <strong>いちばん多いのは「知らないまま5年が過ぎる」</strong>
+        ご相談でよく出会うのが、5年より前に手術や入院があったご家庭です。医療費控除の存在は知っていても、<b>自分の年が対象だと気づかなかった</b>。あるいは、退職した年の源泉徴収票を「もう使わないから」と処分してしまった。制度を知らなかったのではなく、<b>自分ごとだと気づかなかった</b>——これがいちばん多い形です。だから、まず数えるのは今年の分から。
+      </p>
+    </div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>確定申告は、<strong>「払いすぎた税金を取りに行く手続き」</strong>でもあります。難しいのは制度そのものではなく、<strong>自分が対象かどうかに気づくこと</strong>。このページのチェックリストは、そのために作りました。※個別の税額計算・申告については税理士にご確認ください。</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション4：あるある劇場 ================= -->
+<section id="sec4" class="band-blush round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>4</i><span>よく伺うお話の寸劇集</span></span>
+        <h2>確定申告あるある劇場</h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotTheater" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">ご相談の場でよく伺うお話を、寸劇風にまとめました。笑えるのは他人事のうちです。気になる演目をタップしてご覧ください。</p>
+    </div>
+
+    <div class="case-grid" id="caseGrid"></div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>各演目は一般的な内容をもとにした創作例で、実在の個人・事案とは関係ありません。金額はいずれも「たとえば」の例であり、実際の取扱いは収入の種類・金額・ご家族の状況により異なります。</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション5：逆転劇場 ================= -->
+<section id="sec5" class="band-mint round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>5</i><span>知っていた人の話</span></span>
+        <h2>逆転劇場〜戻ってくる<span class="nowrap">お金の話〜</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotGift" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">ここまで「うっかり」の話ばかりで、申告が怖くなりかけていませんか。ご安心ください。確定申告は本来、<strong>払いすぎを返してもらうための手続き</strong>でもあります。しかもそのほとんどが、<strong>知っていて、書いた人だけ</strong>が受け取れるもの。ここからは味方になる8つの制度です。</p>
+    </div>
+
+    <div class="model-note">
+      <strong>このページの「戻る金額」の目安</strong>
+      <span class="mn-row">所得税の税率が <b>10%</b>、住民税が <b>10%</b> の方を想定した概算です</span>
+      <span class="mn-note">※実際の金額は、所得・家族構成・控除の適用要件によって変わります。復興特別所得税は含めていません。個別の税額計算・申告については税理士にご確認ください。</span>
+    </div>
+
+    <div class="case-grid" id="goodGrid"></div>
+
+    <div class="rule3-box">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg>
+        取りこぼさないための「申告の3か条」
+      </h3>
+      <ol>
+        <li><strong>書かないと、使えない。</strong>医療費控除も寄附金控除も雑損控除も、申告書に書いて初めて認められます。税務署から「使い忘れていますよ」という連絡は来ません。</li>
+        <li><strong>捨てないと、間に合う。</strong>還付申告は5年、更正の請求も原則5年。取り戻せるかどうかは、<b>源泉徴収票と領収書が残っているか</b>で決まります。まず捨てないこと。</li>
+        <li><strong>迷ったら、出す側で考える。</strong>申告して損をすることは、ほとんどありません。逆に、しなくてよかったのにした場合でも、罰はありません。<b>迷ったら確認する</b>のが正解です。</li>
+      </ol>
+      <p class="rule3-note">※金額はいずれも一例です。適用の可否は要件と事実関係により異なります。手続の期限は個別にご確認ください。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション6：数字の話 ================= -->
+<section id="sec6" class="band-sky round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>6</i><span>数字の話をひとつだけ</span></span>
+        <h2>確定申告をする人は、<span class="nowrap">2千万人超</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotCal" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">最後に、数字の話をひとつだけ。日本で確定申告書を出している人は、毎年<strong>2,000万人を超えます</strong>。そして意外に思われるかもしれませんが、そのうち<strong>半数以上は「戻してもらう側」</strong>です。確定申告は納める人の手続きだと思われがちですが、実際にはお金が戻る人のほうが多い手続きなのです。</p>
+    </div>
+
+    <div class="life-box">
+      <h3>確定申告書を出す人の、半分以上は還付申告</h3>
+      <p class="sub">申告書を提出した人のうち、税金が戻る申告だった人の割合のイメージ</p>
+      <svg viewBox="0 56 380 196" role="img" aria-label="確定申告書を提出する人のうち、納める人より税金が戻る還付申告の人のほうが多いことを示す棒グラフ">
+        <path d="M18 170h344" stroke="#d9cfc4" stroke-width="2" stroke-linecap="round"/>
+        <rect x="42" y="80" width="46" height="90" rx="4" fill="#b3e3b8"/>
+        <text x="65" y="72" text-anchor="middle" font-size="14" font-weight="bold" fill="#2c7a4b">半数超</text>
+        <text x="65" y="190" text-anchor="middle" font-size="12.5" fill="#5c6874">戻る申告</text>
+        <text x="65" y="206" text-anchor="middle" font-size="11" fill="#5c6874">還付</text>
+        <rect x="152" y="118" width="46" height="52" rx="4" fill="#f7c34e"/>
+        <text x="175" y="110" text-anchor="middle" font-size="14" font-weight="bold" fill="#8f6015">約2割</text>
+        <text x="175" y="190" text-anchor="middle" font-size="12.5" fill="#5c6874">納める申告</text>
+        <text x="175" y="206" text-anchor="middle" font-size="11" fill="#5c6874">納税</text>
+        <rect x="262" y="134" width="46" height="36" rx="4" fill="#c6e2f2"/>
+        <text x="285" y="126" text-anchor="middle" font-size="14" font-weight="bold" fill="#24729f">残り</text>
+        <text x="285" y="190" text-anchor="middle" font-size="12.5" fill="#5c6874">差引ゼロ</text>
+        <text x="285" y="206" text-anchor="middle" font-size="11" fill="#5c6874">など</text>
+        <text x="190" y="240" text-anchor="middle" font-size="13" font-weight="bold" fill="#a63631">申告は「取りに行く手続き」でもあります</text>
+      </svg>
+      <p class="life-cap">※国税庁「申告所得税等の確定申告状況」の公表値にもとづく<strong>おおまかなイメージ</strong>です。年により変動します。比率は年分によって上下しますので、正確な数値は国税庁の公表資料をご確認ください。</p>
+
+      <div class="big3">
+        <span class="b"><span class="n">5年</span><span class="l">還付申告ができる期間</span><span class="s">翌年1月1日から5年間。3月15日は関係ありません</span></span>
+        <span class="b"><span class="n">20万円</span><span class="l">所得税だけのルール</span><span class="s">住民税には20万円ルールがありません</span></span>
+        <span class="b"><span class="n">10万円</span><span class="l">医療費控除の目安</span><span class="s">家族分を合算。所得200万円未満の方は5%</span></span>
+      </div>
+    </div>
+
+    <h3 class="sub-h">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+      年代によって、引っかかる場所が違います
+    </h3>
+    <p class="sub-lead">同じ「確定申告」でも、見落としやすいところは年代でまるで違います。ご自身に近いカードをご覧ください。</p>
+
+    <div class="age-cards">
+      <div class="age-card">
+        <p class="ttl"><span class="ico ic-blue" data-art="qPc" aria-hidden="true"></span>20〜30代</p>
+        <span class="kind">副業とふるさと納税</span>
+        <div class="rows">
+          <p class="row"><span>つまずく線</span><b>20万円ルール</b></p>
+          <p class="row"><span>取りこぼし</span><b>ワンストップ</b></p>
+        </div>
+        <p class="cmt">副業の所得と経費の記録、そしてふるさと納税の扱い。転職した年や、住宅を買った年も要注意の年代です。</p>
+        <p class="src">※20万円以下でも住民税の申告は必要です</p>
+      </div>
+      <div class="age-card">
+        <p class="ttl"><span class="ico ic-red" data-art="icIryo" aria-hidden="true"></span>40〜50代</p>
+        <span class="kind">医療費と扶養</span>
+        <div class="rows">
+          <p class="row"><span>つまずく線</span><b>扶養の判定</b></p>
+          <p class="row"><span>取りこぼし</span><b>医療費の合算</b></p>
+        </div>
+        <p class="cmt">ご自身とご両親、お子さんの医療費が重なる年代です。お子さんのアルバイト収入で扶養が外れる年も出てきます。</p>
+        <p class="src">※扶養の判定は12月31日時点。所得の要件は改正があります</p>
+      </div>
+      <div class="age-card">
+        <p class="ttl"><span class="ico ic-green" data-art="icNenkinsha" aria-hidden="true"></span>60代以降</p>
+        <span class="kind">年金と退職</span>
+        <div class="rows">
+          <p class="row"><span>つまずく線</span><b>申告不要制度</b></p>
+          <p class="row"><span>取りこぼし</span><b>控除の申告漏れ</b></p>
+        </div>
+        <p class="cmt">公的年金等が400万円以下なら申告は不要ですが、医療費控除や生命保険料控除を使うと戻ることが多い年代です。</p>
+        <p class="src">※申告不要でも、還付申告はできます</p>
+      </div>
+    </div>
+
+    <div class="mikane">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5V9.2M12 9.2 7.6 5M12 9.2 16.4 5"/><circle cx="12" cy="15" r="8.2"/></svg>
+        だから、いまできることは3つだけ
+      </h3>
+      <ol>
+        <li><strong>探す。</strong>源泉徴収票、医療費の領収書、寄附金の受領証明書、保険料控除証明書。<b>この4つを1か所に集める</b>だけで、話は半分終わります。</li>
+        <li><strong>数える。</strong>医療費は家族全員分を合算し、副業は売上から経費を引く。<b>数えてみないと、線の内側か外側かは分かりません</b>。</li>
+        <li><strong>捨てない。</strong>還付申告は5年。<b>書類が残っていれば、あとからでも取り戻せます</b>。逆に、捨ててしまうと制度があっても使えません。</li>
+      </ol>
+      <p class="caution">
+        <strong>そして、いちばん大事なこと</strong>
+        確定申告でご家庭が損をするのは、制度を知らなかったからではなく、<b>「自分は関係ない」と決めていた</b>からです。会社員だから、副業は小さいから、うちは病気をしないから。そう思っていた方が、数えてみたら対象だった——というのがいちばん多い形です。まずは今年の分から、1時間だけ。
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= まとめ ================= -->
+<section id="matome" class="band round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill plain">まとめ</span>
+        <h2>あなたの確定申告チェック</h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotCheck" aria-hidden="true"></span></div>
+    </div>
+    <p class="sec-lead">最後に、いまの状況を確認してみましょう。あてはまるもの・できたものをタップ（クリック）してください。</p>
+
+    <div class="score-box">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/><circle cx="12" cy="12" r="9"/></svg>
+        クイズの結果
+      </h3>
+      <div id="sumScore">
+        <p>まだクイズに挑戦していません。<a href="#sec2">②の○×クイズ</a>で、「要る・要らない」の思い込みをチェックしてみてください。</p>
+      </div>
+    </div>
+
+    <div class="checklist" id="checklist">
+      <p class="chk-group">今日おうちで確認できること</p>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkPdf" aria-hidden="true"></span><span>今年の<strong>源泉徴収票</strong>が、どこにあるか分かる</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkReceipt" aria-hidden="true"></span><span>1年分の<strong>医療費</strong>を、ご家族全員分で合計してみた（通院の交通費も含めて）</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkInvoice" aria-hidden="true"></span><span><strong>ふるさと納税</strong>をしたかどうか、寄附先が何自治体かを確認した</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkPc" aria-hidden="true"></span><span>副業がある場合、<strong>売上と経費</strong>を集計して所得を出してみた</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkShield" aria-hidden="true"></span><span><strong>保険料控除証明書</strong>（生命保険・地震保険）が手元にある</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkBank" aria-hidden="true"></span><span>証券口座がある場合、<strong>年間取引報告書</strong>で損益を確認した</span></label>
+      <p class="chk-group">次に、誰かに聞くこと</p>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkPeople" aria-hidden="true"></span><span><strong>扶養に入れている家族</strong>の1年の収入を、12月までに確認する段取りがある</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkBack" aria-hidden="true"></span><span>過去5年に<strong>退職・入院・住宅購入</strong>があった年がないか、思い出してみた</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkHome" aria-hidden="true"></span><span>住宅ローン控除の<strong>1年目の申告</strong>が済んでいるか確認した（該当する方）</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkAoiro" aria-hidden="true"></span><span>判断に迷う項目を<strong>メモにして、聞く相手を決めた</strong></span></label>
+    </div>
+    <div class="chk-msg" id="chkMsg">
+      あてはまるものにチェックを入れてみてください。今日おうちで確認できる項目と、次に誰かに聞く項目が混じっています。
+    </div>
+    <div data-cta-mini></div>
+
+    <details class="finder">
+      <summary>「何から探せばいいか分からない」も、よくあるご相談です</summary>
+      <ul>
+        <li>まずは<strong>源泉徴収票</strong>。12月か1月に会社からもらう、あの小さな紙です。ここに1年の給与と、天引きされた所得税が全部書いてあります。</li>
+        <li>次に<strong>医療費</strong>。加入している健康保険から「医療費のお知らせ」が届くことがあり、これを使える場合があります（記載されていない期間は領収書で補います）。</li>
+        <li><strong>保険料控除証明書</strong>は、たいてい10月から11月に届きます。年末調整で出した方は、その控えでも確認できます。</li>
+        <li>ぜんぶ揃わなくても大丈夫です。ざっくりした数字でも、「要る側か、戻る側か」の見当はつきます。</li>
+      </ul>
+      <p>「面倒そう」——いちばんよく聞くお言葉です。ですが、実際に手を動かす時間は、書類が揃っていれば1時間ほど。しかも5年さかのぼれますから、今年うまくいけば、過去の分もまとめて片づきます。</p>
+    </details>
+
+    <details class="finder" style="margin-top:14px;">
+      <summary>「申告すると、かえって損をすることは？」——気をつける点もあります</summary>
+      <ul>
+        <li>申告した所得は、<strong>住民税・国民健康保険料・保育料などの計算にも使われます</strong>。所得が増える申告をすると、税金以外の負担にも影響することがあります。</li>
+        <li>ふるさと納税は、<strong>控除の限度額を超えた部分は自己負担</strong>です。年収が下がった年に前年と同じ感覚で寄附すると、超えてしまうことがあります。</li>
+        <li>医療費控除を家族の誰がまとめるかで、戻る金額も他の負担も変わります。<strong>所得が高い人がまとめれば有利、とは一概に言えません</strong>。</li>
+        <li>いったん出した申告を直す手続き（更正の請求・修正申告）はありますが、手間は増えます。<strong>出す前に一度確認する</strong>のが結局いちばん早道です。</li>
+      </ul>
+      <p>確定申告は「出せば必ず得」という単純なものではなく、<strong>ご家庭全体で見るとどうか</strong>という視点が要ります。迷ったら、出す前にご相談ください。</p>
+    </details>
+
+    <div class="cta-box" id="soudan">
+      <h3>年が明ける前に、<span class="nowrap">30分だけ</span></h3>
+      <p class="cta-lead">このページの内容は、あくまで一般的なしくみの話。<strong>ご自宅の場合にどうなるか</strong>は、実際の収入と控除の中身で決まります。こんなご相談をよくお受けしています。</p>
+      <ul>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>うちは確定申告が要るのか、まず判定だけ知りたい</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>医療費とふるさと納税で、いくらくらい戻るのか概算を知りたい</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>過去5年に、取り戻せる年がないか一緒に見てほしい</span></li>
+      </ul>
+      <p class="cta-lead">お時間の目安は30分ほど。書類が揃っていなくても大丈夫、揃えるところからお手伝いします。<strong>個別具体的な税務相談・税務書類の作成・税務代理は、税理士が対応します。</strong>いただいた個人情報は、ご相談への対応のみに使用し、ご本人の同意なく第三者に提供しません。</p>
+
+      <p class="co">株式会社Office-M</p>
+      <p class="addr">受付：平日 9:00〜17:00</p>
+      <p class="tip">源泉徴収票がお手元にあると、その場での判定がより早く進みます。</p>
+    </div>
+  </div>
+</section>
+
+<!-- 募集文書審査：未了。委託先保険会社の承認番号の要否を確認のうえ公開すること -->
+<footer class="disclaimer">
+  <p>本資料は、株式会社Office-Mが確定申告の一般的なしくみをご理解いただくために作成した情報提供資料です。記載内容は2026年8月時点の法令等にもとづく一般的な取扱いであり、個別の事案への当てはめは収入の種類・金額・ご家族の状況によって結論が変わります。シミュレーターの結果はいずれも簡易な概算であり、実際の税額を示すものではありません。実際の判断・申告にあたっては、必ず税理士または所轄の税務署にご確認ください。<strong>個別具体的な税務相談・税務書類の作成・税務代理は、税理士が対応します。</strong>本資料の内容によって生じた結果について、当社は責任を負いかねます。</p>
+  <p style="margin-top:10px;">主な根拠：所得税法22条・73条・78条・120条・121条・122条・190条（総所得金額、医療費控除、寄附金控除、確定所得申告、申告を要しない場合、還付等を受けるための申告、年末調整）、租税特別措置法41条（住宅借入金等特別控除）・37条の12の2（上場株式等の譲渡損失の繰越控除）、地方税法317条の2（住民税の申告）、国税通則法23条（更正の請求）ほか。申告状況の数値は国税庁「申告所得税等の確定申告状況」の公表値にもとづく概数です。制度は改正されることがあります。最新の内容は国税庁のタックスアンサー等でご確認ください。</p>
+  <p style="margin-top:10px;">作成：株式会社Office-M（2026年8月）</p>
+</footer>
+<!-- ================= 演目詳細モーダル ================= -->
+<div class="cmodal" id="caseModal" aria-hidden="true">
+  <div class="cmodal-back" id="caseModalBack"></div>
+  <div class="cmodal-panel" role="dialog" aria-modal="true" aria-labelledby="caseModalTitle">
+    <div class="cmodal-head" id="caseModalHead">
+      <button type="button" class="cmodal-close" id="caseModalClose" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <div class="cmodal-ico" id="caseModalIco" aria-hidden="true"></div>
+      <div>
+        <span class="cmodal-chip" id="caseModalChip"></span>
+        <h3 class="cmodal-title" id="caseModalTitle"></h3>
+      </div>
+    </div>
+    <div class="cmodal-body">
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 15.5a2 2 0 0 1-2 2H8l-4 3.5v-15a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"/></svg>
+          <span id="caseModalLbl1">ご相談で伺ったお話（脚色あり）</span>
+        </div>
+        <blockquote class="cmodal-quote" id="caseModalStory"></blockquote>
+      </div>
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-red" id="caseModalLbl2Wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+          <span id="caseModalLbl2">何が起きたのか</span>
+        </div>
+        <div id="caseModalWhat"></div>
+      </div>
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-green">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
+          <span id="caseModalLbl3">こう確認すれば防げます</span>
+        </div>
+        <div id="caseModalHow"></div>
+      </div>
+      <div data-cta-mini></div>
+      <p class="cmodal-note">※演目は一般的な内容をもとにした創作例で、実在の個人・法人・事案とは関係ありません。税務の取扱いは事実関係により異なります。実際の判断は、顧問税理士または所轄の税務署にご確認ください。</p>
+    </div>
+  </div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- 案内役のイラスト ---------- */
+var SVG_GUIDE =
+  '<svg viewBox="0 0 64 64">' +
+  '<circle cx="32" cy="32" r="32" fill="#ffeee3"/>' +
+  '<path d="M8 64c0-13 11-20 24-20s24 7 24 20H8Z" fill="#f0846a"/>' +
+  '<rect x="27" y="39" width="10" height="11" rx="5" fill="#f7cdb4"/>' +
+  '<path d="M25 45l7 9 7-9 3.4 1.8L32 61 21.6 46.8Z" fill="#fff"/>' +
+  '<ellipse cx="32" cy="28" rx="16" ry="17" fill="#5c4030"/>' +
+  '<ellipse cx="32" cy="30" rx="12.5" ry="13.5" fill="#f7cdb4"/>' +
+  '<path d="M19.5 27c0-9 5.6-14.5 12.5-14.5S44.5 18 44.5 27c-1.6-3.6-4.2-5.7-7.2-6.6-2.6 2.4-7 3.8-10.9 3.2-1.4 1-2.4 2.1-2.9 3.4Z" fill="#5c4030"/>' +
+  '<circle cx="27" cy="30" r="1.6" fill="#3d3028"/><circle cx="37" cy="30" r="1.6" fill="#3d3028"/>' +
+  '<path d="M29.4 35.6c1.6 1.7 3.6 1.7 5.2 0" fill="none" stroke="#3d3028" stroke-width="1.6" stroke-linecap="round"/>' +
+  '</svg>';
+
+document.querySelectorAll('[data-guide]').forEach(function(el){ el.innerHTML = SVG_GUIDE; });
+
+/* ---------- スポット・アイコン ---------- */
+var S = 'fill="none" stroke-linecap="round" stroke-linejoin="round"';
+var ARTS = {
+  spotLine:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="6" y="16" width="22" height="32" rx="5" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="2.5"/>' +
+    '<rect x="36" y="16" width="22" height="32" rx="5" fill="#fdf3e2" stroke="#8f6015" stroke-width="2.5"/>' +
+    '<path d="M32 8v48" stroke="#c2451f" stroke-width="3" stroke-dasharray="5 4" stroke-linecap="round"/>' +
+    '<path d="m12 32 4 4 8-8" fill="none" stroke="#2c7a4b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M42 27l10 10M52 27l-10 10" stroke="#8f6015" stroke-width="3" stroke-linecap="round"/>' +
+    '</svg>',
+  spotQuiz:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="24" fill="#e8f4fb"/>' +
+    '<path d="M25 26.5c.6-4.2 3.6-6.6 7.4-6.6 4.2 0 7.4 2.8 7.4 6.8 0 3.4-2 5.2-4.4 6.8-2 1.3-2.9 2.3-2.9 4.5" fill="none" stroke="#24729f" stroke-width="3.4" stroke-linecap="round"/>' +
+    '<circle cx="32.4" cy="45" r="2.6" fill="#f0846a"/>' +
+    '</svg>',
+  spotCalc:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="14" y="6" width="36" height="52" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<rect x="20" y="12" width="24" height="12" rx="4" fill="#27587f"/>' +
+    '<path d="M24 18h16" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>' +
+    '<circle cx="24" cy="32" r="3.6" fill="#c6e2f2"/><circle cx="32" cy="32" r="3.6" fill="#c6e2f2"/><circle cx="40" cy="32" r="3.6" fill="#c6e2f2"/>' +
+    '<circle cx="24" cy="42" r="3.6" fill="#c6e2f2"/><circle cx="32" cy="42" r="3.6" fill="#c6e2f2"/><circle cx="40" cy="42" r="3.6" fill="#f7c34e"/>' +
+    '<circle cx="24" cy="51" r="3.6" fill="#c6e2f2"/><circle cx="32" cy="51" r="3.6" fill="#c6e2f2"/><circle cx="40" cy="51" r="3.6" fill="#f0846a"/>' +
+    '</svg>',
+  spotTheater:
+    '<svg viewBox="0 0 64 64">' +
+    '<path d="M8 10h48v8c0 4-3 7-7 7H15c-4 0-7-3-7-7Z" fill="#c2453f"/>' +
+    '<path d="M10 14c4 22 4 30 3 40h8c-2-12-1-24 3-40Z" fill="#a63631"/>' +
+    '<path d="M54 14c-4 22-4 30-3 40h-8c2-12 1-24-3-40Z" fill="#a63631"/>' +
+    '<circle cx="32" cy="38" r="13" fill="#ffeee3"/>' +
+    '<circle cx="27.5" cy="35.5" r="1.8" fill="#3d3028"/><circle cx="36.5" cy="35.5" r="1.8" fill="#3d3028"/>' +
+    '<path d="M27 42c3 3 7 3 10 0" fill="none" stroke="#3d3028" stroke-width="2" stroke-linecap="round"/>' +
+    '</svg>',
+  spotGift:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="8" y="24" width="48" height="34" rx="6" fill="#fffdf8" stroke="#c3e5d3" stroke-width="2.5"/>' +
+    '<rect x="8" y="24" width="48" height="12" rx="6" fill="#4fbf9b"/>' +
+    '<rect x="28" y="24" width="8" height="34" fill="#2c7a4b"/>' +
+    '<path d="M32 24s-6-.7-8.5-3.2a3.6 3.6 0 0 1 5.1-5.1C31.1 18.2 32 24 32 24Z" fill="#f7c34e"/>' +
+    '<path d="M32 24s6-.7 8.5-3.2a3.6 3.6 0 0 0-5.1-5.1C32.9 18.2 32 24 32 24Z" fill="#f7c34e"/>' +
+    '<circle cx="47" cy="15" r="6.5" fill="#f0846a"/>' +
+    '<path d="M44.5 15h5M47 12.5v5" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>' +
+    '</svg>',
+  spotCal:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="8" y="12" width="48" height="44" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<path d="M8 24h48" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<rect x="8" y="12" width="48" height="12" rx="7" fill="#27587f"/>' +
+    '<path d="M20 6v10M44 6v10" stroke="#1b3f5e" stroke-width="4" stroke-linecap="round"/>' +
+    '<rect x="15" y="30" width="8" height="7" rx="2" fill="#c6e2f2"/>' +
+    '<rect x="28" y="30" width="8" height="7" rx="2" fill="#f0846a"/>' +
+    '<rect x="41" y="30" width="8" height="7" rx="2" fill="#c6e2f2"/>' +
+    '<rect x="15" y="42" width="8" height="7" rx="2" fill="#f7c34e"/>' +
+    '<rect x="28" y="42" width="8" height="7" rx="2" fill="#c6e2f2"/>' +
+    '<rect x="41" y="42" width="8" height="7" rx="2" fill="#f0846a"/>' +
+    '</svg>',
+  spotCheck:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="12" y="10" width="40" height="46" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<rect x="24" y="5" width="16" height="10" rx="4" fill="#27587f"/>' +
+    '<path d="m19 26 4 4 7-8" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<rect x="34" y="25" width="12" height="3.5" rx="1.75" fill="#d9cfc4"/>' +
+    '<path d="m19 40 4 4 7-8" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<rect x="34" y="39" width="12" height="3.5" rx="1.75" fill="#d9cfc4"/>' +
+    '</svg>',
+
+  icKousai:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<path d="M10 12v7a5 5 0 0 0 10 0v-7M15 24v14"/>' +
+    '<path d="M33 12c-3 0-5 3-5 8s2 6 5 6 5-1 5-6-2-8-5-8ZM33 26v12"/>' +
+    '<path d="M9 42h12M27 42h12"/>' +
+    '</svg>',
+  icKaigi:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<circle cx="11" cy="12" r="4.5"/><circle cx="37" cy="12" r="4.5"/>' +
+    '<path d="M4 24c0-4 3.2-6.5 7-6.5s7 2.5 7 6.5M30 24c0-4 3.2-6.5 7-6.5s7 2.5 7 6.5"/>' +
+    '<ellipse cx="24" cy="25" rx="7" ry="2.6"/>' +
+    '<path d="M5 29h38M11 29v11M37 29v11"/>' +
+    '</svg>',
+  icHitori:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<circle cx="24" cy="11" r="5"/>' +
+    '<path d="M16 22c0-3.4 3.6-5 8-5s8 1.6 8 5"/>' +
+    '<path d="M10 29h28c0 6-6 10-14 10s-14-4-14-10Z"/>' +
+    '<path d="M8 42h32"/>' +
+    '</svg>',
+  icShain:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<circle cx="12" cy="14" r="4.5"/><circle cx="24" cy="11" r="4.5"/><circle cx="36" cy="14" r="4.5"/>' +
+    '<path d="M4 26c0-3.6 3.6-6 8-6s8 2.4 8 6M16 24c0-3.6 3.6-6 8-6s8 2.4 8 6M28 26c0-3.6 3.6-6 8-6s8 2.4 8 6"/>' +
+    '<path d="M8 34h32v6a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2Z"/>' +
+    '</svg>',
+  icShuzen:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M29 8a8 8 0 0 0-9.6 10.6L8 30v8h8l11.4-11.4A8 8 0 0 0 38 17l-6 3-4-4 3-6a8 8 0 0 0-2-2Z"/>' +
+    '<path d="m13 33 2 2"/>' +
+    '</svg>',
+  icPaint:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<rect x="8" y="8" width="24" height="10" rx="3"/>' +
+    '<path d="M32 13h6a3 3 0 0 1 3 3v5a3 3 0 0 1-3 3H24v6"/>' +
+    '<rect x="19" y="30" width="10" height="12" rx="3"/>' +
+    '</svg>',
+  icUpgrade:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<rect x="7" y="26" width="10" height="14" rx="2"/>' +
+    '<rect x="19" y="18" width="10" height="22" rx="2"/>' +
+    '<rect x="31" y="8" width="10" height="32" rx="2"/>' +
+    '<path d="M6 44h36"/>' +
+    '</svg>',
+  icBuild:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M8 42V16l16-9 16 9v26"/>' +
+    '<path d="M6 42h36"/>' +
+    '<rect x="15" y="22" width="7" height="7" rx="1.5"/><rect x="26" y="22" width="7" height="7" rx="1.5"/>' +
+    '<path d="M19 42v-8h10v8"/>' +
+    '</svg>',
+  icGaichu:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<rect x="6" y="16" width="36" height="22" rx="4"/>' +
+    '<path d="M18 16v-3a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v3"/>' +
+    '<path d="M6 24h36M20 27h8"/>' +
+    '</svg>',
+  icJikan:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<circle cx="24" cy="25" r="15"/>' +
+    '<path d="M24 16v9l6 4"/>' +
+    '<path d="M17 7h14"/>' +
+    '</svg>',
+  icDoc2:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<rect x="11" y="6" width="26" height="36" rx="4"/>' +
+    '<path d="M17 16h14M17 23h14M17 30h8"/>' +
+    '</svg>',
+  icKazoku:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.3">' +
+    '<circle cx="15" cy="14" r="5"/><circle cx="33" cy="14" r="5"/>' +
+    '<path d="M6 30c0-5 4-8 9-8s9 3 9 8M24 30c0-5 4-8 9-8s9 3 9 8"/>' +
+    '<circle cx="24" cy="30" r="4"/>' +
+    '<path d="M17 42c0-4 3-6 7-6s7 2 7 6"/>' +
+    '</svg>',
+  icZeimusho:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.3">' +
+    '<path d="M6 18 24 8l18 10"/>' +
+    '<path d="M9 18v18M17 18v18M31 18v18M39 18v18"/>' +
+    '<path d="M5 42h38M8 36h32"/>' +
+    '</svg>',
+  icCity:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.3">' +
+    '<rect x="7" y="14" width="16" height="28" rx="2"/>' +
+    '<rect x="25" y="22" width="16" height="20" rx="2"/>' +
+    '<path d="M12 20h6M12 27h6M12 34h6M30 28h6M30 35h6"/>' +
+    '<path d="M5 42h38"/>' +
+    '</svg>',
+  icHoken:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M24 6 9 11v11c0 9.5 6.4 17.4 15 19.6 8.6-2.2 15-10.1 15-19.6V11L24 6Z"/>' +
+    '<path d="M24 17v12M18 23h12"/>' +
+    '</svg>',
+
+  qFood:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<circle cx="24" cy="24" r="9.5"/><circle cx="24" cy="24" r="4.5"/>' +
+    '<path d="M8 8v8a3 3 0 0 0 6 0V8M11 16v24"/>' +
+    '<path d="M40 8c-3 1.2-5 4.6-5 9s2 5 5 5M40 8v32"/>' +
+    '</svg>',
+  qCar:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M8 30v6h5M40 30v6h-5"/>' +
+    '<path d="M6 30l3-10a4 4 0 0 1 3.8-2.8h22.4A4 4 0 0 1 39 20l3 10Z"/>' +
+    '<circle cx="14" cy="30" r="2.4"/><circle cx="34" cy="30" r="2.4"/>' +
+    '<path d="M20 8h8M24 4v8" stroke-width="2.8"/>' +
+    '</svg>',
+  qDock:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<path d="M14 7v9a8 8 0 0 0 16 0V7"/>' +
+    '<path d="M22 24v6a8 8 0 0 0 16 0v-4"/>' +
+    '<circle cx="38" cy="22" r="4"/>' +
+    '<path d="M10 7h8M26 7h8"/>' +
+    '</svg>',
+  qHouse:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M6 22 24 8l18 14"/>' +
+    '<path d="M10 20v20h28V20"/>' +
+    '<path d="M24 20v20" stroke-dasharray="4 3"/>' +
+    '<path d="M14 27h6M28 27h6"/>' +
+    '</svg>',
+  qPc:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<rect x="9" y="10" width="30" height="21" rx="3"/>' +
+    '<path d="M5 36h38l-3 4H8Z"/>' +
+    '</svg>',
+  qSuit:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M18 6h12l-6 8Z"/>' +
+    '<path d="M24 14 21 42h6Z"/>' +
+    '<path d="M18 6 9 12v30h8M30 6l9 6v30h-8"/>' +
+    '</svg>',
+  qShield:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<path d="M24 5 8 11v12c0 10 6.8 18.5 16 21 9.2-2.5 16-11 16-21V11L24 5Z"/>' +
+    '<path d="m18 18 6 8 6-8M24 26v9M19.5 28.5h9M19.5 32.5h9"/>' +
+    '</svg>',
+  qYen:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<circle cx="24" cy="24" r="17"/>' +
+    '<path d="m17 14 7 10 7-10M24 24v10M18.5 26.5h11M18.5 31.5h11"/>' +
+    '</svg>',
+  qInvoice:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<path d="M11 6h26v36l-4.3-3-4.4 3-4.3-3-4.4 3-4.3-3-4.3 3Z"/>' +
+    '<path d="M17 15h14M17 22h14M17 29h8"/>' +
+    '</svg>',
+  qTruck:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<path d="M4 12h22v22H4Z"/>' +
+    '<path d="M26 20h9l7 7v7h-16Z"/>' +
+    '<circle cx="14" cy="37" r="4"/><circle cx="34" cy="37" r="4"/>' +
+    '</svg>',
+  qPlane:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M24 5c2.5 0 4 4 4 10v6l14 8v4l-14-4v8l5 4v3l-9-2-9 2v-3l5-4v-8l-14 4v-4l14-8v-6c0-6 1.5-10 4-10Z"/>' +
+    '</svg>',
+  qSeed:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<path d="M24 42V20"/>' +
+    '<path d="M24 20c0-7 5-12 12-12 0 7-5 12-12 12ZM24 26c0-6-4-10-10-10 0 6 4 10 10 10Z"/>' +
+    '<path d="M12 42h24"/>' +
+    '</svg>',
+  qTrash:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M9 13h30M18 13V9a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v4"/>' +
+    '<path d="M13 13l2 26a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3l2-26"/>' +
+    '<path d="M20 20v15M28 20v15"/>' +
+    '</svg>',
+
+  chkReceipt:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2451f" stroke-width="2.3">' +
+    '<path d="M11 6h26v36l-4.3-3-4.4 3-4.3-3-4.4 3-4.3-3-4.3 3Z"/>' +
+    '<path d="M17 16h14M17 24h14M17 31h8"/>' +
+    '</svg>',
+  chkHome:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<path d="M6 22 24 8l18 14"/><path d="M10 20v20h28V20"/><path d="M24 20v20" stroke-dasharray="4 3"/>' +
+    '</svg>',
+  chkPeople:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.3">' +
+    '<circle cx="15" cy="15" r="5"/><circle cx="33" cy="15" r="5"/>' +
+    '<path d="M6 33c0-5 4-8 9-8s9 3 9 8M24 33c0-5 4-8 9-8s9 3 9 8"/>' +
+    '</svg>',
+  chkPc:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.3">' +
+    '<rect x="9" y="10" width="30" height="21" rx="3"/><path d="M5 36h38l-3 4H8Z"/>' +
+    '</svg>',
+  chkPdf:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.3">' +
+    '<path d="M13 6h16l8 8v28a2 2 0 0 1-2 2H13a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"/>' +
+    '<path d="M29 6v9h8"/><path d="M17 26h12M17 33h8"/>' +
+    '</svg>',
+  chkInvoice:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<rect x="7" y="12" width="34" height="24" rx="3"/>' +
+    '<path d="M12 18v12M17 18v12M22 18v12M27 18v12M32 18v12M37 18v12"/>' +
+    '</svg>',
+  chkBank:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.3">' +
+    '<path d="M6 19 24 9l18 10"/><path d="M11 19v17M20 19v17M28 19v17M37 19v17"/><path d="M6 41h36"/>' +
+    '</svg>',
+  chkAoiro:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#27587f" stroke-width="2.3">' +
+    '<rect x="10" y="7" width="28" height="34" rx="4"/>' +
+    '<path d="m17 22 4 4 10-10"/><path d="M17 33h14"/>' +
+    '</svg>',
+  chkShield:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.3">' +
+    '<path d="M24 6 10 11v11c0 9 6 16.5 14 18.7C32 38.5 38 31 38 22V11L24 6Z"/>' +
+    '<path d="m18 22 6 6 6-8"/>' +
+    '</svg>',
+  chkBack:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.3">' +
+    '<path d="M9 24a15 15 0 1 0 4.4-10.6"/>' +
+    '<path d="M8 8v8h8"/><path d="M24 17v8l6 4"/>' +
+    '</svg>',
+  icKanpu:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<circle cx="24" cy="27" r="13"/>' +
+    '<path d="M19 22h10M19 27h10M24 22v12"/>' +
+    '<path d="M34 12a14 14 0 0 0-20 0"/>' +
+    '<path d="M14 6v6h6"/>' +
+    '</svg>',
+  icIryo:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<rect x="7" y="14" width="34" height="26" rx="5"/>' +
+    '<path d="M18 14v-4a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v4"/>' +
+    '<path d="M24 21v12M18 27h12"/>' +
+    '</svg>',
+  icFurusato:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<rect x="8" y="20" width="32" height="20" rx="3"/>' +
+    '<path d="M6 14h36v6H6ZM24 14v26"/>' +
+    '<path d="M24 14s-8-1-9-6a3.5 3.5 0 0 1 6-2c2 2 3 8 3 8Z"/>' +
+    '<path d="M24 14s8-1 9-6a3.5 3.5 0 0 0-6-2c-2 2-3 8-3 8Z"/>' +
+    '</svg>',
+  icKabu:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M7 40h34"/>' +
+    '<path d="M11 32l8-9 7 6 11-15"/>' +
+    '<path d="M30 14h7v7"/>' +
+    '</svg>',
+  icPercent:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.6">' +
+    '<circle cx="15" cy="15" r="6"/><circle cx="33" cy="33" r="6"/>' +
+    '<path d="M36 12 12 36"/>' +
+    '</svg>',
+  icPen:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<path d="M12 8h16l10 10v22a2 2 0 0 1-2 2H12a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2Z"/>' +
+    '<path d="M28 8v10h10"/>' +
+    '<path d="M16 26h11M16 33h8"/>' +
+    '</svg>',
+  icNenkinsha:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<circle cx="24" cy="15" r="7"/>' +
+    '<path d="M11 41c0-8 6-13 13-13s13 5 13 13"/>' +
+    '<path d="M33 24l5 17M38 41h-6"/>' +
+    '</svg>',
+};
+document.querySelectorAll('[data-art]').forEach(function(el){
+  var key = el.getAttribute('data-art');
+  if(ARTS[key]) el.innerHTML = ARTS[key];
+});
+
+/* ---------- ミニCTA ---------- */
+var CTA_MINI =
+  '<div class="cta-mini"><p>「うちは要るのか、しないと損なのか」だけでも構いません。源泉徴収票が1枚あれば、その場で見当がつきます。</p>' +
+  '<a href="#soudan">' +
+  '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="m3 7 9 6 9-6"/></svg>' +
+  '無料で相談してみる</a></div>';
+document.querySelectorAll('[data-cta-mini]').forEach(function(el){ el.innerHTML = CTA_MINI; });
+
+/* ---------- セクション2：○×クイズ ---------- */
+/* a: true = 要る（○が正解）, false = 要らない（×が正解） */
+var QUIZ = [
+  {
+    icon:'qPc', a:false,
+    q:'会社員です。副業の所得が年15万円ありました。所得税の確定申告は要る？',
+    expl:'所得税の確定申告は要りません。給与を1か所からもらっていて、給与以外の所得が20万円以下なら、確定申告をしなくてよいことになっています。ただし、ここで安心して終わると危ないところがあります。住民税にはこの20万円ルールがないため、お住まいの市区町村へ住民税の申告が必要です。また、20万円は売上ではなく、売上から経費を引いた所得の金額で判定します。経費を証明する記録がないと、売上そのままで見られてしまうことがあります。',
+    wana:'「20万円以下は何もしなくていい」と覚えている人が多い。効いているのは所得税だけで、住民税には効かない。',
+    check:'副業の売上と経費を1年分集計してみる。あわせて、住民税の申告が必要かどうかを市区町村の案内で確認する。'
+  },
+  {
+    icon:'icIryo', a:false, yes:'もう無理', no:'まだ間に合う',
+    q:'3年前、家族の入院で医療費が40万円かかった。当時は何もしなかった。もう取り戻せない？',
+    expl:'まだ間に合います。税金が戻る申告、いわゆる還付申告は、その年の翌年1月1日から5年間できます。3年前の分なら、まだ期限の内側です。医療費控除は生計を一にするご家族の分を合算でき、通院の交通費も対象になります。ただし、保険金や高額療養費で補てんされた金額は差し引きます。領収書は原則5年間の保存が求められますので、捨てていないかどうかがカギになります。',
+    wana:'「3月15日を過ぎたら終わり」という感覚。期限が厳しいのは納める申告のほうで、戻る申告は5年ある。',
+    check:'過去5年で医療費が10万円を超えた年がないか。あわせて、その年の源泉徴収票が残っているかどうか。'
+  },
+  {
+    icon:'qSuit', a:false, yes:'終わる', no:'終わらない',
+    q:'給与収入が2,200万円になりました。会社の年末調整で終わる？',
+    expl:'終わりません。給与の収入金額が2,000万円を超える人については、そもそも会社が年末調整をしてはいけないことになっています。つまり誰も1年分の精算をしてくれないので、自分で確定申告をすることになります。「毎年会社がやってくれていたから今年も大丈夫だろう」と思っていると、期限を過ぎてから気づくことになります。昇進や役員就任で給与が上がった年は、特に注意が必要です。',
+    wana:'給与が上がったこと自体は喜ばしいので、手続きが変わることまで気が回らない。会社からの案内も、ないことがある。',
+    check:'源泉徴収票の支払金額の欄。2,000万円を超えていると、年末調整の欄が空欄になっています。'
+  },
+  {
+    icon:'icFurusato', a:true, yes:'無効になる', no:'そのまま有効',
+    q:'ふるさと納税をワンストップ特例で申請済み。そのあと医療費控除のために確定申告をしたら、ワンストップの申請は無効になる？',
+    expl:'無効になります。ワンストップ特例は、確定申告をしない人のための簡易な仕組みなので、確定申告をするとその効力がなくなります。したがって、医療費控除のために申告するなら、ふるさと納税の寄附金控除もあわせて申告書に書かなければなりません。書き忘れると、住民税から差し引かれるはずだった分がまるごと受けられなくなります。医療費で数万円戻ってきたのに、ふるさと納税で数万円損をした、という残念な結果になりがちです。',
+    wana:'ワンストップ特例を出した時点で完了した気になる。確定申告と併用できない、とはどこにも大きく書かれていない。',
+    check:'今年ふるさと納税をしたかどうか、寄附金の受領証明書が手元にあるかどうか。申告するなら必ず一緒に。'
+  },
+  {
+    icon:'qHouse', a:true,
+    q:'今年、住宅ローンを組んでマイホームを買いました。1年目は確定申告が要る？',
+    expl:'要ります。住宅ローン控除は、最初の年だけは必ず確定申告で手続きします。2年目以降は、税務署から送られてくる書類と金融機関の残高証明書を勤務先に出せば、年末調整でできるようになります。1年目を出し忘れると、その年の控除が受けられません。なお、この控除は所得税から引ききれない分が住民税からも一定の範囲で差し引かれる仕組みです。適用の要件や控除の期間は改正が多い分野なので、購入した年の制度を確認してください。',
+    wana:'「会社員は年末調整だけ」という思い込み。初年度だけ例外だと知らずに、1年分を取りこぼす人がいる。',
+    check:'住宅を取得した年はいつか。1年目の申告をしていない場合、まだ間に合うかどうかを確認する。'
+  },
+  {
+    icon:'icKanpu', a:true, yes:'戻ることが多い', no:'戻らない',
+    q:'9月末で退職し、その年は再就職しませんでした。確定申告をすると税金が戻ることが多い？',
+    expl:'戻ることが多いです。毎月の給与から引かれている所得税は、その給与が1年間続く前提の概算です。年の途中で辞めて収入が減ると、その概算は払いすぎになっていることがほとんどです。しかも年末に在籍していないので、年末調整で精算してもらえません。さらに、退職後にご自身で払った国民健康保険料や国民年金保険料、生命保険料なども控除できます。手続きをしなければ、払いすぎたままです。',
+    wana:'退職してバタバタしている時期で、税金のことまで頭が回らない。会社も辞めた人には案内してくれない。',
+    check:'退職した年の源泉徴収票。あわせて、退職後に自分で払った社会保険料の金額が分かるものを用意する。'
+  },
+  {
+    icon:'icHoken', a:false,
+    q:'満期保険金を受け取り、払った保険料より80万円多く戻ってきました。会社員です。確定申告は要る？',
+    expl:'この例では要りません。満期保険金のように一時的に受け取るお金は一時所得として扱われ、受取額から払った保険料を引き、さらに特別控除50万円を引いた残りの2分の1が課税の対象になります。差額が80万円なら、80万円から50万円を引いた30万円の2分の1、つまり15万円が対象額です。給与1か所の方は、給与以外の所得が20万円以下なら申告不要ですから、この場合は要りません。ただし他にも一時所得があれば合算しますし、契約者と受取人が別人だと贈与税の話になるなど、条件が変わると結論も変わります。',
+    wana:'受け取った金額そのものに税金がかかると思い込み、必要のない心配をする。逆に、差額が大きいときは申告が要る。',
+    check:'契約者・被保険者・受取人が誰か、そして払込保険料の総額はいくらか。この2点で税金の種類が決まります。'
+  },
+  {
+    icon:'icKabu', a:true,
+    q:'特定口座（源泉徴収あり）で、今年は40万円の損が出ました。この損を翌年以降に持ち越すには、確定申告が要る？',
+    expl:'要ります。上場株式等の譲渡損失は、申告することで翌年以後3年間にわたって繰り越し、将来の利益と相殺できます。この繰越は、申告して初めて認められるものです。しかも、繰り越した年に取引がなくても、毎年続けて申告しなければ権利がつながりません。特定口座の源泉徴収ありは、利益が出た年は何もしなくてよい便利な仕組みですが、損が出た年だけは、動いたほうが得になります。',
+    wana:'源泉徴収ありの口座は「何もしなくていい口座」だと覚えている。損失の年こそ、申告に価値がある。',
+    check:'証券会社から届く年間取引報告書。損失が出た年があれば、繰越の申告をしているかどうかを確認する。'
+  }
+];
+
+var qIdx = 0, qScore = 0, qAnswered = false, qAnsweredCount = 0;
+var wrongItems = [];
+
+var elNum   = document.getElementById('qNum');
+var elDots  = document.getElementById('qDots');
+var elIcon  = document.getElementById('qIcon');
+var elText  = document.getElementById('qText');
+var btnYes  = document.getElementById('btnYes');
+var btnNo   = document.getElementById('btnNo');
+var lblYes  = document.getElementById('lblYes');
+var lblNo   = document.getElementById('lblNo');
+var elVerd  = document.getElementById('verdict');
+var elVAns  = document.getElementById('vAnswer');
+var elVChip = document.getElementById('vChip');
+var elVExpl = document.getElementById('vExpl');
+var elVWana = document.getElementById('vWana');
+var elVChk  = document.getElementById('vCheck');
+var btnNext = document.getElementById('btnNext');
+var btnStop = document.getElementById('btnStopHere');
+var quizPlay = document.getElementById('quizPlay');
+var quizDone = document.getElementById('quizDone');
+
+function renderDots(){
+  var html = '';
+  for(var i = 0; i < QUIZ.length; i++){
+    html += '<i class="' + (i < qIdx ? 'done' : (i === qIdx ? 'now' : '')) + '"></i>';
+  }
+  elDots.innerHTML = html;
+}
+
+function renderQ(){
+  var item = QUIZ[qIdx];
+  elNum.textContent = qIdx + 1;
+  elIcon.innerHTML = ARTS[item.icon] || '';
+  elText.textContent = item.q;
+  lblYes.textContent = item.yes || '要る';
+  lblNo.textContent = item.no || '要らない';
+  btnYes.disabled = false;
+  btnNo.disabled = false;
+  qAnswered = false;
+  elVerd.classList.remove('show');
+  btnNext.style.display = 'none';
+  btnStop.style.display = 'none';
+  renderDots();
+}
+
+function answer(ansYes){
+  if(qAnswered) return;
+  qAnswered = true;
+  qAnsweredCount++;
+  btnYes.disabled = true;
+  btnNo.disabled = true;
+  var item = QUIZ[qIdx];
+  var correct = (ansYes === item.a);
+  if(correct) qScore++;
+  else wrongItems.push(item);
+  elVAns.textContent = '正解は「' + (item.a ? (item.yes || '要る') : (item.no || '要らない')) + '」';
+  elVChip.textContent = correct ? 'ご名答！' : 'ざんねん、ここがワナ';
+  elVChip.className = 'result-chip ' + (correct ? 'correct' : 'wrong');
+  elVExpl.textContent = item.expl;
+  elVWana.textContent = item.wana;
+  elVChk.textContent = item.check;
+  elVerd.classList.add('show');
+  btnNext.style.display = 'flex';
+  if(qIdx >= QUIZ.length - 1){
+    btnNext.innerHTML = '結果を見る <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  } else if(qIdx >= 2){
+    btnStop.style.display = 'block';
+  }
+}
+
+function doneComment(score, total){
+  var full = (total === QUIZ.length);
+  if(score === total && full){
+    return '全問正解！　あなたはもう「会社員だから関係ない」とも「20万円以下なら何もしなくていい」とも言わない人です。あとはご自宅の源泉徴収票と領収書に当てはめるだけ。……当てはめた結果が気になったら、いつでもどうぞ。';
+  }
+  var r = score / total;
+  if(r >= 0.75){
+    return 'かなりの好成績です。ただ、クイズで間違えても失うのは1問ですが、実際の申告で見落とすと、失うのは数万円と、あとから気づいたときの「もっと早く知りたかった」。惜しかった問題こそ、ご自宅の書類で答え合わせを。';
+  }
+  if(r >= 0.4){
+    return '約半分がワナにかかりました。ご安心ください、ご相談でお会いする皆さまもだいたい同じです。つまり「普通に働いていると引っかかる」ようにできているのが確定申告。だからこそ、年が明ける前に一度だけ整理しておくのが近道です。';
+  }
+  return 'ワナに全力でかかりました。でも、それが普通です。むしろクイズで引っかかっておけば、来年の3月には引っかからずに済みます。今日が人生でいちばん確定申告にくわしい日。この勢いで、引き出しの中の証明書探しまでいきましょう。';
+}
+
+function showDone(){
+  quizPlay.style.display = 'none';
+  quizDone.classList.add('show');
+  document.getElementById('doneTotal').textContent = qAnsweredCount;
+  document.getElementById('doneScore').textContent = qScore;
+  document.getElementById('doneCmt').textContent = doneComment(qScore, qAnsweredCount);
+  var wl = document.getElementById('wrongList');
+  if(wrongItems.length){
+    var html = '<h4>ワナにかかった問題（＝年明けまでに確認したい項目）</h4>';
+    for(var i = 0; i < wrongItems.length; i++){
+      html += '<div class="w-item"><strong>' + wrongItems[i].q + '</strong><br>確認ポイント：' + wrongItems[i].check + '</div>';
+    }
+    wl.innerHTML = html;
+    wl.style.display = 'block';
+  } else {
+    wl.style.display = 'none';
+  }
+  var sum = document.getElementById('sumScore');
+  sum.innerHTML = '<p>○×クイズの結果：<strong>' + qAnsweredCount + '問中 ' + qScore + '問正解</strong>でした。' +
+    (wrongItems.length ? '間違えた問題は、そのまま「確認したいことリスト」になります。' : 'この調子で、下のチェックリストもどうぞ。') + '</p>';
+}
+
+btnYes.addEventListener('click', function(){ answer(true); });
+btnNo.addEventListener('click', function(){ answer(false); });
+btnNext.addEventListener('click', function(){
+  if(qIdx >= QUIZ.length - 1){ showDone(); return; }
+  qIdx++;
+  renderQ();
+  var shell = document.querySelector('.quiz-shell');
+  if(shell.getBoundingClientRect().top < 0) shell.scrollIntoView({behavior:'smooth'});
+});
+btnStop.addEventListener('click', showDone);
+document.getElementById('btnRetry').addEventListener('click', function(){
+  qIdx = 0; qScore = 0; qAnsweredCount = 0; wrongItems = [];
+  quizDone.classList.remove('show');
+  quizPlay.style.display = 'block';
+  btnNext.innerHTML = '次の質問へ <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  renderQ();
+});
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+document.getElementById('btnMailSelf').addEventListener('click', function(){
+  var body = '「確定申告の要る・要らないチェック」の結果メモ\n\n' +
+    '○×クイズ：' + qAnsweredCount + '問中 ' + qScore + '問正解\n\n';
+  if(wrongItems.length){
+    body += '【確認したいこと】\n';
+    for(var i = 0; i < wrongItems.length; i++){
+      body += '・' + wrongItems[i].check + '\n';
+    }
+  }
+  body += '\n（このメモを源泉徴収票と一緒に保管しておくと、年明けの申告のときに役立ちます）\n';
+  location.href = 'mailto:?subject=' + encodeURIComponent('確定申告の要る・要らないチェック結果') + '&body=' + encodeURIComponent(body);
+});
+
+renderQ();
+
+/* ---------- セクション3：シミュレーター ---------- */
+var simKyuyo = document.getElementById('simKyuyo');
+var simOther = document.getElementById('simOther');
+var simIryo  = document.getElementById('simIryo');
+var simFuru  = document.getElementById('simFuru');
+var simRate  = document.getElementById('simRate');
+
+function yen(x){
+  x = Math.round(x);
+  return x.toLocaleString('ja-JP') + '円';
+}
+function man(x){
+  return x.toLocaleString('ja-JP') + '万円';
+}
+
+function setR(id, ok, chipTxt, txt){
+  var box = document.getElementById(id);
+  box.className = 'sim-r ' + (ok ? 'ok' : 'ng');
+  document.getElementById(id + 'Chip').textContent = chipTxt;
+  document.getElementById(id + 'Txt').textContent = txt;
+}
+
+function numOf(el){
+  var v = parseFloat(el.value);
+  if(isNaN(v) || v < 0) v = 0;
+  return v;
+}
+
+function simUpdate(){
+  var kyuyo = numOf(simKyuyo);
+  var other = numOf(simOther);
+  var iryo  = numOf(simIryo);
+  var furu  = numOf(simFuru);
+  var rate  = numOf(simRate) / 100;
+
+  /* 医療費控除：下限10万円。所得税は税率分、住民税は10%分だけ税金が減る */
+  var iryoKojo = Math.max(0, iryo - 10) * 10000;
+  var iryoShotoku = iryoKojo * rate;
+  var iryoJumin   = iryoKojo * 0.10;
+  var iryoBack    = iryoShotoku + iryoJumin;
+
+  /* ふるさと納税：控除限度額の内側という前提で、2,000円を除いた分が戻る */
+  var furuBack = Math.max(0, furu * 10000 - 2000);
+
+  var total = iryoBack + furuBack;
+  document.getElementById('tlFill').style.width = Math.min(100, total / 100000 * 100) + '%';
+
+  /* 申告が「要る」側かどうか */
+  if(kyuyo > 2000){
+    setR('simR1', false, '要ります', '給与の年収が ' + man(kyuyo) + ' で、2,000万円を超えています。この場合は会社が年末調整をしないため、ご自身で確定申告をすることになります。期限は原則3月15日です。');
+  } else if(other > 20){
+    setR('simR1', false, '要ります', '給与以外の所得が ' + man(other) + ' で、20万円を超えています。給与1か所の方でも、この場合は確定申告が必要です。期限は原則3月15日です。');
+  } else if(total > 0){
+    setR('simR1', true, '義務ではないが、したほうが得', '「しなければならない申告」には当てはまりません。ただし控除の入力があるので、申告すれば税金が戻る可能性があります。この場合の期限は5年です。');
+  } else {
+    setR('simR1', true, '原則、要りません', '「しなければならない申告」には当てはまりません。医療費やふるさと納税を入れると、戻る金額の目安も出ます。なお給与以外の所得がある場合は、20万円以下でも住民税の申告が必要です。');
+  }
+
+  if(iryoKojo <= 0){
+    setR('simR2', true, '対象外', '医療費が10万円以下なので、この前提では医療費控除の対象になりません。ご家族の分を合算できますので、まだ足していない方がいれば入れ直してみてください。');
+  } else {
+    setR('simR2', false, '約 ' + yen(iryoBack), '医療費控除の金額は ' + yen(iryoKojo) + '（' + man(iryo) + ' から10万円を引いた額）。所得税で約 ' + yen(iryoShotoku) + ' が戻り、翌年の住民税が約 ' + yen(iryoJumin) + ' 減る計算です。');
+  }
+
+  if(furuBack <= 0){
+    setR('simR3', true, '0円', 'ふるさと納税の入力がありません。寄附をしている場合は、確定申告のときに寄附金控除も一緒に書かないと、ワンストップ特例が無効になった状態で取りこぼします。');
+  } else {
+    setR('simR3', false, '約 ' + yen(furuBack), '寄附額 ' + man(furu) + ' から自己負担の2,000円を引いた金額が、所得税と住民税から差し引かれる計算です（控除の限度額の内側におさまっている前提）。');
+  }
+
+  var big = document.getElementById('simTotalBig');
+  var sub = document.getElementById('simTotalSub');
+  if(total <= 0){
+    big.innerHTML = 'この入力だと、戻る金額は <b>0円</b>';
+    sub.textContent = '医療費や寄附がなかった年でも、退職・住宅ローン1年目・株の損失など、戻る理由はほかにもあります。';
+  } else {
+    big.innerHTML = '戻る・減る金額の目安は <b>約' + yen(total) + '</b>';
+    sub.textContent = '内訳は、医療費控除で約 ' + yen(iryoBack) + '、ふるさと納税で約 ' + yen(furuBack) + '。書類が揃っていれば、手続きは1時間ほどです。';
+  }
+}
+simKyuyo.addEventListener('input', simUpdate);
+simOther.addEventListener('input', simUpdate);
+simIryo.addEventListener('input', simUpdate);
+simFuru.addEventListener('input', simUpdate);
+simRate.addEventListener('change', simUpdate);
+simUpdate();
+
+/* ---------- セクション4：あるある劇場 ---------- */
+var CASES = [
+  {
+    art:'qPc', cls:'c-red', chip:'第一幕：20万円ルール',
+    title:'20万円以下だから、と何もしなかった',
+    story:'「ネット販売の副業で、利益が年12万円ほど。20万円以下なら申告不要と聞いていたので、何もしませんでした。2年ほどして市役所から住民税のお知らせが届いて、そこに副業分がしっかり乗っていて。20万円以下でも住民税は別だと、そのとき初めて知りました」<small>——30代・会社員（脚色あり）</small>',
+    what:'<p class="cmodal-p">20万円ルールが効くのは<strong>所得税の確定申告だけ</strong>です。住民税にはこのルールがないため、給与以外の所得があれば、金額にかかわらずお住まいの市区町村へ申告する必要があります。決済アプリやプラットフォームからの支払調書などで、あとから把握されることもあります。</p>',
+    how:'<p class="cmodal-p">副業の所得が20万円以下なら、市区町村へ<strong>住民税の申告</strong>を出しておけば足ります。20万円を超えるなら確定申告を。どちらにしても<strong>売上と経費の記録</strong>が出発点です。売上はアプリの履歴、経費はレシート。月に一度、まとめてフォルダに入れるだけで十分です。</p>'
+  },
+  {
+    art:'icFurusato', cls:'c-amber', chip:'第二幕：ワンストップが消えた',
+    title:'医療費控除の申告で、ふるさと納税が消えた',
+    story:'「その年は医療費が30万円ほどかかったので、初めて確定申告をしました。医療費控除で4万円ほど戻ってきて喜んでいたのですが、翌年の住民税がなぜか高い。調べてみたら、ワンストップ特例で申請していたふるさと納税6万円分が、まるごと効かなくなっていました」<small>——40代・会社員（脚色あり）</small>',
+    what:'<p class="cmodal-p">ワンストップ特例は<strong>確定申告をしない人のための仕組み</strong>です。確定申告をすると効力がなくなるため、申告書に寄附金控除を書かなければ、その分の控除は受けられません。医療費で戻った金額より、ふるさと納税で失った金額のほうが大きくなることもあります。</p>',
+    how:'<p class="cmodal-p">確定申告をするなら、<strong>寄附金の受領証明書を必ず一緒に</strong>。ふるさと納税のポータルサイトから、年間の寄附額をまとめた証明書を発行できる場合もあります。すでに出してしまった申告でも、<strong>更正の請求</strong>で直せることがあります。気づいた時点で早めにご相談を。</p>'
+  },
+  {
+    art:'icIryo', cls:'c-berry', chip:'第三幕：補てん金の差引',
+    title:'医療費から、保険金を引き忘れた',
+    story:'「入院で医療費が45万円かかり、医療保険から20万円出ました。医療費控除の申告では、45万円から10万円を引いて35万円で計算してしまって。あとから、受け取った保険金は差し引くのだと言われて、申告をやり直しました」<small>——50代・会社員（脚色あり）</small>',
+    what:'<p class="cmodal-p">医療費控除で使えるのは、<strong>実際に自分が負担した金額</strong>です。医療保険の入院給付金、高額療養費、出産育児一時金など、補てんされた金額は差し引きます。なお差し引くのは<strong>その給付の対象になった医療費から</strong>で、他の医療費からは引きません。引ききれない分は切り捨てで、マイナスにはなりません。</p>',
+    how:'<p class="cmodal-p">給付金の支払通知書は、医療費の領収書と<strong>同じ封筒にまとめて</strong>おくのがおすすめです。入院した年は、この2つが別々の場所に散らばりがち。ちなみに、身体の傷害に基因して受け取る入院給付金・手術給付金そのものは、原則として所得税の対象になりません。</p>'
+  },
+  {
+    art:'icJikan', cls:'c-blue', chip:'第四幕：5年の壁',
+    title:'退職した年の還付を、6年目に思い出した',
+    story:'「体調を崩して年の途中で退職し、その年は働きませんでした。何年かして落ち着いてから、あの年の税金が戻るらしいと聞いて。調べたら、ちょうど5年を過ぎていました。1年違いで取り戻せませんでした」<small>——50代・元会社員（脚色あり）</small>',
+    what:'<p class="cmodal-p">還付申告ができるのは、その年の翌年1月1日から<strong>5年間</strong>です。年の途中で退職して再就職しなかった場合、年末調整を受けていないので払いすぎになっていることがほとんど。ところが、この時期はご本人がいちばん大変な時期でもあり、後回しになりやすいのです。</p>',
+    how:'<p class="cmodal-p">退職したら、<strong>源泉徴収票は必ず取っておく</strong>こと。5年あると思うと油断しますが、期限は静かに過ぎていきます。退職後にご自身で払った国民健康保険料・国民年金保険料も控除できるので、納付書の控えもあわせて保管を。<strong>過去5年に退職した年があるなら、いま確認する価値があります</strong>。</p>'
+  },
+  {
+    art:'qInvoice', cls:'c-green', chip:'第五幕：レシートの行方',
+    title:'経費のレシートを、全部捨てていた',
+    story:'「副業の売上が年60万円ありました。材料費や送料で30万円くらい使っていたので、所得は30万円のつもりでした。ところがレシートを全部捨てていて、証明できるものが何もない。結局、多めの所得で申告することになりました」<small>——40代・会社員（脚色あり）</small>',
+    what:'<p class="cmodal-p">経費として引くには、<strong>支払いの事実が分かる記録</strong>が必要です。レシート・請求書・クレジットカードの明細・通帳の記録。これらがないと、売上がそのまま所得として扱われかねません。所得が変われば、20万円ルールの判定も、税額も変わります。</p>',
+    how:'<p class="cmodal-p">記録は<strong>完璧でなくていいので、続くやり方</strong>で。封筒に月ごとに放り込む、写真に撮ってフォルダに入れる、専用のクレジットカードを1枚作る。どれでも構いません。なお、副業の所得を事業所得として扱えるかどうかは、<strong>帳簿書類の保存があるかどうか</strong>が大きな判断材料とされています。</p>'
+  },
+  {
+    art:'icKazoku', cls:'c-amber', chip:'第六幕：扶養のつもり',
+    title:'扶養に入れていたはずの子が、外れていた',
+    story:'「大学生の息子をずっと扶養に入れていました。ところが去年はアルバイトを頑張りすぎたようで、年末調整のあとに会社から連絡が来て。扶養控除が使えなくなり、その分の税金を追加で払うことになりました。本人はまったく悪気がないので、怒るに怒れませんでした」<small>——50代・会社員（脚色あり）</small>',
+    what:'<p class="cmodal-p">扶養控除・配偶者控除は、その年の<strong>12月31日時点</strong>の状況と、その年1年間の所得で判定します。年末に近づくほど結果が見えてくる仕組みなので、途中で「まだ大丈夫」と思っていても、12月のシフト次第でひっくり返ることがあります。判定に使う所得の要件は改正されることがあるため、金額は毎年ご確認ください。</p>',
+    how:'<p class="cmodal-p">秋のうちに、ご家族の<strong>1月からの給与明細を合計</strong>してみるのがいちばん確実です。学生のお子さんの場合は、勤労学生控除や、19歳から22歳の年代を対象にした控除の仕組みもあります。<strong>扶養から外れる年こそ、家族全体でどう申告するかを一度整理する価値があります</strong>。</p>'
+  }
+];
+
+/* ---------- セクション5：逆転劇場 ---------- */
+var GOOD_CASES = [
+  {
+    art:'icKanpu', cls:'c-green', chip:'第一話：還付申告は5年', amt:'過去5年分が対象',
+    title:'4年前の医療費が、いまから戻りました',
+    story:'「母の介護と入院が重なった年があって、医療費が60万円ほどかかりました。当時は申告どころではなく、そのまま。4年たってから、まだ間に合うと聞いて申告したら、10万円ほど戻ってきました。もう終わった話だと思っていたので驚きました」<small>——50代・会社員（脚色あり）</small>',
+    what:'<p class="cmodal-p">税金が戻る申告は、その年の翌年1月1日から<strong>5年間</strong>できます。3月15日という期限は、あくまで<strong>納める側の申告</strong>の期限です。医療費控除、生命保険料控除の書き忘れ、年の途中で退職した年の精算——どれも過去5年にさかのぼって手続きできます。</p>',
+    how:'<p class="cmodal-p">必要なのは、その年の<strong>源泉徴収票</strong>と、控除の<strong>証明書・領収書</strong>です。医療費については、健康保険から届く「医療費のお知らせ」を使える場合もあります。<strong>すでに確定申告をした年分</strong>を直す場合は、還付申告ではなく更正の請求になり、原則として申告期限から5年以内です。</p>'
+  },
+  {
+    art:'icKazoku', cls:'c-blue', chip:'第二話：医療費は家族で合算', amt:'世帯で数万円',
+    title:'家族4人分を合わせたら、10万円を超えました',
+    story:'「うちは大きな病気をした人がいないので、医療費控除は関係ないと思っていました。ところが、子どもの歯の矯正と、私の通院と、夫の人間ドックのあとの再検査を全部足したら、家族4人で13万円。通院のバス代も入るというので、それも足しました」<small>——40代・パート（脚色あり）</small>',
+    what:'<p class="cmodal-p">医療費控除は、<strong>生計を一にする家族の分をまとめて</strong>計算できます。同居していなくても、仕送りをしている親や、下宿している学生の子の分も対象になります。通院のための公共交通機関の運賃も含められますし、治療のための市販薬も対象です。</p>',
+    how:'<p class="cmodal-p">申告するのは、<strong>家族の誰か1人</strong>にまとめます。一般には所得が高い人がまとめたほうが戻る金額は大きくなりますが、住民税や各種の負担への影響もあるので、一概には言えません。健康診断や人間ドックの費用は原則対象外ですが、<strong>そこで見つかった病気の治療に進んだ場合は対象になる</strong>という取扱いがあります。</p>'
+  },
+  {
+    art:'qShield', cls:'c-amber', chip:'第三話：市販薬でも使える特例', amt:'1万2千円超が対象',
+    title:'病院に行かない家でも、対象になりました',
+    story:'「うちは家族全員がほとんど病院に行かないので、医療費控除には縁がないと思っていました。ところが、市販の風邪薬や胃腸薬でも対象になる特例があると聞いて、レシートを集めてみたら年間で2万円ほど。金額は小さいですが、対象になったのが嬉しくて」<small>——40代・会社員（脚色あり）</small>',
+    what:'<p class="cmodal-p">通常の医療費控除とは別に、<strong>対象となる市販薬（スイッチOTC医薬品など）の購入額が年12,000円を超えた部分</strong>を所得から差し引ける特例があります。上限は88,000円です。対象商品のレシートには、その旨の印がついていることが多く、パッケージにも識別マークが表示されています。</p>',
+    how:'<p class="cmodal-p">通常の医療費控除との<strong>選択制</strong>で、両方は使えません。金額を比べて有利なほうを選びます。また、健康診断・予防接種など<strong>健康の維持増進のための一定の取組を行っていること</strong>が条件です。この特例には適用期限が定められており、延長が繰り返されています。最新の期限と対象商品は国税庁の案内でご確認ください。</p>'
+  },
+  {
+    art:'icJikan', cls:'c-berry', chip:'第四話：年の途中の退職', amt:'数万円〜十数万円',
+    title:'転職の谷間で、払いすぎていました',
+    story:'「6月で辞めて、次の就職までに半年空きました。その年の給与は半分ほどでしたが、毎月の天引きは満額のペースのまま。確定申告をしたら、8万円ほど戻ってきました。その間に自分で払った国民年金と国保も控除できると聞いて、さらに増えました」<small>——30代・会社員（脚色あり）</small>',
+    what:'<p class="cmodal-p">毎月の源泉徴収は「この給与が12か月続く」という前提の概算です。年の途中で収入が減れば、<strong>ほぼ確実に払いすぎ</strong>になります。しかも年末に在籍していないと年末調整を受けられないため、精算されないまま残ります。</p>',
+    how:'<p class="cmodal-p">用意するのは、<strong>退職した会社の源泉徴収票</strong>と、退職後にご自身で払った<strong>国民健康保険料・国民年金保険料の金額が分かるもの</strong>、そして生命保険料控除証明書です。年内に再就職した場合は、前職の源泉徴収票を新しい勤務先に出せば、年末調整でまとめて精算してもらえます。</p>'
+  },
+  {
+    art:'qHouse', cls:'c-blue', chip:'第五話：住宅ローン控除', amt:'1年目だけ申告',
+    title:'1年目さえ出せば、あとは会社で終わります',
+    story:'「家を買った年に確定申告をするのが面倒で、後回しにしかけました。でも1年目を出さないと2年目以降も使えないと聞いて、なんとか出しました。翌年からは会社に書類を出すだけ。あの1回だけの手間だったんだな、と」<small>——30代・会社員（脚色あり）</small>',
+    what:'<p class="cmodal-p">住宅ローン控除は、<strong>年末のローン残高に応じた金額を、税額から直接差し引く</strong>制度です。所得から引くのではなく税額から引くので、効き目が大きいのが特徴です。会社員の場合、最初の年だけ確定申告が必要で、2年目以降は年末調整で受けられます。</p>',
+    how:'<p class="cmodal-p">1年目に必要なのは、<strong>登記事項証明書・売買契約書の写し・住宅ローンの年末残高証明書</strong>など。住宅の種類や省エネ性能によって控除の内容が変わり、<strong>改正が非常に多い分野</strong>です。中古住宅・増改築・借換えなど、条件によって扱いが変わりますので、購入した年の制度をご確認ください。</p>'
+  },
+  {
+    art:'icKabu', cls:'c-green', chip:'第六話：損失の繰越と損益通算', amt:'翌年から3年間',
+    title:'損した年に申告したら、翌年の税金が減りました',
+    story:'「株で50万円の損を出した年に、申告しておいたほうがいいと言われて出しました。翌年に40万円の利益が出たのですが、前の年の損とぶつけられるということで、その分の税金が引かれずに済みました。損した年に手を動かしておいてよかったです」<small>——40代・会社員（脚色あり）</small>',
+    what:'<p class="cmodal-p">上場株式等の譲渡損失は、申告すると<strong>翌年以後3年間</strong>繰り越して、将来の利益と相殺できます。また、同じ年の配当や他の口座の利益との<strong>損益通算</strong>もできます。特定口座（源泉徴収あり）で天引きされた税金が戻ることもあります。</p>',
+    how:'<p class="cmodal-p">繰り越すには、<strong>損失が出た年に申告し、その後も取引がない年を含めて毎年続けて申告する</strong>ことが条件です。1年でも空けると、そこで権利が切れます。なお、NISA口座での損失は、この繰越や損益通算の対象になりません。証券会社から届く年間取引報告書をご用意ください。</p>'
+  },
+  {
+    art:'qTrash', cls:'c-amber', chip:'第七話：雑損控除', amt:'3年繰越できる',
+    title:'水害の被害が、税金の計算で考慮されました',
+    story:'「大雨で床上浸水になり、家財がかなりやられました。片づけと修理でお金が出ていくばかりでしたが、災害の損害は税金の計算で引けると教わって申告しました。その年だけでは引ききれず、翌年以降にも回せるということで、少し気持ちが軽くなりました」<small>——60代・会社員（脚色あり）</small>',
+    what:'<p class="cmodal-p">災害・盗難・横領によって生活に必要な資産に損害を受けた場合、<strong>雑損控除</strong>として所得から差し引けます。引ききれない分は<strong>翌年以後3年間</strong>繰り越せます。また、災害の場合は「災害減免法」による所得税の軽減免除という別の道もあり、有利なほうを選べます。</p>',
+    how:'<p class="cmodal-p">被害を受けたら、<strong>写真を撮り、片づけや修理の領収書を残す</strong>ことがすべての出発点です。市区町村が発行する<strong>り災証明書</strong>も必要になります。詐欺・恐喝による被害は対象外とされている点、保険金で補てんされた分は差し引く点にご注意ください。</p>'
+  },
+  {
+    art:'icPen', cls:'c-blue', chip:'第八話：青色申告', amt:'最大65万円の控除',
+    title:'副業を本業にしたとき、届出が効きました',
+    story:'「副業が育ってきて、独立することにしました。開業のときに青色申告の届出も一緒に出しておいたら、帳簿をきちんとつけているだけで所得から65万円引けると。手間はかかりますが、それに見合う制度だと思いました」<small>——30代・自営業（脚色あり）</small>',
+    what:'<p class="cmodal-p">事業所得などがある方が青色申告を選ぶと、帳簿の付け方に応じて<strong>最大65万円の青色申告特別控除</strong>が受けられます（複式簿記かつ電子申告等の要件を満たす場合。要件により55万円・10万円）。ほかにも、赤字を3年繰り越せる、家族への給与を経費にできる（届出が必要）などの利点があります。</p>',
+    how:'<p class="cmodal-p">青色申告をするには、<strong>その年の3月15日まで（新規開業なら開業から2か月以内）に承認申請書を出す</strong>必要があります。あとから遡って選ぶことはできません。副業を事業として続けていくつもりがあるなら、早い段階で相談する価値があります。<strong>帳簿書類の保存があるかどうか</strong>は、事業所得として扱えるかの判断でも重視されます。</p>'
+  }
+];
+
+var modal = document.getElementById('caseModal');
+var CASE_LBL = {
+  bad:['よく伺うお話をもとにした創作例（脚色あり）', '何が起きたのか', 'こう確認すれば防げます'],
+  good:['よくある、うれしい誤算（創作例・脚色あり）', 'なぜ戻るのか', '使うための条件']
+};
+
+function renderCases(gridId, list, kind){
+  var grid = document.getElementById(gridId);
+  list.forEach(function(c){
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'case-card';
+    btn.innerHTML =
+      '<span class="art ' + c.cls + '">' + ARTS[c.art] + '</span>' +
+      '<span class="t"><span class="chip ' + c.cls + '">' + c.chip + '</span>' +
+      (c.amt ? '<span class="amt">' + c.amt + '</span>' : '') +
+      '<h3>' + c.title + '</h3>' +
+      '<span class="more">くわしく見る<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></span></span>';
+    btn.addEventListener('click', function(){ openCase(c, kind); });
+    grid.appendChild(btn);
+  });
+}
+
+function openCase(c, kind){
+  var lbl = CASE_LBL[kind] || CASE_LBL.bad;
+  document.getElementById('caseModalLbl1').textContent = lbl[0];
+  document.getElementById('caseModalLbl2').textContent = lbl[1];
+  document.getElementById('caseModalLbl3').textContent = lbl[2];
+  document.getElementById('caseModalLbl2Wrap').className =
+    'cmodal-label ' + (kind === 'good' ? 'lb-green' : 'lb-red');
+  document.getElementById('caseModalIco').className = 'cmodal-ico ' + c.cls;
+  document.getElementById('caseModalIco').innerHTML = ARTS[c.art];
+  document.getElementById('caseModalChip').className = 'cmodal-chip ' + c.cls;
+  document.getElementById('caseModalChip').textContent = c.chip;
+  document.getElementById('caseModalTitle').textContent = c.title;
+  document.getElementById('caseModalStory').innerHTML = c.story;
+  document.getElementById('caseModalWhat').innerHTML = c.what;
+  document.getElementById('caseModalHow').innerHTML = c.how;
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+  modal.querySelector('.cmodal-panel').scrollTop = 0;
+}
+
+renderCases('caseGrid', CASES, 'bad');
+renderCases('goodGrid', GOOD_CASES, 'good');
+
+function closeCase(){
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+document.getElementById('caseModalClose').addEventListener('click', closeCase);
+document.getElementById('caseModalBack').addEventListener('click', closeCase);
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && modal.classList.contains('show')) closeCase();
+});
+
+/* ---------- まとめ：チェックリスト ---------- */
+var chkBoxes = document.querySelectorAll('#checklist input[type=checkbox]');
+var chkMsg = document.getElementById('chkMsg');
+function chkUpdate(){
+  var n = 0;
+  chkBoxes.forEach(function(c){ if(c.checked) n++; });
+  var total = chkBoxes.length;
+  if(n === 0){
+    chkMsg.textContent = 'あてはまるものにチェックを入れてみてください。今日おうちで確認できる項目と、次に誰かに聞く項目が混じっています。';
+  } else if(n <= 2){
+    chkMsg.textContent = 'チェック' + n + '個。正直なのは素晴らしいことです。残りの項目は、どれも引き出しをひとつ開ければ手をつけられるものばかり。まずは「源泉徴収票を探す」からがおすすめです。';
+  } else if(n <= 5){
+    chkMsg.textContent = 'チェック' + n + '個。平均より、だいぶ準備ができています。残りの項目も、源泉徴収票と証明書が手元にあれば一気に片づきます。判断に迷うところは、そのまま当社へお持ちください。';
+  } else if(n < total){
+    chkMsg.textContent = 'チェック' + n + '個。ここまで整理できている方は、ご相談でもめったにお会いしません。あと少しで「3月に慌てない人」になれます。';
+  } else {
+    chkMsg.textContent = '全項目チェック！　あなたはもう「何となく不安」ではなく「分かって備えている」状態です。あとは毎年12月に、同じ順番で見直していきましょう。';
+  }
+}
+chkBoxes.forEach(function(c){ c.addEventListener('change', chkUpdate); });
+
+})();
+</script>
+</body>
+</html>

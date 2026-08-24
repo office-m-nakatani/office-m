@@ -1,0 +1,2046 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="表面利回りと実質利回りの違い、空室・修繕・借入条件で手残りがどう変わるか、「節税になる」という話の中身までを、○×クイズとシミュレーターで確かめられるページです。売り込みではなく、買う前に自分で見分けるための材料をまとめました。株式会社Office-M作成の情報提供資料。">
+<title>不動産投資の「回る・回らない」チェック｜株式会社Office-M</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 6 8 18v10c0 16 10 26 24 30 14-4 24-14 24-30V18Z' fill='%2324729f'/%3E%3Cpath d='M32 20v22M22 28h20M22 35h20' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --navy:#1b3f5e;
+  --navy-2:#27587f;
+  --navy-soft:#eaf1f7;
+  --bg:#fff8f2;
+  --white:#ffffff;
+  --text:#33404d;
+  --muted:#5c6874;
+  --line:#efe2d8;
+  --shadow:0 6px 20px rgba(130,100,80,.09);
+  --shadow-sm:0 3px 10px rgba(130,100,80,.07);
+
+  --red:#c2453f;
+  --red-dark:#a63631;
+  --red-bg:#fdeee9;
+  --red-border:#f4d0c6;
+  --coral:#f0846a;
+  --coral-text:#c2451f;
+
+  --green:#2c7a4b;
+  --green-bg:#e8f6ef;
+  --green-border:#c3e5d3;
+  --mint:#4fbf9b;
+
+  --amber:#8f6015;
+  --amber-deep:#a85c12;
+  --amber-bg:#fdf3e2;
+  --amber-border:#f2dcae;
+  --sunny:#f7c34e;
+
+  --sky:#24729f;
+  --sky-bg:#e8f4fb;
+  --sky-border:#c6e2f2;
+
+  --berry:#8f4574;
+  --berry-bg:#fbeef6;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+/* スマホでも17pxを基準にする（注記・出典まわりが12pxまで小さくなっていたため） */
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;font-size:17px;}
+/* 左右の余白が広い画面ほど文字を大きくして見やすさに還元する */
+@media(min-width:1000px){ html{font-size:18px;} }
+body{
+  font-family:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho",YuMincho,"游明朝体","游明朝","MS PMincho","ＭＳ Ｐ明朝",serif;
+  color:var(--text);
+  background:var(--bg);
+  font-size:1.09rem;
+  line-height:1.95;
+  letter-spacing:.03em;
+  padding-bottom:40px;
+  overflow-wrap:break-word;
+}
+@media(min-width:768px){
+  body{font-size:1.16rem;letter-spacing:.04em;}
+}
+img,svg{max-width:100%;vertical-align:middle;}
+button{font-family:inherit;}
+/* キーボード操作でいまどこにいるかを、はっきり見せる（既定の1本線は細くて見えない） */
+a:focus-visible,button:focus-visible,summary:focus-visible,
+input:focus-visible,label:focus-visible,[tabindex]:focus-visible{
+  outline:3px solid var(--navy-2);
+  outline-offset:3px;
+  border-radius:6px;
+}
+a{color:var(--navy-2);}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px;}
+/* 広い画面では、本文の1行を約40字までに抑える（日本語の読みやすい行長の目安）。
+   カード内の短い文には効かせず、横幅いっぱいに伸びる長文だけを対象にする */
+@media(min-width:700px){
+  .guide-msg,.def-lead,.sec-lead,.sub-lead,.age-note,.note,
+  .mikane ol li,.mikane .caution,.rule3-box ol li,.rule3-note,
+  .cta-lead,details.finder p,details.finder li,footer.disclaimer p{
+    max-width:40em;
+  }
+  /* 中央寄せの箱の中にあるものは、中央のまま幅だけ詰める */
+  .venn-cap,.life-cap{max-width:40em;margin-left:auto;margin-right:auto;}
+}
+.nowrap{white-space:nowrap;}
+
+/* ---------- ヘッダー ---------- */
+.hero{
+  background:linear-gradient(168deg,#fbe6e6 0%,#fdf1ea 46%,#ddf0fb 100%);
+  color:var(--navy);
+  padding:24px 0 30px;
+  overflow:hidden;
+}
+.brand{
+  display:flex;align-items:center;gap:10px;
+  font-size:.92rem;font-weight:700;letter-spacing:.02em;color:var(--navy);
+}
+.brand .ico{
+  width:36px;height:36px;flex:0 0 36px;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--navy);border-radius:12px;
+}
+.brand .ico svg{width:20px;height:20px;stroke:#fff;}
+.brand small{display:block;font-weight:500;color:var(--muted);font-size:.82rem;letter-spacing:.04em;line-height:1.55;}
+.hero-flex{display:flex;flex-direction:column;}
+.hero h1{
+  font-size:1.58rem;line-height:1.45;font-weight:800;
+  margin:20px 0 12px;letter-spacing:.01em;color:var(--navy);
+}
+.hero h1 .accent{
+  background:linear-gradient(transparent 62%, #ffd9a8 62%);
+  padding:0 2px;
+}
+.hero .lead{font-size:1rem;color:var(--text);max-width:640px;}
+/* 文字間隔をユーザーが広げても見出しが切れないよう、狭い画面では折り返しを許す
+   （通常の表示では1行に収まるため、見た目は変わらない）— WCAG 1.4.12 */
+@media(max-width:520px){ .hero h1 .nowrap{white-space:normal;} }
+.hero-scene{margin:16px auto 0;width:100%;max-width:400px;}
+.hero-scene svg{width:100%;height:auto;display:block;}
+@media(min-width:768px){
+  .hero{padding:30px 0 40px;}
+  .hero h1{font-size:1.95rem;}
+  .hero .lead{font-size:1.06rem;}
+  .hero-flex{flex-direction:row;align-items:center;gap:28px;}
+  .hero-copy{flex:1;}
+  .hero-scene{flex:0 0 340px;margin:0;}
+}
+.hero-nav{display:flex;flex-wrap:wrap;gap:9px;margin-top:20px;}
+.hero-nav a{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--white);
+  border:2px solid #ffffff;
+  color:var(--navy);text-decoration:none;
+  padding:11px 17px;border-radius:999px;
+  font-size:.94rem;font-weight:700;min-height:48px;
+  box-shadow:var(--shadow-sm);
+}
+.hero-nav a:active{background:#fff4e9;}
+.hero-nav a svg{width:18px;height:18px;stroke:var(--coral);flex:0 0 18px;}
+
+/* ---------- セクション共通 ---------- */
+section{padding:40px 0 46px;}
+.band{background:var(--white);}
+.band-sky{background:var(--sky-bg);}
+.band-blush{background:#fdf1eb;}
+.band-mint{background:var(--green-bg);}
+.round-top{
+  border-radius:30px 30px 0 0;
+  margin-top:-24px;position:relative;z-index:1;
+  padding-top:42px;
+}
+.sec-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;}
+.sec-head .spot{flex:0 0 84px;}
+.spot-circle{
+  width:84px;height:84px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.spot-circle svg{width:52px;height:52px;}
+.step-pill{
+  display:inline-flex;align-items:center;gap:9px;
+  background:var(--amber-bg);color:var(--navy);
+  font-size:.88rem;font-weight:700;letter-spacing:.02em;
+  padding:6px 18px 6px 7px;border-radius:999px;margin-bottom:12px;
+  box-shadow:var(--shadow-sm);
+}
+.step-pill i{
+  width:28px;height:28px;flex:0 0 28px;border-radius:50%;
+  background:linear-gradient(135deg,#c2452a,#a8601a);
+  color:#fff;font-style:normal;font-weight:800;font-size:.95rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.step-pill.plain{padding:7px 18px;}
+h2{
+  font-size:1.4rem;line-height:1.5;color:var(--navy);
+  font-weight:800;letter-spacing:.01em;
+  position:relative;padding-bottom:12px;margin-bottom:10px;
+}
+h2::after{
+  content:"";position:absolute;left:0;bottom:0;
+  width:54px;height:5px;border-radius:3px;
+  background:linear-gradient(90deg,var(--coral),var(--sunny));
+}
+@media(min-width:768px){h2{font-size:1.68rem;}}
+.sec-lead{color:var(--muted);font-size:1rem;margin-bottom:22px;}
+.sub-title{font-size:1.1rem;color:var(--navy);}
+.note{
+  font-size:.9rem;color:var(--muted);line-height:1.85;
+  background:var(--white);border-radius:16px;
+  padding:14px 16px;margin-top:20px;
+  display:flex;gap:9px;align-items:flex-start;
+  box-shadow:var(--shadow-sm);
+}
+.note svg{width:20px;height:20px;flex:0 0 20px;stroke:var(--coral);margin-top:4px;}
+.band-sky .note,.band-blush .note{box-shadow:none;border:1px solid var(--line);}
+
+/* ---------- ガイド（吹き出し） ---------- */
+.guide{display:flex;align-items:flex-start;gap:12px;margin-bottom:20px;}
+.guide-ava{
+  width:58px;height:58px;flex:0 0 58px;border-radius:50%;
+  overflow:hidden;display:block;box-shadow:var(--shadow-sm);
+}
+.guide-ava svg{width:100%;height:100%;display:block;}
+.guide-msg{
+  position:relative;background:var(--white);
+  border:2px solid #ffe0cf;border-radius:18px;
+  padding:12px 16px;font-size:.95rem;line-height:1.75;
+}
+.guide-msg::before{
+  content:"";position:absolute;left:-9px;top:20px;
+  width:14px;height:14px;background:var(--white);
+  border-left:2px solid #ffe0cf;border-bottom:2px solid #ffe0cf;
+  transform:rotate(45deg);
+}
+
+/* ---------- セクション1：ちがいを問いかけるリンク ---------- */
+.qlink-lead{
+  display:flex;align-items:center;gap:9px;
+  font-size:1rem;font-weight:800;color:var(--navy);
+  margin:26px 0 12px;
+}
+.qlink-lead svg{width:23px;height:23px;flex:0 0 23px;stroke:var(--coral);}
+.qlinks{display:grid;grid-template-columns:1fr;gap:12px;}
+@media(min-width:700px){.qlinks{grid-template-columns:repeat(3,1fr);}}
+.qlink{
+  display:flex;flex-direction:column;gap:5px;
+  background:var(--white);border:2px solid var(--line);border-radius:18px;
+  padding:15px 16px 13px;text-decoration:none;color:inherit;
+  box-shadow:var(--shadow-sm);
+  transition:border-color .15s, transform .12s;
+}
+.qlink:active{transform:scale(.985);}
+.qlink:hover{border-color:var(--coral);}
+.qlink .pair{
+  display:flex;align-items:center;gap:7px;flex-wrap:wrap;
+  font-size:1.02rem;font-weight:800;color:var(--navy);line-height:1.55;
+}
+.qlink .pair .vs{
+  font-size:.8rem;font-weight:800;color:var(--red-dark);
+  background:var(--red-bg);border-radius:999px;padding:2px 10px;
+}
+.qlink .ask{font-size:.87rem;color:var(--muted);line-height:1.75;}
+.qlink .go{
+  display:inline-flex;align-items:center;gap:4px;margin-top:3px;
+  font-size:.84rem;font-weight:800;color:var(--coral-text);
+}
+.qlink .go svg{width:14px;height:14px;flex:0 0 14px;stroke:var(--coral-text);}
+/* リンクで飛んだ先を、見出しの手前で止める */
+.def-block[id]{scroll-margin-top:18px;}
+
+/* ---------- セクション1：定義のブロック ---------- */
+.def-block{
+  margin-top:34px;padding-top:26px;border-top:2px dashed var(--line);
+}
+.def-block:first-of-type{margin-top:18px;padding-top:0;border-top:none;}
+.def-h{
+  display:flex;align-items:center;gap:12px;
+  font-size:1.14rem;line-height:1.5;color:var(--navy);margin-bottom:8px;
+}
+.def-ico{
+  width:52px;height:52px;flex:0 0 52px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.def-ico svg{width:34px;height:34px;}
+.def-lead{font-size:.97rem;color:var(--muted);line-height:1.9;margin-bottom:16px;}
+@media(min-width:768px){.def-h{font-size:1.26rem;}}
+
+/* ---------- セクション1：心疾患の輪 ---------- */
+.venn-box{
+  background:var(--white);border-radius:22px;box-shadow:var(--shadow);
+  padding:20px 14px 8px;margin:6px 0 26px;text-align:center;
+}
+.venn-box svg{width:100%;max-width:520px;height:auto;}
+.venn-cap{font-size:.88rem;color:var(--muted);padding:6px 8px 12px;line-height:1.8;}
+@media(max-width:520px){.venn-box{padding:14px 4px 6px;}}
+.cards{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.cards{grid-template-columns:repeat(2,1fr);}}
+.risk-card{
+  position:relative;background:var(--white);
+  border-radius:20px;padding:20px 20px 18px;
+  box-shadow:var(--shadow);
+}
+.risk-card .icon{
+  width:68px;height:68px;border-radius:50%;
+  background:var(--navy-soft);
+  display:flex;align-items:center;justify-content:center;margin-bottom:12px;
+}
+.risk-card .icon svg{width:44px;height:44px;}
+.risk-card .icon.ic-red{background:var(--red-bg);}
+.risk-card .icon.ic-blue{background:var(--sky-bg);}
+.risk-card .icon.ic-amber{background:var(--amber-bg);}
+.risk-card .icon.ic-green{background:var(--green-bg);}
+.risk-card h3{font-size:1.02rem;color:var(--navy);margin-bottom:2px;}
+.risk-card p{font-size:.93rem;color:var(--muted);margin-top:8px;line-height:1.85;}
+.judge-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:.82rem;font-weight:700;padding:4px 13px;border-radius:999px;margin-top:4px;
+}
+.judge-chip.ng{background:var(--red-bg);color:var(--red-dark);border:1.5px solid var(--red-border);}
+.judge-chip.ok{background:var(--green-bg);color:var(--green);border:1.5px solid var(--green-border);}
+.judge-chip.maybe{background:var(--amber-bg);color:var(--amber-deep);border:1.5px solid var(--amber-border);}
+
+/* ---------- 罹患年齢のデータ（セクション1の各解説に添える） ---------- */
+.age-note{
+  display:flex;gap:10px;align-items:flex-start;
+  background:var(--white);border-radius:14px;
+  border-left:5px solid var(--sky);
+  padding:11px 15px;margin-bottom:16px;
+  font-size:.9rem;line-height:1.85;
+  box-shadow:var(--shadow-sm);
+}
+.age-note svg{width:19px;height:19px;flex:0 0 19px;stroke:var(--sky);margin-top:5px;}
+.age-note b{color:var(--sky);font-size:.98rem;}
+.age-note small{display:block;color:var(--muted);font-size:.81rem;line-height:1.7;margin-top:2px;}
+
+/* ---------- セクション6：医療費のかかりどき ---------- */
+.life-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px 14px;margin:6px 0 26px;
+}
+.life-box h3{font-size:1.08rem;color:var(--navy);margin-bottom:4px;}
+.life-box .sub{font-size:.9rem;color:var(--muted);margin-bottom:14px;}
+.life-box svg{width:100%;max-width:620px;height:auto;display:block;margin:0 auto;}
+.life-cap{font-size:.85rem;color:var(--muted);line-height:1.8;padding:10px 4px 4px;}
+.big3{display:grid;grid-template-columns:1fr;gap:12px;margin-top:16px;}
+@media(min-width:700px){.big3{grid-template-columns:repeat(3,1fr);}}
+.big3 .b{
+  background:var(--bg);border:2px solid var(--line);border-radius:16px;
+  padding:13px 15px;text-align:center;
+}
+.big3 .b .n{display:block;font-size:1.5rem;font-weight:800;color:var(--coral-text);line-height:1.4;}
+.big3 .b .l{display:block;font-size:.86rem;color:var(--navy);font-weight:700;line-height:1.7;}
+.big3 .b .s{display:block;font-size:.81rem;color:var(--muted);line-height:1.7;margin-top:3px;}
+
+.sub-h{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.1rem;color:var(--navy);margin:30px 0 6px;
+}
+.sub-h svg{width:24px;height:24px;flex:0 0 24px;stroke:var(--coral);}
+.sub-lead{font-size:.95rem;color:var(--muted);line-height:1.9;margin-bottom:16px;}
+.age-cards{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.age-cards{grid-template-columns:repeat(3,1fr);}}
+.age-card{
+  background:var(--white);border-radius:20px;box-shadow:var(--shadow);
+  padding:18px 18px 15px;
+}
+.age-card .ttl{
+  display:flex;align-items:center;gap:9px;
+  font-size:1rem;font-weight:800;color:var(--navy);margin-bottom:10px;
+}
+.age-card .ttl .ico{
+  width:38px;height:38px;flex:0 0 38px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.age-card .ttl .ico svg{width:26px;height:26px;}
+.age-card .rows{border-top:1.5px dashed var(--line);padding-top:9px;}
+.age-card .row{
+  display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  font-size:.92rem;line-height:1.9;
+}
+.age-card .row span{color:var(--muted);}
+.age-card .row b{font-size:1.28rem;font-weight:800;color:var(--red-dark);white-space:nowrap;}
+.age-card .kind{
+  display:inline-block;font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:8px;
+  background:var(--sky-bg);color:var(--sky);
+}
+.age-card .cmt{font-size:.87rem;color:var(--text);line-height:1.85;margin-top:10px;}
+.age-card .src{font-size:.8rem;color:var(--muted);line-height:1.7;margin-top:9px;
+  border-top:1.5px dashed var(--line);padding-top:8px;}
+
+/* 未来の自分への仕送り */
+.mikane{
+  margin-top:28px;background:var(--white);border-radius:24px;
+  box-shadow:var(--shadow);padding:22px 20px 18px;
+}
+.mikane h3{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.1rem;color:var(--navy);margin-bottom:12px;
+}
+.mikane h3 svg{width:25px;height:25px;flex:0 0 25px;stroke:var(--mint);}
+.mikane ol{list-style:none;counter-reset:mk;}
+.mikane ol li{
+  counter-increment:mk;position:relative;
+  padding:0 0 14px 46px;font-size:.96rem;line-height:1.9;
+}
+.mikane ol li::before{
+  content:counter(mk);position:absolute;left:0;top:2px;
+  width:32px;height:32px;border-radius:50%;
+  background:var(--sky-bg);color:var(--sky);
+  font-weight:800;font-size:1.02rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.mikane ol li b{color:var(--coral-text);}
+.mikane .caution{
+  background:var(--amber-bg);border-radius:16px;padding:14px 16px;
+  font-size:.9rem;line-height:1.9;
+  border-left:5px solid var(--sunny);
+}
+.mikane .caution strong:first-child{display:block;color:var(--amber-deep);margin-bottom:3px;}
+.mikane .caution b{color:var(--coral-text);}
+
+/* ---------- セクション2：クイズ ---------- */
+.quiz-shell{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px 24px;
+}
+.band .quiz-shell{background:var(--bg);box-shadow:none;border:2px solid var(--line);}
+.q-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.q-count{font-size:.9rem;font-weight:700;color:var(--muted);}
+.q-count span{color:var(--coral-text);font-size:1.15rem;}
+.dots{display:flex;gap:6px;}
+.dots i{width:10px;height:10px;border-radius:50%;background:#e8dbd0;}
+.dots i.done{background:var(--mint);}
+.dots i.now{background:var(--coral);}
+.q-body{display:flex;gap:14px;align-items:flex-start;margin:14px 0 18px;}
+.q-body .icon{
+  width:64px;height:64px;flex:0 0 64px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.q-body .icon svg{width:40px;height:40px;}
+.q-body p{font-size:1.06rem;font-weight:700;color:var(--navy);line-height:1.8;}
+.ans-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.ans-btn{
+  min-height:64px;border-radius:18px;cursor:pointer;
+  font-size:1.1rem;font-weight:800;letter-spacing:.06em;
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  border:2.5px solid;transition:transform .12s;
+}
+.ans-btn:active{transform:scale(.97);}
+.ans-btn svg{width:26px;height:26px;}
+.ans-btn.yes{background:var(--green-bg);border-color:var(--green-border);color:var(--green);}
+.ans-btn.no{background:var(--red-bg);border-color:var(--red-border);color:var(--red-dark);}
+.ans-btn:disabled{opacity:.45;cursor:default;}
+.verdict{
+  display:none;margin-top:18px;background:var(--white);
+  border:2px solid var(--amber-border);border-radius:20px;
+  padding:18px 18px 16px;
+}
+.verdict.show{display:block;}
+.verdict-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+.verdict-answer{font-size:1.25rem;font-weight:800;color:var(--navy);}
+.result-chip{
+  font-size:.85rem;font-weight:800;padding:4px 14px;border-radius:999px;
+}
+.result-chip.correct{background:var(--green-bg);color:var(--green);}
+.result-chip.wrong{background:var(--red-bg);color:var(--red-dark);}
+.verdict .expl{font-size:.97rem;line-height:1.95;margin-bottom:12px;}
+.verdict .kv{
+  font-size:.92rem;line-height:1.85;background:var(--sky-bg);
+  border-radius:12px;padding:9px 13px;margin-top:8px;
+}
+.verdict .kv b{color:var(--sky);}
+.verdict .kv.kv-wana{background:var(--red-bg);}
+.verdict .kv.kv-wana b{color:var(--red-dark);}
+.btn-primary{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  width:100%;min-height:58px;margin-top:16px;
+  background:linear-gradient(135deg,#cf4a22,#c2401c);
+  color:#fff;font-size:1.05rem;font-weight:800;letter-spacing:.04em;
+  border:none;border-radius:18px;cursor:pointer;
+  box-shadow:0 5px 14px rgba(194,64,28,.34);
+}
+.btn-primary:active{transform:translateY(1px);}
+.btn-primary svg{width:22px;height:22px;stroke:#fff;}
+.btn-ghost{
+  display:block;width:100%;min-height:50px;margin-top:12px;
+  background:var(--white);color:var(--navy-2);
+  font-size:.95rem;font-weight:700;
+  border:2px solid var(--sky-border);border-radius:16px;cursor:pointer;
+}
+.btn-ghost:active{background:var(--sky-bg);}
+.quiz-done{display:none;}
+.quiz-done.show{display:block;}
+.quiz-done .score{
+  font-size:1.15rem;font-weight:800;color:var(--navy);
+  text-align:center;margin:8px 0 6px;
+}
+.quiz-done .score .num{font-size:2rem;color:var(--coral-text);}
+.quiz-done .cmt{
+  background:var(--white);border-radius:16px;padding:14px 16px;
+  font-size:.97rem;line-height:1.95;margin:14px 0;
+  border:2px solid var(--amber-border);
+}
+.wrong-list{margin:14px 0;}
+.wrong-list h4{font-size:.95rem;color:var(--navy);margin-bottom:8px;}
+.wrong-list .w-item{
+  background:var(--white);border-radius:14px;padding:11px 14px;
+  font-size:.9rem;line-height:1.8;margin-bottom:8px;
+  border-left:4px solid var(--coral);box-shadow:var(--shadow-sm);
+}
+
+/* ---------- セクション3：払込免除の解剖 ---------- */
+.type-table-box{
+  background:var(--white);border-radius:22px;box-shadow:var(--shadow-sm);
+  padding:18px 14px;margin:8px 0 24px;overflow-x:auto;
+}
+.type-table{width:100%;border-collapse:collapse;min-width:520px;font-size:.9rem;}
+.type-table th,.type-table td{
+  padding:10px 10px;text-align:center;border-bottom:1.5px solid var(--line);
+  line-height:1.7;vertical-align:middle;
+}
+.type-table th{background:var(--navy-soft);color:var(--navy);font-size:.86rem;}
+.type-table th:first-child{border-radius:12px 0 0 12px;}
+.type-table th:last-child{border-radius:0 12px 12px 0;}
+.type-table td:first-child{text-align:left;font-weight:700;color:var(--navy);font-size:.88rem;}
+.type-table small{display:block;color:var(--muted);font-weight:500;font-size:.81rem;}
+.mark-ok,.mark-ng,.mark-tri{font-weight:800;font-size:1.05rem;}
+.mark-ok{color:var(--green);}
+.mark-ng{color:var(--red);}
+.mark-tri{color:var(--amber);}
+.sim-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px;margin-top:26px;
+}
+.sim-box h3{font-size:1.12rem;color:var(--navy);margin-bottom:4px;}
+.sim-box .sub{font-size:.9rem;color:var(--muted);margin-bottom:18px;}
+.sim-ctrl{margin-bottom:18px;}
+.sim-ctrl label{
+  display:flex;justify-content:space-between;align-items:baseline;
+  font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:6px;
+}
+.sim-ctrl label output{color:var(--coral-text);font-size:1.15rem;font-weight:800;}
+input[type=range]{
+  width:100%;height:34px;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;
+}
+input[type=range]::-webkit-slider-runnable-track{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--sunny),var(--coral));}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:28px;height:28px;border-radius:50%;
+  background:var(--white);border:3px solid var(--coral);margin-top:-9px;
+  box-shadow:var(--shadow-sm);
+}
+input[type=range]::-moz-range-track{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--sunny),var(--coral));}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--white);border:3px solid var(--coral);}
+.sim-check{
+  display:flex;align-items:center;gap:10px;
+  background:var(--sky-bg);border-radius:14px;padding:11px 14px;
+  font-size:.95rem;font-weight:700;color:var(--navy);cursor:pointer;
+}
+.sim-check input{width:22px;height:22px;accent-color:var(--sky);}
+.timeline{margin:48px 0 8px;}
+.tl-track{
+  position:relative;height:14px;border-radius:7px;background:#f0e4d8;
+}
+.tl-fill{
+  position:absolute;left:0;top:0;height:14px;border-radius:7px;
+  background:linear-gradient(90deg,var(--sunny),var(--coral));
+  transition:width .2s;
+}
+.tl-goal{
+  position:absolute;top:-34px;transform:translateX(-50%);
+  font-size:.81rem;font-weight:800;color:var(--red-dark);
+  text-align:center;line-height:1.3;white-space:nowrap;
+}
+.tl-goal::after{
+  content:"";display:block;width:3px;height:30px;margin:2px auto 0;
+  background:var(--red);border-radius:2px;
+}
+.tl-labels{display:flex;justify-content:space-between;font-size:.81rem;color:var(--muted);margin-top:6px;}
+.sim-results{display:grid;grid-template-columns:1fr;gap:12px;margin-top:20px;}
+@media(min-width:700px){.sim-results{grid-template-columns:repeat(3,1fr);}}
+.sim-r{
+  border-radius:18px;padding:14px 15px;border:2px solid var(--line);background:var(--bg);
+}
+.sim-r h4{font-size:.9rem;color:var(--navy);margin-bottom:6px;line-height:1.6;}
+.sim-r h4 small{display:block;font-weight:500;color:var(--muted);font-size:.8rem;}
+.sim-r .r-chip{
+  display:inline-block;font-size:.95rem;font-weight:800;
+  padding:5px 16px;border-radius:999px;margin-bottom:6px;
+}
+.sim-r.ok{border-color:var(--green-border);background:var(--green-bg);}
+.sim-r.ok .r-chip{background:var(--white);color:var(--green);}
+.sim-r.ng{border-color:var(--red-border);background:var(--red-bg);}
+.sim-r.ng .r-chip{background:var(--white);color:var(--red-dark);}
+.sim-r p{font-size:.84rem;color:var(--muted);line-height:1.75;}
+
+/* ---------- セクション4：あるある劇場 ---------- */
+.case-grid{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.case-grid{grid-template-columns:repeat(2,1fr);}}
+.case-card{
+  display:flex;align-items:center;gap:14px;text-align:left;
+  background:var(--white);border:none;border-radius:20px;
+  padding:16px 16px;cursor:pointer;box-shadow:var(--shadow);
+  font-family:inherit;transition:transform .12s;
+}
+.case-card:active{transform:scale(.985);}
+.case-card .art{
+  width:64px;height:64px;flex:0 0 64px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+}
+.case-card .art svg{width:42px;height:42px;}
+.case-card .t{flex:1;}
+.case-card .chip{
+  display:inline-block;font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:4px;
+}
+.case-card h3{font-size:.99rem;color:var(--navy);line-height:1.6;}
+.case-card .more{
+  font-size:.8rem;color:var(--coral-text);font-weight:700;
+  display:inline-flex;align-items:center;gap:4px;margin-top:4px;
+}
+.case-card .more svg{width:14px;height:14px;stroke:var(--coral-text);}
+.c-red{background:var(--red-bg);color:var(--red-dark);}
+.c-blue{background:var(--sky-bg);color:var(--sky);}
+.c-green{background:var(--green-bg);color:var(--green);}
+.c-amber{background:var(--amber-bg);color:var(--amber-deep);}
+.c-berry{background:var(--berry-bg);color:var(--berry);}
+.case-card .amt{
+  display:inline-block;margin-left:7px;
+  font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;
+  background:var(--white);color:var(--green);border:1.5px solid var(--green-border);
+}
+
+/* ---------- セクション5：逆転劇場 ---------- */
+#sec5 .case-card{box-shadow:0 6px 20px rgba(60,120,80,.12);}
+.model-note{
+  background:var(--white);border-radius:18px;padding:14px 18px;margin-bottom:18px;
+  border-left:6px solid var(--mint);box-shadow:var(--shadow-sm);
+}
+.model-note strong{display:block;font-size:.92rem;color:var(--green);margin-bottom:4px;}
+.model-note .mn-row{display:block;font-size:.95rem;line-height:1.9;color:var(--navy);}
+.model-note .mn-row b{color:var(--coral-text);}
+.model-note .mn-note{display:block;font-size:.82rem;color:var(--muted);line-height:1.8;margin-top:6px;}
+.rule3-box{
+  margin-top:28px;background:var(--white);border-radius:22px;
+  padding:20px 20px 16px;box-shadow:var(--shadow-sm);
+}
+.rule3-box h3{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.06rem;color:var(--navy);margin-bottom:12px;
+}
+.rule3-box h3 svg{width:24px;height:24px;flex:0 0 24px;stroke:var(--green);}
+.rule3-box ol{list-style:none;counter-reset:r3;}
+.rule3-box ol li{
+  counter-increment:r3;position:relative;
+  padding:0 0 12px 44px;font-size:.95rem;line-height:1.9;
+}
+.rule3-box ol li::before{
+  content:counter(r3);position:absolute;left:0;top:2px;
+  width:30px;height:30px;border-radius:50%;
+  background:var(--green-bg);color:var(--green);
+  font-weight:800;font-size:1rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.rule3-note{font-size:.8rem;color:var(--muted);border-top:1.5px dashed var(--line);padding-top:10px;line-height:1.8;}
+/* ---------- モーダル ---------- */
+.cmodal{position:fixed;inset:0;z-index:60;display:none;}
+.cmodal.show{display:block;}
+.cmodal-back{position:absolute;inset:0;background:rgba(40,30,25,.5);}
+.cmodal-panel{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(94vw,640px);max-height:88vh;overflow-y:auto;
+  background:var(--white);border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.25);
+  -webkit-overflow-scrolling:touch;
+}
+.cmodal-head{
+  position:sticky;top:0;display:flex;gap:14px;align-items:center;
+  background:var(--white);padding:18px 52px 12px 20px;
+  border-bottom:1.5px solid var(--line);z-index:2;
+}
+.cmodal-close{
+  position:absolute;right:12px;top:12px;
+  width:40px;height:40px;border-radius:50%;
+  background:var(--bg);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.cmodal-close svg{width:18px;height:18px;stroke:var(--navy);}
+.cmodal-ico{
+  width:56px;height:56px;flex:0 0 56px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+}
+.cmodal-ico svg{width:38px;height:38px;}
+.cmodal-chip{
+  display:inline-block;font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:3px;
+}
+.cmodal-title{font-size:1.08rem;color:var(--navy);line-height:1.55;}
+.cmodal-body{padding:16px 20px 22px;}
+.cmodal-block{margin-bottom:18px;}
+.cmodal-label{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:.86rem;font-weight:800;padding:5px 14px;border-radius:999px;margin-bottom:9px;
+}
+.cmodal-label svg{width:17px;height:17px;}
+.lb-blue{background:var(--sky-bg);color:var(--sky);}
+.lb-blue svg{stroke:var(--sky);}
+.lb-red{background:var(--red-bg);color:var(--red-dark);}
+.lb-red svg{stroke:var(--red-dark);}
+.lb-green{background:var(--green-bg);color:var(--green);}
+.lb-green svg{stroke:var(--green);}
+.cmodal-quote{
+  background:var(--bg);border-left:4px solid var(--coral);
+  border-radius:0 14px 14px 0;padding:12px 15px;
+  font-size:.95rem;line-height:1.9;color:var(--text);
+}
+.cmodal-quote small{display:block;text-align:right;color:var(--muted);margin-top:4px;font-size:.8rem;}
+.cmodal-p{font-size:.95rem;line-height:1.95;margin-bottom:8px;}
+.cmodal-note{
+  font-size:.8rem;color:var(--muted);line-height:1.8;margin-top:14px;
+  border-top:1.5px dashed var(--line);padding-top:12px;
+}
+
+/* ---------- まとめ・チェックリスト ---------- */
+.score-box{
+  background:var(--sky-bg);border-radius:20px;padding:18px 18px 14px;margin-bottom:24px;
+}
+.score-box h3{
+  display:flex;align-items:center;gap:8px;
+  font-size:1.02rem;color:var(--navy);margin-bottom:8px;
+}
+.score-box h3 svg{width:22px;height:22px;stroke:var(--sky);}
+.score-box p{font-size:.95rem;line-height:1.9;}
+.checklist{display:grid;grid-template-columns:1fr;gap:10px;}
+.chk-group{
+  font-size:.9rem;font-weight:800;color:var(--amber-deep);
+  margin:14px 0 2px;letter-spacing:.03em;
+}
+.chk-group:first-child{margin-top:0;}
+.chk{
+  display:flex;align-items:center;gap:12px;
+  background:var(--bg);border:2px solid var(--line);border-radius:16px;
+  padding:12px 14px;cursor:pointer;font-size:.95rem;line-height:1.7;
+  transition:border-color .15s, background .15s;
+}
+.chk input{width:24px;height:24px;flex:0 0 24px;accent-color:var(--green);cursor:pointer;}
+.chk .art{
+  width:44px;height:44px;flex:0 0 44px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.chk .art svg{width:28px;height:28px;}
+.chk:has(input:checked){background:var(--green-bg);border-color:var(--green-border);}
+.chk-msg{
+  margin-top:16px;background:var(--amber-bg);border-radius:16px;
+  padding:14px 16px;font-size:.95rem;line-height:1.9;
+}
+details.finder{
+  margin-top:26px;background:var(--bg);border-radius:18px;
+  padding:4px 18px;border:1.5px solid var(--line);
+}
+details.finder summary{
+  cursor:pointer;font-size:.98rem;font-weight:700;color:var(--navy);
+  padding:12px 0;list-style-position:inside;
+}
+details.finder ul{padding:2px 0 8px 22px;font-size:.92rem;color:var(--text);}
+details.finder li{margin-bottom:7px;line-height:1.85;}
+details.finder p{font-size:.92rem;padding:0 0 14px;line-height:1.9;}
+
+/* ---------- CTA ---------- */
+.cta-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:24px 20px;margin-top:30px;text-align:center;
+}
+.cta-box h3{font-size:1.2rem;color:var(--navy);margin-bottom:8px;line-height:1.6;}
+.cta-box .cta-lead{font-size:.95rem;color:var(--muted);text-align:left;margin-bottom:14px;line-height:1.95;}
+.cta-box ul{list-style:none;text-align:left;margin-bottom:14px;}
+.cta-box ul li{
+  display:flex;gap:9px;align-items:flex-start;
+  font-size:.94rem;line-height:1.85;margin-bottom:6px;
+}
+.cta-box ul li svg{width:19px;height:19px;flex:0 0 19px;stroke:var(--mint);margin-top:6px;}
+.co{font-size:.98rem;font-weight:800;color:var(--navy);margin-top:18px;}
+.addr{font-size:.87rem;color:var(--muted);line-height:1.7;}
+.tip{font-size:.87rem;color:var(--amber-deep);margin-top:10px;}
+.cta-mini{
+  margin-top:18px;background:var(--bg);border:2px solid var(--amber-border);
+  border-radius:18px;padding:14px 16px;text-align:center;
+}
+.cta-mini p{font-size:.92rem;line-height:1.85;margin-bottom:10px;text-align:left;}
+.cta-mini a{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--white);border:2px solid var(--coral);
+  color:var(--coral-text);text-decoration:none;font-weight:800;font-size:.95rem;
+  border-radius:999px;padding:9px 20px;
+}
+.cta-mini a svg{width:18px;height:18px;stroke:var(--coral-text);}
+
+
+/* ---------- フッター免責 ---------- */
+footer.disclaimer{
+  padding:26px 16px 30px;max-width:900px;margin:0 auto;
+}
+footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
+
+@media print{
+  .hero-nav,.cta-mini{display:none !important;}
+  body{background:#fff;}
+}
+
+/* ---------- このページ独自：シミュレーターの合計表示 ---------- */
+.sim-total{
+  background:var(--navy-soft);border-radius:18px;
+  padding:15px 16px;margin-top:18px;text-align:center;
+}
+.sim-total .lead{font-size:.88rem;color:var(--muted);line-height:1.8;margin-bottom:6px;}
+.sim-total .big{
+  display:block;font-size:1.5rem;font-weight:800;color:var(--navy);line-height:1.6;
+}
+.sim-total .big b{color:var(--coral-text);font-size:1.9rem;}
+.sim-total .sub2{display:block;font-size:.88rem;color:var(--muted);line-height:1.8;margin-top:6px;}
+/* 使いみちの色分け（出ていくお金／戻るお金） */
+.tl-fill.back{background:linear-gradient(90deg,var(--mint),var(--green));}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brand"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg></span>
+      <span>株式会社Office-M<small>会計を母体に、数字の「小さな字」まで読み解いてご案内します</small></span></div>
+    <div class="hero-flex">
+      <div class="hero-copy">
+        <h1>買う前に、その数字。<br><span class="nowrap"><span class="accent">表面利回り</span>は</span><span class="nowrap">何を隠す？</span></h1>
+        <p class="lead">「利回り8%だから、預金よりずっといい」。「赤字が出るから<strong>節税</strong>になる」。よく聞く2つの言い方ですが、どちらも<strong>そのままでは正確ではありません</strong>。前者は経費も空室も引く前の数字、後者は「税金が減る」と「手取りが増える」を混ぜた言い方だからです。このページでは、①表面利回りと実質利回りの引き算、②空室・修繕・借入条件で手残りがどう動くか、③<strong>節税になるという話の中身</strong>、この3つを見分ける物差しをお渡しします。買うかどうかを勧めるページではありません。<strong>確かめ方だけ</strong>のページです。クイズは3分、全部読んでも10分ほどです。</p>
+        <nav class="hero-nav" aria-label="ページ内メニュー">
+          <a href="#sec1"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h9"/></svg>3つの線引き</a>
+          <a href="#sec2"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/></svg>○×ワナクイズ</a>
+          <a href="#sec3"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="16" r="3"/><path d="M18 6 6 18"/></svg>節税話を解剖</a>
+          <a href="#sec4"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0-3.3 11 3 3 0 0 1 1.1 1.9l.03.35h4.34l.03-.35a3 3 0 0 1 1.1-1.9A6 6 0 0 0 12 3Z"/><path d="M9.8 19.2h4.4M10.7 21.7h2.6"/></svg>あるある劇場</a>
+          <a href="#sec5"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="8" width="17" height="12.5" rx="2.5"/><path d="M3.5 12h17M12 8v12.5"/></svg>逆転劇場</a>
+          <a href="#sec6"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5h16M7 16V9.5M12 16V5.5M17 16v-4"/></svg>数字で見る手残り</a>
+        </nav></div>
+      <div class="hero-scene" aria-hidden="true">
+        <svg viewBox="0 0 360 212">
+          <circle cx="310" cy="38" r="32" fill="#ffd9a8" opacity=".45"/><circle cx="310" cy="38" r="21" fill="#f7c34e"/><ellipse cx="60" cy="32" rx="26" ry="10" fill="#fff" opacity=".95"/>
+          <path d="M0 168h360v44H0Z" fill="#ffe9c7"/><path d="M0 176c40-10 90-12 150-8 60 4 120 4 210-6v50H0Z" fill="#b3e3b8"/>
+          <rect x="122" y="76" width="92" height="92" rx="6" fill="#fffdf8" stroke="#efe2d8" stroke-width="3"/>
+          <rect x="134" y="90" width="22" height="20" rx="4" fill="#c6e2f2"/><rect x="166" y="90" width="22" height="20" rx="4" fill="#c6e2f2"/>
+          <rect x="134" y="120" width="22" height="20" rx="4" fill="#e6eef4"/><rect x="166" y="120" width="22" height="20" rx="4" fill="#c6e2f2"/>
+          <rect x="150" y="148" width="24" height="20" rx="3" fill="#f0846a"/>
+          <rect x="228" y="104" width="66" height="64" rx="6" fill="#fffdf8" stroke="#efe2d8" stroke-width="3"/>
+          <rect x="238" y="116" width="18" height="18" rx="4" fill="#e6eef4"/><rect x="264" y="116" width="18" height="18" rx="4" fill="#c6e2f2"/>
+          <path d="M243 148h36" stroke="#d9cfc4" stroke-width="3" stroke-linecap="round"/>
+          <path d="M20 180c0-15 6.5-33 15-33s15 18 15 33v2H20Z" fill="#63b8dd"/><circle cx="35" cy="136" r="11" fill="#f7cdb4"/><path d="M24 134c1-9 5.5-13 11-13s10 4 11 13c-3.3-4-7-5.3-11-5.3s-7.7 1.3-11 5.3Z" fill="#5c4030"/>
+          <circle cx="31" cy="136.5" r="1.4" fill="#3d3028"/><circle cx="39" cy="136.5" r="1.4" fill="#3d3028"/><path d="M32 141c1.4 1.5 4 1.5 5.4 0" fill="none" stroke="#3d3028" stroke-width="1.4" stroke-linecap="round"/>
+        </svg></div>
+    </div></div>
+</header>
+
+<section id="sec1">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="step-pill"><i>1</i><span>言葉の意味をそろえる</span></span>
+      <h2>まず、3本の<span class="nowrap">線を引く</span></h2></div>
+      <div class="spot"><span class="spot-circle" data-art="spotLine" aria-hidden="true"></span></div></div>
+    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">不動産投資の話がかみ合わなくなるのは、たいてい言葉のせいです。同じ「利回り」でも、話し手が指しているものが違う。同じ「もうかる」でも、帳簿の話なのか手元のお金の話なのかが違う。ここでは、混ざりやすい3本の線を先に引いておきます。線さえ引けたら、あとの数字は自分で追えます。</p></div>
+    <p class="qlink-lead"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/></svg>この3つ、答えられますか？</p>
+    <div class="qlinks">
+      <a class="qlink" href="#def-1"><span class="pair">表面利回り<span class="vs">と</span>実質利回り</span><span class="ask">販売資料に大きく書いてある数字は、どちらでしょう。何を引く前の数字でしょうか。</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></a>
+      <a class="qlink" href="#def-2"><span class="pair">帳簿の利益<span class="vs">と</span>手元のお金</span><span class="ask">帳簿は黒字なのに預金が減る、という現象はなぜ起きるのでしょうか。</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></a>
+      <a class="qlink" href="#def-3"><span class="pair">税金が減る<span class="vs">と</span>手取りが増える</span><span class="ask">「節税になる」と言われたとき、この2つは同じ意味でしょうか。違うでしょうか。</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></a>
+    </div>
+
+    <div class="def-block" id="def-1">
+      <h3 class="def-h"><span class="def-ico ic-blue" data-art="icRimawari" aria-hidden="true"></span>1本目：利回りという言葉の中身</h3>
+      <p class="def-lead">販売資料の見出しに大きく出ている利回りは、ほとんどの場合<strong>表面利回り</strong>です。満室になったと仮定した年間家賃を、物件価格で割っただけの数字で、管理費も修繕も固定資産税も空室も引いていません。これに対して<strong>実質利回り</strong>は、実際に入ってくる家賃から運営にかかる費用を引いた金額を、購入時の諸費用まで含めた総額で割ります。同じ物件でも、2つの数字は2〜3ポイント離れることが珍しくありません。</p>
+      <p class="age-note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <span>このページのモデル（価格<b>2,000万円</b>・満室想定の年間家賃<b>144万円</b>）だと、表面利回りは<b>7.2%</b>ですが、空室5%・運営経費20%・固定資産税等14万円を引いた実質利回りは<b>約4.8%</b>になります<small>根拠：計算式はこのページ内のシミュレーターと同じ。数値は説明用の仮定であり、特定の物件を示すものではありません</small></span></p>
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="表面利回りは満室想定の家賃を価格で割っただけの数字で、実質利回りは空室・運営経費・固定資産税を引いた後の数字であることを示した図">
+          <text x="260" y="30" text-anchor="middle" font-size="19" font-weight="bold" fill="#1b3f5e">利回りという言葉の中身</text>
+          <rect x="30" y="48" width="460" height="160" rx="18" fill="#eaf1f7"/><rect x="44" y="62" width="286" height="132" rx="12" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="3"/>
+          <text x="187" y="100" text-anchor="middle" font-size="20" font-weight="bold" fill="#2c7a4b">表面利回り</text><text x="187" y="130" text-anchor="middle" font-size="16" fill="#2c7a4b">満室想定の家賃 ÷ 価格</text>
+          <text x="187" y="158" text-anchor="middle" font-size="15" font-weight="bold" fill="#2c7a4b">空室も経費も引かない</text>
+          <path d="M338 42v172" stroke="#c2451f" stroke-width="3" stroke-dasharray="7 6"/><rect x="350" y="62" width="126" height="132" rx="12" fill="#fdeee9" stroke="#c2453f" stroke-width="3"/>
+          <text x="413" y="104" text-anchor="middle" font-size="18" font-weight="bold" fill="#a63631">実質利回り</text><text x="413" y="132" text-anchor="middle" font-size="13" fill="#a63631">引いた後の数字</text>
+          <text x="260" y="234" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2451f">引くもの：空室・管理・修繕・固都税</text><text x="260" y="266" text-anchor="middle" font-size="13.5" fill="#5c6874">ローン返済と所得税はさらにこの後</text>
+        </svg>
+        <p class="venn-cap">※実質利回りには決まった計算式がありません。どこまでを経費に含めるか、購入時の諸費用を分母に足すかで数字が変わります。だからこそ「その利回りは何を引いた後ですか」と聞くこと自体に意味があります。</p></div>
+      <div class="cards">
+        <div class="risk-card"><div class="icon ic-green" data-art="icRimawari" aria-hidden="true"></div>
+          <h3>表面利回りだけ提示</h3><span class="judge-chip maybe">中身を必ず質問</span>
+          <p>資料に「利回り」としか書かれていないときは、まず<strong>満室想定かどうか</strong>を確認します。現在の入居状況と一致しているなら現況利回り、空室があるのに満室の家賃で計算しているなら想定利回りです。呼び方が違えば、意味も違います。</p></div>
+        <div class="risk-card"><div class="icon ic-amber" data-art="icShorui" aria-hidden="true"></div>
+          <h3>諸費用が分母にない</h3><span class="judge-chip maybe">総額で割り直す</span>
+          <p>仲介手数料・登記費用・不動産取得税・火災保険料などは、購入時にまとまって出ていきます。物件価格だけで割った利回りは、<strong>この持ち出しを無視した数字</strong>です。総額で割り直すと、利回りは目に見えて下がります。</p></div>
+        <div class="risk-card"><div class="icon ic-red" data-art="icAkishitsu" aria-hidden="true"></div>
+          <h3>満室想定のまま比較</h3><span class="judge-chip ng">比較の土俵が違う</span>
+          <p>空室のある物件を満室想定で、埋まっている物件を現況で見比べると、<strong>条件のそろっていない比較</strong>になります。比べるなら、どちらも同じ空室率を当てはめて計算し直します。数字は、そろえてはじめて比較になります。</p></div>
+        <div class="risk-card"><div class="icon ic-blue" data-art="icDoc2" aria-hidden="true"></div>
+          <h3>レントロールを確認</h3><span class="judge-chip ok">確かめられる</span>
+          <p>レントロール（部屋ごとの賃貸条件一覧）には、部屋番号・賃料・契約日・敷金などが並びます。<strong>直近に契約した部屋の賃料</strong>と、何年も前から住んでいる部屋の賃料に開きがあるかどうか。ここは資料をもらえば自分で読めます。</p></div>
+      </div>
+    </div>
+
+    <div class="def-block" id="def-2">
+      <h3 class="def-h"><span class="def-ico ic-amber" data-art="icGenka" aria-hidden="true"></span>2本目：帳簿の利益と、手元に残るお金</h3>
+      <p class="def-lead">不動産投資でいちばん多い驚きが、この2本目の線です。<strong>帳簿の利益と、通帳の残高は別物</strong>です。理由は2つあります。ひとつは<strong>減価償却</strong>で、これは経費に計上されるのに現金は出ていきません。もうひとつは<strong>ローンの元金返済</strong>で、こちらは現金が出ていくのに経費にはなりません。この2つが逆方向に効くので、帳簿が赤字でも現金は残ることがあり、帳簿が黒字でも現金が足りなくなることがあります。</p>
+      <p class="age-note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <span>減価償却が終わった年から、経費だけが消えて元金返済が残る状態になります。俗に<b>デッドクロス</b>と呼ばれる状態で、帳簿の利益が増え、それに対する税金も増える一方、手元のお金は増えません<small>根拠：減価償却は所得税法・法人税法上の耐用年数にもとづく計算。個別の税額計算・申告については税理士にご確認ください</small></span></p>
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="手元のお金は家賃から経費と返済を引いたもの、帳簿の利益は減価償却を引いたもので、両者がずれることを示した図">
+          <text x="260" y="30" text-anchor="middle" font-size="19" font-weight="bold" fill="#1b3f5e">帳簿の利益と、手元のお金</text>
+          <rect x="30" y="48" width="460" height="160" rx="18" fill="#eaf1f7"/><rect x="44" y="62" width="286" height="132" rx="12" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="3"/>
+          <text x="187" y="100" text-anchor="middle" font-size="20" font-weight="bold" fill="#2c7a4b">手元に残るお金</text><text x="187" y="130" text-anchor="middle" font-size="16" fill="#2c7a4b">家賃 − 経費 − 返済</text>
+          <text x="187" y="158" text-anchor="middle" font-size="15" font-weight="bold" fill="#2c7a4b">元金返済も出ていく</text>
+          <path d="M338 42v172" stroke="#c2451f" stroke-width="3" stroke-dasharray="7 6"/><rect x="350" y="62" width="126" height="132" rx="12" fill="#fdeee9" stroke="#c2453f" stroke-width="3"/>
+          <text x="413" y="104" text-anchor="middle" font-size="18" font-weight="bold" fill="#a63631">帳簿の利益</text><text x="413" y="132" text-anchor="middle" font-size="13" fill="#a63631">減価償却を引く</text>
+          <text x="260" y="234" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2451f">元金返済は経費にならない</text><text x="260" y="266" text-anchor="middle" font-size="13.5" fill="#5c6874">減価償却は経費だがお金は出ない</text>
+        </svg>
+        <p class="venn-cap">※どちらが正しい数字というわけではありません。税金を計算するときは帳簿の利益、生活が回るかどうかを見るときは手元のお金。<strong>見たい目的で使い分ける</strong>のが正解です。片方だけで判断すると足をすくわれます。</p></div>
+      <div class="cards">
+        <div class="risk-card"><div class="icon ic-blue" data-art="icGenka" aria-hidden="true"></div>
+          <h3>減価償却の残り年数</h3><span class="judge-chip ok">先に分かる</span>
+          <p>建物の構造と築年数が分かれば、<strong>あと何年ぶん経費にできるか</strong>は購入前に計算できます。中古の場合は法定耐用年数の残りをもとに簡便法で見積もる方法があります。何年目に経費が消えるかを先に知っておくと、驚かずに済みます。</p></div>
+        <div class="risk-card"><div class="icon ic-amber" data-art="icKinriP" aria-hidden="true"></div>
+          <h3>返済のうち元金の割合</h3><span class="judge-chip maybe">返済予定表で確認</span>
+          <p>元利均等返済では、初期は利息の割合が大きく、後半ほど元金の割合が大きくなります。<strong>元金部分は経費になりません</strong>。返済予定表には毎回の利息と元金が並んでいるので、何年目にどれだけ経費が減るかが読み取れます。</p></div>
+        <div class="risk-card"><div class="icon ic-red" data-art="qYen" aria-hidden="true"></div>
+          <h3>黒字なのに現金不足</h3><span class="judge-chip ng">起こりうる</span>
+          <p>減価償却が終わり、返済の元金割合が増えた年に起きます。帳簿上の利益が出るので<strong>税金は増える</strong>のに、そのぶんの現金は返済で消えています。納税資金を別に用意していないと、そこで詰まります。</p></div>
+        <div class="risk-card"><div class="icon ic-green" data-art="chkBank" aria-hidden="true"></div>
+          <h3>手元資金を別枠で</h3><span class="judge-chip ok">今から準備できる</span>
+          <p>空室・原状回復・給湯器やエアコンの交換・納税は、いつか必ず来る支出です。家賃収入の一部を<strong>使わない口座に分けておく</strong>だけで、慌てて高い金利で借りる事態を避けやすくなります。今日からできる備えです。</p></div>
+      </div>
+    </div>
+
+    <div class="def-block" id="def-3">
+      <h3 class="def-h"><span class="def-ico ic-red" data-art="icDeguchi" aria-hidden="true"></span>3本目：税金が減る、と、手取りが増える</h3>
+      <p class="def-lead">「節税になります」という説明は、多くの場合<strong>不動産所得の赤字を給与所得と損益通算する</strong>ことを指しています。赤字が出れば課税所得が下がり、源泉徴収されていた所得税が確定申告で戻り、翌年度の住民税も下がります。ここまでは事実です。ただし、その赤字の中身を分けて見る必要があります。<strong>減価償却による赤字</strong>は現金が出ていかない赤字ですが、<strong>それ以外の赤字</strong>は実際に持ち出しがあったということです。持ち出した金額より戻る税金が小さければ、手取りは減っています。</p>
+      <p class="age-note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <span>不動産所得の損失のうち、<b>土地を取得するための借入金の利息</b>に対応する部分は、給与所得などとの損益通算ができないと定められています<small>根拠：租税特別措置法41条の4。適用の可否と個別の税額計算・申告については税理士にご確認ください</small></span></p>
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="節税という言葉には、税金が減る面と、持ち出しや売却時の譲渡益が増える面の両方があることを示した図">
+          <text x="260" y="30" text-anchor="middle" font-size="19" font-weight="bold" fill="#1b3f5e">節税になるの、中身を開ける</text>
+          <rect x="30" y="48" width="460" height="160" rx="18" fill="#eaf1f7"/><rect x="44" y="62" width="286" height="132" rx="12" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="3"/>
+          <text x="187" y="100" text-anchor="middle" font-size="20" font-weight="bold" fill="#2c7a4b">減る税金</text><text x="187" y="130" text-anchor="middle" font-size="16" fill="#2c7a4b">損益通算で戻る所得税等</text>
+          <text x="187" y="158" text-anchor="middle" font-size="15" font-weight="bold" fill="#2c7a4b">赤字が出た年だけ</text>
+          <path d="M338 42v172" stroke="#c2451f" stroke-width="3" stroke-dasharray="7 6"/><rect x="350" y="62" width="126" height="132" rx="12" fill="#fdeee9" stroke="#c2453f" stroke-width="3"/>
+          <text x="413" y="104" text-anchor="middle" font-size="18" font-weight="bold" fill="#a63631">その裏側</text><text x="413" y="132" text-anchor="middle" font-size="13" fill="#a63631">持ち出しと売却時</text>
+          <text x="260" y="234" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2451f">赤字は持ち出しを伴うことが多い</text><text x="260" y="266" text-anchor="middle" font-size="13.5" fill="#5c6874">売却時は簿価が下がるほど譲渡益が増える</text>
+        </svg>
+        <p class="venn-cap">※減価償却は「税金を消す」ものではなく、<strong>払う時期をずらす</strong>面があります。保有中に経費にした分だけ帳簿上の取得費が下がるため、売ったときの譲渡所得は大きくなります。得か損かは、保有期間と売却時の条件まで見ないと分かりません。</p></div>
+      <div class="cards">
+        <div class="risk-card"><div class="icon ic-amber" data-art="icZeimusho" aria-hidden="true"></div>
+          <h3>戻る税金の上限</h3><span class="judge-chip maybe">税率で決まる</span>
+          <p>戻ってくる金額は、赤字の額にその方の<strong>所得税率と住民税率</strong>を掛けたものが上限です。100万円の赤字が出ても、100万円戻るわけではありません。ご自身の税率がいくらかは、源泉徴収票と確定申告書で確かめられます。</p></div>
+        <div class="risk-card"><div class="icon ic-red" data-art="icDeguchi" aria-hidden="true"></div>
+          <h3>売却時にまとめて</h3><span class="judge-chip ng">後ろにずれる</span>
+          <p>保有中に減価償却した分は、売却時の<strong>取得費から差し引かれます</strong>。そのぶん譲渡所得が大きくなります。さらに所有期間が5年以下か超かで税率区分が変わるため、いつ売るかで結果が動きます。個別の判断は税理士にご確認ください。</p></div>
+        <div class="risk-card"><div class="icon ic-green" data-art="icShorui" aria-hidden="true"></div>
+          <h3>赤字の内訳を分ける</h3><span class="judge-chip ok">自分で分けられる</span>
+          <p>収支計画書の赤字を、<strong>減価償却による分</strong>と<strong>それ以外の分</strong>に色分けしてみてください。後者が大きいほど、実際の持ち出しが大きいということです。この1つの作業で、話の見え方がかなり変わります。</p></div>
+        <div class="risk-card"><div class="icon ic-blue" data-art="icJikan" aria-hidden="true"></div>
+          <h3>何年目まで続くのか</h3><span class="judge-chip ok">計画表で分かる</span>
+          <p>節税効果は永続しません。減価償却が終われば経費が消え、利息部分も年々減っていきます。提示された収支計画が<strong>何年目までの表なのか</strong>、その先の年はどうなるのかを聞くと、話の輪郭がはっきりします。</p></div>
+      </div>
+    </div>
+
+    <div class="note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>3本の線に共通するのは、どれも「資料に書いてあるのに、見出しの数字が大きいせいで目に入らない」という点です。地価や家賃がこの先どうなるかは誰にも分かりませんし、このページでも触れません。分かるのは、いま手元の書類に書いてあることだけです。なお、個別の税額計算・申告については税理士にご確認ください。</span></div>
+  </div></section>
+
+<!-- ================= セクション2：○×クイズ ================= -->
+<section id="sec2" class="band round-top">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="step-pill"><i>2</i><span>思い込みをチェック</span></span>
+      <h2>回る？回らない？　<span class="nowrap">見分ける</span>クイズ8問</h2></div>
+      <div class="spot"><span class="spot-circle" data-art="spotQuiz" aria-hidden="true"></span></div></div>
+    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">ここからは○×クイズです。どれも実在の決まりごとや、実際の契約書に書かれている条項がモデルになっています。特定の物件や会社の話ではありません。間違えても大丈夫です。むしろ間違えた問題こそ、あとで手元の資料をめくるきっかけになります。</p></div>
+    <div class="quiz-shell">
+      <div id="quizPlay">
+        <div class="q-top">
+          <div class="q-count">質問 <span id="qNum">1</span> ／ 8</div>
+          <div class="dots" id="qDots" aria-hidden="true"></div>
+        </div>
+        <div class="q-body">
+          <div class="icon" id="qIcon" aria-hidden="true"></div>
+          <p id="qText"></p>
+        </div>
+        <div class="ans-row">
+          <button type="button" class="ans-btn yes" id="btnYes">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/></svg>
+            <span id="lblYes">回る</span>
+          </button>
+          <button type="button" class="ans-btn no" id="btnNo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            <span id="lblNo">回らない</span>
+          </button>
+        </div>
+        <div class="verdict" id="verdict" aria-live="polite">
+          <div class="verdict-head">
+            <span class="verdict-answer" id="vAnswer"></span>
+            <span class="result-chip" id="vChip"></span>
+          </div>
+          <p class="expl" id="vExpl"></p>
+          <div class="kv kv-wana"><b>ワナの正体：</b><span id="vWana"></span></div>
+          <div class="kv"><b>確認ポイント：</b><span id="vCheck"></span></div>
+        </div>
+        <button type="button" class="btn-primary" id="btnNext" style="display:none;">
+          次の質問へ
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+        <button type="button" class="btn-ghost" id="btnStopHere" style="display:none;">ここまでの結果を見る（残りはあとでも大丈夫です）</button>
+      </div>
+
+      <div class="quiz-done" id="quizDone">
+        <p class="score">クイズおつかれさまでした！　<span class="nowrap"><span id="doneTotal">8</span>問中 <span class="num" id="doneScore">0</span> 問正解</span></p>
+        <p class="cmt" id="doneCmt"></p>
+        <div class="wrong-list" id="wrongList" style="display:none;"></div>
+        <div data-cta-mini></div>
+        <button type="button" class="btn-ghost" id="btnMailSelf">この結果を自分（またはご家族）に送る</button>
+        <button type="button" class="btn-ghost" id="btnPrint">印刷して物件資料と一緒にはさんでおく</button>
+        <button type="button" class="btn-ghost" id="btnRetry">もう一度挑戦する</button>
+      </div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>いずれも一般的な取扱いを前提とした例です。実際の結論は、契約書の条項・物件の状況・借入の条件・ご自身の所得の状況によって変わります。気になった問題があれば、それが手元の書類を出すタイミングです。</span>
+    </div>
+  </div>
+</section>
+
+<section id="sec3" class="band-sky round-top">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="step-pill"><i>3</i><span>いちばん多い誤解</span></span>
+      <h2>「節税になる」を<span class="nowrap">解剖してみる</span></h2></div>
+      <div class="spot"><span class="spot-circle" data-art="spotCalc" aria-hidden="true"></span></div></div>
+    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">ここからは数字で答えます。まず表面利回りと実質利回りが何を引くかを表にして、そのあとに、条件を動かすと手残りがどう変わるかを体感できるシミュレーターを置きました。買うべきかどうかは出しません。出るのは、条件が変わったときにこの物件の数字がどう動くか、それだけです。</p></div>
+    <p class="sec-lead">同じ物件でも、何を差し引くかで数字は別物になります。まず、どちらが何を見ているのかを表で整理します。</p>
+    <div class="type-table-box">
+      <table class="type-table" aria-label="表面利回りと実質利回りが、それぞれ何を差し引いているかを比べた表">
+        <thead><tr><th>差し引くもの</th><th>表面利回り<small>資料の見出し</small></th><th>実質利回り<small>手元に近い見方</small></th></tr></thead>
+        <tbody>
+          <tr><td>満室想定の家賃</td><td>そのまま使う</td><td><span class="mark-ok">空室分を引く</span></td></tr>
+          <tr><td>空室・滞納</td><td>引かない</td><td><span class="mark-ok">引く</span></td></tr>
+          <tr><td>管理費・修繕積立金</td><td>引かない</td><td><span class="mark-ok">引く</span></td></tr>
+          <tr><td>原状回復・広告料</td><td>引かない</td><td><span class="mark-ok">引く</span></td></tr>
+          <tr><td>固定資産税・都市計画税</td><td>引かない</td><td><span class="mark-ok">引く</span></td></tr>
+          <tr><td>購入時の諸費用</td><td>分母に入れない</td><td><span class="mark-ok">分母に足す</span></td></tr>
+          <tr><td>ローンの返済</td><td>引かない</td><td>引かない（別枠）</td></tr>
+        </tbody></table>
+      <p class="venn-cap">※実質利回りの計算方法は法令で決まっていません。この表は一般的な考え方を並べたもので、資料によって範囲が異なります。ローン返済は利回りではなく、手残り（キャッシュフロー）を見るときに差し引きます。所得税・住民税もここには入れていません。</p></div>
+    <p class="sec-lead">では、その物件は実際いくら残るのでしょうか。条件を入れて動かしてみてください。</p>
+    <div class="sim-box">
+      <h3>体感シミュレーター「この物件、1年でいくら残る？」</h3>
+      <p class="sub">価格・家賃・空室の見込み・借入の条件を入れると、1年間に手元へ残る金額（税引前）の目安が出ます。このページの説明用に単純化した概算です。</p>
+      <div class="sim-ctrl">
+        <label for="simA">物件価格<output id="simAOut">2,000万円</output></label>
+        <input type="number" id="simA" value="2000" min="0" max="50000" step="50" inputmode="numeric" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;">
+        <p style="font-size:.8rem;color:#5c6874;margin-top:5px;">単位は万円。購入時の諸費用は含めていません（例：2000＝2,000万円）</p></div>
+      <div class="sim-ctrl">
+        <label for="simD">満室想定の年間家賃<output id="simDOut">144万円</output></label>
+        <input type="number" id="simD" value="144" min="0" max="5000" step="6" inputmode="numeric" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;">
+        <p style="font-size:.8rem;color:#5c6874;margin-top:5px;">単位は万円。月12万円なら144と入れます</p></div>
+      <div class="sim-ctrl"><label for="simB">空室・滞納の見込み</label>
+        <select id="simB" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;"><option value="0">0%（ずっと満室と仮定）</option><option value="5" selected>5%（年に半月ほど空く）</option><option value="10">10%（年に1か月強空く）</option><option value="15">15%</option><option value="20">20%（年に2か月半空く）</option></select></div>
+      <div class="sim-ctrl"><label for="simE">借入金利（年・仮に置く数字）</label>
+        <select id="simE" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;"><option value="1.0">1.0%</option><option value="1.5">1.5%</option><option value="2.0" selected>2.0%</option><option value="2.5">2.5%</option><option value="3.0">3.0%</option><option value="4.0">4.0%</option></select></div>
+      <label class="sim-check"><input type="checkbox" id="simC" checked>借入をする（価格の8割・25年・元利均等）</label>
+      <div class="timeline" aria-hidden="true"><div class="tl-track"><div class="tl-fill" id="tlFill" style="width:2%;"></div>
+          <div class="tl-goal" style="left:50%;">50%<br>家賃の半分</div></div>
+        <div class="tl-labels"><span>0%</span><span>50%</span><span>家賃まるごと</span></div></div>
+      <div class="sim-results" aria-live="polite">
+        <div class="sim-r" id="simR1"><h4>表面利回り<small>資料に載る数字</small></h4><span class="r-chip" id="simR1Chip"></span><p id="simR1Txt"></p></div>
+        <div class="sim-r" id="simR2"><h4>実質利回り<small>経費と空室を引いた後</small></h4><span class="r-chip" id="simR2Chip"></span><p id="simR2Txt"></p></div>
+        <div class="sim-r" id="simR3"><h4>年間の返済額<small>元金と利息の合計</small></h4><span class="r-chip" id="simR3Chip"></span><p id="simR3Txt"></p></div>
+      </div>
+      <div class="sim-total">
+        <span class="lead" id="simTotalLead">この条件なら</span>
+        <span class="big" id="simTotalBig"></span><span class="sub2" id="simTotalSub"></span></div>
+      <p class="venn-cap" style="margin-top:10px;">※前提：運営経費は実際に入る家賃の20%（管理委託料・修繕積立・原状回復・広告料・保険料などの合計とみなす）、固定資産税・都市計画税は物件価格の0.7%、借入は価格の8割・25年・元利均等としています。<strong>購入時の諸費用、大規模修繕、家賃の増減、所得税・住民税、売却時の損益は考慮していません</strong>。実際の税額は物件と申告内容で変わりますので、個別の税額計算・申告については税理士にご確認ください。</p></div>
+    <div class="mikane" style="margin-top:26px;">
+      <h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>本当に怖いのは、利回りの数字そのものではない</h3>
+      <ol><li><strong>空室が続いたとき</strong>家賃は入らないのに、返済・管理費・固定資産税は同じだけ出ていきます。手残りが薄い物件ほど、1か月の空室で年間の計算がひっくり返ります。</li>
+        <li><strong>修繕が重なったとき</strong>給湯器・エアコン・外壁・屋上防水は、いつか必ず費用が発生します。区分所有なら修繕積立金の改定、一棟なら自前の積立が前提になります。</li>
+        <li><strong>借入の条件が変わったとき</strong>変動金利なら見直しの時期と、返済額の取扱いが契約書に書かれています。条件が変わったときに手残りがどう動くかは、上のシミュレーターで先に確かめられます。</li></ol>
+      <p class="caution"><strong>いちばん多い失敗は、良い条件のときの数字しか持っていないこと</strong>提示される収支計画は、<b>満室</b>で、<b>修繕なし</b>で、<b>借入条件そのまま</b>の年の姿であることが少なくありません。悪い条件のときの表を自分でもう1枚つくり、2枚を並べて眺める。それだけで、判断に必要な材料はかなりそろいます。片方の表しかないまま決めるのが、いちばん危ない状態です。</p></div>
+    <div class="note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>このシミュレーターは、良し悪しを判定するものではありません。条件を変えると数字がどれくらい動くかを体感するためのものです。数字が動く幅の大きさが分かれば、どこを重点的に確かめればよいかが見えてきます。</span></div>
+  </div></section>
+
+<section id="sec4" class="band-blush round-top">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="step-pill"><i>4</i><span>よく伺う寸劇集</span></span>
+      <h2>不動産投資あるある劇場</h2></div>
+      <div class="spot"><span class="spot-circle" data-art="spotTheater" aria-hidden="true"></span></div></div>
+    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">ここからは6演目の寸劇です。どれも、資料には書いてあったのに見落とされた、という共通点があります。気になる演目をタップして、中をのぞいてみてください。</p></div>
+    <div class="case-grid" id="caseGrid"></div>
+    <div class="note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>各演目は一般的な内容をもとにした創作例で、実在の個人・事案とは関係ありません。実際の取扱いは、契約書の条項・物件の状況・借入条件・ご自身の所得の状況によって変わります。</span></div>
+  </div></section>
+
+<section id="sec5" class="band-mint round-top">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="step-pill"><i>5</i><span>確かめた人の話</span></span>
+      <h2>逆転劇場〜こんな確認が、<span class="nowrap">味方します〜</span></h2></div>
+      <div class="spot"><span class="spot-circle" data-art="spotGift" aria-hidden="true"></span></div></div>
+    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">ここからは反対側の話です。特別な知識ではなく、資料を1枚もらう、条項を1つ指さす、その程度の確認で結果が変わった8つの例を並べます。どれも今日から真似できることばかりです。</p></div>
+    <div class="model-note"><strong>このページの「変わる金額」の目安</strong><span class="mn-row">価格2,000万円・満室想定の年間家賃144万円・借入は価格の8割を25年・元利均等、というモデルで計算しています</span>
+      <span class="mn-note">※実際の効果は物件の状況・契約条項・借入条件・ご自身の所得の状況によって変わります。資料の請求や条項の確認は、契約前に行うことに意味があります。</span></div>
+    <div class="case-grid" id="goodGrid"></div>
+    <div class="rule3-box">
+      <h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg>取りこぼさないための「不動産投資の3か条」</h3>
+      <ol><li><strong>見出しの数字ではなく、明細で判断する</strong>利回りも家賃も、資料の見出しは要約です。レントロール・課税明細書・返済予定表・重要事項調査報告書、この4枚がそろえば、見出しに頼らずに自分で組み立てられます。</li>
+        <li><strong>悪い条件の表を、もう1枚つくる</strong>満室・修繕なし・条件そのままの表は必ずもらえます。それとは別に、空室が出た年、修繕が重なった年、借入条件が変わった年の表を自分で作ります。2枚を並べて眺めるのが判断です。</li>
+        <li><strong>出口を先に決めてから入口を決める</strong>何年後にいくらで売れたら残債と費用がまかなえるのか。この分岐点を先に出しておくと、途中で事情が変わったときに動けます。将来の価格を当てる必要はありません。</li></ol>
+      <p class="rule3-note">※金額はいずれも一例です。適用の可否は要件と事実関係により異なります。手続の期限は個別にご確認ください。税額に関わる部分は税理士にご確認ください。</p></div>
+  </div></section>
+
+<section id="sec6" class="band-sky round-top">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="step-pill"><i>6</i><span>数字の話をひとつだけ</span></span>
+      <h2>数字で見る<span class="nowrap">手残り</span></h2></div>
+      <div class="spot"><span class="spot-circle" data-art="spotCal" aria-hidden="true"></span></div></div>
+    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">ここでは、条件をひとつだけ動かしたときに手残りがどれだけ動くかを見ます。数字はすべて、このページのシミュレーターと同じモデル（価格2,000万円・満室想定の年間家賃144万円・借入は価格の8割を25年）で計算した概算です。特定の物件を示すものではありません。</p></div>
+    <div class="life-box">
+      <h3>空室の見込みを変えると、年間の手残りはこう動く</h3><p class="sub">価格2,000万円・満室想定の年間家賃144万円・借入1,600万円を年2.0%・25年で返済した場合の概算</p>
+      <svg viewBox="0 56 380 196" role="img" aria-label="空室率5%なら年間の手残りは約14万円、10%なら約8万円、20%なら約3万円の持ち出しになることを示した棒グラフ">
+        <path d="M18 170h344" stroke="#d9cfc4" stroke-width="2" stroke-linecap="round"/>
+        <rect x="42" y="76" width="46" height="94" rx="4" fill="#c6e2f2"/><text x="65" y="68" text-anchor="middle" font-size="14" font-weight="bold" fill="#24729f">約14万円</text><text x="65" y="190" text-anchor="middle" font-size="12.5" fill="#5c6874">空室5%</text><text x="65" y="206" text-anchor="middle" font-size="11" fill="#5c6874">年に半月ほど</text>
+        <rect x="152" y="116" width="46" height="54" rx="4" fill="#f7c34e"/><text x="175" y="108" text-anchor="middle" font-size="14" font-weight="bold" fill="#8f6015">約8万円</text><text x="175" y="190" text-anchor="middle" font-size="12.5" fill="#5c6874">空室10%</text><text x="175" y="206" text-anchor="middle" font-size="11" fill="#a63631">年に1か月強</text>
+        <rect x="262" y="170" width="46" height="22" rx="4" fill="#f0846a"/><text x="285" y="162" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2451f">約3万円</text><text x="285" y="208" text-anchor="middle" font-size="12.5" fill="#5c6874">空室20%</text><text x="285" y="224" text-anchor="middle" font-size="11" fill="#a63631">持ち出しに</text>
+        <text x="190" y="246" text-anchor="middle" font-size="13" font-weight="bold" fill="#a63631">空室1か月分で、手残りは半分に</text>
+      </svg>
+      <p class="life-cap">※このページの説明用モデルによる概算です。運営経費は実際に入る家賃の20%、固定資産税等は物件価格の0.7%として計算しています。購入時諸費用・大規模修繕・所得税・住民税は含みません。特定の物件の収支を示すものではありません。</p>
+      <div class="big3"><span class="b"><span class="n">7.2%</span><span class="l">表面利回り</span><span class="s">満室想定の家賃÷価格</span></span>
+        <span class="b"><span class="n">約4.8%</span><span class="l">実質利回り</span><span class="s">空室5%と経費を引いた後</span></span>
+        <span class="b"><span class="n">約14万円</span><span class="l">年間の手残り</span><span class="s">返済まで引いた税引前</span></span></div></div>
+    <h3 class="sub-h"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>借入の条件が変わると、手残りはどう動くか</h3>
+    <p class="sub-lead">同じ物件・同じ家賃・空室5%のまま、借入の金利だけを変えたときの比較です。将来の金利水準を予測するものではなく、<strong>条件が変わったときに数字がどれだけ動くか</strong>を見るための3枚です。</p>
+    <div class="age-cards">
+      <div class="age-card"><p class="ttl"><span class="ico ic-blue" data-art="icKinriP" aria-hidden="true"></span>年1.0%のとき</p>
+        <span class="kind">返済が軽い前提で置いた場合</span>
+        <div class="rows"><p class="row"><span>年間返済額</span><b>約72万円</b></p><p class="row"><span>年間の手残り</span><b>約23万円</b></p></div>
+        <p class="cmt">運営後の利益（約95万円）から返済を引いた残りです。実際に入る家賃に対する返済の割合は5割強にとどまります。</p><p class="src">※借入1,600万円・25年・元利均等での概算</p></div>
+      <div class="age-card"><p class="ttl"><span class="ico ic-amber" data-art="icKinriP" aria-hidden="true"></span>年2.0%のとき</p>
+        <span class="kind">このページの標準モデル</span>
+        <div class="rows"><p class="row"><span>年間返済額</span><b>約81万円</b></p><p class="row"><span>年間の手残り</span><b>約14万円</b></p></div>
+        <p class="cmt">1.0%のときと比べて、年間の返済が約9万円増え、手残りはその分だけ減ります。家賃も価格も変えていません。</p><p class="src">※借入1,600万円・25年・元利均等での概算</p></div>
+      <div class="age-card"><p class="ttl"><span class="ico ic-red" data-art="icKinriP" aria-hidden="true"></span>年3.0%のとき</p>
+        <span class="kind">条件が変わった場合の置き方</span>
+        <div class="rows"><p class="row"><span>年間返済額</span><b>約91万円</b></p><p class="row"><span>年間の手残り</span><b>約4万円</b></p></div>
+        <p class="cmt">運営後の利益のほとんどが返済に回る計算になります。ここに空室が1か月加わると、手残りは持ち出しに変わります。</p><p class="src">※借入1,600万円・25年・元利均等での概算</p></div>
+    </div>
+    <div class="mikane">
+      <h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5V9.2M12 9.2 7.6 5M12 9.2 16.4 5"/><circle cx="12" cy="15" r="8.2"/></svg>だから、いまできることは3つだけ</h3>
+      <ol><li><strong>4枚の書類をそろえる</strong>レントロール、固定資産税の課税明細書、返済予定表、区分なら重要事項調査報告書。この4枚があれば、見出しの数字に頼らずに自分で計算できます。どれも頼めば出てくる資料です。</li>
+        <li><strong>悪い条件の表をもう1枚つくる</strong>空室が出た年、修繕が重なった年、借入条件が変わった年。上のシミュレーターで数字を動かして、いちばん厳しい年の姿を1枚持っておきます。</li>
+        <li><strong>出口の分岐点を出しておく</strong>3年後・5年後・10年後に、いくらで売れたら残債と費用がまかなえるか。この金額を知っておくと、事情が変わったときに動けます。</li></ol>
+      <p class="caution"><strong>そして、いちばん大事なこと</strong>このページは、不動産投資をすすめるものでも、やめたほうがよいというものでもありません。<b>同じ条件で並べれば、どんな選択肢も比べられる</b>——お伝えしたいのはそれだけです。地価や家賃がこの先どうなるかは誰にも分かりませんし、分からないことを前提に置いた表を作れるかどうかが、いちばんの備えになります。</p></div>
+  </div></section>
+
+<section id="matome" class="band round-top">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="step-pill plain">まとめ</span>
+      <h2>あなたの不動産投資チェック</h2></div>
+      <div class="spot"><span class="spot-circle" data-art="spotCheck" aria-hidden="true"></span></div></div>
+    <p class="sec-lead">最後に、いまの状況を確認してみましょう。あてはまるもの・できたものをタップ（クリック）してください。</p>
+    <div class="score-box"><h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/></svg>クイズの結果</h3>
+      <div id="sumScore"><p>まだクイズに挑戦していません。<a href="#sec2">②の○×クイズ</a>で、思い込みをチェックしてみてください。</p></div></div>
+    <div class="checklist" id="checklist">
+      <p class="chk-group">今日、手元の資料で確かめられること</p>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkPdf" aria-hidden="true"></span><span><strong>資料の利回りが表面か実質か</strong>販売資料を開いて、利回りの横に条件が書かれていないか探します。書いていなければ、それは表面利回りだと考えて計算し直します。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkHome" aria-hidden="true"></span><span><strong>満室想定か、現況か</strong>レントロールの空室欄が、想定賃料で埋められていないか確かめます。実際に入っている家賃の合計を、自分で足し直してみてください。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkReceipt" aria-hidden="true"></span><span><strong>固定資産税の実額</strong>課税明細書があれば、概算ではなく実額を収支表に入れられます。特例の適用があるなら、いつまで適用されるかも確認します。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkInvoice" aria-hidden="true"></span><span><strong>管理費と修繕積立金の改定予定</strong>区分なら重要事項調査報告書、一棟なら修繕履歴。数年後に上がる予定があるなら、その金額で収支表を作り直します。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkBank" aria-hidden="true"></span><span><strong>返済予定表の元金と利息</strong>年ごとの元金と利息の内訳を見ます。経費になるのは利息だけで、元金は出ていくのに経費になりません。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkAoiro" aria-hidden="true"></span><span><strong>減価償却の残り年数</strong>建物の取得価額と構造と築年数が分かれば計算できます。何年目に経費が終わるかを、返済予定表と同じ表に並べます。</span></label>
+      <p class="chk-group">次に、誰かに聞いておきたいこと</p>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkPeople" aria-hidden="true"></span><span><strong>管理会社に修繕の予定を</strong>直近の大規模修繕の時期と次回の予定、積立金の残高と滞納状況。区分でも一棟でも、聞けば教えてもらえる内容です。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkShield" aria-hidden="true"></span><span><strong>契約書の条項を指さして確認</strong>サブリースなら賃料改定と免責期間、借入なら金利のタイプと見直し時期。読み上げてもらうのがいちばん早い方法です。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkPc" aria-hidden="true"></span><span><strong>税理士に減価償却と売却時の扱いを</strong>減価償却の年数、損益通算の範囲、売却時の譲渡所得。個別の税額計算・申告については税理士にご確認ください。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkBack" aria-hidden="true"></span><span><strong>全体をいちど並べ直してもらう</strong>物件の収支、借入、手元資金、保険。バラバラの書類を1枚の表にまとめると、判断に必要な材料がそろいます。</span></label>
+    </div>
+    <div class="chk-msg" id="chkMsg">あてはまるもの、もう確かめたものを押してみてください。数が増えるほど、判断の材料がそろっていきます。</div>
+    <div data-cta-mini></div>
+    <details class="finder"><summary>何から手をつければいいですか、という質問への答え</summary>
+      <ul><li><strong>まず1枚目はレントロール</strong>。実際に入っている家賃が分かれば、満室想定との差が見えます。仲介会社に頼めば通常は出してもらえます。</li>
+        <li>2枚目は固定資産税の課税明細書。概算で置いていた数字を実額に置き換えられます。</li>
+        <li>3枚目は返済予定表。年ごとの元金と利息が分かると、経費になる部分と、ならない部分が分けられます。</li>
+        <li>4枚そろわなくても大丈夫です。1枚でも実額に置き換わると、収支表の景色は変わります。</li></ul>
+      <p>順番に意味はありません。手に入りやすいものから1枚ずつで十分です。全部そろえてから考えようとすると、いつまでも始まらないので、今日1枚だけ頼むところから始めてみてください。</p></details>
+    <details class="finder" style="margin-top:14px;"><summary>じゃあ利回りの高い物件を選べばいい？——対策のワナ</summary>
+      <ul><li>利回りが高い物件には、高くなる理由が費用や条件の側にあることがあります。借地、再建築ができない土地、築年数、修繕の周期など。理由を確かめずに数字だけで選ぶと、あとで引き算が増えます。</li>
+        <li>頭金を入れずに買うと、売却時に残債が売却代金を上回る期間が長くなります。事情が変わったときに動けなくなるという不利益が先に来ます。</li>
+        <li>節税を目的に据えると、赤字が出続けることが前提の計画になります。赤字の多くは実際の持ち出しを伴い、戻る税金はご自身の税率までしか出ません。</li>
+        <li>新築の家賃は、最初の入居者が退去した後に見直される可能性があります。最初の家賃がずっと続く前提の収支表は、条件のよい年だけの表です。</li></ul>
+      <p>大事なのは順番です。まず実額をそろえる、次に悪い条件の表を作る、最後に出口の分岐点を出す。この順で進めれば、どの物件でも同じ物差しで比べられます。</p></details>
+    <div class="cta-box" id="soudan">
+      <h3>買う前に、<span class="nowrap">数字だけ</span>並べ直しませんか</h3>
+      <p class="cta-lead">このページの内容は、あくまで一般的なしくみの話。<strong>ご自身の場合にどうなるか</strong>は、実際の物件の状況・契約条項・借入条件で決まります。こんなご相談をよくお受けしています。</p>
+      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>販売資料をもらったが、どこを見ればよいか分からない</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>すでに持っている物件の手残りを、一度きちんと計算したい</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>借入・保険・手元資金をまとめて1枚に整理したい</span></li></ul>
+      <p class="cta-lead">お時間の目安は30分ほど。資料が揃っていなくても大丈夫、揃えるところからお手伝いします。<strong>個別具体的な税務相談・税務書類の作成・税務代理は、税理士が対応します。</strong>いただいた個人情報は、ご相談への対応のみに使用し、ご本人の同意なく第三者に提供しません。</p>
+      <p class="co">株式会社Office-M</p><p class="addr">受付：平日 9:00〜17:00</p>
+      <p class="tip">販売資料またはレントロールがお手元にあると、その場での確認がより早く進みます。</p></div>
+  </div></section>
+
+<!-- 募集文書審査：未了。委託先保険会社の承認番号の要否を確認のうえ公開すること -->
+<footer class="disclaimer">
+  <p>本資料は、株式会社Office-Mが不動産投資に関する数字の読み方の一般的なしくみをご理解いただくために作成した情報提供資料であり、特定の物件・商品の取得を勧誘するものではありません。記載内容は2026年8月時点の法令等にもとづく一般的な取扱いであり、個別の事案への当てはめは契約条項・物件の状況・借入条件・ご自身の所得の状況によって結論が変わります。シミュレーターの結果はいずれも簡易な概算であり、実際の収支・利回り・税額を示すものではありません。将来の地価・家賃・金利の水準について何らかの見通しを示すものでもありません。実際の判断にあたっては、必ず税理士・宅地建物取引業者・金融機関など、それぞれの専門の窓口にご確認ください。<strong>個別具体的な税務相談・税務書類の作成・税務代理は、税理士が対応します。</strong>本資料の内容によって生じた結果について、当社は責任を負いかねます。</p>
+  <p style="margin-top:10px;">主な根拠：所得税法（不動産所得・減価償却・損益通算）、租税特別措置法41条の4（土地等を取得するために要した負債の利子に係る損益通算の特例）、租税特別措置法31条・32条（長期譲渡所得・短期譲渡所得）、地方税法（固定資産税・都市計画税）、宅地建物取引業法（重要事項説明・報酬額の制限）、賃貸住宅の管理業務等の適正化に関する法律（サブリース契約に係る説明義務）。本文の金額はすべて説明用モデルによる概算です。制度は改正されることがあります。最新の内容は国税庁・国土交通省・お住まいの市区町村のページでご確認ください。</p>
+  <p style="margin-top:10px;">作成：株式会社Office-M（2026年8月）</p>
+</footer>
+<!-- ================= 演目詳細モーダル ================= -->
+<div class="cmodal" id="caseModal" aria-hidden="true">
+  <div class="cmodal-back" id="caseModalBack"></div>
+  <div class="cmodal-panel" role="dialog" aria-modal="true" aria-labelledby="caseModalTitle">
+    <div class="cmodal-head" id="caseModalHead">
+      <button type="button" class="cmodal-close" id="caseModalClose" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <div class="cmodal-ico" id="caseModalIco" aria-hidden="true"></div>
+      <div>
+        <span class="cmodal-chip" id="caseModalChip"></span>
+        <h3 class="cmodal-title" id="caseModalTitle"></h3>
+      </div>
+    </div>
+    <div class="cmodal-body">
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 15.5a2 2 0 0 1-2 2H8l-4 3.5v-15a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"/></svg>
+          <span id="caseModalLbl1">ご相談で伺ったお話（脚色あり）</span>
+        </div>
+        <blockquote class="cmodal-quote" id="caseModalStory"></blockquote>
+      </div>
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-red" id="caseModalLbl2Wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+          <span id="caseModalLbl2">何が起きたのか</span>
+        </div>
+        <div id="caseModalWhat"></div>
+      </div>
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-green">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
+          <span id="caseModalLbl3">こう確認すれば防げます</span>
+        </div>
+        <div id="caseModalHow"></div>
+      </div>
+      <div data-cta-mini></div>
+      <p class="cmodal-note">※演目は一般的な内容をもとにした創作例で、実在の個人・法人・事案とは関係ありません。税務の取扱いは事実関係により異なります。実際の判断は、顧問税理士または所轄の税務署にご確認ください。</p>
+    </div>
+  </div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- 案内役のイラスト ---------- */
+var SVG_GUIDE =
+  '<svg viewBox="0 0 64 64">' +
+  '<circle cx="32" cy="32" r="32" fill="#ffeee3"/>' +
+  '<path d="M8 64c0-13 11-20 24-20s24 7 24 20H8Z" fill="#f0846a"/>' +
+  '<rect x="27" y="39" width="10" height="11" rx="5" fill="#f7cdb4"/>' +
+  '<path d="M25 45l7 9 7-9 3.4 1.8L32 61 21.6 46.8Z" fill="#fff"/>' +
+  '<ellipse cx="32" cy="28" rx="16" ry="17" fill="#5c4030"/>' +
+  '<ellipse cx="32" cy="30" rx="12.5" ry="13.5" fill="#f7cdb4"/>' +
+  '<path d="M19.5 27c0-9 5.6-14.5 12.5-14.5S44.5 18 44.5 27c-1.6-3.6-4.2-5.7-7.2-6.6-2.6 2.4-7 3.8-10.9 3.2-1.4 1-2.4 2.1-2.9 3.4Z" fill="#5c4030"/>' +
+  '<circle cx="27" cy="30" r="1.6" fill="#3d3028"/><circle cx="37" cy="30" r="1.6" fill="#3d3028"/>' +
+  '<path d="M29.4 35.6c1.6 1.7 3.6 1.7 5.2 0" fill="none" stroke="#3d3028" stroke-width="1.6" stroke-linecap="round"/>' +
+  '</svg>';
+
+document.querySelectorAll('[data-guide]').forEach(function(el){ el.innerHTML = SVG_GUIDE; });
+
+/* ---------- スポット・アイコン ---------- */
+var S = 'fill="none" stroke-linecap="round" stroke-linejoin="round"';
+var ARTS = {
+  spotLine:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="6" y="16" width="22" height="32" rx="5" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="2.5"/>' +
+    '<rect x="36" y="16" width="22" height="32" rx="5" fill="#fdf3e2" stroke="#8f6015" stroke-width="2.5"/>' +
+    '<path d="M32 8v48" stroke="#c2451f" stroke-width="3" stroke-dasharray="5 4" stroke-linecap="round"/>' +
+    '<path d="m12 32 4 4 8-8" fill="none" stroke="#2c7a4b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M42 27l10 10M52 27l-10 10" stroke="#8f6015" stroke-width="3" stroke-linecap="round"/>' +
+    '</svg>',
+  spotQuiz:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="24" fill="#e8f4fb"/>' +
+    '<path d="M25 26.5c.6-4.2 3.6-6.6 7.4-6.6 4.2 0 7.4 2.8 7.4 6.8 0 3.4-2 5.2-4.4 6.8-2 1.3-2.9 2.3-2.9 4.5" fill="none" stroke="#24729f" stroke-width="3.4" stroke-linecap="round"/>' +
+    '<circle cx="32.4" cy="45" r="2.6" fill="#f0846a"/>' +
+    '</svg>',
+  spotCalc:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="14" y="6" width="36" height="52" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<rect x="20" y="12" width="24" height="12" rx="4" fill="#27587f"/>' +
+    '<path d="M24 18h16" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>' +
+    '<circle cx="24" cy="32" r="3.6" fill="#c6e2f2"/><circle cx="32" cy="32" r="3.6" fill="#c6e2f2"/><circle cx="40" cy="32" r="3.6" fill="#c6e2f2"/>' +
+    '<circle cx="24" cy="42" r="3.6" fill="#c6e2f2"/><circle cx="32" cy="42" r="3.6" fill="#c6e2f2"/><circle cx="40" cy="42" r="3.6" fill="#f7c34e"/>' +
+    '<circle cx="24" cy="51" r="3.6" fill="#c6e2f2"/><circle cx="32" cy="51" r="3.6" fill="#c6e2f2"/><circle cx="40" cy="51" r="3.6" fill="#f0846a"/>' +
+    '</svg>',
+  spotTheater:
+    '<svg viewBox="0 0 64 64">' +
+    '<path d="M8 10h48v8c0 4-3 7-7 7H15c-4 0-7-3-7-7Z" fill="#c2453f"/>' +
+    '<path d="M10 14c4 22 4 30 3 40h8c-2-12-1-24 3-40Z" fill="#a63631"/>' +
+    '<path d="M54 14c-4 22-4 30-3 40h-8c2-12 1-24-3-40Z" fill="#a63631"/>' +
+    '<circle cx="32" cy="38" r="13" fill="#ffeee3"/>' +
+    '<circle cx="27.5" cy="35.5" r="1.8" fill="#3d3028"/><circle cx="36.5" cy="35.5" r="1.8" fill="#3d3028"/>' +
+    '<path d="M27 42c3 3 7 3 10 0" fill="none" stroke="#3d3028" stroke-width="2" stroke-linecap="round"/>' +
+    '</svg>',
+  spotGift:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="8" y="24" width="48" height="34" rx="6" fill="#fffdf8" stroke="#c3e5d3" stroke-width="2.5"/>' +
+    '<rect x="8" y="24" width="48" height="12" rx="6" fill="#4fbf9b"/>' +
+    '<rect x="28" y="24" width="8" height="34" fill="#2c7a4b"/>' +
+    '<path d="M32 24s-6-.7-8.5-3.2a3.6 3.6 0 0 1 5.1-5.1C31.1 18.2 32 24 32 24Z" fill="#f7c34e"/>' +
+    '<path d="M32 24s6-.7 8.5-3.2a3.6 3.6 0 0 0-5.1-5.1C32.9 18.2 32 24 32 24Z" fill="#f7c34e"/>' +
+    '<circle cx="47" cy="15" r="6.5" fill="#f0846a"/>' +
+    '<path d="M44.5 15h5M47 12.5v5" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>' +
+    '</svg>',
+  spotCal:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="8" y="12" width="48" height="44" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<path d="M8 24h48" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<rect x="8" y="12" width="48" height="12" rx="7" fill="#27587f"/>' +
+    '<path d="M20 6v10M44 6v10" stroke="#1b3f5e" stroke-width="4" stroke-linecap="round"/>' +
+    '<rect x="15" y="30" width="8" height="7" rx="2" fill="#c6e2f2"/>' +
+    '<rect x="28" y="30" width="8" height="7" rx="2" fill="#f0846a"/>' +
+    '<rect x="41" y="30" width="8" height="7" rx="2" fill="#c6e2f2"/>' +
+    '<rect x="15" y="42" width="8" height="7" rx="2" fill="#f7c34e"/>' +
+    '<rect x="28" y="42" width="8" height="7" rx="2" fill="#c6e2f2"/>' +
+    '<rect x="41" y="42" width="8" height="7" rx="2" fill="#f0846a"/>' +
+    '</svg>',
+  spotCheck:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="12" y="10" width="40" height="46" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<rect x="24" y="5" width="16" height="10" rx="4" fill="#27587f"/>' +
+    '<path d="m19 26 4 4 7-8" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<rect x="34" y="25" width="12" height="3.5" rx="1.75" fill="#d9cfc4"/>' +
+    '<path d="m19 40 4 4 7-8" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<rect x="34" y="39" width="12" height="3.5" rx="1.75" fill="#d9cfc4"/>' +
+    '</svg>',
+
+  icKousai:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<path d="M10 12v7a5 5 0 0 0 10 0v-7M15 24v14"/>' +
+    '<path d="M33 12c-3 0-5 3-5 8s2 6 5 6 5-1 5-6-2-8-5-8ZM33 26v12"/>' +
+    '<path d="M9 42h12M27 42h12"/>' +
+    '</svg>',
+  icKaigi:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<circle cx="11" cy="12" r="4.5"/><circle cx="37" cy="12" r="4.5"/>' +
+    '<path d="M4 24c0-4 3.2-6.5 7-6.5s7 2.5 7 6.5M30 24c0-4 3.2-6.5 7-6.5s7 2.5 7 6.5"/>' +
+    '<ellipse cx="24" cy="25" rx="7" ry="2.6"/>' +
+    '<path d="M5 29h38M11 29v11M37 29v11"/>' +
+    '</svg>',
+  icHitori:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<circle cx="24" cy="11" r="5"/>' +
+    '<path d="M16 22c0-3.4 3.6-5 8-5s8 1.6 8 5"/>' +
+    '<path d="M10 29h28c0 6-6 10-14 10s-14-4-14-10Z"/>' +
+    '<path d="M8 42h32"/>' +
+    '</svg>',
+  icShain:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<circle cx="12" cy="14" r="4.5"/><circle cx="24" cy="11" r="4.5"/><circle cx="36" cy="14" r="4.5"/>' +
+    '<path d="M4 26c0-3.6 3.6-6 8-6s8 2.4 8 6M16 24c0-3.6 3.6-6 8-6s8 2.4 8 6M28 26c0-3.6 3.6-6 8-6s8 2.4 8 6"/>' +
+    '<path d="M8 34h32v6a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2Z"/>' +
+    '</svg>',
+  icShuzen:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M29 8a8 8 0 0 0-9.6 10.6L8 30v8h8l11.4-11.4A8 8 0 0 0 38 17l-6 3-4-4 3-6a8 8 0 0 0-2-2Z"/>' +
+    '<path d="m13 33 2 2"/>' +
+    '</svg>',
+  icPaint:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<rect x="8" y="8" width="24" height="10" rx="3"/>' +
+    '<path d="M32 13h6a3 3 0 0 1 3 3v5a3 3 0 0 1-3 3H24v6"/>' +
+    '<rect x="19" y="30" width="10" height="12" rx="3"/>' +
+    '</svg>',
+  icUpgrade:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<rect x="7" y="26" width="10" height="14" rx="2"/>' +
+    '<rect x="19" y="18" width="10" height="22" rx="2"/>' +
+    '<rect x="31" y="8" width="10" height="32" rx="2"/>' +
+    '<path d="M6 44h36"/>' +
+    '</svg>',
+  icBuild:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M8 42V16l16-9 16 9v26"/>' +
+    '<path d="M6 42h36"/>' +
+    '<rect x="15" y="22" width="7" height="7" rx="1.5"/><rect x="26" y="22" width="7" height="7" rx="1.5"/>' +
+    '<path d="M19 42v-8h10v8"/>' +
+    '</svg>',
+  icGaichu:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<rect x="6" y="16" width="36" height="22" rx="4"/>' +
+    '<path d="M18 16v-3a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v3"/>' +
+    '<path d="M6 24h36M20 27h8"/>' +
+    '</svg>',
+  icJikan:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<circle cx="24" cy="25" r="15"/>' +
+    '<path d="M24 16v9l6 4"/>' +
+    '<path d="M17 7h14"/>' +
+    '</svg>',
+  icDoc2:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<rect x="11" y="6" width="26" height="36" rx="4"/>' +
+    '<path d="M17 16h14M17 23h14M17 30h8"/>' +
+    '</svg>',
+  icKazoku:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.3">' +
+    '<circle cx="15" cy="14" r="5"/><circle cx="33" cy="14" r="5"/>' +
+    '<path d="M6 30c0-5 4-8 9-8s9 3 9 8M24 30c0-5 4-8 9-8s9 3 9 8"/>' +
+    '<circle cx="24" cy="30" r="4"/>' +
+    '<path d="M17 42c0-4 3-6 7-6s7 2 7 6"/>' +
+    '</svg>',
+  icZeimusho:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.3">' +
+    '<path d="M6 18 24 8l18 10"/>' +
+    '<path d="M9 18v18M17 18v18M31 18v18M39 18v18"/>' +
+    '<path d="M5 42h38M8 36h32"/>' +
+    '</svg>',
+  icCity:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.3">' +
+    '<rect x="7" y="14" width="16" height="28" rx="2"/>' +
+    '<rect x="25" y="22" width="16" height="20" rx="2"/>' +
+    '<path d="M12 20h6M12 27h6M12 34h6M30 28h6M30 35h6"/>' +
+    '<path d="M5 42h38"/>' +
+    '</svg>',
+  icHoken:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M24 6 9 11v11c0 9.5 6.4 17.4 15 19.6 8.6-2.2 15-10.1 15-19.6V11L24 6Z"/>' +
+    '<path d="M24 17v12M18 23h12"/>' +
+    '</svg>',
+
+  qFood:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<circle cx="24" cy="24" r="9.5"/><circle cx="24" cy="24" r="4.5"/>' +
+    '<path d="M8 8v8a3 3 0 0 0 6 0V8M11 16v24"/>' +
+    '<path d="M40 8c-3 1.2-5 4.6-5 9s2 5 5 5M40 8v32"/>' +
+    '</svg>',
+  qCar:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M8 30v6h5M40 30v6h-5"/>' +
+    '<path d="M6 30l3-10a4 4 0 0 1 3.8-2.8h22.4A4 4 0 0 1 39 20l3 10Z"/>' +
+    '<circle cx="14" cy="30" r="2.4"/><circle cx="34" cy="30" r="2.4"/>' +
+    '<path d="M20 8h8M24 4v8" stroke-width="2.8"/>' +
+    '</svg>',
+  qDock:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<path d="M14 7v9a8 8 0 0 0 16 0V7"/>' +
+    '<path d="M22 24v6a8 8 0 0 0 16 0v-4"/>' +
+    '<circle cx="38" cy="22" r="4"/>' +
+    '<path d="M10 7h8M26 7h8"/>' +
+    '</svg>',
+  qHouse:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M6 22 24 8l18 14"/>' +
+    '<path d="M10 20v20h28V20"/>' +
+    '<path d="M24 20v20" stroke-dasharray="4 3"/>' +
+    '<path d="M14 27h6M28 27h6"/>' +
+    '</svg>',
+  qPc:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<rect x="9" y="10" width="30" height="21" rx="3"/>' +
+    '<path d="M5 36h38l-3 4H8Z"/>' +
+    '</svg>',
+  qSuit:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M18 6h12l-6 8Z"/>' +
+    '<path d="M24 14 21 42h6Z"/>' +
+    '<path d="M18 6 9 12v30h8M30 6l9 6v30h-8"/>' +
+    '</svg>',
+  qShield:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<path d="M24 5 8 11v12c0 10 6.8 18.5 16 21 9.2-2.5 16-11 16-21V11L24 5Z"/>' +
+    '<path d="m18 18 6 8 6-8M24 26v9M19.5 28.5h9M19.5 32.5h9"/>' +
+    '</svg>',
+  qYen:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<circle cx="24" cy="24" r="17"/>' +
+    '<path d="m17 14 7 10 7-10M24 24v10M18.5 26.5h11M18.5 31.5h11"/>' +
+    '</svg>',
+  qInvoice:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<path d="M11 6h26v36l-4.3-3-4.4 3-4.3-3-4.4 3-4.3-3-4.3 3Z"/>' +
+    '<path d="M17 15h14M17 22h14M17 29h8"/>' +
+    '</svg>',
+  qTruck:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<path d="M4 12h22v22H4Z"/>' +
+    '<path d="M26 20h9l7 7v7h-16Z"/>' +
+    '<circle cx="14" cy="37" r="4"/><circle cx="34" cy="37" r="4"/>' +
+    '</svg>',
+  qPlane:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M24 5c2.5 0 4 4 4 10v6l14 8v4l-14-4v8l5 4v3l-9-2-9 2v-3l5-4v-8l-14 4v-4l14-8v-6c0-6 1.5-10 4-10Z"/>' +
+    '</svg>',
+  qSeed:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<path d="M24 42V20"/>' +
+    '<path d="M24 20c0-7 5-12 12-12 0 7-5 12-12 12ZM24 26c0-6-4-10-10-10 0 6 4 10 10 10Z"/>' +
+    '<path d="M12 42h24"/>' +
+    '</svg>',
+  qTrash:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M9 13h30M18 13V9a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v4"/>' +
+    '<path d="M13 13l2 26a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3l2-26"/>' +
+    '<path d="M20 20v15M28 20v15"/>' +
+    '</svg>',
+
+  chkReceipt:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2451f" stroke-width="2.3">' +
+    '<path d="M11 6h26v36l-4.3-3-4.4 3-4.3-3-4.4 3-4.3-3-4.3 3Z"/>' +
+    '<path d="M17 16h14M17 24h14M17 31h8"/>' +
+    '</svg>',
+  chkHome:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<path d="M6 22 24 8l18 14"/><path d="M10 20v20h28V20"/><path d="M24 20v20" stroke-dasharray="4 3"/>' +
+    '</svg>',
+  chkPeople:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.3">' +
+    '<circle cx="15" cy="15" r="5"/><circle cx="33" cy="15" r="5"/>' +
+    '<path d="M6 33c0-5 4-8 9-8s9 3 9 8M24 33c0-5 4-8 9-8s9 3 9 8"/>' +
+    '</svg>',
+  chkPc:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.3">' +
+    '<rect x="9" y="10" width="30" height="21" rx="3"/><path d="M5 36h38l-3 4H8Z"/>' +
+    '</svg>',
+  chkPdf:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.3">' +
+    '<path d="M13 6h16l8 8v28a2 2 0 0 1-2 2H13a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"/>' +
+    '<path d="M29 6v9h8"/><path d="M17 26h12M17 33h8"/>' +
+    '</svg>',
+  chkInvoice:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<rect x="7" y="12" width="34" height="24" rx="3"/>' +
+    '<path d="M12 18v12M17 18v12M22 18v12M27 18v12M32 18v12M37 18v12"/>' +
+    '</svg>',
+  chkBank:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.3">' +
+    '<path d="M6 19 24 9l18 10"/><path d="M11 19v17M20 19v17M28 19v17M37 19v17"/><path d="M6 41h36"/>' +
+    '</svg>',
+  chkAoiro:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#27587f" stroke-width="2.3">' +
+    '<rect x="10" y="7" width="28" height="34" rx="4"/>' +
+    '<path d="m17 22 4 4 10-10"/><path d="M17 33h14"/>' +
+    '</svg>',
+  chkShield:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.3">' +
+    '<path d="M24 6 10 11v11c0 9 6 16.5 14 18.7C32 38.5 38 31 38 22V11L24 6Z"/>' +
+    '<path d="m18 22 6 6 6-8"/>' +
+    '</svg>',
+  chkBack:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.3">' +
+    '<path d="M9 24a15 15 0 1 0 4.4-10.6"/>' +
+    '<path d="M8 8v8h8"/><path d="M24 17v8l6 4"/>' +
+    '</svg>',
+  icRimawari:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M8 40h32"/><path d="M12 34V22M22 34V14M32 34V26"/>' +
+    '<circle cx="34" cy="12" r="4"/><path d="M30 18l8-12"/></svg>',
+  icAkishitsu:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M7 22 24 9l17 13"/><path d="M11 22v18h26V22"/>' +
+    '<path d="M19 28l10 8M29 28l-10 8"/></svg>',
+  icKinriP:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<circle cx="16" cy="16" r="6"/><circle cx="32" cy="32" r="6"/><path d="M36 12 12 36"/></svg>',
+  icGenka:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<path d="M7 13h10v8h10v8h10v10H7Z"/><path d="M7 41h34"/></svg>',
+  icDeguchi:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#a8536f" stroke-width="2.4">' +
+    '<path d="M9 21 24 9l15 12"/><path d="M13 21v19h22V21"/>' +
+    '<path d="M22 40V29h6"/><path d="M33 33h9M38 29l4 4-4 4"/></svg>',
+  icShorui:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#5c4030" stroke-width="2.4">' +
+    '<path d="M13 6h15l8 8v28H13Z"/><path d="M28 6v9h8"/><path d="M19 24h12M19 31h12M19 38h7"/></svg>',
+};
+document.querySelectorAll('[data-art]').forEach(function(el){
+  var key = el.getAttribute('data-art');
+  if(ARTS[key]) el.innerHTML = ARTS[key];
+});
+
+/* ---------- ミニCTA ---------- */
+var CTA_MINI =
+  '<div class="cta-mini"><p>販売資料の数字を、そのまま鵜呑みにしないための並べ直しだけでもお手伝いできます。</p>' +
+  '<a href="#soudan">' +
+  '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="m3 7 9 6 9-6"/></svg>' +
+  '無料で相談してみる</a></div>';
+document.querySelectorAll('[data-cta-mini]').forEach(function(el){ el.innerHTML = CTA_MINI; });
+
+/* ---------- セクション2：○×クイズ ---------- */
+/* a: true = 回る（○が正解）, false = 回らない（×が正解） */
+var QUIZ = [
+  {
+    icon:'icRimawari', a:false, yes:'はい', no:'いいえ',
+    q:'販売資料に大きく書かれている利回りは、管理費や固定資産税を引いたあとの数字である。',
+    expl:'多くの場合、そこに書かれているのは表面利回りです。満室になったと仮定した年間家賃を物件価格で割っただけの数字で、管理費・修繕積立金・原状回復費・固定資産税・都市計画税・火災保険料などは引かれていません。空室や滞納も見込んでいません。実質利回りには法律で決まった計算式がないため、どこまでを経費に含めるかは資料をつくった側の判断です。だからこそ、数字そのものより先に、その利回りは何を引いた後ですかと聞くことに意味があります。',
+    wana:'見出しの数字が大きく、条件の説明が小さい字で欄外に置かれているためです。',
+    check:'販売資料に表面と実質のどちらと書いてあるか、満室想定か現況かを確かめてください。'
+  },
+  {
+    icon:'icShorui', a:true, yes:'はい', no:'いいえ',
+    q:'利回りを計算するとき、購入時の仲介手数料や登記費用を分母に足すと、利回りは下がる。',
+    expl:'そのとおりです。実質利回りでは、物件価格に仲介手数料・登記費用・司法書士報酬・不動産取得税・火災保険料などの購入時諸費用を足した総額を分母にするのが一般的です。分母が大きくなるので、同じ家賃収入でも利回りは下がります。これらの費用は購入時にまとまって出ていく現金であり、無視すると最初の持ち出しが計画から抜け落ちます。物件の種類や条件によって金額は変わるため、見積書の実額で計算してください。',
+    wana:'諸費用は購入の翌月には忘れられ、収支表に一度も出てこないことが多いためです。',
+    check:'見積書の諸費用合計を、物件価格に足した総額で利回りを計算し直してください。'
+  },
+  {
+    icon:'icAkishitsu', a:false, yes:'はい', no:'いいえ',
+    q:'家賃保証やサブリースの契約なら、契約期間中の家賃は最初の金額のまま変わらない。',
+    expl:'一般に、サブリース契約には賃料の見直しに関する条項が置かれていることが多く、一定期間ごとに賃料を改定できると定められている例が知られています。契約書に免責期間が定められていて、入居が始まるまでの一定期間は保証の対象外という例もあります。賃貸住宅の管理業務等の適正化に関する法律では、勧誘時に家賃の減額の可能性など重要事項を説明することが義務づけられています。ですから、保証があるかどうかではなく、条項に何と書いてあるかで判断することになります。',
+    wana:'保証という言葉が、金額まで固定される約束のように聞こえてしまうためです。',
+    check:'契約書の賃料改定条項と免責期間、解約の申し入れ条件を読んでください。'
+  },
+  {
+    icon:'icGenka', a:true, yes:'はい', no:'いいえ',
+    q:'減価償却は経費になるがお金は出ていかず、ローンの元金返済はお金が出ていくが経費にならない。',
+    expl:'そのとおりで、この2つが逆方向に効くために、帳簿の利益と手元のお金がずれます。減価償却は、建物の取得価額を耐用年数にわたって少しずつ経費にしていく計算上の手続きで、その年に現金が出ていくわけではありません。逆にローンの返済のうち元金部分は、現金は確実に出ていくのに経費にはならず、経費になるのは利息部分だけです。この結果、帳簿が赤字でも現金は残ることがあり、帳簿が黒字でも現金が足りなくなることがあります。個別の税額計算については税理士にご確認ください。',
+    wana:'経費イコール支出、という日常の感覚がそのまま当てはまらないためです。',
+    check:'返済予定表で毎年の元金と利息の内訳を見て、経費になる部分を確かめてください。'
+  },
+  {
+    icon:'icKinriP', a:false, yes:'はい', no:'いいえ',
+    q:'変動金利で借りている場合、金利が見直されても毎月の返済額は必ず据え置かれるので心配はいらない。',
+    expl:'変動金利型の住宅ローンなどでよく採用されている取扱いとして、返済額の見直しを一定期間ごとに行い、見直し後の返済額に上限を設けるという仕組みが知られています。ただしこれは返済額の変動をゆるやかにする仕組みであって、支払うべき利息そのものが減るわけではありません。返済額に収まりきらない利息が生じた場合、その分が後ろに繰り越される取扱いになることがあります。また、投資用の借入では取扱いが異なる場合もあります。仕組みの説明を受けたうえで契約書で確認してください。',
+    wana:'返済額が変わらないことと、支払う総額が変わらないことが混同されるためです。',
+    check:'金銭消費貸借契約書で金利のタイプ、見直しの時期、返済額の取扱いを確認してください。'
+  },
+  {
+    icon:'icZeimusho', a:false, yes:'はい', no:'いいえ',
+    q:'不動産所得が100万円の赤字なら、100万円の税金が戻ってくる。',
+    expl:'戻る金額は赤字の額そのものではなく、赤字の額にその方の所得税率と住民税率を掛けたおおよその金額が上限になります。所得税は所得が多いほど税率が高くなる仕組みなので、同じ100万円の赤字でも人によって戻る金額は変わります。さらに、不動産所得の損失のうち土地を取得するための借入金の利息に対応する部分は、給与所得などとの損益通算ができないと定められています。実際に戻る金額は申告内容によって変わるため、個別の税額計算・申告については税理士にご確認ください。',
+    wana:'赤字の額と、戻る税金の額が、同じ金額であるかのように語られがちだからです。',
+    check:'源泉徴収票と確定申告書でご自身の税率を確かめ、赤字の内訳を分けてください。'
+  },
+  {
+    icon:'icDeguchi', a:false, yes:'はい', no:'いいえ',
+    q:'保有中に減価償却をたくさん計上しても、売却するときの税金には関係しない。',
+    expl:'関係します。譲渡所得は、売った金額から取得費と譲渡費用を引いて計算しますが、この取得費は保有中に減価償却した分だけ小さくなっていきます。取得費が小さくなれば、同じ金額で売っても譲渡所得は大きくなります。つまり保有中に経費にした分は、売却時に精算される面があります。さらに、譲渡所得は所有期間が5年を超えるかどうかで区分が分かれ、適用される税率が変わります。有利か不利かは保有期間や売却時の条件によって変わるため、個別の判断は税理士にご確認ください。',
+    wana:'保有中の話と売却時の話が、別々の場面として説明されることが多いためです。',
+    check:'減価償却累計額と借入残高を並べて、売却時の手取りを一度試算してください。'
+  },
+  {
+    icon:'icDoc2', a:true, yes:'はい', no:'いいえ',
+    q:'その物件の固定資産税の実際の金額は、課税明細書を見れば概算ではなく実額で確かめられる。',
+    expl:'そのとおりです。毎年、所有者に送られてくる固定資産税・都市計画税の納税通知書には課税明細書が添付されていて、土地と家屋それぞれの評価額と税額が記載されています。売主から見せてもらえれば、概算ではなく実額が分かります。ただし、住宅用地の特例や新築住宅の減額措置が適用されている場合、適用が終わる年から税額が変わることがあります。いつまでの適用かも合わせて確認してください。税額の個別の判断については税理士にご確認ください。',
+    wana:'固定資産税は概算で置くものだと思い込み、実額の資料があると知られていないためです。',
+    check:'売主または仲介会社に、直近の固定資産税の課税明細書を見せてもらってください。'
+  }
+];
+
+var qIdx = 0, qScore = 0, qAnswered = false, qAnsweredCount = 0;
+var wrongItems = [];
+
+var elNum   = document.getElementById('qNum');
+var elDots  = document.getElementById('qDots');
+var elIcon  = document.getElementById('qIcon');
+var elText  = document.getElementById('qText');
+var btnYes  = document.getElementById('btnYes');
+var btnNo   = document.getElementById('btnNo');
+var lblYes  = document.getElementById('lblYes');
+var lblNo   = document.getElementById('lblNo');
+var elVerd  = document.getElementById('verdict');
+var elVAns  = document.getElementById('vAnswer');
+var elVChip = document.getElementById('vChip');
+var elVExpl = document.getElementById('vExpl');
+var elVWana = document.getElementById('vWana');
+var elVChk  = document.getElementById('vCheck');
+var btnNext = document.getElementById('btnNext');
+var btnStop = document.getElementById('btnStopHere');
+var quizPlay = document.getElementById('quizPlay');
+var quizDone = document.getElementById('quizDone');
+
+function renderDots(){
+  var html = '';
+  for(var i = 0; i < QUIZ.length; i++){
+    html += '<i class="' + (i < qIdx ? 'done' : (i === qIdx ? 'now' : '')) + '"></i>';
+  }
+  elDots.innerHTML = html;
+}
+
+function renderQ(){
+  var item = QUIZ[qIdx];
+  elNum.textContent = qIdx + 1;
+  elIcon.innerHTML = ARTS[item.icon] || '';
+  elText.textContent = item.q;
+  lblYes.textContent = item.yes || '回る';
+  lblNo.textContent = item.no || '回らない';
+  btnYes.disabled = false;
+  btnNo.disabled = false;
+  qAnswered = false;
+  elVerd.classList.remove('show');
+  btnNext.style.display = 'none';
+  btnStop.style.display = 'none';
+  renderDots();
+}
+
+function answer(ansYes){
+  if(qAnswered) return;
+  qAnswered = true;
+  qAnsweredCount++;
+  btnYes.disabled = true;
+  btnNo.disabled = true;
+  var item = QUIZ[qIdx];
+  var correct = (ansYes === item.a);
+  if(correct) qScore++;
+  else wrongItems.push(item);
+  elVAns.textContent = '正解は「' + (item.a ? (item.yes || '回る') : (item.no || '回らない')) + '」';
+  elVChip.textContent = correct ? 'ご名答！' : 'ざんねん、ここがワナ';
+  elVChip.className = 'result-chip ' + (correct ? 'correct' : 'wrong');
+  elVExpl.textContent = item.expl;
+  elVWana.textContent = item.wana;
+  elVChk.textContent = item.check;
+  elVerd.classList.add('show');
+  btnNext.style.display = 'flex';
+  if(qIdx >= QUIZ.length - 1){
+    btnNext.innerHTML = '結果を見る <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  } else if(qIdx >= 2){
+    btnStop.style.display = 'block';
+  }
+}
+
+function doneComment(score, total){
+  var full = (total === QUIZ.length);
+  if(score === total && full){
+    return '全問正解です。数字の読み方はもう十分に身についています。あとは、目の前の物件資料にその物差しを当てるだけ。レントロールと返済予定表と課税明細書、この3枚をそろえてみてください。';
+  }
+  var r = score / total;
+  if(r >= 0.75){
+    return 'かなりの正解率です。惜しかった問題こそ、手元の資料で答え合わせをしてみてください。販売資料の1行と、実際の書類の1行が食い違っていないか。そこに気づけるかどうかが分かれ目になります。';
+  }
+  if(r >= 0.4){
+    return '半分前後は、多くの方が同じところでつまずきます。むずかしいのは、どれも資料には小さく書いてあるのに、見出しの数字が大きいせいで目に入らないからです。早めに確かめておきましょう。';
+  }
+  return '引っかかった数が多くても、まったく問題ありません。クイズで引っかかったぶん、本番の契約書の前では引っかからずに済みます。まずは1つ、確認ポイントを試してみてください。';
+}
+
+function showDone(){
+  quizPlay.style.display = 'none';
+  quizDone.classList.add('show');
+  document.getElementById('doneTotal').textContent = qAnsweredCount;
+  document.getElementById('doneScore').textContent = qScore;
+  document.getElementById('doneCmt').textContent = doneComment(qScore, qAnsweredCount);
+  var wl = document.getElementById('wrongList');
+  if(wrongItems.length){
+    var html = '<h4>ワナにかかった問題（＝資料で確かめたい項目）</h4>';
+    for(var i = 0; i < wrongItems.length; i++){
+      html += '<div class="w-item"><strong>' + wrongItems[i].q + '</strong><br>確認ポイント：' + wrongItems[i].check + '</div>';
+    }
+    wl.innerHTML = html;
+    wl.style.display = 'block';
+  } else {
+    wl.style.display = 'none';
+  }
+  var sum = document.getElementById('sumScore');
+  sum.innerHTML = '<p>○×クイズの結果：<strong>' + qAnsweredCount + '問中 ' + qScore + '問正解</strong>でした。' +
+    (wrongItems.length ? '間違えた問題は、そのまま「確認したいことリスト」になります。' : 'この調子で、下のチェックリストもどうぞ。') + '</p>';
+}
+
+btnYes.addEventListener('click', function(){ answer(true); });
+btnNo.addEventListener('click', function(){ answer(false); });
+btnNext.addEventListener('click', function(){
+  if(qIdx >= QUIZ.length - 1){ showDone(); return; }
+  qIdx++;
+  renderQ();
+  var shell = document.querySelector('.quiz-shell');
+  if(shell.getBoundingClientRect().top < 0) shell.scrollIntoView({behavior:'smooth'});
+});
+btnStop.addEventListener('click', showDone);
+document.getElementById('btnRetry').addEventListener('click', function(){
+  qIdx = 0; qScore = 0; qAnsweredCount = 0; wrongItems = [];
+  quizDone.classList.remove('show');
+  quizPlay.style.display = 'block';
+  btnNext.innerHTML = '次の質問へ <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  renderQ();
+});
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+document.getElementById('btnMailSelf').addEventListener('click', function(){
+  var body = '「不動産投資の回る・回らないチェック」の結果メモ\n\n' +
+    '○×クイズ：' + qAnsweredCount + '問中 ' + qScore + '問正解\n\n';
+  if(wrongItems.length){
+    body += '【物件資料で確かめたいこと】\n';
+    for(var i = 0; i < wrongItems.length; i++){
+      body += '・' + wrongItems[i].check + '\n';
+    }
+  }
+  body += '\n（販売資料・レントロール・返済予定表・固定資産税の課税明細書と一緒に保管すると、次に見るときが早くなります）\n';
+  location.href = 'mailto:?subject=' + encodeURIComponent('不動産投資の「回る・回らない」チェック結果') + '&body=' + encodeURIComponent(body);
+});
+
+renderQ();
+
+/* ---------- セクション3：シミュレーター ---------- */
+var simA = document.getElementById('simA'), simB = document.getElementById('simB'),
+    simC = document.getElementById('simC'), simD = document.getElementById('simD'),
+    simE = document.getElementById('simE');
+function man(x){ return Math.round(x).toLocaleString('ja-JP') + '万円'; }
+function pct(n){ return (Math.round(n * 1000) / 10) + '%'; }
+function setR(id, ok, chipTxt, txt){
+  document.getElementById(id).className = 'sim-r ' + (ok ? 'ok' : 'ng');
+  document.getElementById(id + 'Chip').textContent = chipTxt;
+  document.getElementById(id + 'Txt').textContent = txt;
+}
+function annualPay(loanMan, rate, years){
+  if(loanMan <= 0 || years <= 0) return 0;
+  if(rate <= 0) return loanMan / years;
+  var i = rate / 12, n = years * 12;
+  return loanMan * i / (1 - Math.pow(1 + i, -n)) * 12;
+}
+function simUpdate(){
+  var price = Math.max(0, +simA.value || 0);
+  var rentFull = Math.max(0, +simD.value || 0);
+  var vac = (+simB.value || 0) / 100;
+  var rate = (+simE.value || 0) / 100;
+  var loanOn = simC.checked;
+  document.getElementById('simAOut').textContent = price.toLocaleString('ja-JP') + '万円';
+  document.getElementById('simDOut').textContent = rentFull.toLocaleString('ja-JP') + '万円';
+
+  var rentEff = rentFull * (1 - vac);        /* 実際に入る家賃 */
+  var opex = rentEff * 0.20;                 /* 運営経費（実効家賃の20%） */
+  var ptax = price * 0.007;                  /* 固定資産税・都市計画税（価格の0.7%） */
+  var noi = rentEff - opex - ptax;           /* 運営後の利益 */
+  var loan = loanOn ? price * 0.8 : 0;
+  var pay = annualPay(loan, rate, 25);
+  var cf = noi - pay;                        /* 手残り（税引前） */
+  var hyomen = price > 0 ? rentFull / price : 0;
+  var jisshitsu = price > 0 ? noi / price : 0;
+  var nokori = rentFull > 0 ? cf / rentFull : 0;
+  var hensai = rentEff > 0 ? pay / rentEff : 0;
+
+  document.getElementById('tlFill').style.width = Math.max(0, Math.min(100, nokori * 100)) + '%';
+
+  setR('simR1', false, pct(hyomen),
+    '満室想定の家賃 ' + man(rentFull) + ' を価格で割っただけの数字です。空室も経費も引いていません。');
+  setR('simR2', jisshitsu > 0, pct(jisshitsu),
+    '空室 ' + pct(vac) + ' と運営経費 ' + man(opex) + '、固定資産税等 ' + man(ptax) +
+    ' を引くと、運営後は ' + man(noi) + ' になります。');
+  setR('simR3', hensai < 0.5 && loan > 0 ? true : (loan === 0),
+    loan > 0 ? man(pay) : '借入なし',
+    loan > 0 ? ('借入 ' + man(loan) + ' を25年で返す場合の年額です。実際に入る家賃の ' + pct(hensai) +
+                ' にあたります。元金部分は経費になりません。')
+             : '借入をしない前提です。返済はありませんが、購入時に価格の全額を現金で用意することになります。');
+
+  var big = document.getElementById('simTotalBig'), sub = document.getElementById('simTotalSub');
+  var lead = document.getElementById('simTotalLead');
+  if(rentFull <= 0 || price <= 0){
+    lead.textContent = '数字を入れてください';
+    big.innerHTML = '価格と家賃を入力すると計算します';
+    sub.textContent = '万円単位で入力してください。';
+  } else if(cf >= 0){
+    lead.textContent = 'この条件なら、1年間に手元に残るのは';
+    big.innerHTML = '約<b>' + man(cf) + '</b>（月あたり約' +
+      Math.round(cf * 10000 / 12).toLocaleString('ja-JP') + '円）';
+    sub.textContent = '満室想定の家賃のうち手元に残る割合は ' + pct(nokori) +
+      '。大規模修繕や所得税・住民税は含んでいません。';
+  } else {
+    lead.textContent = 'この条件だと、1年間で';
+    big.innerHTML = '約<b>' + man(-cf) + '</b>の持ち出しになります';
+    sub.textContent = '運営後の ' + man(noi) + ' より、返済 ' + man(pay) +
+      ' のほうが大きい状態です。手元資金からの補てんが必要になります。';
+  }
+}
+simA.addEventListener('input', simUpdate); simD.addEventListener('input', simUpdate);
+simB.addEventListener('change', simUpdate); simE.addEventListener('change', simUpdate);
+simC.addEventListener('change', simUpdate);
+simUpdate();
+
+/* ---------- セクション4：あるある劇場 ---------- */
+var CASES = [
+  {
+    art:'icRimawari', cls:'c-red', chip:'第一幕：見出しの利回り',
+    title:'利回り8%のはずが、残ったのは月3千円',
+    story:'「資料の一番上に大きく<b>利回り8.0%</b>と書いてあって、これなら預金よりずっといいと思ったんです。買ってから管理会社の明細を見たら、管理委託料、共用部の電気代、区分の管理費と修繕積立金、それに固定資産税。全部引いたら、返済のあとに残るのは月に三千円ちょっとでした。空室が一度出て原状回復に十数万円かかった年は、当然マイナスです。数字が嘘だったわけじゃない。<b>私が引き算をしていなかった</b>だけなんですよね」<small>——40代・会社員（脚色あり）</small>',
+    what:'<p class="cmodal-p">表面利回りは、満室想定の年間家賃を物件価格で割った数字です。<strong>管理費・修繕積立金・原状回復費・広告料・固定資産税・都市計画税・火災保険料は、いずれも引かれていません</strong>。さらに空室や滞納も見込まれていません。この方の場合、資料の8.0%は間違っていませんでしたが、それは「何も起きなかった年の、満室の、経費ゼロの数字」でした。</p><p class="cmodal-p">やっかいなのは、見出しの数字が大きく、条件の説明が欄外に小さく書かれていることです。読んでいないわけではなく、<strong>視線がそこまで行かない構造</strong>になっている。だから、資料を読むときの順番を変えるほうが確実です。</p>',
+    how:'<p class="cmodal-p">まず、資料の利回りを一度ゼロにして、自分で組み立て直します。①レントロールで実際の家賃合計を出す、②空室率を5%でも10%でも仮に置いて掛ける、③管理委託料・共用費・修繕積立金を管理会社の資料から拾う、④固定資産税の課税明細書で実額を確かめる。この4つを引いた金額を、物件価格に購入諸費用を足した総額で割る。それが手元に近い数字です。</p><p class="cmodal-p">このページのシミュレーターは、まさにこの手順を自動でやっています。<strong>買う前に、悪い条件の表をもう1枚つくる</strong>。それだけで、この幕は起きません。</p>'
+  },
+  {
+    art:'icZeimusho', cls:'c-amber', chip:'第二幕：節税という言葉',
+    title:'還付されたのは初年度だけだった',
+    story:'「節税になりますと言われて買いました。実際、最初の年の確定申告では<b>まとまった金額が戻ってきて</b>、なるほどこういうことかと納得したんです。ところが二年目は戻りがぐっと少なくなって、三年目はほとんどゼロ。あとで分かったのですが、初年度に大きな赤字が出たのは、登記費用や不動産取得税といった<b>その年だけの費用</b>が乗っていたからでした。恒常的に赤字が出る仕組みだと思い込んでいたのは、私の勘違いです」<small>——50代・給与所得者（脚色あり）</small>',
+    what:'<p class="cmodal-p">損益通算による還付は、その年に不動産所得の赤字が出た場合の話です。購入初年度は、仲介手数料の一部・登記費用・司法書士報酬・不動産取得税（賦課された年）などが重なるため、赤字が出やすくなります。ところが<strong>これらは初年度限りの費用</strong>です。翌年以降に残るのは、減価償却と借入利息と運営経費であり、家賃収入がそれを上回れば黒字になります。</p><p class="cmodal-p">また、戻る金額は赤字の額そのものではなく、赤字にご自身の所得税率と住民税率を掛けたおおよその金額が上限です。<strong>不動産所得の損失のうち、土地取得のための借入金利息に対応する部分は損益通算できない</strong>と定められている点も見落とされがちです。</p>',
+    how:'<p class="cmodal-p">提示された収支計画を、初年度・2年目・5年目・10年目と、年ごとに並べてもらってください。そのうえで、各年の赤字を「減価償却による分」と「実際に現金が出ていく分」に色分けします。前者は現金が減らない赤字、後者は本当に持ち出しがあった赤字です。</p><p class="cmodal-p">そのうえで、戻る税金の見込み額を出すときは、ご自身の源泉徴収票にある課税所得から税率を確認します。<strong>個別の税額計算・申告については税理士にご確認ください</strong>。有利か不利かの結論ではなく、金額の内訳が分かれば十分です。</p>'
+  },
+  {
+    art:'icAkishitsu', cls:'c-berry', chip:'第三幕：保証という言葉',
+    title:'家賃保証の金額が、途中で変わった',
+    story:'「サブリースだから空室は関係ありません、と説明を受けて安心していました。ところが数年たったころ、<b>賃料の見直しの案内</b>が届いたんです。契約書を引っ張り出したら、一定期間ごとに賃料を協議のうえ改定できるという条項が、ちゃんと書いてありました。読んでいなかったわけではないのですが、<b>保証という言葉で、金額まで固定される約束だと思い込んでいた</b>のだと思います。契約前にその条項だけでも指さして読んでおけばよかった」<small>——60代・年金受給者（脚色あり）</small>',
+    what:'<p class="cmodal-p">サブリースは、転貸を前提に借り上げる契約です。一般に、契約書には賃料の見直しに関する条項や、入居開始までの一定期間を保証の対象外とする免責期間の定めが置かれていることが多いと知られています。<strong>賃貸住宅の管理業務等の適正化に関する法律</strong>では、勧誘や契約締結時に、家賃の減額の可能性を含む重要事項を書面で説明することが義務づけられています。</p><p class="cmodal-p">つまり、保証があるかどうかで判断するのではなく、<strong>どういう条件で、いつ、いくらまで変わりうるのか</strong>という条項の中身で判断する、という構造になっています。</p>',
+    how:'<p class="cmodal-p">契約前に確認したい条項は4つです。①賃料の改定時期と方法、②免責期間の有無と長さ、③解約の申し入れができるのは誰か・予告期間はどれだけか、④原状回復や修繕の費用をどちらが負担するか。いずれも契約書の中に条番号つきで書かれています。</p><p class="cmodal-p">重要事項説明のときに、この4つを<strong>その場で指さして読み上げてもらう</strong>のがいちばん早い方法です。説明義務がある事項ですから、遠慮する必要はありません。分からない言い回しがあれば、その場で書き足してもらってください。</p>'
+  },
+  {
+    art:'icDeguchi', cls:'c-blue', chip:'第四幕：出口の計算',
+    title:'売ろうとしたら、残債のほうが多かった',
+    story:'「事情があって手放そうと思い、査定を取りました。出てきた金額を見て、しばらく動けませんでした。<b>ローンの残高のほうが、売れる金額より多い</b>。差額を現金で用意しないと、抵当権が外せないから売れないと言われました。買うときに、売るときの話はほとんどしていなかったんです。頭金をほとんど入れずに買ったので、残高の減り方より、価値の見られ方のほうが早かったということなのだと思います」<small>——30代・会社員（脚色あり）</small>',
+    what:'<p class="cmodal-p">売却時には、売却代金からローンの残債を返して抵当権を抹消する必要があります。残債が売却代金を上回っていると、その差額と仲介手数料などを自己資金で用意しないと売却できません。<strong>これは価格の見通しの話ではなく、残債の減り方と自己資金の入れ方の構造の話</strong>です。</p><p class="cmodal-p">元利均等返済では、初期ほど返済額に占める利息の割合が大きく、元金はゆっくりとしか減りません。頭金が少ないほど、この期間は長くなります。同時に、売却時には仲介手数料や登記費用、譲渡所得が出れば税金も差し引かれます。</p>',
+    how:'<p class="cmodal-p">買う前に、出口の1枚を作っておきます。①返済予定表から、3年後・5年後・10年後の借入残高を書き出す、②その各時点で売れたと仮定して、仲介手数料（一般に上限の目安があります）と登記費用を引く、③減価償却累計額から取得費を計算し、譲渡所得が出るかを見る。</p><p class="cmodal-p">この表を作ると、<strong>どの時点なら自己資金なしで動けるのか</strong>が分かります。将来の価格を当てる必要はありません。いくらで売れたら残債と費用がまかなえるか、その分岐点の金額を知っておくだけで十分です。譲渡所得の税額の扱いは、個別に税理士にご確認ください。</p>'
+  },
+  {
+    art:'icGenka', cls:'c-red', chip:'第五幕：デッドクロス',
+    title:'帳簿は黒字なのに、預金が減っていく',
+    story:'「数年たったころから、確定申告で<b>納める税金が増えて</b>いきました。帳簿の上では利益が出ているんです。でも通帳を見ると、明らかに残高が減っている。税理士さんに聞いたら、減価償却が終わって経費が減った一方、返済のうち元金の割合が増えているからだと。<b>お金は出ていくのに経費にならない部分</b>が大きくなっていたわけです。仕組みを聞けば当たり前の話なのですが、買う前には一度も考えたことがありませんでした」<small>——50代・自営業（脚色あり）</small>',
+    what:'<p class="cmodal-p">減価償却は年数が決まっており、いずれ終わります。終われば、その分の経費がまるごと消えます。一方で元利均等返済では、返済が進むほど元金の割合が増え、経費になる利息部分は減っていきます。<strong>経費が減れば帳簿の利益は増え、それに対する税金も増えます</strong>。しかし現金は返済で出ていっているため、手元は楽になりません。</p><p class="cmodal-p">俗にデッドクロスと呼ばれるこの状態は、事故ではなく、<strong>最初から日付が決まっている出来事</strong>です。建物の構造・築年数・借入期間が分かれば、何年目に起きるかは購入前に計算できます。</p>',
+    how:'<p class="cmodal-p">確かめる材料は2つだけです。ひとつは減価償却の計算根拠で、建物部分の取得価額と耐用年数、中古なら簡便法による見積年数。もうひとつは返済予定表で、各年の元金と利息の内訳が載っています。この2つを同じ表に並べると、<strong>経費が減価償却を下回る年</strong>が目で分かります。</p><p class="cmodal-p">分かってさえいれば、その年に向けて納税資金を積んでおく、繰上返済を検討する、といった選択肢を早めに置けます。<strong>個別の税額計算・申告については税理士にご確認ください</strong>。大事なのは、何年目に何が起きるかを買う前に知っておくことです。</p>'
+  },
+  {
+    art:'icShuzen', cls:'c-amber', chip:'第六幕：修繕という時限',
+    title:'修繕積立金が、途中で倍近くになった',
+    story:'「区分マンションを買ったとき、修繕積立金は月に数千円でした。安いなと思ったのですが、しばらくして総会の資料に<b>段階的な増額の計画</b>が載っていて、あとで確認したら購入前から決まっていたことでした。長期修繕計画も、積立金の残高も、聞けば見せてもらえたはずのものです。家賃は同じなのに、出ていくお金だけが増えていく。<b>収支表を作り直したら、思っていた手残りの半分</b>になっていました」<small>——40代・共働き世帯（脚色あり）</small>',
+    what:'<p class="cmodal-p">区分所有のマンションでは、管理組合が長期修繕計画を持ち、それに沿って修繕積立金を集めます。新築時や販売時の積立金が低めに設定され、その後に段階的に引き上げる計画になっている例が知られています。<strong>引き上げの計画は購入前から資料に存在している</strong>ことが多く、あとから突然決まったわけではありません。</p><p class="cmodal-p">一棟の物件でも構造は同じで、外壁や屋上防水、給排水設備の更新は周期的に費用が発生します。区分なら組合が積み、一棟なら自分で積む。<strong>積む主体が違うだけで、費用が来ること自体は同じ</strong>です。</p>',
+    how:'<p class="cmodal-p">区分の場合は、管理会社または仲介会社を通じて、①長期修繕計画書、②修繕積立金の改定予定、③積立金の現在の残高、④直近の大規模修繕の実施時期と次回予定、⑤滞納状況、この5点を求めます。重要事項調査報告書という形でまとめて出てくることが多い資料です。</p><p class="cmodal-p">一棟の場合は、これまでの修繕履歴と、給湯器・エアコン・屋上防水の更新時期を確認します。そのうえで、<strong>年間家賃の一定割合を修繕用に別口座へ分けておく</strong>。この一手間が、突然の出費で借入を増やす事態を防ぎます。</p>'
+  }
+];
+
+/* ---------- セクション5：逆転劇場 ---------- */
+var GOOD_CASES = [
+  {
+    art:'icDoc2', cls:'c-blue', chip:'第一話：レントロール', amt:'想定と現況の差',
+    title:'契約日の並びを見て、家賃の実力が分かった',
+    story:'「レントロールをもらって、部屋番号と賃料だけでなく<b>契約日の列</b>を見てみたんです。長く住んでいる部屋は少し高めで、直近に決まった部屋は下がっている。同じ間取りなのに差がありました。つまり、いま募集したときに決まる家賃は直近のほうに近い。満室想定の合計をそのまま信じずに、<b>直近の水準で計算し直して</b>から判断できました」<small>——40代・会社員（脚色あり）</small>',
+    what:'<p class="cmodal-p">レントロールは、部屋ごとの賃貸条件をまとめた一覧です。部屋番号、間取り、賃料、共益費、敷金、契約日、契約期間などが並びます。ここで効いてくるのが<strong>契約日と賃料の組み合わせ</strong>です。古い契約と新しい契約で賃料に差がある場合、その差は退去のたびに現れる可能性があります。</p><p class="cmodal-p">満室想定の家賃合計は、現在の契約の合計であることが多く、入れ替わりが起きた後の姿ではありません。直近の契約水準で計算し直すと、より手元に近い数字になります。<strong>資料に載っている情報だけで、自分でできる確認</strong>です。</p>',
+    how:'<p class="cmodal-p">仲介会社に「レントロールをください」と言えば、通常は出してもらえます。受け取ったら、①契約日の新しい順に並べ替える、②同じ間取りどうしで賃料を比べる、③空室の欄が想定賃料になっていないか確かめる、この3つを行います。</p><p class="cmodal-p">なお、レントロールは作成時点の情報です。契約が動いていることもあるので、<strong>いつ時点の資料か</strong>を必ず確認してください。将来の家賃水準を予測するものではなく、いま起きていることを読むための資料です。</p>'
+  },
+  {
+    art:'icShuzen', cls:'c-amber', chip:'第二話：修繕の資料', amt:'計画は事前に読める',
+    title:'長期修繕計画を先に読んで、増額を織り込めた',
+    story:'「区分を検討していたとき、仲介の方に<b>重要事項調査報告書</b>を頼みました。長期修繕計画と、修繕積立金の改定予定、それに積立金の残高と滞納の状況まで書いてありました。数年後に積立金が上がる予定だと分かったので、その金額を入れて収支表を作り直したんです。結果として買ったのですが、<b>上がることを知ったうえで買った</b>のと、知らずに買ったのとでは、後の気持ちがまったく違います」<small>——50代・会社員（脚色あり）</small>',
+    what:'<p class="cmodal-p">区分所有のマンションでは、管理組合が長期修繕計画を持ち、修繕積立金の集め方を定めています。段階的に引き上げる計画になっている場合、その予定は<strong>購入前から資料として存在しています</strong>。あとから急に決まったものではありません。</p><p class="cmodal-p">積立金の残高と滞納の状況も重要です。残高が計画に対して不足していれば、将来の増額や一時金の徴収が議題になる可能性があります。これらは判断材料であって、良し悪しの結論ではありません。<strong>知ったうえで数字に入れる</strong>ことに意味があります。</p>',
+    how:'<p class="cmodal-p">依頼先は仲介会社です。管理会社が発行する重要事項調査報告書には、管理費・修繕積立金の月額と改定予定、修繕積立金の総額、大規模修繕の実施履歴と予定、滞納状況、管理規約の要点などが記載されているのが一般的です。</p><p class="cmodal-p">発行に手数料と数日かかることがあるため、<strong>検討の早い段階で頼む</strong>のがこつです。受け取ったら、改定予定の金額をそのまま収支表に入れて計算し直してください。それだけで、数年後の姿が見えます。</p>'
+  },
+  {
+    art:'icShorui', cls:'c-berry', chip:'第三話：重要事項説明', amt:'土地の権利を確認',
+    title:'借地だと分かり、地代と更新料を計算に入れた',
+    story:'「利回りが周りより高いなと思っていた物件がありました。重要事項説明書を先に取り寄せて読んだら、<b>土地は借地</b>だと書いてありました。毎月の地代と、契約更新のときの更新料、それに建て替えや売却のときの承諾料。これらを全部入れて計算し直したら、利回りは思っていたより低くなりました。<b>高い理由には理由がある</b>。それが分かっただけで、判断の土俵に乗せられました」<small>——40代・自営業（脚色あり）</small>',
+    what:'<p class="cmodal-p">借地権付きの建物は、土地を所有していないぶん価格が抑えられることがあります。一方で、地代の支払いが継続し、契約更新時の更新料、増改築や譲渡の際の承諾料などが必要になる場合があります。<strong>利回りが高く見える理由が、費用の側に隠れている</strong>という構造です。</p><p class="cmodal-p">また、金融機関によっては借地権付き建物への融資の取扱いが異なることがあります。これは良し悪しではなく条件の違いであり、条件を知ったうえで数字に入れれば、他の物件と同じ土俵で比べられます。</p>',
+    how:'<p class="cmodal-p">重要事項説明書と登記事項証明書（登記簿）を確認します。土地の権利が所有権か借地権か、借地なら借地契約の種類・残存期間・地代の額・更新料や承諾料の定めがどうなっているかを読みます。登記事項証明書は法務局で誰でも取得できます。</p><p class="cmodal-p">分からない用語があれば、<strong>宅地建物取引士の説明のときにその場で聞く</strong>のがいちばん確実です。説明を受ける権利があるので、遠慮はいりません。読み終えたら、地代と更新料を年額に直して収支表に足してください。</p>'
+  },
+  {
+    art:'icZeimusho', cls:'c-green', chip:'第四話：課税明細書', amt:'概算ではなく実額',
+    title:'固定資産税の実額が分かって、収支表が締まった',
+    story:'「収支表の固定資産税の欄が、ずっと概算のままでした。売主さんに<b>課税明細書</b>を見せてもらえないか頼んだら、あっさり出てきました。土地と家屋それぞれの評価額と税額が書いてあって、こちらが置いていた概算とは少し差がありました。ついでに、住宅用地の特例が効いていることと、<b>いつまで効くのか</b>も確認できました。数字がひとつ実額になるだけで、表全体の信頼度が変わります」<small>——30代・会社員（脚色あり）</small>',
+    what:'<p class="cmodal-p">固定資産税・都市計画税は、毎年1月1日時点の所有者に課税され、納税通知書に課税明細書が添付されます。そこには土地・家屋ごとの評価額、課税標準額、税額が記載されています。<strong>概算で置くしかないと思われがちですが、実額の資料が存在します</strong>。</p><p class="cmodal-p">さらに、住宅用地には課税標準を軽減する特例があり、新築住宅には一定期間の減額措置が設けられている場合があります。適用の有無と終期が分かれば、<strong>何年目から税額が変わるか</strong>も先に織り込めます。</p>',
+    how:'<p class="cmodal-p">売主または仲介会社に、直近の固定資産税・都市計画税の納税通知書（課税明細書つき）を見せてもらえるか依頼します。売買では固定資産税の日割り精算を行うのが一般的なので、金額そのものは取引の過程で明らかになります。早めに見せてもらうだけの話です。</p><p class="cmodal-p">受け取ったら、年額をそのまま収支表に入れます。制度の適用や税額の個別の判断については、<strong>個別の税額計算・申告については税理士にご確認ください</strong>。数字を実額に置き換えるだけで、表の説得力が変わります。</p>'
+  },
+  {
+    art:'icKinriP', cls:'c-blue', chip:'第五話：借入の条件', amt:'条項で先に分かる',
+    title:'金利のタイプと見直し時期を、契約前に読んだ',
+    story:'「金銭消費貸借契約書を、署名する前に一度持ち帰らせてもらいました。<b>金利は変動、見直しは年2回、返済額の見直しは5年ごと</b>と書いてありました。条件が変わったときに返済額がどう動くのかを、その場で試算してもらったんです。数字を見て、頭金を少し増やす判断ができました。読まずに署名していたら、あとで慌てていたと思います」<small>——40代・共働き世帯（脚色あり）</small>',
+    what:'<p class="cmodal-p">借入の条件は契約書にすべて書かれています。金利のタイプ（固定か変動か、固定期間はいつまでか）、金利の見直し時期、返済額の見直し方法、繰上返済の手数料、期限の利益喪失の条件など。<strong>これらは将来の予測ではなく、いま書かれている取り決め</strong>です。</p><p class="cmodal-p">変動金利型では、返済額の見直しを一定期間ごとに行い、見直し後の返済額に上限を設ける取扱いが知られています。ただしこれは返済額の変動をゆるやかにする仕組みで、支払うべき利息が減るわけではありません。取扱いは金融機関や商品によって異なります。</p>',
+    how:'<p class="cmodal-p">契約前に、①金利のタイプと適用金利、②見直しの時期と方法、③返済額の見直しルール、④繰上返済の手数料と最低金額、⑤団体信用生命保険の有無と保障範囲、この5点を確認します。金融機関に、条件が変わった場合の返済額を試算してもらうこともできます。</p><p class="cmodal-p">このページのシミュレーターでも、金利の欄を動かすと年間返済額と手残りがどう変わるかを見られます。<strong>将来の金利水準を予測するものではなく、条件が変わったときの動き幅を知るため</strong>のものとしてお使いください。</p>'
+  },
+  {
+    art:'icGenka', cls:'c-amber', chip:'第六話：償却の年数', amt:'何年目かが分かる',
+    title:'経費が終わる年を、買う前に計算しておいた',
+    story:'「建物部分の取得価額と、構造、築年数。この3つを聞いて、<b>減価償却が何年で終わるのか</b>を先に出しておきました。そのうえで返済予定表を並べたら、7年目あたりから経費より元金返済のほうが大きくなると分かったんです。だから、その年に向けて納税用のお金を別に積むことにしました。あとで驚かないというだけのことですが、<b>驚かないのは大きい</b>と思っています」<small>——50代・自営業（脚色あり）</small>',
+    what:'<p class="cmodal-p">減価償却は、建物（および設備）の取得価額を耐用年数にわたって配分する計算です。耐用年数は構造ごとに定められており、中古資産については残存年数をもとに見積もる方法が定められています。したがって<strong>何年目に経費が終わるかは、購入前に計算できます</strong>。</p><p class="cmodal-p">経費が終わると帳簿の利益が増え、そのぶん税額も増えます。しかし現金は返済で出ていっているため手元は楽になりません。この時期を先に知っていれば、納税資金の準備や繰上返済の検討といった選択肢を、余裕をもって並べられます。</p>',
+    how:'<p class="cmodal-p">必要な情報は、①売買契約書などで確認できる建物部分の価額（土地と建物の内訳）、②建物の構造、③築年数、④借入の返済予定表、この4つです。①から③で減価償却の年数と年額が、④で各年の元金と利息の内訳が分かります。</p><p class="cmodal-p">この2つを同じ表に並べて、経費の合計が下がっていく年を確かめます。<strong>減価償却の計算方法や中古資産の見積もりは個別の判断を伴うため、個別の税額計算・申告については税理士にご確認ください</strong>。年表を1枚作っておくだけで、先の景色が変わります。</p>'
+  },
+  {
+    art:'icDeguchi', cls:'c-red', chip:'第七話：出口の試算', amt:'分岐点が分かる',
+    title:'いくらで売れたら動けるか、先に出しておいた',
+    story:'「買う前に、売るときの表を作りました。返済予定表から3年後・5年後・10年後の残高を書き出して、それぞれの時点で<b>いくらで売れたら残債と費用がまかなえるか</b>を計算したんです。将来の相場を当てるつもりはありません。ただ、この金額を下回ると自己資金が要る、という分岐点が分かっているだけで、途中で事情が変わったときに落ち着いて考えられました」<small>——30代・会社員（脚色あり）</small>',
+    what:'<p class="cmodal-p">売却時には、売却代金からローン残債を返済して抵当権を抹消する必要があります。加えて仲介手数料や登記費用がかかり、譲渡所得が出れば税金も差し引かれます。<strong>残債と費用の合計を下回る金額でしか売れない場合、差額を自己資金で用意しないと売却できません</strong>。</p><p class="cmodal-p">これは相場の予測ではなく、返済の進み方と費用の構造から決まる分岐点です。頭金の入れ方や返済期間によって、分岐点を下回る期間の長さが変わります。<strong>先に知っておけば、買い方そのものを調整できます</strong>。</p>',
+    how:'<p class="cmodal-p">返済予定表から各年末の借入残高を書き出し、そこに仲介手数料（宅地建物取引業法で上限の考え方が定められています）と登記費用の目安を足します。その合計が、その時点で必要な最低の売却額です。さらに譲渡所得が出る場合は税金も見込みます。</p><p class="cmodal-p">所有期間が5年を超えるかどうかで譲渡所得の区分が変わり、税率も変わります。<strong>個別の税額計算・申告については税理士にご確認ください</strong>。表は1枚で十分です。将来を当てるためではなく、動ける条件を知るために作ります。</p>'
+  },
+  {
+    art:'chkBank', cls:'c-green', chip:'第八話：手元資金', amt:'先に分けておく',
+    title:'家賃の一部を別口座にして、突発費用を吸収できた',
+    story:'「毎月の家賃が入る口座と、生活の口座を分けました。そのうえで、家賃の一定割合を<b>修繕と納税のための口座</b>に自動で移すようにしたんです。数年後にエアコンと給湯器が続けて壊れたのですが、そこから出せました。もしその口座がなかったら、慌てて借りていたと思います。<b>手元にお金があるかどうかで、選べる手が変わる</b>というのが実感です」<small>——40代・会社員（脚色あり）</small>',
+    what:'<p class="cmodal-p">不動産の運営では、空室、原状回復、設備の交換、大規模修繕、そして納税という支出が、収入とは違うタイミングでやってきます。毎月の収支が黒字でも、<strong>まとまった支出が来たときに現金がなければ、条件の悪い借入に頼ることになります</strong>。</p><p class="cmodal-p">口座を分けるだけの工夫ですが、効果は大きいものです。手元資金があれば、修繕の見積もりを複数取って比べる、空室期間に賃料を無理に下げない、といった選択の余地が生まれます。<strong>選べる状態を保つこと自体が備え</strong>です。</p>',
+    how:'<p class="cmodal-p">まず、年間家賃のうちどれだけを積むかを決めます。区分なら修繕積立金とは別に、一棟なら年間家賃の一定割合を目安にする考え方が知られています。金額に正解はありませんが、<strong>先に決めて自動で移すこと</strong>がこつです。</p><p class="cmodal-p">併せて、納税用の資金も同じ口座に積んでおきます。減価償却が終わる年からは帳簿の利益が増え、納税額が増える可能性があります。何年目から増えるかは先に計算できますので、そこに向けて準備してください。個別の税額計算・申告については税理士にご確認ください。</p>'
+  }
+];
+
+var modal = document.getElementById('caseModal');
+var CASE_LBL = {
+  bad:['よく伺うお話をもとにした創作例（脚色あり）', '何が起きたのか', 'こう確認すれば防げます'],
+  good:['よくある、うれしい誤算（創作例・脚色あり）', 'なぜ効くのか', 'どこで確かめる']
+};
+
+function renderCases(gridId, list, kind){
+  var grid = document.getElementById(gridId);
+  list.forEach(function(c){
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'case-card';
+    btn.innerHTML =
+      '<span class="art ' + c.cls + '">' + ARTS[c.art] + '</span>' +
+      '<span class="t"><span class="chip ' + c.cls + '">' + c.chip + '</span>' +
+      (c.amt ? '<span class="amt">' + c.amt + '</span>' : '') +
+      '<h3>' + c.title + '</h3>' +
+      '<span class="more">くわしく見る<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></span></span>';
+    btn.addEventListener('click', function(){ openCase(c, kind); });
+    grid.appendChild(btn);
+  });
+}
+
+function openCase(c, kind){
+  var lbl = CASE_LBL[kind] || CASE_LBL.bad;
+  document.getElementById('caseModalLbl1').textContent = lbl[0];
+  document.getElementById('caseModalLbl2').textContent = lbl[1];
+  document.getElementById('caseModalLbl3').textContent = lbl[2];
+  document.getElementById('caseModalLbl2Wrap').className =
+    'cmodal-label ' + (kind === 'good' ? 'lb-green' : 'lb-red');
+  document.getElementById('caseModalIco').className = 'cmodal-ico ' + c.cls;
+  document.getElementById('caseModalIco').innerHTML = ARTS[c.art];
+  document.getElementById('caseModalChip').className = 'cmodal-chip ' + c.cls;
+  document.getElementById('caseModalChip').textContent = c.chip;
+  document.getElementById('caseModalTitle').textContent = c.title;
+  document.getElementById('caseModalStory').innerHTML = c.story;
+  document.getElementById('caseModalWhat').innerHTML = c.what;
+  document.getElementById('caseModalHow').innerHTML = c.how;
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+  modal.querySelector('.cmodal-panel').scrollTop = 0;
+}
+
+renderCases('caseGrid', CASES, 'bad');
+renderCases('goodGrid', GOOD_CASES, 'good');
+
+function closeCase(){
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+document.getElementById('caseModalClose').addEventListener('click', closeCase);
+document.getElementById('caseModalBack').addEventListener('click', closeCase);
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && modal.classList.contains('show')) closeCase();
+});
+
+/* ---------- まとめ：チェックリスト ---------- */
+var chkBoxes = document.querySelectorAll('#checklist input[type=checkbox]');
+var chkMsg = document.getElementById('chkMsg');
+function chkUpdate(){
+  var n = 0;
+  chkBoxes.forEach(function(c){ if(c.checked) n++; });
+  var total = chkBoxes.length;
+  if(n === 0){
+    chkMsg.textContent = 'あてはまるもの、もう確かめたものを押してみてください。数が増えるほど、判断の材料がそろっていきます。';
+  } else if(n <= 2){
+    chkMsg.textContent = 'チェック' + n + '個。まずは販売資料の利回りが表面か実質か、その1点だけ確かめてみてください。';
+  } else if(n <= 5){
+    chkMsg.textContent = 'チェック' + n + '個。あと少しで、その物件の手残りが自分で計算できるところまで来ています。';
+  } else if(n < total){
+    chkMsg.textContent = 'チェック' + n + '個。かなり整っています。ここまで来たら、あとは出口と借入条件の確認だけです。';
+  } else {
+    chkMsg.textContent = 'すべて確認済みです。あとは、条件が変わったときに同じ表をもう一度作り直すだけで大丈夫です。';
+  }
+}
+chkBoxes.forEach(function(c){ c.addEventListener('change', chkUpdate); });
+
+})();
+</script>
+</body>
+</html>

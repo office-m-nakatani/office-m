@@ -1,0 +1,2461 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="銀行が貸してくれる額と、無理なく返せる額はまったく別物です。返済負担率、手取りからの引き算、金利が上がった場合の返済額、教育費との重なりまでを○×クイズと体感シミュレーターで確認できる啓発ツール。株式会社Office-M作成の情報提供資料。">
+<title>住宅ローンの「借りられる・返せる」チェック｜株式会社Office-M</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 8 6 28h8v28h36V28h8Z' fill='%23f0846a'/%3E%3Cpath d='M22 40h20M22 48h20' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --navy:#1b3f5e;
+  --navy-2:#27587f;
+  --navy-soft:#eaf1f7;
+  --bg:#fff8f2;
+  --white:#ffffff;
+  --text:#33404d;
+  --muted:#5c6874;
+  --line:#efe2d8;
+  --shadow:0 6px 20px rgba(130,100,80,.09);
+  --shadow-sm:0 3px 10px rgba(130,100,80,.07);
+
+  --red:#c2453f;
+  --red-dark:#a63631;
+  --red-bg:#fdeee9;
+  --red-border:#f4d0c6;
+  --coral:#f0846a;
+  --coral-text:#c2451f;
+
+  --green:#2c7a4b;
+  --green-bg:#e8f6ef;
+  --green-border:#c3e5d3;
+  --mint:#4fbf9b;
+
+  --amber:#8f6015;
+  --amber-deep:#a85c12;
+  --amber-bg:#fdf3e2;
+  --amber-border:#f2dcae;
+  --sunny:#f7c34e;
+
+  --sky:#24729f;
+  --sky-bg:#e8f4fb;
+  --sky-border:#c6e2f2;
+
+  --berry:#8f4574;
+  --berry-bg:#fbeef6;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+/* スマホでも17pxを基準にする（注記・出典まわりが12pxまで小さくなっていたため） */
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;font-size:17px;}
+/* 左右の余白が広い画面ほど文字を大きくして見やすさに還元する */
+@media(min-width:1000px){ html{font-size:18px;} }
+body{
+  font-family:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho",YuMincho,"游明朝体","游明朝","MS PMincho","ＭＳ Ｐ明朝",serif;
+  color:var(--text);
+  background:var(--bg);
+  font-size:1.09rem;
+  line-height:1.95;
+  letter-spacing:.03em;
+  padding-bottom:40px;
+  overflow-wrap:break-word;
+}
+@media(min-width:768px){
+  body{font-size:1.16rem;letter-spacing:.04em;}
+}
+img,svg{max-width:100%;vertical-align:middle;}
+button{font-family:inherit;}
+/* キーボード操作でいまどこにいるかを、はっきり見せる（既定の1本線は細くて見えない） */
+a:focus-visible,button:focus-visible,summary:focus-visible,
+input:focus-visible,label:focus-visible,[tabindex]:focus-visible{
+  outline:3px solid var(--navy-2);
+  outline-offset:3px;
+  border-radius:6px;
+}
+a{color:var(--navy-2);}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px;}
+/* 広い画面では、本文の1行を約40字までに抑える（日本語の読みやすい行長の目安）。
+   カード内の短い文には効かせず、横幅いっぱいに伸びる長文だけを対象にする */
+@media(min-width:700px){
+  .guide-msg,.def-lead,.sec-lead,.sub-lead,.age-note,.note,
+  .mikane ol li,.mikane .caution,.rule3-box ol li,.rule3-note,
+  .cta-lead,details.finder p,details.finder li,footer.disclaimer p{
+    max-width:40em;
+  }
+  /* 中央寄せの箱の中にあるものは、中央のまま幅だけ詰める */
+  .venn-cap,.life-cap{max-width:40em;margin-left:auto;margin-right:auto;}
+}
+.nowrap{white-space:nowrap;}
+
+/* ---------- ヘッダー ---------- */
+.hero{
+  background:linear-gradient(168deg,#fbe6e6 0%,#fdf1ea 46%,#ddf0fb 100%);
+  color:var(--navy);
+  padding:24px 0 30px;
+  overflow:hidden;
+}
+.brand{
+  display:flex;align-items:center;gap:10px;
+  font-size:.92rem;font-weight:700;letter-spacing:.02em;color:var(--navy);
+}
+.brand .ico{
+  width:36px;height:36px;flex:0 0 36px;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--navy);border-radius:12px;
+}
+.brand .ico svg{width:20px;height:20px;stroke:#fff;}
+.brand small{display:block;font-weight:500;color:var(--muted);font-size:.82rem;letter-spacing:.04em;line-height:1.55;}
+.hero-flex{display:flex;flex-direction:column;}
+.hero h1{
+  font-size:1.58rem;line-height:1.45;font-weight:800;
+  margin:20px 0 12px;letter-spacing:.01em;color:var(--navy);
+}
+.hero h1 .accent{
+  background:linear-gradient(transparent 62%, #ffd9a8 62%);
+  padding:0 2px;
+}
+.hero .lead{font-size:1rem;color:var(--text);max-width:640px;}
+/* 文字間隔をユーザーが広げても見出しが切れないよう、狭い画面では折り返しを許す
+   （通常の表示では1行に収まるため、見た目は変わらない）— WCAG 1.4.12 */
+@media(max-width:520px){ .hero h1 .nowrap{white-space:normal;} }
+.hero-scene{margin:16px auto 0;width:100%;max-width:400px;}
+.hero-scene svg{width:100%;height:auto;display:block;}
+@media(min-width:768px){
+  .hero{padding:30px 0 40px;}
+  .hero h1{font-size:1.95rem;}
+  .hero .lead{font-size:1.06rem;}
+  .hero-flex{flex-direction:row;align-items:center;gap:28px;}
+  .hero-copy{flex:1;}
+  .hero-scene{flex:0 0 340px;margin:0;}
+}
+.hero-nav{display:flex;flex-wrap:wrap;gap:9px;margin-top:20px;}
+.hero-nav a{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--white);
+  border:2px solid #ffffff;
+  color:var(--navy);text-decoration:none;
+  padding:11px 17px;border-radius:999px;
+  font-size:.94rem;font-weight:700;min-height:48px;
+  box-shadow:var(--shadow-sm);
+}
+.hero-nav a:active{background:#fff4e9;}
+.hero-nav a svg{width:18px;height:18px;stroke:var(--coral);flex:0 0 18px;}
+
+/* ---------- セクション共通 ---------- */
+section{padding:40px 0 46px;}
+.band{background:var(--white);}
+.band-sky{background:var(--sky-bg);}
+.band-blush{background:#fdf1eb;}
+.band-mint{background:var(--green-bg);}
+.round-top{
+  border-radius:30px 30px 0 0;
+  margin-top:-24px;position:relative;z-index:1;
+  padding-top:42px;
+}
+.sec-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;}
+.sec-head .spot{flex:0 0 84px;}
+.spot-circle{
+  width:84px;height:84px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.spot-circle svg{width:52px;height:52px;}
+.step-pill{
+  display:inline-flex;align-items:center;gap:9px;
+  background:var(--amber-bg);color:var(--navy);
+  font-size:.88rem;font-weight:700;letter-spacing:.02em;
+  padding:6px 18px 6px 7px;border-radius:999px;margin-bottom:12px;
+  box-shadow:var(--shadow-sm);
+}
+.step-pill i{
+  width:28px;height:28px;flex:0 0 28px;border-radius:50%;
+  background:linear-gradient(135deg,#c2452a,#a8601a);
+  color:#fff;font-style:normal;font-weight:800;font-size:.95rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.step-pill.plain{padding:7px 18px;}
+h2{
+  font-size:1.4rem;line-height:1.5;color:var(--navy);
+  font-weight:800;letter-spacing:.01em;
+  position:relative;padding-bottom:12px;margin-bottom:10px;
+}
+h2::after{
+  content:"";position:absolute;left:0;bottom:0;
+  width:54px;height:5px;border-radius:3px;
+  background:linear-gradient(90deg,var(--coral),var(--sunny));
+}
+@media(min-width:768px){h2{font-size:1.68rem;}}
+.sec-lead{color:var(--muted);font-size:1rem;margin-bottom:22px;}
+.sub-title{font-size:1.1rem;color:var(--navy);}
+.note{
+  font-size:.9rem;color:var(--muted);line-height:1.85;
+  background:var(--white);border-radius:16px;
+  padding:14px 16px;margin-top:20px;
+  display:flex;gap:9px;align-items:flex-start;
+  box-shadow:var(--shadow-sm);
+}
+.note svg{width:20px;height:20px;flex:0 0 20px;stroke:var(--coral);margin-top:4px;}
+.band-sky .note,.band-blush .note{box-shadow:none;border:1px solid var(--line);}
+
+/* ---------- ガイド（吹き出し） ---------- */
+.guide{display:flex;align-items:flex-start;gap:12px;margin-bottom:20px;}
+.guide-ava{
+  width:58px;height:58px;flex:0 0 58px;border-radius:50%;
+  overflow:hidden;display:block;box-shadow:var(--shadow-sm);
+}
+.guide-ava svg{width:100%;height:100%;display:block;}
+.guide-msg{
+  position:relative;background:var(--white);
+  border:2px solid #ffe0cf;border-radius:18px;
+  padding:12px 16px;font-size:.95rem;line-height:1.75;
+}
+.guide-msg::before{
+  content:"";position:absolute;left:-9px;top:20px;
+  width:14px;height:14px;background:var(--white);
+  border-left:2px solid #ffe0cf;border-bottom:2px solid #ffe0cf;
+  transform:rotate(45deg);
+}
+
+/* ---------- セクション1：ちがいを問いかけるリンク ---------- */
+.qlink-lead{
+  display:flex;align-items:center;gap:9px;
+  font-size:1rem;font-weight:800;color:var(--navy);
+  margin:26px 0 12px;
+}
+.qlink-lead svg{width:23px;height:23px;flex:0 0 23px;stroke:var(--coral);}
+.qlinks{display:grid;grid-template-columns:1fr;gap:12px;}
+@media(min-width:700px){.qlinks{grid-template-columns:repeat(3,1fr);}}
+.qlink{
+  display:flex;flex-direction:column;gap:5px;
+  background:var(--white);border:2px solid var(--line);border-radius:18px;
+  padding:15px 16px 13px;text-decoration:none;color:inherit;
+  box-shadow:var(--shadow-sm);
+  transition:border-color .15s, transform .12s;
+}
+.qlink:active{transform:scale(.985);}
+.qlink:hover{border-color:var(--coral);}
+.qlink .pair{
+  display:flex;align-items:center;gap:7px;flex-wrap:wrap;
+  font-size:1.02rem;font-weight:800;color:var(--navy);line-height:1.55;
+}
+.qlink .pair .vs{
+  font-size:.8rem;font-weight:800;color:var(--red-dark);
+  background:var(--red-bg);border-radius:999px;padding:2px 10px;
+}
+.qlink .ask{font-size:.87rem;color:var(--muted);line-height:1.75;}
+.qlink .go{
+  display:inline-flex;align-items:center;gap:4px;margin-top:3px;
+  font-size:.84rem;font-weight:800;color:var(--coral-text);
+}
+.qlink .go svg{width:14px;height:14px;flex:0 0 14px;stroke:var(--coral-text);}
+/* リンクで飛んだ先を、見出しの手前で止める */
+.def-block[id]{scroll-margin-top:18px;}
+
+/* ---------- セクション1：定義のブロック ---------- */
+.def-block{
+  margin-top:34px;padding-top:26px;border-top:2px dashed var(--line);
+}
+.def-block:first-of-type{margin-top:18px;padding-top:0;border-top:none;}
+.def-h{
+  display:flex;align-items:center;gap:12px;
+  font-size:1.14rem;line-height:1.5;color:var(--navy);margin-bottom:8px;
+}
+.def-ico{
+  width:52px;height:52px;flex:0 0 52px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.def-ico svg{width:34px;height:34px;}
+.def-lead{font-size:.97rem;color:var(--muted);line-height:1.9;margin-bottom:16px;}
+@media(min-width:768px){.def-h{font-size:1.26rem;}}
+
+/* ---------- セクション1：心疾患の輪 ---------- */
+.venn-box{
+  background:var(--white);border-radius:22px;box-shadow:var(--shadow);
+  padding:20px 14px 8px;margin:6px 0 26px;text-align:center;
+}
+.venn-box svg{width:100%;max-width:520px;height:auto;}
+.venn-cap{font-size:.88rem;color:var(--muted);padding:6px 8px 12px;line-height:1.8;}
+@media(max-width:520px){.venn-box{padding:14px 4px 6px;}}
+.cards{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.cards{grid-template-columns:repeat(2,1fr);}}
+.risk-card{
+  position:relative;background:var(--white);
+  border-radius:20px;padding:20px 20px 18px;
+  box-shadow:var(--shadow);
+}
+.risk-card .icon{
+  width:68px;height:68px;border-radius:50%;
+  background:var(--navy-soft);
+  display:flex;align-items:center;justify-content:center;margin-bottom:12px;
+}
+.risk-card .icon svg{width:44px;height:44px;}
+.risk-card .icon.ic-red{background:var(--red-bg);}
+.risk-card .icon.ic-blue{background:var(--sky-bg);}
+.risk-card .icon.ic-amber{background:var(--amber-bg);}
+.risk-card .icon.ic-green{background:var(--green-bg);}
+.risk-card h3{font-size:1.02rem;color:var(--navy);margin-bottom:2px;}
+.risk-card p{font-size:.93rem;color:var(--muted);margin-top:8px;line-height:1.85;}
+.judge-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:.82rem;font-weight:700;padding:4px 13px;border-radius:999px;margin-top:4px;
+}
+.judge-chip.ng{background:var(--red-bg);color:var(--red-dark);border:1.5px solid var(--red-border);}
+.judge-chip.ok{background:var(--green-bg);color:var(--green);border:1.5px solid var(--green-border);}
+.judge-chip.maybe{background:var(--amber-bg);color:var(--amber-deep);border:1.5px solid var(--amber-border);}
+
+/* ---------- 罹患年齢のデータ（セクション1の各解説に添える） ---------- */
+.age-note{
+  display:flex;gap:10px;align-items:flex-start;
+  background:var(--white);border-radius:14px;
+  border-left:5px solid var(--sky);
+  padding:11px 15px;margin-bottom:16px;
+  font-size:.9rem;line-height:1.85;
+  box-shadow:var(--shadow-sm);
+}
+.age-note svg{width:19px;height:19px;flex:0 0 19px;stroke:var(--sky);margin-top:5px;}
+.age-note b{color:var(--sky);font-size:.98rem;}
+.age-note small{display:block;color:var(--muted);font-size:.81rem;line-height:1.7;margin-top:2px;}
+
+/* ---------- セクション6：医療費のかかりどき ---------- */
+.life-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px 14px;margin:6px 0 26px;
+}
+.life-box h3{font-size:1.08rem;color:var(--navy);margin-bottom:4px;}
+.life-box .sub{font-size:.9rem;color:var(--muted);margin-bottom:14px;}
+.life-box svg{width:100%;max-width:620px;height:auto;display:block;margin:0 auto;}
+.life-cap{font-size:.85rem;color:var(--muted);line-height:1.8;padding:10px 4px 4px;}
+.big3{display:grid;grid-template-columns:1fr;gap:12px;margin-top:16px;}
+@media(min-width:700px){.big3{grid-template-columns:repeat(3,1fr);}}
+.big3 .b{
+  background:var(--bg);border:2px solid var(--line);border-radius:16px;
+  padding:13px 15px;text-align:center;
+}
+.big3 .b .n{display:block;font-size:1.5rem;font-weight:800;color:var(--coral-text);line-height:1.4;}
+.big3 .b .l{display:block;font-size:.86rem;color:var(--navy);font-weight:700;line-height:1.7;}
+.big3 .b .s{display:block;font-size:.81rem;color:var(--muted);line-height:1.7;margin-top:3px;}
+
+.sub-h{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.1rem;color:var(--navy);margin:30px 0 6px;
+}
+.sub-h svg{width:24px;height:24px;flex:0 0 24px;stroke:var(--coral);}
+.sub-lead{font-size:.95rem;color:var(--muted);line-height:1.9;margin-bottom:16px;}
+.age-cards{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.age-cards{grid-template-columns:repeat(3,1fr);}}
+.age-card{
+  background:var(--white);border-radius:20px;box-shadow:var(--shadow);
+  padding:18px 18px 15px;
+}
+.age-card .ttl{
+  display:flex;align-items:center;gap:9px;
+  font-size:1rem;font-weight:800;color:var(--navy);margin-bottom:10px;
+}
+.age-card .ttl .ico{
+  width:38px;height:38px;flex:0 0 38px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.age-card .ttl .ico svg{width:26px;height:26px;}
+.age-card .rows{border-top:1.5px dashed var(--line);padding-top:9px;}
+.age-card .row{
+  display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  font-size:.92rem;line-height:1.9;
+}
+.age-card .row span{color:var(--muted);}
+.age-card .row b{font-size:1.28rem;font-weight:800;color:var(--red-dark);white-space:nowrap;}
+.age-card .kind{
+  display:inline-block;font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:8px;
+  background:var(--sky-bg);color:var(--sky);
+}
+.age-card .cmt{font-size:.87rem;color:var(--text);line-height:1.85;margin-top:10px;}
+.age-card .src{font-size:.8rem;color:var(--muted);line-height:1.7;margin-top:9px;
+  border-top:1.5px dashed var(--line);padding-top:8px;}
+
+/* 未来の自分への仕送り */
+.mikane{
+  margin-top:28px;background:var(--white);border-radius:24px;
+  box-shadow:var(--shadow);padding:22px 20px 18px;
+}
+.mikane h3{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.1rem;color:var(--navy);margin-bottom:12px;
+}
+.mikane h3 svg{width:25px;height:25px;flex:0 0 25px;stroke:var(--mint);}
+.mikane ol{list-style:none;counter-reset:mk;}
+.mikane ol li{
+  counter-increment:mk;position:relative;
+  padding:0 0 14px 46px;font-size:.96rem;line-height:1.9;
+}
+.mikane ol li::before{
+  content:counter(mk);position:absolute;left:0;top:2px;
+  width:32px;height:32px;border-radius:50%;
+  background:var(--sky-bg);color:var(--sky);
+  font-weight:800;font-size:1.02rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.mikane ol li b{color:var(--coral-text);}
+.mikane .caution{
+  background:var(--amber-bg);border-radius:16px;padding:14px 16px;
+  font-size:.9rem;line-height:1.9;
+  border-left:5px solid var(--sunny);
+}
+.mikane .caution strong:first-child{display:block;color:var(--amber-deep);margin-bottom:3px;}
+.mikane .caution b{color:var(--coral-text);}
+
+/* ---------- セクション2：クイズ ---------- */
+.quiz-shell{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px 24px;
+}
+.band .quiz-shell{background:var(--bg);box-shadow:none;border:2px solid var(--line);}
+.q-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.q-count{font-size:.9rem;font-weight:700;color:var(--muted);}
+.q-count span{color:var(--coral-text);font-size:1.15rem;}
+.dots{display:flex;gap:6px;}
+.dots i{width:10px;height:10px;border-radius:50%;background:#e8dbd0;}
+.dots i.done{background:var(--mint);}
+.dots i.now{background:var(--coral);}
+.q-body{display:flex;gap:14px;align-items:flex-start;margin:14px 0 18px;}
+.q-body .icon{
+  width:64px;height:64px;flex:0 0 64px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.q-body .icon svg{width:40px;height:40px;}
+.q-body p{font-size:1.06rem;font-weight:700;color:var(--navy);line-height:1.8;}
+.ans-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.ans-btn{
+  min-height:64px;border-radius:18px;cursor:pointer;
+  font-size:1.1rem;font-weight:800;letter-spacing:.06em;
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  border:2.5px solid;transition:transform .12s;
+}
+.ans-btn:active{transform:scale(.97);}
+.ans-btn svg{width:26px;height:26px;}
+.ans-btn.yes{background:var(--green-bg);border-color:var(--green-border);color:var(--green);}
+.ans-btn.no{background:var(--red-bg);border-color:var(--red-border);color:var(--red-dark);}
+.ans-btn:disabled{opacity:.45;cursor:default;}
+.verdict{
+  display:none;margin-top:18px;background:var(--white);
+  border:2px solid var(--amber-border);border-radius:20px;
+  padding:18px 18px 16px;
+}
+.verdict.show{display:block;}
+.verdict-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+.verdict-answer{font-size:1.25rem;font-weight:800;color:var(--navy);}
+.result-chip{
+  font-size:.85rem;font-weight:800;padding:4px 14px;border-radius:999px;
+}
+.result-chip.correct{background:var(--green-bg);color:var(--green);}
+.result-chip.wrong{background:var(--red-bg);color:var(--red-dark);}
+.verdict .expl{font-size:.97rem;line-height:1.95;margin-bottom:12px;}
+.verdict .kv{
+  font-size:.92rem;line-height:1.85;background:var(--sky-bg);
+  border-radius:12px;padding:9px 13px;margin-top:8px;
+}
+.verdict .kv b{color:var(--sky);}
+.verdict .kv.kv-wana{background:var(--red-bg);}
+.verdict .kv.kv-wana b{color:var(--red-dark);}
+.btn-primary{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  width:100%;min-height:58px;margin-top:16px;
+  background:linear-gradient(135deg,#cf4a22,#c2401c);
+  color:#fff;font-size:1.05rem;font-weight:800;letter-spacing:.04em;
+  border:none;border-radius:18px;cursor:pointer;
+  box-shadow:0 5px 14px rgba(194,64,28,.34);
+}
+.btn-primary:active{transform:translateY(1px);}
+.btn-primary svg{width:22px;height:22px;stroke:#fff;}
+.btn-ghost{
+  display:block;width:100%;min-height:50px;margin-top:12px;
+  background:var(--white);color:var(--navy-2);
+  font-size:.95rem;font-weight:700;
+  border:2px solid var(--sky-border);border-radius:16px;cursor:pointer;
+}
+.btn-ghost:active{background:var(--sky-bg);}
+.quiz-done{display:none;}
+.quiz-done.show{display:block;}
+.quiz-done .score{
+  font-size:1.15rem;font-weight:800;color:var(--navy);
+  text-align:center;margin:8px 0 6px;
+}
+.quiz-done .score .num{font-size:2rem;color:var(--coral-text);}
+.quiz-done .cmt{
+  background:var(--white);border-radius:16px;padding:14px 16px;
+  font-size:.97rem;line-height:1.95;margin:14px 0;
+  border:2px solid var(--amber-border);
+}
+.wrong-list{margin:14px 0;}
+.wrong-list h4{font-size:.95rem;color:var(--navy);margin-bottom:8px;}
+.wrong-list .w-item{
+  background:var(--white);border-radius:14px;padding:11px 14px;
+  font-size:.9rem;line-height:1.8;margin-bottom:8px;
+  border-left:4px solid var(--coral);box-shadow:var(--shadow-sm);
+}
+
+/* ---------- セクション3：払込免除の解剖 ---------- */
+.type-table-box{
+  background:var(--white);border-radius:22px;box-shadow:var(--shadow-sm);
+  padding:18px 14px;margin:8px 0 24px;overflow-x:auto;
+}
+.type-table{width:100%;border-collapse:collapse;min-width:520px;font-size:.9rem;}
+.type-table th,.type-table td{
+  padding:10px 10px;text-align:center;border-bottom:1.5px solid var(--line);
+  line-height:1.7;vertical-align:middle;
+}
+.type-table th{background:var(--navy-soft);color:var(--navy);font-size:.86rem;}
+.type-table th:first-child{border-radius:12px 0 0 12px;}
+.type-table th:last-child{border-radius:0 12px 12px 0;}
+.type-table td:first-child{text-align:left;font-weight:700;color:var(--navy);font-size:.88rem;}
+.type-table small{display:block;color:var(--muted);font-weight:500;font-size:.81rem;}
+.mark-ok,.mark-ng,.mark-tri{font-weight:800;font-size:1.05rem;}
+.mark-ok{color:var(--green);}
+.mark-ng{color:var(--red);}
+.mark-tri{color:var(--amber);}
+.sim-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px;margin-top:26px;
+}
+.sim-box h3{font-size:1.12rem;color:var(--navy);margin-bottom:4px;}
+.sim-box .sub{font-size:.9rem;color:var(--muted);margin-bottom:18px;}
+.sim-ctrl{margin-bottom:18px;}
+.sim-ctrl label{
+  display:flex;justify-content:space-between;align-items:baseline;
+  font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:6px;
+}
+.sim-ctrl label output{color:var(--coral-text);font-size:1.15rem;font-weight:800;}
+input[type=range]{
+  width:100%;height:34px;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;
+}
+input[type=range]::-webkit-slider-runnable-track{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--sunny),var(--coral));}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:28px;height:28px;border-radius:50%;
+  background:var(--white);border:3px solid var(--coral);margin-top:-9px;
+  box-shadow:var(--shadow-sm);
+}
+input[type=range]::-moz-range-track{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--sunny),var(--coral));}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--white);border:3px solid var(--coral);}
+.sim-check{
+  display:flex;align-items:center;gap:10px;
+  background:var(--sky-bg);border-radius:14px;padding:11px 14px;
+  font-size:.95rem;font-weight:700;color:var(--navy);cursor:pointer;
+}
+.sim-check input{width:22px;height:22px;accent-color:var(--sky);}
+.timeline{margin:48px 0 8px;}
+.tl-track{
+  position:relative;height:14px;border-radius:7px;background:#f0e4d8;
+}
+.tl-fill{
+  position:absolute;left:0;top:0;height:14px;border-radius:7px;
+  background:linear-gradient(90deg,var(--sunny),var(--coral));
+  transition:width .2s;
+}
+.tl-goal{
+  position:absolute;top:-34px;transform:translateX(-50%);
+  font-size:.81rem;font-weight:800;color:var(--red-dark);
+  text-align:center;line-height:1.3;white-space:nowrap;
+}
+.tl-goal::after{
+  content:"";display:block;width:3px;height:30px;margin:2px auto 0;
+  background:var(--red);border-radius:2px;
+}
+.tl-labels{display:flex;justify-content:space-between;font-size:.81rem;color:var(--muted);margin-top:6px;}
+.sim-results{display:grid;grid-template-columns:1fr;gap:12px;margin-top:20px;}
+@media(min-width:700px){.sim-results{grid-template-columns:repeat(3,1fr);}}
+.sim-r{
+  border-radius:18px;padding:14px 15px;border:2px solid var(--line);background:var(--bg);
+}
+.sim-r h4{font-size:.9rem;color:var(--navy);margin-bottom:6px;line-height:1.6;}
+.sim-r h4 small{display:block;font-weight:500;color:var(--muted);font-size:.8rem;}
+.sim-r .r-chip{
+  display:inline-block;font-size:.95rem;font-weight:800;
+  padding:5px 16px;border-radius:999px;margin-bottom:6px;
+}
+.sim-r.ok{border-color:var(--green-border);background:var(--green-bg);}
+.sim-r.ok .r-chip{background:var(--white);color:var(--green);}
+.sim-r.ng{border-color:var(--red-border);background:var(--red-bg);}
+.sim-r.ng .r-chip{background:var(--white);color:var(--red-dark);}
+.sim-r p{font-size:.84rem;color:var(--muted);line-height:1.75;}
+
+/* ---------- セクション4：あるある劇場 ---------- */
+.case-grid{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.case-grid{grid-template-columns:repeat(2,1fr);}}
+.case-card{
+  display:flex;align-items:center;gap:14px;text-align:left;
+  background:var(--white);border:none;border-radius:20px;
+  padding:16px 16px;cursor:pointer;box-shadow:var(--shadow);
+  font-family:inherit;transition:transform .12s;
+}
+.case-card:active{transform:scale(.985);}
+.case-card .art{
+  width:64px;height:64px;flex:0 0 64px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+}
+.case-card .art svg{width:42px;height:42px;}
+.case-card .t{flex:1;}
+.case-card .chip{
+  display:inline-block;font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:4px;
+}
+.case-card h3{font-size:.99rem;color:var(--navy);line-height:1.6;}
+.case-card .more{
+  font-size:.8rem;color:var(--coral-text);font-weight:700;
+  display:inline-flex;align-items:center;gap:4px;margin-top:4px;
+}
+.case-card .more svg{width:14px;height:14px;stroke:var(--coral-text);}
+.c-red{background:var(--red-bg);color:var(--red-dark);}
+.c-blue{background:var(--sky-bg);color:var(--sky);}
+.c-green{background:var(--green-bg);color:var(--green);}
+.c-amber{background:var(--amber-bg);color:var(--amber-deep);}
+.c-berry{background:var(--berry-bg);color:var(--berry);}
+.case-card .amt{
+  display:inline-block;margin-left:7px;
+  font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;
+  background:var(--white);color:var(--green);border:1.5px solid var(--green-border);
+}
+
+/* ---------- セクション5：逆転劇場 ---------- */
+#sec5 .case-card{box-shadow:0 6px 20px rgba(60,120,80,.12);}
+.model-note{
+  background:var(--white);border-radius:18px;padding:14px 18px;margin-bottom:18px;
+  border-left:6px solid var(--mint);box-shadow:var(--shadow-sm);
+}
+.model-note strong{display:block;font-size:.92rem;color:var(--green);margin-bottom:4px;}
+.model-note .mn-row{display:block;font-size:.95rem;line-height:1.9;color:var(--navy);}
+.model-note .mn-row b{color:var(--coral-text);}
+.model-note .mn-note{display:block;font-size:.82rem;color:var(--muted);line-height:1.8;margin-top:6px;}
+.rule3-box{
+  margin-top:28px;background:var(--white);border-radius:22px;
+  padding:20px 20px 16px;box-shadow:var(--shadow-sm);
+}
+.rule3-box h3{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.06rem;color:var(--navy);margin-bottom:12px;
+}
+.rule3-box h3 svg{width:24px;height:24px;flex:0 0 24px;stroke:var(--green);}
+.rule3-box ol{list-style:none;counter-reset:r3;}
+.rule3-box ol li{
+  counter-increment:r3;position:relative;
+  padding:0 0 12px 44px;font-size:.95rem;line-height:1.9;
+}
+.rule3-box ol li::before{
+  content:counter(r3);position:absolute;left:0;top:2px;
+  width:30px;height:30px;border-radius:50%;
+  background:var(--green-bg);color:var(--green);
+  font-weight:800;font-size:1rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.rule3-note{font-size:.8rem;color:var(--muted);border-top:1.5px dashed var(--line);padding-top:10px;line-height:1.8;}
+/* ---------- モーダル ---------- */
+.cmodal{position:fixed;inset:0;z-index:60;display:none;}
+.cmodal.show{display:block;}
+.cmodal-back{position:absolute;inset:0;background:rgba(40,30,25,.5);}
+.cmodal-panel{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(94vw,640px);max-height:88vh;overflow-y:auto;
+  background:var(--white);border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.25);
+  -webkit-overflow-scrolling:touch;
+}
+.cmodal-head{
+  position:sticky;top:0;display:flex;gap:14px;align-items:center;
+  background:var(--white);padding:18px 52px 12px 20px;
+  border-bottom:1.5px solid var(--line);z-index:2;
+}
+.cmodal-close{
+  position:absolute;right:12px;top:12px;
+  width:40px;height:40px;border-radius:50%;
+  background:var(--bg);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.cmodal-close svg{width:18px;height:18px;stroke:var(--navy);}
+.cmodal-ico{
+  width:56px;height:56px;flex:0 0 56px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+}
+.cmodal-ico svg{width:38px;height:38px;}
+.cmodal-chip{
+  display:inline-block;font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:3px;
+}
+.cmodal-title{font-size:1.08rem;color:var(--navy);line-height:1.55;}
+.cmodal-body{padding:16px 20px 22px;}
+.cmodal-block{margin-bottom:18px;}
+.cmodal-label{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:.86rem;font-weight:800;padding:5px 14px;border-radius:999px;margin-bottom:9px;
+}
+.cmodal-label svg{width:17px;height:17px;}
+.lb-blue{background:var(--sky-bg);color:var(--sky);}
+.lb-blue svg{stroke:var(--sky);}
+.lb-red{background:var(--red-bg);color:var(--red-dark);}
+.lb-red svg{stroke:var(--red-dark);}
+.lb-green{background:var(--green-bg);color:var(--green);}
+.lb-green svg{stroke:var(--green);}
+.cmodal-quote{
+  background:var(--bg);border-left:4px solid var(--coral);
+  border-radius:0 14px 14px 0;padding:12px 15px;
+  font-size:.95rem;line-height:1.9;color:var(--text);
+}
+.cmodal-quote small{display:block;text-align:right;color:var(--muted);margin-top:4px;font-size:.8rem;}
+.cmodal-p{font-size:.95rem;line-height:1.95;margin-bottom:8px;}
+.cmodal-note{
+  font-size:.8rem;color:var(--muted);line-height:1.8;margin-top:14px;
+  border-top:1.5px dashed var(--line);padding-top:12px;
+}
+
+/* ---------- まとめ・チェックリスト ---------- */
+.score-box{
+  background:var(--sky-bg);border-radius:20px;padding:18px 18px 14px;margin-bottom:24px;
+}
+.score-box h3{
+  display:flex;align-items:center;gap:8px;
+  font-size:1.02rem;color:var(--navy);margin-bottom:8px;
+}
+.score-box h3 svg{width:22px;height:22px;stroke:var(--sky);}
+.score-box p{font-size:.95rem;line-height:1.9;}
+.checklist{display:grid;grid-template-columns:1fr;gap:10px;}
+.chk-group{
+  font-size:.9rem;font-weight:800;color:var(--amber-deep);
+  margin:14px 0 2px;letter-spacing:.03em;
+}
+.chk-group:first-child{margin-top:0;}
+.chk{
+  display:flex;align-items:center;gap:12px;
+  background:var(--bg);border:2px solid var(--line);border-radius:16px;
+  padding:12px 14px;cursor:pointer;font-size:.95rem;line-height:1.7;
+  transition:border-color .15s, background .15s;
+}
+.chk input{width:24px;height:24px;flex:0 0 24px;accent-color:var(--green);cursor:pointer;}
+.chk .art{
+  width:44px;height:44px;flex:0 0 44px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.chk .art svg{width:28px;height:28px;}
+.chk:has(input:checked){background:var(--green-bg);border-color:var(--green-border);}
+.chk-msg{
+  margin-top:16px;background:var(--amber-bg);border-radius:16px;
+  padding:14px 16px;font-size:.95rem;line-height:1.9;
+}
+details.finder{
+  margin-top:26px;background:var(--bg);border-radius:18px;
+  padding:4px 18px;border:1.5px solid var(--line);
+}
+details.finder summary{
+  cursor:pointer;font-size:.98rem;font-weight:700;color:var(--navy);
+  padding:12px 0;list-style-position:inside;
+}
+details.finder ul{padding:2px 0 8px 22px;font-size:.92rem;color:var(--text);}
+details.finder li{margin-bottom:7px;line-height:1.85;}
+details.finder p{font-size:.92rem;padding:0 0 14px;line-height:1.9;}
+
+/* ---------- CTA ---------- */
+.cta-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:24px 20px;margin-top:30px;text-align:center;
+}
+.cta-box h3{font-size:1.2rem;color:var(--navy);margin-bottom:8px;line-height:1.6;}
+.cta-box .cta-lead{font-size:.95rem;color:var(--muted);text-align:left;margin-bottom:14px;line-height:1.95;}
+.cta-box ul{list-style:none;text-align:left;margin-bottom:14px;}
+.cta-box ul li{
+  display:flex;gap:9px;align-items:flex-start;
+  font-size:.94rem;line-height:1.85;margin-bottom:6px;
+}
+.cta-box ul li svg{width:19px;height:19px;flex:0 0 19px;stroke:var(--mint);margin-top:6px;}
+.co{font-size:.98rem;font-weight:800;color:var(--navy);margin-top:18px;}
+.addr{font-size:.87rem;color:var(--muted);line-height:1.7;}
+.tip{font-size:.87rem;color:var(--amber-deep);margin-top:10px;}
+.cta-mini{
+  margin-top:18px;background:var(--bg);border:2px solid var(--amber-border);
+  border-radius:18px;padding:14px 16px;text-align:center;
+}
+.cta-mini p{font-size:.92rem;line-height:1.85;margin-bottom:10px;text-align:left;}
+.cta-mini a{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--white);border:2px solid var(--coral);
+  color:var(--coral-text);text-decoration:none;font-weight:800;font-size:.95rem;
+  border-radius:999px;padding:9px 20px;
+}
+.cta-mini a svg{width:18px;height:18px;stroke:var(--coral-text);}
+
+
+/* ---------- フッター免責 ---------- */
+footer.disclaimer{
+  padding:26px 16px 30px;max-width:900px;margin:0 auto;
+}
+footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
+
+@media print{
+  .hero-nav,.cta-mini{display:none !important;}
+  body{background:#fff;}
+}
+
+/* ---------- このページ独自：シミュレーターの合計表示 ---------- */
+.sim-total{
+  background:var(--navy-soft);border-radius:18px;
+  padding:15px 16px;margin-top:18px;text-align:center;
+}
+.sim-total .lead{font-size:.88rem;color:var(--muted);line-height:1.8;margin-bottom:6px;}
+.sim-total .big{
+  display:block;font-size:1.5rem;font-weight:800;color:var(--navy);line-height:1.6;
+}
+.sim-total .big b{color:var(--coral-text);font-size:1.9rem;}
+.sim-total .sub2{display:block;font-size:.88rem;color:var(--muted);line-height:1.8;margin-top:6px;}
+/* 使いみちの色分け（出ていくお金／戻るお金） */
+.tl-fill.back{background:linear-gradient(90deg,var(--mint),var(--green));}
+</style>
+</head>
+<body>
+
+<!-- ================= ヒーロー ================= -->
+<header class="hero">
+  <div class="wrap">
+    <div class="brand">
+      <span class="ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg>
+      </span>
+      <span>株式会社Office-M<small>会計を母体に、数字の「小さな字」まで読み解いてご案内します</small></span>
+    </div>
+    <div class="hero-flex">
+      <div class="hero-copy">
+        <h1>借りられる額と、<br><span class="nowrap"><span class="accent">返せる額</span>は、</span><span class="nowrap">別物です。</span></h1>
+        <p class="lead">住宅ローンの相談で、いちばん多い勘違いがこれです。「銀行が5,000万円まで貸せると言ってくれたので、そのくらいなら大丈夫だと思いました」——貸せる額は、銀行が<strong>貸し倒れない範囲</strong>を計算した数字です。あなたが<strong>30年後まで笑って暮らせる範囲</strong>を計算した数字ではありません。ここがずれたまま契約すると、返済そのものは続けられても、教育費・修繕費・老後資金のどこかが削られます。借りられる額の決まり方、返せる額の出し方、そして金利が上がった場合に何がどう変わるのか。○×クイズだけなら3分、ぜんぶ読むと10分ほどです。</p>
+        <nav class="hero-nav" aria-label="ページ内メニュー">
+          <a href="#sec1"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h9"/></svg>3つの線引き</a>
+          <a href="#sec2"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/><circle cx="12" cy="12" r="9"/></svg>○×ワナクイズ</a>
+          <a href="#sec3"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5h16M8 16V6M14 16v-6M20 16v-3"/></svg>返済額の体感</a>
+          <a href="#sec4"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0-3.3 11 3 3 0 0 1 1.1 1.9l.03.35h4.34l.03-.35a3 3 0 0 1 1.1-1.9A6 6 0 0 0 12 3Z"/><path d="M9.8 19.2h4.4M10.7 21.7h2.6"/></svg>あるある劇場</a>
+          <a href="#sec5"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="8" width="17" height="12.5" rx="2.5"/><path d="M3.5 12h17M12 8v12.5M12 8S8.5 7.6 7.2 6.3a2.1 2.1 0 0 1 3-3C11.5 4.6 12 8 12 8Zm0 0s3.5-.4 4.8-1.7a2.1 2.1 0 0 0-3-3C12.5 4.6 12 8 12 8Z"/></svg>逆転劇場（先に手を打った話）</a>
+          <a href="#sec6"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>35年という長さ</a>
+        </nav>
+      </div>
+      <div class="hero-scene" aria-hidden="true">
+        <svg viewBox="0 0 360 212">
+          <circle cx="312" cy="36" r="30" fill="#ffd9a8" opacity=".45"/>
+          <circle cx="312" cy="36" r="20" fill="#f7c34e"/>
+          <ellipse cx="62" cy="30" rx="26" ry="10" fill="#fff" opacity=".95"/>
+          <ellipse cx="92" cy="38" rx="18" ry="8" fill="#fff" opacity=".8"/>
+          <path d="M0 168h360v44H0Z" fill="#ffe9c7"/>
+          <path d="M0 176c40-10 90-12 150-8 60 4 120 4 210-6v50H0Z" fill="#b3e3b8"/>
+          <!-- 家 -->
+          <path d="M104 100 166 62l62 38" fill="none" stroke="#27587f" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="118" y="100" width="96" height="68" rx="6" fill="#fffdf8" stroke="#efe2d8" stroke-width="3"/>
+          <rect x="132" y="114" width="24" height="22" rx="4" fill="#c6e2f2"/>
+          <rect x="176" y="114" width="24" height="22" rx="4" fill="#c6e2f2"/>
+          <rect x="154" y="142" width="26" height="26" rx="3" fill="#f0846a"/>
+          <!-- 階段状の返済イメージ -->
+          <path d="M244 168v-14h18v-16h18v-18h18v-20h18" fill="none" stroke="#f0846a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="316" cy="100" r="6" fill="#c2451f"/>
+          <!-- 案内役 -->
+          <path d="M20 180c0-15 6.5-33 15-33s15 18 15 33v2H20Z" fill="#63b8dd"/>
+          <circle cx="35" cy="136" r="11" fill="#f7cdb4"/>
+          <path d="M24 134c1-9 5.5-13 11-13s10 4 11 13c-3.3-4-7-5.3-11-5.3s-7.7 1.3-11 5.3Z" fill="#5c4030"/>
+          <circle cx="31" cy="136.5" r="1.4" fill="#3d3028"/><circle cx="39" cy="136.5" r="1.4" fill="#3d3028"/>
+          <path d="M32 141c1.4 1.5 4 1.5 5.4 0" fill="none" stroke="#3d3028" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= セクション1：3つの線引き ================= -->
+<section id="sec1">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>1</i><span>契約の前の算数</span></span>
+        <h2>借りる前に、線を<span class="nowrap">3本引きます</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotLine" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">クイズの前に、算数の授業を3分だけ。住宅ローンでつまずくのは、たいてい<strong>この3本の線</strong>です。<strong>いくらまで借りられるのか</strong>、<strong>いくらまでなら返せるのか</strong>、そして<strong>金利のタイプで何が動くのか</strong>。この3つを押さえるだけで、「銀行がいくらまで貸してくれるか」という他人の物差しから自由になれます。</p>
+    </div>
+
+    <p class="qlink-lead">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/><circle cx="12" cy="12" r="9"/></svg>
+      この3つ、答えられますか？
+    </p>
+    <div class="qlinks">
+      <a class="qlink" href="#def-kariru">
+        <span class="pair">借りられる額<span class="vs">の</span>決まり方</span>
+        <span class="ask">審査は、いまの金利で計算されている？</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+      </a>
+      <a class="qlink" href="#def-kaeseru">
+        <span class="pair">返せる額<span class="vs">の</span>出し方</span>
+        <span class="ask">家にかかるのは、ローンだけ？</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+      </a>
+      <a class="qlink" href="#def-kinri">
+        <span class="pair">金利タイプ<span class="vs">で</span>動くもの</span>
+        <span class="ask">変動型は、上がったらすぐ返済額も上がる？</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+      </a>
+    </div>
+
+    <!-- ===== 1-1 借りられる額 ===== -->
+    <div class="def-block" id="def-kariru">
+      <h3 class="def-h"><span class="def-ico ic-blue" data-art="icBank" aria-hidden="true"></span>1本目：借りられる額は、貸す側の計算です</h3>
+      <p class="def-lead">住宅ローンの審査で使われるのは、おもに<strong>返済負担率</strong>という指標です。年収に対して、年間の返済額（住宅ローンだけでなく、車のローンやカードの分割・奨学金なども含めた合計）が何%を占めるか。この割合が基準以内なら「貸せます」となります。つまり<strong>あなたの暮らしの中身は、ほとんど見られていません</strong>。お子さんが何人いるか、その子たちが何年後に大学へ行くか、住んでいる地域の教育費がいくらか——審査の式には入っていません。</p>
+
+      <p class="age-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <span>基準の一例：全期間固定型の【フラット35】では、返済負担率の基準が<b>年収400万円未満は30%以下、年収400万円以上は35%以下</b>と公表されています（2026年8月時点）。民間の金融機関にもそれぞれ基準がありますが、公表していないところがほとんどです。
+        <small>出典：住宅金融支援機構【フラット35】の利用条件。基準は改定されることがあります。最新の内容は各金融機関にご確認ください。</small></span>
+      </p>
+
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="銀行が貸せる額は返済負担率で決まり、家計が返せる額は手取りからの引き算で決まる、という2つの円が一部しか重ならないことを示す図">
+          <text x="260" y="30" text-anchor="middle" font-size="19" font-weight="bold" fill="#1b3f5e">同じ「額」でも、出し方が違います</text>
+          <circle cx="185" cy="150" r="98" fill="#eaf1f7" stroke="#27587f" stroke-width="3"/>
+          <circle cx="335" cy="150" r="98" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="3" fill-opacity=".78"/>
+          <text x="130" y="120" text-anchor="middle" font-size="17" font-weight="bold" fill="#27587f">借りられる額</text>
+          <text x="130" y="146" text-anchor="middle" font-size="12.5" fill="#5c6874">年収と返済負担率</text>
+          <text x="130" y="166" text-anchor="middle" font-size="12.5" fill="#5c6874">勤続年数・他の借入</text>
+          <text x="130" y="186" text-anchor="middle" font-size="12.5" fill="#5c6874">審査金利で計算</text>
+          <text x="390" y="120" text-anchor="middle" font-size="17" font-weight="bold" fill="#2c7a4b">返せる額</text>
+          <text x="390" y="146" text-anchor="middle" font-size="12.5" fill="#2c7a4b">手取りと生活費</text>
+          <text x="390" y="166" text-anchor="middle" font-size="12.5" fill="#2c7a4b">教育費・修繕費</text>
+          <text x="390" y="186" text-anchor="middle" font-size="12.5" fill="#2c7a4b">老後までの残り年数</text>
+          <text x="260" y="140" text-anchor="middle" font-size="14" font-weight="bold" fill="#a63631">重なるのは</text>
+          <text x="260" y="162" text-anchor="middle" font-size="14" font-weight="bold" fill="#a63631">この幅だけ</text>
+          <text x="260" y="278" text-anchor="middle" font-size="13.5" fill="#5c6874">契約書に書くのは、重なった側の数字です</text>
+        </svg>
+        <p class="venn-cap">※審査では、実際に適用される金利ではなく<strong>より高い金利（いわゆる審査金利）で返済額を計算する</strong>ことがあります。何%で審査しているかを公表している金融機関はほとんどありません。つまり「審査に通った額」は、<strong>金融機関が安全と考える線</strong>であって、あなたの家計が安全と考える線ではありません。</p>
+      </div>
+
+      <div class="cards">
+        <div class="risk-card">
+          <div class="icon ic-blue" data-art="icBank" aria-hidden="true"></div>
+          <h3>年収倍率という見方</h3>
+          <span class="judge-chip maybe">目安であって上限ではない</span>
+          <p>「年収の何倍まで」という言い方をよく聞きます。実際に借りられる額は年収の<strong>7倍から8倍前後になることもある</strong>ため、この倍率だけを見て安心するのは危険です。倍率は結果であって、判断の材料ではありません。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-amber" data-art="icPercent" aria-hidden="true"></div>
+          <h3>返済負担率は額面で計算</h3>
+          <span class="judge-chip maybe">手取りではありません</span>
+          <p>返済負担率の分母になるのは、原則として<strong>額面の年収</strong>です。手取りは額面の75%から85%程度になることが多いので、額面で35%は<strong>手取りでは4割を超える</strong>ことがあります。この差が、住み始めてからの息苦しさになります。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-red" data-art="qCar" aria-hidden="true"></div>
+          <h3>他の借入も合算されます</h3>
+          <span class="judge-chip ng">枠を食っています</span>
+          <p>マイカーローン、カードの分割払い、リボ払い、奨学金の返済。これらも返済負担率の計算に入ります。<strong>先に整理しておくと、借りられる額も返せる額も変わります</strong>。カードのキャッシング枠が残っているだけで見られることもあります。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-green" data-art="icKazoku" aria-hidden="true"></div>
+          <h3>2人で借りると枠は増える</h3>
+          <span class="judge-chip maybe">増えるのは枠だけ</span>
+          <p>ペアローンや収入合算を使うと、借りられる額は大きくなります。ただし<strong>返す力が2倍になったわけではありません</strong>。片方が育休・時短・退職になったときに、その返済が続けられるか。枠が増えたときこそ、返せる額の線を引き直すタイミングです。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 1-2 返せる額 ===== -->
+    <div class="def-block" id="def-kaeseru">
+      <h3 class="def-h"><span class="def-ico ic-green" data-art="icWallet" aria-hidden="true"></span>2本目：返せる額は、引き算で出します</h3>
+      <p class="def-lead">返せる額は、掛け算では出ません。<strong>手取りから、暮らしに必要なものを順番に引いていって、最後に残ったところ</strong>が返済に回せる額です。しかも家を持つと、ローン以外の出費が新しく増えます。固定資産税、火災保険と地震保険、マンションなら管理費と修繕積立金、戸建てなら10年から15年ごとの外壁・屋根の修繕。これらを引かずに「毎月の返済額は家賃と同じくらいだから大丈夫」と考えると、確実に足りなくなります。</p>
+
+      <p class="age-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <span>忘れられがちな出費：家を買うときの<b>諸費用</b>（登記費用・保証料・事務手数料・印紙税・火災保険料・引っ越し・家具家電）は、物件価格の<b>数%から1割程度</b>になることがあります。ここを見込んでいないと、入居した月に貯金が底をつきます。
+        <small>金額は物件・金融機関・地域によって大きく変わります。目安としての幅であり、確定した数字ではありません。</small></span>
+      </p>
+
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="手取り収入から生活費、教育費、住まいの維持費、将来のための貯蓄を引いた残りが返済に回せる額であることを示す図">
+          <text x="260" y="28" text-anchor="middle" font-size="18" font-weight="bold" fill="#1b3f5e">「返せる額」のつくり方</text>
+          <rect x="24" y="46" width="140" height="86" rx="12" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="2.5"/>
+          <text x="94" y="76" text-anchor="middle" font-size="15" font-weight="bold" fill="#2c7a4b">手取り収入</text>
+          <text x="94" y="98" text-anchor="middle" font-size="12.5" fill="#2c7a4b">額面ではありません</text>
+          <text x="94" y="116" text-anchor="middle" font-size="12.5" fill="#2c7a4b">賞与は別に考える</text>
+          <text x="180" y="95" text-anchor="middle" font-size="26" font-weight="bold" fill="#c2451f">－</text>
+          <rect x="196" y="46" width="150" height="86" rx="12" fill="#fdf3e2" stroke="#8f6015" stroke-width="2.5"/>
+          <text x="271" y="72" text-anchor="middle" font-size="15" font-weight="bold" fill="#8f6015">暮らしの支出</text>
+          <text x="271" y="94" text-anchor="middle" font-size="12.5" fill="#8f6015">生活費・保険・通信</text>
+          <text x="271" y="112" text-anchor="middle" font-size="12.5" fill="#8f6015">教育費・車・帰省</text>
+          <text x="362" y="95" text-anchor="middle" font-size="26" font-weight="bold" fill="#c2451f">－</text>
+          <rect x="378" y="46" width="118" height="86" rx="12" fill="#e8f4fb" stroke="#24729f" stroke-width="2.5"/>
+          <text x="437" y="72" text-anchor="middle" font-size="15" font-weight="bold" fill="#24729f">住まいの維持</text>
+          <text x="437" y="94" text-anchor="middle" font-size="12.5" fill="#24729f">固定資産税・保険</text>
+          <text x="437" y="112" text-anchor="middle" font-size="12.5" fill="#24729f">修繕・管理費</text>
+          <path d="M260 140v22" stroke="#c2451f" stroke-width="3" stroke-linecap="round"/>
+          <path d="m252 156 8 10 8-10" fill="none" stroke="#c2451f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="110" y="172" width="300" height="52" rx="12" fill="#fdeee9" stroke="#c2453f" stroke-width="3"/>
+          <text x="260" y="204" text-anchor="middle" font-size="18" font-weight="bold" fill="#a63631">残ったところが「返せる額」</text>
+          <text x="260" y="250" text-anchor="middle" font-size="13.5" fill="#5c6874">貯蓄をゼロにして残した額は、返せる額ではありません</text>
+          <text x="260" y="274" text-anchor="middle" font-size="13.5" fill="#5c6874">手元に残す現金も、先に引いておきます</text>
+        </svg>
+        <p class="venn-cap">※引き算のいちばん最後に置いてしまいがちなのが<strong>貯蓄</strong>です。順番を逆にして、教育資金と老後資金と手元資金を先に確保し、そのうえで残った額を返済に充てる——この順番で計算した数字だけが、35年つきあえる金額になります。</p>
+      </div>
+
+      <div class="cards">
+        <div class="risk-card">
+          <div class="icon ic-amber" data-art="icZeimusho" aria-hidden="true"></div>
+          <h3>固定資産税・都市計画税</h3>
+          <span class="judge-chip maybe">毎年かかります</span>
+          <p>持ち家になると、毎年かかります。新築住宅には一定期間の減額措置がありますが、<strong>適用期限は年度ごとに見直されます</strong>し、期間が終われば税額は戻ります。「4年目から高くなった」というご相談は毎年あります。※個別の税額計算・申告については税理士にご確認ください。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-blue" data-art="icShuzen" aria-hidden="true"></div>
+          <h3>修繕費・管理費</h3>
+          <span class="judge-chip ng">積み立てが要ります</span>
+          <p>戸建てなら外壁・屋根・給湯器。マンションなら管理費と修繕積立金で、<strong>修繕積立金は年数とともに上がっていく計画になっていることが多い</strong>。長期修繕計画の書類は、購入前に必ず見せてもらってください。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-berry" data-art="icSchool" aria-hidden="true"></div>
+          <h3>教育費の山が来る時期</h3>
+          <span class="judge-chip ng">ローンと重なります</span>
+          <p>お子さんの高校・大学の時期は、家計にとっていちばん重い数年間です。<strong>ローンの返済がその山と重なるかどうか</strong>を、購入前に年表にしてみてください。何歳のときに何が重なるかは、いま分かります。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-green" data-art="qShield" aria-hidden="true"></div>
+          <h3>手元に残す現金</h3>
+          <span class="judge-chip ok">頭金より先に確保</span>
+          <p>頭金を厚くすると借入は減りますが、<strong>手元の現金がゼロになると、次の想定外に対応できません</strong>。生活費の半年分程度は残しておく、という考え方が広く言われています。まず残す額を決めてから、頭金を決める順番です。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 1-3 金利タイプ ===== -->
+    <div class="def-block" id="def-kinri">
+      <h3 class="def-h"><span class="def-ico ic-red" data-art="icPercent" aria-hidden="true"></span>3本目：金利タイプで、動くもの・動かないもの</h3>
+      <p class="def-lead">最初にお断りしておきます。<strong>このページでは、これから金利がどうなるかについては一切書きません。</strong>それは誰にも分からないからです。書けるのは、<strong>もし◯%上がったとしたら、あなたの返済額はどう変わるか</strong>という条件つきの計算だけ。そしてその計算こそが、金利タイプを選ぶときのいちばん確かな材料になります。「どちらが有利か」ではなく、「上がった場合でも耐えられるか」で選ぶ、ということです。</p>
+
+      <p class="age-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <span>いま多いのは変動型：住宅ローンを借りた人のうち、変動金利型を選んでいる人は<b>7割前後</b>という調査結果があります。多いから安心という意味ではありません。<b>多くの人が、金利が動く側にいる</b>という事実として読んでください。
+        <small>出典：住宅金融支援機構「住宅ローン利用者調査」の公表値にもとづく概数です。調査時期により変動します。</small></span>
+      </p>
+
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="変動型、固定期間選択型、全期間固定型の3つで、金利が見直されるタイミングと返済額が変わるタイミングが違うことを示す図">
+          <text x="260" y="26" text-anchor="middle" font-size="18" font-weight="bold" fill="#1b3f5e">3つのタイプで、何が動くのか</text>
+          <rect x="20" y="44" width="150" height="106" rx="12" fill="#fdeee9" stroke="#c2453f" stroke-width="2.5"/>
+          <text x="95" y="70" text-anchor="middle" font-size="15" font-weight="bold" fill="#a63631">変動型</text>
+          <text x="95" y="94" text-anchor="middle" font-size="12.5" fill="#5c6874">金利は年2回見直し</text>
+          <text x="95" y="112" text-anchor="middle" font-size="12.5" fill="#5c6874">返済額は5年ごと</text>
+          <text x="95" y="132" text-anchor="middle" font-size="12" fill="#a63631">という商品が多い</text>
+          <rect x="185" y="44" width="150" height="106" rx="12" fill="#fdf3e2" stroke="#8f6015" stroke-width="2.5"/>
+          <text x="260" y="70" text-anchor="middle" font-size="15" font-weight="bold" fill="#8f6015">固定期間選択型</text>
+          <text x="260" y="94" text-anchor="middle" font-size="12.5" fill="#5c6874">最初の3年・5年など</text>
+          <text x="260" y="112" text-anchor="middle" font-size="12.5" fill="#5c6874">その期間だけ固定</text>
+          <text x="260" y="132" text-anchor="middle" font-size="12" fill="#a63631">期間終了後に選び直す</text>
+          <rect x="350" y="44" width="150" height="106" rx="12" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="2.5"/>
+          <text x="425" y="70" text-anchor="middle" font-size="15" font-weight="bold" fill="#2c7a4b">全期間固定型</text>
+          <text x="425" y="94" text-anchor="middle" font-size="12.5" fill="#5c6874">完済まで金利は同じ</text>
+          <text x="425" y="112" text-anchor="middle" font-size="12.5" fill="#5c6874">返済額も変わらない</text>
+          <text x="425" y="132" text-anchor="middle" font-size="12" fill="#2c7a4b">当初金利は高めが一般的</text>
+          <text x="260" y="180" text-anchor="middle" font-size="15" font-weight="bold" fill="#1b3f5e">変動型の「返済額が5年変わらない」の中身</text>
+          <rect x="46" y="196" width="180" height="52" rx="10" fill="#eaf1f7"/>
+          <text x="136" y="218" text-anchor="middle" font-size="13" fill="#27587f">毎月払う金額</text>
+          <text x="136" y="238" text-anchor="middle" font-size="14" font-weight="bold" fill="#27587f">5年間そのまま</text>
+          <rect x="294" y="196" width="180" height="52" rx="10" fill="#fdeee9"/>
+          <text x="384" y="218" text-anchor="middle" font-size="13" fill="#a63631">その中の利息と元金</text>
+          <text x="384" y="238" text-anchor="middle" font-size="14" font-weight="bold" fill="#a63631">入れ替わります</text>
+          <text x="260" y="276" text-anchor="middle" font-size="13.5" fill="#5c6874">払う額が同じでも、元金の減り方は変わります</text>
+        </svg>
+        <p class="venn-cap">※変動型の多くには、<strong>5年間は毎月の返済額を変えない（5年ルール）</strong>、<strong>見直し後の返済額は直前の1.25倍までにとどめる（125%ルール）</strong>という仕組みがあります。ただし<strong>これらのルールが無い商品もあります</strong>。「うちのローンにあるのか」は、契約書と商品概要説明書で確認してください。ルールがある場合でも、増えた利息が消えるわけではなく<strong>後ろに繰り延べられる</strong>点は同じです。</p>
+      </div>
+
+      <div class="cards">
+        <div class="risk-card">
+          <div class="icon ic-red" data-art="icJikan" aria-hidden="true"></div>
+          <h3>5年ルールは猶予であって免除ではない</h3>
+          <span class="judge-chip ng">総額は増えます</span>
+          <p>返済額が据え置かれても、金利が上がった分だけ利息の割合が増え、元金の減りが遅くなります。据え置きの期間が終わったとき、あるいは最後の回に、<strong>そのしわ寄せがまとめて出てきます</strong>。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-amber" data-art="icStep" aria-hidden="true"></div>
+          <h3>未払利息という言葉</h3>
+          <span class="judge-chip ng">元金が減らない状態</span>
+          <p>金利の上がり方によっては、毎月の返済額を利息が上回ることがあります。この超えた分が<strong>未払利息</strong>です。払っているのに元金がまったく減らない状態で、契約によって扱いが異なります。約款の該当箇所は、契約前に読んでおいてください。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-green" data-art="icBalance" aria-hidden="true"></div>
+          <h3>全期間固定型の意味</h3>
+          <span class="judge-chip ok">返済額が確定します</span>
+          <p>完済までの返済額が最初から決まるので、教育費や老後資金の計画が立てやすくなります。<strong>一般に当初の金利は変動型より高めに設定されます</strong>。その差額を「計画が確定することの費用」と見るかどうかは、ご家庭の考え方次第です。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-blue" data-art="icDoc2" aria-hidden="true"></div>
+          <h3>借換えという選択肢</h3>
+          <span class="judge-chip maybe">諸費用と健康状態</span>
+          <p>途中でタイプを変える方法はありますが、<strong>借換えには新たに諸費用がかかり、団体信用生命保険にも入り直しになります</strong>。そのときに健康状態が変わっていると、借換えができないことがあります。あとで選び直せる、とは限りません。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>3本の線に共通するのは、<strong>「銀行が出した数字」と「あなたの家計が出す数字」がずれている</strong>ことです。貸せる額は貸す側の安全圏、返せる額は暮らす側の安全圏。どちらも正しい計算ですが、目的が違います。契約書に書くのは<strong>後者</strong>であるべきです。※住宅ローン控除や固定資産税など税金にかかわる部分は、個別の税額計算・申告については税理士にご確認ください。</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション2：○×クイズ ================= -->
+<section id="sec2" class="band round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>2</i><span>思い込みをチェック</span></span>
+        <h2>問題ない？危ない？　<span class="nowrap">ローンのワナ</span>クイズ8問</h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotQuiz" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">ここからが本番です。笑いどころもありますが、<strong>すべて実際の商品説明書や公表資料にある決まりごとがモデル</strong>。「問題ない」と思ったら○、「危ない」と思ったら×を押してください。全問正解できた方は、ぜひご家族にも教えてあげてください。</p>
+    </div>
+    <div class="quiz-shell">
+      <div id="quizPlay">
+        <div class="q-top">
+          <div class="q-count">質問 <span id="qNum">1</span> ／ 8</div>
+          <div class="dots" id="qDots" aria-hidden="true"></div>
+        </div>
+        <div class="q-body">
+          <div class="icon" id="qIcon" aria-hidden="true"></div>
+          <p id="qText"></p>
+        </div>
+        <div class="ans-row">
+          <button type="button" class="ans-btn yes" id="btnYes">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/></svg>
+            <span id="lblYes">問題ない</span>
+          </button>
+          <button type="button" class="ans-btn no" id="btnNo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            <span id="lblNo">危ない</span>
+          </button>
+        </div>
+        <div class="verdict" id="verdict" aria-live="polite">
+          <div class="verdict-head">
+            <span class="verdict-answer" id="vAnswer"></span>
+            <span class="result-chip" id="vChip"></span>
+          </div>
+          <p class="expl" id="vExpl"></p>
+          <div class="kv kv-wana"><b>ワナの正体：</b><span id="vWana"></span></div>
+          <div class="kv"><b>確認ポイント：</b><span id="vCheck"></span></div>
+        </div>
+        <button type="button" class="btn-primary" id="btnNext" style="display:none;">
+          次の質問へ
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+        <button type="button" class="btn-ghost" id="btnStopHere" style="display:none;">ここまでの結果を見る（残りはあとでも大丈夫です）</button>
+      </div>
+
+      <div class="quiz-done" id="quizDone">
+        <p class="score">クイズおつかれさまでした！　<span class="nowrap"><span id="doneTotal">8</span>問中 <span class="num" id="doneScore">0</span> 問正解</span></p>
+        <p class="cmt" id="doneCmt"></p>
+        <div class="wrong-list" id="wrongList" style="display:none;"></div>
+        <div data-cta-mini></div>
+        <button type="button" class="btn-ghost" id="btnMailSelf">この結果を自分（またはご家族）に送る</button>
+        <button type="button" class="btn-ghost" id="btnPrint">印刷して返済予定表と一緒に保管する</button>
+        <button type="button" class="btn-ghost" id="btnRetry">もう一度挑戦する</button>
+      </div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>クイズの「問題ない・危ない」は、一般的な商品の取扱いを前提とした例です。実際の条件は金融機関や商品によって異なり、契約書と商品概要説明書がすべてに優先します。「うちのローンはどうだろう」と思ったら、それが返済予定表を出すベストタイミングです。</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション3：返済額の体感 ================= -->
+<section id="sec3" class="band-sky round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>3</i><span>数字で確かめる</span></span>
+        <h2>もし金利が上がったら、<span class="nowrap">いくらに</span>なるのか</h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotCalc" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">もう一度お断りします。<strong>これから金利がどうなるかは、このページには書きません。</strong>誰にも分からないからです。ここでお見せするのは、<strong>もし◯%上がったとしたら、あなたの返済額がいくらになるのか</strong>という計算だけ。この数字を見て「それなら大丈夫」と思えるか、「それは厳しい」と思うか。判断の材料は、それで足ります。</p>
+    </div>
+
+    <p class="sec-lead">まず、同じ借入額・同じ期間でも<strong>金利が違うと返済額がどう変わるか</strong>を見ておきましょう。借入3,000万円・返済期間35年・元利均等返済・ボーナス返済なしで計算しています。これは金利の見通しではなく、<strong>条件を変えたときの計算結果</strong>です。</p>
+
+    <div class="type-table-box">
+      <table class="type-table" aria-label="借入3000万円35年のときに金利1.0パーセント、1.5パーセント、2.0パーセントで毎月返済額と総返済額がどう変わるかの比較表">
+        <thead>
+          <tr>
+            <th>3,000万円・35年</th>
+            <th>年1.0%<small>のとき</small></th>
+            <th>年1.5%<small>のとき</small></th>
+            <th>年2.0%<small>のとき</small></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>毎月の返済額</td>
+            <td><span class="mark-ok">約84,700円</span></td>
+            <td>約91,900円</td>
+            <td><span class="mark-ng">約99,400円</span></td>
+          </tr>
+          <tr>
+            <td>35年間の総返済額</td>
+            <td>約3,557万円</td>
+            <td>約3,858万円</td>
+            <td>約4,174万円</td>
+          </tr>
+          <tr>
+            <td>そのうち利息</td>
+            <td>約557万円</td>
+            <td>約858万円</td>
+            <td>約1,174万円</td>
+          </tr>
+          <tr>
+            <td>年収500万円での<small>※額面年収に対する返済負担率</small></td>
+            <td>約20.3%</td>
+            <td>約22.0%</td>
+            <td>約23.9%</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="venn-cap">※元利均等返済・ボーナス返済なし・借入時から完済まで同じ金利が続く前提での概算です。実際の変動型は5年ルールなどにより、返済額の増え方がこの表とは違う形になります。諸費用・保証料・団体信用生命保険の上乗せ分は含みません。</p>
+    </div>
+
+    <p class="sec-lead">そのうえで、ご自身の数字を入れてみてください。<strong>いまの毎月の返済額</strong>と、<strong>もし◯%上がった場合の返済額</strong>が、その場で並びます。</p>
+
+    <div class="sim-box">
+      <h3>体感シミュレーター「うちの毎月は、いくら？」</h3>
+      <p class="sub">借入額・期間・金利・年収を入れて、最後に「もし上がったら」の幅を選んでください。すべて、このページの説明用に単純化した概算です。</p>
+
+      <div class="sim-ctrl">
+        <label for="simAmt">借入額<output id="simAmtOut">3,000万円</output></label>
+        <input type="number" id="simAmt" value="3000" min="100" max="20000" step="100" inputmode="numeric" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;">
+        <p style="font-size:.8rem;color:#5c6874;margin-top:5px;">万円で入力してください（例：3000）</p>
+      </div>
+      <div class="sim-ctrl">
+        <label for="simYear">返済期間<output id="simYearOut">35年</output></label>
+        <input type="number" id="simYear" value="35" min="1" max="50" step="1" inputmode="numeric" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;">
+        <p style="font-size:.8rem;color:#5c6874;margin-top:5px;">年で入力してください（例：35）</p>
+      </div>
+      <div class="sim-ctrl">
+        <label for="simRate">いまの金利<output id="simRateOut">年1.00%</output></label>
+        <input type="number" id="simRate" value="1.0" min="0" max="10" step="0.05" inputmode="decimal" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;">
+        <p style="font-size:.8rem;color:#5c6874;margin-top:5px;">年率のパーセントで入力してください（例：1.0）</p>
+      </div>
+      <div class="sim-ctrl">
+        <label for="simIncome">額面の世帯年収<output id="simIncomeOut">500万円</output></label>
+        <input type="number" id="simIncome" value="500" min="0" max="9000" step="10" inputmode="numeric" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;">
+        <p style="font-size:.8rem;color:#5c6874;margin-top:5px;">万円で入力してください（手取りではなく額面）</p>
+      </div>
+      <div class="sim-ctrl">
+        <label for="simUp">もし金利が上がったら</label>
+        <select id="simUp" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;">
+          <option value="0.5">0.5%上がった場合</option>
+          <option value="1" selected>1.0%上がった場合</option>
+          <option value="1.5">1.5%上がった場合</option>
+          <option value="2">2.0%上がった場合</option>
+          <option value="3">3.0%上がった場合</option>
+        </select>
+        <p style="font-size:.8rem;color:#5c6874;margin-top:5px;">見通しではありません。「もしそうなったら」の計算です</p>
+      </div>
+
+      <div class="timeline" aria-hidden="true">
+        <div class="tl-track">
+          <div class="tl-fill" id="tlFill" style="width:20%;"></div>
+          <div class="tl-goal" style="left:50%;">額面年収の35%<br>（フラット35の基準上限）</div>
+        </div>
+        <div class="tl-labels"><span>返済負担率 0%</span><span>35%</span><span>70%</span></div>
+      </div>
+
+      <div class="sim-results" aria-live="polite">
+        <div class="sim-r" id="simR1">
+          <h4>いまの条件での返済負担率<small>額面年収に対する年間返済額</small></h4>
+          <span class="r-chip" id="simR1Chip"></span>
+          <p id="simR1Txt"></p>
+        </div>
+        <div class="sim-r" id="simR2">
+          <h4>もし上がった場合の毎月<small>同じ借入額・同じ期間で計算</small></h4>
+          <span class="r-chip" id="simR2Chip"></span>
+          <p id="simR2Txt"></p>
+        </div>
+        <div class="sim-r" id="simR3">
+          <h4>総返済額と利息<small>完済までずっと同じ金利という前提</small></h4>
+          <span class="r-chip" id="simR3Chip"></span>
+          <p id="simR3Txt"></p>
+        </div>
+      </div>
+
+      <div class="sim-total">
+        <span class="lead" id="simTotalLead">この条件なら</span>
+        <span class="big" id="simTotalBig"></span>
+        <span class="sub2" id="simTotalSub"></span>
+      </div>
+
+      <p class="venn-cap" style="margin-top:10px;">※元利均等返済・ボーナス返済なし・完済まで同じ金利が続く前提の概算です。保証料、事務手数料、団体信用生命保険の上乗せ金利、固定資産税、火災保険料、管理費・修繕積立金、繰上返済、住宅ローン控除は<strong>いずれも考慮していません</strong>。変動型の5年ルール・125%ルールも反映していません。「もし上がったら」の数値は将来の金利水準を予想したものではなく、条件を変えたときの計算結果にすぎません。実際の返済額は金融機関の返済予定表でご確認ください。</p>
+    </div>
+
+    <div class="mikane" style="margin-top:26px;">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+        この数字の、どこを見ればいいのか
+      </h3>
+      <ol>
+        <li><strong>上がった場合の毎月と、いまの毎月の差額。</strong>その差額を、<b>いまの家計から毎月ひねり出せるか</b>。ひねり出せるなら耐えられます。無理なら、借入額か期間か金利タイプのどれかを動かす話になります。</li>
+        <li><strong>返済負担率は、必ず手取りに置き換える。</strong>額面で20%でも、手取りで見れば25%前後になります。<b>実際に振り込まれている金額</b>で計算し直してください。</li>
+        <li><strong>教育費が重なる年に、いくら払っているか。</strong>返済額だけを見ても足りません。<b>お子さんが18歳になる年</b>に、返済と学費が同時に走ることを年表で確かめてください。</li>
+      </ol>
+      <p class="caution">
+        <strong>いちばん多いのは「返せなくなる」ではなく「削られる」</strong>
+        住宅ローンの返済が滞るご家庭は、実はそう多くありません。もっと静かに起こるのは、<b>返済を守るために他が削られる</b>ことです。教育費の選択肢が減る、修繕を先送りする、老後の積み立てが止まる。数年たってから「なんだかずっと余裕がない」という形で表に出てきます。契約の前に線を引いておけば、それは避けられます。
+      </p>
+    </div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>もう一度だけ。<strong>このページは、金利が今後どうなるかを予想していません。</strong>お見せしたのは「もしこうなったら、こうなる」という計算だけです。予想はできませんが、<strong>備えの計算はいまできます</strong>。できることのほうを、先にやっておきましょう。</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション4：あるある劇場 ================= -->
+<section id="sec4" class="band-blush round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>4</i><span>実話がモデルの寸劇集</span></span>
+        <h2>住宅ローンあるある劇場</h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotTheater" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">ご相談の場でよく伺うお話を、寸劇風にまとめました。笑えるのは他人事のうちです。気になる演目をタップしてご覧ください。</p>
+    </div>
+
+    <div class="case-grid" id="caseGrid"></div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>各演目は一般的な内容をもとにした創作例で、実在の個人・事案とは関係ありません。金額はいずれも「たとえば」の数字です。商品の条件は金融機関によって異なります。</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション5：逆転劇場 ================= -->
+<section id="sec5" class="band-mint round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>5</i><span>先に手を打った側の話</span></span>
+        <h2>逆転劇場〜知っていたから、<span class="nowrap">助かった〜</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotGift" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">ここまで「危ない」の話ばかりで、家を買うのが怖くなりかけていませんか。ご安心ください。住宅ローンでうまくいっているご家庭には、<strong>共通する手順</strong>があります。しかもそのほとんどが、<strong>契約前の30分でできること</strong>。知っているかどうかで、その後の30年が変わります。ここからは8つの手順です。</p>
+    </div>
+
+    <div class="model-note">
+      <strong>このページの金額の目安</strong>
+      <span class="mn-row">借入 <b>3,000万円</b>・返済期間 <b>35年</b>・元利均等返済・ボーナス返済なしを想定した概算です</span>
+      <span class="mn-note">※実際の返済額・効果は、金融機関、商品、金利、諸費用、ご家庭の状況によって変わります。金利の将来の水準を示すものではありません。</span>
+    </div>
+
+    <div class="case-grid" id="goodGrid"></div>
+
+    <div class="rule3-box">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg>
+        契約する前の「住宅ローン3か条」
+      </h3>
+      <ol>
+        <li><strong>上限ではなく、引き算で決める。</strong>手取りから生活費・教育費・住まいの維持費・貯蓄を引いた残りが、あなたの返済額です。審査額は参考情報にすぎません。</li>
+        <li><strong>上がった場合の数字を、先に見ておく。</strong>金利が今後どうなるかは分かりませんが、<b>もし1%上がったらいくらになるか</b>は今日分かります。その差額を出せるかどうかで、金利タイプを選びます。</li>
+        <li><strong>年表を1枚つくる。</strong>横軸に西暦、縦軸にご家族の年齢。そこへ返済額・教育費・修繕・車の買い替えを書き込むだけで、危ない年が浮かび上がります。この1枚が、いちばん役に立ちます。</li>
+      </ol>
+      <p class="rule3-note">※金額はいずれも一例です。商品の条件・適用の可否は金融機関と契約内容により異なります。税金にかかわる部分は税理士にご確認ください。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション6：35年という長さ ================= -->
+<section id="sec6" class="band-sky round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>6</i><span>数字の話をひとつだけ</span></span>
+        <h2>35年後の自分は、<span class="nowrap">何歳ですか</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotCal" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">最後に、数字の話をひとつだけ。住宅ローンでいちばん見落とされるのは、金利でも返済額でもなく<strong>年数</strong>です。35年は、お子さんが生まれてから独立して家庭を持つまでの長さ。その間ずっと同じ収入が続く前提で計算していないか、ここで一度だけ確かめてください。</p>
+    </div>
+
+    <div class="life-box">
+      <h3>同じ3,000万円でも、金利で総返済額はこう変わります</h3>
+      <p class="sub">借入3,000万円・返済期間35年・元利均等返済で計算した場合</p>
+      <svg viewBox="0 56 380 196" role="img" aria-label="借入3000万円35年で金利1.0パーセントなら総返済額が約3557万円、1.5パーセントなら約3858万円、2.0パーセントなら約4174万円になることを示す棒グラフ">
+        <path d="M18 170h344" stroke="#d9cfc4" stroke-width="2" stroke-linecap="round"/>
+        <rect x="42" y="112" width="46" height="58" rx="4" fill="#c6e2f2"/>
+        <text x="65" y="104" text-anchor="middle" font-size="13.5" font-weight="bold" fill="#24729f">約3,557万</text>
+        <text x="65" y="190" text-anchor="middle" font-size="12.5" fill="#5c6874">年1.0%</text>
+        <text x="65" y="206" text-anchor="middle" font-size="11" fill="#5c6874">毎月 約84,700円</text>
+        <rect x="152" y="98" width="46" height="72" rx="4" fill="#f7c34e"/>
+        <text x="175" y="90" text-anchor="middle" font-size="13.5" font-weight="bold" fill="#8f6015">約3,858万</text>
+        <text x="175" y="190" text-anchor="middle" font-size="12.5" fill="#5c6874">年1.5%</text>
+        <text x="175" y="206" text-anchor="middle" font-size="11" fill="#5c6874">毎月 約91,900円</text>
+        <rect x="262" y="83" width="46" height="87" rx="4" fill="#f0846a"/>
+        <text x="285" y="75" text-anchor="middle" font-size="13.5" font-weight="bold" fill="#c2451f">約4,174万</text>
+        <text x="285" y="190" text-anchor="middle" font-size="12.5" fill="#5c6874">年2.0%</text>
+        <text x="285" y="206" text-anchor="middle" font-size="11" fill="#a63631">毎月 約99,400円</text>
+        <path d="M100 120h40" stroke="#c2451f" stroke-width="2.5" stroke-dasharray="5 4"/>
+        <path d="m132 114 8 6-8 6" fill="none" stroke="#c2451f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="190" y="240" text-anchor="middle" font-size="13" font-weight="bold" fill="#a63631">これは予想ではなく、計算結果です</text>
+      </svg>
+      <p class="life-cap">※元利均等返済・ボーナス返済なし・完済まで同じ金利が続く前提の概算です。<strong>将来の金利の水準を示すものではありません</strong>。実際の変動型では5年ルールなどにより返済額の変わり方が異なり、諸費用・保証料・団体信用生命保険の上乗せ分は含んでいません。</p>
+
+      <div class="big3">
+        <span class="b"><span class="n">約14,700円</span><span class="l">1%上がった場合の毎月の差</span><span class="s">3,000万円・35年・1.0%→2.0%</span></span>
+        <span class="b"><span class="n">約617万円</span><span class="l">同じ条件での総額の差</span><span class="s">約3,557万円→約4,174万円</span></span>
+        <span class="b"><span class="n">420回</span><span class="l">35年の返済回数</span><span class="s">1回も休めない引き落としの数</span></span>
+      </div>
+    </div>
+
+    <h3 class="sub-h">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+      借りる年齢で、完済のかたちが変わります
+    </h3>
+    <p class="sub-lead">住宅ローンには<strong>完済時の年齢に上限</strong>が設けられているのが一般的です（80歳未満としている金融機関が多くあります）。何歳で借りるかによって、選べる期間そのものが変わります。</p>
+
+    <div class="age-cards">
+      <div class="age-card">
+        <p class="ttl"><span class="ico ic-green" data-art="icKey" aria-hidden="true"></span>35歳で借りる</p>
+        <span class="kind">35年で組める</span>
+        <div class="rows">
+          <p class="row"><span>完済時の年齢</span><b>70歳</b></p>
+          <p class="row"><span>毎月の返済額</span><b>約84,700円</b></p>
+        </div>
+        <p class="cmt">65歳で退職するとしたら、定年後に5年分の返済が残ります。その5年分を退職金で払うのか、繰上返済で先に消すのかを、いま決めておけます。</p>
+        <p class="src">※借入3,000万円・年1.0%・元利均等返済での概算</p>
+      </div>
+      <div class="age-card">
+        <p class="ttl"><span class="ico ic-amber" data-art="icJikan" aria-hidden="true"></span>45歳で借りる</p>
+        <span class="kind">35年だと80歳完済</span>
+        <div class="rows">
+          <p class="row"><span>完済時の年齢</span><b>80歳</b></p>
+          <p class="row"><span>定年後に残る</span><b>15年分</b></p>
+        </div>
+        <p class="cmt">完済時年齢の上限に触れることがあります。期間を短くすれば毎月の返済額が上がり、教育費のピークと重なりやすくなります。</p>
+        <p class="src">※完済時年齢の上限は金融機関により異なります</p>
+      </div>
+      <div class="age-card">
+        <p class="ttl"><span class="ico ic-red" data-art="icStep" aria-hidden="true"></span>55歳で借りる</p>
+        <span class="kind">期間が取れない</span>
+        <div class="rows">
+          <p class="row"><span>組める期間の目安</span><b>25年前後</b></p>
+          <p class="row"><span>毎月の返済額</span><b>約113,100円</b></p>
+        </div>
+        <p class="cmt">同じ3,000万円でも、期間が10年短くなるだけで毎月の返済額は約2万8,000円上がります。退職までの年数と返済期間を並べて見てください。</p>
+        <p class="src">※借入3,000万円・年1.0%・25年・元利均等返済での概算</p>
+      </div>
+    </div>
+
+    <div class="mikane">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5V9.2M12 9.2 7.6 5M12 9.2 16.4 5"/><circle cx="12" cy="15" r="8.2"/></svg>
+        だから、いまできることは3つだけ
+      </h3>
+      <ol>
+        <li><strong>手取りを数える。</strong>源泉徴収票の支払金額ではなく、<b>実際に振り込まれた金額</b>を12か月分。ここが全部の計算の出発点です。5分で終わります。</li>
+        <li><strong>上がった場合の毎月を出す。</strong>金利がどうなるかは分かりませんが、<b>1%上がったらいくらか</b>は今日分かります。その差額を出せるかどうかで、選ぶものが決まります。</li>
+        <li><strong>年表を1枚書く。</strong>西暦とご家族の年齢を並べて、返済・教育費・修繕・車を書き込む。<b>合計が飛び出す年</b>が、あなたが備えるべき年です。</li>
+      </ol>
+      <p class="caution">
+        <strong>そして、いちばん大事なこと</strong>
+        住宅ローンでご家族が疲れるのは、返済額そのものよりも<b>「そんな話は聞いていなかった」</b>という気持ちです。毎月いくら払っていて、何かあったらどうなって、どの年がきついのか。それが2人のあいだで共有されているご家庭は、金額がいくらであっても、たいてい穏やかに乗り切ります。住宅ローンの準備は、実は<b>会話の準備</b>から始まります。
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= まとめ ================= -->
+<section id="matome" class="band round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill plain">まとめ</span>
+        <h2>あなたの住宅ローンチェック</h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotCheck" aria-hidden="true"></span></div>
+    </div>
+    <p class="sec-lead">最後に、いまの状況を確認してみましょう。あてはまるもの・できたものをタップ（クリック）してください。</p>
+
+    <div class="score-box">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/><circle cx="12" cy="12" r="9"/></svg>
+        クイズの結果
+      </h3>
+      <div id="sumScore">
+        <p>まだクイズに挑戦していません。<a href="#sec2">②の○×クイズ</a>で、「問題ない・危ない」の思い込みをチェックしてみてください。</p>
+      </div>
+    </div>
+
+    <div class="checklist" id="checklist">
+      <p class="chk-group">今日おうちで数えられること</p>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkBank" aria-hidden="true"></span><span>実際に振り込まれている<strong>年間の手取り額</strong>を数えた（額面ではなく手取り）</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkHome" aria-hidden="true"></span><span><strong>毎月の返済額と残債</strong>を、返済予定表で確認した（これから借りる方は見積もりで）</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkReceipt" aria-hidden="true"></span><span>返済額のうち<strong>利息がいくらで元金がいくらか</strong>の内訳を見た</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkPc" aria-hidden="true"></span><span><strong>金利タイプ</strong>（変動・固定期間選択・全期間固定）が何か、契約書で確かめた</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkInvoice" aria-hidden="true"></span><span>固定資産税・火災保険・修繕積立を足した<strong>住まいの月額</strong>を計算した</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkPdf" aria-hidden="true"></span><span><strong>他の借入</strong>（車・カード分割・奨学金）の残高と毎月の返済額を書き出した</span></label>
+      <p class="chk-group">紙とペンがあればできること</p>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkBack" aria-hidden="true"></span><span>金利が<strong>1%上がった場合の毎月の返済額</strong>を計算してみた</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkPeople" aria-hidden="true"></span><span>西暦とご家族の年齢を並べた<strong>年表</strong>を1枚つくった</span></label>
+      <p class="chk-group">次に、誰かに聞くこと</p>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkShield" aria-hidden="true"></span><span>万一のときに<strong>残債がどうなるか</strong>（団体信用生命保険の内容）を確認した</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkAoiro" aria-hidden="true"></span><span>繰上返済と<strong>住宅ローン控除</strong>のどちらを優先するか、専門家に相談する予定がある</span></label>
+    </div>
+    <div class="chk-msg" id="chkMsg">
+      あてはまるものにチェックを入れてみてください。数えれば分かる項目と、今日ご家族に聞ける項目が混じっています。
+    </div>
+    <div data-cta-mini></div>
+
+    <details class="finder">
+      <summary>「何から数えればいいか分からない」も、よくあるご相談です</summary>
+      <ul>
+        <li>まずは<strong>返済予定表</strong>。借入時に金融機関から渡されている冊子か、インターネットバンキングで見られます。残債・毎月の返済額・利息と元金の内訳が全部ここにあります。</li>
+        <li>次に<strong>源泉徴収票と給与明細</strong>。額面と手取りの差が分かります。共働きの場合は、お二人分そろえてください。</li>
+        <li><strong>商品概要説明書</strong>には、5年ルールや125%ルールの有無、金利の見直し時期、繰上返済の手数料が書いてあります。契約時のファイルの中にあるはずです。</li>
+        <li>ぜんぶ揃わなくても大丈夫です。ざっくりした数字でも、返せる額の線がどのあたりかは判断できます。</li>
+      </ul>
+      <p>「もう借りてしまったから、いまさら」——これもよく聞くお言葉です。ですが、借りたあとにできることは意外とあります。返済方法の変更、借換え、繰上返済の時期の調整、保障の見直し。まずは現在地を数えるところからです。</p>
+    </details>
+
+    <details class="finder" style="margin-top:14px;">
+      <summary>「じゃあ、繰上返済すればいい？」——ここにもワナがあります</summary>
+      <ul>
+        <li>繰上返済で残高が減ると、<strong>住宅ローン控除の額も減ります</strong>。控除が受けられる期間中は、利息の減り方と控除の減り方を並べて比べる必要があります。個別の税額計算・申告については税理士にご確認ください。</li>
+        <li>返済期間が一定の年数を下回ると、<strong>住宅ローン控除そのものが受けられなくなる</strong>場合があります。期間短縮型を選ぶときは、この点を先に確認してください。</li>
+        <li>手元の現金を減らしてまで繰り上げると、<strong>次の想定外に対応できなくなります</strong>。繰上返済したお金は、原則として引き出せません。</li>
+        <li>金融機関によっては<strong>繰上返済に手数料がかかります</strong>。回数や方法で金額が変わることもあります。</li>
+      </ul>
+      <p>繰上返済は「早いほど効く」のは事実ですが、「早いほど良い」とは限りません。手元資金・控除・家族の予定を並べてから決める、この順番だけ守っていただければ大丈夫です。</p>
+    </details>
+
+    <div class="cta-box" id="soudan">
+      <h3>契約書にサインする前に、<span class="nowrap">30分だけ</span>数えてみませんか</h3>
+      <p class="cta-lead">このページの内容は、あくまで一般的なしくみの話。<strong>ご自宅の場合にどうなるか</strong>は、実際の収入・支出・ご家族の予定で決まります。こんなご相談をよくお受けしています。</p>
+      <ul>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>審査で出た額ではなく、うちの家計で返せる額を知りたい</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>金利が上がった場合に耐えられるか、数字で確かめたい</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>ローンと教育費が重なる年に、いくら足りないのかを見ておきたい</span></li>
+      </ul>
+      <p class="cta-lead">お時間の目安は30分ほど。資料が揃っていなくても大丈夫、揃えるところからお手伝いします。<strong>個別具体的な税務相談・税務書類の作成・税務代理は、税理士が対応します。</strong>いただいた個人情報は、ご相談への対応のみに使用し、ご本人の同意なく第三者に提供しません。</p>
+
+      <p class="co">株式会社Office-M</p>
+      <p class="addr">受付：平日 9:00〜17:00</p>
+      <p class="tip">返済予定表と源泉徴収票がお手元にあると、その場での試算がより早く進みます。</p>
+    </div>
+  </div>
+</section>
+
+<!-- 募集文書審査：未了。委託先保険会社の承認番号の要否を確認のうえ公開すること -->
+<footer class="disclaimer">
+  <p>本資料は、株式会社Office-Mが住宅ローンの一般的なしくみをご理解いただくために作成した情報提供資料です。記載内容は2026年8月時点の公表資料等にもとづく一般的な取扱いであり、実際の商品の条件・審査基準・適用金利は金融機関および商品によって異なります。<strong>本資料は、将来の金利水準・経済情勢について予測・見通しを示すものではありません。</strong>シミュレーターおよび本文中の「金利が上がった場合」の数値は、条件を変えて計算した結果を示すものであり、そのような状況が生じることを示唆するものではありません。結果はいずれも簡易な概算であり、実際の返済額は金融機関の返済予定表でご確認ください。</p>
+  <p style="margin-top:10px;">住宅ローン控除、固定資産税、都市計画税など税制にかかわる部分については、制度の内容および適用の可否が個別の事情により異なります。<strong>個別具体的な税務相談・税務書類の作成・税務代理は、税理士が対応します。</strong>個別の税額計算・申告については税理士または所轄の税務署にご確認ください。団体信用生命保険の保障内容・支払条件は保険会社および商品によって異なり、実際の取扱いは約款が優先します。本資料の内容によって生じた結果について、当社は責任を負いかねます。</p>
+  <p style="margin-top:10px;">主な参考：住宅金融支援機構【フラット35】の利用条件（返済負担率の基準・完済時年齢）、住宅金融支援機構「住宅ローン利用者調査」（金利タイプ別の利用割合）。返済額の計算は元利均等返済の一般的な計算式によります。制度・基準は改定されることがあります。最新の内容は各金融機関および公的機関の公表資料でご確認ください。</p>
+  <p style="margin-top:10px;">作成：株式会社Office-M（2026年8月）</p>
+</footer>
+<!-- ================= 演目詳細モーダル ================= -->
+<div class="cmodal" id="caseModal" aria-hidden="true">
+  <div class="cmodal-back" id="caseModalBack"></div>
+  <div class="cmodal-panel" role="dialog" aria-modal="true" aria-labelledby="caseModalTitle">
+    <div class="cmodal-head" id="caseModalHead">
+      <button type="button" class="cmodal-close" id="caseModalClose" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <div class="cmodal-ico" id="caseModalIco" aria-hidden="true"></div>
+      <div>
+        <span class="cmodal-chip" id="caseModalChip"></span>
+        <h3 class="cmodal-title" id="caseModalTitle"></h3>
+      </div>
+    </div>
+    <div class="cmodal-body">
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 15.5a2 2 0 0 1-2 2H8l-4 3.5v-15a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"/></svg>
+          <span id="caseModalLbl1">ご相談で伺ったお話（脚色あり）</span>
+        </div>
+        <blockquote class="cmodal-quote" id="caseModalStory"></blockquote>
+      </div>
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-red" id="caseModalLbl2Wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+          <span id="caseModalLbl2">何が起きたのか</span>
+        </div>
+        <div id="caseModalWhat"></div>
+      </div>
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-green">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
+          <span id="caseModalLbl3">こう確認すれば防げます</span>
+        </div>
+        <div id="caseModalHow"></div>
+      </div>
+      <div data-cta-mini></div>
+      <p class="cmodal-note">※演目は一般的な内容をもとにした創作例で、実在の個人・法人・事案とは関係ありません。税務の取扱いは事実関係により異なります。実際の判断は、顧問税理士または所轄の税務署にご確認ください。</p>
+    </div>
+  </div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- 案内役のイラスト ---------- */
+var SVG_GUIDE =
+  '<svg viewBox="0 0 64 64">' +
+  '<circle cx="32" cy="32" r="32" fill="#ffeee3"/>' +
+  '<path d="M8 64c0-13 11-20 24-20s24 7 24 20H8Z" fill="#f0846a"/>' +
+  '<rect x="27" y="39" width="10" height="11" rx="5" fill="#f7cdb4"/>' +
+  '<path d="M25 45l7 9 7-9 3.4 1.8L32 61 21.6 46.8Z" fill="#fff"/>' +
+  '<ellipse cx="32" cy="28" rx="16" ry="17" fill="#5c4030"/>' +
+  '<ellipse cx="32" cy="30" rx="12.5" ry="13.5" fill="#f7cdb4"/>' +
+  '<path d="M19.5 27c0-9 5.6-14.5 12.5-14.5S44.5 18 44.5 27c-1.6-3.6-4.2-5.7-7.2-6.6-2.6 2.4-7 3.8-10.9 3.2-1.4 1-2.4 2.1-2.9 3.4Z" fill="#5c4030"/>' +
+  '<circle cx="27" cy="30" r="1.6" fill="#3d3028"/><circle cx="37" cy="30" r="1.6" fill="#3d3028"/>' +
+  '<path d="M29.4 35.6c1.6 1.7 3.6 1.7 5.2 0" fill="none" stroke="#3d3028" stroke-width="1.6" stroke-linecap="round"/>' +
+  '</svg>';
+
+document.querySelectorAll('[data-guide]').forEach(function(el){ el.innerHTML = SVG_GUIDE; });
+
+/* ---------- スポット・アイコン ---------- */
+var S = 'fill="none" stroke-linecap="round" stroke-linejoin="round"';
+var ARTS = {
+  spotLine:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="6" y="16" width="22" height="32" rx="5" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="2.5"/>' +
+    '<rect x="36" y="16" width="22" height="32" rx="5" fill="#fdf3e2" stroke="#8f6015" stroke-width="2.5"/>' +
+    '<path d="M32 8v48" stroke="#c2451f" stroke-width="3" stroke-dasharray="5 4" stroke-linecap="round"/>' +
+    '<path d="m12 32 4 4 8-8" fill="none" stroke="#2c7a4b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M42 27l10 10M52 27l-10 10" stroke="#8f6015" stroke-width="3" stroke-linecap="round"/>' +
+    '</svg>',
+  spotQuiz:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="24" fill="#e8f4fb"/>' +
+    '<path d="M25 26.5c.6-4.2 3.6-6.6 7.4-6.6 4.2 0 7.4 2.8 7.4 6.8 0 3.4-2 5.2-4.4 6.8-2 1.3-2.9 2.3-2.9 4.5" fill="none" stroke="#24729f" stroke-width="3.4" stroke-linecap="round"/>' +
+    '<circle cx="32.4" cy="45" r="2.6" fill="#f0846a"/>' +
+    '</svg>',
+  spotCalc:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="14" y="6" width="36" height="52" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<rect x="20" y="12" width="24" height="12" rx="4" fill="#27587f"/>' +
+    '<path d="M24 18h16" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>' +
+    '<circle cx="24" cy="32" r="3.6" fill="#c6e2f2"/><circle cx="32" cy="32" r="3.6" fill="#c6e2f2"/><circle cx="40" cy="32" r="3.6" fill="#c6e2f2"/>' +
+    '<circle cx="24" cy="42" r="3.6" fill="#c6e2f2"/><circle cx="32" cy="42" r="3.6" fill="#c6e2f2"/><circle cx="40" cy="42" r="3.6" fill="#f7c34e"/>' +
+    '<circle cx="24" cy="51" r="3.6" fill="#c6e2f2"/><circle cx="32" cy="51" r="3.6" fill="#c6e2f2"/><circle cx="40" cy="51" r="3.6" fill="#f0846a"/>' +
+    '</svg>',
+  spotTheater:
+    '<svg viewBox="0 0 64 64">' +
+    '<path d="M8 10h48v8c0 4-3 7-7 7H15c-4 0-7-3-7-7Z" fill="#c2453f"/>' +
+    '<path d="M10 14c4 22 4 30 3 40h8c-2-12-1-24 3-40Z" fill="#a63631"/>' +
+    '<path d="M54 14c-4 22-4 30-3 40h-8c2-12 1-24-3-40Z" fill="#a63631"/>' +
+    '<circle cx="32" cy="38" r="13" fill="#ffeee3"/>' +
+    '<circle cx="27.5" cy="35.5" r="1.8" fill="#3d3028"/><circle cx="36.5" cy="35.5" r="1.8" fill="#3d3028"/>' +
+    '<path d="M27 42c3 3 7 3 10 0" fill="none" stroke="#3d3028" stroke-width="2" stroke-linecap="round"/>' +
+    '</svg>',
+  spotGift:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="8" y="24" width="48" height="34" rx="6" fill="#fffdf8" stroke="#c3e5d3" stroke-width="2.5"/>' +
+    '<rect x="8" y="24" width="48" height="12" rx="6" fill="#4fbf9b"/>' +
+    '<rect x="28" y="24" width="8" height="34" fill="#2c7a4b"/>' +
+    '<path d="M32 24s-6-.7-8.5-3.2a3.6 3.6 0 0 1 5.1-5.1C31.1 18.2 32 24 32 24Z" fill="#f7c34e"/>' +
+    '<path d="M32 24s6-.7 8.5-3.2a3.6 3.6 0 0 0-5.1-5.1C32.9 18.2 32 24 32 24Z" fill="#f7c34e"/>' +
+    '<circle cx="47" cy="15" r="6.5" fill="#f0846a"/>' +
+    '<path d="M44.5 15h5M47 12.5v5" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>' +
+    '</svg>',
+  spotCal:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="8" y="12" width="48" height="44" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<path d="M8 24h48" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<rect x="8" y="12" width="48" height="12" rx="7" fill="#27587f"/>' +
+    '<path d="M20 6v10M44 6v10" stroke="#1b3f5e" stroke-width="4" stroke-linecap="round"/>' +
+    '<rect x="15" y="30" width="8" height="7" rx="2" fill="#c6e2f2"/>' +
+    '<rect x="28" y="30" width="8" height="7" rx="2" fill="#f0846a"/>' +
+    '<rect x="41" y="30" width="8" height="7" rx="2" fill="#c6e2f2"/>' +
+    '<rect x="15" y="42" width="8" height="7" rx="2" fill="#f7c34e"/>' +
+    '<rect x="28" y="42" width="8" height="7" rx="2" fill="#c6e2f2"/>' +
+    '<rect x="41" y="42" width="8" height="7" rx="2" fill="#f0846a"/>' +
+    '</svg>',
+  spotCheck:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="12" y="10" width="40" height="46" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<rect x="24" y="5" width="16" height="10" rx="4" fill="#27587f"/>' +
+    '<path d="m19 26 4 4 7-8" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<rect x="34" y="25" width="12" height="3.5" rx="1.75" fill="#d9cfc4"/>' +
+    '<path d="m19 40 4 4 7-8" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<rect x="34" y="39" width="12" height="3.5" rx="1.75" fill="#d9cfc4"/>' +
+    '</svg>',
+
+  icKousai:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<path d="M10 12v7a5 5 0 0 0 10 0v-7M15 24v14"/>' +
+    '<path d="M33 12c-3 0-5 3-5 8s2 6 5 6 5-1 5-6-2-8-5-8ZM33 26v12"/>' +
+    '<path d="M9 42h12M27 42h12"/>' +
+    '</svg>',
+  icKaigi:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<circle cx="11" cy="12" r="4.5"/><circle cx="37" cy="12" r="4.5"/>' +
+    '<path d="M4 24c0-4 3.2-6.5 7-6.5s7 2.5 7 6.5M30 24c0-4 3.2-6.5 7-6.5s7 2.5 7 6.5"/>' +
+    '<ellipse cx="24" cy="25" rx="7" ry="2.6"/>' +
+    '<path d="M5 29h38M11 29v11M37 29v11"/>' +
+    '</svg>',
+  icHitori:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<circle cx="24" cy="11" r="5"/>' +
+    '<path d="M16 22c0-3.4 3.6-5 8-5s8 1.6 8 5"/>' +
+    '<path d="M10 29h28c0 6-6 10-14 10s-14-4-14-10Z"/>' +
+    '<path d="M8 42h32"/>' +
+    '</svg>',
+  icShain:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<circle cx="12" cy="14" r="4.5"/><circle cx="24" cy="11" r="4.5"/><circle cx="36" cy="14" r="4.5"/>' +
+    '<path d="M4 26c0-3.6 3.6-6 8-6s8 2.4 8 6M16 24c0-3.6 3.6-6 8-6s8 2.4 8 6M28 26c0-3.6 3.6-6 8-6s8 2.4 8 6"/>' +
+    '<path d="M8 34h32v6a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2Z"/>' +
+    '</svg>',
+  icShuzen:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M29 8a8 8 0 0 0-9.6 10.6L8 30v8h8l11.4-11.4A8 8 0 0 0 38 17l-6 3-4-4 3-6a8 8 0 0 0-2-2Z"/>' +
+    '<path d="m13 33 2 2"/>' +
+    '</svg>',
+  icPaint:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<rect x="8" y="8" width="24" height="10" rx="3"/>' +
+    '<path d="M32 13h6a3 3 0 0 1 3 3v5a3 3 0 0 1-3 3H24v6"/>' +
+    '<rect x="19" y="30" width="10" height="12" rx="3"/>' +
+    '</svg>',
+  icUpgrade:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<rect x="7" y="26" width="10" height="14" rx="2"/>' +
+    '<rect x="19" y="18" width="10" height="22" rx="2"/>' +
+    '<rect x="31" y="8" width="10" height="32" rx="2"/>' +
+    '<path d="M6 44h36"/>' +
+    '</svg>',
+  icBuild:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M8 42V16l16-9 16 9v26"/>' +
+    '<path d="M6 42h36"/>' +
+    '<rect x="15" y="22" width="7" height="7" rx="1.5"/><rect x="26" y="22" width="7" height="7" rx="1.5"/>' +
+    '<path d="M19 42v-8h10v8"/>' +
+    '</svg>',
+  icGaichu:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<rect x="6" y="16" width="36" height="22" rx="4"/>' +
+    '<path d="M18 16v-3a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v3"/>' +
+    '<path d="M6 24h36M20 27h8"/>' +
+    '</svg>',
+  icJikan:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<circle cx="24" cy="25" r="15"/>' +
+    '<path d="M24 16v9l6 4"/>' +
+    '<path d="M17 7h14"/>' +
+    '</svg>',
+  icDoc2:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<rect x="11" y="6" width="26" height="36" rx="4"/>' +
+    '<path d="M17 16h14M17 23h14M17 30h8"/>' +
+    '</svg>',
+  icKazoku:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.3">' +
+    '<circle cx="15" cy="14" r="5"/><circle cx="33" cy="14" r="5"/>' +
+    '<path d="M6 30c0-5 4-8 9-8s9 3 9 8M24 30c0-5 4-8 9-8s9 3 9 8"/>' +
+    '<circle cx="24" cy="30" r="4"/>' +
+    '<path d="M17 42c0-4 3-6 7-6s7 2 7 6"/>' +
+    '</svg>',
+  icZeimusho:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.3">' +
+    '<path d="M6 18 24 8l18 10"/>' +
+    '<path d="M9 18v18M17 18v18M31 18v18M39 18v18"/>' +
+    '<path d="M5 42h38M8 36h32"/>' +
+    '</svg>',
+  icCity:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.3">' +
+    '<rect x="7" y="14" width="16" height="28" rx="2"/>' +
+    '<rect x="25" y="22" width="16" height="20" rx="2"/>' +
+    '<path d="M12 20h6M12 27h6M12 34h6M30 28h6M30 35h6"/>' +
+    '<path d="M5 42h38"/>' +
+    '</svg>',
+  icHoken:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M24 6 9 11v11c0 9.5 6.4 17.4 15 19.6 8.6-2.2 15-10.1 15-19.6V11L24 6Z"/>' +
+    '<path d="M24 17v12M18 23h12"/>' +
+    '</svg>',
+
+  qFood:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<circle cx="24" cy="24" r="9.5"/><circle cx="24" cy="24" r="4.5"/>' +
+    '<path d="M8 8v8a3 3 0 0 0 6 0V8M11 16v24"/>' +
+    '<path d="M40 8c-3 1.2-5 4.6-5 9s2 5 5 5M40 8v32"/>' +
+    '</svg>',
+  qCar:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M8 30v6h5M40 30v6h-5"/>' +
+    '<path d="M6 30l3-10a4 4 0 0 1 3.8-2.8h22.4A4 4 0 0 1 39 20l3 10Z"/>' +
+    '<circle cx="14" cy="30" r="2.4"/><circle cx="34" cy="30" r="2.4"/>' +
+    '<path d="M20 8h8M24 4v8" stroke-width="2.8"/>' +
+    '</svg>',
+  qDock:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<path d="M14 7v9a8 8 0 0 0 16 0V7"/>' +
+    '<path d="M22 24v6a8 8 0 0 0 16 0v-4"/>' +
+    '<circle cx="38" cy="22" r="4"/>' +
+    '<path d="M10 7h8M26 7h8"/>' +
+    '</svg>',
+  qHouse:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M6 22 24 8l18 14"/>' +
+    '<path d="M10 20v20h28V20"/>' +
+    '<path d="M24 20v20" stroke-dasharray="4 3"/>' +
+    '<path d="M14 27h6M28 27h6"/>' +
+    '</svg>',
+  qPc:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<rect x="9" y="10" width="30" height="21" rx="3"/>' +
+    '<path d="M5 36h38l-3 4H8Z"/>' +
+    '</svg>',
+  qSuit:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M18 6h12l-6 8Z"/>' +
+    '<path d="M24 14 21 42h6Z"/>' +
+    '<path d="M18 6 9 12v30h8M30 6l9 6v30h-8"/>' +
+    '</svg>',
+  qShield:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<path d="M24 5 8 11v12c0 10 6.8 18.5 16 21 9.2-2.5 16-11 16-21V11L24 5Z"/>' +
+    '<path d="m18 18 6 8 6-8M24 26v9M19.5 28.5h9M19.5 32.5h9"/>' +
+    '</svg>',
+  qYen:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<circle cx="24" cy="24" r="17"/>' +
+    '<path d="m17 14 7 10 7-10M24 24v10M18.5 26.5h11M18.5 31.5h11"/>' +
+    '</svg>',
+  qInvoice:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<path d="M11 6h26v36l-4.3-3-4.4 3-4.3-3-4.4 3-4.3-3-4.3 3Z"/>' +
+    '<path d="M17 15h14M17 22h14M17 29h8"/>' +
+    '</svg>',
+  qTruck:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<path d="M4 12h22v22H4Z"/>' +
+    '<path d="M26 20h9l7 7v7h-16Z"/>' +
+    '<circle cx="14" cy="37" r="4"/><circle cx="34" cy="37" r="4"/>' +
+    '</svg>',
+  qPlane:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M24 5c2.5 0 4 4 4 10v6l14 8v4l-14-4v8l5 4v3l-9-2-9 2v-3l5-4v-8l-14 4v-4l14-8v-6c0-6 1.5-10 4-10Z"/>' +
+    '</svg>',
+  qSeed:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<path d="M24 42V20"/>' +
+    '<path d="M24 20c0-7 5-12 12-12 0 7-5 12-12 12ZM24 26c0-6-4-10-10-10 0 6 4 10 10 10Z"/>' +
+    '<path d="M12 42h24"/>' +
+    '</svg>',
+  qTrash:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M9 13h30M18 13V9a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v4"/>' +
+    '<path d="M13 13l2 26a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3l2-26"/>' +
+    '<path d="M20 20v15M28 20v15"/>' +
+    '</svg>',
+
+  chkReceipt:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2451f" stroke-width="2.3">' +
+    '<path d="M11 6h26v36l-4.3-3-4.4 3-4.3-3-4.4 3-4.3-3-4.3 3Z"/>' +
+    '<path d="M17 16h14M17 24h14M17 31h8"/>' +
+    '</svg>',
+  chkHome:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<path d="M6 22 24 8l18 14"/><path d="M10 20v20h28V20"/><path d="M24 20v20" stroke-dasharray="4 3"/>' +
+    '</svg>',
+  chkPeople:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.3">' +
+    '<circle cx="15" cy="15" r="5"/><circle cx="33" cy="15" r="5"/>' +
+    '<path d="M6 33c0-5 4-8 9-8s9 3 9 8M24 33c0-5 4-8 9-8s9 3 9 8"/>' +
+    '</svg>',
+  chkPc:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.3">' +
+    '<rect x="9" y="10" width="30" height="21" rx="3"/><path d="M5 36h38l-3 4H8Z"/>' +
+    '</svg>',
+  chkPdf:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.3">' +
+    '<path d="M13 6h16l8 8v28a2 2 0 0 1-2 2H13a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"/>' +
+    '<path d="M29 6v9h8"/><path d="M17 26h12M17 33h8"/>' +
+    '</svg>',
+  chkInvoice:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<rect x="7" y="12" width="34" height="24" rx="3"/>' +
+    '<path d="M12 18v12M17 18v12M22 18v12M27 18v12M32 18v12M37 18v12"/>' +
+    '</svg>',
+  chkBank:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.3">' +
+    '<path d="M6 19 24 9l18 10"/><path d="M11 19v17M20 19v17M28 19v17M37 19v17"/><path d="M6 41h36"/>' +
+    '</svg>',
+  chkAoiro:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#27587f" stroke-width="2.3">' +
+    '<rect x="10" y="7" width="28" height="34" rx="4"/>' +
+    '<path d="m17 22 4 4 10-10"/><path d="M17 33h14"/>' +
+    '</svg>',
+  chkShield:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.3">' +
+    '<path d="M24 6 10 11v11c0 9 6 16.5 14 18.7C32 38.5 38 31 38 22V11L24 6Z"/>' +
+    '<path d="m18 22 6 6 6-8"/>' +
+    '</svg>',
+  chkBack:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.3">' +
+    '<path d="M9 24a15 15 0 1 0 4.4-10.6"/>' +
+    '<path d="M8 8v8h8"/><path d="M24 17v8l6 4"/>' +
+    '</svg>',
+  icKey:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<circle cx="16" cy="18" r="9"/>' +
+    '<path d="M22.5 24.5 40 42M34 36l-5 5M38 40l-4 4"/>' +
+    '</svg>',
+  icBank:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M6 20 24 8l18 12"/>' +
+    '<path d="M10 20v18M18 20v18M30 20v18M38 20v18"/>' +
+    '<path d="M6 42h36"/>' +
+    '</svg>',
+  icWallet:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<rect x="7" y="13" width="34" height="26" rx="5"/>' +
+    '<path d="M7 21h34"/>' +
+    '<circle cx="33" cy="30" r="2.6"/>' +
+    '<path d="M12 13V9a2 2 0 0 1 2.6-1.9L36 13"/>' +
+    '</svg>',
+  icPercent:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.6">' +
+    '<circle cx="15" cy="15" r="6"/><circle cx="33" cy="33" r="6"/>' +
+    '<path d="M36 12 12 36"/>' +
+    '</svg>',
+  icSchool:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<path d="M4 18 24 9l20 9-20 9Z"/>' +
+    '<path d="M13 23v11c0 3 5 5.5 11 5.5S35 37 35 34V23"/>' +
+    '<path d="M42 19v11"/>' +
+    '</svg>',
+  icBalance:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M24 8v32M14 40h20M10 14h28"/>' +
+    '<circle cx="24" cy="10" r="2.6"/>' +
+    '<path d="M10 14 4 27h12ZM38 14l-6 13h12Z"/>' +
+    '</svg>',
+  icStep:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#a85c12" stroke-width="2.4">' +
+    '<path d="M6 40h10V29h10V18h10V8h6"/>' +
+    '<path d="M6 40h36"/>' +
+    '</svg>',
+};
+document.querySelectorAll('[data-art]').forEach(function(el){
+  var key = el.getAttribute('data-art');
+  if(ARTS[key]) el.innerHTML = ARTS[key];
+});
+
+/* ---------- ミニCTA ---------- */
+var CTA_MINI =
+  '<div class="cta-mini"><p>ご自宅の返済予定表と源泉徴収票があれば、その場で「返せる額」を一緒に数えられます。お気軽にどうぞ。</p>' +
+  '<a href="#soudan">' +
+  '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="m3 7 9 6 9-6"/></svg>' +
+  '無料で相談してみる</a></div>';
+document.querySelectorAll('[data-cta-mini]').forEach(function(el){ el.innerHTML = CTA_MINI; });
+
+/* ---------- セクション2：○×クイズ ---------- */
+/* a: true = 問題ない（○が正解）, false = 危ない（×が正解） */
+var QUIZ = [
+  {
+    icon:'icBank', a:false,
+    q:'審査に通った上限まで借りても、家計としては問題ない？',
+    expl:'そうとは限りません。審査で見られているのは主に返済負担率、つまり額面年収に対する年間返済額の割合です。お子さんが何人いるか、その子たちが何年後に大学へ行くか、10年後に屋根を直すのにいくらかかるか。こうした事情は審査の式に入っていません。銀行が計算しているのは、貸したお金が返ってくる可能性であって、あなたの家計が30年後まで穏やかであるかどうかではありません。上限は目的地ではなく、単なるフェンスの位置です。',
+    wana:'審査に通ると、第三者のお墨付きをもらった気持ちになる。審査は家計の健康診断ではありません。',
+    check:'審査で提示された上限額と、手取りから引き算して出した返せる額。その2つの差が何万円あるか。'
+  },
+  {
+    icon:'icPercent', a:false, yes:'すぐ上がる', no:'すぐには上がらない',
+    q:'変動金利型は、金利が見直されたらその月から毎月の返済額もすぐ上がる？',
+    expl:'多くの商品では、すぐには上がりません。金利そのものは年2回見直されることが一般的ですが、毎月の返済額は5年間据え置かれる仕組み、いわゆる5年ルールを備えた商品が多いためです。ただし、これは免除ではなく先送りです。据え置かれているあいだ、返済額のうち利息の割合が増えて元金の減りが遅くなります。そして注意すべきなのは、5年ルールや125%ルールが無い商品も実際にあるということ。あるかないかは、契約書と商品概要説明書に書いてあります。',
+    wana:'ルールがあることを知って安心し、そのルールが自分の契約にあるかどうかを確認しない人が多い。',
+    check:'ご自身のローンに5年ルールと125%ルールがあるかどうか。商品概要説明書のどこに書いてあるか。'
+  },
+  {
+    icon:'icStep', a:false, yes:'増えない', no:'増える',
+    q:'返済額が5年間そのままなら、金利が上がっても最終的に払う総額は増えない？',
+    expl:'増えます。据え置かれるのは毎月払う金額であって、発生する利息そのものではありません。金利が上がれば利息の額は増え、同じ返済額の中で利息が占める割合が大きくなり、そのぶん元金の減りが遅くなります。減らなかった元金には、翌月も利息がつきます。据え置きが終わったときの返済額が上がるか、それでも足りなければ最終回にまとめて残るか。どちらにしても、総額としては増えます。5年ルールは、家計が身構えるための時間を稼ぐ仕組みだと考えてください。',
+    wana:'毎月の支払額が変わらないことを、負担が変わらないことだと読み替えてしまう。',
+    check:'返済予定表で、いまの返済額のうち利息がいくらで元金がいくらか。この内訳は毎回変わります。'
+  },
+  {
+    icon:'qYen', a:true, yes:'超えている', no:'超えていない',
+    q:'住宅ローンを借りた人のうち、変動金利型を選んでいる人は半分を超えている？',
+    expl:'超えています。住宅金融支援機構の利用者調査では、変動金利型を選んだ人の割合は7割前後という結果が公表されています。ただし、これは多数派が正しいという意味ではまったくありません。読み取るべきは、多くのご家庭が金利の動く側に立っている、という事実のほうです。どちらのタイプが有利かは、この先の金利がどうなるか次第で、それは誰にも分かりません。だから比べるべきなのは有利不利ではなく、上がった場合に自分の家計が耐えられるかどうか。この問いには、いま答えを出せます。',
+    wana:'多くの人が選んでいるものは安全だと感じてしまう。人数は、自分の家計の耐久力とは無関係です。',
+    check:'いまの金利が1%上がったとしたら、毎月の返済額がいくらになるか。3のシミュレーターで出せます。'
+  },
+  {
+    icon:'qShield', a:true, yes:'任意', no:'必須',
+    q:'全期間固定型のフラット35は、団体信用生命保険への加入が任意？',
+    expl:'任意です。多くの民間の住宅ローンでは団体信用生命保険への加入が借入の条件になっていますが、フラット35では加入するかどうかを選べます。健康状態の理由で団信に入れない方でも借りられる、という点が大きな特徴です。ただし加入しない場合、借りた方が亡くなっても残債は消えません。残されたご家族が返し続けるか、家を売るかという話になります。加入しない選択をするなら、そのぶんの死亡保障を別に用意しておく必要があります。',
+    wana:'団信は住宅ローンについてくるものだと思い込んでいると、任意加入だったことに後で気づく。',
+    check:'ご自身のローンで団信に入っているかどうか。入っている場合、どんなときに残債が消えるのか。'
+  },
+  {
+    icon:'icZeimusho', a:true, yes:'減る', no:'減らない',
+    q:'住宅ローン控除は年末残高をもとに計算される。繰上返済で残高を減らすと、控除額も減る？',
+    expl:'減ります。住宅ローン控除は、その年の年末時点のローン残高に一定の率を掛けて計算する仕組みです。繰上返済で残高を減らせば、その年以降の控除額も小さくなります。また、繰上返済によって返済期間が一定年数を下回ると、控除そのものが受けられなくなる場合があります。だから繰上返済は、利息の減り方と控除の減り方の両方を並べて考えるものです。どちらが大きいかは、金利、残高、残り年数、ご自身の所得によって変わります。個別の税額計算については税理士にご確認ください。',
+    wana:'繰上返済は早いほど良い、と単純に覚えてしまう。手元の現金が減るという面も一緒に見る必要があります。',
+    check:'控除が受けられる残りの年数と、繰上返済したい金額。順番を決めるだけで結果が変わります。'
+  },
+  {
+    icon:'icKazoku', a:false,
+    q:'ペアローンなら2人で返すので、片方が働けなくなっても残りの1人でなんとかなる？',
+    expl:'なんとかならないことが多いです。ペアローンは2本の別々の契約なので、団体信用生命保険もそれぞれの契約についています。片方が亡くなった場合に消えるのは、その方の契約分だけ。もう1人の分は残ります。しかも収入が1人分になったところへ、残ったローンを1人で返すことになります。育休や時短、転職で収入が下がった場合も同じです。2人で借りるという判断そのものが悪いわけではなく、2人分の枠を使ったなら2人分のリスクに備えが要る、ということです。',
+    wana:'2人で借りると負担が半分になった気がする。実際は、支える人が1人減ったときの落差が大きくなる。',
+    check:'ペアローンや収入合算の場合、それぞれの残債がいくらか。片方だけになったときいくら残るか。'
+  },
+  {
+    icon:'icWallet', a:true, yes:'額面', no:'手取り',
+    q:'返済負担率の計算に使う年収は、手取りではなく額面の年収であるのが一般的？',
+    expl:'額面です。返済負担率は、原則として税金や社会保険料を引く前の額面年収を分母にして計算します。実際に使えるお金である手取りは、額面の75%から85%程度になることが多いので、額面で見て35%の返済負担率は、手取りで見ると4割を超えていることがあります。ここが、審査に通ったのに暮らしが苦しいという感覚のいちばん大きな原因です。ご自身で計算するときは、必ず手取りに置き換えてから見てください。源泉徴収票と給与明細があれば、5分で分かります。',
+    wana:'審査の数字と自分の実感がずれる理由が、分母の違いにあると気づいていない。',
+    check:'源泉徴収票の支払金額と、実際に振り込まれている年間の手取り額。この2つを並べて書き出す。'
+  }
+];
+
+var qIdx = 0, qScore = 0, qAnswered = false, qAnsweredCount = 0;
+var wrongItems = [];
+
+var elNum   = document.getElementById('qNum');
+var elDots  = document.getElementById('qDots');
+var elIcon  = document.getElementById('qIcon');
+var elText  = document.getElementById('qText');
+var btnYes  = document.getElementById('btnYes');
+var btnNo   = document.getElementById('btnNo');
+var lblYes  = document.getElementById('lblYes');
+var lblNo   = document.getElementById('lblNo');
+var elVerd  = document.getElementById('verdict');
+var elVAns  = document.getElementById('vAnswer');
+var elVChip = document.getElementById('vChip');
+var elVExpl = document.getElementById('vExpl');
+var elVWana = document.getElementById('vWana');
+var elVChk  = document.getElementById('vCheck');
+var btnNext = document.getElementById('btnNext');
+var btnStop = document.getElementById('btnStopHere');
+var quizPlay = document.getElementById('quizPlay');
+var quizDone = document.getElementById('quizDone');
+
+function renderDots(){
+  var html = '';
+  for(var i = 0; i < QUIZ.length; i++){
+    html += '<i class="' + (i < qIdx ? 'done' : (i === qIdx ? 'now' : '')) + '"></i>';
+  }
+  elDots.innerHTML = html;
+}
+
+function renderQ(){
+  var item = QUIZ[qIdx];
+  elNum.textContent = qIdx + 1;
+  elIcon.innerHTML = ARTS[item.icon] || '';
+  elText.textContent = item.q;
+  lblYes.textContent = item.yes || '問題ない';
+  lblNo.textContent = item.no || '危ない';
+  btnYes.disabled = false;
+  btnNo.disabled = false;
+  qAnswered = false;
+  elVerd.classList.remove('show');
+  btnNext.style.display = 'none';
+  btnStop.style.display = 'none';
+  renderDots();
+}
+
+function answer(ansYes){
+  if(qAnswered) return;
+  qAnswered = true;
+  qAnsweredCount++;
+  btnYes.disabled = true;
+  btnNo.disabled = true;
+  var item = QUIZ[qIdx];
+  var correct = (ansYes === item.a);
+  if(correct) qScore++;
+  else wrongItems.push(item);
+  elVAns.textContent = '正解は「' + (item.a ? (item.yes || '問題ない') : (item.no || '危ない')) + '」';
+  elVChip.textContent = correct ? 'ご名答！' : 'ざんねん、ここがワナ';
+  elVChip.className = 'result-chip ' + (correct ? 'correct' : 'wrong');
+  elVExpl.textContent = item.expl;
+  elVWana.textContent = item.wana;
+  elVChk.textContent = item.check;
+  elVerd.classList.add('show');
+  btnNext.style.display = 'flex';
+  if(qIdx >= QUIZ.length - 1){
+    btnNext.innerHTML = '結果を見る <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  } else if(qIdx >= 2){
+    btnStop.style.display = 'block';
+  }
+}
+
+function doneComment(score, total){
+  var full = (total === QUIZ.length);
+  if(score === total && full){
+    return '全問正解！　あなたはもう「銀行が貸してくれる額＝返せる額」とは言わない人です。あとはその物差しを、ご自身の手取りと返済予定表に当てはめるだけ。……当てはめた結果が気になったら、いつでもどうぞ。';
+  }
+  var r = score / total;
+  if(r >= 0.75){
+    return 'かなりの好成績です。ただ、クイズで間違えても失うのは1問ですが、住宅ローンで「思っていたのと違う」が起こると、つきあう年数は30年以上。惜しかった問題こそ、ご自宅の数字で答え合わせを。';
+  }
+  if(r >= 0.4){
+    return '約半分がワナにかかりました。ご安心ください、ご相談でお会いする皆さまもだいたい同じです。つまり「ふつうに家を買おうとすると引っかかる」ようにできているのが住宅ローン。だからこそ、契約の前に一度だけ数えておくのが近道です。';
+  }
+  return 'ワナに全力でかかりました。でも、それが普通です。むしろクイズで引っかかっておけば、実際の35年で引っかからずに済みます。今日が人生でいちばん住宅ローンにくわしい日。この勢いで、手取りの棚卸しまでいきましょう。';
+}
+
+function showDone(){
+  quizPlay.style.display = 'none';
+  quizDone.classList.add('show');
+  document.getElementById('doneTotal').textContent = qAnsweredCount;
+  document.getElementById('doneScore').textContent = qScore;
+  document.getElementById('doneCmt').textContent = doneComment(qScore, qAnsweredCount);
+  var wl = document.getElementById('wrongList');
+  if(wrongItems.length){
+    var html = '<h4>ワナにかかった問題（＝ご家族で確認したい項目）</h4>';
+    for(var i = 0; i < wrongItems.length; i++){
+      html += '<div class="w-item"><strong>' + wrongItems[i].q + '</strong><br>確認ポイント：' + wrongItems[i].check + '</div>';
+    }
+    wl.innerHTML = html;
+    wl.style.display = 'block';
+  } else {
+    wl.style.display = 'none';
+  }
+  var sum = document.getElementById('sumScore');
+  sum.innerHTML = '<p>○×クイズの結果：<strong>' + qAnsweredCount + '問中 ' + qScore + '問正解</strong>でした。' +
+    (wrongItems.length ? '間違えた問題は、そのまま「確認したいことリスト」になります。' : 'この調子で、下のチェックリストもどうぞ。') + '</p>';
+}
+
+btnYes.addEventListener('click', function(){ answer(true); });
+btnNo.addEventListener('click', function(){ answer(false); });
+btnNext.addEventListener('click', function(){
+  if(qIdx >= QUIZ.length - 1){ showDone(); return; }
+  qIdx++;
+  renderQ();
+  var shell = document.querySelector('.quiz-shell');
+  if(shell.getBoundingClientRect().top < 0) shell.scrollIntoView({behavior:'smooth'});
+});
+btnStop.addEventListener('click', showDone);
+document.getElementById('btnRetry').addEventListener('click', function(){
+  qIdx = 0; qScore = 0; qAnsweredCount = 0; wrongItems = [];
+  quizDone.classList.remove('show');
+  quizPlay.style.display = 'block';
+  btnNext.innerHTML = '次の質問へ <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  renderQ();
+});
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+document.getElementById('btnMailSelf').addEventListener('click', function(){
+  var body = '「住宅ローンの借りられる・返せるチェック」の結果メモ\n\n' +
+    '○×クイズ：' + qAnsweredCount + '問中 ' + qScore + '問正解\n\n';
+  if(wrongItems.length){
+    body += '【確認したいこと】\n';
+    for(var i = 0; i < wrongItems.length; i++){
+      body += '・' + wrongItems[i].check + '\n';
+    }
+  }
+  body += '\n（このメモを返済予定表・源泉徴収票と一緒に保管しておくと、ご家族で話すときに役立ちます）\n';
+  location.href = 'mailto:?subject=' + encodeURIComponent('住宅ローンの借りられる・返せるチェック結果') + '&body=' + encodeURIComponent(body);
+});
+
+renderQ();
+
+/* ---------- セクション3：シミュレーター ---------- */
+var simAmt    = document.getElementById('simAmt');
+var simYear   = document.getElementById('simYear');
+var simRate   = document.getElementById('simRate');
+var simIncome = document.getElementById('simIncome');
+var simUp     = document.getElementById('simUp');
+
+function yen(x){
+  return Math.round(x).toLocaleString('ja-JP') + '円';
+}
+function man(x){
+  return Math.round(x).toLocaleString('ja-JP') + '万円';
+}
+function pct(n){ return (Math.round(n * 1000) / 10) + '%'; }
+
+/* 元利均等返済の毎月返済額（円）。P=円、y=年、rate=年利% */
+function monthlyPay(P, y, rate){
+  var n = y * 12;
+  if(n <= 0) return 0;
+  var r = rate / 100 / 12;
+  if(r <= 0) return P / n;
+  return P * r / (1 - Math.pow(1 + r, -n));
+}
+
+function setR(id, ok, chipTxt, txt){
+  var box = document.getElementById(id);
+  box.className = 'sim-r ' + (ok ? 'ok' : 'ng');
+  document.getElementById(id + 'Chip').textContent = chipTxt;
+  document.getElementById(id + 'Txt').textContent = txt;
+}
+
+function numOf(el, dflt, lo, hi){
+  var v = parseFloat(el.value);
+  if(isNaN(v)) v = dflt;
+  if(v < lo) v = lo;
+  if(v > hi) v = hi;
+  return v;
+}
+
+function simUpdate(){
+  var amtMan = numOf(simAmt, 3000, 0, 20000);
+  var years  = Math.round(numOf(simYear, 35, 1, 50));
+  var rate   = numOf(simRate, 1.0, 0, 10);
+  var incMan = numOf(simIncome, 500, 0, 9000);
+  var up     = parseFloat(simUp.value);
+
+  document.getElementById('simAmtOut').textContent    = man(amtMan);
+  document.getElementById('simYearOut').textContent   = years + '年';
+  document.getElementById('simRateOut').textContent   = '年' + rate.toFixed(2) + '%';
+  document.getElementById('simIncomeOut').textContent = man(incMan);
+
+  var P = amtMan * 10000;
+  var mNow = monthlyPay(P, years, rate);
+  var mUp  = monthlyPay(P, years, rate + up);
+  var diff = mUp - mNow;
+  var totalNow = mNow * years * 12;
+  var totalUp  = mUp * years * 12;
+  var interest = totalNow - P;
+
+  var income = incMan * 10000;
+  var ratio = income > 0 ? (mNow * 12) / income : 0;
+  var ratioUp = income > 0 ? (mUp * 12) / income : 0;
+
+  document.getElementById('tlFill').style.width = Math.min(100, ratio / 0.7 * 100) + '%';
+
+  if(income <= 0){
+    setR('simR1', false, '年収を入れてください', '額面の世帯年収を入れると、返済負担率が計算できます。手取りではなく、源泉徴収票の支払金額のほうを入れてください。');
+  } else if(ratio <= 0.25){
+    setR('simR1', true, pct(ratio), '額面年収 ' + man(incMan) + ' に対して、年間の返済額は ' + yen(mNow * 12) + '。返済負担率は ' + pct(ratio) + ' です。手取りに置き換えるとこれより数ポイント高くなりますので、そのつもりで見てください。');
+  } else if(ratio <= 0.35){
+    setR('simR1', false, pct(ratio), '額面年収 ' + man(incMan) + ' に対して、年間の返済額は ' + yen(mNow * 12) + '。返済負担率は ' + pct(ratio) + ' です。フラット35の基準の範囲内ではありますが、手取りに置き換えると4割に近づきます。教育費が重なる年を確かめてください。');
+  } else {
+    setR('simR1', false, pct(ratio), '額面年収 ' + man(incMan) + ' に対して、年間の返済額は ' + yen(mNow * 12) + '。返済負担率は ' + pct(ratio) + ' で、フラット35の基準上限である35%を超えています。借入額・期間・自己資金のどれかを動かす話になります。');
+  }
+
+  setR('simR2', false, '約 ' + yen(mUp),
+    'いまの毎月 ' + yen(mNow) + ' が、金利が ' + up.toFixed(1) + '%上がった場合には約 ' + yen(mUp) + ' になります。差額は毎月 約' + yen(diff) + '、1年で 約' + yen(diff * 12) + '。返済負担率は ' + pct(ratioUp) + ' です。この差額を、いまの家計から出せるかどうかが判断の分かれ目です。');
+
+  setR('simR3', false, '約 ' + man(totalNow / 10000),
+    '完済まで年' + rate.toFixed(2) + '%が続いた場合、総返済額は 約' + man(totalNow / 10000) + '、うち利息が 約' + man(interest / 10000) + ' です。もし ' + up.toFixed(1) + '%上がった状態が続けば、総返済額は 約' + man(totalUp / 10000) + '（差は 約' + man((totalUp - totalNow) / 10000) + '）になります。');
+
+  var big = document.getElementById('simTotalBig');
+  var sub = document.getElementById('simTotalSub');
+  big.innerHTML = '毎月の返済は <b>約' + yen(mNow) + '</b>';
+  sub.textContent = '金利が ' + up.toFixed(1) + '%上がった場合は 約' + yen(mUp) + '（毎月 約' + yen(diff) + ' の増加）。これは予想ではなく、条件を変えたときの計算結果です。';
+}
+simAmt.addEventListener('input', simUpdate);
+simYear.addEventListener('input', simUpdate);
+simRate.addEventListener('input', simUpdate);
+simIncome.addEventListener('input', simUpdate);
+simUp.addEventListener('change', simUpdate);
+simUpdate();
+
+/* ---------- セクション4：あるある劇場 ---------- */
+var CASES = [
+  {
+    art:'icBank', cls:'c-red', chip:'第一幕：上限まで借りる',
+    title:'銀行が「5,000万円まで大丈夫」と言ったので',
+    story:'「共働きで、審査では5,000万円まで出ますと言われました。せっかくなので4,800万円の家にしたんです。返済は毎月13万円くらい。当時は払える気しかしませんでした。3年たって下の子が小学校に上がるころから、なんだか毎月ぎりぎりで。貯金ができていないことに気づいたのは、車が壊れたときでした」<small>——香川県の30代ご夫婦（創作例・脚色あり）</small>',
+    what:'<p class="cmodal-p">審査で見られているのは<strong>額面年収に対する返済負担率</strong>です。お子さんの人数も、これから増える教育費も、車の買い替えも、審査の式には入っていません。<strong>上限は「貸せる線」であって「暮らせる線」ではない</strong>のに、第三者に太鼓判を押されたように感じてしまうのが、この幕のこわいところです。</p>',
+    how:'<p class="cmodal-p">順番を逆にします。まず<strong>手取りから、生活費・教育費・住まいの維持費・貯蓄を引いて</strong>、残った額を出す。その額から逆算した借入額が、あなたの上限です。審査額と自分の上限、両方の数字を紙に並べて書いてみてください。差が数百万円あるのは、ごく普通のことです。</p>'
+  },
+  {
+    art:'qYen', cls:'c-amber', chip:'第二幕：ボーナス返済',
+    title:'ボーナス払いを組み込んだら、賞与が減った',
+    story:'「毎月の返済を軽くしたくて、ボーナス月に上乗せする形にしました。年2回、それぞれ20万円ずつ。組んだ当時は賞与が安定していたので、まったく心配していませんでした。それが5年目に業績が落ちて、賞与が半分に。毎月の返済は軽いのに、年2回だけ地獄が来ます」<small>——40代・会社員（創作例・脚色あり）</small>',
+    what:'<p class="cmodal-p">ボーナス返済は、毎月の負担を軽く見せる代わりに、<strong>返済の一部を「必ず出るとは限らない収入」に預ける</strong>仕組みです。賞与は法律で保証されたものではなく、業績や制度改定で変わります。毎月の返済額だけを見て安心してしまうと、年2回の山に気づけません。</p>',
+    how:'<p class="cmodal-p">ボーナス返済を使うかどうかは、<strong>賞与がゼロになっても返済が回るか</strong>で判断します。組んでしまったあとでも、金融機関によっては返済方法の変更ができる場合があります。まずは返済予定表を出して、年間の返済総額を12で割った金額を見てください。それが本当の毎月の負担です。</p>'
+  },
+  {
+    art:'icWallet', cls:'c-green', chip:'第三幕：額面と手取り',
+    title:'「年収の25%」で組んだのに、苦しい',
+    story:'「無理のない範囲にしようと思って、年収の25%以内にしました。年収600万円だから、年間150万円まで。毎月12万5,000円ですね。ところが実際に住み始めると、月末がいつも足りない。よく考えたら、私の手取りは600万円ではなく480万円ちょっとでした」<small>——40代・ご夫婦（創作例・脚色あり）</small>',
+    what:'<p class="cmodal-p">額面年収600万円に対する25%は年150万円ですが、手取りが480万円だとすると、<strong>手取りに対しては31%</strong>になります。返済負担率の基準は額面で語られることが多いため、そのまま自分の家計に当てはめると、この6ポイント前後のずれがまるごと苦しさになります。</p>',
+    how:'<p class="cmodal-p">源泉徴収票の<strong>支払金額</strong>ではなく、通帳に実際に振り込まれた金額を12か月分足してください。それが手取りです。<strong>手取りに対して何%か</strong>で線を引き直すと、多くのご家庭で借入額が数百万円下がります。下げた分は、教育費と修繕費と老後の積み立てに回ります。</p>'
+  },
+  {
+    art:'icStep', cls:'c-blue', chip:'第四幕：諸費用',
+    title:'頭金を全部入れたら、入居初月に現金が尽きた',
+    story:'「少しでも借入を減らしたくて、貯金の800万円をほぼ全額、頭金に入れました。そうしたら登記費用と保証料と火災保険で100万円以上、引っ越しとカーテンとエアコンで50万円。手元に20万円しか残らないまま入居しました。その月に子どもが入院して、カードローンを使うことになりました」<small>——30代・ご夫婦（創作例・脚色あり）</small>',
+    what:'<p class="cmodal-p">家を買うときの<strong>諸費用</strong>は、物件価格の数%から1割程度になることがあります。登記費用、保証料または事務手数料、印紙税、火災保険料、そして引っ越しと家具家電。頭金の計算にこれらを入れていないと、<strong>手元資金がゼロの状態で新生活が始まります</strong>。</p>',
+    how:'<p class="cmodal-p">順番を、<strong>手元に残す額を先に決める</strong>に変えます。生活費の半年分程度を残す、という考え方が広く言われています。残す額と諸費用を確保したうえで、余った分を頭金にする。借入が少し増えても、想定外に対応できる状態のほうが、結果として安く済むことが多いのが実際です。</p>'
+  },
+  {
+    art:'icPercent', cls:'c-red', chip:'第五幕：5年ルール',
+    title:'返済額が変わらないから大丈夫だと思っていた',
+    story:'「変動で借りるとき、5年間は返済額が変わらないと聞いて安心していました。実際、金利が動いても毎月の引き落としは同じ額でした。ところが返済予定表を見たら、利息の割合が増えていて、元金がほとんど減っていなかったんです。据え置きが終わるタイミングで、はじめて事の大きさが分かりました」<small>——40代・自営業（創作例・脚色あり）</small>',
+    what:'<p class="cmodal-p">5年ルールが据え置くのは<strong>毎月払う金額</strong>であって、発生する利息そのものではありません。金利が上がれば、同じ返済額の中で利息の取り分が増え、<strong>元金の減りが遅くなります</strong>。据え置きは負担を消す仕組みではなく、家計が身構えるための時間を稼ぐ仕組みです。しかも、このルールが無い商品もあります。</p>',
+    how:'<p class="cmodal-p">返済予定表を出して、<strong>いまの返済額のうち利息がいくらで元金がいくらか</strong>を確認してください。そのうえで、金利が1%上がった場合の返済額を計算しておく（このページの3でできます）。据え置きの5年は、その差額を貯めるための時間として使えます。知っていれば、使える時間です。</p>'
+  },
+  {
+    art:'icKazoku', cls:'c-berry', chip:'第六幕：ペアローン',
+    title:'2人で借りたのに、支えるのは1人になった',
+    story:'「夫婦それぞれで2,000万円ずつ、合計4,000万円のペアローンを組みました。2人とも正社員で、当時は問題ないと思っていました。2年後に妻が体調を崩して退職。妻の分の返済は、私の給料から出すことになりました。売ろうかとも考えましたが、査定額よりローン残高のほうが多くて、それもできませんでした」<small>——30代・ご主人（創作例・脚色あり）</small>',
+    what:'<p class="cmodal-p">ペアローンは<strong>2本の別々の契約</strong>です。団体信用生命保険もそれぞれの契約についているので、片方に万一があったときに消えるのは<strong>その方の分だけ</strong>。収入が減っても、契約は2本のまま残ります。また、残債が売却価格を上回っていると、売って清算することもできません。</p>',
+    how:'<p class="cmodal-p">ペアローンや収入合算を使うなら、<strong>片方の収入が無くなった状態での返済額</strong>を先に計算します。そのうえで、足りない分を収入保障保険や就業不能への備えで埋めるかどうかを検討する。2人分の枠を使ったなら、2人分のリスクに手当てをする——判断の順番は、それだけです。</p>'
+  }
+];
+
+/* ---------- セクション5：逆転劇場 ---------- */
+var GOOD_CASES = [
+  {
+    art:'icWallet', cls:'c-green', chip:'第一話：引き算で決める', amt:'借入を約600万円下げた',
+    title:'審査額ではなく、手取りから逆算しました',
+    story:'「銀行では4,200万円まで出ると言われました。でも先に、手取りから生活費と教育費と貯蓄を引いてみたんです。返済に回せるのは月9万円ちょっと。そこから逆算したら3,600万円でした。600万円ぶん小さい家になりましたが、5年たったいまも毎年きちんと貯金ができています」<small>——40代・ご夫婦（創作例・脚色あり）</small>',
+    what:'<p class="cmodal-p">やったことは<strong>計算の順番を変えただけ</strong>です。掛け算（年収×何倍）ではなく引き算（手取り－必要なもの）で出す。この順番だと、<strong>教育費と老後資金と手元資金が先に確保されます</strong>。返済に回るのは、それでも残った分だけ。借入額は小さくなりますが、その分だけ暮らしの余白が残ります。</p>',
+    how:'<p class="cmodal-p">紙を1枚用意して、上から順に書きます。手取り月収、生活費、教育費の積み立て、老後の積み立て、住まいの維持費の積み立て。残った額が返済に回せる額です。<strong>その額から借入可能額を逆算する</strong>のは、金融機関のサイトのシミュレーターでもこのページの3でもできます。所要30分です。</p>'
+  },
+  {
+    art:'icPercent', cls:'c-blue', chip:'第二話：上がった場合の試算', amt:'毎月+約14,700円',
+    title:'「1%上がったら」を計算してから、タイプを選びました',
+    story:'「変動と固定で迷っていました。営業の方に聞いても、こればかりは分かりませんと。それで、いまの金利から1%上がったら毎月いくらになるかを出してもらったんです。3,000万円35年で、約8万4,700円が約9万9,400円。1万5,000円弱の差なら出せる、と納得できたので変動にしました。納得して選べたことが大きかったです」<small>——30代・ご夫婦（創作例・脚色あり）</small>',
+    what:'<p class="cmodal-p">金利がどうなるかは誰にも分かりません。だから<strong>予想で選ぶのをやめて、耐久力で選んだ</strong>という話です。借入3,000万円・35年・年1.0%なら毎月 約84,700円。同じ条件で年2.0%なら 約99,400円で、差は毎月 約14,700円、年にすると約17万6,000円です。この数字を見て「出せる」か「厳しい」かを決めるだけなら、今日できます。</p>',
+    how:'<p class="cmodal-p">このページの3のシミュレーターに、ご自身の借入額・期間・金利を入れて、「もし上がったら」を1%と2%で切り替えてみてください。<strong>差額をいまの家計から毎月ひねり出せるか</strong>だけを見ます。出せないなら、借入額を下げるか、期間を見直すか、返済額の変わらないタイプを検討するか。選択肢は、そこではじめて意味を持ちます。</p>'
+  },
+  {
+    art:'icSchool', cls:'c-berry', chip:'第三話：年表を書く', amt:'危ない年が3年分',
+    title:'子どもが18歳になる年が、いつか分かりました',
+    story:'「紙に西暦を横に並べて、家族の年齢を書き込みました。そうしたら、上の子と下の子の大学が2年ぶんだけ重なることが分かって。しかもその年は、外壁の塗り替えの目安とも重なっていました。買う前に気づけたので、繰り上げを急がずにその年の分を先に貯めることにしました」<small>——40代・ご夫婦（創作例・脚色あり）</small>',
+    what:'<p class="cmodal-p">家計が苦しくなるのは<strong>平均的な年</strong>ではなく、<strong>いくつかの支出が重なる特定の年</strong>です。教育費のピーク、住宅の修繕、車の買い替え、親の介護。これらは<strong>いつ来るかを今日計算できるもの</strong>ばかりです。年表を1枚書くだけで、その年が具体的な西暦として見えてきます。</p>',
+    how:'<p class="cmodal-p">横軸に西暦を30年分、縦軸にご家族それぞれの年齢を書きます。そこへ、住宅ローンの返済額、教育費の見込み、修繕の時期、車の買い替えを書き込む。<strong>合計が飛び出している年に印をつける</strong>。あとは、その年に向けて何年かけていくら貯めるかを決めるだけです。手書きで十分です。</p>'
+  },
+  {
+    art:'qShield', cls:'c-green', chip:'第四話：手元資金を残す', amt:'半年分の生活費',
+    title:'頭金を減らして、現金を残しました',
+    story:'「貯金が900万円ありました。全部頭金に入れようとしていたのですが、生活費の半年分は残しておくべきだと言われて、300万円を手元に残したんです。その1年後に転職で収入が3か月空きました。あの300万円がなければ、ローンの返済も止まっていたと思います」<small>——30代・会社員（創作例・脚色あり）</small>',
+    what:'<p class="cmodal-p">頭金を厚くすると借入は減り、利息も減ります。ただし<strong>手元の現金がゼロになると、次の想定外に対応する手段が無くなります</strong>。転職、病気、家電の故障、家族の入院。これらに金利の低い手段で対応できなくなると、結果的にはるかに高い金利で借りることになります。</p>',
+    how:'<p class="cmodal-p">順番を<strong>「残す額を先に決める」</strong>に変えます。生活費の半年分程度を目安に手元資金を確保し、諸費用を別に取り分け、それでも余った分を頭金にする。借入が少し増えても、<strong>いつでも繰上返済できる状態</strong>のほうが、身動きが取れます。順番を変えるだけで、費用はかかりません。</p>'
+  },
+  {
+    art:'icStep', cls:'c-amber', chip:'第五話：期間の決め方', amt:'毎月 約2万円の差',
+    title:'期間を長めにして、繰上返済で調整しました',
+    story:'「25年で組むと毎月11万3,000円、35年なら8万4,700円。どちらも払えたのですが、35年にして差額を貯めることにしました。家計に何かあったら止められる貯金と、必ず出ていく返済額。同じ2万8,000円でも、性質がまったく違うと聞いて納得しました」<small>——30代・ご夫婦（創作例・脚色あり）</small>',
+    what:'<p class="cmodal-p">借入3,000万円・年1.0%なら、25年で毎月 約113,100円、35年で 約84,700円。差は毎月 約28,400円です。期間を長くすると<strong>利息の総額は増えます</strong>が、毎月の義務は軽くなります。差額を貯めておけば、あとから繰上返済で期間を縮めることもできます。<strong>義務を貯金に置き換えた</strong>、というのがこの話の要点です。</p>',
+    how:'<p class="cmodal-p">ただし、差額をきちんと貯められることが前提です。使ってしまえば、利息だけが増えます。<strong>先に別口座へ自動で移す</strong>仕組みにしてください。また、繰上返済で残高が減ると住宅ローン控除の額も減りますし、返済期間が一定年数を下回ると控除が受けられなくなる場合があります。実行の時期は、税理士にもご確認ください。</p>'
+  },
+  {
+    art:'icKazoku', cls:'c-blue', chip:'第六話：2人で借りるときの備え', amt:'残る側の残債を確認',
+    title:'ペアローンにする前に、片方だけの数字を出しました',
+    story:'「2人で4,000万円借りる予定でした。契約の前に、どちらか1人が働けなくなった場合はどうなるかを聞いてみたんです。相手の分は残ると聞いて、その残る額を収入保障で埋めることにしました。保険料は上がりましたが、迷いは消えました」<small>——30代・ご夫婦（創作例・脚色あり）</small>',
+    what:'<p class="cmodal-p">ペアローンは2本の別契約なので、団体信用生命保険で消えるのは<strong>その方の契約分だけ</strong>です。もう1本は残ります。これは商品の欠点ではなく<strong>そういう仕組み</strong>で、知ったうえで足りない部分を埋めればよい話です。埋め方は保障を足す、借入額を下げる、期間を見直すなど複数あります。</p>',
+    how:'<p class="cmodal-p">契約前に、金融機関に<strong>「片方に万一があったとき、いくら残りますか」</strong>と一問だけ聞いてください。その金額が、備えるべき額です。すでに借りている方は、返済予定表でそれぞれの残債を確認すれば分かります。どんな備え方が合うかは、ご家族の状況によって変わります。</p>'
+  },
+  {
+    art:'icBalance', cls:'c-green', chip:'第七話：借換えの比べ方', amt:'諸費用を入れて比較',
+    title:'借換えを、諸費用込みで比べました',
+    story:'「金利が下がる借換えの案内が来て、飛びつきそうになりました。ただ、事務手数料と登記費用と保証料で60万円ほどかかると分かって。総返済額の減り方と並べたら、思ったほどの差ではありませんでした。結局は借換えましたが、納得して決められたのがよかったです」<small>——40代・会社員（創作例・脚色あり）</small>',
+    what:'<p class="cmodal-p">借換えの比較は<strong>金利の差だけでは決まりません</strong>。事務手数料、保証料、抵当権の設定と抹消の登記費用、印紙税がかかります。さらに、団体信用生命保険に入り直しになるため<strong>そのときの健康状態によっては借換えができない</strong>ことも。金利だけを並べた比較表は、判断材料としては不十分です。</p>',
+    how:'<p class="cmodal-p">比べるのは<strong>「いまのまま完済するまでの総額」と「借換え後の総額＋諸費用」</strong>の2つです。この2つを並べれば、差額が一目で分かります。健康状態に不安がある方は、団信の告知内容を先に確認してから話を進めてください。順番を間違えると、途中で止まります。</p>'
+  },
+  {
+    art:'icShuzen', cls:'c-amber', chip:'第八話：住まいの月額で比べる', amt:'返済額＋維持費',
+    title:'家賃ではなく「住まいの月額」で比べました',
+    story:'「いまの家賃が10万円なので、返済が10万円なら同じだと思っていました。ところが持ち家だと固定資産税、火災保険、修繕の積み立てが加わると聞いて、全部を月あたりに直したら13万円を超えていたんです。危うく、同じだと思ったまま契約するところでした」<small>——30代・ご夫婦（創作例・脚色あり）</small>',
+    what:'<p class="cmodal-p">賃貸と持ち家を比べるとき、<strong>家賃と返済額を並べるのは公平ではありません</strong>。持ち家では、固定資産税・都市計画税、火災保険と地震保険、戸建てなら修繕の積み立て、マンションなら管理費と修繕積立金が加わります。これらを月あたりに直して足したものが、<strong>住まいの月額</strong>です。</p>',
+    how:'<p class="cmodal-p">計算はかんたんです。毎月の返済額に、年間の固定資産税を12で割った額、火災保険料を12で割った額、修繕積立の目安額を足すだけ。マンションなら管理費と修繕積立金をそのまま足します。<strong>この合計と、いまの家賃を比べます</strong>。固定資産税の見込みや税制上の取扱いは税理士にご確認ください。</p>'
+  }
+];
+
+var modal = document.getElementById('caseModal');
+var CASE_LBL = {
+  bad:['よく伺うお話をもとにした創作例（脚色あり）', '何が起きたのか', 'こう確認すれば防げます'],
+  good:['よくある、うれしい誤算（創作例・脚色あり）', 'なぜ助かったのか', '同じようにするための手順']
+};
+
+function renderCases(gridId, list, kind){
+  var grid = document.getElementById(gridId);
+  list.forEach(function(c){
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'case-card';
+    btn.innerHTML =
+      '<span class="art ' + c.cls + '">' + ARTS[c.art] + '</span>' +
+      '<span class="t"><span class="chip ' + c.cls + '">' + c.chip + '</span>' +
+      (c.amt ? '<span class="amt">' + c.amt + '</span>' : '') +
+      '<h3>' + c.title + '</h3>' +
+      '<span class="more">くわしく見る<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></span></span>';
+    btn.addEventListener('click', function(){ openCase(c, kind); });
+    grid.appendChild(btn);
+  });
+}
+
+function openCase(c, kind){
+  var lbl = CASE_LBL[kind] || CASE_LBL.bad;
+  document.getElementById('caseModalLbl1').textContent = lbl[0];
+  document.getElementById('caseModalLbl2').textContent = lbl[1];
+  document.getElementById('caseModalLbl3').textContent = lbl[2];
+  document.getElementById('caseModalLbl2Wrap').className =
+    'cmodal-label ' + (kind === 'good' ? 'lb-green' : 'lb-red');
+  document.getElementById('caseModalIco').className = 'cmodal-ico ' + c.cls;
+  document.getElementById('caseModalIco').innerHTML = ARTS[c.art];
+  document.getElementById('caseModalChip').className = 'cmodal-chip ' + c.cls;
+  document.getElementById('caseModalChip').textContent = c.chip;
+  document.getElementById('caseModalTitle').textContent = c.title;
+  document.getElementById('caseModalStory').innerHTML = c.story;
+  document.getElementById('caseModalWhat').innerHTML = c.what;
+  document.getElementById('caseModalHow').innerHTML = c.how;
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+  modal.querySelector('.cmodal-panel').scrollTop = 0;
+}
+
+renderCases('caseGrid', CASES, 'bad');
+renderCases('goodGrid', GOOD_CASES, 'good');
+
+function closeCase(){
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+document.getElementById('caseModalClose').addEventListener('click', closeCase);
+document.getElementById('caseModalBack').addEventListener('click', closeCase);
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && modal.classList.contains('show')) closeCase();
+});
+
+/* ---------- まとめ：チェックリスト ---------- */
+var chkBoxes = document.querySelectorAll('#checklist input[type=checkbox]');
+var chkMsg = document.getElementById('chkMsg');
+function chkUpdate(){
+  var n = 0;
+  chkBoxes.forEach(function(c){ if(c.checked) n++; });
+  var total = chkBoxes.length;
+  if(n === 0){
+    chkMsg.textContent = 'あてはまるものにチェックを入れてみてください。数えれば分かる項目と、今日ご家族に聞ける項目が混じっています。';
+  } else if(n <= 2){
+    chkMsg.textContent = 'チェック' + n + '個。正直なのは素晴らしいことです。残りの項目は、どれも30分あれば手をつけられるものばかり。まずは「毎月の手取りを数える」からがおすすめです。';
+  } else if(n <= 5){
+    chkMsg.textContent = 'チェック' + n + '個。平均より、だいぶ準備ができているご家庭です。残りの項目も、返済予定表と源泉徴収票が手元にあれば一気に片づきます。判断に迷うところは、そのまま当社へお持ちください。';
+  } else if(n < total){
+    chkMsg.textContent = 'チェック' + n + '個。ここまでできているご家庭は、ご相談でもめったにお会いしません。あと少しで「借りたあとで慌てない」準備が整います。';
+  } else {
+    chkMsg.textContent = '全項目チェック！　あなたのご家庭は、もう「何となく不安」ではなく「分かって備えている」状態です。あとは5年に一度、数字を見直していきましょう。';
+  }
+}
+chkBoxes.forEach(function(c){ c.addEventListener('change', chkUpdate); });
+
+})();
+</script>
+</body>
+</html>

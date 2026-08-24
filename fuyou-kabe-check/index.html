@@ -1,0 +1,2541 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="いわゆる年収の壁を○×クイズで確認できる啓発ツール。税金の壁と社会保険の壁はまったく別物という構造から、106万円・130万円の社会保険の線、配偶者控除・配偶者特別控除でなだらかになる仕組みまで。株式会社Office-M作成の情報提供資料。">
+<title>年収の壁の「かかる・かからない」チェック｜株式会社Office-M</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='6' y='16' width='52' height='32' rx='6' fill='%23f0846a'/%3E%3Cpath d='M6 28h52M6 38h52M24 16v12M40 28v10M24 38v10M40 16v12' fill='none' stroke='%23fff' stroke-width='4'/%3E%3C/svg%3E">
+<style>
+:root{
+  --navy:#1b3f5e;
+  --navy-2:#27587f;
+  --navy-soft:#eaf1f7;
+  --bg:#fff8f2;
+  --white:#ffffff;
+  --text:#33404d;
+  --muted:#5c6874;
+  --line:#efe2d8;
+  --shadow:0 6px 20px rgba(130,100,80,.09);
+  --shadow-sm:0 3px 10px rgba(130,100,80,.07);
+
+  --red:#c2453f;
+  --red-dark:#a63631;
+  --red-bg:#fdeee9;
+  --red-border:#f4d0c6;
+  --coral:#f0846a;
+  --coral-text:#c2451f;
+
+  --green:#2c7a4b;
+  --green-bg:#e8f6ef;
+  --green-border:#c3e5d3;
+  --mint:#4fbf9b;
+
+  --amber:#8f6015;
+  --amber-deep:#a85c12;
+  --amber-bg:#fdf3e2;
+  --amber-border:#f2dcae;
+  --sunny:#f7c34e;
+
+  --sky:#24729f;
+  --sky-bg:#e8f4fb;
+  --sky-border:#c6e2f2;
+
+  --berry:#8f4574;
+  --berry-bg:#fbeef6;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+/* スマホでも17pxを基準にする（注記・出典まわりが12pxまで小さくなっていたため） */
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;font-size:17px;}
+/* 左右の余白が広い画面ほど文字を大きくして見やすさに還元する */
+@media(min-width:1000px){ html{font-size:18px;} }
+body{
+  font-family:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho",YuMincho,"游明朝体","游明朝","MS PMincho","ＭＳ Ｐ明朝",serif;
+  color:var(--text);
+  background:var(--bg);
+  font-size:1.09rem;
+  line-height:1.95;
+  letter-spacing:.03em;
+  padding-bottom:40px;
+  overflow-wrap:break-word;
+}
+@media(min-width:768px){
+  body{font-size:1.16rem;letter-spacing:.04em;}
+}
+img,svg{max-width:100%;vertical-align:middle;}
+button{font-family:inherit;}
+/* キーボード操作でいまどこにいるかを、はっきり見せる（既定の1本線は細くて見えない） */
+a:focus-visible,button:focus-visible,summary:focus-visible,
+input:focus-visible,label:focus-visible,[tabindex]:focus-visible{
+  outline:3px solid var(--navy-2);
+  outline-offset:3px;
+  border-radius:6px;
+}
+a{color:var(--navy-2);}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px;}
+/* 広い画面では、本文の1行を約40字までに抑える（日本語の読みやすい行長の目安）。
+   カード内の短い文には効かせず、横幅いっぱいに伸びる長文だけを対象にする */
+@media(min-width:700px){
+  .guide-msg,.def-lead,.sec-lead,.sub-lead,.age-note,.note,
+  .mikane ol li,.mikane .caution,.rule3-box ol li,.rule3-note,
+  .cta-lead,details.finder p,details.finder li,footer.disclaimer p{
+    max-width:40em;
+  }
+  /* 中央寄せの箱の中にあるものは、中央のまま幅だけ詰める */
+  .venn-cap,.life-cap{max-width:40em;margin-left:auto;margin-right:auto;}
+}
+.nowrap{white-space:nowrap;}
+
+/* ---------- ヘッダー ---------- */
+.hero{
+  background:linear-gradient(168deg,#fbe6e6 0%,#fdf1ea 46%,#ddf0fb 100%);
+  color:var(--navy);
+  padding:24px 0 30px;
+  overflow:hidden;
+}
+.brand{
+  display:flex;align-items:center;gap:10px;
+  font-size:.92rem;font-weight:700;letter-spacing:.02em;color:var(--navy);
+}
+.brand .ico{
+  width:36px;height:36px;flex:0 0 36px;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--navy);border-radius:12px;
+}
+.brand .ico svg{width:20px;height:20px;stroke:#fff;}
+.brand small{display:block;font-weight:500;color:var(--muted);font-size:.82rem;letter-spacing:.04em;line-height:1.55;}
+.hero-flex{display:flex;flex-direction:column;}
+.hero h1{
+  font-size:1.58rem;line-height:1.45;font-weight:800;
+  margin:20px 0 12px;letter-spacing:.01em;color:var(--navy);
+}
+.hero h1 .accent{
+  background:linear-gradient(transparent 62%, #ffd9a8 62%);
+  padding:0 2px;
+}
+.hero .lead{font-size:1rem;color:var(--text);max-width:640px;}
+/* 文字間隔をユーザーが広げても見出しが切れないよう、狭い画面では折り返しを許す
+   （通常の表示では1行に収まるため、見た目は変わらない）— WCAG 1.4.12 */
+@media(max-width:520px){ .hero h1 .nowrap{white-space:normal;} }
+.hero-scene{margin:16px auto 0;width:100%;max-width:400px;}
+.hero-scene svg{width:100%;height:auto;display:block;}
+@media(min-width:768px){
+  .hero{padding:30px 0 40px;}
+  .hero h1{font-size:1.95rem;}
+  .hero .lead{font-size:1.06rem;}
+  .hero-flex{flex-direction:row;align-items:center;gap:28px;}
+  .hero-copy{flex:1;}
+  .hero-scene{flex:0 0 340px;margin:0;}
+}
+.hero-nav{display:flex;flex-wrap:wrap;gap:9px;margin-top:20px;}
+.hero-nav a{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--white);
+  border:2px solid #ffffff;
+  color:var(--navy);text-decoration:none;
+  padding:11px 17px;border-radius:999px;
+  font-size:.94rem;font-weight:700;min-height:48px;
+  box-shadow:var(--shadow-sm);
+}
+.hero-nav a:active{background:#fff4e9;}
+.hero-nav a svg{width:18px;height:18px;stroke:var(--coral);flex:0 0 18px;}
+
+/* ---------- セクション共通 ---------- */
+section{padding:40px 0 46px;}
+.band{background:var(--white);}
+.band-sky{background:var(--sky-bg);}
+.band-blush{background:#fdf1eb;}
+.band-mint{background:var(--green-bg);}
+.round-top{
+  border-radius:30px 30px 0 0;
+  margin-top:-24px;position:relative;z-index:1;
+  padding-top:42px;
+}
+.sec-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;}
+.sec-head .spot{flex:0 0 84px;}
+.spot-circle{
+  width:84px;height:84px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.spot-circle svg{width:52px;height:52px;}
+.step-pill{
+  display:inline-flex;align-items:center;gap:9px;
+  background:var(--amber-bg);color:var(--navy);
+  font-size:.88rem;font-weight:700;letter-spacing:.02em;
+  padding:6px 18px 6px 7px;border-radius:999px;margin-bottom:12px;
+  box-shadow:var(--shadow-sm);
+}
+.step-pill i{
+  width:28px;height:28px;flex:0 0 28px;border-radius:50%;
+  background:linear-gradient(135deg,#c2452a,#a8601a);
+  color:#fff;font-style:normal;font-weight:800;font-size:.95rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.step-pill.plain{padding:7px 18px;}
+h2{
+  font-size:1.4rem;line-height:1.5;color:var(--navy);
+  font-weight:800;letter-spacing:.01em;
+  position:relative;padding-bottom:12px;margin-bottom:10px;
+}
+h2::after{
+  content:"";position:absolute;left:0;bottom:0;
+  width:54px;height:5px;border-radius:3px;
+  background:linear-gradient(90deg,var(--coral),var(--sunny));
+}
+@media(min-width:768px){h2{font-size:1.68rem;}}
+.sec-lead{color:var(--muted);font-size:1rem;margin-bottom:22px;}
+.sub-title{font-size:1.1rem;color:var(--navy);}
+.note{
+  font-size:.9rem;color:var(--muted);line-height:1.85;
+  background:var(--white);border-radius:16px;
+  padding:14px 16px;margin-top:20px;
+  display:flex;gap:9px;align-items:flex-start;
+  box-shadow:var(--shadow-sm);
+}
+.note svg{width:20px;height:20px;flex:0 0 20px;stroke:var(--coral);margin-top:4px;}
+.band-sky .note,.band-blush .note{box-shadow:none;border:1px solid var(--line);}
+
+/* ---------- ガイド（吹き出し） ---------- */
+.guide{display:flex;align-items:flex-start;gap:12px;margin-bottom:20px;}
+.guide-ava{
+  width:58px;height:58px;flex:0 0 58px;border-radius:50%;
+  overflow:hidden;display:block;box-shadow:var(--shadow-sm);
+}
+.guide-ava svg{width:100%;height:100%;display:block;}
+.guide-msg{
+  position:relative;background:var(--white);
+  border:2px solid #ffe0cf;border-radius:18px;
+  padding:12px 16px;font-size:.95rem;line-height:1.75;
+}
+.guide-msg::before{
+  content:"";position:absolute;left:-9px;top:20px;
+  width:14px;height:14px;background:var(--white);
+  border-left:2px solid #ffe0cf;border-bottom:2px solid #ffe0cf;
+  transform:rotate(45deg);
+}
+
+/* ---------- セクション1：ちがいを問いかけるリンク ---------- */
+.qlink-lead{
+  display:flex;align-items:center;gap:9px;
+  font-size:1rem;font-weight:800;color:var(--navy);
+  margin:26px 0 12px;
+}
+.qlink-lead svg{width:23px;height:23px;flex:0 0 23px;stroke:var(--coral);}
+.qlinks{display:grid;grid-template-columns:1fr;gap:12px;}
+@media(min-width:700px){.qlinks{grid-template-columns:repeat(3,1fr);}}
+.qlink{
+  display:flex;flex-direction:column;gap:5px;
+  background:var(--white);border:2px solid var(--line);border-radius:18px;
+  padding:15px 16px 13px;text-decoration:none;color:inherit;
+  box-shadow:var(--shadow-sm);
+  transition:border-color .15s, transform .12s;
+}
+.qlink:active{transform:scale(.985);}
+.qlink:hover{border-color:var(--coral);}
+.qlink .pair{
+  display:flex;align-items:center;gap:7px;flex-wrap:wrap;
+  font-size:1.02rem;font-weight:800;color:var(--navy);line-height:1.55;
+}
+.qlink .pair .vs{
+  font-size:.8rem;font-weight:800;color:var(--red-dark);
+  background:var(--red-bg);border-radius:999px;padding:2px 10px;
+}
+.qlink .ask{font-size:.87rem;color:var(--muted);line-height:1.75;}
+.qlink .go{
+  display:inline-flex;align-items:center;gap:4px;margin-top:3px;
+  font-size:.84rem;font-weight:800;color:var(--coral-text);
+}
+.qlink .go svg{width:14px;height:14px;flex:0 0 14px;stroke:var(--coral-text);}
+/* リンクで飛んだ先を、見出しの手前で止める */
+.def-block[id]{scroll-margin-top:18px;}
+
+/* ---------- セクション1：定義のブロック ---------- */
+.def-block{
+  margin-top:34px;padding-top:26px;border-top:2px dashed var(--line);
+}
+.def-block:first-of-type{margin-top:18px;padding-top:0;border-top:none;}
+.def-h{
+  display:flex;align-items:center;gap:12px;
+  font-size:1.14rem;line-height:1.5;color:var(--navy);margin-bottom:8px;
+}
+.def-ico{
+  width:52px;height:52px;flex:0 0 52px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.def-ico svg{width:34px;height:34px;}
+.def-lead{font-size:.97rem;color:var(--muted);line-height:1.9;margin-bottom:16px;}
+@media(min-width:768px){.def-h{font-size:1.26rem;}}
+
+/* ---------- セクション1：心疾患の輪 ---------- */
+.venn-box{
+  background:var(--white);border-radius:22px;box-shadow:var(--shadow);
+  padding:20px 14px 8px;margin:6px 0 26px;text-align:center;
+}
+.venn-box svg{width:100%;max-width:520px;height:auto;}
+.venn-cap{font-size:.88rem;color:var(--muted);padding:6px 8px 12px;line-height:1.8;}
+@media(max-width:520px){.venn-box{padding:14px 4px 6px;}}
+.cards{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.cards{grid-template-columns:repeat(2,1fr);}}
+.risk-card{
+  position:relative;background:var(--white);
+  border-radius:20px;padding:20px 20px 18px;
+  box-shadow:var(--shadow);
+}
+.risk-card .icon{
+  width:68px;height:68px;border-radius:50%;
+  background:var(--navy-soft);
+  display:flex;align-items:center;justify-content:center;margin-bottom:12px;
+}
+.risk-card .icon svg{width:44px;height:44px;}
+.risk-card .icon.ic-red{background:var(--red-bg);}
+.risk-card .icon.ic-blue{background:var(--sky-bg);}
+.risk-card .icon.ic-amber{background:var(--amber-bg);}
+.risk-card .icon.ic-green{background:var(--green-bg);}
+.risk-card h3{font-size:1.02rem;color:var(--navy);margin-bottom:2px;}
+.risk-card p{font-size:.93rem;color:var(--muted);margin-top:8px;line-height:1.85;}
+.judge-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:.82rem;font-weight:700;padding:4px 13px;border-radius:999px;margin-top:4px;
+}
+.judge-chip.ng{background:var(--red-bg);color:var(--red-dark);border:1.5px solid var(--red-border);}
+.judge-chip.ok{background:var(--green-bg);color:var(--green);border:1.5px solid var(--green-border);}
+.judge-chip.maybe{background:var(--amber-bg);color:var(--amber-deep);border:1.5px solid var(--amber-border);}
+
+/* ---------- 罹患年齢のデータ（セクション1の各解説に添える） ---------- */
+.age-note{
+  display:flex;gap:10px;align-items:flex-start;
+  background:var(--white);border-radius:14px;
+  border-left:5px solid var(--sky);
+  padding:11px 15px;margin-bottom:16px;
+  font-size:.9rem;line-height:1.85;
+  box-shadow:var(--shadow-sm);
+}
+.age-note svg{width:19px;height:19px;flex:0 0 19px;stroke:var(--sky);margin-top:5px;}
+.age-note b{color:var(--sky);font-size:.98rem;}
+.age-note small{display:block;color:var(--muted);font-size:.81rem;line-height:1.7;margin-top:2px;}
+
+/* ---------- セクション6：医療費のかかりどき ---------- */
+.life-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px 14px;margin:6px 0 26px;
+}
+.life-box h3{font-size:1.08rem;color:var(--navy);margin-bottom:4px;}
+.life-box .sub{font-size:.9rem;color:var(--muted);margin-bottom:14px;}
+.life-box svg{width:100%;max-width:620px;height:auto;display:block;margin:0 auto;}
+.life-cap{font-size:.85rem;color:var(--muted);line-height:1.8;padding:10px 4px 4px;}
+.big3{display:grid;grid-template-columns:1fr;gap:12px;margin-top:16px;}
+@media(min-width:700px){.big3{grid-template-columns:repeat(3,1fr);}}
+.big3 .b{
+  background:var(--bg);border:2px solid var(--line);border-radius:16px;
+  padding:13px 15px;text-align:center;
+}
+.big3 .b .n{display:block;font-size:1.5rem;font-weight:800;color:var(--coral-text);line-height:1.4;}
+.big3 .b .l{display:block;font-size:.86rem;color:var(--navy);font-weight:700;line-height:1.7;}
+.big3 .b .s{display:block;font-size:.81rem;color:var(--muted);line-height:1.7;margin-top:3px;}
+
+.sub-h{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.1rem;color:var(--navy);margin:30px 0 6px;
+}
+.sub-h svg{width:24px;height:24px;flex:0 0 24px;stroke:var(--coral);}
+.sub-lead{font-size:.95rem;color:var(--muted);line-height:1.9;margin-bottom:16px;}
+.age-cards{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.age-cards{grid-template-columns:repeat(3,1fr);}}
+.age-card{
+  background:var(--white);border-radius:20px;box-shadow:var(--shadow);
+  padding:18px 18px 15px;
+}
+.age-card .ttl{
+  display:flex;align-items:center;gap:9px;
+  font-size:1rem;font-weight:800;color:var(--navy);margin-bottom:10px;
+}
+.age-card .ttl .ico{
+  width:38px;height:38px;flex:0 0 38px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.age-card .ttl .ico svg{width:26px;height:26px;}
+.age-card .rows{border-top:1.5px dashed var(--line);padding-top:9px;}
+.age-card .row{
+  display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  font-size:.92rem;line-height:1.9;
+}
+.age-card .row span{color:var(--muted);}
+.age-card .row b{font-size:1.28rem;font-weight:800;color:var(--red-dark);white-space:nowrap;}
+.age-card .kind{
+  display:inline-block;font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:8px;
+  background:var(--sky-bg);color:var(--sky);
+}
+.age-card .cmt{font-size:.87rem;color:var(--text);line-height:1.85;margin-top:10px;}
+.age-card .src{font-size:.8rem;color:var(--muted);line-height:1.7;margin-top:9px;
+  border-top:1.5px dashed var(--line);padding-top:8px;}
+
+/* 未来の自分への仕送り */
+.mikane{
+  margin-top:28px;background:var(--white);border-radius:24px;
+  box-shadow:var(--shadow);padding:22px 20px 18px;
+}
+.mikane h3{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.1rem;color:var(--navy);margin-bottom:12px;
+}
+.mikane h3 svg{width:25px;height:25px;flex:0 0 25px;stroke:var(--mint);}
+.mikane ol{list-style:none;counter-reset:mk;}
+.mikane ol li{
+  counter-increment:mk;position:relative;
+  padding:0 0 14px 46px;font-size:.96rem;line-height:1.9;
+}
+.mikane ol li::before{
+  content:counter(mk);position:absolute;left:0;top:2px;
+  width:32px;height:32px;border-radius:50%;
+  background:var(--sky-bg);color:var(--sky);
+  font-weight:800;font-size:1.02rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.mikane ol li b{color:var(--coral-text);}
+.mikane .caution{
+  background:var(--amber-bg);border-radius:16px;padding:14px 16px;
+  font-size:.9rem;line-height:1.9;
+  border-left:5px solid var(--sunny);
+}
+.mikane .caution strong:first-child{display:block;color:var(--amber-deep);margin-bottom:3px;}
+.mikane .caution b{color:var(--coral-text);}
+
+/* ---------- セクション2：クイズ ---------- */
+.quiz-shell{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px 24px;
+}
+.band .quiz-shell{background:var(--bg);box-shadow:none;border:2px solid var(--line);}
+.q-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.q-count{font-size:.9rem;font-weight:700;color:var(--muted);}
+.q-count span{color:var(--coral-text);font-size:1.15rem;}
+.dots{display:flex;gap:6px;}
+.dots i{width:10px;height:10px;border-radius:50%;background:#e8dbd0;}
+.dots i.done{background:var(--mint);}
+.dots i.now{background:var(--coral);}
+.q-body{display:flex;gap:14px;align-items:flex-start;margin:14px 0 18px;}
+.q-body .icon{
+  width:64px;height:64px;flex:0 0 64px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.q-body .icon svg{width:40px;height:40px;}
+.q-body p{font-size:1.06rem;font-weight:700;color:var(--navy);line-height:1.8;}
+.ans-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.ans-btn{
+  min-height:64px;border-radius:18px;cursor:pointer;
+  font-size:1.1rem;font-weight:800;letter-spacing:.06em;
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  border:2.5px solid;transition:transform .12s;
+}
+.ans-btn:active{transform:scale(.97);}
+.ans-btn svg{width:26px;height:26px;}
+.ans-btn.yes{background:var(--green-bg);border-color:var(--green-border);color:var(--green);}
+.ans-btn.no{background:var(--red-bg);border-color:var(--red-border);color:var(--red-dark);}
+.ans-btn:disabled{opacity:.45;cursor:default;}
+.verdict{
+  display:none;margin-top:18px;background:var(--white);
+  border:2px solid var(--amber-border);border-radius:20px;
+  padding:18px 18px 16px;
+}
+.verdict.show{display:block;}
+.verdict-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+.verdict-answer{font-size:1.25rem;font-weight:800;color:var(--navy);}
+.result-chip{
+  font-size:.85rem;font-weight:800;padding:4px 14px;border-radius:999px;
+}
+.result-chip.correct{background:var(--green-bg);color:var(--green);}
+.result-chip.wrong{background:var(--red-bg);color:var(--red-dark);}
+.verdict .expl{font-size:.97rem;line-height:1.95;margin-bottom:12px;}
+.verdict .kv{
+  font-size:.92rem;line-height:1.85;background:var(--sky-bg);
+  border-radius:12px;padding:9px 13px;margin-top:8px;
+}
+.verdict .kv b{color:var(--sky);}
+.verdict .kv.kv-wana{background:var(--red-bg);}
+.verdict .kv.kv-wana b{color:var(--red-dark);}
+.btn-primary{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  width:100%;min-height:58px;margin-top:16px;
+  background:linear-gradient(135deg,#cf4a22,#c2401c);
+  color:#fff;font-size:1.05rem;font-weight:800;letter-spacing:.04em;
+  border:none;border-radius:18px;cursor:pointer;
+  box-shadow:0 5px 14px rgba(194,64,28,.34);
+}
+.btn-primary:active{transform:translateY(1px);}
+.btn-primary svg{width:22px;height:22px;stroke:#fff;}
+.btn-ghost{
+  display:block;width:100%;min-height:50px;margin-top:12px;
+  background:var(--white);color:var(--navy-2);
+  font-size:.95rem;font-weight:700;
+  border:2px solid var(--sky-border);border-radius:16px;cursor:pointer;
+}
+.btn-ghost:active{background:var(--sky-bg);}
+.quiz-done{display:none;}
+.quiz-done.show{display:block;}
+.quiz-done .score{
+  font-size:1.15rem;font-weight:800;color:var(--navy);
+  text-align:center;margin:8px 0 6px;
+}
+.quiz-done .score .num{font-size:2rem;color:var(--coral-text);}
+.quiz-done .cmt{
+  background:var(--white);border-radius:16px;padding:14px 16px;
+  font-size:.97rem;line-height:1.95;margin:14px 0;
+  border:2px solid var(--amber-border);
+}
+.wrong-list{margin:14px 0;}
+.wrong-list h4{font-size:.95rem;color:var(--navy);margin-bottom:8px;}
+.wrong-list .w-item{
+  background:var(--white);border-radius:14px;padding:11px 14px;
+  font-size:.9rem;line-height:1.8;margin-bottom:8px;
+  border-left:4px solid var(--coral);box-shadow:var(--shadow-sm);
+}
+
+/* ---------- セクション3：払込免除の解剖 ---------- */
+.type-table-box{
+  background:var(--white);border-radius:22px;box-shadow:var(--shadow-sm);
+  padding:18px 14px;margin:8px 0 24px;overflow-x:auto;
+}
+.type-table{width:100%;border-collapse:collapse;min-width:520px;font-size:.9rem;}
+.type-table th,.type-table td{
+  padding:10px 10px;text-align:center;border-bottom:1.5px solid var(--line);
+  line-height:1.7;vertical-align:middle;
+}
+.type-table th{background:var(--navy-soft);color:var(--navy);font-size:.86rem;}
+.type-table th:first-child{border-radius:12px 0 0 12px;}
+.type-table th:last-child{border-radius:0 12px 12px 0;}
+.type-table td:first-child{text-align:left;font-weight:700;color:var(--navy);font-size:.88rem;}
+.type-table small{display:block;color:var(--muted);font-weight:500;font-size:.81rem;}
+.mark-ok,.mark-ng,.mark-tri{font-weight:800;font-size:1.05rem;}
+.mark-ok{color:var(--green);}
+.mark-ng{color:var(--red);}
+.mark-tri{color:var(--amber);}
+.sim-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px;margin-top:26px;
+}
+.sim-box h3{font-size:1.12rem;color:var(--navy);margin-bottom:4px;}
+.sim-box .sub{font-size:.9rem;color:var(--muted);margin-bottom:18px;}
+.sim-ctrl{margin-bottom:18px;}
+.sim-ctrl label{
+  display:flex;justify-content:space-between;align-items:baseline;
+  font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:6px;
+}
+.sim-ctrl label output{color:var(--coral-text);font-size:1.15rem;font-weight:800;}
+input[type=range]{
+  width:100%;height:34px;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;
+}
+input[type=range]::-webkit-slider-runnable-track{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--sunny),var(--coral));}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:28px;height:28px;border-radius:50%;
+  background:var(--white);border:3px solid var(--coral);margin-top:-9px;
+  box-shadow:var(--shadow-sm);
+}
+input[type=range]::-moz-range-track{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--sunny),var(--coral));}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--white);border:3px solid var(--coral);}
+.sim-check{
+  display:flex;align-items:center;gap:10px;
+  background:var(--sky-bg);border-radius:14px;padding:11px 14px;
+  font-size:.95rem;font-weight:700;color:var(--navy);cursor:pointer;
+}
+.sim-check input{width:22px;height:22px;accent-color:var(--sky);}
+.timeline{margin:48px 0 8px;}
+.tl-track{
+  position:relative;height:14px;border-radius:7px;background:#f0e4d8;
+}
+.tl-fill{
+  position:absolute;left:0;top:0;height:14px;border-radius:7px;
+  background:linear-gradient(90deg,var(--sunny),var(--coral));
+  transition:width .2s;
+}
+.tl-goal{
+  position:absolute;top:-34px;transform:translateX(-50%);
+  font-size:.81rem;font-weight:800;color:var(--red-dark);
+  text-align:center;line-height:1.3;white-space:nowrap;
+}
+.tl-goal::after{
+  content:"";display:block;width:3px;height:30px;margin:2px auto 0;
+  background:var(--red);border-radius:2px;
+}
+.tl-labels{display:flex;justify-content:space-between;font-size:.81rem;color:var(--muted);margin-top:6px;}
+.sim-results{display:grid;grid-template-columns:1fr;gap:12px;margin-top:20px;}
+@media(min-width:700px){.sim-results{grid-template-columns:repeat(3,1fr);}}
+.sim-r{
+  border-radius:18px;padding:14px 15px;border:2px solid var(--line);background:var(--bg);
+}
+.sim-r h4{font-size:.9rem;color:var(--navy);margin-bottom:6px;line-height:1.6;}
+.sim-r h4 small{display:block;font-weight:500;color:var(--muted);font-size:.8rem;}
+.sim-r .r-chip{
+  display:inline-block;font-size:.95rem;font-weight:800;
+  padding:5px 16px;border-radius:999px;margin-bottom:6px;
+}
+.sim-r.ok{border-color:var(--green-border);background:var(--green-bg);}
+.sim-r.ok .r-chip{background:var(--white);color:var(--green);}
+.sim-r.ng{border-color:var(--red-border);background:var(--red-bg);}
+.sim-r.ng .r-chip{background:var(--white);color:var(--red-dark);}
+.sim-r p{font-size:.84rem;color:var(--muted);line-height:1.75;}
+
+/* ---------- セクション4：あるある劇場 ---------- */
+.case-grid{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.case-grid{grid-template-columns:repeat(2,1fr);}}
+.case-card{
+  display:flex;align-items:center;gap:14px;text-align:left;
+  background:var(--white);border:none;border-radius:20px;
+  padding:16px 16px;cursor:pointer;box-shadow:var(--shadow);
+  font-family:inherit;transition:transform .12s;
+}
+.case-card:active{transform:scale(.985);}
+.case-card .art{
+  width:64px;height:64px;flex:0 0 64px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+}
+.case-card .art svg{width:42px;height:42px;}
+.case-card .t{flex:1;}
+.case-card .chip{
+  display:inline-block;font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:4px;
+}
+.case-card h3{font-size:.99rem;color:var(--navy);line-height:1.6;}
+.case-card .more{
+  font-size:.8rem;color:var(--coral-text);font-weight:700;
+  display:inline-flex;align-items:center;gap:4px;margin-top:4px;
+}
+.case-card .more svg{width:14px;height:14px;stroke:var(--coral-text);}
+.c-red{background:var(--red-bg);color:var(--red-dark);}
+.c-blue{background:var(--sky-bg);color:var(--sky);}
+.c-green{background:var(--green-bg);color:var(--green);}
+.c-amber{background:var(--amber-bg);color:var(--amber-deep);}
+.c-berry{background:var(--berry-bg);color:var(--berry);}
+.case-card .amt{
+  display:inline-block;margin-left:7px;
+  font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;
+  background:var(--white);color:var(--green);border:1.5px solid var(--green-border);
+}
+
+/* ---------- セクション5：逆転劇場 ---------- */
+#sec5 .case-card{box-shadow:0 6px 20px rgba(60,120,80,.12);}
+.model-note{
+  background:var(--white);border-radius:18px;padding:14px 18px;margin-bottom:18px;
+  border-left:6px solid var(--mint);box-shadow:var(--shadow-sm);
+}
+.model-note strong{display:block;font-size:.92rem;color:var(--green);margin-bottom:4px;}
+.model-note .mn-row{display:block;font-size:.95rem;line-height:1.9;color:var(--navy);}
+.model-note .mn-row b{color:var(--coral-text);}
+.model-note .mn-note{display:block;font-size:.82rem;color:var(--muted);line-height:1.8;margin-top:6px;}
+.rule3-box{
+  margin-top:28px;background:var(--white);border-radius:22px;
+  padding:20px 20px 16px;box-shadow:var(--shadow-sm);
+}
+.rule3-box h3{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.06rem;color:var(--navy);margin-bottom:12px;
+}
+.rule3-box h3 svg{width:24px;height:24px;flex:0 0 24px;stroke:var(--green);}
+.rule3-box ol{list-style:none;counter-reset:r3;}
+.rule3-box ol li{
+  counter-increment:r3;position:relative;
+  padding:0 0 12px 44px;font-size:.95rem;line-height:1.9;
+}
+.rule3-box ol li::before{
+  content:counter(r3);position:absolute;left:0;top:2px;
+  width:30px;height:30px;border-radius:50%;
+  background:var(--green-bg);color:var(--green);
+  font-weight:800;font-size:1rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.rule3-note{font-size:.8rem;color:var(--muted);border-top:1.5px dashed var(--line);padding-top:10px;line-height:1.8;}
+/* ---------- モーダル ---------- */
+.cmodal{position:fixed;inset:0;z-index:60;display:none;}
+.cmodal.show{display:block;}
+.cmodal-back{position:absolute;inset:0;background:rgba(40,30,25,.5);}
+.cmodal-panel{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(94vw,640px);max-height:88vh;overflow-y:auto;
+  background:var(--white);border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.25);
+  -webkit-overflow-scrolling:touch;
+}
+.cmodal-head{
+  position:sticky;top:0;display:flex;gap:14px;align-items:center;
+  background:var(--white);padding:18px 52px 12px 20px;
+  border-bottom:1.5px solid var(--line);z-index:2;
+}
+.cmodal-close{
+  position:absolute;right:12px;top:12px;
+  width:40px;height:40px;border-radius:50%;
+  background:var(--bg);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.cmodal-close svg{width:18px;height:18px;stroke:var(--navy);}
+.cmodal-ico{
+  width:56px;height:56px;flex:0 0 56px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+}
+.cmodal-ico svg{width:38px;height:38px;}
+.cmodal-chip{
+  display:inline-block;font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:3px;
+}
+.cmodal-title{font-size:1.08rem;color:var(--navy);line-height:1.55;}
+.cmodal-body{padding:16px 20px 22px;}
+.cmodal-block{margin-bottom:18px;}
+.cmodal-label{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:.86rem;font-weight:800;padding:5px 14px;border-radius:999px;margin-bottom:9px;
+}
+.cmodal-label svg{width:17px;height:17px;}
+.lb-blue{background:var(--sky-bg);color:var(--sky);}
+.lb-blue svg{stroke:var(--sky);}
+.lb-red{background:var(--red-bg);color:var(--red-dark);}
+.lb-red svg{stroke:var(--red-dark);}
+.lb-green{background:var(--green-bg);color:var(--green);}
+.lb-green svg{stroke:var(--green);}
+.cmodal-quote{
+  background:var(--bg);border-left:4px solid var(--coral);
+  border-radius:0 14px 14px 0;padding:12px 15px;
+  font-size:.95rem;line-height:1.9;color:var(--text);
+}
+.cmodal-quote small{display:block;text-align:right;color:var(--muted);margin-top:4px;font-size:.8rem;}
+.cmodal-p{font-size:.95rem;line-height:1.95;margin-bottom:8px;}
+.cmodal-note{
+  font-size:.8rem;color:var(--muted);line-height:1.8;margin-top:14px;
+  border-top:1.5px dashed var(--line);padding-top:12px;
+}
+
+/* ---------- まとめ・チェックリスト ---------- */
+.score-box{
+  background:var(--sky-bg);border-radius:20px;padding:18px 18px 14px;margin-bottom:24px;
+}
+.score-box h3{
+  display:flex;align-items:center;gap:8px;
+  font-size:1.02rem;color:var(--navy);margin-bottom:8px;
+}
+.score-box h3 svg{width:22px;height:22px;stroke:var(--sky);}
+.score-box p{font-size:.95rem;line-height:1.9;}
+.checklist{display:grid;grid-template-columns:1fr;gap:10px;}
+.chk-group{
+  font-size:.9rem;font-weight:800;color:var(--amber-deep);
+  margin:14px 0 2px;letter-spacing:.03em;
+}
+.chk-group:first-child{margin-top:0;}
+.chk{
+  display:flex;align-items:center;gap:12px;
+  background:var(--bg);border:2px solid var(--line);border-radius:16px;
+  padding:12px 14px;cursor:pointer;font-size:.95rem;line-height:1.7;
+  transition:border-color .15s, background .15s;
+}
+.chk input{width:24px;height:24px;flex:0 0 24px;accent-color:var(--green);cursor:pointer;}
+.chk .art{
+  width:44px;height:44px;flex:0 0 44px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.chk .art svg{width:28px;height:28px;}
+.chk:has(input:checked){background:var(--green-bg);border-color:var(--green-border);}
+.chk-msg{
+  margin-top:16px;background:var(--amber-bg);border-radius:16px;
+  padding:14px 16px;font-size:.95rem;line-height:1.9;
+}
+details.finder{
+  margin-top:26px;background:var(--bg);border-radius:18px;
+  padding:4px 18px;border:1.5px solid var(--line);
+}
+details.finder summary{
+  cursor:pointer;font-size:.98rem;font-weight:700;color:var(--navy);
+  padding:12px 0;list-style-position:inside;
+}
+details.finder ul{padding:2px 0 8px 22px;font-size:.92rem;color:var(--text);}
+details.finder li{margin-bottom:7px;line-height:1.85;}
+details.finder p{font-size:.92rem;padding:0 0 14px;line-height:1.9;}
+
+/* ---------- CTA ---------- */
+.cta-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:24px 20px;margin-top:30px;text-align:center;
+}
+.cta-box h3{font-size:1.2rem;color:var(--navy);margin-bottom:8px;line-height:1.6;}
+.cta-box .cta-lead{font-size:.95rem;color:var(--muted);text-align:left;margin-bottom:14px;line-height:1.95;}
+.cta-box ul{list-style:none;text-align:left;margin-bottom:14px;}
+.cta-box ul li{
+  display:flex;gap:9px;align-items:flex-start;
+  font-size:.94rem;line-height:1.85;margin-bottom:6px;
+}
+.cta-box ul li svg{width:19px;height:19px;flex:0 0 19px;stroke:var(--mint);margin-top:6px;}
+.co{font-size:.98rem;font-weight:800;color:var(--navy);margin-top:18px;}
+.addr{font-size:.87rem;color:var(--muted);line-height:1.7;}
+.tip{font-size:.87rem;color:var(--amber-deep);margin-top:10px;}
+.cta-mini{
+  margin-top:18px;background:var(--bg);border:2px solid var(--amber-border);
+  border-radius:18px;padding:14px 16px;text-align:center;
+}
+.cta-mini p{font-size:.92rem;line-height:1.85;margin-bottom:10px;text-align:left;}
+.cta-mini a{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--white);border:2px solid var(--coral);
+  color:var(--coral-text);text-decoration:none;font-weight:800;font-size:.95rem;
+  border-radius:999px;padding:9px 20px;
+}
+.cta-mini a svg{width:18px;height:18px;stroke:var(--coral-text);}
+
+
+/* ---------- フッター免責 ---------- */
+footer.disclaimer{
+  padding:26px 16px 30px;max-width:900px;margin:0 auto;
+}
+footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
+
+@media print{
+  .hero-nav,.cta-mini{display:none !important;}
+  body{background:#fff;}
+}
+
+/* ---------- このページ独自：シミュレーターの合計表示 ---------- */
+.sim-total{
+  background:var(--navy-soft);border-radius:18px;
+  padding:15px 16px;margin-top:18px;text-align:center;
+}
+.sim-total .lead{font-size:.88rem;color:var(--muted);line-height:1.8;margin-bottom:6px;}
+.sim-total .big{
+  display:block;font-size:1.5rem;font-weight:800;color:var(--navy);line-height:1.6;
+}
+.sim-total .big b{color:var(--coral-text);font-size:1.9rem;}
+.sim-total .sub2{display:block;font-size:.88rem;color:var(--muted);line-height:1.8;margin-top:6px;}
+/* 使いみちの色分け（出ていくお金／戻るお金） */
+.tl-fill.back{background:linear-gradient(90deg,var(--mint),var(--green));}
+</style>
+</head>
+<body>
+
+<style>
+/* このページ独自：シミュレーターの数値入力（スライダーではなく手入力にしています） */
+.sim-grid{display:grid;grid-template-columns:1fr;gap:18px;margin-bottom:20px;}
+@media(min-width:700px){.sim-grid{grid-template-columns:repeat(2,1fr);}}
+.sim-grid .sim-ctrl{margin-bottom:0;}
+.num-field{display:flex;align-items:center;gap:9px;}
+.num-field input,.num-field select{
+  flex:1 1 auto;min-width:0;font-family:inherit;font-size:1.06rem;font-weight:700;
+  color:var(--navy);background:var(--white);border:2px solid var(--line);
+  border-radius:12px;padding:11px 13px;min-height:48px;
+}
+.num-field input:focus,.num-field select:focus{border-color:var(--coral);outline:none;}
+.num-field .unit{flex:0 0 auto;font-size:1rem;font-weight:700;color:var(--navy);}
+.num-hint{font-size:.84rem;color:var(--muted);line-height:1.75;margin-top:7px;}
+.num-hint b{color:var(--coral-text);}
+.sim-r .val{display:block;font-size:1.3rem;font-weight:800;line-height:1.5;margin:2px 0 5px;color:var(--coral-text);}
+.sim-r.ok .val{color:var(--green);}
+.sim-r.ng .val{color:var(--red-dark);}
+</style>
+<!-- ================= ヒーロー ================= -->
+<header class="hero">
+  <div class="wrap">
+    <div class="brand">
+      <span class="ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg>
+      </span>
+      <span>株式会社Office-M<small>会計を母体に、数字の「小さな字」まで読み解いてご案内します</small></span>
+    </div>
+    <div class="hero-flex">
+      <div class="hero-copy">
+        <h1>その「年収の壁」、<br><span class="nowrap"><span class="accent">いつの年</span>の話ですか。</span></h1>
+        <p class="lead">「103万円を超えないように」「130万円が境目らしい」——職場でよく聞くお話ですが、この分野は<strong>数年おきに動いています</strong>。しかも、多くの方が一つの壁だと思っているものは、実際には<strong>税金の壁</strong>と<strong>社会保険の壁</strong>という、まったく別の仕組みの二階建てです。手取りに大きく効くのは、たいてい後者のほう。金額を覚えるより、<strong>どちらの壁の話をしているのか</strong>を見分けられるようになるほうが、ずっと長く役に立ちます。○×クイズだけなら3分、ぜんぶ読むと10分ほど。</p>
+        <nav class="hero-nav" aria-label="ページ内メニュー">
+          <a href="#sec1"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h9"/></svg>3つの線引き</a>
+          <a href="#sec2"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/><circle cx="12" cy="12" r="9"/></svg>○×ワナクイズ</a>
+          <a href="#sec3"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20V10M12 20V4M18 20v-6"/><path d="M4 20h16"/></svg>手取りの谷</a>
+          <a href="#sec4"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0-3.3 11 3 3 0 0 1 1.1 1.9l.03.35h4.34l.03-.35a3 3 0 0 1 1.1-1.9A6 6 0 0 0 12 3Z"/><path d="M9.8 19.2h4.4M10.7 21.7h2.6"/></svg>あるある劇場</a>
+          <a href="#sec5"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="8" width="17" height="12.5" rx="2.5"/><path d="M3.5 12h17M12 8v12.5M12 8S8.5 7.6 7.2 6.3a2.1 2.1 0 0 1 3-3C11.5 4.6 12 8 12 8Zm0 0s3.5-.4 4.8-1.7a2.1 2.1 0 0 0-3-3C12.5 4.6 12 8 12 8Z"/></svg>逆転劇場（味方の制度）</a>
+          <a href="#sec6"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5h16M7 16V9.5M12 16V5.5M17 16v-4"/></svg>谷は、いつ戻るか</a>
+        </nav>
+      </div>
+      <div class="hero-scene" aria-hidden="true">
+        <svg viewBox="0 0 360 212">
+          <circle cx="312" cy="36" r="30" fill="#ffd9a8" opacity=".45"/>
+          <circle cx="312" cy="36" r="20" fill="#f7c34e"/>
+          <ellipse cx="58" cy="30" rx="26" ry="10" fill="#fff" opacity=".95"/>
+          <ellipse cx="88" cy="38" rx="18" ry="8" fill="#fff" opacity=".8"/>
+          <path d="M0 168h360v44H0Z" fill="#ffe9c7"/>
+          <path d="M0 176c40-10 90-12 150-8 60 4 120 4 210-6v50H0Z" fill="#b3e3b8"/>
+          <!-- 低い壁（税） -->
+          <rect x="118" y="118" width="60" height="50" rx="3" fill="#fdf3e2" stroke="#8f6015" stroke-width="3"/>
+          <path d="M118 134h60M118 151h60M148 118v16M133 134v17M163 134v17M148 151v17" stroke="#8f6015" stroke-width="2.4"/>
+          <!-- 高い壁（社会保険） -->
+          <rect x="208" y="72" width="70" height="96" rx="3" fill="#fdeee9" stroke="#c2453f" stroke-width="3"/>
+          <path d="M208 96h70M208 120h70M208 144h70M243 72v24M225 96v24M261 96v24M243 120v24M225 144v24M261 144v24" stroke="#c2453f" stroke-width="2.4"/>
+          <text x="148" y="110" text-anchor="middle" font-size="12" font-weight="bold" fill="#8f6015">税</text>
+          <text x="243" y="64" text-anchor="middle" font-size="12" font-weight="bold" fill="#c2453f">社会保険</text>
+          <!-- 案内役 -->
+          <path d="M20 180c0-15 6.5-33 15-33s15 18 15 33v2H20Z" fill="#63b8dd"/>
+          <circle cx="35" cy="136" r="11" fill="#f7cdb4"/>
+          <path d="M24 134c1-9 5.5-13 11-13s10 4 11 13c-3.3-4-7-5.3-11-5.3s-7.7 1.3-11 5.3Z" fill="#5c4030"/>
+          <circle cx="31" cy="136.5" r="1.4" fill="#3d3028"/><circle cx="39" cy="136.5" r="1.4" fill="#3d3028"/>
+          <path d="M32 141c1.4 1.5 4 1.5 5.4 0" fill="none" stroke="#3d3028" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= セクション1：3つの線引き ================= -->
+<section id="sec1">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>1</i><span>今日いちばん大事な整理</span></span>
+        <h2>壁は1つではありません。<span class="nowrap">3種類</span>あります</h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotLine" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">クイズの前に、整理を3分だけ。年収の壁の話がややこしくなるのは、<strong>性質のちがう3つの線</strong>が同じ言葉で語られているからです。<strong>ご自身の税金の線</strong>、<strong>ご自身の社会保険の線</strong>、<strong>扶養している人の税金の線</strong>。この3つは、根拠になっている法律も、超えたときに起きることも、まったく別ものです。金額を覚えるより、この見分けができるほうが長く役に立ちます。</p>
+    </div>
+
+    <p class="qlink-lead">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/><circle cx="12" cy="12" r="9"/></svg>
+      この3つ、答えられますか？
+    </p>
+    <div class="qlinks">
+      <a class="qlink" href="#def-zei">
+        <span class="pair">税<span class="vs">の</span>壁</span>
+        <span class="ask">所得税と住民税、先に来るのはどっち？</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+      </a>
+      <a class="qlink" href="#def-shaho">
+        <span class="pair">社会保険<span class="vs">の</span>壁</span>
+        <span class="ask">106万円は、誰にでも当てはまる？</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+      </a>
+      <a class="qlink" href="#def-fuyou">
+        <span class="pair">扶養する人<span class="vs">の</span>壁</span>
+        <span class="ask">超えた瞬間に、控除はゼロになる？</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+      </a>
+    </div>
+
+    <!-- ===== 1-1 税の壁 ===== -->
+    <div class="def-block" id="def-zei">
+      <h3 class="def-h"><span class="def-ico ic-amber" data-art="icPayslip" aria-hidden="true"></span>1本目：自分に税金がかかり始める線</h3>
+      <p class="def-lead">まずはご自身の税金です。よく「103万円」と言われてきた線ですが、これは<strong>給与所得控除と基礎控除を足した金額</strong>にすぎません。だから<strong>その2つが変われば、線も動きます</strong>。そして実際に、2025年（令和7年）に大きく動きました。もう一つ大事なのは、<strong>所得税と住民税は別の税金で、線の位置もちがう</strong>ということです。</p>
+
+      <p class="age-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <span>線が動きました：令和7年分（2025年分）の所得税から、<b>給与所得控除の最低保障額と基礎控除が引き上げられ</b>、給与収入がおおむね<b>160万円まで所得税がかからない</b>形になりました。長く語られてきた「103万円」は、<b>それ以前の組み合わせの答え</b>です。
+        <small>根拠：所得税法28条・86条ほか、令和7年度税制改正。基礎控除の上乗せには適用年分が定められている部分があります。金額は2026年8月時点の内容で、今後も改正されることがあります。</small></span>
+      </p>
+
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="給与収入から給与所得控除と基礎控除を引いた残りに所得税がかかり住民税は別の線で始まることを示す図">
+          <text x="260" y="28" text-anchor="middle" font-size="18" font-weight="bold" fill="#1b3f5e">「103万円」の正体は、足し算です</text>
+          <rect x="24" y="46" width="150" height="86" rx="12" fill="#eaf1f7" stroke="#27587f" stroke-width="2.5"/>
+          <text x="99" y="76" text-anchor="middle" font-size="15" font-weight="bold" fill="#27587f">給与収入</text>
+          <text x="99" y="100" text-anchor="middle" font-size="12.5" fill="#5c6874">1年間に受け取った</text>
+          <text x="99" y="118" text-anchor="middle" font-size="12.5" fill="#5c6874">給与の合計（額面）</text>
+          <text x="190" y="95" text-anchor="middle" font-size="26" font-weight="bold" fill="#2c7a4b">－</text>
+          <rect x="206" y="46" width="150" height="86" rx="12" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="2.5"/>
+          <text x="281" y="76" text-anchor="middle" font-size="15" font-weight="bold" fill="#2c7a4b">給与所得控除</text>
+          <text x="281" y="100" text-anchor="middle" font-size="12.5" fill="#2c7a4b">働く人みんなの必要経費</text>
+          <text x="281" y="118" text-anchor="middle" font-size="12.5" fill="#2c7a4b">最低保障額があります</text>
+          <text x="372" y="95" text-anchor="middle" font-size="26" font-weight="bold" fill="#2c7a4b">－</text>
+          <rect x="388" y="46" width="108" height="86" rx="12" fill="#fdf3e2" stroke="#8f6015" stroke-width="2.5"/>
+          <text x="442" y="76" text-anchor="middle" font-size="15" font-weight="bold" fill="#8f6015">基礎控除</text>
+          <text x="442" y="100" text-anchor="middle" font-size="12" fill="#8f6015">所得のある人なら</text>
+          <text x="442" y="118" text-anchor="middle" font-size="12" fill="#8f6015">だれでも引ける</text>
+          <path d="M260 140v22" stroke="#c2451f" stroke-width="3" stroke-linecap="round"/>
+          <path d="m252 156 8 10 8-10" fill="none" stroke="#c2451f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="120" y="172" width="280" height="52" rx="12" fill="#fdeee9" stroke="#c2453f" stroke-width="3"/>
+          <text x="260" y="204" text-anchor="middle" font-size="17" font-weight="bold" fill="#a63631">残りがあれば、所得税がかかる</text>
+          <text x="260" y="250" text-anchor="middle" font-size="13.5" fill="#5c6874">2つの控除が変われば、線も動きます</text>
+          <text x="260" y="274" text-anchor="middle" font-size="13.5" fill="#5c6874">住民税は別の税金で、線もちがいます</text>
+        </svg>
+        <p class="venn-cap">※住民税は所得税より<strong>先に始まる</strong>のがふつうです。住民税がかからない範囲は地方税法で定められていますが、<strong>均等割の基準はお住まいの自治体によって異なります</strong>。「所得税がゼロだから何もかからない」とは限らない、というのが見落としやすいところです。正確な金額は、お住まいの市区町村にご確認ください。</p>
+      </div>
+
+      <div class="cards">
+        <div class="risk-card">
+          <div class="icon ic-amber" data-art="icPayslip" aria-hidden="true"></div>
+          <h3>「103万円」という数字</h3>
+          <span class="judge-chip maybe">昔の足し算の答え</span>
+          <p>給与所得控除の最低保障額と基礎控除を足した金額でした。<strong>2025年（令和7年）の改正でどちらも引き上げられた</strong>ため、いまの答えはこの数字ではありません。職場で聞く話が何年の話かを、まず確かめてください。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-green" data-art="icYen2" aria-hidden="true"></div>
+          <h3>いまの所得税の線</h3>
+          <span class="judge-chip ok">おおむね160万円</span>
+          <p>令和7年分（2025年分）から、給与収入がおおむね<strong>160万円までは所得税がかからない</strong>形になりました。ただし基礎控除の上乗せには<strong>適用される年分が定められている部分</strong>があります。毎年の確認が必要です。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-blue" data-art="icCity" aria-hidden="true"></div>
+          <h3>住民税の線</h3>
+          <span class="judge-chip maybe">所得税より手前です</span>
+          <p>住民税は所得税と別に計算され、かかり始める年収は<strong>おおむね100万円台前半</strong>。しかも<strong>自治体によって基準が異なります</strong>。金額は小さめですが、「税金は一切かからないはず」という思い込みは、たいていここで崩れます。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-red" data-art="icWall" aria-hidden="true"></div>
+          <h3>税の壁は「崖」ではない</h3>
+          <span class="judge-chip ok">超えた分にだけ</span>
+          <p>所得税も住民税も、<strong>線を超えた部分にだけ</strong>かかります。1円超えた瞬間に大きな金額が発生することはありません。手取りが急に減る「崖」があるのは、次にご説明する社会保険のほうです。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 1-2 社会保険の壁 ===== -->
+    <div class="def-block" id="def-shaho">
+      <h3 class="def-h"><span class="def-ico ic-red" data-art="icNenkin" aria-hidden="true"></span>2本目：社会保険の扶養から外れる線</h3>
+      <p class="def-lead">2本目は、健康保険と年金の話です。ここが<strong>税金とはまったく別の制度</strong>だということが、いちばん伝わっていません。税金は超えた分だけ増えますが、社会保険は<strong>要件に当てはまった時点で保険料の負担が発生します</strong>。手取りに大きく効くのは、こちらのほうです。線は大きく2つ、<strong>106万円と呼ばれるもの</strong>と、<strong>130万円と呼ばれるもの</strong>です。</p>
+
+      <p class="age-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <span>ここも動いています：2025年（令和7年）の年金制度の改正で、いわゆる<b>106万円の賃金要件の撤廃と、企業規模要件の段階的な撤廃</b>が決まりました。施行は段階的に進められる予定です。<b>いま何が適用されているかは年によって変わります</b>ので、勤務先または年金事務所でご確認ください。
+        <small>根拠：健康保険法3条、厚生年金保険法12条ほか。被扶養者の認定基準は保険者（健康保険組合等）が判断します。2026年8月時点の一般的な説明です。</small></span>
+      </p>
+
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="106万円の壁は要件を満たす人だけに当てはまり130万円の壁は健康保険の扶養から外れる線であることを示す図">
+          <text x="260" y="28" text-anchor="middle" font-size="18" font-weight="bold" fill="#1b3f5e">社会保険の線は、2種類あります</text>
+          <rect x="24" y="46" width="222" height="128" rx="12" fill="#fdf3e2" stroke="#8f6015" stroke-width="3"/>
+          <text x="135" y="74" text-anchor="middle" font-size="16" font-weight="bold" fill="#8f6015">106万円と呼ばれる線</text>
+          <text x="135" y="100" text-anchor="middle" font-size="12.5" fill="#8f6015">勤務先の社会保険に入る</text>
+          <text x="135" y="122" text-anchor="middle" font-size="12.5" fill="#8f6015">週の労働時間・勤務先の規模</text>
+          <text x="135" y="142" text-anchor="middle" font-size="12.5" fill="#8f6015">学生でないことなどの要件</text>
+          <text x="135" y="162" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#a85c12">当てはまる人だけ</text>
+          <rect x="274" y="46" width="222" height="128" rx="12" fill="#fdeee9" stroke="#c2453f" stroke-width="3"/>
+          <text x="385" y="74" text-anchor="middle" font-size="16" font-weight="bold" fill="#a63631">130万円と呼ばれる線</text>
+          <text x="385" y="100" text-anchor="middle" font-size="12.5" fill="#a63631">健康保険の扶養から外れる</text>
+          <text x="385" y="122" text-anchor="middle" font-size="12.5" fill="#a63631">これからの見込みで判定する</text>
+          <text x="385" y="142" text-anchor="middle" font-size="12.5" fill="#a63631">60歳以上などは別の基準</text>
+          <text x="385" y="162" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#a63631">要件を問わず来る線</text>
+          <rect x="110" y="196" width="300" height="46" rx="12" fill="#eaf1f7" stroke="#27587f" stroke-width="2.5"/>
+          <text x="260" y="224" text-anchor="middle" font-size="15" font-weight="bold" fill="#27587f">どちらも、保険料の負担が始まります</text>
+          <text x="260" y="266" text-anchor="middle" font-size="13" fill="#5c6874">同時に、公的な保障を受ける側にもなります</text>
+          <text x="260" y="288" text-anchor="middle" font-size="13" fill="#5c6874">損得は、保険料だけでは決まりません</text>
+        </svg>
+        <p class="venn-cap">※106万円の線は<strong>勤務先の社会保険に加入する</strong>話、130万円の線は<strong>ご家族の健康保険の扶養から外れる</strong>話です。似ていますが、加入先も手続きも違います。前者は保険料が<strong>労使折半（半分は勤務先の負担）</strong>になりますが、後者で勤務先の社会保険に入れない場合は、国民年金・国民健康保険を<strong>ご自身で全額負担</strong>することになります。</p>
+      </div>
+
+      <div class="cards">
+        <div class="risk-card">
+          <div class="icon ic-amber" data-art="icTokei" aria-hidden="true"></div>
+          <h3>106万円は「要件つき」</h3>
+          <span class="judge-chip maybe">全員には来ません</span>
+          <p>週の所定労働時間、雇用の見込み、学生でないこと、勤務先の規模——といった<strong>複数の要件をすべて満たした場合</strong>に、勤務先の社会保険に加入します。パートで働いていれば誰にでも来る線ではありません。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-red" data-art="icWall" aria-hidden="true"></div>
+          <h3>130万円は「見込み」で判定</h3>
+          <span class="judge-chip ng">去年の実績ではありません</span>
+          <p>健康保険の扶養は、<strong>これから1年間の収入の見込み</strong>で判断されます。月の収入が続くと見込まれる水準で見るため、「年末に調整すれば大丈夫」が通じないことがあります。判断するのは加入している健康保険です。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-blue" data-art="icKazoku" aria-hidden="true"></div>
+          <h3>60歳以上・障害のある方</h3>
+          <span class="judge-chip ok">別の基準があります</span>
+          <p>健康保険の扶養の基準は、<strong>60歳以上の方や一定の障害のある方は、130万円ではなく180万円</strong>とされているのが一般的です。ご両親を扶養に入れている場合は、こちらの基準で確認してください。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-green" data-art="icNenkin" aria-hidden="true"></div>
+          <h3>保険料だけの話ではない</h3>
+          <span class="judge-chip ok">受け取る側にもなります</span>
+          <p>厚生年金に加入すれば<strong>将来の老齢厚生年金が増え</strong>、健康保険では<strong>傷病手当金や出産手当金</strong>の対象になります。負担が増えるのは事実ですが、それだけを見て損得を決めるのは早すぎます。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 1-3 扶養する人の壁 ===== -->
+    <div class="def-block" id="def-fuyou">
+      <h3 class="def-h"><span class="def-ico ic-blue" data-art="icStep" aria-hidden="true"></span>3本目：扶養している人の税金が変わる線</h3>
+      <p class="def-lead">3本目は、<strong>配偶者やお子さんを扶養している方</strong>の税金です。ここでよくある心配が「扶養から外れたら、相手の税金が一気に増えるのでは」というもの。ご安心ください。この線は<strong>ずいぶん前から階段状になっていて</strong>、超えた瞬間に控除がゼロになる仕組みではありません。しかも2025年（令和7年）の改正で、お子さんについても同じような階段が新しく作られました。</p>
+
+      <p class="age-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <span>読み方のコツ：この階段は法律上、給与収入ではなく<b>合計所得金額</b>で決められています。給与所得控除が改正で変わったため、<b>同じ階段でも給与収入に直したときの金額が動いています</b>。だから「150万円」「201万円」といった数字は、その年の換算値として理解してください。
+        <small>根拠：所得税法83条・83条の2（配偶者控除・配偶者特別控除）ほか、令和7年度税制改正（特定親族特別控除の創設）。金額は必ず最新の国税庁の資料でご確認ください。</small></span>
+      </p>
+
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="配偶者の所得が増えても控除は階段状に減っていきゼロになるまでに幅があることを示す図">
+          <text x="260" y="28" text-anchor="middle" font-size="18" font-weight="bold" fill="#1b3f5e">控除は、崖ではなく階段です</text>
+          <path d="M40 240h450" stroke="#d9cfc4" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M52 240V56" stroke="#d9cfc4" stroke-width="2.5" stroke-linecap="round"/>
+          <rect x="60" y="80" width="150" height="160" rx="4" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="2.5"/>
+          <text x="135" y="112" text-anchor="middle" font-size="14" font-weight="bold" fill="#2c7a4b">満額のまま</text>
+          <text x="135" y="136" text-anchor="middle" font-size="12.5" fill="#2c7a4b">配偶者控除</text>
+          <text x="135" y="156" text-anchor="middle" font-size="12.5" fill="#2c7a4b">または配偶者特別控除</text>
+          <rect x="214" y="120" width="60" height="120" rx="4" fill="#fdf3e2" stroke="#8f6015" stroke-width="2.5"/>
+          <rect x="278" y="160" width="60" height="80" rx="4" fill="#fdf3e2" stroke="#8f6015" stroke-width="2.5"/>
+          <rect x="342" y="196" width="60" height="44" rx="4" fill="#fdf3e2" stroke="#8f6015" stroke-width="2.5"/>
+          <rect x="406" y="228" width="60" height="12" rx="4" fill="#fdeee9" stroke="#c2453f" stroke-width="2.5"/>
+          <text x="308" y="102" text-anchor="middle" font-size="13.5" font-weight="bold" fill="#8f6015">少しずつ減っていきます</text>
+          <text x="436" y="212" text-anchor="middle" font-size="13" font-weight="bold" fill="#a63631">ここでゼロ</text>
+          <text x="135" y="264" text-anchor="middle" font-size="12.5" fill="#5c6874">所得が少ないうち</text>
+          <text x="308" y="264" text-anchor="middle" font-size="12.5" fill="#5c6874">階段でなだらかに</text>
+          <text x="436" y="264" text-anchor="middle" font-size="12.5" fill="#5c6874">上限を超えると</text>
+          <text x="260" y="290" text-anchor="middle" font-size="13" fill="#5c6874">1円超えて全部消える、ということはありません</text>
+        </svg>
+        <p class="venn-cap">※配偶者控除がなくなっても、そこから先は<strong>配偶者特別控除</strong>が引き継ぎます。満額のまま続く区間があり、そのあと階段状に減っていき、合計所得金額が一定額を超えたところでゼロになります。<strong>扶養している方ご自身の所得が高い場合（合計所得1,000万円超）は、はじめから対象外</strong>という別の条件もあります。</p>
+      </div>
+
+      <div class="cards">
+        <div class="risk-card">
+          <div class="icon ic-green" data-art="icScale2" aria-hidden="true"></div>
+          <h3>配偶者控除と配偶者特別控除</h3>
+          <span class="judge-chip ok">続けて効きます</span>
+          <p>配偶者の所得が増えて配偶者控除の対象から外れても、<strong>配偶者特別控除がそのまま満額で引き継ぐ区間</strong>があります。そこから階段状に減っていく設計なので、境目で急に手取りが落ちることはありません。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-amber" data-art="icStudent" aria-hidden="true"></div>
+          <h3>19歳から22歳のお子さん</h3>
+          <span class="judge-chip ok">新しい階段ができました</span>
+          <p>2025年（令和7年）の改正で<strong>特定親族特別控除</strong>が作られました。お子さんのアルバイト収入が一定額までは<strong>これまでと同じ控除が続き</strong>、そこから段階的に減る形です。「103万円を超えるな」と伝えていたご家庭は、前提が変わっています。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-blue" data-art="icShain" aria-hidden="true"></div>
+          <h3>扶養する側の所得</h3>
+          <span class="judge-chip maybe">高いと対象外です</span>
+          <p>扶養している方の合計所得金額が<strong>1,000万円を超えると、配偶者控除も配偶者特別控除も使えません</strong>。900万円を超えたところから段階的に小さくなります。配偶者の年収だけを見ていると、この条件を見落とします。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-red" data-art="icDoc2" aria-hidden="true"></div>
+          <h3>会社の家族手当</h3>
+          <span class="judge-chip ng">法律とは別の基準</span>
+          <p>勤務先が独自に払う家族手当・配偶者手当は、<strong>法律の壁とは無関係に、就業規則で基準が決まっています</strong>。古い基準のまま運用されていることもあり、税の壁を超えていないのに手当だけ消える、ということが起こります。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>3つの線に共通するのは、<strong>「一つの壁だと思われている」</strong>ことです。税の線は超えた分にだけ効き、社会保険の線は要件に当てはまった時点で効き、扶養する人の線は階段でなだらかに効く。<strong>効き方がまったく違うものを、同じ言葉でまとめて呼んでいる</strong>——ここが混乱のもとです。※金額は改正で動きます。個別の税額計算・申告については税理士に、社会保険の加入や扶養の判定については勤務先・年金事務所・加入している健康保険にご確認ください。</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション2：○×クイズ ================= -->
+<section id="sec2" class="band round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>2</i><span>思い込みをチェック</span></span>
+        <h2>かかる？かからない？　年収の壁<span class="nowrap">クイズ</span>8問</h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotQuiz" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">ここからが本番です。笑いどころもありますが、<strong>すべて実際の制度の決まりごとがモデル</strong>。「かかる」と思ったら○、「かからない」と思ったら×を押してください。金額の暗記ではなく、<strong>どちらの壁の話か</strong>を見分ける問題を中心にしています。</p>
+    </div>
+    <div class="quiz-shell">
+      <div id="quizPlay">
+        <div class="q-top">
+          <div class="q-count">質問 <span id="qNum">1</span> ／ 8</div>
+          <div class="dots" id="qDots" aria-hidden="true"></div>
+        </div>
+        <div class="q-body">
+          <div class="icon" id="qIcon" aria-hidden="true"></div>
+          <p id="qText"></p>
+        </div>
+        <div class="ans-row">
+          <button type="button" class="ans-btn yes" id="btnYes">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/></svg>
+            <span id="lblYes">かかる</span>
+          </button>
+          <button type="button" class="ans-btn no" id="btnNo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            <span id="lblNo">かからない</span>
+          </button>
+        </div>
+        <div class="verdict" id="verdict" aria-live="polite">
+          <div class="verdict-head">
+            <span class="verdict-answer" id="vAnswer"></span>
+            <span class="result-chip" id="vChip"></span>
+          </div>
+          <p class="expl" id="vExpl"></p>
+          <div class="kv kv-wana"><b>ワナの正体：</b><span id="vWana"></span></div>
+          <div class="kv"><b>確認ポイント：</b><span id="vCheck"></span></div>
+        </div>
+        <button type="button" class="btn-primary" id="btnNext" style="display:none;">
+          次の質問へ
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+        <button type="button" class="btn-ghost" id="btnStopHere" style="display:none;">ここまでの結果を見る（残りはあとでも大丈夫です）</button>
+      </div>
+
+      <div class="quiz-done" id="quizDone">
+        <p class="score">クイズおつかれさまでした！　<span class="nowrap"><span id="doneTotal">8</span>問中 <span class="num" id="doneScore">0</span> 問正解</span></p>
+        <p class="cmt" id="doneCmt"></p>
+        <div class="wrong-list" id="wrongList" style="display:none;"></div>
+        <div data-cta-mini></div>
+        <button type="button" class="btn-ghost" id="btnMailSelf">この結果を自分（またはご家族）に送る</button>
+        <button type="button" class="btn-ghost" id="btnPrint">印刷して給与明細と一緒に保管する</button>
+        <button type="button" class="btn-ghost" id="btnRetry">もう一度挑戦する</button>
+      </div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>クイズの「かかる・かからない」は、一般的な取扱いを前提とした例です。実際の判定は、勤務先の状況や加入している健康保険によって変わります。また金額はたびたび改正されます。「うちの場合はどうだろう」と思ったら、それが給与明細と就業規則を出すベストタイミングです。</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション3：手取りの谷 ================= -->
+<section id="sec3" class="band-sky round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>3</i><span>いちばん知りたいところ</span></span>
+        <h2>「働き損」の正体を<span class="nowrap">解剖する</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotCalc" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">「壁を超えると働き損になるんでしょう」——ご相談でいちばんよく聞くひと言です。ここだけは、数字でお答えします。たしかに<strong>手取りが一時的に下がる区間はあります</strong>。ただし、それは<strong>谷であって、崖ではありません</strong>。もう少し働けば元に戻り、その先は増えていきます。大事なのは「超えるか超えないか」ではなく、<strong>谷の幅がどれくらいか</strong>を知っておくことです。</p>
+    </div>
+
+    <p class="sec-lead">まず、社会保険に加入する要件を満たす働き方をしている方の例で見てみましょう。下は<strong>週20時間以上働き、勤務先の従業員数が加入対象になる規模</strong>で、60歳未満・扶養している配偶者がいるケースの試算です。</p>
+
+    <div class="type-table-box">
+      <table class="type-table" aria-label="年収105万円130万円160万円のときに税金と社会保険料と手取りがどう変わるかの比較表">
+        <thead>
+          <tr>
+            <th>年収（額面）</th>
+            <th>105万円<small>社会保険の対象外</small></th>
+            <th>130万円<small>加入したあと</small></th>
+            <th>160万円<small>もっと働いた場合</small></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>自分の所得税</td>
+            <td>0円</td>
+            <td>0円</td>
+            <td>0円</td>
+          </tr>
+          <tr>
+            <td>自分の住民税<small>※自治体により異なります</small></td>
+            <td>0円</td>
+            <td>約7,500円</td>
+            <td>約3万3千円</td>
+          </tr>
+          <tr>
+            <td>社会保険料<small>※年収の約15%として試算</small></td>
+            <td>0円</td>
+            <td>約19万5千円</td>
+            <td>約24万円</td>
+          </tr>
+          <tr>
+            <td>手取りの目安</td>
+            <td><span class="mark-ok">約105万円</span></td>
+            <td>約110万円</td>
+            <td><span class="mark-ok">約133万円</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="venn-cap">※このページの説明用に単純化した概算です（2026年8月時点の一般的な制度を前提としています）。社会保険料はお住まいの都道府県や加入する健康保険によって異なります。住民税は自治体によって基準が異なります。実際の金額は勤務先および市区町村にご確認ください。<strong>いちばん手取りが下がるのは、加入した直後</strong>です。表のように働く時間を増やしていくと、手取りは戻り、その先は増えていきます。</p>
+    </div>
+
+    <p class="sec-lead">そのうえで、ご自身の条件を入れてみてください。<strong>いまどの壁の内側にいるのか</strong>と、<strong>そのときの手取りの目安</strong>が、その場で分かります。</p>
+
+    <div class="sim-box">
+      <h3>体感シミュレーター「うちの場合、手取りはいくら？」</h3>
+      <p class="sub">働き方の条件を選んでください。結果はこのページの説明用に単純化した概算です。</p>
+
+      <div class="sim-grid">
+        <div class="sim-ctrl">
+          <label for="simNenshu">1年間の給与収入（額面）</label>
+          <div class="num-field">
+            <input type="number" id="simNenshu" inputmode="numeric" min="0" max="300" step="1" value="120">
+            <span class="unit">万円</span>
+          </div>
+          <p class="num-hint">通勤手当を除いた、給与の合計の見込み。0〜300の範囲で入力してください。</p>
+        </div>
+        <div class="sim-ctrl">
+          <label for="simJikan">週の所定労働時間</label>
+          <div class="num-field">
+            <select id="simJikan">
+              <option value="30">30時間以上</option>
+              <option value="20" selected>20時間以上30時間未満</option>
+              <option value="0">20時間未満</option>
+            </select>
+          </div>
+          <p class="num-hint">雇用契約書に書かれている、決まった労働時間で選んでください。</p>
+        </div>
+        <div class="sim-ctrl">
+          <label for="simKibo">勤務先の規模</label>
+          <div class="num-field">
+            <select id="simKibo">
+              <option value="1" selected>社会保険の適用対象になる規模</option>
+              <option value="0">対象外の規模・分からない</option>
+            </select>
+          </div>
+          <p class="num-hint">対象になる従業員数は<b>段階的に広がる予定</b>です。勤務先にご確認ください。</p>
+        </div>
+        <div class="sim-ctrl">
+          <label for="simNenrei">ご自身の年齢</label>
+          <div class="num-field">
+            <select id="simNenrei">
+              <option value="0" selected>60歳未満</option>
+              <option value="1">60歳以上</option>
+            </select>
+          </div>
+          <p class="num-hint">健康保険の扶養の基準が変わります（60歳以上は基準が高くなります）。</p>
+        </div>
+        <div class="sim-ctrl">
+          <label for="simHaigu">扶養している方の合計所得金額</label>
+          <div class="num-field">
+            <select id="simHaigu">
+              <option value="900" selected>900万円以下</option>
+              <option value="950">900万円超950万円以下</option>
+              <option value="1000">950万円超1,000万円以下</option>
+              <option value="0">1,000万円超・扶養されていない</option>
+            </select>
+          </div>
+          <p class="num-hint">配偶者控除・配偶者特別控除が使えるかどうかの判定に使います。</p>
+        </div>
+      </div>
+
+      <div class="sim-results" aria-live="polite">
+        <div class="sim-r" id="simR1">
+          <h4>税の壁<small>自分にかかる所得税・住民税</small></h4>
+          <span class="r-chip" id="simR1Chip"></span>
+          <p id="simR1Txt"></p>
+        </div>
+        <div class="sim-r" id="simR2">
+          <h4>社会保険の壁<small>保険料の負担が始まるか</small></h4>
+          <span class="r-chip" id="simR2Chip"></span>
+          <p id="simR2Txt"></p>
+        </div>
+        <div class="sim-r" id="simR3">
+          <h4>扶養している方の控除<small>配偶者控除・配偶者特別控除</small></h4>
+          <span class="r-chip" id="simR3Chip"></span>
+          <p id="simR3Txt"></p>
+        </div>
+      </div>
+
+      <div class="sim-total">
+        <span class="lead" id="simTotalLead">この条件なら</span>
+        <span class="big" id="simTotalBig"></span>
+        <span class="sub2" id="simTotalSub"></span>
+      </div>
+
+      <p class="venn-cap" style="margin-top:10px;">※この試算では、社会保険料は年収のおおむね15%（本人負担分）、国民年金保険料は年およそ21万円として計算しています。国民健康保険料は自治体によって差が大きいため<strong>含めていません</strong>（扶養から外れて国民健康保険に加入する場合、手取りはこの表示よりさらに下がります）。住民税は所得割をおおむね10%、均等割を年5,000円として計算した概算で、自治体により異なります。復興特別所得税、その他の所得控除、賞与や通勤手当の扱いは考慮していません。実際の税額・保険料は、税理士、勤務先、年金事務所、加入している健康保険にご確認ください。</p>
+    </div>
+
+    <div class="mikane" style="margin-top:26px;">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+        だから、見るべきは「壁の高さ」ではありません
+      </h3>
+      <ol>
+        <li><strong>谷の幅を見る。</strong>手取りが下がるのは加入した直後だけで、<b>働く時間を増やせば戻ります</b>。この試算の前提なら、社会保険に入ってから年収125万円ほどで元の水準に戻る計算です。問題は「超えるか」ではなく「谷を渡りきれるか」。</li>
+        <li><strong>渡り方は2通りある。</strong><b>手前で止まる</b>か、<b>越えて増やす</b>か。どちらが良いかは、働ける時間・家庭の事情・将来の年金の考え方で変わります。正解が1つではない、という点だけは押さえておいてください。</li>
+        <li><strong>会社の手当も勘定に入れる。</strong>家族手当が月1万円なら年12万円。<b>公的な負担より大きいことがあります</b>。勤務先の就業規則を確認しないまま計算しても、答えは合いません。</li>
+      </ol>
+      <p class="caution">
+        <strong>いちばん多いのは「古い数字で止めていた」</strong>
+        ご相談でいちばん多いのは、<b>何年も前に聞いた金額のまま毎年シフトを抑えている</b>というお話です。この分野は数年おきに動きます。しかも動く方向は、働きたい人が働きやすくなる向きであることが多い。<b>年に一度、いまの線を確かめる</b>だけで、選べる働き方が変わることがあります。
+      </p>
+    </div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>ここでご案内しているのは<strong>一般的な仕組みと概算</strong>であり、どの働き方が有利かをおすすめするものではありません。手取りだけでなく、将来の年金や健康保険の給付、ご家庭の事情まで含めて考えるものだからです。※個別の税額計算・申告については税理士に、社会保険の判定については勤務先・年金事務所・加入している健康保険にご確認ください。</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション4：あるある劇場 ================= -->
+<section id="sec4" class="band-blush round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>4</i><span>よく伺うお話の寸劇集</span></span>
+        <h2>年収の壁あるある劇場</h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotTheater" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">ご相談の場でよく伺うお話を、寸劇風にまとめました。笑えるのは他人事のうちです。気になる演目をタップしてご覧ください。</p>
+    </div>
+
+    <div class="case-grid" id="caseGrid"></div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>各演目は一般的な内容をもとにした創作例で、実在の個人・事業所とは関係ありません。金額はいずれも「たとえば」の目安です。実際の判定は、勤務先の状況や加入している健康保険によって異なります。</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション5：逆転劇場 ================= -->
+<section id="sec5" class="band-mint round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>5</i><span>知って得する側の話</span></span>
+        <h2>逆転劇場〜壁の向こうにも<span class="nowrap">制度が〜</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotGift" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">ここまで「壁」の話が続いて、働くのが怖くなりかけていませんか。ご安心ください。制度の側も、<strong>なだらかにするための仕組みをいくつも用意しています</strong>。しかもそのほとんどが、<strong>知らないと気づかないもの</strong>。ここからは、味方になる8つの話です。</p>
+    </div>
+
+    <div class="model-note">
+      <strong>このページの「金額」の目安</strong>
+      <span class="mn-row">2026年<b>8月時点</b>の一般的な制度をもとにした概算です</span>
+      <span class="mn-note">※この分野は数年おきに改正されます。金額・要件・施行時期は、その年の国税庁・日本年金機構・加入している健康保険の資料で必ずご確認ください。有利不利をおすすめするものではありません。</span>
+    </div>
+
+    <div class="case-grid" id="goodGrid"></div>
+
+    <div class="rule3-box">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg>
+        壁に振り回されないための「3か条」
+      </h3>
+      <ol>
+        <li><strong>どの壁の話かを、まず分ける。</strong>税金か、社会保険か、勤務先の手当か。<strong>この3つは別々の制度</strong>です。混ぜて考えると、必ずどこかで答えが合わなくなります。</li>
+        <li><strong>金額より、要件を見る。</strong>とくに社会保険は、金額だけでなく<strong>週の労働時間・勤務先の規模・年齢</strong>で結論が変わります。自分に来る壁かどうかが先です。</li>
+        <li><strong>年に一度、更新する。</strong>この分野は数年おきに動きます。<strong>去年の答えが今年も正しいとは限りません。</strong>年末調整の書類が配られる時期が、確認するのにちょうどよいタイミングです。</li>
+      </ol>
+      <p class="rule3-note">※金額はいずれも一例です。適用の可否は要件と事実関係により異なります。制度の内容・施行時期は改正されることがあります。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション6：谷の形 ================= -->
+<section id="sec6" class="band-sky round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>6</i><span>数字の話をひとつだけ</span></span>
+        <h2>手取りは下がっても、<span class="nowrap">戻ります</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotCal" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">最後に、数字の話をひとつだけ。社会保険に加入すると、たしかに手取りは一度下がります。ただし<strong>下がったままではありません</strong>。下のグラフは、このページの試算での動きです。<strong>いちばん低いのは加入した直後</strong>で、そこから働く時間を増やしていくと、やがて元の水準に戻ります。谷の幅が分かれば、あとは選ぶだけです。</p>
+    </div>
+
+    <div class="life-box">
+      <h3>手取りは、加入した直後がいちばん低くなります</h3>
+      <p class="sub">週20時間以上・社会保険の適用対象になる規模の勤務先・60歳未満の場合の試算</p>
+      <svg viewBox="0 56 380 196" role="img" aria-label="年収105万円のときの手取りが約105万円で年収110万円では約94万円に下がり年収125万円で約106万円に戻ることを示す棒グラフ">
+        <path d="M18 170h344" stroke="#d9cfc4" stroke-width="2" stroke-linecap="round"/>
+        <rect x="42" y="86" width="46" height="84" rx="4" fill="#c6e2f2"/>
+        <text x="65" y="78" text-anchor="middle" font-size="14" font-weight="bold" fill="#24729f">約105万円</text>
+        <text x="65" y="190" text-anchor="middle" font-size="12.5" fill="#5c6874">年収105万円</text>
+        <text x="65" y="206" text-anchor="middle" font-size="11" fill="#5c6874">加入の前</text>
+        <rect x="152" y="95" width="46" height="75" rx="4" fill="#f0846a"/>
+        <text x="175" y="87" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2451f">約94万円</text>
+        <text x="175" y="190" text-anchor="middle" font-size="12.5" fill="#5c6874">年収110万円</text>
+        <text x="175" y="206" text-anchor="middle" font-size="11" fill="#a63631">谷のいちばん下</text>
+        <rect x="262" y="85" width="46" height="85" rx="4" fill="#f7c34e"/>
+        <text x="285" y="77" text-anchor="middle" font-size="14" font-weight="bold" fill="#8f6015">約106万円</text>
+        <text x="285" y="190" text-anchor="middle" font-size="12.5" fill="#5c6874">年収125万円</text>
+        <text x="285" y="206" text-anchor="middle" font-size="11" fill="#5c6874">元に戻ります</text>
+        <path d="M212 120h38" stroke="#2c7a4b" stroke-width="2.5" stroke-dasharray="5 4"/>
+        <path d="m242 114 8 6-8 6" fill="none" stroke="#2c7a4b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="190" y="240" text-anchor="middle" font-size="13" font-weight="bold" fill="#2c7a4b">崖ではなく、渡れる幅の谷です</text>
+      </svg>
+      <p class="life-cap">※このページの説明用に単純化した<strong>概算</strong>です（社会保険料は年収の約15%、住民税は所得割約10%＋均等割年5,000円として計算）。実際の金額は、お住まいの自治体、加入する健康保険、賞与や通勤手当の有無によって変わります。<strong>この試算は特定の働き方をおすすめするものではありません。</strong>ご自身の条件は③のシミュレーターでお確かめください。</p>
+
+      <div class="big3">
+        <span class="b"><span class="n">2種類</span><span class="l">壁の性質はちがう</span><span class="s">税は超えた分だけ、社会保険は要件で</span></span>
+        <span class="b"><span class="n">約125万円</span><span class="l">手取りが戻る目安</span><span class="s">この試算の前提での目安。条件で変わります</span></span>
+        <span class="b"><span class="n">年に1回</span><span class="l">確認のペース</span><span class="s">数年おきに改正されるため</span></span>
+      </div>
+    </div>
+
+    <h3 class="sub-h">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+      立場によって、見るべき線が変わります
+    </h3>
+    <p class="sub-lead">同じ「年収の壁」でも、<strong>誰の話かによって注意する場所がまったく違います</strong>。ご自身に当てはまるところだけでも見ておいてください。</p>
+
+    <div class="age-cards">
+      <div class="age-card">
+        <p class="ttl"><span class="ico ic-red" data-art="icKazoku" aria-hidden="true"></span>配偶者のパート</p>
+        <span class="kind">社会保険の壁が主役</span>
+        <div class="rows">
+          <p class="row"><span>手取りに効く</span><b>社会保険</b></p>
+          <p class="row"><span>見落としがち</span><b>会社の手当</b></p>
+        </div>
+        <p class="cmt">税金の線より、社会保険の線のほうが手取りへの影響が大きくなります。あわせて、配偶者の勤務先の家族手当の基準も必ず確認してください。</p>
+        <p class="src">※健康保険の扶養は、これからの収入の見込みで判定されます</p>
+      </div>
+      <div class="age-card">
+        <p class="ttl"><span class="ico ic-amber" data-art="icStudent" aria-hidden="true"></span>19歳から22歳の学生</p>
+        <span class="kind">2025年に制度が変わりました</span>
+        <div class="rows">
+          <p class="row"><span>新しい控除</span><b>特定親族特別</b></p>
+          <p class="row"><span>社会保険は</span><b>学生は原則除外</b></p>
+        </div>
+        <p class="cmt">親の控除が段階的に減る形になり、以前のように一定額を超えた瞬間に消える仕組みではなくなりました。金額はその年の資料でご確認ください。</p>
+        <p class="src">※勤務先の社会保険の加入要件から、学生は原則として除かれています</p>
+      </div>
+      <div class="age-card">
+        <p class="ttl"><span class="ico ic-blue" data-art="icHitori" aria-hidden="true"></span>60歳以上の方</p>
+        <span class="kind">扶養の基準が変わります</span>
+        <div class="rows">
+          <p class="row"><span>健康保険の扶養</span><b>基準が高い</b></p>
+          <p class="row"><span>75歳になると</span><b>制度が移る</b></p>
+        </div>
+        <p class="cmt">健康保険の扶養の基準は130万円ではなく180万円とされているのが一般的です。ご両親を扶養に入れられるかは、この基準で確認してください。</p>
+        <p class="src">※在職中の老齢厚生年金は、収入によって調整される仕組みがあります</p>
+      </div>
+    </div>
+
+    <div class="mikane">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5V9.2M12 9.2 7.6 5M12 9.2 16.4 5"/><circle cx="12" cy="15" r="8.2"/></svg>
+        だから、いまできることは3つだけ
+      </h3>
+      <ol>
+        <li><strong>雇用契約書を出す。</strong>週の所定労働時間と、勤務先の規模。<b>この2つで、社会保険の壁が自分に来るかどうかが決まります</b>。金額より先に確認すべき情報です。</li>
+        <li><strong>就業規則を確認する。</strong>ご自身とご家族の勤務先の<b>家族手当の基準</b>。法律の壁とは別に決まっていて、しかも金額が大きいことがあります。</li>
+        <li><strong>年に一度、更新する。</strong>この分野は数年おきに動きます。<b>年末調整の書類が配られる時期</b>に、その年の線を確かめる習慣をつけてください。</li>
+      </ol>
+      <p class="caution">
+        <strong>そして、いちばん大事なこと</strong>
+        壁の手前で止まるのも、越えて働くのも、<b>どちらも合理的な選択です</b>。手取りだけで決まる話ではなく、働ける時間、ご家庭の事情、将来の年金や保障の考え方——そのすべてが関わります。このページがお伝えしたいのは「こうしなさい」ではなく、<b>いま何がどう決まっているのかを、正しい数字で知ってから選びましょう</b>ということだけです。
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= まとめ ================= -->
+<section id="matome" class="band round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill plain">まとめ</span>
+        <h2>あなたの年収の壁チェック</h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotCheck" aria-hidden="true"></span></div>
+    </div>
+    <p class="sec-lead">最後に、いまの状況を確認してみましょう。あてはまるもの・できたものをタップ（クリック）してください。</p>
+
+    <div class="score-box">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/><circle cx="12" cy="12" r="9"/></svg>
+        クイズの結果
+      </h3>
+      <div id="sumScore">
+        <p>まだクイズに挑戦していません。<a href="#sec2">②の○×クイズ</a>で、「かかる・かからない」の思い込みをチェックしてみてください。</p>
+      </div>
+    </div>
+
+    <div class="checklist" id="checklist">
+      <p class="chk-group">今日おうちで確認できること</p>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkPdf" aria-hidden="true"></span><span><strong>雇用契約書</strong>を出して、週の所定労働時間が何時間になっているか確認した</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkBank" aria-hidden="true"></span><span>今年の<strong>給与収入の見込み</strong>が、ざっといくらか分かる（通勤手当を除いた額面で）</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkShield" aria-hidden="true"></span><span><strong>健康保険証</strong>を見て、いま自分がどの保険に入っているか（扶養か本人か）を確認した</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkPc" aria-hidden="true"></span><span>意識している金額が<strong>いつの制度の話か</strong>を、その年の資料で確かめた</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkPeople" aria-hidden="true"></span><span>扶養している方の<strong>合計所得金額</strong>が900万円・1,000万円の線に対してどこかを把握している</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkHome" aria-hidden="true"></span><span>19歳から22歳の<strong>お子さんのアルバイト収入</strong>を、今年の見込みで把握している</span></label>
+      <p class="chk-group">次に、誰かに聞くこと</p>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkAoiro" aria-hidden="true"></span><span>勤務先に、<strong>社会保険の加入対象になる規模かどうか</strong>を確認した</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkInvoice" aria-hidden="true"></span><span>ご自身・配偶者の勤務先の<strong>家族手当の支給基準</strong>を、就業規則で確認した</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkReceipt" aria-hidden="true"></span><span>お住まいの市区町村の<strong>住民税の非課税の基準</strong>を確認した</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkBack" aria-hidden="true"></span><span>手前で止まるか越えて増やすかを、<strong>手取りだけでなく将来の年金も含めて</strong>比べてみた</span></label>
+    </div>
+    <div class="chk-msg" id="chkMsg">
+      あてはまるものにチェックを入れてみてください。今日おうちで確認できる項目と、勤務先に聞く項目が混じっています。
+    </div>
+    <div data-cta-mini></div>
+
+    <details class="finder">
+      <summary>「どこに聞けばいいか分からない」も、よくあるご相談です</summary>
+      <ul>
+        <li><strong>所得税・住民税のこと</strong>は、勤務先の給与担当か税務署、お住まいの市区町村の住民税の窓口へ。個別の税額計算・申告については税理士にご確認ください。</li>
+        <li><strong>勤務先の社会保険に入るかどうか</strong>は、勤務先の担当者か年金事務所へ。判断のもとになるのは雇用契約書に書かれた所定労働時間です。</li>
+        <li><strong>健康保険の扶養に入れるかどうか</strong>は、保険証に書かれた<strong>保険者</strong>へ。判定するのは税務署でも勤務先でもなく、加入している健康保険です。</li>
+        <li><strong>家族手当</strong>は、その会社の総務・人事へ。法律ではなく就業規則で決まっているためです。</li>
+      </ul>
+      <p>「聞くのが気まずい」——よく伺うお言葉です。ですが、どの窓口も毎年たくさん同じ質問を受けています。制度が複雑だからで、聞くほうが悪いわけではありません。</p>
+    </details>
+
+    <details class="finder" style="margin-top:14px;">
+      <summary>「じゃあ壁を越えて働けばいい？」——そう単純でもありません</summary>
+      <ul>
+        <li>手取りが戻る地点は、<strong>働き方や勤務先の条件によって変わります</strong>。誰にでも当てはまる「ここまで働けば得」という金額はありません。</li>
+        <li>働く時間を増やせるかどうかは、<strong>ご家庭の事情や体調</strong>によります。数字の上で有利でも、続けられなければ意味がありません。</li>
+        <li>扶養から外れて<strong>国民健康保険に加入する場合の保険料は自治体差が大きく</strong>、このページの試算には含めていません。実額はお住まいの市区町村でご確認ください。</li>
+        <li>将来の年金や、病気のときの保障をどう評価するかは<strong>人によって変わります</strong>。ここは損得を数字だけで決められる部分ではありません。</li>
+      </ul>
+      <p>このページは、<strong>どの働き方が有利かをおすすめするものではありません</strong>。制度の形を正しく知ったうえで、ご自身の事情に合わせて選んでいただくためのものです。</p>
+    </details>
+
+    <div class="cta-box" id="soudan">
+      <h3>来年の働き方を、<span class="nowrap">30分だけ</span>整理しませんか</h3>
+      <p class="cta-lead">このページの内容は、あくまで一般的なしくみの話。<strong>ご家庭の場合にどうなるか</strong>は、実際の働き方と勤務先の条件で決まります。こんなご相談をよくお受けしています。</p>
+      <ul>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>いま意識している金額が、今年の制度に合っているか確かめたい</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>手前で止まる場合と越える場合で、世帯の手取りを並べて比べたい</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>子どものアルバイトが増えたときに、何がどう変わるのか知りたい</span></li>
+      </ul>
+      <p class="cta-lead">お時間の目安は30分ほど。書類が揃っていなくても大丈夫、揃えるところからお手伝いします。<strong>個別具体的な税務相談・税務書類の作成・税務代理は、税理士が対応します。</strong>社会保険の加入や扶養の判定は、勤務先・年金事務所・加入している健康保険の判断となります。いただいた個人情報は、ご相談への対応のみに使用し、ご本人の同意なく第三者に提供しません。</p>
+
+      <p class="co">株式会社Office-M</p>
+      <p class="addr">受付：平日 9:00〜17:00</p>
+      <p class="tip">雇用契約書と直近の給与明細がお手元にあると、その場での整理がより早く進みます。</p>
+    </div>
+  </div>
+</section>
+
+<!-- 募集文書審査：未了。委託先保険会社の承認番号の要否を確認のうえ公開すること -->
+<footer class="disclaimer">
+  <p>本資料は、株式会社Office-Mがいわゆる「年収の壁」の一般的なしくみをご理解いただくために作成した情報提供資料です。記載内容は2026年8月時点で確認できた一般的な取扱いにもとづくもので、<strong>この分野は税制改正・年金制度改正によりたびたび内容が変わります</strong>。金額・要件・施行時期は、必ずその年の国税庁・日本年金機構・加入している健康保険の資料でご確認ください。個別の事案への当てはめは、勤務先の状況、加入している健康保険、お住まいの自治体によって結論が変わります。シミュレーターの結果はいずれも簡易な概算であり、実際の税額・保険料・手取りを示すものではありません。<strong>個別具体的な税務相談・税務書類の作成・税務代理は、税理士が対応します。</strong>社会保険の加入および被扶養者の認定は、勤務先・年金事務所・保険者の判断によります。本資料は特定の働き方をおすすめするものではありません。本資料の内容によって生じた結果について、当社は責任を負いかねます。</p>
+  <p style="margin-top:10px;">主な根拠：所得税法28条（給与所得控除）・83条（配偶者控除）・83条の2（配偶者特別控除）・86条（基礎控除）、令和7年度税制改正（基礎控除等の見直し、特定親族特別控除の創設）、地方税法（住民税の非課税の範囲。均等割の基準は自治体の条例により異なります）、健康保険法3条（被扶養者の範囲）、厚生年金保険法12条（適用除外）、令和7年の年金制度改正（短時間労働者に対する被用者保険の適用範囲の見直し。施行は段階的です）ほか。制度は改正されることがあります。最新の内容は国税庁のタックスアンサー、日本年金機構および加入している健康保険の案内でご確認ください。</p>
+  <p style="margin-top:10px;">作成：株式会社Office-M（2026年8月）</p>
+</footer>
+<!-- ================= 演目詳細モーダル ================= -->
+<div class="cmodal" id="caseModal" aria-hidden="true">
+  <div class="cmodal-back" id="caseModalBack"></div>
+  <div class="cmodal-panel" role="dialog" aria-modal="true" aria-labelledby="caseModalTitle">
+    <div class="cmodal-head" id="caseModalHead">
+      <button type="button" class="cmodal-close" id="caseModalClose" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <div class="cmodal-ico" id="caseModalIco" aria-hidden="true"></div>
+      <div>
+        <span class="cmodal-chip" id="caseModalChip"></span>
+        <h3 class="cmodal-title" id="caseModalTitle"></h3>
+      </div>
+    </div>
+    <div class="cmodal-body">
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 15.5a2 2 0 0 1-2 2H8l-4 3.5v-15a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"/></svg>
+          <span id="caseModalLbl1">ご相談で伺ったお話（脚色あり）</span>
+        </div>
+        <blockquote class="cmodal-quote" id="caseModalStory"></blockquote>
+      </div>
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-red" id="caseModalLbl2Wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+          <span id="caseModalLbl2">何が起きたのか</span>
+        </div>
+        <div id="caseModalWhat"></div>
+      </div>
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-green">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
+          <span id="caseModalLbl3">こう確認すれば防げます</span>
+        </div>
+        <div id="caseModalHow"></div>
+      </div>
+      <div data-cta-mini></div>
+      <p class="cmodal-note">※演目は一般的な内容をもとにした創作例で、実在の個人・法人・事案とは関係ありません。税務の取扱いは事実関係により異なります。実際の判断は、顧問税理士または所轄の税務署にご確認ください。</p>
+    </div>
+  </div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- 案内役のイラスト ---------- */
+var SVG_GUIDE =
+  '<svg viewBox="0 0 64 64">' +
+  '<circle cx="32" cy="32" r="32" fill="#ffeee3"/>' +
+  '<path d="M8 64c0-13 11-20 24-20s24 7 24 20H8Z" fill="#f0846a"/>' +
+  '<rect x="27" y="39" width="10" height="11" rx="5" fill="#f7cdb4"/>' +
+  '<path d="M25 45l7 9 7-9 3.4 1.8L32 61 21.6 46.8Z" fill="#fff"/>' +
+  '<ellipse cx="32" cy="28" rx="16" ry="17" fill="#5c4030"/>' +
+  '<ellipse cx="32" cy="30" rx="12.5" ry="13.5" fill="#f7cdb4"/>' +
+  '<path d="M19.5 27c0-9 5.6-14.5 12.5-14.5S44.5 18 44.5 27c-1.6-3.6-4.2-5.7-7.2-6.6-2.6 2.4-7 3.8-10.9 3.2-1.4 1-2.4 2.1-2.9 3.4Z" fill="#5c4030"/>' +
+  '<circle cx="27" cy="30" r="1.6" fill="#3d3028"/><circle cx="37" cy="30" r="1.6" fill="#3d3028"/>' +
+  '<path d="M29.4 35.6c1.6 1.7 3.6 1.7 5.2 0" fill="none" stroke="#3d3028" stroke-width="1.6" stroke-linecap="round"/>' +
+  '</svg>';
+
+document.querySelectorAll('[data-guide]').forEach(function(el){ el.innerHTML = SVG_GUIDE; });
+
+/* ---------- スポット・アイコン ---------- */
+var S = 'fill="none" stroke-linecap="round" stroke-linejoin="round"';
+var ARTS = {
+  spotLine:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="6" y="16" width="22" height="32" rx="5" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="2.5"/>' +
+    '<rect x="36" y="16" width="22" height="32" rx="5" fill="#fdf3e2" stroke="#8f6015" stroke-width="2.5"/>' +
+    '<path d="M32 8v48" stroke="#c2451f" stroke-width="3" stroke-dasharray="5 4" stroke-linecap="round"/>' +
+    '<path d="m12 32 4 4 8-8" fill="none" stroke="#2c7a4b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M42 27l10 10M52 27l-10 10" stroke="#8f6015" stroke-width="3" stroke-linecap="round"/>' +
+    '</svg>',
+  spotQuiz:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="24" fill="#e8f4fb"/>' +
+    '<path d="M25 26.5c.6-4.2 3.6-6.6 7.4-6.6 4.2 0 7.4 2.8 7.4 6.8 0 3.4-2 5.2-4.4 6.8-2 1.3-2.9 2.3-2.9 4.5" fill="none" stroke="#24729f" stroke-width="3.4" stroke-linecap="round"/>' +
+    '<circle cx="32.4" cy="45" r="2.6" fill="#f0846a"/>' +
+    '</svg>',
+  spotCalc:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="14" y="6" width="36" height="52" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<rect x="20" y="12" width="24" height="12" rx="4" fill="#27587f"/>' +
+    '<path d="M24 18h16" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>' +
+    '<circle cx="24" cy="32" r="3.6" fill="#c6e2f2"/><circle cx="32" cy="32" r="3.6" fill="#c6e2f2"/><circle cx="40" cy="32" r="3.6" fill="#c6e2f2"/>' +
+    '<circle cx="24" cy="42" r="3.6" fill="#c6e2f2"/><circle cx="32" cy="42" r="3.6" fill="#c6e2f2"/><circle cx="40" cy="42" r="3.6" fill="#f7c34e"/>' +
+    '<circle cx="24" cy="51" r="3.6" fill="#c6e2f2"/><circle cx="32" cy="51" r="3.6" fill="#c6e2f2"/><circle cx="40" cy="51" r="3.6" fill="#f0846a"/>' +
+    '</svg>',
+  spotTheater:
+    '<svg viewBox="0 0 64 64">' +
+    '<path d="M8 10h48v8c0 4-3 7-7 7H15c-4 0-7-3-7-7Z" fill="#c2453f"/>' +
+    '<path d="M10 14c4 22 4 30 3 40h8c-2-12-1-24 3-40Z" fill="#a63631"/>' +
+    '<path d="M54 14c-4 22-4 30-3 40h-8c2-12 1-24-3-40Z" fill="#a63631"/>' +
+    '<circle cx="32" cy="38" r="13" fill="#ffeee3"/>' +
+    '<circle cx="27.5" cy="35.5" r="1.8" fill="#3d3028"/><circle cx="36.5" cy="35.5" r="1.8" fill="#3d3028"/>' +
+    '<path d="M27 42c3 3 7 3 10 0" fill="none" stroke="#3d3028" stroke-width="2" stroke-linecap="round"/>' +
+    '</svg>',
+  spotGift:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="8" y="24" width="48" height="34" rx="6" fill="#fffdf8" stroke="#c3e5d3" stroke-width="2.5"/>' +
+    '<rect x="8" y="24" width="48" height="12" rx="6" fill="#4fbf9b"/>' +
+    '<rect x="28" y="24" width="8" height="34" fill="#2c7a4b"/>' +
+    '<path d="M32 24s-6-.7-8.5-3.2a3.6 3.6 0 0 1 5.1-5.1C31.1 18.2 32 24 32 24Z" fill="#f7c34e"/>' +
+    '<path d="M32 24s6-.7 8.5-3.2a3.6 3.6 0 0 0-5.1-5.1C32.9 18.2 32 24 32 24Z" fill="#f7c34e"/>' +
+    '<circle cx="47" cy="15" r="6.5" fill="#f0846a"/>' +
+    '<path d="M44.5 15h5M47 12.5v5" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>' +
+    '</svg>',
+  spotCal:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="8" y="12" width="48" height="44" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<path d="M8 24h48" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<rect x="8" y="12" width="48" height="12" rx="7" fill="#27587f"/>' +
+    '<path d="M20 6v10M44 6v10" stroke="#1b3f5e" stroke-width="4" stroke-linecap="round"/>' +
+    '<rect x="15" y="30" width="8" height="7" rx="2" fill="#c6e2f2"/>' +
+    '<rect x="28" y="30" width="8" height="7" rx="2" fill="#f0846a"/>' +
+    '<rect x="41" y="30" width="8" height="7" rx="2" fill="#c6e2f2"/>' +
+    '<rect x="15" y="42" width="8" height="7" rx="2" fill="#f7c34e"/>' +
+    '<rect x="28" y="42" width="8" height="7" rx="2" fill="#c6e2f2"/>' +
+    '<rect x="41" y="42" width="8" height="7" rx="2" fill="#f0846a"/>' +
+    '</svg>',
+  spotCheck:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="12" y="10" width="40" height="46" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<rect x="24" y="5" width="16" height="10" rx="4" fill="#27587f"/>' +
+    '<path d="m19 26 4 4 7-8" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<rect x="34" y="25" width="12" height="3.5" rx="1.75" fill="#d9cfc4"/>' +
+    '<path d="m19 40 4 4 7-8" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<rect x="34" y="39" width="12" height="3.5" rx="1.75" fill="#d9cfc4"/>' +
+    '</svg>',
+
+  icKousai:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<path d="M10 12v7a5 5 0 0 0 10 0v-7M15 24v14"/>' +
+    '<path d="M33 12c-3 0-5 3-5 8s2 6 5 6 5-1 5-6-2-8-5-8ZM33 26v12"/>' +
+    '<path d="M9 42h12M27 42h12"/>' +
+    '</svg>',
+  icKaigi:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<circle cx="11" cy="12" r="4.5"/><circle cx="37" cy="12" r="4.5"/>' +
+    '<path d="M4 24c0-4 3.2-6.5 7-6.5s7 2.5 7 6.5M30 24c0-4 3.2-6.5 7-6.5s7 2.5 7 6.5"/>' +
+    '<ellipse cx="24" cy="25" rx="7" ry="2.6"/>' +
+    '<path d="M5 29h38M11 29v11M37 29v11"/>' +
+    '</svg>',
+  icHitori:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<circle cx="24" cy="11" r="5"/>' +
+    '<path d="M16 22c0-3.4 3.6-5 8-5s8 1.6 8 5"/>' +
+    '<path d="M10 29h28c0 6-6 10-14 10s-14-4-14-10Z"/>' +
+    '<path d="M8 42h32"/>' +
+    '</svg>',
+  icShain:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<circle cx="12" cy="14" r="4.5"/><circle cx="24" cy="11" r="4.5"/><circle cx="36" cy="14" r="4.5"/>' +
+    '<path d="M4 26c0-3.6 3.6-6 8-6s8 2.4 8 6M16 24c0-3.6 3.6-6 8-6s8 2.4 8 6M28 26c0-3.6 3.6-6 8-6s8 2.4 8 6"/>' +
+    '<path d="M8 34h32v6a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2Z"/>' +
+    '</svg>',
+  icShuzen:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M29 8a8 8 0 0 0-9.6 10.6L8 30v8h8l11.4-11.4A8 8 0 0 0 38 17l-6 3-4-4 3-6a8 8 0 0 0-2-2Z"/>' +
+    '<path d="m13 33 2 2"/>' +
+    '</svg>',
+  icPaint:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<rect x="8" y="8" width="24" height="10" rx="3"/>' +
+    '<path d="M32 13h6a3 3 0 0 1 3 3v5a3 3 0 0 1-3 3H24v6"/>' +
+    '<rect x="19" y="30" width="10" height="12" rx="3"/>' +
+    '</svg>',
+  icUpgrade:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<rect x="7" y="26" width="10" height="14" rx="2"/>' +
+    '<rect x="19" y="18" width="10" height="22" rx="2"/>' +
+    '<rect x="31" y="8" width="10" height="32" rx="2"/>' +
+    '<path d="M6 44h36"/>' +
+    '</svg>',
+  icBuild:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M8 42V16l16-9 16 9v26"/>' +
+    '<path d="M6 42h36"/>' +
+    '<rect x="15" y="22" width="7" height="7" rx="1.5"/><rect x="26" y="22" width="7" height="7" rx="1.5"/>' +
+    '<path d="M19 42v-8h10v8"/>' +
+    '</svg>',
+  icGaichu:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<rect x="6" y="16" width="36" height="22" rx="4"/>' +
+    '<path d="M18 16v-3a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v3"/>' +
+    '<path d="M6 24h36M20 27h8"/>' +
+    '</svg>',
+  icJikan:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<circle cx="24" cy="25" r="15"/>' +
+    '<path d="M24 16v9l6 4"/>' +
+    '<path d="M17 7h14"/>' +
+    '</svg>',
+  icDoc2:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<rect x="11" y="6" width="26" height="36" rx="4"/>' +
+    '<path d="M17 16h14M17 23h14M17 30h8"/>' +
+    '</svg>',
+  icKazoku:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.3">' +
+    '<circle cx="15" cy="14" r="5"/><circle cx="33" cy="14" r="5"/>' +
+    '<path d="M6 30c0-5 4-8 9-8s9 3 9 8M24 30c0-5 4-8 9-8s9 3 9 8"/>' +
+    '<circle cx="24" cy="30" r="4"/>' +
+    '<path d="M17 42c0-4 3-6 7-6s7 2 7 6"/>' +
+    '</svg>',
+  icZeimusho:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.3">' +
+    '<path d="M6 18 24 8l18 10"/>' +
+    '<path d="M9 18v18M17 18v18M31 18v18M39 18v18"/>' +
+    '<path d="M5 42h38M8 36h32"/>' +
+    '</svg>',
+  icCity:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.3">' +
+    '<rect x="7" y="14" width="16" height="28" rx="2"/>' +
+    '<rect x="25" y="22" width="16" height="20" rx="2"/>' +
+    '<path d="M12 20h6M12 27h6M12 34h6M30 28h6M30 35h6"/>' +
+    '<path d="M5 42h38"/>' +
+    '</svg>',
+  icHoken:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M24 6 9 11v11c0 9.5 6.4 17.4 15 19.6 8.6-2.2 15-10.1 15-19.6V11L24 6Z"/>' +
+    '<path d="M24 17v12M18 23h12"/>' +
+    '</svg>',
+
+  qFood:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<circle cx="24" cy="24" r="9.5"/><circle cx="24" cy="24" r="4.5"/>' +
+    '<path d="M8 8v8a3 3 0 0 0 6 0V8M11 16v24"/>' +
+    '<path d="M40 8c-3 1.2-5 4.6-5 9s2 5 5 5M40 8v32"/>' +
+    '</svg>',
+  qCar:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M8 30v6h5M40 30v6h-5"/>' +
+    '<path d="M6 30l3-10a4 4 0 0 1 3.8-2.8h22.4A4 4 0 0 1 39 20l3 10Z"/>' +
+    '<circle cx="14" cy="30" r="2.4"/><circle cx="34" cy="30" r="2.4"/>' +
+    '<path d="M20 8h8M24 4v8" stroke-width="2.8"/>' +
+    '</svg>',
+  qDock:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<path d="M14 7v9a8 8 0 0 0 16 0V7"/>' +
+    '<path d="M22 24v6a8 8 0 0 0 16 0v-4"/>' +
+    '<circle cx="38" cy="22" r="4"/>' +
+    '<path d="M10 7h8M26 7h8"/>' +
+    '</svg>',
+  qHouse:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M6 22 24 8l18 14"/>' +
+    '<path d="M10 20v20h28V20"/>' +
+    '<path d="M24 20v20" stroke-dasharray="4 3"/>' +
+    '<path d="M14 27h6M28 27h6"/>' +
+    '</svg>',
+  qPc:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<rect x="9" y="10" width="30" height="21" rx="3"/>' +
+    '<path d="M5 36h38l-3 4H8Z"/>' +
+    '</svg>',
+  qSuit:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M18 6h12l-6 8Z"/>' +
+    '<path d="M24 14 21 42h6Z"/>' +
+    '<path d="M18 6 9 12v30h8M30 6l9 6v30h-8"/>' +
+    '</svg>',
+  qShield:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<path d="M24 5 8 11v12c0 10 6.8 18.5 16 21 9.2-2.5 16-11 16-21V11L24 5Z"/>' +
+    '<path d="m18 18 6 8 6-8M24 26v9M19.5 28.5h9M19.5 32.5h9"/>' +
+    '</svg>',
+  qYen:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<circle cx="24" cy="24" r="17"/>' +
+    '<path d="m17 14 7 10 7-10M24 24v10M18.5 26.5h11M18.5 31.5h11"/>' +
+    '</svg>',
+  qInvoice:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<path d="M11 6h26v36l-4.3-3-4.4 3-4.3-3-4.4 3-4.3-3-4.3 3Z"/>' +
+    '<path d="M17 15h14M17 22h14M17 29h8"/>' +
+    '</svg>',
+  qTruck:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<path d="M4 12h22v22H4Z"/>' +
+    '<path d="M26 20h9l7 7v7h-16Z"/>' +
+    '<circle cx="14" cy="37" r="4"/><circle cx="34" cy="37" r="4"/>' +
+    '</svg>',
+  qPlane:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M24 5c2.5 0 4 4 4 10v6l14 8v4l-14-4v8l5 4v3l-9-2-9 2v-3l5-4v-8l-14 4v-4l14-8v-6c0-6 1.5-10 4-10Z"/>' +
+    '</svg>',
+  qSeed:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<path d="M24 42V20"/>' +
+    '<path d="M24 20c0-7 5-12 12-12 0 7-5 12-12 12ZM24 26c0-6-4-10-10-10 0 6 4 10 10 10Z"/>' +
+    '<path d="M12 42h24"/>' +
+    '</svg>',
+  qTrash:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M9 13h30M18 13V9a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v4"/>' +
+    '<path d="M13 13l2 26a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3l2-26"/>' +
+    '<path d="M20 20v15M28 20v15"/>' +
+    '</svg>',
+
+  chkReceipt:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2451f" stroke-width="2.3">' +
+    '<path d="M11 6h26v36l-4.3-3-4.4 3-4.3-3-4.4 3-4.3-3-4.3 3Z"/>' +
+    '<path d="M17 16h14M17 24h14M17 31h8"/>' +
+    '</svg>',
+  chkHome:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<path d="M6 22 24 8l18 14"/><path d="M10 20v20h28V20"/><path d="M24 20v20" stroke-dasharray="4 3"/>' +
+    '</svg>',
+  chkPeople:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.3">' +
+    '<circle cx="15" cy="15" r="5"/><circle cx="33" cy="15" r="5"/>' +
+    '<path d="M6 33c0-5 4-8 9-8s9 3 9 8M24 33c0-5 4-8 9-8s9 3 9 8"/>' +
+    '</svg>',
+  chkPc:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.3">' +
+    '<rect x="9" y="10" width="30" height="21" rx="3"/><path d="M5 36h38l-3 4H8Z"/>' +
+    '</svg>',
+  chkPdf:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.3">' +
+    '<path d="M13 6h16l8 8v28a2 2 0 0 1-2 2H13a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"/>' +
+    '<path d="M29 6v9h8"/><path d="M17 26h12M17 33h8"/>' +
+    '</svg>',
+  chkInvoice:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<rect x="7" y="12" width="34" height="24" rx="3"/>' +
+    '<path d="M12 18v12M17 18v12M22 18v12M27 18v12M32 18v12M37 18v12"/>' +
+    '</svg>',
+  chkBank:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.3">' +
+    '<path d="M6 19 24 9l18 10"/><path d="M11 19v17M20 19v17M28 19v17M37 19v17"/><path d="M6 41h36"/>' +
+    '</svg>',
+  chkAoiro:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#27587f" stroke-width="2.3">' +
+    '<rect x="10" y="7" width="28" height="34" rx="4"/>' +
+    '<path d="m17 22 4 4 10-10"/><path d="M17 33h14"/>' +
+    '</svg>',
+  chkShield:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.3">' +
+    '<path d="M24 6 10 11v11c0 9 6 16.5 14 18.7C32 38.5 38 31 38 22V11L24 6Z"/>' +
+    '<path d="m18 22 6 6 6-8"/>' +
+    '</svg>',
+  chkBack:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.3">' +
+    '<path d="M9 24a15 15 0 1 0 4.4-10.6"/>' +
+    '<path d="M8 8v8h8"/><path d="M24 17v8l6 4"/>' +
+    '</svg>',
+  icWall:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<rect x="6" y="12" width="36" height="26" rx="3"/>' +
+    '<path d="M6 21h36M6 30h36M18 12v9M30 21v9M18 30v8M30 12v9"/>' +
+    '</svg>',
+  icPayslip:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<rect x="10" y="6" width="28" height="36" rx="4"/>' +
+    '<path d="M16 16h16M16 23h16M16 30h9"/>' +
+    '<path d="M30 34h6"/>' +
+    '</svg>',
+  icNenkin:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<rect x="7" y="11" width="34" height="26" rx="4"/>' +
+    '<path d="M7 20h34"/>' +
+    '<path d="M14 28h9M31 28h4"/>' +
+    '</svg>',
+  icStudent:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<path d="M4 18 24 9l20 9-20 9Z"/>' +
+    '<path d="M13 22v11c0 3 5 5 11 5s11-2 11-5V22"/>' +
+    '<path d="M40 20v10"/>' +
+    '</svg>',
+  icScale2:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M24 8v32M14 40h20M10 14h28"/>' +
+    '<circle cx="24" cy="10" r="2.6"/>' +
+    '<path d="M10 14 4 27h12ZM38 14l-6 13h12Z"/>' +
+    '</svg>',
+  icStep:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<path d="M5 40h10V29h10V19h10V9h8"/>' +
+    '<path d="M5 40h38"/>' +
+    '</svg>',
+  icTokei:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2451f" stroke-width="2.4">' +
+    '<circle cx="24" cy="24" r="17"/>' +
+    '<path d="M24 13v11l7 5"/>' +
+    '</svg>',
+};
+document.querySelectorAll('[data-art]').forEach(function(el){
+  var key = el.getAttribute('data-art');
+  if(ARTS[key]) el.innerHTML = ARTS[key];
+});
+
+/* ---------- ミニCTA ---------- */
+var CTA_MINI =
+  '<div class="cta-mini"><p>壁は税と社会保険で別々にあり、しかも数年おきに動きます。給与明細が手元になくても大丈夫、お気軽にどうぞ。</p>' +
+  '<a href="#soudan">' +
+  '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="m3 7 9 6 9-6"/></svg>' +
+  '無料で相談してみる</a></div>';
+document.querySelectorAll('[data-cta-mini]').forEach(function(el){ el.innerHTML = CTA_MINI; });
+
+/* ---------- セクション2：○×クイズ ---------- */
+/* a: true = かかる（○が正解）, false = かからない（×が正解） */
+var QUIZ = [
+  {
+    icon:'icPayslip', a:false,
+    q:'給与収入が103万円を超えたら、その時点で自分に所得税がかかる？',
+    expl:'いまはかかりません。103万円という数字は、給与所得控除の最低保障額と基礎控除を足した金額でした。2025年（令和7年）の改正でどちらも引き上げられ、給与収入がおおむね160万円までは所得税がかからない形になっています。つまり103万円は、以前の組み合わせの答えです。ただし住民税は別の税金で、線の位置もちがいます。所得税がゼロでも住民税がかかることはありますので、両方を分けて考えてください。',
+    wana:'覚えている数字が何年のものかを確かめないまま、毎年その線でシフトを決めてしまう。',
+    check:'いま自分が意識している金額が、いつの制度の話か。勤務先の担当者か国税庁の資料で確かめる。'
+  },
+  {
+    icon:'icCity', a:true,
+    q:'所得税がかからない年収でも、住民税はかかることがある？',
+    expl:'あります。住民税は所得税とは別の税金で、計算のしかたも、かかり始める金額もちがいます。一般には所得税より手前から始まり、おおむね年収100万円台前半でかかり始めます。しかも住民税には自治体ごとに定める部分があるため、同じ年収でも住んでいる場所で結論が変わることがあります。金額そのものは大きくありませんが、「税金は一切かからないはず」という思い込みは、たいていここで崩れます。',
+    wana:'税金をひとかたまりで考えてしまう。所得税と住民税は別々に、別の線で始まります。',
+    check:'お住まいの市区町村の住民税の非課税の基準。役所の住民税の窓口で教えてもらえます。'
+  },
+  {
+    icon:'icTokei', a:false, yes:'誰にでも', no:'条件があります',
+    q:'いわゆる106万円の壁は、パートで働く人なら誰にでも当てはまる？',
+    expl:'誰にでも当てはまるわけではありません。勤務先の社会保険に加入するかどうかは、週の所定労働時間、雇用される期間の見込み、学生でないこと、勤務先の規模といった要件をすべて満たすかどうかで決まります。要件に当てはまらない働き方であれば、106万円を超えても勤務先の社会保険には入りません。なお2025年（令和7年）の年金制度の改正で、この要件は段階的に緩和されていく方向が決まっています。いま何が適用されているかは、勤務先か年金事務所で確認するのが確実です。',
+    wana:'金額だけが有名になり、要件のほうが伝わっていない。壁の高さより、まず自分に来る壁かどうかです。',
+    check:'勤務先の従業員数と、自分の週の所定労働時間。雇用契約書に書いてあります。'
+  },
+  {
+    icon:'icNenkin', a:true,
+    q:'健康保険の扶養から外れると、自分で保険料を負担することになる？',
+    expl:'そのとおりです。ご家族の健康保険の扶養に入っている間は、ご自身の健康保険料の負担はありません。扶養から外れると、勤務先の社会保険に加入するか、国民健康保険と国民年金に自分で加入するかのどちらかになります。ここが手取りにいちばん効きます。ただし、勤務先の社会保険に加入できる場合は保険料が労使折半で、半分は勤務先が負担します。同じ扶養から外れるでも、どちらになるかで負担はかなり変わります。',
+    wana:'税金の壁と同じように「超えた分だけ」増えると思ってしまう。保険料は超えた分ではなく全体にかかります。',
+    check:'いま自分がどの健康保険に入っているか。保険証と、勤務先の社会保険に入れる働き方かどうか。'
+  },
+  {
+    icon:'icJikan', a:true, yes:'見込みで判定', no:'去年の実績で判定',
+    q:'健康保険の扶養に入れるかどうかは、これからの収入の見込みで判定される？',
+    expl:'見込みで判定されます。ここが所得税との大きなちがいです。所得税は1月から12月までの実績で決まりますが、健康保険の扶養は、これから先1年間にどれくらいの収入が続くと見込まれるかで判断されます。そのため、月々の収入が一定の水準を超える状態が続くと、年の途中でも扶養から外れることがあります。判定するのは税務署ではなく、加入している健康保険（保険者）です。基準の細かい運用も保険者によって差があります。',
+    wana:'年末に帳尻を合わせれば大丈夫という発想。見込みで見る制度には、その調整が効きません。',
+    check:'加入している健康保険の名称と、扶養の認定基準。保険証に書かれた保険者に問い合わせできます。'
+  },
+  {
+    icon:'icStep', a:false, yes:'ゼロになる', no:'すぐにはゼロにならない',
+    q:'配偶者の収入が配偶者控除の範囲を超えたら、扶養している人の控除はゼロになる？',
+    expl:'すぐにはゼロになりません。配偶者控除の対象から外れても、そこから配偶者特別控除が引き継ぎます。しかも、しばらくは満額のまま続く区間があり、その先は階段状に少しずつ減っていきます。ゼロになるのは、配偶者の合計所得金額がかなり上のほうまで来てからです。1円超えた瞬間に世帯の手取りが崩れる、という心配はいりません。ただし、扶養している方ご自身の合計所得金額が高い場合は、はじめから対象外という別の条件があります。',
+    wana:'控除という言葉から、あるかないかの二択だと思われている。実際は階段状に減っていきます。',
+    check:'扶養している方の合計所得金額。900万円と1,000万円が、控除の使えるかどうかの目安になります。'
+  },
+  {
+    icon:'icHoken', a:true, yes:'増えます', no:'増えません',
+    q:'厚生年金に加入すると保険料はかかるが、将来受け取る年金も増える？',
+    expl:'増えます。厚生年金に加入した期間と、その間の報酬に応じて、老齢厚生年金が上乗せされます。さらに健康保険に加入すれば、病気やけがで働けないときの傷病手当金、出産のときの出産手当金といった給付の対象にもなります。障害を負ったときの保障も手厚くなります。もちろん保険料の負担は生じますし、増える年金の額がすぐに保険料を上回るわけでもありません。ただ、負担の面だけを見て損得を決めるのは早すぎる、というのは知っておいてください。',
+    wana:'保険料は出ていくお金として意識されるのに、将来受け取る側の話は見えにくい。',
+    check:'ねんきん定期便で、いまの加入記録と見込み額を確認する。ねんきんネットでも見られます。'
+  },
+  {
+    icon:'icDoc2', a:true, yes:'勤務先ごと', no:'法律で同じ',
+    q:'会社から出る家族手当の基準は、勤務先ごとに決められている？',
+    expl:'勤務先ごとです。家族手当や配偶者手当は法律で決まっているものではなく、それぞれの会社が就業規則や賃金規程で基準を定めています。税金や社会保険の基準に合わせている会社もあれば、昔の金額のまま運用している会社もあります。月1万円の手当なら年12万円ですから、税や社会保険の負担より大きいこともあります。壁を考えるときは、法律の線だけでなく、この社内の線も一緒に確認してください。',
+    wana:'公的な制度と会社の制度が同じ基準だと思い込む。改正があっても社内規程は自動では変わりません。',
+    check:'配偶者の勤務先の就業規則・賃金規程にある家族手当の支給基準。総務や人事に確認できます。'
+  }
+];
+
+var qIdx = 0, qScore = 0, qAnswered = false, qAnsweredCount = 0;
+var wrongItems = [];
+
+var elNum   = document.getElementById('qNum');
+var elDots  = document.getElementById('qDots');
+var elIcon  = document.getElementById('qIcon');
+var elText  = document.getElementById('qText');
+var btnYes  = document.getElementById('btnYes');
+var btnNo   = document.getElementById('btnNo');
+var lblYes  = document.getElementById('lblYes');
+var lblNo   = document.getElementById('lblNo');
+var elVerd  = document.getElementById('verdict');
+var elVAns  = document.getElementById('vAnswer');
+var elVChip = document.getElementById('vChip');
+var elVExpl = document.getElementById('vExpl');
+var elVWana = document.getElementById('vWana');
+var elVChk  = document.getElementById('vCheck');
+var btnNext = document.getElementById('btnNext');
+var btnStop = document.getElementById('btnStopHere');
+var quizPlay = document.getElementById('quizPlay');
+var quizDone = document.getElementById('quizDone');
+
+function renderDots(){
+  var html = '';
+  for(var i = 0; i < QUIZ.length; i++){
+    html += '<i class="' + (i < qIdx ? 'done' : (i === qIdx ? 'now' : '')) + '"></i>';
+  }
+  elDots.innerHTML = html;
+}
+
+function renderQ(){
+  var item = QUIZ[qIdx];
+  elNum.textContent = qIdx + 1;
+  elIcon.innerHTML = ARTS[item.icon] || '';
+  elText.textContent = item.q;
+  lblYes.textContent = item.yes || 'かかる';
+  lblNo.textContent = item.no || 'かからない';
+  btnYes.disabled = false;
+  btnNo.disabled = false;
+  qAnswered = false;
+  elVerd.classList.remove('show');
+  btnNext.style.display = 'none';
+  btnStop.style.display = 'none';
+  renderDots();
+}
+
+function answer(ansYes){
+  if(qAnswered) return;
+  qAnswered = true;
+  qAnsweredCount++;
+  btnYes.disabled = true;
+  btnNo.disabled = true;
+  var item = QUIZ[qIdx];
+  var correct = (ansYes === item.a);
+  if(correct) qScore++;
+  else wrongItems.push(item);
+  elVAns.textContent = '正解は「' + (item.a ? (item.yes || 'かかる') : (item.no || 'かからない')) + '」';
+  elVChip.textContent = correct ? 'ご名答！' : 'ざんねん、ここがワナ';
+  elVChip.className = 'result-chip ' + (correct ? 'correct' : 'wrong');
+  elVExpl.textContent = item.expl;
+  elVWana.textContent = item.wana;
+  elVChk.textContent = item.check;
+  elVerd.classList.add('show');
+  btnNext.style.display = 'flex';
+  if(qIdx >= QUIZ.length - 1){
+    btnNext.innerHTML = '結果を見る <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  } else if(qIdx >= 2){
+    btnStop.style.display = 'block';
+  }
+}
+
+function doneComment(score, total){
+  var full = (total === QUIZ.length);
+  if(score === total && full){
+    return '全問正解！　あなたはもう「103万円で止めておけば安心」とも「130万円を超えたら損」とも言わない人です。あとはその知識を、ご自身のシフト表に当てはめるだけ。……当てはめた結果が気になったら、いつでもどうぞ。';
+  }
+  var r = score / total;
+  if(r >= 0.75){
+    return 'かなりの好成績です。ただ、クイズで間違えても失うのは1問ですが、実際の働き方で「思っていたのと違う」が起こると、失うのは1年分の手取りと働く時間。惜しかった問題こそ、ご自身の給与明細で答え合わせを。';
+  }
+  if(r >= 0.4){
+    return '約半分がワナにかかりました。ご安心ください、ご相談でお会いする皆さまもだいたい同じです。そもそも壁は税と社会保険で別々にあり、しかも数年おきに動いています。「一度覚えたら終わり」にならない分野なので、年に一度の確認が近道です。';
+  }
+  return 'ワナに全力でかかりました。でも、それが普通です。むしろクイズで引っかかっておけば、実際のシフトで引っかからずに済みます。今日が人生でいちばん年収の壁にくわしい日。この勢いで、来年の働き方の設計までいきましょう。';
+}
+
+function showDone(){
+  quizPlay.style.display = 'none';
+  quizDone.classList.add('show');
+  document.getElementById('doneTotal').textContent = qAnsweredCount;
+  document.getElementById('doneScore').textContent = qScore;
+  document.getElementById('doneCmt').textContent = doneComment(qScore, qAnsweredCount);
+  var wl = document.getElementById('wrongList');
+  if(wrongItems.length){
+    var html = '<h4>ワナにかかった問題（＝勤務先やご家族に確認したい項目）</h4>';
+    for(var i = 0; i < wrongItems.length; i++){
+      html += '<div class="w-item"><strong>' + wrongItems[i].q + '</strong><br>確認ポイント：' + wrongItems[i].check + '</div>';
+    }
+    wl.innerHTML = html;
+    wl.style.display = 'block';
+  } else {
+    wl.style.display = 'none';
+  }
+  var sum = document.getElementById('sumScore');
+  sum.innerHTML = '<p>○×クイズの結果：<strong>' + qAnsweredCount + '問中 ' + qScore + '問正解</strong>でした。' +
+    (wrongItems.length ? '間違えた問題は、そのまま「確認したいことリスト」になります。' : 'この調子で、下のチェックリストもどうぞ。') + '</p>';
+}
+
+btnYes.addEventListener('click', function(){ answer(true); });
+btnNo.addEventListener('click', function(){ answer(false); });
+btnNext.addEventListener('click', function(){
+  if(qIdx >= QUIZ.length - 1){ showDone(); return; }
+  qIdx++;
+  renderQ();
+  var shell = document.querySelector('.quiz-shell');
+  if(shell.getBoundingClientRect().top < 0) shell.scrollIntoView({behavior:'smooth'});
+});
+btnStop.addEventListener('click', showDone);
+document.getElementById('btnRetry').addEventListener('click', function(){
+  qIdx = 0; qScore = 0; qAnsweredCount = 0; wrongItems = [];
+  quizDone.classList.remove('show');
+  quizPlay.style.display = 'block';
+  btnNext.innerHTML = '次の質問へ <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  renderQ();
+});
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+document.getElementById('btnMailSelf').addEventListener('click', function(){
+  var body = '「年収の壁のかかる・かからないチェック」の結果メモ\n\n' +
+    '○×クイズ：' + qAnsweredCount + '問中 ' + qScore + '問正解\n\n';
+  if(wrongItems.length){
+    body += '【確認したいこと】\n';
+    for(var i = 0; i < wrongItems.length; i++){
+      body += '・' + wrongItems[i].check + '\n';
+    }
+  }
+  body += '\n（このメモを給与明細と一緒に保管しておくと、働き方を決めるときに役立ちます）\n';
+  location.href = 'mailto:?subject=' + encodeURIComponent('年収の壁のかかる・かからないチェック結果') + '&body=' + encodeURIComponent(body);
+});
+
+renderQ();
+
+/* ---------- セクション3：シミュレーター ---------- */
+var simNenshu = document.getElementById('simNenshu');
+var simJikan  = document.getElementById('simJikan');
+var simKibo   = document.getElementById('simKibo');
+var simNenrei = document.getElementById('simNenrei');
+var simHaigu  = document.getElementById('simHaigu');
+
+function man(x){
+  return (Math.round(x * 10) / 10).toLocaleString('ja-JP') + '万円';
+}
+function yen(x){
+  return Math.round(x * 10000).toLocaleString('ja-JP') + '円';
+}
+
+function setR(id, ok, chipTxt, txt){
+  var box = document.getElementById(id);
+  box.className = 'sim-r ' + (ok ? 'ok' : 'ng');
+  document.getElementById(id + 'Chip').textContent = chipTxt;
+  document.getElementById(id + 'Txt').textContent = txt;
+}
+
+/* 給与所得控除（令和7年分以降の一般的な区分。年収300万円までを想定） */
+function kyuyoKojo(a){
+  if(a <= 190) return 65;
+  if(a <= 360) return a * 0.3 + 8;
+  return a * 0.2 + 44;
+}
+
+/* 配偶者控除・配偶者特別控除の額（合計所得金額ベース・扶養する側900万円以下のとき） */
+function haiguKojo(g){
+  if(g <= 58)  return 38;
+  if(g <= 95)  return 38;
+  if(g <= 100) return 36;
+  if(g <= 105) return 31;
+  if(g <= 110) return 26;
+  if(g <= 115) return 21;
+  if(g <= 120) return 16;
+  if(g <= 125) return 11;
+  if(g <= 130) return 6;
+  if(g <= 133) return 3;
+  return 0;
+}
+
+function simUpdate(){
+  var a = parseFloat(simNenshu.value);
+  if(isNaN(a) || a < 0) a = 0;
+  if(a > 300) a = 300;
+  var jikan  = +simJikan.value;
+  var kibo   = +simKibo.value;
+  var rounen = +simNenrei.value === 1;
+  var hLimit = +simHaigu.value;
+
+  var g = Math.max(0, a - kyuyoKojo(a));       /* 合計所得金額（給与だけの前提） */
+  var fuyouLine = rounen ? 180 : 130;          /* 健康保険の扶養の基準 */
+
+  /* 勤務先の社会保険に加入するか */
+  var kanyu = (jikan >= 30) || (jikan >= 20 && kibo === 1 && a >= 106);
+  var hazureru = (!kanyu) && (a >= fuyouLine);
+
+  var shaho = 0, shahoKind = '';
+  if(kanyu){
+    shaho = a * 0.15;
+    shahoKind = 'kanyu';
+  } else if(hazureru){
+    shaho = rounen ? 0 : 21;                   /* 国民年金保険料（60歳以上は原則なし）。国保は含めない */
+    shahoKind = 'hazure';
+  } else {
+    shahoKind = 'fuyou';
+  }
+
+  /* 所得税（この年収帯は税率5%の範囲） */
+  var kiso = (g <= 132) ? 95 : (g <= 336 ? 88 : 68);
+  var kazei = Math.max(0, g - kiso - shaho);
+  var shotokuzei = kazei * 0.05;
+
+  /* 住民税（所得割おおむね10%＋均等割5,000円。合計所得45万円以下は非課税として計算） */
+  var juminzei = (g <= 45) ? 0 : Math.max(0, g - 43 - shaho) * 0.10 + 0.5;
+
+  var tedori = a - shotokuzei - juminzei - shaho;
+
+  /* 1. 税の壁 */
+  if(shotokuzei <= 0 && juminzei <= 0){
+    setR('simR1', true, 'かかりません',
+      '給与収入 ' + man(a) + ' なら、所得税も住民税もかからない見込みです。住民税の基準は自治体によって異なるため、少額の負担が出ることはあります。');
+  } else if(shotokuzei <= 0){
+    setR('simR1', true, '住民税だけ 約' + yen(juminzei),
+      '所得税はかかりませんが、住民税がおよそ ' + yen(juminzei) + ' かかる見込みです。住民税は所得税より手前から始まり、基準は自治体によって異なります。');
+  } else {
+    setR('simR1', false, '合わせて 約' + yen(shotokuzei + juminzei),
+      '所得税がおよそ ' + yen(shotokuzei) + '、住民税がおよそ ' + yen(juminzei) +
+      ' の見込みです。どちらも線を超えた部分にだけかかるので、急に大きくなることはありません。');
+  }
+
+  /* 2. 社会保険の壁 */
+  if(shahoKind === 'kanyu'){
+    setR('simR2', false, '約' + yen(shaho) + 'の負担',
+      'この働き方だと勤務先の社会保険に加入する見込みです。本人負担はおよそ ' + yen(shaho) +
+      '（年収の約15%として試算）。保険料は労使折半で、同時に将来の厚生年金や傷病手当金の対象にもなります。');
+  } else if(shahoKind === 'hazure'){
+    setR('simR2', false, '扶養から外れます',
+      '給与収入 ' + man(a) + ' は健康保険の扶養の基準（' + man(fuyouLine) +
+      '）以上です。勤務先の社会保険に入れない場合、国民健康保険と国民年金にご自身で加入します。ここでは国民年金だけを見込み、国民健康保険料は含めていません。');
+  } else {
+    setR('simR2', true, '負担はありません',
+      'いまの条件では、勤務先の社会保険の加入要件にも当てはまらず、健康保険の扶養の基準（' + man(fuyouLine) +
+      '）にも届いていない見込みです。ただし要件は改正で段階的に広がる予定ですので、毎年の確認をおすすめします。');
+  }
+
+  /* 3. 扶養している方の控除 */
+  var kojo = haiguKojo(g);
+  var ratio = 1;
+  if(hLimit === 950) ratio = 2 / 3;
+  else if(hLimit === 1000) ratio = 1 / 3;
+  else if(hLimit === 0) ratio = 0;
+  var kojoGaku = kojo * ratio;
+
+  if(hLimit === 0){
+    setR('simR3', false, '対象外です',
+      '扶養している方の合計所得金額が1,000万円を超える場合、または配偶者に扶養されていない場合は、配偶者控除も配偶者特別控除も使えません。ご自身の税金と社会保険だけを見ていただければ大丈夫です。');
+  } else if(kojoGaku <= 0){
+    setR('simR3', false, '控除はありません',
+      'ご自身の合計所得金額が ' + man(g) + ' となり、配偶者特別控除の上限を超える見込みです。ここから先は、扶養している方の控除は増減しません。');
+  } else if(kojo >= 38){
+    setR('simR3', true, '満額 ' + man(kojoGaku),
+      'ご自身の合計所得金額は ' + man(g) + ' の見込みで、控除は満額の区間です（扶養している方の所得に応じて調整しています）。ここを超えても、控除は階段状に少しずつ減るだけです。');
+  } else {
+    setR('simR3', true, man(kojoGaku) + 'に減ります',
+      'ご自身の合計所得金額は ' + man(g) + ' の見込みで、控除は階段の途中です。ゼロになるわけではありません。実際に増える税額は、扶養している方の税率によって変わります。');
+  }
+
+  var big = document.getElementById('simTotalBig');
+  var sub = document.getElementById('simTotalSub');
+  big.innerHTML = '年収 ' + man(a) + ' で、手取りの目安は <b>約' + man(tedori) + '</b>';
+  if(shahoKind === 'kanyu'){
+    sub.textContent = '差の ' + man(a - tedori) + ' が税金と社会保険料です。働く時間を増やすほど手取りは戻り、その先は増えていきます。';
+  } else if(shahoKind === 'hazure'){
+    sub.textContent = '差の ' + man(a - tedori) + ' が税金と国民年金保険料です。国民健康保険料はここに含まれていないため、実際はさらに下がります。';
+  } else {
+    sub.textContent = '差の ' + man(a - tedori) + ' が税金です。社会保険料の負担がない区間なので、額面と手取りの差は小さくなっています。';
+  }
+}
+simNenshu.addEventListener('input', simUpdate);
+simJikan.addEventListener('change', simUpdate);
+simKibo.addEventListener('change', simUpdate);
+simNenrei.addEventListener('change', simUpdate);
+simHaigu.addEventListener('change', simUpdate);
+simUpdate();
+
+/* ---------- セクション4：あるある劇場 ---------- */
+var CASES = [
+  {
+    art:'icTokei', cls:'c-red', chip:'第一幕：古い数字',
+    title:'10年前に聞いた金額で、ずっとシフトを削っていた',
+    story:'「働き始めたころに先輩から、103万円を超えないようにねと教わりました。それ以来ずっと、11月になるとシフトを減らしています。去年ふと調べたら、線がずいぶん動いていて。10年ぶんの11月と12月を返してほしい気持ちです」<small>——40代・パート勤務（脚色あり）</small>',
+    what:'<p class="cmodal-p">いわゆる年収の壁は、<strong>給与所得控除・基礎控除・社会保険の適用要件</strong>といった、それぞれ別々に改正される部品でできています。とくに2025年（令和7年）には税制と年金制度の両方で改正がありました。<strong>職場で語り継がれている数字は、たいてい何年か前のもの</strong>です。</p>',
+    how:'<p class="cmodal-p">やることは1つ、<strong>年に一度、いまの線を確かめる</strong>ことです。勤務先の給与担当、年金事務所、国税庁のタックスアンサー。どれか1つに当たれば済みます。誰かの記憶ではなく、その年の資料で確認してください。</p>'
+  },
+  {
+    art:'icNenkin', cls:'c-amber', chip:'第二幕：106万円',
+    title:'1万円超えただけで、手取りが15万円減りました',
+    story:'「年末の忙しい時期に少しだけ多く働いて、年収が106万円を1万円ほど超えました。その年から勤務先の社会保険に入ることになって、毎月の給料から保険料が引かれるように。手取りで見たら、去年より減っているんです。1万円多く働いた結果がこれかと」<small>——50代・パート勤務（脚色あり）</small>',
+    what:'<p class="cmodal-p">社会保険料は税金と違い、<strong>超えた部分にだけかかるのではなく、収入全体に対してかかります</strong>。だから加入した直後がいちばん手取りが下がります。これが「働き損」と呼ばれる区間の正体です。ただし、これは<strong>崖ではなく谷</strong>で、働く時間を増やせば手取りは戻っていきます。</p>',
+    how:'<p class="cmodal-p">大事なのは、<strong>加入する要件に当てはまるかどうかを先に知っておくこと</strong>です。週の所定労働時間と勤務先の規模で決まるので、雇用契約書と勤務先への確認で分かります。そのうえで、手前で止まるか、谷を渡って増やすかを選んでください。<strong>どちらが正解ということはありません。</strong></p>'
+  },
+  {
+    art:'icJikan', cls:'c-blue', chip:'第三幕：見込みで判定',
+    title:'去年は大丈夫だったのに、今年の途中で外れました',
+    story:'「去年の年収は128万円で、扶養のままでした。今年も同じくらいのつもりでいたら、春から時給が上がって。夏に健康保険から、この収入が続く見込みなので扶養から外れますという連絡が来ました。年末に調整するつもりだったのに、途中で言われるとは思っていませんでした」<small>——40代・パート勤務（脚色あり）</small>',
+    what:'<p class="cmodal-p">健康保険の扶養は、所得税と違って<strong>これから先の収入の見込み</strong>で判定されます。月々の収入が一定の水準を超える状態が続くと見込まれれば、年の途中でも認定が取り消されることがあります。<strong>年末の帳尻合わせが効かない</strong>のは、この仕組みのためです。</p>',
+    how:'<p class="cmodal-p">時給が上がったとき、シフトが増えたときは、<strong>その時点で月の収入がどう変わるか</strong>を計算してください。判定するのは加入している健康保険なので、基準や運用は保険証に書かれた保険者に直接確認するのがいちばん確実です。<strong>一時的な収入増については、事業主の証明によって認定を続けられる取扱いがある</strong>ため、あわせて確認してください。</p>'
+  },
+  {
+    art:'icDoc2', cls:'c-green', chip:'第四幕：会社の手当',
+    title:'税金の壁は超えていないのに、手当だけ消えました',
+    story:'「妻の年収が110万円になりました。税金の線は超えていないから大丈夫だと思っていたら、私の会社の家族手当が止まったんです。就業規則を見たら、配偶者の年収103万円以下が条件と書いてありました。月1万5千円ですから、年間18万円。想定していませんでした」<small>——40代・会社員（脚色あり）</small>',
+    what:'<p class="cmodal-p">家族手当・配偶者手当は<strong>法律の制度ではなく、勤務先が独自に定めるもの</strong>です。税制が改正されても、社内規程は自動では変わりません。金額が大きいことも多く、<strong>公的な負担より影響が大きい</strong>ケースが珍しくありません。</p>',
+    how:'<p class="cmodal-p">確認するのは<strong>就業規則または賃金規程の、家族手当の支給要件</strong>です。総務や人事に聞けばすぐ分かります。基準額だけでなく、<strong>いつの時点の収入で判定するのか</strong>（前年か、その年か）も一緒に確認しておくと安心です。</p>'
+  },
+  {
+    art:'icStudent', cls:'c-berry', chip:'第五幕：学生アルバイト',
+    title:'息子に「働くな」と言っていたら、制度が変わっていた',
+    story:'「大学生の息子に、アルバイトは103万円までにしなさいと毎年言っていました。去年、息子のほうが調べてきて、いまは違うよと。父さんの控除も減らないよと言われて、返す言葉がありませんでした。バイト先で人手が足りないと聞くたび断らせていたので、申し訳ないことをしました」<small>——50代・お父さま（脚色あり）</small>',
+    what:'<p class="cmodal-p">2025年（令和7年）の改正で<strong>特定親族特別控除</strong>が作られ、19歳から22歳までのお子さんについては、アルバイト収入が一定額までなら<strong>親の控除がそのまま続き、その先も段階的に減る</strong>形になりました。以前のように、一定額を超えた瞬間に控除がまるごと消える仕組みではなくなっています。</p>',
+    how:'<p class="cmodal-p">確認するのは、お子さんの<strong>合計所得金額</strong>と年齢です。金額の階段は法律上、給与収入ではなく合計所得金額で決められているため、給与収入に直した金額は改正のたびに動きます。<strong>その年の国税庁の資料で確認</strong>してください。なお、お子さん自身の社会保険については学生かどうかで扱いが変わります。</p>'
+  },
+  {
+    art:'icPayslip', cls:'c-amber', chip:'第六幕：数え方のちがい',
+    title:'交通費を入れるかどうかで、話が食い違いました',
+    story:'「通勤手当を入れると年収が130万円を超えるけれど、入れなければ超えません。どちらで見るんですかと勤務先に聞いたら、税金と健康保険で扱いが違いますと言われて。ひとつの年収という数字があると思っていたので、頭が混乱しました」<small>——40代・パート勤務（脚色あり）</small>',
+    what:'<p class="cmodal-p">同じ「年収」でも、<strong>制度によって数える範囲が違います</strong>。所得税の給与収入と、健康保険の扶養の判定で見る収入と、社会保険の加入要件で見る賃金では、通勤手当や賞与、残業代の扱いがそれぞれ異なります。<strong>数字だけを持ち歩くと、必ずどこかで食い違います</strong>。</p>',
+    how:'<p class="cmodal-p">聞くときは、<strong>どの制度の話かをはっきりさせてから</strong>にしてください。「所得税の話ですか、健康保険の扶養の話ですか、社会保険の加入の話ですか」。この一言があるだけで、勤務先も健康保険も正確に答えられます。判断に迷う場合は、それぞれの窓口にご確認ください。</p>'
+  }
+];
+
+/* ---------- セクション5：逆転劇場 ---------- */
+var GOOD_CASES = [
+  {
+    art:'icNenkin', cls:'c-blue', chip:'第一話：厚生年金に入る', amt:'受け取る側にもなる',
+    title:'保険料は増えましたが、もらえるものも増えました',
+    story:'「社会保険に入って手取りが減ったときは、正直がっかりしました。ただ、ねんきん定期便を見たら将来の年金の見込みが増えていて。しかも去年、体調を崩して1か月休んだときに傷病手当金が出ました。あのとき入っていなかったら、収入はゼロでした」<small>——50代・パート勤務（脚色あり）</small>',
+    what:'<p class="cmodal-p">厚生年金に加入すると、加入した期間と報酬に応じて<strong>老齢厚生年金が上乗せ</strong>されます。健康保険に加入すれば、病気やけがで働けないときの<strong>傷病手当金</strong>、出産のときの<strong>出産手当金</strong>の対象になり、障害を負ったときの保障も手厚くなります。保険料は<strong>労使折半</strong>で、半分は勤務先が負担します。</p>',
+    how:'<p class="cmodal-p">増える年金の額は、加入期間と報酬で決まります。<strong>ねんきん定期便やねんきんネット</strong>で、いまの記録と見込み額を確認できます。ただし、負担が増えることも事実です。<strong>増える保障とすぐに減る手取りのどちらを重く見るかは、ご家庭の事情によります。</strong>ここは損得を断定できる部分ではありません。</p>'
+  },
+  {
+    art:'icStep', cls:'c-green', chip:'第二話：配偶者特別控除', amt:'階段でなだらかに',
+    title:'超えても、控除は一気には消えませんでした',
+    story:'「妻の収入が増えて配偶者控除の範囲を超えたので、私の税金が跳ね上がると身構えていました。ところが配偶者特別控除というものがあって、しばらくは同じ額のまま。その先も少しずつ減るだけでした。もっと早く知っていれば、あんなに神経質にならずに済んだのに」<small>——40代・会社員（脚色あり）</small>',
+    what:'<p class="cmodal-p">配偶者控除の対象から外れても、そこからは<strong>配偶者特別控除</strong>が引き継ぎます。しばらく満額のまま続く区間があり、その先は階段状に少しずつ減っていきます。<strong>1円超えたら控除がまるごと消える、という仕組みではありません。</strong></p>',
+    how:'<p class="cmodal-p">階段は法律上、給与収入ではなく<strong>合計所得金額</strong>で定められています。給与所得控除が改正で動くと、給与収入に直した金額も動きます。<strong>その年の国税庁の資料で確認</strong>してください。また、扶養している方の合計所得金額が900万円を超えると控除は段階的に小さくなり、1,000万円を超えると使えません。</p>'
+  },
+  {
+    art:'icStudent', cls:'c-amber', chip:'第三話：特定親族特別控除', amt:'2025年に新設',
+    title:'大学生の子が働いても、控除が続くようになりました',
+    story:'「息子が塾講師のアルバイトを増やしたいと言い出して、扶養が外れると困ると止めていました。新しい控除ができて、一定額までは私の控除もそのままだと知って。息子には社会経験になるし、こちらの税金も変わらない。止める理由がなくなりました」<small>——50代・お父さま（脚色あり）</small>',
+    what:'<p class="cmodal-p">2025年（令和7年）の改正で<strong>特定親族特別控除</strong>が作られました。19歳から22歳までの親族について、その方の合計所得金額が一定額までなら<strong>従来と同じ控除が続き</strong>、その先も段階的に減っていく形です。学生アルバイトのご家庭では、前提が大きく変わっています。</p>',
+    how:'<p class="cmodal-p">確認するのは、お子さんの<strong>年齢と合計所得金額</strong>です。あわせて、お子さん自身の社会保険についても確認してください。<strong>学生は、勤務先の社会保険の加入要件から原則として除かれています</strong>が、働き方によっては扱いが変わることがあります。金額の階段は改正で動くため、その年の資料でご確認ください。</p>'
+  },
+  {
+    art:'icKazoku', cls:'c-berry', chip:'第四話：60歳以上の基準', amt:'基準が高くなります',
+    title:'母を扶養に入れられるか、基準がちがっていました',
+    story:'「同居している母のパート収入が140万円ほどあって、130万円を超えているから扶養には入れないと思っていました。健康保険に確認したら、60歳以上は基準が違いますと。手続きをしたら、母の国民健康保険料の負担がなくなりました」<small>——50代・ご長男（脚色あり）</small>',
+    what:'<p class="cmodal-p">健康保険の扶養の基準は、<strong>60歳以上の方や一定の障害のある方については、130万円ではなく180万円</strong>とされているのが一般的です。ご両親を扶養に入れられるかを判断するときは、この基準で見ます。あわせて、被保険者の収入との関係についての条件もあります。</p>',
+    how:'<p class="cmodal-p">判断するのは<strong>加入している健康保険（保険者）</strong>です。基準の細かい運用は保険者によって差がありますので、保険証に書かれた保険者に直接ご確認ください。なお、<strong>75歳になると後期高齢者医療制度へ移る</strong>ため、扶養の扱いはそこで変わります。あわせて確認しておくと安心です。</p>'
+  },
+  {
+    art:'icJikan', cls:'c-blue', chip:'第五話：一時的な収入増', amt:'証明で継続できる場合',
+    title:'繁忙期の残業で超えた分は、事情を説明できました',
+    story:'「職場で欠員が出て、数か月だけ残業が増えました。このままだと扶養から外れると青くなっていたら、一時的なものなら事業主の証明を出せる場合がありますと教えてもらって。勤務先に書いてもらい、そのまま扶養を続けられました」<small>——40代・パート勤務（脚色あり）</small>',
+    what:'<p class="cmodal-p">人手不足による一時的な残業などで収入が一時的に増えた場合、<strong>事業主がその事情を証明することで、扶養の認定を続けられる取扱い</strong>があります。恒常的な収入増ではないことを示すためのものです。知らずに自分でシフトを削ってしまう方が少なくありません。</p>',
+    how:'<p class="cmodal-p">まず<strong>加入している健康保険に、この取扱いがあるか、いま利用できるかを確認</strong>してください。運用や必要書類は保険者によって異なります。また、この種の措置は<strong>期限が定められていることがある</strong>ため、最新の状況を確認することが欠かせません。あわせて勤務先の給与担当にもご相談ください。</p>'
+  },
+  {
+    art:'icShain', cls:'c-green', chip:'第六話：労使折半', amt:'半分は勤務先の負担',
+    title:'同じ「扶養から外れる」でも、負担が違いました',
+    story:'「130万円を超えそうだったので、いっそ働く時間を増やして勤務先の社会保険に入れてもらいました。国民健康保険と国民年金を自分で全部払うより、負担がずいぶん軽くて。同じ扶養から外れるでも、こんなに違うとは思いませんでした」<small>——40代・パート勤務（脚色あり）</small>',
+    what:'<p class="cmodal-p">勤務先の社会保険（健康保険・厚生年金）の保険料は<strong>労使折半</strong>で、半分は勤務先が負担します。一方、扶養から外れて<strong>国民健康保険と国民年金に加入する場合は、ご自身で全額を負担</strong>します。同じ「扶養から外れる」でも、どちらの道になるかで負担がかなり変わります。</p>',
+    how:'<p class="cmodal-p">勤務先の社会保険に入れるかどうかは、<strong>週の所定労働時間と勤務先の規模</strong>で決まります。雇用契約書と勤務先への確認で分かります。<strong>ただし、労働時間を増やせるかどうかはご家庭の事情によります。</strong>どちらが良いと決められる話ではありませんので、条件を並べたうえでお選びください。</p>'
+  },
+  {
+    art:'icWall', cls:'c-amber', chip:'第七話：谷の幅を知る', amt:'戻る地点が分かる',
+    title:'いつ手取りが戻るのかが分かって、決められました',
+    story:'「社会保険に入ると手取りが減ると聞いて、ずっと手前で止めていました。試算してもらったら、あと少し働けば元の手取りに戻ると分かって。数字が見えたら、迷いがなくなりました。結局、私は増やすほうを選びました」<small>——50代・パート勤務（脚色あり）</small>',
+    what:'<p class="cmodal-p">社会保険に加入した直後は手取りが下がりますが、その後は<strong>働いた分だけ増えていきます</strong>。つまり下がったままではなく、<strong>戻る地点があります</strong>。この試算の前提では、加入後おおむね年収125万円あたりが目安になります（条件によって変わります）。</p>',
+    how:'<p class="cmodal-p">ご自身の条件でこの地点を確かめるには、<strong>週の所定労働時間・勤務先の規模・年齢・扶養している方の所得</strong>が分かれば十分です。③のシミュレーターで試せます。<strong>手前で止まる選択も、越えて増やす選択も、どちらも合理的です。</strong>大事なのは、数字を見たうえで選ぶことです。</p>'
+  },
+  {
+    art:'icDoc2', cls:'c-red', chip:'第八話：社内の線', amt:'年10万円台のことも',
+    title:'会社の手当の基準を、聞いてみたら変わっていました',
+    story:'「夫の会社の家族手当が103万円基準だと思い込んでいました。念のため夫に聞いてもらったら、数年前に基準が見直されていて、いまはもっと上でした。ずっと古い基準に合わせて働く時間を抑えていたので、拍子抜けしました」<small>——40代・パート勤務（脚色あり）</small>',
+    what:'<p class="cmodal-p">家族手当・配偶者手当の基準は<strong>勤務先ごとに就業規則で定められています</strong>。公的な制度の改正に合わせて見直す会社もあれば、そのままの会社もあります。<strong>思い込みで判断されやすい</strong>のに、金額が年10万円台になることもある項目です。</p>',
+    how:'<p class="cmodal-p">確認するのは<strong>就業規則または賃金規程の家族手当の支給要件</strong>です。総務や人事に聞けば分かります。基準の金額だけでなく、<strong>いつの時点の収入で判定するのか</strong>、<strong>社会保険の扶養と連動しているのか</strong>まで聞いておくと、翌年の設計がぐっと楽になります。</p>'
+  }
+];
+
+var modal = document.getElementById('caseModal');
+var CASE_LBL = {
+  bad:['よく伺うお話をもとにした創作例（脚色あり）', '何が起きたのか', 'こう確認すれば防げます'],
+  good:['よくある、うれしい誤算（創作例・脚色あり）', 'なぜそうなるのか', '確かめるための条件']
+};
+
+function renderCases(gridId, list, kind){
+  var grid = document.getElementById(gridId);
+  list.forEach(function(c){
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'case-card';
+    btn.innerHTML =
+      '<span class="art ' + c.cls + '">' + ARTS[c.art] + '</span>' +
+      '<span class="t"><span class="chip ' + c.cls + '">' + c.chip + '</span>' +
+      (c.amt ? '<span class="amt">' + c.amt + '</span>' : '') +
+      '<h3>' + c.title + '</h3>' +
+      '<span class="more">くわしく見る<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></span></span>';
+    btn.addEventListener('click', function(){ openCase(c, kind); });
+    grid.appendChild(btn);
+  });
+}
+
+function openCase(c, kind){
+  var lbl = CASE_LBL[kind] || CASE_LBL.bad;
+  document.getElementById('caseModalLbl1').textContent = lbl[0];
+  document.getElementById('caseModalLbl2').textContent = lbl[1];
+  document.getElementById('caseModalLbl3').textContent = lbl[2];
+  document.getElementById('caseModalLbl2Wrap').className =
+    'cmodal-label ' + (kind === 'good' ? 'lb-green' : 'lb-red');
+  document.getElementById('caseModalIco').className = 'cmodal-ico ' + c.cls;
+  document.getElementById('caseModalIco').innerHTML = ARTS[c.art];
+  document.getElementById('caseModalChip').className = 'cmodal-chip ' + c.cls;
+  document.getElementById('caseModalChip').textContent = c.chip;
+  document.getElementById('caseModalTitle').textContent = c.title;
+  document.getElementById('caseModalStory').innerHTML = c.story;
+  document.getElementById('caseModalWhat').innerHTML = c.what;
+  document.getElementById('caseModalHow').innerHTML = c.how;
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+  modal.querySelector('.cmodal-panel').scrollTop = 0;
+}
+
+renderCases('caseGrid', CASES, 'bad');
+renderCases('goodGrid', GOOD_CASES, 'good');
+
+function closeCase(){
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+document.getElementById('caseModalClose').addEventListener('click', closeCase);
+document.getElementById('caseModalBack').addEventListener('click', closeCase);
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && modal.classList.contains('show')) closeCase();
+});
+
+/* ---------- まとめ：チェックリスト ---------- */
+var chkBoxes = document.querySelectorAll('#checklist input[type=checkbox]');
+var chkMsg = document.getElementById('chkMsg');
+function chkUpdate(){
+  var n = 0;
+  chkBoxes.forEach(function(c){ if(c.checked) n++; });
+  var total = chkBoxes.length;
+  if(n === 0){
+    chkMsg.textContent = 'あてはまるものにチェックを入れてみてください。今日おうちで確認できる項目と、勤務先に聞く項目が混じっています。';
+  } else if(n <= 2){
+    chkMsg.textContent = 'チェック' + n + '個。正直なのは素晴らしいことです。残りの項目は、どれも給与明細と就業規則があれば手をつけられるものばかり。まずは「勤務先の従業員数と、自分の週の労働時間を確かめる」からがおすすめです。';
+  } else if(n <= 5){
+    chkMsg.textContent = 'チェック' + n + '個。平均より、だいぶ整理ができています。残りの項目も、給与明細と健康保険証が手元にあれば一気に片づきます。判断に迷うところは、そのまま当社へお持ちください。';
+  } else if(n < total){
+    chkMsg.textContent = 'チェック' + n + '個。ここまで把握できている方には、ご相談でもめったにお会いしません。あと少しで「壁におびえずに働き方を選べる」状態が整います。';
+  } else {
+    chkMsg.textContent = '全項目チェック！　あなたはもう「何となく怖いから抑えておく」ではなく「分かって選んでいる」状態です。あとは制度が動いた年に、同じ確認をくり返すだけです。';
+  }
+}
+chkBoxes.forEach(function(c){ c.addEventListener('change', chkUpdate); });
+
+})();
+</script>
+</body>
+</html>

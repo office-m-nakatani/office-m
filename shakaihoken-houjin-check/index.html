@@ -1,0 +1,2057 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="社長1人だけの会社でも社会保険は強制加入。誰が加入するのか、保険料の労使折半で会社の固定費がいくら増えるのか、未加入が見つかったときの遡及と延滞金までを○×クイズと体感シミュレーターで確認できる啓発ツール。株式会社Office-M作成の情報提供資料。">
+<title>会社の社会保険「入る・入らない」チェック｜株式会社Office-M</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 6 8 18v10c0 16 10 26 24 30 14-4 24-14 24-30V18Z' fill='%232c7a4b'/%3E%3Cpath d='M32 20v22M22 28h20M22 35h20' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --navy:#1b3f5e;
+  --navy-2:#27587f;
+  --navy-soft:#eaf1f7;
+  --bg:#fff8f2;
+  --white:#ffffff;
+  --text:#33404d;
+  --muted:#5c6874;
+  --line:#efe2d8;
+  --shadow:0 6px 20px rgba(130,100,80,.09);
+  --shadow-sm:0 3px 10px rgba(130,100,80,.07);
+
+  --red:#c2453f;
+  --red-dark:#a63631;
+  --red-bg:#fdeee9;
+  --red-border:#f4d0c6;
+  --coral:#f0846a;
+  --coral-text:#c2451f;
+
+  --green:#2c7a4b;
+  --green-bg:#e8f6ef;
+  --green-border:#c3e5d3;
+  --mint:#4fbf9b;
+
+  --amber:#8f6015;
+  --amber-deep:#a85c12;
+  --amber-bg:#fdf3e2;
+  --amber-border:#f2dcae;
+  --sunny:#f7c34e;
+
+  --sky:#24729f;
+  --sky-bg:#e8f4fb;
+  --sky-border:#c6e2f2;
+
+  --berry:#8f4574;
+  --berry-bg:#fbeef6;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+/* スマホでも17pxを基準にする（注記・出典まわりが12pxまで小さくなっていたため） */
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;font-size:17px;}
+/* 左右の余白が広い画面ほど文字を大きくして見やすさに還元する */
+@media(min-width:1000px){ html{font-size:18px;} }
+body{
+  font-family:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho",YuMincho,"游明朝体","游明朝","MS PMincho","ＭＳ Ｐ明朝",serif;
+  color:var(--text);
+  background:var(--bg);
+  font-size:1.09rem;
+  line-height:1.95;
+  letter-spacing:.03em;
+  padding-bottom:40px;
+  overflow-wrap:break-word;
+}
+@media(min-width:768px){
+  body{font-size:1.16rem;letter-spacing:.04em;}
+}
+img,svg{max-width:100%;vertical-align:middle;}
+button{font-family:inherit;}
+/* キーボード操作でいまどこにいるかを、はっきり見せる（既定の1本線は細くて見えない） */
+a:focus-visible,button:focus-visible,summary:focus-visible,
+input:focus-visible,label:focus-visible,[tabindex]:focus-visible{
+  outline:3px solid var(--navy-2);
+  outline-offset:3px;
+  border-radius:6px;
+}
+a{color:var(--navy-2);}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px;}
+/* 広い画面では、本文の1行を約40字までに抑える（日本語の読みやすい行長の目安）。
+   カード内の短い文には効かせず、横幅いっぱいに伸びる長文だけを対象にする */
+@media(min-width:700px){
+  .guide-msg,.def-lead,.sec-lead,.sub-lead,.age-note,.note,
+  .mikane ol li,.mikane .caution,.rule3-box ol li,.rule3-note,
+  .cta-lead,details.finder p,details.finder li,footer.disclaimer p{
+    max-width:40em;
+  }
+  /* 中央寄せの箱の中にあるものは、中央のまま幅だけ詰める */
+  .venn-cap,.life-cap{max-width:40em;margin-left:auto;margin-right:auto;}
+}
+.nowrap{white-space:nowrap;}
+
+/* ---------- ヘッダー ---------- */
+.hero{
+  background:linear-gradient(168deg,#fbe6e6 0%,#fdf1ea 46%,#ddf0fb 100%);
+  color:var(--navy);
+  padding:24px 0 30px;
+  overflow:hidden;
+}
+.brand{
+  display:flex;align-items:center;gap:10px;
+  font-size:.92rem;font-weight:700;letter-spacing:.02em;color:var(--navy);
+}
+.brand .ico{
+  width:36px;height:36px;flex:0 0 36px;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--navy);border-radius:12px;
+}
+.brand .ico svg{width:20px;height:20px;stroke:#fff;}
+.brand small{display:block;font-weight:500;color:var(--muted);font-size:.82rem;letter-spacing:.04em;line-height:1.55;}
+.hero-flex{display:flex;flex-direction:column;}
+.hero h1{
+  font-size:1.58rem;line-height:1.45;font-weight:800;
+  margin:20px 0 12px;letter-spacing:.01em;color:var(--navy);
+}
+.hero h1 .accent{
+  background:linear-gradient(transparent 62%, #ffd9a8 62%);
+  padding:0 2px;
+}
+.hero .lead{font-size:1rem;color:var(--text);max-width:640px;}
+/* 文字間隔をユーザーが広げても見出しが切れないよう、狭い画面では折り返しを許す
+   （通常の表示では1行に収まるため、見た目は変わらない）— WCAG 1.4.12 */
+@media(max-width:520px){ .hero h1 .nowrap{white-space:normal;} }
+.hero-scene{margin:16px auto 0;width:100%;max-width:400px;}
+.hero-scene svg{width:100%;height:auto;display:block;}
+@media(min-width:768px){
+  .hero{padding:30px 0 40px;}
+  .hero h1{font-size:1.95rem;}
+  .hero .lead{font-size:1.06rem;}
+  .hero-flex{flex-direction:row;align-items:center;gap:28px;}
+  .hero-copy{flex:1;}
+  .hero-scene{flex:0 0 340px;margin:0;}
+}
+.hero-nav{display:flex;flex-wrap:wrap;gap:9px;margin-top:20px;}
+.hero-nav a{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--white);
+  border:2px solid #ffffff;
+  color:var(--navy);text-decoration:none;
+  padding:11px 17px;border-radius:999px;
+  font-size:.94rem;font-weight:700;min-height:48px;
+  box-shadow:var(--shadow-sm);
+}
+.hero-nav a:active{background:#fff4e9;}
+.hero-nav a svg{width:18px;height:18px;stroke:var(--coral);flex:0 0 18px;}
+
+/* ---------- セクション共通 ---------- */
+section{padding:40px 0 46px;}
+.band{background:var(--white);}
+.band-sky{background:var(--sky-bg);}
+.band-blush{background:#fdf1eb;}
+.band-mint{background:var(--green-bg);}
+.round-top{
+  border-radius:30px 30px 0 0;
+  margin-top:-24px;position:relative;z-index:1;
+  padding-top:42px;
+}
+.sec-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;}
+.sec-head .spot{flex:0 0 84px;}
+.spot-circle{
+  width:84px;height:84px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.spot-circle svg{width:52px;height:52px;}
+.step-pill{
+  display:inline-flex;align-items:center;gap:9px;
+  background:var(--amber-bg);color:var(--navy);
+  font-size:.88rem;font-weight:700;letter-spacing:.02em;
+  padding:6px 18px 6px 7px;border-radius:999px;margin-bottom:12px;
+  box-shadow:var(--shadow-sm);
+}
+.step-pill i{
+  width:28px;height:28px;flex:0 0 28px;border-radius:50%;
+  background:linear-gradient(135deg,#c2452a,#a8601a);
+  color:#fff;font-style:normal;font-weight:800;font-size:.95rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.step-pill.plain{padding:7px 18px;}
+h2{
+  font-size:1.4rem;line-height:1.5;color:var(--navy);
+  font-weight:800;letter-spacing:.01em;
+  position:relative;padding-bottom:12px;margin-bottom:10px;
+}
+h2::after{
+  content:"";position:absolute;left:0;bottom:0;
+  width:54px;height:5px;border-radius:3px;
+  background:linear-gradient(90deg,var(--coral),var(--sunny));
+}
+@media(min-width:768px){h2{font-size:1.68rem;}}
+.sec-lead{color:var(--muted);font-size:1rem;margin-bottom:22px;}
+.sub-title{font-size:1.1rem;color:var(--navy);}
+.note{
+  font-size:.9rem;color:var(--muted);line-height:1.85;
+  background:var(--white);border-radius:16px;
+  padding:14px 16px;margin-top:20px;
+  display:flex;gap:9px;align-items:flex-start;
+  box-shadow:var(--shadow-sm);
+}
+.note svg{width:20px;height:20px;flex:0 0 20px;stroke:var(--coral);margin-top:4px;}
+.band-sky .note,.band-blush .note{box-shadow:none;border:1px solid var(--line);}
+
+/* ---------- ガイド（吹き出し） ---------- */
+.guide{display:flex;align-items:flex-start;gap:12px;margin-bottom:20px;}
+.guide-ava{
+  width:58px;height:58px;flex:0 0 58px;border-radius:50%;
+  overflow:hidden;display:block;box-shadow:var(--shadow-sm);
+}
+.guide-ava svg{width:100%;height:100%;display:block;}
+.guide-msg{
+  position:relative;background:var(--white);
+  border:2px solid #ffe0cf;border-radius:18px;
+  padding:12px 16px;font-size:.95rem;line-height:1.75;
+}
+.guide-msg::before{
+  content:"";position:absolute;left:-9px;top:20px;
+  width:14px;height:14px;background:var(--white);
+  border-left:2px solid #ffe0cf;border-bottom:2px solid #ffe0cf;
+  transform:rotate(45deg);
+}
+
+/* ---------- セクション1：ちがいを問いかけるリンク ---------- */
+.qlink-lead{
+  display:flex;align-items:center;gap:9px;
+  font-size:1rem;font-weight:800;color:var(--navy);
+  margin:26px 0 12px;
+}
+.qlink-lead svg{width:23px;height:23px;flex:0 0 23px;stroke:var(--coral);}
+.qlinks{display:grid;grid-template-columns:1fr;gap:12px;}
+@media(min-width:700px){.qlinks{grid-template-columns:repeat(3,1fr);}}
+.qlink{
+  display:flex;flex-direction:column;gap:5px;
+  background:var(--white);border:2px solid var(--line);border-radius:18px;
+  padding:15px 16px 13px;text-decoration:none;color:inherit;
+  box-shadow:var(--shadow-sm);
+  transition:border-color .15s, transform .12s;
+}
+.qlink:active{transform:scale(.985);}
+.qlink:hover{border-color:var(--coral);}
+.qlink .pair{
+  display:flex;align-items:center;gap:7px;flex-wrap:wrap;
+  font-size:1.02rem;font-weight:800;color:var(--navy);line-height:1.55;
+}
+.qlink .pair .vs{
+  font-size:.8rem;font-weight:800;color:var(--red-dark);
+  background:var(--red-bg);border-radius:999px;padding:2px 10px;
+}
+.qlink .ask{font-size:.87rem;color:var(--muted);line-height:1.75;}
+.qlink .go{
+  display:inline-flex;align-items:center;gap:4px;margin-top:3px;
+  font-size:.84rem;font-weight:800;color:var(--coral-text);
+}
+.qlink .go svg{width:14px;height:14px;flex:0 0 14px;stroke:var(--coral-text);}
+/* リンクで飛んだ先を、見出しの手前で止める */
+.def-block[id]{scroll-margin-top:18px;}
+
+/* ---------- セクション1：定義のブロック ---------- */
+.def-block{
+  margin-top:34px;padding-top:26px;border-top:2px dashed var(--line);
+}
+.def-block:first-of-type{margin-top:18px;padding-top:0;border-top:none;}
+.def-h{
+  display:flex;align-items:center;gap:12px;
+  font-size:1.14rem;line-height:1.5;color:var(--navy);margin-bottom:8px;
+}
+.def-ico{
+  width:52px;height:52px;flex:0 0 52px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.def-ico svg{width:34px;height:34px;}
+.def-lead{font-size:.97rem;color:var(--muted);line-height:1.9;margin-bottom:16px;}
+@media(min-width:768px){.def-h{font-size:1.26rem;}}
+
+/* ---------- セクション1：心疾患の輪 ---------- */
+.venn-box{
+  background:var(--white);border-radius:22px;box-shadow:var(--shadow);
+  padding:20px 14px 8px;margin:6px 0 26px;text-align:center;
+}
+.venn-box svg{width:100%;max-width:520px;height:auto;}
+.venn-cap{font-size:.88rem;color:var(--muted);padding:6px 8px 12px;line-height:1.8;}
+@media(max-width:520px){.venn-box{padding:14px 4px 6px;}}
+.cards{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.cards{grid-template-columns:repeat(2,1fr);}}
+.risk-card{
+  position:relative;background:var(--white);
+  border-radius:20px;padding:20px 20px 18px;
+  box-shadow:var(--shadow);
+}
+.risk-card .icon{
+  width:68px;height:68px;border-radius:50%;
+  background:var(--navy-soft);
+  display:flex;align-items:center;justify-content:center;margin-bottom:12px;
+}
+.risk-card .icon svg{width:44px;height:44px;}
+.risk-card .icon.ic-red{background:var(--red-bg);}
+.risk-card .icon.ic-blue{background:var(--sky-bg);}
+.risk-card .icon.ic-amber{background:var(--amber-bg);}
+.risk-card .icon.ic-green{background:var(--green-bg);}
+.risk-card h3{font-size:1.02rem;color:var(--navy);margin-bottom:2px;}
+.risk-card p{font-size:.93rem;color:var(--muted);margin-top:8px;line-height:1.85;}
+.judge-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:.82rem;font-weight:700;padding:4px 13px;border-radius:999px;margin-top:4px;
+}
+.judge-chip.ng{background:var(--red-bg);color:var(--red-dark);border:1.5px solid var(--red-border);}
+.judge-chip.ok{background:var(--green-bg);color:var(--green);border:1.5px solid var(--green-border);}
+.judge-chip.maybe{background:var(--amber-bg);color:var(--amber-deep);border:1.5px solid var(--amber-border);}
+
+/* ---------- 罹患年齢のデータ（セクション1の各解説に添える） ---------- */
+.age-note{
+  display:flex;gap:10px;align-items:flex-start;
+  background:var(--white);border-radius:14px;
+  border-left:5px solid var(--sky);
+  padding:11px 15px;margin-bottom:16px;
+  font-size:.9rem;line-height:1.85;
+  box-shadow:var(--shadow-sm);
+}
+.age-note svg{width:19px;height:19px;flex:0 0 19px;stroke:var(--sky);margin-top:5px;}
+.age-note b{color:var(--sky);font-size:.98rem;}
+.age-note small{display:block;color:var(--muted);font-size:.81rem;line-height:1.7;margin-top:2px;}
+
+/* ---------- セクション6：医療費のかかりどき ---------- */
+.life-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px 14px;margin:6px 0 26px;
+}
+.life-box h3{font-size:1.08rem;color:var(--navy);margin-bottom:4px;}
+.life-box .sub{font-size:.9rem;color:var(--muted);margin-bottom:14px;}
+.life-box svg{width:100%;max-width:620px;height:auto;display:block;margin:0 auto;}
+.life-cap{font-size:.85rem;color:var(--muted);line-height:1.8;padding:10px 4px 4px;}
+.big3{display:grid;grid-template-columns:1fr;gap:12px;margin-top:16px;}
+@media(min-width:700px){.big3{grid-template-columns:repeat(3,1fr);}}
+.big3 .b{
+  background:var(--bg);border:2px solid var(--line);border-radius:16px;
+  padding:13px 15px;text-align:center;
+}
+.big3 .b .n{display:block;font-size:1.5rem;font-weight:800;color:var(--coral-text);line-height:1.4;}
+.big3 .b .l{display:block;font-size:.86rem;color:var(--navy);font-weight:700;line-height:1.7;}
+.big3 .b .s{display:block;font-size:.81rem;color:var(--muted);line-height:1.7;margin-top:3px;}
+
+.sub-h{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.1rem;color:var(--navy);margin:30px 0 6px;
+}
+.sub-h svg{width:24px;height:24px;flex:0 0 24px;stroke:var(--coral);}
+.sub-lead{font-size:.95rem;color:var(--muted);line-height:1.9;margin-bottom:16px;}
+.age-cards{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.age-cards{grid-template-columns:repeat(3,1fr);}}
+.age-card{
+  background:var(--white);border-radius:20px;box-shadow:var(--shadow);
+  padding:18px 18px 15px;
+}
+.age-card .ttl{
+  display:flex;align-items:center;gap:9px;
+  font-size:1rem;font-weight:800;color:var(--navy);margin-bottom:10px;
+}
+.age-card .ttl .ico{
+  width:38px;height:38px;flex:0 0 38px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.age-card .ttl .ico svg{width:26px;height:26px;}
+.age-card .rows{border-top:1.5px dashed var(--line);padding-top:9px;}
+.age-card .row{
+  display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  font-size:.92rem;line-height:1.9;
+}
+.age-card .row span{color:var(--muted);}
+.age-card .row b{font-size:1.28rem;font-weight:800;color:var(--red-dark);white-space:nowrap;}
+.age-card .kind{
+  display:inline-block;font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:8px;
+  background:var(--sky-bg);color:var(--sky);
+}
+.age-card .cmt{font-size:.87rem;color:var(--text);line-height:1.85;margin-top:10px;}
+.age-card .src{font-size:.8rem;color:var(--muted);line-height:1.7;margin-top:9px;
+  border-top:1.5px dashed var(--line);padding-top:8px;}
+
+/* 未来の自分への仕送り */
+.mikane{
+  margin-top:28px;background:var(--white);border-radius:24px;
+  box-shadow:var(--shadow);padding:22px 20px 18px;
+}
+.mikane h3{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.1rem;color:var(--navy);margin-bottom:12px;
+}
+.mikane h3 svg{width:25px;height:25px;flex:0 0 25px;stroke:var(--mint);}
+.mikane ol{list-style:none;counter-reset:mk;}
+.mikane ol li{
+  counter-increment:mk;position:relative;
+  padding:0 0 14px 46px;font-size:.96rem;line-height:1.9;
+}
+.mikane ol li::before{
+  content:counter(mk);position:absolute;left:0;top:2px;
+  width:32px;height:32px;border-radius:50%;
+  background:var(--sky-bg);color:var(--sky);
+  font-weight:800;font-size:1.02rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.mikane ol li b{color:var(--coral-text);}
+.mikane .caution{
+  background:var(--amber-bg);border-radius:16px;padding:14px 16px;
+  font-size:.9rem;line-height:1.9;
+  border-left:5px solid var(--sunny);
+}
+.mikane .caution strong:first-child{display:block;color:var(--amber-deep);margin-bottom:3px;}
+.mikane .caution b{color:var(--coral-text);}
+
+/* ---------- セクション2：クイズ ---------- */
+.quiz-shell{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px 24px;
+}
+.band .quiz-shell{background:var(--bg);box-shadow:none;border:2px solid var(--line);}
+.q-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.q-count{font-size:.9rem;font-weight:700;color:var(--muted);}
+.q-count span{color:var(--coral-text);font-size:1.15rem;}
+.dots{display:flex;gap:6px;}
+.dots i{width:10px;height:10px;border-radius:50%;background:#e8dbd0;}
+.dots i.done{background:var(--mint);}
+.dots i.now{background:var(--coral);}
+.q-body{display:flex;gap:14px;align-items:flex-start;margin:14px 0 18px;}
+.q-body .icon{
+  width:64px;height:64px;flex:0 0 64px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.q-body .icon svg{width:40px;height:40px;}
+.q-body p{font-size:1.06rem;font-weight:700;color:var(--navy);line-height:1.8;}
+.ans-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.ans-btn{
+  min-height:64px;border-radius:18px;cursor:pointer;
+  font-size:1.1rem;font-weight:800;letter-spacing:.06em;
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  border:2.5px solid;transition:transform .12s;
+}
+.ans-btn:active{transform:scale(.97);}
+.ans-btn svg{width:26px;height:26px;}
+.ans-btn.yes{background:var(--green-bg);border-color:var(--green-border);color:var(--green);}
+.ans-btn.no{background:var(--red-bg);border-color:var(--red-border);color:var(--red-dark);}
+.ans-btn:disabled{opacity:.45;cursor:default;}
+.verdict{
+  display:none;margin-top:18px;background:var(--white);
+  border:2px solid var(--amber-border);border-radius:20px;
+  padding:18px 18px 16px;
+}
+.verdict.show{display:block;}
+.verdict-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+.verdict-answer{font-size:1.25rem;font-weight:800;color:var(--navy);}
+.result-chip{
+  font-size:.85rem;font-weight:800;padding:4px 14px;border-radius:999px;
+}
+.result-chip.correct{background:var(--green-bg);color:var(--green);}
+.result-chip.wrong{background:var(--red-bg);color:var(--red-dark);}
+.verdict .expl{font-size:.97rem;line-height:1.95;margin-bottom:12px;}
+.verdict .kv{
+  font-size:.92rem;line-height:1.85;background:var(--sky-bg);
+  border-radius:12px;padding:9px 13px;margin-top:8px;
+}
+.verdict .kv b{color:var(--sky);}
+.verdict .kv.kv-wana{background:var(--red-bg);}
+.verdict .kv.kv-wana b{color:var(--red-dark);}
+.btn-primary{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  width:100%;min-height:58px;margin-top:16px;
+  background:linear-gradient(135deg,#cf4a22,#c2401c);
+  color:#fff;font-size:1.05rem;font-weight:800;letter-spacing:.04em;
+  border:none;border-radius:18px;cursor:pointer;
+  box-shadow:0 5px 14px rgba(194,64,28,.34);
+}
+.btn-primary:active{transform:translateY(1px);}
+.btn-primary svg{width:22px;height:22px;stroke:#fff;}
+.btn-ghost{
+  display:block;width:100%;min-height:50px;margin-top:12px;
+  background:var(--white);color:var(--navy-2);
+  font-size:.95rem;font-weight:700;
+  border:2px solid var(--sky-border);border-radius:16px;cursor:pointer;
+}
+.btn-ghost:active{background:var(--sky-bg);}
+.quiz-done{display:none;}
+.quiz-done.show{display:block;}
+.quiz-done .score{
+  font-size:1.15rem;font-weight:800;color:var(--navy);
+  text-align:center;margin:8px 0 6px;
+}
+.quiz-done .score .num{font-size:2rem;color:var(--coral-text);}
+.quiz-done .cmt{
+  background:var(--white);border-radius:16px;padding:14px 16px;
+  font-size:.97rem;line-height:1.95;margin:14px 0;
+  border:2px solid var(--amber-border);
+}
+.wrong-list{margin:14px 0;}
+.wrong-list h4{font-size:.95rem;color:var(--navy);margin-bottom:8px;}
+.wrong-list .w-item{
+  background:var(--white);border-radius:14px;padding:11px 14px;
+  font-size:.9rem;line-height:1.8;margin-bottom:8px;
+  border-left:4px solid var(--coral);box-shadow:var(--shadow-sm);
+}
+
+/* ---------- セクション3：払込免除の解剖 ---------- */
+.type-table-box{
+  background:var(--white);border-radius:22px;box-shadow:var(--shadow-sm);
+  padding:18px 14px;margin:8px 0 24px;overflow-x:auto;
+}
+.type-table{width:100%;border-collapse:collapse;min-width:520px;font-size:.9rem;}
+.type-table th,.type-table td{
+  padding:10px 10px;text-align:center;border-bottom:1.5px solid var(--line);
+  line-height:1.7;vertical-align:middle;
+}
+.type-table th{background:var(--navy-soft);color:var(--navy);font-size:.86rem;}
+.type-table th:first-child{border-radius:12px 0 0 12px;}
+.type-table th:last-child{border-radius:0 12px 12px 0;}
+.type-table td:first-child{text-align:left;font-weight:700;color:var(--navy);font-size:.88rem;}
+.type-table small{display:block;color:var(--muted);font-weight:500;font-size:.81rem;}
+.mark-ok,.mark-ng,.mark-tri{font-weight:800;font-size:1.05rem;}
+.mark-ok{color:var(--green);}
+.mark-ng{color:var(--red);}
+.mark-tri{color:var(--amber);}
+.sim-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px;margin-top:26px;
+}
+.sim-box h3{font-size:1.12rem;color:var(--navy);margin-bottom:4px;}
+.sim-box .sub{font-size:.9rem;color:var(--muted);margin-bottom:18px;}
+.sim-ctrl{margin-bottom:18px;}
+.sim-ctrl label{
+  display:flex;justify-content:space-between;align-items:baseline;
+  font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:6px;
+}
+.sim-ctrl label output{color:var(--coral-text);font-size:1.15rem;font-weight:800;}
+input[type=range]{
+  width:100%;height:34px;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;
+}
+input[type=range]::-webkit-slider-runnable-track{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--sunny),var(--coral));}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:28px;height:28px;border-radius:50%;
+  background:var(--white);border:3px solid var(--coral);margin-top:-9px;
+  box-shadow:var(--shadow-sm);
+}
+input[type=range]::-moz-range-track{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--sunny),var(--coral));}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--white);border:3px solid var(--coral);}
+.sim-check{
+  display:flex;align-items:center;gap:10px;
+  background:var(--sky-bg);border-radius:14px;padding:11px 14px;
+  font-size:.95rem;font-weight:700;color:var(--navy);cursor:pointer;
+}
+.sim-check input{width:22px;height:22px;accent-color:var(--sky);}
+.timeline{margin:48px 0 8px;}
+.tl-track{
+  position:relative;height:14px;border-radius:7px;background:#f0e4d8;
+}
+.tl-fill{
+  position:absolute;left:0;top:0;height:14px;border-radius:7px;
+  background:linear-gradient(90deg,var(--sunny),var(--coral));
+  transition:width .2s;
+}
+.tl-goal{
+  position:absolute;top:-34px;transform:translateX(-50%);
+  font-size:.81rem;font-weight:800;color:var(--red-dark);
+  text-align:center;line-height:1.3;white-space:nowrap;
+}
+.tl-goal::after{
+  content:"";display:block;width:3px;height:30px;margin:2px auto 0;
+  background:var(--red);border-radius:2px;
+}
+.tl-labels{display:flex;justify-content:space-between;font-size:.81rem;color:var(--muted);margin-top:6px;}
+.sim-results{display:grid;grid-template-columns:1fr;gap:12px;margin-top:20px;}
+@media(min-width:700px){.sim-results{grid-template-columns:repeat(3,1fr);}}
+.sim-r{
+  border-radius:18px;padding:14px 15px;border:2px solid var(--line);background:var(--bg);
+}
+.sim-r h4{font-size:.9rem;color:var(--navy);margin-bottom:6px;line-height:1.6;}
+.sim-r h4 small{display:block;font-weight:500;color:var(--muted);font-size:.8rem;}
+.sim-r .r-chip{
+  display:inline-block;font-size:.95rem;font-weight:800;
+  padding:5px 16px;border-radius:999px;margin-bottom:6px;
+}
+.sim-r.ok{border-color:var(--green-border);background:var(--green-bg);}
+.sim-r.ok .r-chip{background:var(--white);color:var(--green);}
+.sim-r.ng{border-color:var(--red-border);background:var(--red-bg);}
+.sim-r.ng .r-chip{background:var(--white);color:var(--red-dark);}
+.sim-r p{font-size:.84rem;color:var(--muted);line-height:1.75;}
+
+/* ---------- セクション4：あるある劇場 ---------- */
+.case-grid{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.case-grid{grid-template-columns:repeat(2,1fr);}}
+.case-card{
+  display:flex;align-items:center;gap:14px;text-align:left;
+  background:var(--white);border:none;border-radius:20px;
+  padding:16px 16px;cursor:pointer;box-shadow:var(--shadow);
+  font-family:inherit;transition:transform .12s;
+}
+.case-card:active{transform:scale(.985);}
+.case-card .art{
+  width:64px;height:64px;flex:0 0 64px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+}
+.case-card .art svg{width:42px;height:42px;}
+.case-card .t{flex:1;}
+.case-card .chip{
+  display:inline-block;font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:4px;
+}
+.case-card h3{font-size:.99rem;color:var(--navy);line-height:1.6;}
+.case-card .more{
+  font-size:.8rem;color:var(--coral-text);font-weight:700;
+  display:inline-flex;align-items:center;gap:4px;margin-top:4px;
+}
+.case-card .more svg{width:14px;height:14px;stroke:var(--coral-text);}
+.c-red{background:var(--red-bg);color:var(--red-dark);}
+.c-blue{background:var(--sky-bg);color:var(--sky);}
+.c-green{background:var(--green-bg);color:var(--green);}
+.c-amber{background:var(--amber-bg);color:var(--amber-deep);}
+.c-berry{background:var(--berry-bg);color:var(--berry);}
+.case-card .amt{
+  display:inline-block;margin-left:7px;
+  font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;
+  background:var(--white);color:var(--green);border:1.5px solid var(--green-border);
+}
+
+/* ---------- セクション5：逆転劇場 ---------- */
+#sec5 .case-card{box-shadow:0 6px 20px rgba(60,120,80,.12);}
+.model-note{
+  background:var(--white);border-radius:18px;padding:14px 18px;margin-bottom:18px;
+  border-left:6px solid var(--mint);box-shadow:var(--shadow-sm);
+}
+.model-note strong{display:block;font-size:.92rem;color:var(--green);margin-bottom:4px;}
+.model-note .mn-row{display:block;font-size:.95rem;line-height:1.9;color:var(--navy);}
+.model-note .mn-row b{color:var(--coral-text);}
+.model-note .mn-note{display:block;font-size:.82rem;color:var(--muted);line-height:1.8;margin-top:6px;}
+.rule3-box{
+  margin-top:28px;background:var(--white);border-radius:22px;
+  padding:20px 20px 16px;box-shadow:var(--shadow-sm);
+}
+.rule3-box h3{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.06rem;color:var(--navy);margin-bottom:12px;
+}
+.rule3-box h3 svg{width:24px;height:24px;flex:0 0 24px;stroke:var(--green);}
+.rule3-box ol{list-style:none;counter-reset:r3;}
+.rule3-box ol li{
+  counter-increment:r3;position:relative;
+  padding:0 0 12px 44px;font-size:.95rem;line-height:1.9;
+}
+.rule3-box ol li::before{
+  content:counter(r3);position:absolute;left:0;top:2px;
+  width:30px;height:30px;border-radius:50%;
+  background:var(--green-bg);color:var(--green);
+  font-weight:800;font-size:1rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.rule3-note{font-size:.8rem;color:var(--muted);border-top:1.5px dashed var(--line);padding-top:10px;line-height:1.8;}
+/* ---------- モーダル ---------- */
+.cmodal{position:fixed;inset:0;z-index:60;display:none;}
+.cmodal.show{display:block;}
+.cmodal-back{position:absolute;inset:0;background:rgba(40,30,25,.5);}
+.cmodal-panel{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(94vw,640px);max-height:88vh;overflow-y:auto;
+  background:var(--white);border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.25);
+  -webkit-overflow-scrolling:touch;
+}
+.cmodal-head{
+  position:sticky;top:0;display:flex;gap:14px;align-items:center;
+  background:var(--white);padding:18px 52px 12px 20px;
+  border-bottom:1.5px solid var(--line);z-index:2;
+}
+.cmodal-close{
+  position:absolute;right:12px;top:12px;
+  width:40px;height:40px;border-radius:50%;
+  background:var(--bg);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.cmodal-close svg{width:18px;height:18px;stroke:var(--navy);}
+.cmodal-ico{
+  width:56px;height:56px;flex:0 0 56px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+}
+.cmodal-ico svg{width:38px;height:38px;}
+.cmodal-chip{
+  display:inline-block;font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:3px;
+}
+.cmodal-title{font-size:1.08rem;color:var(--navy);line-height:1.55;}
+.cmodal-body{padding:16px 20px 22px;}
+.cmodal-block{margin-bottom:18px;}
+.cmodal-label{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:.86rem;font-weight:800;padding:5px 14px;border-radius:999px;margin-bottom:9px;
+}
+.cmodal-label svg{width:17px;height:17px;}
+.lb-blue{background:var(--sky-bg);color:var(--sky);}
+.lb-blue svg{stroke:var(--sky);}
+.lb-red{background:var(--red-bg);color:var(--red-dark);}
+.lb-red svg{stroke:var(--red-dark);}
+.lb-green{background:var(--green-bg);color:var(--green);}
+.lb-green svg{stroke:var(--green);}
+.cmodal-quote{
+  background:var(--bg);border-left:4px solid var(--coral);
+  border-radius:0 14px 14px 0;padding:12px 15px;
+  font-size:.95rem;line-height:1.9;color:var(--text);
+}
+.cmodal-quote small{display:block;text-align:right;color:var(--muted);margin-top:4px;font-size:.8rem;}
+.cmodal-p{font-size:.95rem;line-height:1.95;margin-bottom:8px;}
+.cmodal-note{
+  font-size:.8rem;color:var(--muted);line-height:1.8;margin-top:14px;
+  border-top:1.5px dashed var(--line);padding-top:12px;
+}
+
+/* ---------- まとめ・チェックリスト ---------- */
+.score-box{
+  background:var(--sky-bg);border-radius:20px;padding:18px 18px 14px;margin-bottom:24px;
+}
+.score-box h3{
+  display:flex;align-items:center;gap:8px;
+  font-size:1.02rem;color:var(--navy);margin-bottom:8px;
+}
+.score-box h3 svg{width:22px;height:22px;stroke:var(--sky);}
+.score-box p{font-size:.95rem;line-height:1.9;}
+.checklist{display:grid;grid-template-columns:1fr;gap:10px;}
+.chk-group{
+  font-size:.9rem;font-weight:800;color:var(--amber-deep);
+  margin:14px 0 2px;letter-spacing:.03em;
+}
+.chk-group:first-child{margin-top:0;}
+.chk{
+  display:flex;align-items:center;gap:12px;
+  background:var(--bg);border:2px solid var(--line);border-radius:16px;
+  padding:12px 14px;cursor:pointer;font-size:.95rem;line-height:1.7;
+  transition:border-color .15s, background .15s;
+}
+.chk input{width:24px;height:24px;flex:0 0 24px;accent-color:var(--green);cursor:pointer;}
+.chk .art{
+  width:44px;height:44px;flex:0 0 44px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.chk .art svg{width:28px;height:28px;}
+.chk:has(input:checked){background:var(--green-bg);border-color:var(--green-border);}
+.chk-msg{
+  margin-top:16px;background:var(--amber-bg);border-radius:16px;
+  padding:14px 16px;font-size:.95rem;line-height:1.9;
+}
+details.finder{
+  margin-top:26px;background:var(--bg);border-radius:18px;
+  padding:4px 18px;border:1.5px solid var(--line);
+}
+details.finder summary{
+  cursor:pointer;font-size:.98rem;font-weight:700;color:var(--navy);
+  padding:12px 0;list-style-position:inside;
+}
+details.finder ul{padding:2px 0 8px 22px;font-size:.92rem;color:var(--text);}
+details.finder li{margin-bottom:7px;line-height:1.85;}
+details.finder p{font-size:.92rem;padding:0 0 14px;line-height:1.9;}
+
+/* ---------- CTA ---------- */
+.cta-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:24px 20px;margin-top:30px;text-align:center;
+}
+.cta-box h3{font-size:1.2rem;color:var(--navy);margin-bottom:8px;line-height:1.6;}
+.cta-box .cta-lead{font-size:.95rem;color:var(--muted);text-align:left;margin-bottom:14px;line-height:1.95;}
+.cta-box ul{list-style:none;text-align:left;margin-bottom:14px;}
+.cta-box ul li{
+  display:flex;gap:9px;align-items:flex-start;
+  font-size:.94rem;line-height:1.85;margin-bottom:6px;
+}
+.cta-box ul li svg{width:19px;height:19px;flex:0 0 19px;stroke:var(--mint);margin-top:6px;}
+.co{font-size:.98rem;font-weight:800;color:var(--navy);margin-top:18px;}
+.addr{font-size:.87rem;color:var(--muted);line-height:1.7;}
+.tip{font-size:.87rem;color:var(--amber-deep);margin-top:10px;}
+.cta-mini{
+  margin-top:18px;background:var(--bg);border:2px solid var(--amber-border);
+  border-radius:18px;padding:14px 16px;text-align:center;
+}
+.cta-mini p{font-size:.92rem;line-height:1.85;margin-bottom:10px;text-align:left;}
+.cta-mini a{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--white);border:2px solid var(--coral);
+  color:var(--coral-text);text-decoration:none;font-weight:800;font-size:.95rem;
+  border-radius:999px;padding:9px 20px;
+}
+.cta-mini a svg{width:18px;height:18px;stroke:var(--coral-text);}
+
+
+/* ---------- フッター免責 ---------- */
+footer.disclaimer{
+  padding:26px 16px 30px;max-width:900px;margin:0 auto;
+}
+footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
+
+@media print{
+  .hero-nav,.cta-mini{display:none !important;}
+  body{background:#fff;}
+}
+
+/* ---------- このページ独自：シミュレーターの合計表示 ---------- */
+.sim-total{
+  background:var(--navy-soft);border-radius:18px;
+  padding:15px 16px;margin-top:18px;text-align:center;
+}
+.sim-total .lead{font-size:.88rem;color:var(--muted);line-height:1.8;margin-bottom:6px;}
+.sim-total .big{
+  display:block;font-size:1.5rem;font-weight:800;color:var(--navy);line-height:1.6;
+}
+.sim-total .big b{color:var(--coral-text);font-size:1.9rem;}
+.sim-total .sub2{display:block;font-size:.88rem;color:var(--muted);line-height:1.8;margin-top:6px;}
+/* 使いみちの色分け（出ていくお金／戻るお金） */
+.tl-fill.back{background:linear-gradient(90deg,var(--mint),var(--green));}
+</style>
+</head>
+<body>
+
+<!-- ================= ヒーロー ================= -->
+<header class="hero">
+  <div class="wrap">
+    <div class="brand"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg></span>
+      <span>株式会社Office-M<small>会計を母体に、数字の「小さな字」まで読み解いてご案内します</small></span></div>
+    <div class="hero-flex">
+      <div class="hero-copy">
+        <h1>社長ひとりの会社も、<br><span class="nowrap"><span class="accent">社会保険</span>は</span><span class="nowrap">義務です。</span></h1>
+        <p class="lead">「従業員がいないから、うちはまだ入らなくていい」「役員だけの会社は対象外でしょう」——会社を作ったばかりの方から、いまでもよく伺う言葉です。しかし<strong>法人は、業種も人数も関係なく強制適用</strong>とされています。社長ひとりの会社でも、役員報酬が支払われていれば加入の対象です。そして保険料は労使折半。会社が半分を負担するということは、<strong>役員報酬とは別に固定費が増える</strong>ということでもあります。入るか入らないかの線、誰が入るのかの線、いくらかかるのかの線。○×クイズだけなら3分、ぜんぶ読んでも10分ほどです。</p>
+        <nav class="hero-nav" aria-label="ページ内メニュー">
+          <a href="#sec1"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h9"/></svg>3つの線引き</a>
+          <a href="#sec2"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/></svg>○×ワナクイズ</a>
+          <a href="#sec3"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="16" r="3"/><path d="M18 6 6 18"/></svg>会社負担を解剖</a>
+          <a href="#sec4"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0-3.3 11 3 3 0 0 1 1.1 1.9l.03.35h4.34l.03-.35a3 3 0 0 1 1.1-1.9A6 6 0 0 0 12 3Z"/><path d="M9.8 19.2h4.4M10.7 21.7h2.6"/></svg>あるある劇場</a>
+          <a href="#sec5"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="8" width="17" height="12.5" rx="2.5"/><path d="M3.5 12h17M12 8v12.5"/></svg>逆転劇場</a>
+          <a href="#sec6"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5h16M7 16V9.5M12 16V5.5M17 16v-4"/></svg>数字で見る負担</a>
+        </nav></div>
+      <div class="hero-scene" aria-hidden="true">
+        <svg viewBox="0 0 360 212">
+          <circle cx="310" cy="38" r="32" fill="#ffd9a8" opacity=".45"/><circle cx="310" cy="38" r="21" fill="#f7c34e"/><ellipse cx="60" cy="32" rx="26" ry="10" fill="#fff" opacity=".95"/>
+          <path d="M0 168h360v44H0Z" fill="#ffe9c7"/><path d="M0 176c40-10 90-12 150-8 60 4 120 4 210-6v50H0Z" fill="#b3e3b8"/>
+          <path d="M112 168V78l44-16 44 16v90Z" fill="#fffdf8" stroke="#efe2d8" stroke-width="3"/>
+          <rect x="126" y="92" width="18" height="18" rx="3" fill="#c6e2f2"/><rect x="148" y="92" width="18" height="18" rx="3" fill="#c6e2f2"/><rect x="170" y="92" width="18" height="18" rx="3" fill="#c6e2f2"/>
+          <rect x="126" y="120" width="18" height="18" rx="3" fill="#c6e2f2"/><rect x="148" y="120" width="18" height="18" rx="3" fill="#c6e2f2"/><rect x="170" y="120" width="18" height="18" rx="3" fill="#c6e2f2"/>
+          <rect x="146" y="146" width="22" height="22" rx="3" fill="#f0846a"/>
+          <path d="M262 66v100M240 166h44M244 82h36" stroke="#27587f" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="262" cy="66" r="6" fill="#27587f"/>
+          <path d="M244 82l-12 24h24Z" fill="#63b8dd"/><path d="M280 82l-12 24h24Z" fill="#f7c34e"/>
+          <path d="M20 180c0-15 6.5-33 15-33s15 18 15 33v2H20Z" fill="#63b8dd"/><circle cx="35" cy="136" r="11" fill="#f7cdb4"/><path d="M24 134c1-9 5.5-13 11-13s10 4 11 13c-3.3-4-7-5.3-11-5.3s-7.7 1.3-11 5.3Z" fill="#5c4030"/>
+          <circle cx="31" cy="136.5" r="1.4" fill="#3d3028"/><circle cx="39" cy="136.5" r="1.4" fill="#3d3028"/><path d="M32 141c1.4 1.5 4 1.5 5.4 0" fill="none" stroke="#3d3028" stroke-width="1.4" stroke-linecap="round"/>
+        </svg></div>
+    </div></div>
+</header>
+
+<!-- ================= セクション1：3つの線引き ================= -->
+<section id="sec1">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="step-pill"><i>1</i><span>最初に引いておく3本の線</span></span>
+      <h2>入る・入らないを分ける<span class="nowrap">3本の線</span></h2></div>
+      <div class="spot"><span class="spot-circle" data-art="spotLine" aria-hidden="true"></span></div></div>
+    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">クイズの前に、線を3本だけ引かせてください。1本目は「会社の線」、その事業所が加入義務のある事業所かどうか。2本目は「人の線」、その事業所で誰が被保険者になるのか。3本目は「お金の線」、保険料をどう分け合うのか。この3本さえ引ければ、社会保険の相談はほとんど整理できます。</p></div>
+    <p class="qlink-lead"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/></svg>この3つ、答えられますか？</p>
+    <div class="qlinks">
+      <a class="qlink" href="#def-1"><span class="pair">法人<span class="vs">と</span>個人事業</span><span class="ask">社長ひとりの会社は、加入しなくてよいのでしょうか。</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></a>
+      <a class="qlink" href="#def-2"><span class="pair">役員<span class="vs">と</span>従業員</span><span class="ask">パートやアルバイトは、どこから加入するのでしょうか。</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></a>
+      <a class="qlink" href="#def-3"><span class="pair">本人負担<span class="vs">と</span>会社負担</span><span class="ask">給与30万円の人を雇うと、会社の出費はいくらですか。</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></a>
+    </div>
+
+    <div class="def-block" id="def-1">
+      <h3 class="def-h"><span class="def-ico ic-blue" data-art="icKaisha1" aria-hidden="true"></span>1本目：会社の線。法人はそれだけで強制です</h3>
+      <p class="def-lead">健康保険と厚生年金の加入義務は、まず<strong>事業所の単位</strong>で決まります。法人であれば、業種を問わず、従業員が1人もいなくても強制適用事業所です。社長ひとりの会社も同じで、<strong>役員報酬が支払われていれば加入の対象</strong>になります。いっぽう個人事業は扱いが違い、常時使用する従業員の人数と業種によって、強制になる場合と任意の場合に分かれます。「うちはまだ小さいから」という理由で外れる線は、法人には存在しません。</p>
+      <p class="age-note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <span>個人事業では、常時<b>5人以上</b>の従業員を使用する法定の業種が強制適用とされ、令和4年10月からは<b>弁護士・税理士などの士業</b>も適用業種に加わりました。<small>根拠：健康保険法第3条、厚生年金保険法第6条。制度は改正されることがあります</small></span></p>
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="法人は人数に関係なく強制適用、個人事業は人数と業種で分かれるという図">
+          <text x="260" y="30" text-anchor="middle" font-size="19" font-weight="bold" fill="#1b3f5e">加入義務がある事業所</text>
+          <rect x="30" y="48" width="460" height="160" rx="18" fill="#eaf1f7"/>
+          <rect x="44" y="62" width="200" height="132" rx="12" fill="#fdeee9" stroke="#c2453f" stroke-width="3"/>
+          <text x="144" y="94" text-anchor="middle" font-size="19" font-weight="bold" fill="#a63631">法人</text>
+          <text x="144" y="124" text-anchor="middle" font-size="15" fill="#a63631">人数も業種も問わない</text>
+          <text x="144" y="150" text-anchor="middle" font-size="15" fill="#a63631">社長1人でも対象</text>
+          <text x="144" y="176" text-anchor="middle" font-size="14" font-weight="bold" fill="#a63631">選ぶ余地がない側</text>
+          <path d="M262 42v172" stroke="#c2451f" stroke-width="3" stroke-dasharray="7 6"/>
+          <rect x="276" y="62" width="200" height="132" rx="12" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="3"/>
+          <text x="376" y="94" text-anchor="middle" font-size="19" font-weight="bold" fill="#2c7a4b">個人事業</text>
+          <text x="376" y="124" text-anchor="middle" font-size="15" fill="#2c7a4b">人数と業種で分かれる</text>
+          <text x="376" y="150" text-anchor="middle" font-size="15" fill="#2c7a4b">5人以上が一つの目安</text>
+          <text x="376" y="176" text-anchor="middle" font-size="14" font-weight="bold" fill="#2c7a4b">任意で入る道もある</text>
+          <text x="260" y="234" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2451f">法人化した日から義務が始まる</text>
+          <text x="260" y="266" text-anchor="middle" font-size="13.5" fill="#5c6874">届出が遅れても義務は消えない</text>
+        </svg>
+        <p class="venn-cap">※個人事業から法人に変わったとき（法人成り）は、その時点で新規適用の届出が必要になります。届出をしていない期間があっても、加入義務そのものが無くなるわけではありません。労災保険・雇用保険は別の制度で、こちらは労働者を1人でも雇った時点で手続きが必要になります。</p></div>
+      <div class="cards">
+        <div class="risk-card"><div class="icon ic-red" data-art="icKaisha1" aria-hidden="true"></div>
+          <h3>社長ひとりの会社</h3><span class="judge-chip ng">強制適用です</span>
+          <p>従業員が1人もいなくても、法人であれば適用事業所です。<strong>役員報酬が支払われている</strong>なら、社長自身が被保険者になります。設立してすぐの会社ほど、この届出が抜けがちです。</p></div>
+        <div class="risk-card"><div class="icon ic-amber" data-art="icHitori" aria-hidden="true"></div>
+          <h3>役員報酬がゼロの会社</h3><span class="judge-chip maybe">入りたくても入れない</span>
+          <p>報酬が支払われていなければ、保険料の計算のもとになる報酬額がありません。この場合は被保険者になりません。ただし<strong>自分で国民健康保険と国民年金</strong>に加入する必要があります。</p></div>
+        <div class="risk-card"><div class="icon ic-green" data-art="icShain" aria-hidden="true"></div>
+          <h3>個人事業（5人以上の法定業種）</h3><span class="judge-chip ok">強制になります</span>
+          <p>常時5人以上の従業員を使用する法定の業種であれば、個人事業でも強制適用です。<strong>令和4年10月から士業が追加</strong>されるなど、対象は改正で広がってきました。</p></div>
+        <div class="risk-card"><div class="icon ic-blue" data-art="icGaichu" aria-hidden="true"></div>
+          <h3>個人事業（それ以外）</h3><span class="judge-chip ok">任意で入る道も</span>
+          <p>強制の対象外であっても、働く人の同意など所定の要件を満たして認可を受ければ、任意で適用事業所になることができます。<strong>採用のしやすさ</strong>を理由に選ぶ事業所もあります。</p></div>
+      </div>
+    </div>
+
+    <div class="def-block" id="def-2">
+      <h3 class="def-h"><span class="def-ico ic-amber" data-art="icShain" aria-hidden="true"></span>2本目：人の線。役員と従業員では入口が違います</h3>
+      <p class="def-lead">事業所が適用事業所になったら、次は「誰が被保険者か」です。ここで大事なのは、<strong>役員と従業員で判定の物差しが違う</strong>という点。従業員は労働時間と労働日数で判定しますが、役員は労働時間では測りません。役員報酬が支払われ、法人の業務に従事しているかどうかで判断されます。さらに、社長は原則として雇用保険には入れないという線もあります。同じ「保険」でも、制度ごとに線の引き方が違うのです。</p>
+      <p class="age-note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <span>パート・アルバイトは、1週間の所定労働時間と1か月の所定労働日数が通常の労働者の<b>4分の3以上</b>であれば被保険者になります。加えて、一定規模以上の企業では<b>週20時間以上</b>などの要件を満たす短時間労働者も対象です。<small>根拠：健康保険法・厚生年金保険法の被保険者に関する規定、短時間労働者への適用拡大に関する改正。要件は改正が続いています</small></span></p>
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="役員は報酬の有無、従業員は労働時間で被保険者かどうかが決まるという図">
+          <text x="260" y="30" text-anchor="middle" font-size="19" font-weight="bold" fill="#1b3f5e">誰が被保険者になるのか</text>
+          <rect x="30" y="48" width="460" height="160" rx="18" fill="#eaf1f7"/>
+          <rect x="44" y="62" width="200" height="132" rx="12" fill="#fdeee9" stroke="#c2453f" stroke-width="3"/>
+          <text x="144" y="94" text-anchor="middle" font-size="19" font-weight="bold" fill="#a63631">役員</text>
+          <text x="144" y="124" text-anchor="middle" font-size="15" fill="#a63631">労働時間では測らない</text>
+          <text x="144" y="150" text-anchor="middle" font-size="15" fill="#a63631">報酬があるかどうか</text>
+          <text x="144" y="176" text-anchor="middle" font-size="14" font-weight="bold" fill="#a63631">雇用保険は原則なし</text>
+          <path d="M262 42v172" stroke="#c2451f" stroke-width="3" stroke-dasharray="7 6"/>
+          <rect x="276" y="62" width="200" height="132" rx="12" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="3"/>
+          <text x="376" y="94" text-anchor="middle" font-size="19" font-weight="bold" fill="#2c7a4b">従業員</text>
+          <text x="376" y="124" text-anchor="middle" font-size="15" fill="#2c7a4b">時間と日数で判定</text>
+          <text x="376" y="150" text-anchor="middle" font-size="15" fill="#2c7a4b">4分の3以上が基本</text>
+          <text x="376" y="176" text-anchor="middle" font-size="14" font-weight="bold" fill="#2c7a4b">短い時間でも入る道</text>
+          <text x="260" y="234" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2451f">同じ人でも制度ごとに答えが違う</text>
+          <text x="260" y="266" text-anchor="middle" font-size="13.5" fill="#5c6874">健保・厚年・雇用・労災は別の制度</text>
+        </svg>
+        <p class="venn-cap">※社長は労働者ではないため、原則として雇用保険の被保険者にはなりません。労災保険についても原則は対象外ですが、中小事業主等の特別加入という制度があり、所定の手続きを経て加入できる場合があります。要件は業種や規模によって異なりますので、労働局や労働保険事務組合にご確認ください。</p></div>
+      <div class="cards">
+        <div class="risk-card"><div class="icon ic-red" data-art="icHitori" aria-hidden="true"></div>
+          <h3>代表取締役</h3><span class="judge-chip ng">健保・厚年は対象</span>
+          <p>役員報酬が支払われていれば被保険者です。いっぽうで<strong>雇用保険には原則入れません</strong>。会社が倒れても失業給付は出ない、というのは経営者にとって見落としやすい点です。</p></div>
+        <div class="risk-card"><div class="icon ic-amber" data-art="icShain" aria-hidden="true"></div>
+          <h3>正社員</h3><span class="judge-chip ok">全員が対象</span>
+          <p>試用期間中であっても、雇い入れた日から被保険者になります。<strong>入社日から5日以内</strong>に資格取得届を出すのが原則です。「3か月たってから加入」という運用は認められていません。</p></div>
+        <div class="risk-card"><div class="icon ic-green" data-art="icJikan" aria-hidden="true"></div>
+          <h3>週30時間のパート</h3><span class="judge-chip ok">おおむね対象</span>
+          <p>通常の労働者が週40時間なら、<strong>4分の3の30時間以上</strong>働くパートは被保険者になります。本人が希望しないという理由で加入させない、という選択はできません。</p></div>
+        <div class="risk-card"><div class="icon ic-blue" data-art="icKaigi" aria-hidden="true"></div>
+          <h3>週20時間台の短時間労働者</h3><span class="judge-chip maybe">規模と要件しだい</span>
+          <p>一定規模以上の企業では、週20時間以上・所定の賃金額以上・学生でないなどの要件を満たす方も対象です。<strong>適用の範囲は改正で広がってきました</strong>ので、最新の要件を確認してください。</p></div>
+      </div>
+    </div>
+
+    <div class="def-block" id="def-3">
+      <h3 class="def-h"><span class="def-ico ic-green" data-art="icRoushi" aria-hidden="true"></span>3本目：お金の線。半分は会社の固定費になります</h3>
+      <p class="def-lead">健康保険と厚生年金の保険料は、<strong>会社と本人で半分ずつ負担する（労使折半）</strong>のが原則です。厚生年金の保険料率は18.3%で固定されているので、会社の負担は報酬の9.15%。健康保険料率は都道府県ごとに違い、おおむね1割前後なので会社は5%前後を負担します。さらに<strong>子ども・子育て拠出金は全額が事業主負担</strong>です。合計すると、報酬に対しておよそ15%が、給与とは別に会社から出ていく計算になります。</p>
+      <p class="age-note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <span>厚生年金の保険料率は<b>18.3%</b>で固定され、労使で折半します（会社負担は<b>9.15%</b>）。子ども・子育て拠出金は事業主が全額を負担します。<small>根拠：厚生年金保険法、健康保険法第161条、子ども・子育て支援法。健康保険料率と拠出金率は年度により見直されます</small></span></p>
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="保険料は労使折半で、会社は報酬のおよそ15%を給与とは別に負担するという図">
+          <text x="260" y="30" text-anchor="middle" font-size="19" font-weight="bold" fill="#1b3f5e">保険料の分け方</text>
+          <rect x="30" y="48" width="460" height="160" rx="18" fill="#eaf1f7"/>
+          <rect x="44" y="62" width="200" height="132" rx="12" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="3"/>
+          <text x="144" y="94" text-anchor="middle" font-size="19" font-weight="bold" fill="#2c7a4b">本人の負担</text>
+          <text x="144" y="124" text-anchor="middle" font-size="15" fill="#2c7a4b">給与から天引きする</text>
+          <text x="144" y="150" text-anchor="middle" font-size="15" fill="#2c7a4b">報酬のおよそ14%</text>
+          <text x="144" y="176" text-anchor="middle" font-size="14" font-weight="bold" fill="#2c7a4b">手取りが減る側</text>
+          <path d="M262 42v172" stroke="#c2451f" stroke-width="3" stroke-dasharray="7 6"/>
+          <rect x="276" y="62" width="200" height="132" rx="12" fill="#fdeee9" stroke="#c2453f" stroke-width="3"/>
+          <text x="376" y="94" text-anchor="middle" font-size="19" font-weight="bold" fill="#a63631">会社の負担</text>
+          <text x="376" y="124" text-anchor="middle" font-size="15" fill="#a63631">給与とは別に出ていく</text>
+          <text x="376" y="150" text-anchor="middle" font-size="15" fill="#a63631">報酬のおよそ15%</text>
+          <text x="376" y="176" text-anchor="middle" font-size="14" font-weight="bold" fill="#a63631">利益が出ていなくても</text>
+          <text x="260" y="234" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2451f">人件費は給与だけでは終わらない</text>
+          <text x="260" y="266" text-anchor="middle" font-size="13.5" fill="#5c6874">賞与にも同じ率でかかります</text>
+        </svg>
+        <p class="venn-cap">※健康保険料率は全国健康保険協会が都道府県ごとに公表しており、健康保険組合に加入している場合は組合ごとの料率になります。40歳から64歳までの方は介護保険料が上乗せされます。上の割合はいずれも概算で、年度によって変わります。</p></div>
+      <div class="cards">
+        <div class="risk-card"><div class="icon ic-green" data-art="icRoushi" aria-hidden="true"></div>
+          <h3>労使折半</h3><span class="judge-chip ok">半分は会社</span>
+          <p>健康保険・厚生年金は原則として会社と本人が半分ずつ負担します。会社が納付をまとめて行うため、<strong>本人負担分は預り金</strong>として扱われ、給与から天引きして会社が納めます。</p></div>
+        <div class="risk-card"><div class="icon ic-blue" data-art="icKazoku" aria-hidden="true"></div>
+          <h3>子ども・子育て拠出金</h3><span class="judge-chip maybe">全額が会社負担</span>
+          <p>厚生年金の被保険者がいる事業所に課され、<strong>全額を事業主が負担</strong>します。従業員に子どもがいるかどうかは関係ありません。率は小さいものの、忘れやすい費目です。</p></div>
+        <div class="risk-card"><div class="icon ic-amber" data-art="qYen" aria-hidden="true"></div>
+          <h3>賞与にもかかる</h3><span class="judge-chip maybe">上限があります</span>
+          <p>賞与にも同じ率で保険料がかかります。ただし健康保険は年度の累計額、厚生年金は1回あたりの額に<strong>上限</strong>が定められており、上限を超えた部分には保険料がかかりません。</p></div>
+        <div class="risk-card"><div class="icon ic-red" data-art="icJikan" aria-hidden="true"></div>
+          <h3>赤字でも止まらない</h3><span class="judge-chip ng">固定費です</span>
+          <p>法人税は利益が出なければ発生しませんが、社会保険料は<strong>報酬を支払う限り毎月</strong>発生します。役員報酬をいくらに設定するかは、資金繰りに直結する判断です。</p></div>
+      </div>
+    </div>
+
+    <div class="note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>3本の線に共通しているのは、どれも<strong>会社が選べる話ではない</strong>という点です。選べるのは、いつ気づくか、どう準備しておくかだけ。なお役員報酬の決め方は法人税の取扱いとも密接に関わります。<strong>個別の税額計算・申告については税理士にご確認ください。</strong></span></div>
+  </div></section>
+
+<!-- ================= セクション2：○×クイズ ================= -->
+<section id="sec2" class="band round-top">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="step-pill"><i>2</i><span>思い込みをチェック</span></span>
+      <h2>知らないと高くつく<span class="nowrap">○×クイズ</span>8問</h2></div>
+      <div class="spot"><span class="spot-circle" data-art="spotQuiz" aria-hidden="true"></span></div></div>
+    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">ここからは8問のクイズです。ひっかけを作ろうとしたわけではなく、実際にご相談で出てくる勘違いをそのまま問題にしました。つまり全部、実在する決まりごとがモデルです。答えの下に「ワナの正体」と「確認ポイント」が出ますので、気になったものだけ覚えて帰ってください。</p></div>
+    <div class="quiz-shell">
+      <div id="quizPlay">
+        <div class="q-top">
+          <div class="q-count">質問 <span id="qNum">1</span> ／ 8</div>
+          <div class="dots" id="qDots" aria-hidden="true"></div>
+        </div>
+        <div class="q-body">
+          <div class="icon" id="qIcon" aria-hidden="true"></div>
+          <p id="qText"></p>
+        </div>
+        <div class="ans-row">
+          <button type="button" class="ans-btn yes" id="btnYes">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/></svg>
+            <span id="lblYes">入る</span>
+          </button>
+          <button type="button" class="ans-btn no" id="btnNo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            <span id="lblNo">入らない</span>
+          </button>
+        </div>
+        <div class="verdict" id="verdict" aria-live="polite">
+          <div class="verdict-head">
+            <span class="verdict-answer" id="vAnswer"></span>
+            <span class="result-chip" id="vChip"></span>
+          </div>
+          <p class="expl" id="vExpl"></p>
+          <div class="kv kv-wana"><b>ワナの正体：</b><span id="vWana"></span></div>
+          <div class="kv"><b>確認ポイント：</b><span id="vCheck"></span></div>
+        </div>
+        <button type="button" class="btn-primary" id="btnNext" style="display:none;">
+          次の質問へ
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+        <button type="button" class="btn-ghost" id="btnStopHere" style="display:none;">ここまでの結果を見る（残りはあとでも大丈夫です）</button>
+      </div>
+
+      <div class="quiz-done" id="quizDone">
+        <p class="score">クイズおつかれさまでした！　<span class="nowrap"><span id="doneTotal">8</span>問中 <span class="num" id="doneScore">0</span> 問正解</span></p>
+        <p class="cmt" id="doneCmt"></p>
+        <div class="wrong-list" id="wrongList" style="display:none;"></div>
+        <div data-cta-mini></div>
+        <button type="button" class="btn-ghost" id="btnMailSelf">この結果を自分（または顧問先・役員）に送る</button>
+        <button type="button" class="btn-ghost" id="btnPrint">印刷して賃金台帳・被保険者資格の書類と一緒に保管する</button>
+        <button type="button" class="btn-ghost" id="btnRetry">もう一度挑戦する</button>
+      </div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>クイズの解説は、一般的な取扱いを前提とした例です。実際には事業所の形態、役員報酬の支払い状況、勤務の実態、加入している健康保険の種類によって結論が変わることがあります。「うちの場合はどうだろう」と思ったところが、手元の書類を出すタイミングです。</span>
+    </div>
+  </div>
+</section>
+
+<section id="sec3" class="band-sky round-top">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="step-pill"><i>3</i><span>いちばん多い誤解</span></span>
+      <h2>会社の負担を<span class="nowrap">解剖する</span></h2></div>
+      <div class="spot"><span class="spot-circle" data-art="spotCalc" aria-hidden="true"></span></div></div>
+    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">「役員報酬を上げると社会保険料がその分だけ増える」。半分は正しいのですが、実はどこかで頭打ちになります。厚生年金には報酬の上限があるからです。ここでは月50万円と月100万円を同じ表に並べてみます。数字で見ると、増え方が思っているほど素直ではないことが分かります。</p></div>
+    <p class="sec-lead">役員1人の会社で、賞与なし・40歳未満の場合の年間負担です。金額はすべて概算です。</p>
+    <div class="type-table-box">
+      <table class="type-table" aria-label="役員報酬が月50万円の場合と月100万円の場合の社会保険料の比較表">
+        <thead><tr><th>役員1人・賞与なし</th><th>月50万円<small>年600万円</small></th><th>月100万円<small>年1,200万円</small></th></tr></thead>
+        <tbody>
+          <tr><td>健康保険の対象</td><td>50万円</td><td>100万円</td></tr>
+          <tr><td>厚生年金の対象</td><td>50万円</td><td><span class="mark-ok">65万円で頭打ち</span></td></tr>
+          <tr><td>会社の負担（月）</td><td>約7.3万円</td><td>約11.2万円</td></tr>
+          <tr><td>会社の負担（年）</td><td>約87万円</td><td>約134万円</td></tr>
+          <tr><td>本人の負担（年）</td><td>約85万円</td><td>約131万円</td></tr>
+        </tbody></table>
+      <p class="venn-cap">※健康保険料率10%、厚生年金保険料率18.3%、子ども・子育て拠出金0.36%として計算した概算です。健康保険料率は都道府県や健康保険組合によって異なり、年度ごとに見直されます。標準報酬月額の等級区分による端数、40歳以上の介護保険料、賞与にかかる保険料は考慮していません。報酬を2倍にしても会社の負担が2倍にならないのは、厚生年金の対象となる報酬に上限があるためです。</p></div>
+    <p class="sec-lead">ご自身の会社に置き換えると、年間いくらになるでしょうか。下の入力を動かしてみてください。</p>
+    <div class="sim-box">
+      <h3>体感シミュレーター「会社の負担は年いくら？」</h3>
+      <p class="sub">役員報酬と従業員の人数・平均給与を入れると、会社が1年に負担する社会保険料の概算が出ます。このページの説明用に単純化した概算です。</p>
+      <div class="sim-ctrl">
+        <label for="simA">役員報酬（月額・1人分）<output id="simAOut">60万円</output></label>
+        <input type="number" id="simA" value="60" min="0" max="200" step="5" inputmode="decimal" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;">
+        <p style="font-size:.8rem;color:#5c6874;margin-top:5px;">単位は万円。役員が複数いる場合は、代表者1人分を入れて目安としてご覧ください。</p></div>
+      <div class="sim-ctrl">
+        <label for="simD">従業員の人数<output id="simDOut">3人</output></label>
+        <input type="number" id="simD" value="3" min="0" max="50" step="1" inputmode="numeric" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;">
+        <p style="font-size:.8rem;color:#5c6874;margin-top:5px;">被保険者になる従業員の人数です。加入対象にならない短時間の方は除いて入力してください。</p></div>
+      <div class="sim-ctrl">
+        <label for="simE">従業員の平均月給<output id="simEOut">25万円</output></label>
+        <input type="number" id="simE" value="25" min="0" max="150" step="1" inputmode="decimal" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;">
+        <p style="font-size:.8rem;color:#5c6874;margin-top:5px;">単位は万円。通勤手当などを含めた、社会保険の対象になる報酬の平均額です。</p></div>
+      <div class="sim-ctrl"><label for="simB">年間の賞与（月数）</label>
+        <select id="simB" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;"><option value="0" selected>賞与なし</option><option value="1">年1か月分</option><option value="2">年2か月分</option><option value="4">年4か月分</option></select></div>
+      <label class="sim-check"><input type="checkbox" id="simC">40歳から64歳の方がいる（介護保険料が加わる）</label>
+      <div class="timeline" aria-hidden="true"><div class="tl-track"><div class="tl-fill" id="tlFill" style="width:2%;"></div>
+          <div class="tl-goal" style="left:50%;">給与総額の<br>およそ15%</div></div>
+        <div class="tl-labels"><span>0%</span><span>15%</span><span>30%</span></div></div>
+      <div class="sim-results" aria-live="polite">
+        <div class="sim-r" id="simR1"><h4>役員分の会社負担<small>年間</small></h4><span class="r-chip" id="simR1Chip"></span><p id="simR1Txt"></p></div>
+        <div class="sim-r" id="simR2"><h4>従業員分の会社負担<small>全員合計・年間</small></h4><span class="r-chip" id="simR2Chip"></span><p id="simR2Txt"></p></div>
+        <div class="sim-r" id="simR3"><h4>毎月納める総額<small>本人負担分を含む</small></h4><span class="r-chip" id="simR3Chip"></span><p id="simR3Txt"></p></div>
+      </div>
+      <div class="sim-total">
+        <span class="lead" id="simTotalLead">この条件なら</span>
+        <span class="big" id="simTotalBig"></span><span class="sub2" id="simTotalSub"></span></div>
+      <p class="venn-cap" style="margin-top:10px;">※健康保険料率10%、介護保険料率1.6%、厚生年金保険料率18.3%、子ども・子育て拠出金0.36%として計算した概算です。標準報酬月額は健康保険139万円・厚生年金65万円を上限とし、賞与は年2回に分けて支給する前提で、健康保険は年度累計573万円・厚生年金は1回150万円を上限としています。等級区分による端数、雇用保険料と労災保険料、健康保険組合ごとの料率差、介護保険料の対象者の割合は考慮していません。実際の金額は加入している健康保険と都道府県によって変わります。<strong>個別の税額計算・申告については税理士にご確認ください。</strong></p></div>
+    <div class="mikane" style="margin-top:26px;">
+      <h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>本当に怖いのは、金額そのものではありません</h3>
+      <ol><li><strong>止められない支出であること。</strong>法人税は利益が出なければ発生しませんが、社会保険料は報酬を支払う限り毎月発生します。売上が落ちた月も、同じ金額が同じ日に引き落とされます。</li>
+        <li><strong>後から一度に来ること。</strong>未加入の期間があると、さかのぼって請求されることがあります。毎月なら払えた金額でも、2年分がまとめて来れば資金繰りは別の話になります。</li>
+        <li><strong>会社の信用に直結すること。</strong>取引先の確認、金融機関の審査、公共工事の入札、採用の場面。社会保険に加入しているかどうかは、いまや会社の基礎情報として見られています。</li></ol>
+      <p class="caution"><strong>いちばん多い失敗</strong>設立してしばらく届出をせず、<b>売上が安定してから加入しよう</b>と先延ばしにすることです。その間も加入義務は発生し続けており、あとから<b>2年分</b>をさかのぼって請求される可能性があります。しかも従業員の本人負担分を過去にさかのぼって給与から差し引くことは実務上むずかしく、結果として<b>会社が肩代わり</b>する形になりがちです。先延ばしは、支払いを止めているのではなく、支払いをまとめているだけだとお考えください。</p></div>
+    <div class="note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>ここまでの数字は、あくまで一般的な例です。実際には加入している健康保険の種類、都道府県、標準報酬月額の等級によって結論が変わります。役員報酬の設定は法人税の取扱いとも関わりますので、<strong>個別の税額計算・申告については税理士にご確認ください。</strong></span></div>
+  </div></section>
+
+<section id="sec4" class="band-blush round-top">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="step-pill"><i>4</i><span>実話がモデルの寸劇集</span></span>
+      <h2>会社の社会保険あるある劇場</h2></div>
+      <div class="spot"><span class="spot-circle" data-art="spotTheater" aria-hidden="true"></span></div></div>
+    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">ここからは、実際にご相談で伺うお話をもとにした寸劇を6つ。どれも「後から知った」ことで会社の資金繰りが動いた例です。気になる演目をタップしてみてください。</p></div>
+    <div class="case-grid" id="caseGrid"></div>
+    <div class="note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>各演目は一般的な内容をもとにした創作例で、実在の法人・事案とは関係ありません。実際の取扱いは、事業所の形態・勤務の実態・加入している健康保険の種類によって変わります。</span></div>
+  </div></section>
+
+<section id="sec5" class="band-mint round-top">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="step-pill"><i>5</i><span>知って得する側の話</span></span>
+      <h2>逆転劇場〜こんな制度が、<span class="nowrap">味方します〜</span></h2></div>
+      <div class="spot"><span class="spot-circle" data-art="spotGift" aria-hidden="true"></span></div></div>
+    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">ここからは味方の話です。社会保険は負担の話ばかりに見えますが、加入しているからこそ使える給付、届出をすれば止まる保険料、経営者でも入れる制度があります。共通しているのは、どれも自分から手続きしないと始まらないという点だけです。</p></div>
+    <div class="model-note"><strong>このページの「減る／戻る」金額の目安</strong><span class="mn-row">役員1人・従業員数名の法人、役員報酬は月50万円から100万円程度をモデルにしています</span>
+      <span class="mn-note">※実際の効果は加入している健康保険の種類、都道府県、報酬額、勤務の実態によって変わります。申請の期限や必要書類は制度ごとに違いますので、利用前に必ず年金事務所や労働局などの窓口でご確認ください。</span></div>
+    <div class="case-grid" id="goodGrid"></div>
+    <div class="rule3-box">
+      <h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg>取りこぼさないための「法人の3か条」</h3>
+      <ol><li><strong>届出は、報酬を決めたその日に。</strong>新規適用届も、資格取得届も、期限が定められています。後回しにして得をすることは一つもありません。むしろ期間が空くほど、後から一度に来る金額が大きくなります。</li>
+        <li><strong>止まる保険料は、申し出ないと止まりません。</strong>産前産後休業や育児休業の期間中は、本人負担分も会社負担分も免除される制度があります。ただし届出をして初めて適用されます。該当者が出たら、まず窓口に確認してください。</li>
+        <li><strong>人が動いたら、必ず手続きを見直す。</strong>採用、退職、報酬の変更、従業員が40歳や65歳になったとき。人が動けば保険料も動きます。年に一度の算定基礎届のときにまとめて確認する習慣をつけると、漏れが減ります。</li></ol>
+      <p class="rule3-note">※金額はいずれも一例です。適用の可否は要件と事実関係により異なります。手続の期限は個別にご確認ください。</p></div>
+  </div></section>
+
+<section id="sec6" class="band-sky round-top">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="step-pill"><i>6</i><span>数字の話をひとつだけ</span></span>
+      <h2>報酬に上乗せされる<span class="nowrap">固定費</span></h2></div>
+      <div class="spot"><span class="spot-circle" data-art="spotCal" aria-hidden="true"></span></div></div>
+    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">数字をひとつだけ見ておきましょう。役員1人の会社で、報酬の額を変えると会社の負担がどう動くかです。増え方が途中でゆるやかになるのが分かります。厚生年金の対象となる報酬に上限があるためで、これは知っておくと役員報酬を決めるときの参考になります。</p></div>
+    <div class="life-box">
+      <h3>役員1人あたり、会社が1年に負担する額</h3><p class="sub">賞与なし・40歳未満・健康保険料率10%として計算した概算です</p>
+      <svg viewBox="0 56 380 196" role="img" aria-label="役員報酬が月30万円で年約52万円、月50万円で年約87万円、月100万円で年約134万円という会社負担の棒グラフ">
+        <path d="M18 170h344" stroke="#d9cfc4" stroke-width="2" stroke-linecap="round"/>
+        <rect x="42" y="134" width="46" height="36" rx="4" fill="#c6e2f2"/><text x="65" y="126" text-anchor="middle" font-size="14" font-weight="bold" fill="#24729f">約52万</text><text x="65" y="190" text-anchor="middle" font-size="12.5" fill="#5c6874">月30万円</text><text x="65" y="206" text-anchor="middle" font-size="11" fill="#5c6874">年360万円</text>
+        <rect x="152" y="109" width="46" height="61" rx="4" fill="#f7c34e"/><text x="175" y="101" text-anchor="middle" font-size="14" font-weight="bold" fill="#8f6015">約87万</text><text x="175" y="190" text-anchor="middle" font-size="12.5" fill="#5c6874">月50万円</text><text x="175" y="206" text-anchor="middle" font-size="11" fill="#5c6874">年600万円</text>
+        <rect x="262" y="76" width="46" height="94" rx="4" fill="#f0846a"/><text x="285" y="68" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2451f">約134万</text><text x="285" y="190" text-anchor="middle" font-size="12.5" fill="#5c6874">月100万円</text><text x="285" y="206" text-anchor="middle" font-size="11" fill="#a63631">上限に届く</text>
+        <text x="190" y="240" text-anchor="middle" font-size="13" font-weight="bold" fill="#a63631">報酬2倍でも負担は約1.5倍</text>
+      </svg>
+      <p class="life-cap">※健康保険料率10%、厚生年金保険料率18.3%、子ども・子育て拠出金0.36%として計算し、標準報酬月額は健康保険139万円・厚生年金65万円を上限としています。健康保険料率は全国健康保険協会が都道府県ごとに公表しており、健康保険組合の場合は組合ごとの料率になります。いずれも概数で、年度により変わります。</p>
+      <div class="big3"><span class="b"><span class="n">18.3%</span><span class="l">厚生年金の保険料率</span><span class="s">会社と本人で折半します</span></span>
+        <span class="b"><span class="n">2年</span><span class="l">保険料徴収の時効</span><span class="s">さかのぼって請求されうる</span></span>
+        <span class="b"><span class="n">4分の3</span><span class="l">パートの加入ライン</span><span class="s">時間と日数の両方で判定</span></span></div></div>
+    <h3 class="sub-h"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>会社の段階ごとに、確認することが変わります</h3>
+    <p class="sub-lead">設立直後、はじめて人を雇うとき、人数が増えたとき。同じ会社でも、見るべき場所は変わります。</p>
+    <div class="age-cards">
+      <div class="age-card"><p class="ttl"><span class="ico ic-red" data-art="icKaisha1" aria-hidden="true"></span>設立直後（役員だけ）</p>
+        <span class="kind">まず届出を出す時期</span>
+        <div class="rows"><p class="row"><span>加入義務</span><b>あり</b></p><p class="row"><span>対象になる人</span><b>報酬のある役員</b></p><p class="row"><span>雇用保険</span><b>原則なし</b></p></div>
+        <p class="cmt">従業員がいなくても適用事業所です。役員報酬を決めた時点で、会社負担を含めた年間の総額を試算しておくと資金繰りが崩れません。</p><p class="src">※役員報酬がゼロの場合は被保険者になりません</p></div>
+      <div class="age-card"><p class="ttl"><span class="ico ic-amber" data-art="icShain" aria-hidden="true"></span>はじめて人を雇うとき</p>
+        <span class="kind">制度が2つ増える時期</span>
+        <div class="rows"><p class="row"><span>資格取得届</span><b>入社日から5日以内</b></p><p class="row"><span>労災保険</span><b>1人でも必要</b></p><p class="row"><span>雇用保険</span><b>要件を満たせば</b></p></div>
+        <p class="cmt">健康保険と厚生年金に加えて、労働保険の手続きが発生します。試用期間中でも加入対象になる点を見落とさないでください。</p><p class="src">※労働保険は健保・厚年とは別の制度・別の窓口です</p></div>
+      <div class="age-card"><p class="ttl"><span class="ico ic-blue" data-art="icJikan" aria-hidden="true"></span>短時間の方が増えたとき</p>
+        <span class="kind">加入の範囲を見直す時期</span>
+        <div class="rows"><p class="row"><span>基本の目安</span><b>4分の3以上</b></p><p class="row"><span>適用拡大</span><b>週20時間以上</b></p><p class="row"><span>見直しの機会</span><b>毎年7月</b></p></div>
+        <p class="cmt">短時間労働者への適用は改正で段階的に広がってきました。契約上の時間と実際の勤務時間がずれていないか、年に一度は突き合わせてください。</p><p class="src">※適用拡大の要件は最新の内容をご確認ください</p></div>
+    </div>
+    <div class="mikane">
+      <h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5V9.2M12 9.2 7.6 5M12 9.2 16.4 5"/><circle cx="12" cy="15" r="8.2"/></svg>だから、いまできることは3つだけ</h3>
+      <ol><li><strong>届出の有無を確認する。</strong>新規適用届を出しているか、被保険者となるべき人が全員入っているか。直近の保険料の通知が会社に届いているかを見れば、加入状況はすぐ分かります。</li>
+        <li><strong>年間の会社負担を数字にする。</strong>報酬額と人数が分かれば概算は出せます。給与とは別の行として、資金繰り表に法定福利費を立ててください。売上が落ちても止まらない支出だからです。</li>
+        <li><strong>賃金台帳と出勤簿を突き合わせる。</strong>契約上の労働時間と実際の勤務が合っているか。加入漏れは、たいていこのずれから生まれます。毎年7月の算定基礎届のときにまとめて点検すると効率的です。</li></ol>
+      <p class="caution"><strong>そして、いちばん大事なこと</strong>社会保険は、会社が入るか入らないかを<b>選べる制度ではありません</b>。選べるのは、いつ気づくかと、どう準備するかだけです。先延ばしにしても支出が消えるわけではなく、後から<b>まとめて来る</b>形に変わるだけ。気づいた時点がいちばん早いタイミングですし、そこからの選択肢がいちばん多く残っています。</p></div>
+  </div></section>
+
+<section id="matome" class="band round-top">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="step-pill plain">まとめ</span>
+      <h2>あなたの会社の社会保険チェック</h2></div>
+      <div class="spot"><span class="spot-circle" data-art="spotCheck" aria-hidden="true"></span></div></div>
+    <p class="sec-lead">最後に、いまの状況を確認してみましょう。あてはまるもの・できたものをタップ（クリック）してください。</p>
+    <div class="score-box"><h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/></svg>クイズの結果</h3>
+      <div id="sumScore"><p>まだクイズに挑戦していません。<a href="#sec2">②の○×クイズ</a>で、思い込みをチェックしてみてください。</p></div></div>
+    <div class="checklist" id="checklist">
+      <p class="chk-group">今日、会社の書類で確認できること</p>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkPdf" aria-hidden="true"></span><span><strong>新規適用の届出があるか確認した</strong>適用事業所としての届出を出しているか、事業所整理記号が分かる書類があるかを確認します。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkBank" aria-hidden="true"></span><span><strong>直近の保険料の通知額を確認した</strong>毎月の納入告知額と、実際の引き落とし額を突き合わせます。金額の内訳も見ておきます。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkPeople" aria-hidden="true"></span><span><strong>被保険者の名簿と社員名簿を突き合わせた</strong>働いているのに加入していない方がいないか、退職者が残っていないかを確認します。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkPc" aria-hidden="true"></span><span><strong>雇用契約書と出勤簿のずれを見た</strong>契約上の所定労働時間と実際の勤務時間がずれていないかを、パートの方を中心に確認します。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkReceipt" aria-hidden="true"></span><span><strong>年間の会社負担を試算した</strong>報酬額と人数から、給与とは別に出ていく法定福利費の年額を計算し、資金繰り表に行を立てます。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkHome" aria-hidden="true"></span><span><strong>今年度40歳・65歳になる人を確認した</strong>介護保険料の対象になる方、外れる方を賃金台帳の生年月日欄で洗い出します。</span></label>
+      <p class="chk-group">今度、専門家に聞いてみること</p>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkShield" aria-hidden="true"></span><span><strong>社長本人の労災の特別加入を検討する</strong>現場に出る経営者であれば、加入できる要件と負担額を労働局や労働保険事務組合に確認します。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkAoiro" aria-hidden="true"></span><span><strong>役員報酬の決め方をあわせて相談する</strong>社会保険料と法人税、本人の所得税・住民税は連動します。次の事業年度の前に整理しておきます。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkInvoice" aria-hidden="true"></span><span><strong>未加入の期間があるなら、対応を相談する</strong>期間が空いている場合の手続きと、さかのぼりの範囲について、年金事務所や専門家に確認します。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkBack" aria-hidden="true"></span><span><strong>会社と社長の備えを、一度まとめて整理してもらう</strong>公的制度でどこまで守られるかを確認したうえで、足りない部分を一緒に考えます。</span></label>
+    </div>
+    <div class="chk-msg" id="chkMsg">あてはまるもの、確認できたものにチェックを入れてみてください。今日オフィスで確かめられる項目と、次に専門家へ聞けばよい項目が混じっています。</div>
+    <div data-cta-mini></div>
+    <details class="finder"><summary>「何から手をつければいいのか分からない」という方へ</summary>
+      <ul><li><strong>1枚目：直近の保険料の通知。</strong>会社に届いているかどうかで、適用事業所になっているかがすぐ分かります。</li><li><strong>2枚目：賃金台帳。</strong>誰にいくら払っているか、生年月日はいつか。加入の判定に必要な情報がここに集まっています。</li><li><strong>3枚目：雇用契約書と出勤簿。</strong>契約上の時間と実態のずれが、加入漏れの原因になります。</li><li>3枚そろわなくても大丈夫です。1枚目だけでも、話はかなり進みます。</li></ul>
+      <p>この3枚を並べるだけで、いまの加入状況、これから増える負担、点検すべき箇所がひととおり見えます。ご自身で並べるのが難しければ、そのまま持ってきていただいても構いません。</p></details>
+    <details class="finder" style="margin-top:14px;"><summary>「じゃあ報酬を下げれば？」——対策のワナ</summary>
+      <ul><li>役員報酬は事業年度の途中で自由に変更できません。定期同額給与の枠を外れた変更は、損金に算入されないことがあります。</li><li>報酬を下げても保険料がすぐ下がるわけではありません。一定の変動が3か月続いた場合に、4か月目から改定される流れです。</li><li>役員報酬をゼロにすると保険料は発生しませんが、健康保険の傷病手当金など、受けられる給付も同時に無くなります。</li><li>報酬を下げれば厚生年金の記録も下がり、将来受け取る老齢厚生年金の額に影響します。目先の負担だけで判断すると、後から戻ってきます。</li></ul>
+      <p>順番は、加入状況を確定させる、年間の負担額を数字にする、そのうえで法人税と社会保険料の両方を見ながら報酬を決める。この順番で進めれば、どちらか一方だけを見て損をすることは避けられます。</p></details>
+    <div class="cta-box" id="soudan">
+      <h3>先送りにせず、<span class="nowrap">一度整理を</span></h3>
+      <p class="cta-lead">このページの内容は、あくまで一般的なしくみの話。<strong>ご自身の会社の場合にどうなるか</strong>は、実際の届出の状況と賃金台帳で決まります。こんなご相談をよくお受けしています。</p>
+      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>設立してから届出をしていない期間がある</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>人を雇う前に、年間の負担額を知っておきたい</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>役員報酬を、社会保険料と法人税の両方から考えたい</span></li></ul>
+      <p class="cta-lead">お時間の目安は30分ほど。資料が揃っていなくても大丈夫、揃えるところからお手伝いします。<strong>個別具体的な税務相談・税務書類の作成・税務代理は、税理士が対応します。</strong>社会保険の手続きそのものについては、社会保険労務士や年金事務所の窓口をご案内します。いただいた個人情報は、ご相談への対応のみに使用し、ご本人の同意なく第三者に提供しません。</p>
+      <p class="co">株式会社Office-M</p><p class="addr">受付：平日 9:00〜17:00</p>
+      <p class="tip">直近の保険料の通知が1枚お手元にあると、その場での確認がより早く進みます。</p></div>
+  </div></section>
+
+<!-- 募集文書審査：未了。委託先保険会社の承認番号の要否を確認のうえ公開すること -->
+<footer class="disclaimer">
+  <p>本資料は、株式会社Office-Mが法人の社会保険（健康保険・厚生年金保険）の一般的なしくみをご理解いただくために作成した情報提供資料です。記載内容は令和8年（2026年）8月時点の法令等にもとづく一般的な取扱いであり、個別の事案への当てはめは事業所の形態・勤務の実態・加入している健康保険の種類・お住まいの都道府県によって結論が変わります。シミュレーターの結果はいずれも簡易な概算であり、実際の保険料の額を示すものではありません。実際の判断にあたっては、必ず年金事務所、加入している健康保険、労働局、社会保険労務士、税理士など、それぞれの窓口にご確認ください。<strong>個別具体的な税務相談・税務書類の作成・税務代理は、税理士が対応します。</strong>本資料の内容によって生じた結果について、当社は責任を負いかねます。</p>
+  <p style="margin-top:10px;">主な根拠：健康保険法（第3条、第161条ほか）、厚生年金保険法（第6条、第82条ほか）、労働者災害補償保険法、雇用保険法、子ども・子育て支援法、法人税法（役員給与に関する規定）、全国健康保険協会が公表する都道府県単位保険料率、日本年金機構が公表する標準報酬月額等級表および各種届出の案内。保険料率・上限額・適用の要件はいずれも概数または一般的な取扱いであり、年度や加入先により異なります。制度は改正されることがあります。最新の内容は日本年金機構、全国健康保険協会、厚生労働省のページでご確認ください。</p>
+  <p style="margin-top:10px;">作成：株式会社Office-M（令和8年8月）</p>
+</footer>
+<!-- ================= 演目詳細モーダル ================= -->
+<div class="cmodal" id="caseModal" aria-hidden="true">
+  <div class="cmodal-back" id="caseModalBack"></div>
+  <div class="cmodal-panel" role="dialog" aria-modal="true" aria-labelledby="caseModalTitle">
+    <div class="cmodal-head" id="caseModalHead">
+      <button type="button" class="cmodal-close" id="caseModalClose" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <div class="cmodal-ico" id="caseModalIco" aria-hidden="true"></div>
+      <div>
+        <span class="cmodal-chip" id="caseModalChip"></span>
+        <h3 class="cmodal-title" id="caseModalTitle"></h3>
+      </div>
+    </div>
+    <div class="cmodal-body">
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 15.5a2 2 0 0 1-2 2H8l-4 3.5v-15a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"/></svg>
+          <span id="caseModalLbl1">ご相談で伺ったお話（脚色あり）</span>
+        </div>
+        <blockquote class="cmodal-quote" id="caseModalStory"></blockquote>
+      </div>
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-red" id="caseModalLbl2Wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+          <span id="caseModalLbl2">何が起きたのか</span>
+        </div>
+        <div id="caseModalWhat"></div>
+      </div>
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-green">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
+          <span id="caseModalLbl3">こう確認すれば防げます</span>
+        </div>
+        <div id="caseModalHow"></div>
+      </div>
+      <div data-cta-mini></div>
+      <p class="cmodal-note">※演目は一般的な内容をもとにした創作例で、実在の個人・法人・事案とは関係ありません。税務の取扱いは事実関係により異なります。実際の判断は、顧問税理士または所轄の税務署にご確認ください。</p>
+    </div>
+  </div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- 案内役のイラスト ---------- */
+var SVG_GUIDE =
+  '<svg viewBox="0 0 64 64">' +
+  '<circle cx="32" cy="32" r="32" fill="#ffeee3"/>' +
+  '<path d="M8 64c0-13 11-20 24-20s24 7 24 20H8Z" fill="#f0846a"/>' +
+  '<rect x="27" y="39" width="10" height="11" rx="5" fill="#f7cdb4"/>' +
+  '<path d="M25 45l7 9 7-9 3.4 1.8L32 61 21.6 46.8Z" fill="#fff"/>' +
+  '<ellipse cx="32" cy="28" rx="16" ry="17" fill="#5c4030"/>' +
+  '<ellipse cx="32" cy="30" rx="12.5" ry="13.5" fill="#f7cdb4"/>' +
+  '<path d="M19.5 27c0-9 5.6-14.5 12.5-14.5S44.5 18 44.5 27c-1.6-3.6-4.2-5.7-7.2-6.6-2.6 2.4-7 3.8-10.9 3.2-1.4 1-2.4 2.1-2.9 3.4Z" fill="#5c4030"/>' +
+  '<circle cx="27" cy="30" r="1.6" fill="#3d3028"/><circle cx="37" cy="30" r="1.6" fill="#3d3028"/>' +
+  '<path d="M29.4 35.6c1.6 1.7 3.6 1.7 5.2 0" fill="none" stroke="#3d3028" stroke-width="1.6" stroke-linecap="round"/>' +
+  '</svg>';
+
+document.querySelectorAll('[data-guide]').forEach(function(el){ el.innerHTML = SVG_GUIDE; });
+
+/* ---------- スポット・アイコン ---------- */
+var S = 'fill="none" stroke-linecap="round" stroke-linejoin="round"';
+var ARTS = {
+  spotLine:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="6" y="16" width="22" height="32" rx="5" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="2.5"/>' +
+    '<rect x="36" y="16" width="22" height="32" rx="5" fill="#fdf3e2" stroke="#8f6015" stroke-width="2.5"/>' +
+    '<path d="M32 8v48" stroke="#c2451f" stroke-width="3" stroke-dasharray="5 4" stroke-linecap="round"/>' +
+    '<path d="m12 32 4 4 8-8" fill="none" stroke="#2c7a4b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M42 27l10 10M52 27l-10 10" stroke="#8f6015" stroke-width="3" stroke-linecap="round"/>' +
+    '</svg>',
+  spotQuiz:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="24" fill="#e8f4fb"/>' +
+    '<path d="M25 26.5c.6-4.2 3.6-6.6 7.4-6.6 4.2 0 7.4 2.8 7.4 6.8 0 3.4-2 5.2-4.4 6.8-2 1.3-2.9 2.3-2.9 4.5" fill="none" stroke="#24729f" stroke-width="3.4" stroke-linecap="round"/>' +
+    '<circle cx="32.4" cy="45" r="2.6" fill="#f0846a"/>' +
+    '</svg>',
+  spotCalc:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="14" y="6" width="36" height="52" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<rect x="20" y="12" width="24" height="12" rx="4" fill="#27587f"/>' +
+    '<path d="M24 18h16" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>' +
+    '<circle cx="24" cy="32" r="3.6" fill="#c6e2f2"/><circle cx="32" cy="32" r="3.6" fill="#c6e2f2"/><circle cx="40" cy="32" r="3.6" fill="#c6e2f2"/>' +
+    '<circle cx="24" cy="42" r="3.6" fill="#c6e2f2"/><circle cx="32" cy="42" r="3.6" fill="#c6e2f2"/><circle cx="40" cy="42" r="3.6" fill="#f7c34e"/>' +
+    '<circle cx="24" cy="51" r="3.6" fill="#c6e2f2"/><circle cx="32" cy="51" r="3.6" fill="#c6e2f2"/><circle cx="40" cy="51" r="3.6" fill="#f0846a"/>' +
+    '</svg>',
+  spotTheater:
+    '<svg viewBox="0 0 64 64">' +
+    '<path d="M8 10h48v8c0 4-3 7-7 7H15c-4 0-7-3-7-7Z" fill="#c2453f"/>' +
+    '<path d="M10 14c4 22 4 30 3 40h8c-2-12-1-24 3-40Z" fill="#a63631"/>' +
+    '<path d="M54 14c-4 22-4 30-3 40h-8c2-12 1-24-3-40Z" fill="#a63631"/>' +
+    '<circle cx="32" cy="38" r="13" fill="#ffeee3"/>' +
+    '<circle cx="27.5" cy="35.5" r="1.8" fill="#3d3028"/><circle cx="36.5" cy="35.5" r="1.8" fill="#3d3028"/>' +
+    '<path d="M27 42c3 3 7 3 10 0" fill="none" stroke="#3d3028" stroke-width="2" stroke-linecap="round"/>' +
+    '</svg>',
+  spotGift:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="8" y="24" width="48" height="34" rx="6" fill="#fffdf8" stroke="#c3e5d3" stroke-width="2.5"/>' +
+    '<rect x="8" y="24" width="48" height="12" rx="6" fill="#4fbf9b"/>' +
+    '<rect x="28" y="24" width="8" height="34" fill="#2c7a4b"/>' +
+    '<path d="M32 24s-6-.7-8.5-3.2a3.6 3.6 0 0 1 5.1-5.1C31.1 18.2 32 24 32 24Z" fill="#f7c34e"/>' +
+    '<path d="M32 24s6-.7 8.5-3.2a3.6 3.6 0 0 0-5.1-5.1C32.9 18.2 32 24 32 24Z" fill="#f7c34e"/>' +
+    '<circle cx="47" cy="15" r="6.5" fill="#f0846a"/>' +
+    '<path d="M44.5 15h5M47 12.5v5" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>' +
+    '</svg>',
+  spotCal:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="8" y="12" width="48" height="44" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<path d="M8 24h48" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<rect x="8" y="12" width="48" height="12" rx="7" fill="#27587f"/>' +
+    '<path d="M20 6v10M44 6v10" stroke="#1b3f5e" stroke-width="4" stroke-linecap="round"/>' +
+    '<rect x="15" y="30" width="8" height="7" rx="2" fill="#c6e2f2"/>' +
+    '<rect x="28" y="30" width="8" height="7" rx="2" fill="#f0846a"/>' +
+    '<rect x="41" y="30" width="8" height="7" rx="2" fill="#c6e2f2"/>' +
+    '<rect x="15" y="42" width="8" height="7" rx="2" fill="#f7c34e"/>' +
+    '<rect x="28" y="42" width="8" height="7" rx="2" fill="#c6e2f2"/>' +
+    '<rect x="41" y="42" width="8" height="7" rx="2" fill="#f0846a"/>' +
+    '</svg>',
+  spotCheck:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="12" y="10" width="40" height="46" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<rect x="24" y="5" width="16" height="10" rx="4" fill="#27587f"/>' +
+    '<path d="m19 26 4 4 7-8" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<rect x="34" y="25" width="12" height="3.5" rx="1.75" fill="#d9cfc4"/>' +
+    '<path d="m19 40 4 4 7-8" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<rect x="34" y="39" width="12" height="3.5" rx="1.75" fill="#d9cfc4"/>' +
+    '</svg>',
+
+  icKousai:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<path d="M10 12v7a5 5 0 0 0 10 0v-7M15 24v14"/>' +
+    '<path d="M33 12c-3 0-5 3-5 8s2 6 5 6 5-1 5-6-2-8-5-8ZM33 26v12"/>' +
+    '<path d="M9 42h12M27 42h12"/>' +
+    '</svg>',
+  icKaigi:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<circle cx="11" cy="12" r="4.5"/><circle cx="37" cy="12" r="4.5"/>' +
+    '<path d="M4 24c0-4 3.2-6.5 7-6.5s7 2.5 7 6.5M30 24c0-4 3.2-6.5 7-6.5s7 2.5 7 6.5"/>' +
+    '<ellipse cx="24" cy="25" rx="7" ry="2.6"/>' +
+    '<path d="M5 29h38M11 29v11M37 29v11"/>' +
+    '</svg>',
+  icHitori:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<circle cx="24" cy="11" r="5"/>' +
+    '<path d="M16 22c0-3.4 3.6-5 8-5s8 1.6 8 5"/>' +
+    '<path d="M10 29h28c0 6-6 10-14 10s-14-4-14-10Z"/>' +
+    '<path d="M8 42h32"/>' +
+    '</svg>',
+  icShain:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<circle cx="12" cy="14" r="4.5"/><circle cx="24" cy="11" r="4.5"/><circle cx="36" cy="14" r="4.5"/>' +
+    '<path d="M4 26c0-3.6 3.6-6 8-6s8 2.4 8 6M16 24c0-3.6 3.6-6 8-6s8 2.4 8 6M28 26c0-3.6 3.6-6 8-6s8 2.4 8 6"/>' +
+    '<path d="M8 34h32v6a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2Z"/>' +
+    '</svg>',
+  icShuzen:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M29 8a8 8 0 0 0-9.6 10.6L8 30v8h8l11.4-11.4A8 8 0 0 0 38 17l-6 3-4-4 3-6a8 8 0 0 0-2-2Z"/>' +
+    '<path d="m13 33 2 2"/>' +
+    '</svg>',
+  icPaint:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<rect x="8" y="8" width="24" height="10" rx="3"/>' +
+    '<path d="M32 13h6a3 3 0 0 1 3 3v5a3 3 0 0 1-3 3H24v6"/>' +
+    '<rect x="19" y="30" width="10" height="12" rx="3"/>' +
+    '</svg>',
+  icUpgrade:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<rect x="7" y="26" width="10" height="14" rx="2"/>' +
+    '<rect x="19" y="18" width="10" height="22" rx="2"/>' +
+    '<rect x="31" y="8" width="10" height="32" rx="2"/>' +
+    '<path d="M6 44h36"/>' +
+    '</svg>',
+  icBuild:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M8 42V16l16-9 16 9v26"/>' +
+    '<path d="M6 42h36"/>' +
+    '<rect x="15" y="22" width="7" height="7" rx="1.5"/><rect x="26" y="22" width="7" height="7" rx="1.5"/>' +
+    '<path d="M19 42v-8h10v8"/>' +
+    '</svg>',
+  icGaichu:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<rect x="6" y="16" width="36" height="22" rx="4"/>' +
+    '<path d="M18 16v-3a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v3"/>' +
+    '<path d="M6 24h36M20 27h8"/>' +
+    '</svg>',
+  icJikan:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<circle cx="24" cy="25" r="15"/>' +
+    '<path d="M24 16v9l6 4"/>' +
+    '<path d="M17 7h14"/>' +
+    '</svg>',
+  icDoc2:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<rect x="11" y="6" width="26" height="36" rx="4"/>' +
+    '<path d="M17 16h14M17 23h14M17 30h8"/>' +
+    '</svg>',
+  icKazoku:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.3">' +
+    '<circle cx="15" cy="14" r="5"/><circle cx="33" cy="14" r="5"/>' +
+    '<path d="M6 30c0-5 4-8 9-8s9 3 9 8M24 30c0-5 4-8 9-8s9 3 9 8"/>' +
+    '<circle cx="24" cy="30" r="4"/>' +
+    '<path d="M17 42c0-4 3-6 7-6s7 2 7 6"/>' +
+    '</svg>',
+  icZeimusho:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.3">' +
+    '<path d="M6 18 24 8l18 10"/>' +
+    '<path d="M9 18v18M17 18v18M31 18v18M39 18v18"/>' +
+    '<path d="M5 42h38M8 36h32"/>' +
+    '</svg>',
+  icCity:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.3">' +
+    '<rect x="7" y="14" width="16" height="28" rx="2"/>' +
+    '<rect x="25" y="22" width="16" height="20" rx="2"/>' +
+    '<path d="M12 20h6M12 27h6M12 34h6M30 28h6M30 35h6"/>' +
+    '<path d="M5 42h38"/>' +
+    '</svg>',
+  icHoken:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M24 6 9 11v11c0 9.5 6.4 17.4 15 19.6 8.6-2.2 15-10.1 15-19.6V11L24 6Z"/>' +
+    '<path d="M24 17v12M18 23h12"/>' +
+    '</svg>',
+
+  qFood:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<circle cx="24" cy="24" r="9.5"/><circle cx="24" cy="24" r="4.5"/>' +
+    '<path d="M8 8v8a3 3 0 0 0 6 0V8M11 16v24"/>' +
+    '<path d="M40 8c-3 1.2-5 4.6-5 9s2 5 5 5M40 8v32"/>' +
+    '</svg>',
+  qCar:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M8 30v6h5M40 30v6h-5"/>' +
+    '<path d="M6 30l3-10a4 4 0 0 1 3.8-2.8h22.4A4 4 0 0 1 39 20l3 10Z"/>' +
+    '<circle cx="14" cy="30" r="2.4"/><circle cx="34" cy="30" r="2.4"/>' +
+    '<path d="M20 8h8M24 4v8" stroke-width="2.8"/>' +
+    '</svg>',
+  qDock:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<path d="M14 7v9a8 8 0 0 0 16 0V7"/>' +
+    '<path d="M22 24v6a8 8 0 0 0 16 0v-4"/>' +
+    '<circle cx="38" cy="22" r="4"/>' +
+    '<path d="M10 7h8M26 7h8"/>' +
+    '</svg>',
+  qHouse:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M6 22 24 8l18 14"/>' +
+    '<path d="M10 20v20h28V20"/>' +
+    '<path d="M24 20v20" stroke-dasharray="4 3"/>' +
+    '<path d="M14 27h6M28 27h6"/>' +
+    '</svg>',
+  qPc:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<rect x="9" y="10" width="30" height="21" rx="3"/>' +
+    '<path d="M5 36h38l-3 4H8Z"/>' +
+    '</svg>',
+  qSuit:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M18 6h12l-6 8Z"/>' +
+    '<path d="M24 14 21 42h6Z"/>' +
+    '<path d="M18 6 9 12v30h8M30 6l9 6v30h-8"/>' +
+    '</svg>',
+  qShield:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<path d="M24 5 8 11v12c0 10 6.8 18.5 16 21 9.2-2.5 16-11 16-21V11L24 5Z"/>' +
+    '<path d="m18 18 6 8 6-8M24 26v9M19.5 28.5h9M19.5 32.5h9"/>' +
+    '</svg>',
+  qYen:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<circle cx="24" cy="24" r="17"/>' +
+    '<path d="m17 14 7 10 7-10M24 24v10M18.5 26.5h11M18.5 31.5h11"/>' +
+    '</svg>',
+  qInvoice:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<path d="M11 6h26v36l-4.3-3-4.4 3-4.3-3-4.4 3-4.3-3-4.3 3Z"/>' +
+    '<path d="M17 15h14M17 22h14M17 29h8"/>' +
+    '</svg>',
+  qTruck:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<path d="M4 12h22v22H4Z"/>' +
+    '<path d="M26 20h9l7 7v7h-16Z"/>' +
+    '<circle cx="14" cy="37" r="4"/><circle cx="34" cy="37" r="4"/>' +
+    '</svg>',
+  qPlane:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M24 5c2.5 0 4 4 4 10v6l14 8v4l-14-4v8l5 4v3l-9-2-9 2v-3l5-4v-8l-14 4v-4l14-8v-6c0-6 1.5-10 4-10Z"/>' +
+    '</svg>',
+  qSeed:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<path d="M24 42V20"/>' +
+    '<path d="M24 20c0-7 5-12 12-12 0 7-5 12-12 12ZM24 26c0-6-4-10-10-10 0 6 4 10 10 10Z"/>' +
+    '<path d="M12 42h24"/>' +
+    '</svg>',
+  qTrash:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M9 13h30M18 13V9a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v4"/>' +
+    '<path d="M13 13l2 26a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3l2-26"/>' +
+    '<path d="M20 20v15M28 20v15"/>' +
+    '</svg>',
+
+  chkReceipt:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2451f" stroke-width="2.3">' +
+    '<path d="M11 6h26v36l-4.3-3-4.4 3-4.3-3-4.4 3-4.3-3-4.3 3Z"/>' +
+    '<path d="M17 16h14M17 24h14M17 31h8"/>' +
+    '</svg>',
+  chkHome:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<path d="M6 22 24 8l18 14"/><path d="M10 20v20h28V20"/><path d="M24 20v20" stroke-dasharray="4 3"/>' +
+    '</svg>',
+  chkPeople:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.3">' +
+    '<circle cx="15" cy="15" r="5"/><circle cx="33" cy="15" r="5"/>' +
+    '<path d="M6 33c0-5 4-8 9-8s9 3 9 8M24 33c0-5 4-8 9-8s9 3 9 8"/>' +
+    '</svg>',
+  chkPc:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.3">' +
+    '<rect x="9" y="10" width="30" height="21" rx="3"/><path d="M5 36h38l-3 4H8Z"/>' +
+    '</svg>',
+  chkPdf:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.3">' +
+    '<path d="M13 6h16l8 8v28a2 2 0 0 1-2 2H13a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"/>' +
+    '<path d="M29 6v9h8"/><path d="M17 26h12M17 33h8"/>' +
+    '</svg>',
+  chkInvoice:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<rect x="7" y="12" width="34" height="24" rx="3"/>' +
+    '<path d="M12 18v12M17 18v12M22 18v12M27 18v12M32 18v12M37 18v12"/>' +
+    '</svg>',
+  chkBank:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.3">' +
+    '<path d="M6 19 24 9l18 10"/><path d="M11 19v17M20 19v17M28 19v17M37 19v17"/><path d="M6 41h36"/>' +
+    '</svg>',
+  chkAoiro:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#27587f" stroke-width="2.3">' +
+    '<rect x="10" y="7" width="28" height="34" rx="4"/>' +
+    '<path d="m17 22 4 4 10-10"/><path d="M17 33h14"/>' +
+    '</svg>',
+  chkShield:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.3">' +
+    '<path d="M24 6 10 11v11c0 9 6 16.5 14 18.7C32 38.5 38 31 38 22V11L24 6Z"/>' +
+    '<path d="m18 22 6 6 6-8"/>' +
+    '</svg>',
+  chkBack:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.3">' +
+    '<path d="M9 24a15 15 0 1 0 4.4-10.6"/>' +
+    '<path d="M8 8v8h8"/><path d="M24 17v8l6 4"/>' +
+    '</svg>',
+  icRoushi:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<path d="M24 10v28M14 38h20M12 16h24"/><path d="M12 16 6 29h12ZM36 16l-6 13h12Z"/></svg>',
+  icSakanobori:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M24 10a14 14 0 1 1-13 9"/><path d="M11 10v9h9"/><path d="M24 17v8l6 4"/></svg>',
+  icChousa:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<rect x="9" y="7" width="24" height="30" rx="4"/><path d="M15 15h12M15 22h8"/>' +
+    '<circle cx="30" cy="31" r="8"/><path d="m36 37 5 5"/></svg>',
+  icNenkinTecho:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<rect x="8" y="9" width="32" height="30" rx="4"/><path d="M18 9v30"/>' +
+    '<path d="M25 19h9M25 27h9"/></svg>',
+  icKaisha1:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<path d="M10 40V12l14-5 14 5v28"/><path d="M18 40V27h12v13"/><path d="M17 17h4M27 17h4"/></svg>',
+};
+document.querySelectorAll('[data-art]').forEach(function(el){
+  var key = el.getAttribute('data-art');
+  if(ARTS[key]) el.innerHTML = ARTS[key];
+});
+
+/* ---------- ミニCTA ---------- */
+var CTA_MINI =
+  '<div class="cta-mini"><p>役員報酬、社会保険料、法人税。ばらばらに考えるより、一度まとめて並べたほうが早いことがあります。</p>' +
+  '<a href="#soudan">' +
+  '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="m3 7 9 6 9-6"/></svg>' +
+  '無料で相談してみる</a></div>';
+document.querySelectorAll('[data-cta-mini]').forEach(function(el){ el.innerHTML = CTA_MINI; });
+
+/* ---------- セクション2：○×クイズ ---------- */
+/* a: true = 入る（○が正解）, false = 入らない（×が正解） */
+var QUIZ = [
+  {
+    icon:'icKaisha1', a:true,
+    q:'社長ひとりだけの会社で、従業員が誰もいなくても、健康保険と厚生年金に加入する必要がある。',
+    expl:'法人は、業種にも人数にも関係なく強制適用事業所とされています。従業員がゼロで、代表取締役ひとりだけの会社であっても、役員報酬が支払われていればその社長自身が被保険者になります。よくある誤解は、従業員を雇ってから考えればよい、というもの。実際には会社を設立し、役員報酬の支払いを始めた時点で届出が必要です。届出をしていなければ義務が発生していない、ということにはなりません。手続きをしていない期間も、義務そのものは積み上がっていきます。',
+    wana:'社会保険は従業員のための制度だと思っていること。実際は事業所の単位で加入義務が決まり、社長も被保険者の一人です。',
+    check:'新規適用届を出しているか、直近の保険料の通知が会社に届いているかを確認してください。'
+  },
+  {
+    icon:'icHitori', a:false, yes:'入る', no:'入らない',
+    q:'役員報酬をゼロにしている社長も、会社の健康保険と厚生年金に加入する。',
+    expl:'報酬が支払われていない役員は、原則として被保険者になりません。保険料は報酬の額をもとに計算するため、報酬がなければ計算のしようがないからです。ただし、これは加入しなくてよいという話ではありません。会社の社会保険に入らない以上、その社長は自分で国民健康保険と国民年金に加入することになります。また、報酬をゼロにすると傷病手当金のような給付の対象からも外れます。保険料を抑えるつもりが、いざというときの下支えも同時に失うという構造です。',
+    wana:'保険料の負担だけを見て報酬をゼロにしてしまうこと。負担が消えるときは、受けられる給付も一緒に消えます。',
+    check:'役員報酬の支給実績と、社長本人が現在どの健康保険と年金に加入しているかを確認してください。'
+  },
+  {
+    icon:'qShield', a:false, yes:'入れる', no:'入れない',
+    q:'社長も会社の代表として雇用保険に加入でき、会社をたたんだときには失業給付を受けられる。',
+    expl:'雇用保険は労働者のための制度なので、代表取締役は原則として被保険者になりません。したがって会社をたたんでも、社長本人に失業給付は出ないのが原則です。労災保険についても原則は対象外ですが、こちらには中小事業主等の特別加入という制度があり、労働保険事務組合を通じるなど所定の手続きを経て加入できる場合があります。健康保険と厚生年金には入るのに、雇用保険と労災保険では扱いが違う。この非対称が、経営者にとって最も見落としやすい線引きです。',
+    wana:'社会保険を4つまとめて1つの制度だと思っていること。健保・厚年・雇用・労災はそれぞれ別の法律で、加入する人の範囲も違います。',
+    check:'労働保険の申告書を見て、社長が特別加入しているかどうかを確認してください。'
+  },
+  {
+    icon:'icSakanobori', a:true, yes:'ホント', no:'ウソ',
+    q:'加入していないことが後から分かった場合、保険料をさかのぼって請求されることがある。',
+    expl:'加入義務があったのに届出をしていなかった場合、資格を取得すべきだった日までさかのぼって適用され、保険料が請求されることがあります。保険料を徴収する権利には時効があり、その期間は2年とされています。ここで会社にとって重くのしかかるのが、本人負担分の扱いです。過去にさかのぼって従業員の給与から差し引くことは実務上むずかしく、結果として会社が肩代わりする形になりがちです。さらに納付が遅れた期間には延滞金が加算されます。届出をしていない期間は、負債が静かに積み上がっている期間だとお考えください。',
+    wana:'見つからなければ済むと考えてしまうこと。実際には調査や従業員からの相談、離職時の手続きなど、表に出るきっかけがいくつもあります。',
+    check:'設立日と、実際に資格取得届を出した日にずれがないかを確認してください。'
+  },
+  {
+    icon:'icJikan', a:true,
+    q:'パートやアルバイトでも、正社員の4分の3以上の時間を働いていれば加入する。',
+    expl:'1週間の所定労働時間と1か月の所定労働日数が、通常の労働者のそれぞれ4分の3以上であれば被保険者になります。正社員が週40時間であれば、週30時間以上が一つの目安です。加えて、一定規模以上の企業では、週20時間以上・所定の賃金額以上・2か月を超える雇用の見込みがある・学生ではない、といった要件を満たす短時間労働者も対象になります。この適用拡大の範囲は改正で段階的に広がってきました。なお、本人が加入を希望しないという理由で加入させないことはできません。要件を満たせば加入する、という制度です。',
+    wana:'加入するかどうかを本人の希望で決められると思っていること。要件を満たすかどうかだけが判断基準です。',
+    check:'雇用契約書と出勤簿を突き合わせて、契約上の時間と実際の勤務時間がずれていないかを確認してください。'
+  },
+  {
+    icon:'qYen', a:false, yes:'かかる', no:'かからない',
+    q:'賞与には社会保険料がかからないので、賞与を厚くすれば会社の負担は変わらない。',
+    expl:'賞与にも毎月の給与と同じ率で保険料がかかります。かつては賞与の扱いが違った時期がありましたが、現在は総報酬制のもとで賞与も保険料の対象です。ただし上限は設けられており、健康保険は年度の累計額に、厚生年金は1回あたりの額に上限があります。この上限の存在を利用した資金の配分を考える方もいますが、賞与の支給には役員給与の税務上の取扱いという別の論点が絡みます。社会保険料だけを見て決めると、法人税の側で思わぬ結果になることがあります。',
+    wana:'昔の制度の記憶が残っていること。賞与から保険料が引かれなかった時代を覚えている方ほど間違えます。',
+    check:'直近の賞与支払届と、賞与から控除した保険料の額が正しく処理されているかを確認してください。'
+  },
+  {
+    icon:'icKazoku', a:true, yes:'増える', no:'増えない',
+    q:'従業員が40歳になると、その月から会社と本人の負担が少し増える。',
+    expl:'40歳から64歳までの方は介護保険の第2号被保険者となり、健康保険料に介護保険料が上乗せされます。この保険料も労使折半ですから、会社の負担も増えます。介護保険料の率は全国一律で、年度ごとに見直されます。従業員の年齢構成によって会社の法定福利費が変わる、というのは見落としやすい点です。逆に65歳になると、介護保険料は原則として市区町村へ直接納める形に変わります。人数が同じでも、年齢が上がれば固定費が動く。この視点を持っておくと、人件費の見通しが立てやすくなります。',
+    wana:'保険料は給与の額だけで決まると思っていること。実際には年齢によっても変わります。',
+    check:'今年度中に40歳になる従業員がいるかどうかを、賃金台帳の生年月日欄で確認してください。'
+  },
+  {
+    icon:'icRoushi', a:false, yes:'下げられる', no:'そうはいかない',
+    q:'保険料が重いときは、事業年度の途中でも役員報酬を自由に下げて調整すればよい。',
+    expl:'役員報酬は、事業年度の途中で自由に増減できるものではありません。法人税では定期同額給与という考え方があり、原則として事業年度の開始から一定期間内に決めた金額を、その事業年度は毎月同額で支払うことが求められます。この枠を外れた減額分や増額分は、損金に算入されないことがあります。また社会保険料の側でも、報酬を変えたからといって翌月からすぐ保険料が変わるわけではなく、固定的賃金の変動が一定の等級以上であり、その状態が3か月続いた場合に、4か月目から改定されるという流れになります。手続きと時期の両方に決まりがあるということです。',
+    wana:'保険料を下げる話と、役員報酬を決める話を別々に考えてしまうこと。実際には法人税の取扱いと同時に検討する必要があります。',
+    check:'役員報酬を決めた株主総会や取締役会の議事録が残っているかを確認してください。個別の税額計算や申告については税理士にご確認ください。'
+  }
+];
+
+var qIdx = 0, qScore = 0, qAnswered = false, qAnsweredCount = 0;
+var wrongItems = [];
+
+var elNum   = document.getElementById('qNum');
+var elDots  = document.getElementById('qDots');
+var elIcon  = document.getElementById('qIcon');
+var elText  = document.getElementById('qText');
+var btnYes  = document.getElementById('btnYes');
+var btnNo   = document.getElementById('btnNo');
+var lblYes  = document.getElementById('lblYes');
+var lblNo   = document.getElementById('lblNo');
+var elVerd  = document.getElementById('verdict');
+var elVAns  = document.getElementById('vAnswer');
+var elVChip = document.getElementById('vChip');
+var elVExpl = document.getElementById('vExpl');
+var elVWana = document.getElementById('vWana');
+var elVChk  = document.getElementById('vCheck');
+var btnNext = document.getElementById('btnNext');
+var btnStop = document.getElementById('btnStopHere');
+var quizPlay = document.getElementById('quizPlay');
+var quizDone = document.getElementById('quizDone');
+
+function renderDots(){
+  var html = '';
+  for(var i = 0; i < QUIZ.length; i++){
+    html += '<i class="' + (i < qIdx ? 'done' : (i === qIdx ? 'now' : '')) + '"></i>';
+  }
+  elDots.innerHTML = html;
+}
+
+function renderQ(){
+  var item = QUIZ[qIdx];
+  elNum.textContent = qIdx + 1;
+  elIcon.innerHTML = ARTS[item.icon] || '';
+  elText.textContent = item.q;
+  lblYes.textContent = item.yes || '入る';
+  lblNo.textContent = item.no || '入らない';
+  btnYes.disabled = false;
+  btnNo.disabled = false;
+  qAnswered = false;
+  elVerd.classList.remove('show');
+  btnNext.style.display = 'none';
+  btnStop.style.display = 'none';
+  renderDots();
+}
+
+function answer(ansYes){
+  if(qAnswered) return;
+  qAnswered = true;
+  qAnsweredCount++;
+  btnYes.disabled = true;
+  btnNo.disabled = true;
+  var item = QUIZ[qIdx];
+  var correct = (ansYes === item.a);
+  if(correct) qScore++;
+  else wrongItems.push(item);
+  elVAns.textContent = '正解は「' + (item.a ? (item.yes || '入る') : (item.no || '入らない')) + '」';
+  elVChip.textContent = correct ? 'ご名答！' : 'ざんねん、ここがワナ';
+  elVChip.className = 'result-chip ' + (correct ? 'correct' : 'wrong');
+  elVExpl.textContent = item.expl;
+  elVWana.textContent = item.wana;
+  elVChk.textContent = item.check;
+  elVerd.classList.add('show');
+  btnNext.style.display = 'flex';
+  if(qIdx >= QUIZ.length - 1){
+    btnNext.innerHTML = '結果を見る <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  } else if(qIdx >= 2){
+    btnStop.style.display = 'block';
+  }
+}
+
+function doneComment(score, total){
+  var full = (total === QUIZ.length);
+  if(score === total && full){
+    return '全問正解です。ここまで押さえている経営者の方には、正直あまりお会いしません。あとは実際の届出と賃金台帳が、その理解どおりになっているかを突き合わせるだけです。半日あれば終わります。';
+  }
+  var r = score / total;
+  if(r >= 0.75){
+    return 'かなりの正答率です。ただ、クイズで間違えても減るのは1点ですが、実際の調査で「知りませんでした」が起こると、動くのは会社の資金繰りです。惜しかった問題こそ、手元の書類で答え合わせをしてみてください。';
+  }
+  if(r >= 0.4){
+    return '半分ほどワナにかかりました。ご安心ください、創業間もない会社ではむしろ普通です。社会保険は、届出をしなくても静かに義務だけが積み上がっていく制度なので、気づいた時点がいちばん早いタイミングになります。';
+  }
+  return '見事にワナにかかりました。でも、それが普通です。むしろクイズで引っかかっておけば、年金事務所からの通知で引っかからずに済みます。今日が、会社の社会保険にいちばんくわしい日です。この勢いで、会社の書類を1枚だけ出してみてください。';
+}
+
+function showDone(){
+  quizPlay.style.display = 'none';
+  quizDone.classList.add('show');
+  document.getElementById('doneTotal').textContent = qAnsweredCount;
+  document.getElementById('doneScore').textContent = qScore;
+  document.getElementById('doneCmt').textContent = doneComment(qScore, qAnsweredCount);
+  var wl = document.getElementById('wrongList');
+  if(wrongItems.length){
+    var html = '<h4>ワナにかかった問題（＝次に確認したい会社の書類）</h4>';
+    for(var i = 0; i < wrongItems.length; i++){
+      html += '<div class="w-item"><strong>' + wrongItems[i].q + '</strong><br>確認ポイント：' + wrongItems[i].check + '</div>';
+    }
+    wl.innerHTML = html;
+    wl.style.display = 'block';
+  } else {
+    wl.style.display = 'none';
+  }
+  var sum = document.getElementById('sumScore');
+  sum.innerHTML = '<p>○×クイズの結果：<strong>' + qAnsweredCount + '問中 ' + qScore + '問正解</strong>でした。' +
+    (wrongItems.length ? '間違えた問題は、そのまま「確認したいことリスト」になります。' : 'この調子で、下のチェックリストもどうぞ。') + '</p>';
+}
+
+btnYes.addEventListener('click', function(){ answer(true); });
+btnNo.addEventListener('click', function(){ answer(false); });
+btnNext.addEventListener('click', function(){
+  if(qIdx >= QUIZ.length - 1){ showDone(); return; }
+  qIdx++;
+  renderQ();
+  var shell = document.querySelector('.quiz-shell');
+  if(shell.getBoundingClientRect().top < 0) shell.scrollIntoView({behavior:'smooth'});
+});
+btnStop.addEventListener('click', showDone);
+document.getElementById('btnRetry').addEventListener('click', function(){
+  qIdx = 0; qScore = 0; qAnsweredCount = 0; wrongItems = [];
+  quizDone.classList.remove('show');
+  quizPlay.style.display = 'block';
+  btnNext.innerHTML = '次の質問へ <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  renderQ();
+});
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+document.getElementById('btnMailSelf').addEventListener('click', function(){
+  var body = '「会社の社会保険 入る・入らない チェック」の結果メモ\n\n' +
+    '○×クイズ：' + qAnsweredCount + '問中 ' + qScore + '問正解\n\n';
+  if(wrongItems.length){
+    body += '【確認したいこと】\n';
+    for(var i = 0; i < wrongItems.length; i++){
+      body += '・' + wrongItems[i].check + '\n';
+    }
+  }
+  body += '\n（このメモを賃金台帳と、直近の保険料の納入告知額・領収済額通知書と一緒に保管しておくと、確認が早く進みます）\n';
+  location.href = 'mailto:?subject=' + encodeURIComponent('会社の社会保険 入る・入らないチェックの結果メモ') + '&body=' + encodeURIComponent(body);
+});
+
+renderQ();
+
+/* ---------- セクション3：シミュレーター ---------- */
+var simA = document.getElementById('simA'), simB = document.getElementById('simB'),
+    simC = document.getElementById('simC'), simD = document.getElementById('simD'),
+    simE = document.getElementById('simE');
+function man(x){ return (Math.round(x * 10) / 10).toLocaleString('ja-JP') + '万円'; }
+function pct(n){ return (Math.round(n * 1000) / 10) + '%'; }
+function setR(id, ok, chipTxt, txt){
+  document.getElementById(id).className = 'sim-r ' + (ok ? 'ok' : 'ng');
+  document.getElementById(id + 'Chip').textContent = chipTxt;
+  document.getElementById(id + 'Txt').textContent = txt;
+}
+var R_KENPO = 0.10, R_KAIGO = 0.016, R_KOSEI = 0.183, R_KYOSHUTSU = 0.0036;
+var CAP_KENPO_M = 139, CAP_KOSEI_M = 65, CAP_KENPO_B = 573, CAP_KOSEI_B = 300;
+/* 1人あたりの年間保険料（会社負担・本人負担）を返す。単位は万円 */
+function hokenryou(getsugaku, shoyoTsuki, kaigo){
+  var kenpoM = Math.min(getsugaku, CAP_KENPO_M);
+  var koseiM = Math.min(getsugaku, CAP_KOSEI_M);
+  var shoyo = getsugaku * shoyoTsuki;
+  var kenpoB = Math.min(shoyo, CAP_KENPO_B);
+  var koseiB = Math.min(shoyo, CAP_KOSEI_B);
+  var kenpoRate = R_KENPO + (kaigo ? R_KAIGO : 0);
+  var kenpoNen = (kenpoM * 12 + kenpoB) * kenpoRate;
+  var koseiNen = (koseiM * 12 + koseiB) * R_KOSEI;
+  var kyoshutsu = (koseiM * 12 + koseiB) * R_KYOSHUTSU;   /* 全額が会社負担 */
+  return { kaisha: kenpoNen / 2 + koseiNen / 2 + kyoshutsu,
+           honnin: kenpoNen / 2 + koseiNen / 2 };
+}
+function simUpdate(){
+  var a = +simA.value, b = +simB.value, c = simC.checked, d = +simD.value, e = +simE.value;
+  if(!(a >= 0)) a = 0;
+  if(!(d >= 0)) d = 0;
+  if(!(e >= 0)) e = 0;
+  document.getElementById('simAOut').textContent = a.toLocaleString('ja-JP') + '万円';
+  document.getElementById('simDOut').textContent = d.toLocaleString('ja-JP') + '人';
+  document.getElementById('simEOut').textContent = e.toLocaleString('ja-JP') + '万円';
+  var yak = hokenryou(a, b, c);
+  var jug = hokenryou(e, b, c);
+  var kaishaYak = yak.kaisha;
+  var kaishaJug = jug.kaisha * d;
+  var kekka = kaishaYak + kaishaJug;                        /* 会社が1年に負担する額 */
+  var honnin = yak.honnin + jug.honnin * d;                 /* 本人負担の合計 */
+  var soukyuu = a * (12 + b) + e * (12 + b) * d;            /* 年間の給与総額 */
+  var rate = soukyuu > 0 ? kekka / soukyuu : 0;
+  document.getElementById('tlFill').style.width =
+    Math.max(2, Math.min(100, rate / 0.30 * 100)) + '%';
+  setR('simR1', false, a > 0 ? '役員1人分' : '報酬なし',
+       a > 0 ? '年間で約' + man(kaishaYak) + '。月あたり約' + man(kaishaYak / 12) + 'が会社から出ていきます。'
+             : '役員報酬が0の場合、その役員は被保険者になりません。国民健康保険と国民年金への加入が必要です。');
+  setR('simR2', d <= 0, d > 0 ? d + '人分' : '従業員なし',
+       d > 0 ? '年間で約' + man(kaishaJug) + '。1人あたりでは年約' + man(jug.kaisha)
+               + '、月給の約' + pct(jug.kaisha / (e * (12 + b) || 1)) + 'にあたります。'
+             : '従業員がいない場合でも、法人であれば適用事業所であることは変わりません。');
+  setR('simR3', false, '会社が納める額',
+       '会社負担と本人負担を合わせた年約' + man(kekka + honnin) + 'を、会社がまとめて納めます。月あたり約'
+       + man((kekka + honnin) / 12) + 'で、このうち本人負担分は給与から預かった分です。');
+  var big = document.getElementById('simTotalBig'), sub = document.getElementById('simTotalSub');
+  if(kekka <= 0){
+    big.innerHTML = '報酬の支払いがないので、会社の負担は <b>0円</b>';
+    sub.textContent = '役員報酬も給与も支払っていない場合、保険料の計算のもとになる報酬がありません。ただし、報酬の支払いを始めた時点で届出が必要になります。';
+  } else {
+    big.innerHTML = '会社が1年に負担する社会保険料は <b>約' + man(kekka) + '</b>';
+    sub.textContent = '月あたり約' + man(kekka / 12) + '。年間の給与総額 約' + man(soukyuu)
+      + 'に対して約' + pct(rate) + 'が、給与とは別に固定費として出ていく計算です。';
+  }
+}
+simA.addEventListener('input', simUpdate); simB.addEventListener('change', simUpdate);
+simC.addEventListener('change', simUpdate); simD.addEventListener('input', simUpdate);
+simE.addEventListener('input', simUpdate);
+simUpdate();
+
+/* ---------- セクション4：あるある劇場 ---------- */
+var CASES = [
+  {
+    art:'icSakanobori', cls:'c-red', chip:'第一幕：2年分の請求',
+    title:'設立3年目に、さかのぼって請求が来た',
+    story:'「ひとりで会社を作って、しばらくは役員報酬も少なかったので、社会保険はもう少し落ち着いてからでいいと思っていました。3年目に従業員を1人雇ったところ、その方から加入はどうなっているのかと聞かれて。調べているうちに年金事務所から文書が届き、結局さかのぼって手続きをすることになりました。毎月なら払えた金額でも、まとめて来ると話が違いました」<small>——40代・法人代表（脚色あり）</small>',
+    what:'<p class="cmodal-p">法人は設立した時点で強制適用事業所です。届出をしていない期間があっても義務は発生し続けており、後から資格を取得すべきだった日までさかのぼって適用されることがあります。保険料を徴収する権利の時効は<strong>2年</strong>とされており、最大でその期間分が一度に請求される可能性があります。さらに納付が遅れた期間には<strong>延滞金</strong>が加算されます。</p>',
+    how:'<p class="cmodal-p">設立の登記が済んだら、役員報酬の支払いを始めるタイミングで新規適用の届出をするのが原則です。順番としては、報酬額を決める、届出を出す、資金繰りに毎月の保険料を織り込む、という流れになります。すでに期間が空いてしまっている場合でも、<strong>気づいた時点で相談するほうが選択肢は多く</strong>残ります。放置している期間だけ、金額は積み上がっていきます。</p>'
+  },
+  {
+    art:'icChousa', cls:'c-amber', chip:'第二幕：取引先の確認',
+    title:'元請から確認され、現場に入れなくなった',
+    story:'「建設の仕事をしています。長く付き合いのある元請から、社会保険の加入状況を確認する書類を出してほしいと言われました。うちは職人3人と私だけの会社で、これまで各自が国民健康保険でやってきたんです。加入していないと現場に入れないと言われて、慌てて手続きをしました。仕事を失うほうが、保険料よりずっと痛かったです」<small>——50代・法人代表（脚色あり）</small>',
+    what:'<p class="cmodal-p">建設業をはじめとする一部の業界では、社会保険への加入状況が取引の前提として確認される場面が増えています。許可や入札に関わる審査で評価に影響することもあります。<strong>保険料の問題が、受注できるかどうかの問題に変わる</strong>という点が、この話のこわいところです。加入していないことは、もはや社内だけの話では済まなくなっています。</p>',
+    how:'<p class="cmodal-p">取引先から確認を求められてから動くと、時間も選択肢も足りません。まずは自社が適用事業所として届出をしているか、被保険者となるべき人が全員加入しているかを確認してください。人数と報酬額が分かれば、<strong>年間の負担額は事前に計算できます</strong>。このページのシミュレーターで概算を出したうえで、受注価格の見直しとあわせて検討するのが現実的な進め方です。</p>'
+  },
+  {
+    art:'qYen', cls:'c-berry', chip:'第三幕：毎月の引き落とし',
+    title:'売上が落ちた月も、同じ金額が出ていった',
+    story:'「取引先の都合で、3か月ほど売上が半分になった時期がありました。法人税は利益が出ていないので気にしていなかったのですが、社会保険料は毎月同じ額が引き落とされます。役員報酬もすぐには下げられないと言われて。あのときは、固定費という言葉の意味を初めて実感しました」<small>——30代・法人代表（脚色あり）</small>',
+    what:'<p class="cmodal-p">社会保険料は、利益ではなく<strong>報酬の額</strong>をもとに計算されます。したがって赤字でも発生します。しかも役員報酬は法人税の取扱い上、事業年度の途中で自由に変更できるものではありません。社会保険料の側でも、報酬を変えてすぐ保険料が変わるわけではなく、一定の変動が3か月続いた場合に4か月目から改定されるという流れになります。<strong>下げたいときにすぐ下がる支出ではない</strong>ということです。</p>',
+    how:'<p class="cmodal-p">役員報酬を決める段階で、社会保険料の会社負担を含めた<strong>年間の総額</strong>を先に計算しておくことです。報酬月額の約15%が、給与とは別に会社から出ていきます。資金繰り表には、給与とは別の行として法定福利費を立てておくと、見通しが立ちます。役員報酬の変更は法人税の取扱いと密接に関わりますので、<strong>個別の税額計算・申告については税理士にご確認ください。</strong></p>'
+  },
+  {
+    art:'icRoushi', cls:'c-blue', chip:'第四幕：減らしたつもりが',
+    title:'期の途中で報酬を下げ、法人税で不利になった',
+    story:'「保険料の負担が重いので、期の途中で自分の役員報酬を大きく下げました。手続きは自分でやったので、何も問題ないと思っていたんです。ところが決算のときに、下げた前後の差額の一部が損金にならないと言われて。しかも保険料が下がったのは数か月後からで、思ったほど効果もありませんでした」<small>——40代・法人代表（脚色あり）</small>',
+    what:'<p class="cmodal-p">役員報酬には、法人税の側で定期同額給与という考え方があり、原則として事業年度の開始から一定期間内に決めた金額を毎月同額で支払うことが求められます。この枠を外れた変更は、損金に算入されないことがあります。いっぽう社会保険料の側でも、固定的賃金の変動が一定の等級以上あり、その状態が3か月続いた場合に<strong>4か月目から</strong>改定される流れです。<strong>効果が出る時期と、税務上の制約がずれている</strong>のがこの論点の難しさです。</p>',
+    how:'<p class="cmodal-p">役員報酬は、事業年度の開始前に、翌1年間の資金繰りと利益の見通しを踏まえて決めるのが基本です。社会保険料の会社負担、法人税、そして本人の所得税と住民税は連動していますので、どれか一つだけを見て決めると、別のところで戻ってきます。決めたら株主総会や取締役会の議事録を残してください。<strong>個別の税額計算・申告については税理士にご確認ください。</strong></p>'
+  },
+  {
+    art:'icShain', cls:'c-amber', chip:'第五幕：説明していなかった',
+    title:'加入したら、従業員に手取りが減ったと言われた',
+    story:'「これまで加入していなかったのを正すため、パートも含めて全員を加入させました。ところが翌月、何人かから手取りが減っていると言われて。本人負担があることを、私がきちんと説明していなかったんです。良いことをしたつもりが、職場の空気が悪くなってしまいました」<small>——40代・法人代表（脚色あり）</small>',
+    what:'<p class="cmodal-p">保険料は労使折半ですから、加入すれば<strong>従業員の給与からも天引き</strong>が始まります。額面が同じなら手取りは下がります。制度としては将来の年金や傷病手当金につながる話ですが、目の前の生活費が減ることを事前に伝えていなければ、納得は得られません。加入は義務であって選択ではないという点も、あわせて伝える必要があります。</p>',
+    how:'<p class="cmodal-p">加入の前に、対象になる方それぞれに<strong>いくら引かれるのか</strong>の目安を紙で示すことです。同時に、厚生年金は将来の老齢厚生年金だけでなく、障害厚生年金や遺族厚生年金にもつながること、健康保険には傷病手当金や出産手当金があることを説明します。数字と、得られるものの両方を並べる。順番を守れば、多くの場合は理解が得られます。</p>'
+  },
+  {
+    art:'qShield', cls:'c-red', chip:'第六幕：社長だけの死角',
+    title:'社長が働けなくなり、収入が止まった',
+    story:'「従業員のことばかり考えていて、自分の備えを忘れていました。ケガで3か月ほど現場に出られなくなったとき、社員は労災でカバーされましたが、私は対象外だと言われて。特別加入という制度があることも、そのとき初めて知りました。会社の代表というのは、いちばん守られていない立場なのだと痛感しました」<small>——50代・法人代表（脚色あり）</small>',
+    what:'<p class="cmodal-p">代表取締役は労働者ではないため、労災保険も雇用保険も原則として対象外です。会社をたたんでも失業給付は出ません。いっぽうで健康保険と厚生年金には加入していますので、業務外の病気やケガで<strong>報酬が支払われない期間</strong>については、傷病手当金の対象になる場合があります。守られている部分と、抜けている部分がはっきり分かれているのが経営者の立場です。</p>',
+    how:'<p class="cmodal-p">まず、労災保険の中小事業主等の特別加入という制度があります。労働保険事務組合を通じるなど所定の手続きが必要で、要件は業種や規模によって異なります。そのうえで、公的な制度で埋まらない部分をどうするかという話になります。<strong>公的制度の範囲を確認してから、足りない部分を考える</strong>。順番を逆にすると、必要以上の負担にも、必要な備えの不足にもつながります。</p>'
+  }
+];
+
+/* ---------- セクション5：逆転劇場 ---------- */
+var GOOD_CASES = [
+  {
+    art:'icKaisha1', cls:'c-blue', chip:'第一話：設立時から加入', amt:'採用も融資も通る',
+    title:'最初から入っていたので、どこでもつまずかなかった',
+    story:'「会社を作ったとき、役員報酬を決めるのと同時に社会保険の届出も済ませました。正直、負担は軽くありません。でも人を採用するとき、求人に社会保険完備と書けたのは大きかったです。金融機関から融資を受けるときも、取引先の審査でも、加入状況を聞かれて即答できました。後から慌てている同業を見ると、あのとき決めておいてよかったと思います」<small>——30代・法人代表（脚色あり）</small>',
+    what:'<p class="cmodal-p">社会保険の加入は、いまや会社の基礎的な信用情報のひとつとして扱われています。求人票の記載、取引先の確認、金融機関の審査、公共工事に関わる評価。<strong>入っていることが前提</strong>として話が進む場面が増えました。設立当初から加入していれば、さかのぼりの請求も延滞金も発生しません。負担を先に確定させることで、それ以外の判断に集中できるという効果もあります。</p>',
+    how:'<p class="cmodal-p">法人設立の登記が済み、役員報酬の支払いを始める段階で、新規適用届と被保険者資格取得届を提出します。従業員を雇ったときは、入社日から原則5日以内に資格取得届が必要です。<strong>報酬額を決める前に、会社負担を含めた年間の総額を試算しておく</strong>と、資金繰りの見通しを崩さずに済みます。</p>'
+  },
+  {
+    art:'qShield', cls:'c-green', chip:'第二話：傷病手当金', amt:'休んでも下支え',
+    title:'社長本人が長く休んでも、生活が止まらなかった',
+    story:'「病気で3か月ほど入院と自宅療養をすることになりました。その間は役員報酬を止めていたのですが、健康保険から傷病手当金が受けられると教えてもらい、申請しました。会社の役員でも対象になると知らなかったので、正直驚きました。金額は以前の報酬の全額ではありませんが、家計のめどが立ったことで治療に専念できました」<small>——50代・法人代表（脚色あり）</small>',
+    what:'<p class="cmodal-p">傷病手当金は、業務外の病気やケガで働けず、報酬が支払われないときに健康保険から支給される制度です。<strong>法人の役員であっても、健康保険の被保険者であれば対象</strong>になります。連続する3日間の待期のあと4日目から支給され、金額の目安は標準報酬日額のおおむね3分の2、支給される期間は支給開始日から通算1年6か月です。役員報酬が支払われている期間は支給されない、または調整されます。</p>',
+    how:'<p class="cmodal-p">申請には、本人・事業主・医師がそれぞれ記入する書類が必要です。療養のために働けない状態であることが要件になります。役員の場合、報酬をどう扱うかによって支給の可否が変わりますので、事前に加入している健康保険にご確認ください。なお、国民健康保険には原則としてこの制度がありません。<strong>法人化して健康保険に加入していることの意味</strong>が、こういう場面で表れます。</p>'
+  },
+  {
+    art:'icKazoku', cls:'c-berry', chip:'第三話：産休・育休の免除', amt:'保険料が免除に',
+    title:'届出ひとつで、本人分も会社分も免除された',
+    story:'「従業員が産前産後休業に入ることになりました。給与は支払わないのに保険料はかかるものだと思い込んでいたのですが、免除される制度があると教わって届出をしました。本人の負担分だけでなく、会社の負担分も免除されると聞いて驚きました。その後の育児休業の期間も同じように扱えて、本人にも会社にも助かりました」<small>——40代・法人代表（脚色あり）</small>',
+    what:'<p class="cmodal-p">産前産後休業期間中と育児休業期間中は、所定の届出をすることで健康保険と厚生年金の保険料が免除される制度があります。免除されるのは<strong>本人負担分と事業主負担分の両方</strong>です。しかも免除された期間も、将来の年金の計算上は保険料を納めた期間として扱われる取扱いになっています。休業する本人にとっても、会社にとっても、負担が実際に軽くなる数少ない制度です。</p>',
+    how:'<p class="cmodal-p">自動では適用されません。産前産後休業取得者申出書や育児休業等取得者申出書といった<strong>届出が必要</strong>です。期間や要件、届出のタイミングには決まりがありますので、該当する方が出た時点で年金事務所または加入している健康保険にご確認ください。休業に入ってからではなく、予定が分かった段階で確認しておくと安心です。</p>'
+  },
+  {
+    art:'icRoushi', cls:'c-amber', chip:'第四話：労災の特別加入', amt:'社長も補償の対象に',
+    title:'経営者本人のケガが、補償の対象になった',
+    story:'「うちは私も現場に出るタイプの会社です。労災は従業員のためのものだと思っていたのですが、中小事業主等の特別加入という制度があると聞いて手続きをしました。実際に作業中にケガをしたとき、この加入がなければ全額自己負担でした。年間の負担額を考えても、入っておいてよかったと思っています」<small>——50代・法人代表（脚色あり）</small>',
+    what:'<p class="cmodal-p">労災保険は本来、労働者のための制度です。しかし中小事業主等については、業務の実態が労働者に近いことを踏まえ、特別加入という制度が用意されています。加入すれば、業務中や通勤中のケガについて労災保険の給付を受けられる場合があります。<strong>健康保険と厚生年金だけでは埋まらない部分</strong>を補える制度です。</p>',
+    how:'<p class="cmodal-p">特別加入には、労働保険事務組合に事務処理を委託するなど、所定の手続きと要件があります。加入できる範囲や保険料の額は、選択する給付基礎日額や業種によって異なります。また、すべてのケガが対象になるわけではなく、業務との関連性が判断されます。要件は労働局や労働保険事務組合にご確認ください。</p>'
+  },
+  {
+    art:'icNenkinTecho', cls:'c-green', chip:'第五話：厚生年金の3つの顔', amt:'老齢・障害・遺族',
+    title:'年金は老後のためだけではないと知った',
+    story:'「厚生年金は老後にもらうものだと思っていました。従業員に説明する資料を作ろうとして調べたら、障害を負ったときの障害厚生年金や、亡くなったときの遺族厚生年金もあることを知りました。国民年金だけの場合と比べて範囲が広いと知って、説明の仕方が変わりました。負担の話だけをしていたら、たぶん納得してもらえなかったと思います」<small>——40代・法人代表（脚色あり）</small>',
+    what:'<p class="cmodal-p">厚生年金は、老齢厚生年金だけの制度ではありません。一定の要件を満たせば障害厚生年金や遺族厚生年金の対象になります。障害の程度に関する等級の範囲や、一時金の取扱いなど、国民年金だけの場合とは異なる部分があります。<strong>保険料の半分を会社が負担している</strong>という点も含めて、従業員にとっては生涯にわたる下支えになります。</p>',
+    how:'<p class="cmodal-p">給付を受けるには、保険料の納付要件や障害認定日などの要件を満たす必要があり、請求の手続きも必要です。要件の細部は制度改正で変わることがありますので、日本年金機構の案内でご確認ください。加入を進めるときは、天引きされる金額だけでなく、<strong>この3つの給付につながること</strong>もあわせて伝えると、社内の理解が得られやすくなります。</p>'
+  },
+  {
+    art:'icChousa', cls:'c-blue', chip:'第六話：二以上事業所勤務', amt:'重複を正しく整理',
+    title:'2社から報酬を受けていたので、届出で整理した',
+    story:'「関連する会社を2つ持っていて、どちらからも役員報酬を受けています。それぞれで手続きをしていたのですが、二以上事業所勤務届というものを出す必要があると教わりました。届出をしたら報酬を合算したうえで各社に按分される形になり、正しい保険料に整理されました。放っておくと後から差額を求められることもあると聞いて、ぞっとしました」<small>——50代・法人代表（脚色あり）</small>',
+    what:'<p class="cmodal-p">複数の適用事業所から報酬を受けている場合、報酬を合算して標準報酬月額を決め、各事業所の報酬額に応じて保険料を按分する取扱いがあります。届出をしていないと、保険料が不足したり、健康保険証の扱いが整理されないままになったりします。<strong>会社が2つあるからといって、健康保険も2つになるわけではありません。</strong></p>',
+    how:'<p class="cmodal-p">所定の届出書を提出し、主たる事業所を選択します。届出には期限がありますので、2社目から報酬を受け始めた時点で手続きが必要です。役員報酬を複数社から受け取る形は、法人税や所得税の取扱いにも関わります。<strong>個別の税額計算・申告については税理士にご確認ください。</strong></p>'
+  },
+  {
+    art:'icJikan', cls:'c-berry', chip:'第七話：算定基礎届の見直し', amt:'年1回の点検',
+    title:'年に一度の届出を、点検の機会に変えた',
+    story:'「毎年7月の算定基礎届を、ただの事務作業だと思っていました。あるとき、この機会に全員の勤務時間と報酬を見直すようにしたら、契約と実態がずれている人が何人か見つかりました。加入すべき方が漏れていたのも、このとき分かったんです。以来、7月は社内の点検月間ということにしています」<small>——40代・法人代表（脚色あり）</small>',
+    what:'<p class="cmodal-p">毎年7月に提出する算定基礎届は、4月から6月の報酬をもとに標準報酬月額を決め直す手続きです。この作業では全従業員の報酬を洗い出すため、<strong>加入漏れや契約と実態のずれを見つける絶好の機会</strong>になります。届出は義務ですが、点検の機会として使えば、後から遡って請求されるリスクを毎年つぶしていけます。</p>',
+    how:'<p class="cmodal-p">賃金台帳、出勤簿、雇用契約書の3つを並べて突き合わせます。所定労働時間が4分の3以上になっている方が加入しているか、短時間労働者の要件に該当する方がいないかを確認してください。報酬に大きな変動があった方は、随時改定の対象になることもあります。判断に迷うところは、そのまま年金事務所に相談できます。</p>'
+  },
+  {
+    art:'icShain', cls:'c-amber', chip:'第八話：説明してから加入', amt:'離職を防いだ',
+    title:'先に数字を見せたら、誰も辞めなかった',
+    story:'「未加入だったパートの方々を加入させることになったとき、前の会社で説明不足からもめた話を聞いていたので、先に一人ずつ面談しました。いくら引かれるのか、その代わり何が受けられるのかを紙に書いて渡したんです。結果として、誰も辞めませんでした。将来の年金が増えることを、むしろ喜んでくれた方もいました」<small>——40代・法人代表（脚色あり）</small>',
+    what:'<p class="cmodal-p">加入によって手取りが減るのは事実ですから、その事実を先に伝えることが出発点になります。そのうえで、厚生年金は将来の老齢厚生年金だけでなく障害厚生年金や遺族厚生年金にもつながること、健康保険には傷病手当金や出産手当金があることを説明します。<strong>不利益な事実を先に、得られるものと同じ大きさで伝える</strong>のが、納得を得るための順番です。</p>',
+    how:'<p class="cmodal-p">対象者ごとに、報酬額から本人負担の概算を出して紙に書きます。あわせて、加入が要件を満たした時点での義務であり、会社が選んでいるわけではないことも伝えます。面談の記録を残しておくと、後々の行き違いを防げます。制度の説明に不安があれば、年金事務所の窓口で確認したうえで臨むと確実です。</p>'
+  }
+];
+
+var modal = document.getElementById('caseModal');
+var CASE_LBL = {
+  bad:['よく伺うお話をもとにした創作例（脚色あり）', '何が起きたのか', 'こう確認すれば防げます'],
+  good:['よくある、うれしい誤算（創作例・脚色あり）', 'なぜ助かるのか', '使うための条件']
+};
+
+function renderCases(gridId, list, kind){
+  var grid = document.getElementById(gridId);
+  list.forEach(function(c){
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'case-card';
+    btn.innerHTML =
+      '<span class="art ' + c.cls + '">' + ARTS[c.art] + '</span>' +
+      '<span class="t"><span class="chip ' + c.cls + '">' + c.chip + '</span>' +
+      (c.amt ? '<span class="amt">' + c.amt + '</span>' : '') +
+      '<h3>' + c.title + '</h3>' +
+      '<span class="more">くわしく見る<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></span></span>';
+    btn.addEventListener('click', function(){ openCase(c, kind); });
+    grid.appendChild(btn);
+  });
+}
+
+function openCase(c, kind){
+  var lbl = CASE_LBL[kind] || CASE_LBL.bad;
+  document.getElementById('caseModalLbl1').textContent = lbl[0];
+  document.getElementById('caseModalLbl2').textContent = lbl[1];
+  document.getElementById('caseModalLbl3').textContent = lbl[2];
+  document.getElementById('caseModalLbl2Wrap').className =
+    'cmodal-label ' + (kind === 'good' ? 'lb-green' : 'lb-red');
+  document.getElementById('caseModalIco').className = 'cmodal-ico ' + c.cls;
+  document.getElementById('caseModalIco').innerHTML = ARTS[c.art];
+  document.getElementById('caseModalChip').className = 'cmodal-chip ' + c.cls;
+  document.getElementById('caseModalChip').textContent = c.chip;
+  document.getElementById('caseModalTitle').textContent = c.title;
+  document.getElementById('caseModalStory').innerHTML = c.story;
+  document.getElementById('caseModalWhat').innerHTML = c.what;
+  document.getElementById('caseModalHow').innerHTML = c.how;
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+  modal.querySelector('.cmodal-panel').scrollTop = 0;
+}
+
+renderCases('caseGrid', CASES, 'bad');
+renderCases('goodGrid', GOOD_CASES, 'good');
+
+function closeCase(){
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+document.getElementById('caseModalClose').addEventListener('click', closeCase);
+document.getElementById('caseModalBack').addEventListener('click', closeCase);
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && modal.classList.contains('show')) closeCase();
+});
+
+/* ---------- まとめ：チェックリスト ---------- */
+var chkBoxes = document.querySelectorAll('#checklist input[type=checkbox]');
+var chkMsg = document.getElementById('chkMsg');
+function chkUpdate(){
+  var n = 0;
+  chkBoxes.forEach(function(c){ if(c.checked) n++; });
+  var total = chkBoxes.length;
+  if(n === 0){
+    chkMsg.textContent = 'あてはまるもの、確認できたものにチェックを入れてみてください。今日オフィスで確かめられる項目と、次に専門家へ聞けばよい項目が混じっています。';
+  } else if(n <= 2){
+    chkMsg.textContent = 'チェック' + n + '個。ここからで大丈夫です。まずは会社の適用事業所としての届出があるか、直近の保険料の通知が届いているかを確認してください。それだけで現在地がはっきりします。';
+  } else if(n <= 5){
+    chkMsg.textContent = 'チェック' + n + '個。同じ規模の会社のなかでは、かなり手をつけているほうです。残りは賃金台帳と出勤簿があれば片づく項目ばかり。判断に迷うところだけ、まとめて相談してしまいましょう。';
+  } else if(n < total){
+    chkMsg.textContent = 'チェック' + n + '個。ここまで整理できている会社は、調査で慌てることがほとんどありません。あと少しで、採用にも融資にも自信を持って臨める状態になります。';
+  } else {
+    chkMsg.textContent = '全項目チェックです。あとは人を採用したとき、報酬を変えたとき、年に一度の算定基礎届のときに、同じ順番で見直していきましょう。';
+  }
+}
+chkBoxes.forEach(function(c){ c.addEventListener('change', chkUpdate); });
+
+})();
+</script>
+</body>
+</html>

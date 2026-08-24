@@ -1,0 +1,2029 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="誰が相続人になるのか、ならないのかを、○×クイズとシミュレーターで確かめられるページです。配偶者は常に相続人になること、子・父母・兄弟姉妹という順位のルール、代襲相続と再代襲の続く範囲の違い、内縁の配偶者や離婚した元配偶者・養子の扱いを、図と例で整理します。株式会社Office-M作成の情報提供資料。">
+<title>相続人の「なる・ならない」チェック｜株式会社Office-M</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 6 8 18v10c0 16 10 26 24 30 14-4 24-14 24-30V18Z' fill='%232c7a4b'/%3E%3Cpath d='M32 20v22M22 28h20M22 35h20' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --navy:#1b3f5e;
+  --navy-2:#27587f;
+  --navy-soft:#eaf1f7;
+  --bg:#fff8f2;
+  --white:#ffffff;
+  --text:#33404d;
+  --muted:#5c6874;
+  --line:#efe2d8;
+  --shadow:0 6px 20px rgba(130,100,80,.09);
+  --shadow-sm:0 3px 10px rgba(130,100,80,.07);
+
+  --red:#c2453f;
+  --red-dark:#a63631;
+  --red-bg:#fdeee9;
+  --red-border:#f4d0c6;
+  --coral:#f0846a;
+  --coral-text:#c2451f;
+
+  --green:#2c7a4b;
+  --green-bg:#e8f6ef;
+  --green-border:#c3e5d3;
+  --mint:#4fbf9b;
+
+  --amber:#8f6015;
+  --amber-deep:#a85c12;
+  --amber-bg:#fdf3e2;
+  --amber-border:#f2dcae;
+  --sunny:#f7c34e;
+
+  --sky:#24729f;
+  --sky-bg:#e8f4fb;
+  --sky-border:#c6e2f2;
+
+  --berry:#8f4574;
+  --berry-bg:#fbeef6;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+/* スマホでも17pxを基準にする（注記・出典まわりが12pxまで小さくなっていたため） */
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;font-size:17px;}
+/* 左右の余白が広い画面ほど文字を大きくして見やすさに還元する */
+@media(min-width:1000px){ html{font-size:18px;} }
+body{
+  font-family:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho",YuMincho,"游明朝体","游明朝","MS PMincho","ＭＳ Ｐ明朝",serif;
+  color:var(--text);
+  background:var(--bg);
+  font-size:1.09rem;
+  line-height:1.95;
+  letter-spacing:.03em;
+  padding-bottom:40px;
+  overflow-wrap:break-word;
+}
+@media(min-width:768px){
+  body{font-size:1.16rem;letter-spacing:.04em;}
+}
+img,svg{max-width:100%;vertical-align:middle;}
+button{font-family:inherit;}
+/* キーボード操作でいまどこにいるかを、はっきり見せる（既定の1本線は細くて見えない） */
+a:focus-visible,button:focus-visible,summary:focus-visible,
+input:focus-visible,label:focus-visible,[tabindex]:focus-visible{
+  outline:3px solid var(--navy-2);
+  outline-offset:3px;
+  border-radius:6px;
+}
+a{color:var(--navy-2);}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px;}
+/* 広い画面では、本文の1行を約40字までに抑える（日本語の読みやすい行長の目安）。
+   カード内の短い文には効かせず、横幅いっぱいに伸びる長文だけを対象にする */
+@media(min-width:700px){
+  .guide-msg,.def-lead,.sec-lead,.sub-lead,.age-note,.note,
+  .mikane ol li,.mikane .caution,.rule3-box ol li,.rule3-note,
+  .cta-lead,details.finder p,details.finder li,footer.disclaimer p{
+    max-width:40em;
+  }
+  /* 中央寄せの箱の中にあるものは、中央のまま幅だけ詰める */
+  .venn-cap,.life-cap{max-width:40em;margin-left:auto;margin-right:auto;}
+}
+.nowrap{white-space:nowrap;}
+
+/* ---------- ヘッダー ---------- */
+.hero{
+  background:linear-gradient(168deg,#fbe6e6 0%,#fdf1ea 46%,#ddf0fb 100%);
+  color:var(--navy);
+  padding:24px 0 30px;
+  overflow:hidden;
+}
+.brand{
+  display:flex;align-items:center;gap:10px;
+  font-size:.92rem;font-weight:700;letter-spacing:.02em;color:var(--navy);
+}
+.brand .ico{
+  width:36px;height:36px;flex:0 0 36px;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--navy);border-radius:12px;
+}
+.brand .ico svg{width:20px;height:20px;stroke:#fff;}
+.brand small{display:block;font-weight:500;color:var(--muted);font-size:.82rem;letter-spacing:.04em;line-height:1.55;}
+.hero-flex{display:flex;flex-direction:column;}
+.hero h1{
+  font-size:1.58rem;line-height:1.45;font-weight:800;
+  margin:20px 0 12px;letter-spacing:.01em;color:var(--navy);
+}
+.hero h1 .accent{
+  background:linear-gradient(transparent 62%, #ffd9a8 62%);
+  padding:0 2px;
+}
+.hero .lead{font-size:1rem;color:var(--text);max-width:640px;}
+/* 文字間隔をユーザーが広げても見出しが切れないよう、狭い画面では折り返しを許す
+   （通常の表示では1行に収まるため、見た目は変わらない）— WCAG 1.4.12 */
+@media(max-width:520px){ .hero h1 .nowrap{white-space:normal;} }
+.hero-scene{margin:16px auto 0;width:100%;max-width:400px;}
+.hero-scene svg{width:100%;height:auto;display:block;}
+@media(min-width:768px){
+  .hero{padding:30px 0 40px;}
+  .hero h1{font-size:1.95rem;}
+  .hero .lead{font-size:1.06rem;}
+  .hero-flex{flex-direction:row;align-items:center;gap:28px;}
+  .hero-copy{flex:1;}
+  .hero-scene{flex:0 0 340px;margin:0;}
+}
+.hero-nav{display:flex;flex-wrap:wrap;gap:9px;margin-top:20px;}
+.hero-nav a{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--white);
+  border:2px solid #ffffff;
+  color:var(--navy);text-decoration:none;
+  padding:11px 17px;border-radius:999px;
+  font-size:.94rem;font-weight:700;min-height:48px;
+  box-shadow:var(--shadow-sm);
+}
+.hero-nav a:active{background:#fff4e9;}
+.hero-nav a svg{width:18px;height:18px;stroke:var(--coral);flex:0 0 18px;}
+
+/* ---------- セクション共通 ---------- */
+section{padding:40px 0 46px;}
+.band{background:var(--white);}
+.band-sky{background:var(--sky-bg);}
+.band-blush{background:#fdf1eb;}
+.band-mint{background:var(--green-bg);}
+.round-top{
+  border-radius:30px 30px 0 0;
+  margin-top:-24px;position:relative;z-index:1;
+  padding-top:42px;
+}
+.sec-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;}
+.sec-head .spot{flex:0 0 84px;}
+.spot-circle{
+  width:84px;height:84px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.spot-circle svg{width:52px;height:52px;}
+.step-pill{
+  display:inline-flex;align-items:center;gap:9px;
+  background:var(--amber-bg);color:var(--navy);
+  font-size:.88rem;font-weight:700;letter-spacing:.02em;
+  padding:6px 18px 6px 7px;border-radius:999px;margin-bottom:12px;
+  box-shadow:var(--shadow-sm);
+}
+.step-pill i{
+  width:28px;height:28px;flex:0 0 28px;border-radius:50%;
+  background:linear-gradient(135deg,#c2452a,#a8601a);
+  color:#fff;font-style:normal;font-weight:800;font-size:.95rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.step-pill.plain{padding:7px 18px;}
+h2{
+  font-size:1.4rem;line-height:1.5;color:var(--navy);
+  font-weight:800;letter-spacing:.01em;
+  position:relative;padding-bottom:12px;margin-bottom:10px;
+}
+h2::after{
+  content:"";position:absolute;left:0;bottom:0;
+  width:54px;height:5px;border-radius:3px;
+  background:linear-gradient(90deg,var(--coral),var(--sunny));
+}
+@media(min-width:768px){h2{font-size:1.68rem;}}
+.sec-lead{color:var(--muted);font-size:1rem;margin-bottom:22px;}
+.sub-title{font-size:1.1rem;color:var(--navy);}
+.note{
+  font-size:.9rem;color:var(--muted);line-height:1.85;
+  background:var(--white);border-radius:16px;
+  padding:14px 16px;margin-top:20px;
+  display:flex;gap:9px;align-items:flex-start;
+  box-shadow:var(--shadow-sm);
+}
+.note svg{width:20px;height:20px;flex:0 0 20px;stroke:var(--coral);margin-top:4px;}
+.band-sky .note,.band-blush .note{box-shadow:none;border:1px solid var(--line);}
+
+/* ---------- ガイド（吹き出し） ---------- */
+.guide{display:flex;align-items:flex-start;gap:12px;margin-bottom:20px;}
+.guide-ava{
+  width:58px;height:58px;flex:0 0 58px;border-radius:50%;
+  overflow:hidden;display:block;box-shadow:var(--shadow-sm);
+}
+.guide-ava svg{width:100%;height:100%;display:block;}
+.guide-msg{
+  position:relative;background:var(--white);
+  border:2px solid #ffe0cf;border-radius:18px;
+  padding:12px 16px;font-size:.95rem;line-height:1.75;
+}
+.guide-msg::before{
+  content:"";position:absolute;left:-9px;top:20px;
+  width:14px;height:14px;background:var(--white);
+  border-left:2px solid #ffe0cf;border-bottom:2px solid #ffe0cf;
+  transform:rotate(45deg);
+}
+
+/* ---------- セクション1：ちがいを問いかけるリンク ---------- */
+.qlink-lead{
+  display:flex;align-items:center;gap:9px;
+  font-size:1rem;font-weight:800;color:var(--navy);
+  margin:26px 0 12px;
+}
+.qlink-lead svg{width:23px;height:23px;flex:0 0 23px;stroke:var(--coral);}
+.qlinks{display:grid;grid-template-columns:1fr;gap:12px;}
+@media(min-width:700px){.qlinks{grid-template-columns:repeat(3,1fr);}}
+.qlink{
+  display:flex;flex-direction:column;gap:5px;
+  background:var(--white);border:2px solid var(--line);border-radius:18px;
+  padding:15px 16px 13px;text-decoration:none;color:inherit;
+  box-shadow:var(--shadow-sm);
+  transition:border-color .15s, transform .12s;
+}
+.qlink:active{transform:scale(.985);}
+.qlink:hover{border-color:var(--coral);}
+.qlink .pair{
+  display:flex;align-items:center;gap:7px;flex-wrap:wrap;
+  font-size:1.02rem;font-weight:800;color:var(--navy);line-height:1.55;
+}
+.qlink .pair .vs{
+  font-size:.8rem;font-weight:800;color:var(--red-dark);
+  background:var(--red-bg);border-radius:999px;padding:2px 10px;
+}
+.qlink .ask{font-size:.87rem;color:var(--muted);line-height:1.75;}
+.qlink .go{
+  display:inline-flex;align-items:center;gap:4px;margin-top:3px;
+  font-size:.84rem;font-weight:800;color:var(--coral-text);
+}
+.qlink .go svg{width:14px;height:14px;flex:0 0 14px;stroke:var(--coral-text);}
+/* リンクで飛んだ先を、見出しの手前で止める */
+.def-block[id]{scroll-margin-top:18px;}
+
+/* ---------- セクション1：定義のブロック ---------- */
+.def-block{
+  margin-top:34px;padding-top:26px;border-top:2px dashed var(--line);
+}
+.def-block:first-of-type{margin-top:18px;padding-top:0;border-top:none;}
+.def-h{
+  display:flex;align-items:center;gap:12px;
+  font-size:1.14rem;line-height:1.5;color:var(--navy);margin-bottom:8px;
+}
+.def-ico{
+  width:52px;height:52px;flex:0 0 52px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.def-ico svg{width:34px;height:34px;}
+.def-lead{font-size:.97rem;color:var(--muted);line-height:1.9;margin-bottom:16px;}
+@media(min-width:768px){.def-h{font-size:1.26rem;}}
+
+/* ---------- セクション1：心疾患の輪 ---------- */
+.venn-box{
+  background:var(--white);border-radius:22px;box-shadow:var(--shadow);
+  padding:20px 14px 8px;margin:6px 0 26px;text-align:center;
+}
+.venn-box svg{width:100%;max-width:520px;height:auto;}
+.venn-cap{font-size:.88rem;color:var(--muted);padding:6px 8px 12px;line-height:1.8;}
+@media(max-width:520px){.venn-box{padding:14px 4px 6px;}}
+.cards{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.cards{grid-template-columns:repeat(2,1fr);}}
+.risk-card{
+  position:relative;background:var(--white);
+  border-radius:20px;padding:20px 20px 18px;
+  box-shadow:var(--shadow);
+}
+.risk-card .icon{
+  width:68px;height:68px;border-radius:50%;
+  background:var(--navy-soft);
+  display:flex;align-items:center;justify-content:center;margin-bottom:12px;
+}
+.risk-card .icon svg{width:44px;height:44px;}
+.risk-card .icon.ic-red{background:var(--red-bg);}
+.risk-card .icon.ic-blue{background:var(--sky-bg);}
+.risk-card .icon.ic-amber{background:var(--amber-bg);}
+.risk-card .icon.ic-green{background:var(--green-bg);}
+.risk-card h3{font-size:1.02rem;color:var(--navy);margin-bottom:2px;}
+.risk-card p{font-size:.93rem;color:var(--muted);margin-top:8px;line-height:1.85;}
+.judge-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:.82rem;font-weight:700;padding:4px 13px;border-radius:999px;margin-top:4px;
+}
+.judge-chip.ng{background:var(--red-bg);color:var(--red-dark);border:1.5px solid var(--red-border);}
+.judge-chip.ok{background:var(--green-bg);color:var(--green);border:1.5px solid var(--green-border);}
+.judge-chip.maybe{background:var(--amber-bg);color:var(--amber-deep);border:1.5px solid var(--amber-border);}
+
+/* ---------- 罹患年齢のデータ（セクション1の各解説に添える） ---------- */
+.age-note{
+  display:flex;gap:10px;align-items:flex-start;
+  background:var(--white);border-radius:14px;
+  border-left:5px solid var(--sky);
+  padding:11px 15px;margin-bottom:16px;
+  font-size:.9rem;line-height:1.85;
+  box-shadow:var(--shadow-sm);
+}
+.age-note svg{width:19px;height:19px;flex:0 0 19px;stroke:var(--sky);margin-top:5px;}
+.age-note b{color:var(--sky);font-size:.98rem;}
+.age-note small{display:block;color:var(--muted);font-size:.81rem;line-height:1.7;margin-top:2px;}
+
+/* ---------- セクション6：医療費のかかりどき ---------- */
+.life-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px 14px;margin:6px 0 26px;
+}
+.life-box h3{font-size:1.08rem;color:var(--navy);margin-bottom:4px;}
+.life-box .sub{font-size:.9rem;color:var(--muted);margin-bottom:14px;}
+.life-box svg{width:100%;max-width:620px;height:auto;display:block;margin:0 auto;}
+.life-cap{font-size:.85rem;color:var(--muted);line-height:1.8;padding:10px 4px 4px;}
+.big3{display:grid;grid-template-columns:1fr;gap:12px;margin-top:16px;}
+@media(min-width:700px){.big3{grid-template-columns:repeat(3,1fr);}}
+.big3 .b{
+  background:var(--bg);border:2px solid var(--line);border-radius:16px;
+  padding:13px 15px;text-align:center;
+}
+.big3 .b .n{display:block;font-size:1.5rem;font-weight:800;color:var(--coral-text);line-height:1.4;}
+.big3 .b .l{display:block;font-size:.86rem;color:var(--navy);font-weight:700;line-height:1.7;}
+.big3 .b .s{display:block;font-size:.81rem;color:var(--muted);line-height:1.7;margin-top:3px;}
+
+.sub-h{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.1rem;color:var(--navy);margin:30px 0 6px;
+}
+.sub-h svg{width:24px;height:24px;flex:0 0 24px;stroke:var(--coral);}
+.sub-lead{font-size:.95rem;color:var(--muted);line-height:1.9;margin-bottom:16px;}
+.age-cards{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.age-cards{grid-template-columns:repeat(3,1fr);}}
+.age-card{
+  background:var(--white);border-radius:20px;box-shadow:var(--shadow);
+  padding:18px 18px 15px;
+}
+.age-card .ttl{
+  display:flex;align-items:center;gap:9px;
+  font-size:1rem;font-weight:800;color:var(--navy);margin-bottom:10px;
+}
+.age-card .ttl .ico{
+  width:38px;height:38px;flex:0 0 38px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.age-card .ttl .ico svg{width:26px;height:26px;}
+.age-card .rows{border-top:1.5px dashed var(--line);padding-top:9px;}
+.age-card .row{
+  display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  font-size:.92rem;line-height:1.9;
+}
+.age-card .row span{color:var(--muted);}
+.age-card .row b{font-size:1.28rem;font-weight:800;color:var(--red-dark);white-space:nowrap;}
+.age-card .kind{
+  display:inline-block;font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:8px;
+  background:var(--sky-bg);color:var(--sky);
+}
+.age-card .cmt{font-size:.87rem;color:var(--text);line-height:1.85;margin-top:10px;}
+.age-card .src{font-size:.8rem;color:var(--muted);line-height:1.7;margin-top:9px;
+  border-top:1.5px dashed var(--line);padding-top:8px;}
+
+/* 未来の自分への仕送り */
+.mikane{
+  margin-top:28px;background:var(--white);border-radius:24px;
+  box-shadow:var(--shadow);padding:22px 20px 18px;
+}
+.mikane h3{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.1rem;color:var(--navy);margin-bottom:12px;
+}
+.mikane h3 svg{width:25px;height:25px;flex:0 0 25px;stroke:var(--mint);}
+.mikane ol{list-style:none;counter-reset:mk;}
+.mikane ol li{
+  counter-increment:mk;position:relative;
+  padding:0 0 14px 46px;font-size:.96rem;line-height:1.9;
+}
+.mikane ol li::before{
+  content:counter(mk);position:absolute;left:0;top:2px;
+  width:32px;height:32px;border-radius:50%;
+  background:var(--sky-bg);color:var(--sky);
+  font-weight:800;font-size:1.02rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.mikane ol li b{color:var(--coral-text);}
+.mikane .caution{
+  background:var(--amber-bg);border-radius:16px;padding:14px 16px;
+  font-size:.9rem;line-height:1.9;
+  border-left:5px solid var(--sunny);
+}
+.mikane .caution strong:first-child{display:block;color:var(--amber-deep);margin-bottom:3px;}
+.mikane .caution b{color:var(--coral-text);}
+
+/* ---------- セクション2：クイズ ---------- */
+.quiz-shell{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px 24px;
+}
+.band .quiz-shell{background:var(--bg);box-shadow:none;border:2px solid var(--line);}
+.q-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.q-count{font-size:.9rem;font-weight:700;color:var(--muted);}
+.q-count span{color:var(--coral-text);font-size:1.15rem;}
+.dots{display:flex;gap:6px;}
+.dots i{width:10px;height:10px;border-radius:50%;background:#e8dbd0;}
+.dots i.done{background:var(--mint);}
+.dots i.now{background:var(--coral);}
+.q-body{display:flex;gap:14px;align-items:flex-start;margin:14px 0 18px;}
+.q-body .icon{
+  width:64px;height:64px;flex:0 0 64px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.q-body .icon svg{width:40px;height:40px;}
+.q-body p{font-size:1.06rem;font-weight:700;color:var(--navy);line-height:1.8;}
+.ans-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.ans-btn{
+  min-height:64px;border-radius:18px;cursor:pointer;
+  font-size:1.1rem;font-weight:800;letter-spacing:.06em;
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  border:2.5px solid;transition:transform .12s;
+}
+.ans-btn:active{transform:scale(.97);}
+.ans-btn svg{width:26px;height:26px;}
+.ans-btn.yes{background:var(--green-bg);border-color:var(--green-border);color:var(--green);}
+.ans-btn.no{background:var(--red-bg);border-color:var(--red-border);color:var(--red-dark);}
+.ans-btn:disabled{opacity:.45;cursor:default;}
+.verdict{
+  display:none;margin-top:18px;background:var(--white);
+  border:2px solid var(--amber-border);border-radius:20px;
+  padding:18px 18px 16px;
+}
+.verdict.show{display:block;}
+.verdict-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+.verdict-answer{font-size:1.25rem;font-weight:800;color:var(--navy);}
+.result-chip{
+  font-size:.85rem;font-weight:800;padding:4px 14px;border-radius:999px;
+}
+.result-chip.correct{background:var(--green-bg);color:var(--green);}
+.result-chip.wrong{background:var(--red-bg);color:var(--red-dark);}
+.verdict .expl{font-size:.97rem;line-height:1.95;margin-bottom:12px;}
+.verdict .kv{
+  font-size:.92rem;line-height:1.85;background:var(--sky-bg);
+  border-radius:12px;padding:9px 13px;margin-top:8px;
+}
+.verdict .kv b{color:var(--sky);}
+.verdict .kv.kv-wana{background:var(--red-bg);}
+.verdict .kv.kv-wana b{color:var(--red-dark);}
+.btn-primary{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  width:100%;min-height:58px;margin-top:16px;
+  background:linear-gradient(135deg,#cf4a22,#c2401c);
+  color:#fff;font-size:1.05rem;font-weight:800;letter-spacing:.04em;
+  border:none;border-radius:18px;cursor:pointer;
+  box-shadow:0 5px 14px rgba(194,64,28,.34);
+}
+.btn-primary:active{transform:translateY(1px);}
+.btn-primary svg{width:22px;height:22px;stroke:#fff;}
+.btn-ghost{
+  display:block;width:100%;min-height:50px;margin-top:12px;
+  background:var(--white);color:var(--navy-2);
+  font-size:.95rem;font-weight:700;
+  border:2px solid var(--sky-border);border-radius:16px;cursor:pointer;
+}
+.btn-ghost:active{background:var(--sky-bg);}
+.quiz-done{display:none;}
+.quiz-done.show{display:block;}
+.quiz-done .score{
+  font-size:1.15rem;font-weight:800;color:var(--navy);
+  text-align:center;margin:8px 0 6px;
+}
+.quiz-done .score .num{font-size:2rem;color:var(--coral-text);}
+.quiz-done .cmt{
+  background:var(--white);border-radius:16px;padding:14px 16px;
+  font-size:.97rem;line-height:1.95;margin:14px 0;
+  border:2px solid var(--amber-border);
+}
+.wrong-list{margin:14px 0;}
+.wrong-list h4{font-size:.95rem;color:var(--navy);margin-bottom:8px;}
+.wrong-list .w-item{
+  background:var(--white);border-radius:14px;padding:11px 14px;
+  font-size:.9rem;line-height:1.8;margin-bottom:8px;
+  border-left:4px solid var(--coral);box-shadow:var(--shadow-sm);
+}
+
+/* ---------- セクション3：払込免除の解剖 ---------- */
+.type-table-box{
+  background:var(--white);border-radius:22px;box-shadow:var(--shadow-sm);
+  padding:18px 14px;margin:8px 0 24px;overflow-x:auto;
+}
+.type-table{width:100%;border-collapse:collapse;min-width:520px;font-size:.9rem;}
+.type-table th,.type-table td{
+  padding:10px 10px;text-align:center;border-bottom:1.5px solid var(--line);
+  line-height:1.7;vertical-align:middle;
+}
+.type-table th{background:var(--navy-soft);color:var(--navy);font-size:.86rem;}
+.type-table th:first-child{border-radius:12px 0 0 12px;}
+.type-table th:last-child{border-radius:0 12px 12px 0;}
+.type-table td:first-child{text-align:left;font-weight:700;color:var(--navy);font-size:.88rem;}
+.type-table small{display:block;color:var(--muted);font-weight:500;font-size:.81rem;}
+.mark-ok,.mark-ng,.mark-tri{font-weight:800;font-size:1.05rem;}
+.mark-ok{color:var(--green);}
+.mark-ng{color:var(--red);}
+.mark-tri{color:var(--amber);}
+.sim-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px;margin-top:26px;
+}
+.sim-box h3{font-size:1.12rem;color:var(--navy);margin-bottom:4px;}
+.sim-box .sub{font-size:.9rem;color:var(--muted);margin-bottom:18px;}
+.sim-ctrl{margin-bottom:18px;}
+.sim-ctrl label{
+  display:flex;justify-content:space-between;align-items:baseline;
+  font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:6px;
+}
+.sim-ctrl label output{color:var(--coral-text);font-size:1.15rem;font-weight:800;}
+input[type=range]{
+  width:100%;height:34px;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;
+}
+input[type=range]::-webkit-slider-runnable-track{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--sunny),var(--coral));}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:28px;height:28px;border-radius:50%;
+  background:var(--white);border:3px solid var(--coral);margin-top:-9px;
+  box-shadow:var(--shadow-sm);
+}
+input[type=range]::-moz-range-track{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--sunny),var(--coral));}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--white);border:3px solid var(--coral);}
+.sim-check{
+  display:flex;align-items:center;gap:10px;
+  background:var(--sky-bg);border-radius:14px;padding:11px 14px;
+  font-size:.95rem;font-weight:700;color:var(--navy);cursor:pointer;
+}
+.sim-check input{width:22px;height:22px;accent-color:var(--sky);}
+.timeline{margin:48px 0 8px;}
+.tl-track{
+  position:relative;height:14px;border-radius:7px;background:#f0e4d8;
+}
+.tl-fill{
+  position:absolute;left:0;top:0;height:14px;border-radius:7px;
+  background:linear-gradient(90deg,var(--sunny),var(--coral));
+  transition:width .2s;
+}
+.tl-goal{
+  position:absolute;top:-34px;transform:translateX(-50%);
+  font-size:.81rem;font-weight:800;color:var(--red-dark);
+  text-align:center;line-height:1.3;white-space:nowrap;
+}
+.tl-goal::after{
+  content:"";display:block;width:3px;height:30px;margin:2px auto 0;
+  background:var(--red);border-radius:2px;
+}
+.tl-labels{display:flex;justify-content:space-between;font-size:.81rem;color:var(--muted);margin-top:6px;}
+.sim-results{display:grid;grid-template-columns:1fr;gap:12px;margin-top:20px;}
+@media(min-width:700px){.sim-results{grid-template-columns:repeat(3,1fr);}}
+.sim-r{
+  border-radius:18px;padding:14px 15px;border:2px solid var(--line);background:var(--bg);
+}
+.sim-r h4{font-size:.9rem;color:var(--navy);margin-bottom:6px;line-height:1.6;}
+.sim-r h4 small{display:block;font-weight:500;color:var(--muted);font-size:.8rem;}
+.sim-r .r-chip{
+  display:inline-block;font-size:.95rem;font-weight:800;
+  padding:5px 16px;border-radius:999px;margin-bottom:6px;
+}
+.sim-r.ok{border-color:var(--green-border);background:var(--green-bg);}
+.sim-r.ok .r-chip{background:var(--white);color:var(--green);}
+.sim-r.ng{border-color:var(--red-border);background:var(--red-bg);}
+.sim-r.ng .r-chip{background:var(--white);color:var(--red-dark);}
+.sim-r p{font-size:.84rem;color:var(--muted);line-height:1.75;}
+
+/* ---------- セクション4：あるある劇場 ---------- */
+.case-grid{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.case-grid{grid-template-columns:repeat(2,1fr);}}
+.case-card{
+  display:flex;align-items:center;gap:14px;text-align:left;
+  background:var(--white);border:none;border-radius:20px;
+  padding:16px 16px;cursor:pointer;box-shadow:var(--shadow);
+  font-family:inherit;transition:transform .12s;
+}
+.case-card:active{transform:scale(.985);}
+.case-card .art{
+  width:64px;height:64px;flex:0 0 64px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+}
+.case-card .art svg{width:42px;height:42px;}
+.case-card .t{flex:1;}
+.case-card .chip{
+  display:inline-block;font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:4px;
+}
+.case-card h3{font-size:.99rem;color:var(--navy);line-height:1.6;}
+.case-card .more{
+  font-size:.8rem;color:var(--coral-text);font-weight:700;
+  display:inline-flex;align-items:center;gap:4px;margin-top:4px;
+}
+.case-card .more svg{width:14px;height:14px;stroke:var(--coral-text);}
+.c-red{background:var(--red-bg);color:var(--red-dark);}
+.c-blue{background:var(--sky-bg);color:var(--sky);}
+.c-green{background:var(--green-bg);color:var(--green);}
+.c-amber{background:var(--amber-bg);color:var(--amber-deep);}
+.c-berry{background:var(--berry-bg);color:var(--berry);}
+.case-card .amt{
+  display:inline-block;margin-left:7px;
+  font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;
+  background:var(--white);color:var(--green);border:1.5px solid var(--green-border);
+}
+
+/* ---------- セクション5：逆転劇場 ---------- */
+#sec5 .case-card{box-shadow:0 6px 20px rgba(60,120,80,.12);}
+.model-note{
+  background:var(--white);border-radius:18px;padding:14px 18px;margin-bottom:18px;
+  border-left:6px solid var(--mint);box-shadow:var(--shadow-sm);
+}
+.model-note strong{display:block;font-size:.92rem;color:var(--green);margin-bottom:4px;}
+.model-note .mn-row{display:block;font-size:.95rem;line-height:1.9;color:var(--navy);}
+.model-note .mn-row b{color:var(--coral-text);}
+.model-note .mn-note{display:block;font-size:.82rem;color:var(--muted);line-height:1.8;margin-top:6px;}
+.rule3-box{
+  margin-top:28px;background:var(--white);border-radius:22px;
+  padding:20px 20px 16px;box-shadow:var(--shadow-sm);
+}
+.rule3-box h3{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.06rem;color:var(--navy);margin-bottom:12px;
+}
+.rule3-box h3 svg{width:24px;height:24px;flex:0 0 24px;stroke:var(--green);}
+.rule3-box ol{list-style:none;counter-reset:r3;}
+.rule3-box ol li{
+  counter-increment:r3;position:relative;
+  padding:0 0 12px 44px;font-size:.95rem;line-height:1.9;
+}
+.rule3-box ol li::before{
+  content:counter(r3);position:absolute;left:0;top:2px;
+  width:30px;height:30px;border-radius:50%;
+  background:var(--green-bg);color:var(--green);
+  font-weight:800;font-size:1rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.rule3-note{font-size:.8rem;color:var(--muted);border-top:1.5px dashed var(--line);padding-top:10px;line-height:1.8;}
+/* ---------- モーダル ---------- */
+.cmodal{position:fixed;inset:0;z-index:60;display:none;}
+.cmodal.show{display:block;}
+.cmodal-back{position:absolute;inset:0;background:rgba(40,30,25,.5);}
+.cmodal-panel{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(94vw,640px);max-height:88vh;overflow-y:auto;
+  background:var(--white);border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.25);
+  -webkit-overflow-scrolling:touch;
+}
+.cmodal-head{
+  position:sticky;top:0;display:flex;gap:14px;align-items:center;
+  background:var(--white);padding:18px 52px 12px 20px;
+  border-bottom:1.5px solid var(--line);z-index:2;
+}
+.cmodal-close{
+  position:absolute;right:12px;top:12px;
+  width:40px;height:40px;border-radius:50%;
+  background:var(--bg);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.cmodal-close svg{width:18px;height:18px;stroke:var(--navy);}
+.cmodal-ico{
+  width:56px;height:56px;flex:0 0 56px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+}
+.cmodal-ico svg{width:38px;height:38px;}
+.cmodal-chip{
+  display:inline-block;font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:3px;
+}
+.cmodal-title{font-size:1.08rem;color:var(--navy);line-height:1.55;}
+.cmodal-body{padding:16px 20px 22px;}
+.cmodal-block{margin-bottom:18px;}
+.cmodal-label{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:.86rem;font-weight:800;padding:5px 14px;border-radius:999px;margin-bottom:9px;
+}
+.cmodal-label svg{width:17px;height:17px;}
+.lb-blue{background:var(--sky-bg);color:var(--sky);}
+.lb-blue svg{stroke:var(--sky);}
+.lb-red{background:var(--red-bg);color:var(--red-dark);}
+.lb-red svg{stroke:var(--red-dark);}
+.lb-green{background:var(--green-bg);color:var(--green);}
+.lb-green svg{stroke:var(--green);}
+.cmodal-quote{
+  background:var(--bg);border-left:4px solid var(--coral);
+  border-radius:0 14px 14px 0;padding:12px 15px;
+  font-size:.95rem;line-height:1.9;color:var(--text);
+}
+.cmodal-quote small{display:block;text-align:right;color:var(--muted);margin-top:4px;font-size:.8rem;}
+.cmodal-p{font-size:.95rem;line-height:1.95;margin-bottom:8px;}
+.cmodal-note{
+  font-size:.8rem;color:var(--muted);line-height:1.8;margin-top:14px;
+  border-top:1.5px dashed var(--line);padding-top:12px;
+}
+
+/* ---------- まとめ・チェックリスト ---------- */
+.score-box{
+  background:var(--sky-bg);border-radius:20px;padding:18px 18px 14px;margin-bottom:24px;
+}
+.score-box h3{
+  display:flex;align-items:center;gap:8px;
+  font-size:1.02rem;color:var(--navy);margin-bottom:8px;
+}
+.score-box h3 svg{width:22px;height:22px;stroke:var(--sky);}
+.score-box p{font-size:.95rem;line-height:1.9;}
+.checklist{display:grid;grid-template-columns:1fr;gap:10px;}
+.chk-group{
+  font-size:.9rem;font-weight:800;color:var(--amber-deep);
+  margin:14px 0 2px;letter-spacing:.03em;
+}
+.chk-group:first-child{margin-top:0;}
+.chk{
+  display:flex;align-items:center;gap:12px;
+  background:var(--bg);border:2px solid var(--line);border-radius:16px;
+  padding:12px 14px;cursor:pointer;font-size:.95rem;line-height:1.7;
+  transition:border-color .15s, background .15s;
+}
+.chk input{width:24px;height:24px;flex:0 0 24px;accent-color:var(--green);cursor:pointer;}
+.chk .art{
+  width:44px;height:44px;flex:0 0 44px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.chk .art svg{width:28px;height:28px;}
+.chk:has(input:checked){background:var(--green-bg);border-color:var(--green-border);}
+.chk-msg{
+  margin-top:16px;background:var(--amber-bg);border-radius:16px;
+  padding:14px 16px;font-size:.95rem;line-height:1.9;
+}
+details.finder{
+  margin-top:26px;background:var(--bg);border-radius:18px;
+  padding:4px 18px;border:1.5px solid var(--line);
+}
+details.finder summary{
+  cursor:pointer;font-size:.98rem;font-weight:700;color:var(--navy);
+  padding:12px 0;list-style-position:inside;
+}
+details.finder ul{padding:2px 0 8px 22px;font-size:.92rem;color:var(--text);}
+details.finder li{margin-bottom:7px;line-height:1.85;}
+details.finder p{font-size:.92rem;padding:0 0 14px;line-height:1.9;}
+
+/* ---------- CTA ---------- */
+.cta-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:24px 20px;margin-top:30px;text-align:center;
+}
+.cta-box h3{font-size:1.2rem;color:var(--navy);margin-bottom:8px;line-height:1.6;}
+.cta-box .cta-lead{font-size:.95rem;color:var(--muted);text-align:left;margin-bottom:14px;line-height:1.95;}
+.cta-box ul{list-style:none;text-align:left;margin-bottom:14px;}
+.cta-box ul li{
+  display:flex;gap:9px;align-items:flex-start;
+  font-size:.94rem;line-height:1.85;margin-bottom:6px;
+}
+.cta-box ul li svg{width:19px;height:19px;flex:0 0 19px;stroke:var(--mint);margin-top:6px;}
+.co{font-size:.98rem;font-weight:800;color:var(--navy);margin-top:18px;}
+.addr{font-size:.87rem;color:var(--muted);line-height:1.7;}
+.tip{font-size:.87rem;color:var(--amber-deep);margin-top:10px;}
+.cta-mini{
+  margin-top:18px;background:var(--bg);border:2px solid var(--amber-border);
+  border-radius:18px;padding:14px 16px;text-align:center;
+}
+.cta-mini p{font-size:.92rem;line-height:1.85;margin-bottom:10px;text-align:left;}
+.cta-mini a{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--white);border:2px solid var(--coral);
+  color:var(--coral-text);text-decoration:none;font-weight:800;font-size:.95rem;
+  border-radius:999px;padding:9px 20px;
+}
+.cta-mini a svg{width:18px;height:18px;stroke:var(--coral-text);}
+
+
+/* ---------- フッター免責 ---------- */
+footer.disclaimer{
+  padding:26px 16px 30px;max-width:900px;margin:0 auto;
+}
+footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
+
+@media print{
+  .hero-nav,.cta-mini{display:none !important;}
+  body{background:#fff;}
+}
+
+/* ---------- このページ独自：シミュレーターの合計表示 ---------- */
+.sim-total{
+  background:var(--navy-soft);border-radius:18px;
+  padding:15px 16px;margin-top:18px;text-align:center;
+}
+.sim-total .lead{font-size:.88rem;color:var(--muted);line-height:1.8;margin-bottom:6px;}
+.sim-total .big{
+  display:block;font-size:1.5rem;font-weight:800;color:var(--navy);line-height:1.6;
+}
+.sim-total .big b{color:var(--coral-text);font-size:1.9rem;}
+.sim-total .sub2{display:block;font-size:.88rem;color:var(--muted);line-height:1.8;margin-top:6px;}
+/* 使いみちの色分け（出ていくお金／戻るお金） */
+.tl-fill.back{background:linear-gradient(90deg,var(--mint),var(--green));}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brand"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg></span>
+      <span>株式会社Office-M<small>会計を母体に、数字の「小さな字」まで読み解いてご案内します</small></span></div>
+    <div class="hero-flex">
+      <div class="hero-copy">
+        <h1>「内縁でも長く一緒にいれば、<br>相続人になれる」<span class="nowrap"><span class="accent">本当に</span>そう？</span></h1>
+        <p class="lead">「長年連れ添った内縁のパートナーなら、当然相続人になれるはず」。逆に「血がつながっていれば、何世代先でも相続人になれる」。<strong>この2つは、どちらも正確ではありません</strong>。法律上の相続人になれるかどうかは、婚姻届や順位・代襲のルールという<strong>形式</strong>で決まり、一緒に暮らした年数や血のつながりの濃さでは決まりません。このページでは、だれが相続人になるのか・順位はどう決まるのか・代襲相続はどこまで続くのか、の3つを図と例で整理します。○×クイズは3分、全部読んでも10分ほどです。</p>
+        <nav class="hero-nav" aria-label="ページ内メニュー">
+          <a href="#sec1"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h9"/></svg>3つの線引き</a>
+          <a href="#sec2"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/></svg>○×ワナクイズ</a>
+          <a href="#sec3"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="16" r="3"/><path d="M18 6 6 18"/></svg>代襲相続を解剖</a>
+          <a href="#sec4"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0-3.3 11 3 3 0 0 1 1.1 1.9l.03.35h4.34l.03-.35a3 3 0 0 1 1.1-1.9A6 6 0 0 0 12 3Z"/><path d="M9.8 19.2h4.4M10.7 21.7h2.6"/></svg>あるある劇場</a>
+          <a href="#sec5"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="8" width="17" height="12.5" rx="2.5"/><path d="M3.5 12h17M12 8v12.5"/></svg>逆転劇場</a>
+          <a href="#sec6"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5h16M7 16V9.5M12 16V5.5M17 16v-4"/></svg>相続人の数字</a>
+        </nav></div>
+      <div class="hero-scene" aria-hidden="true">
+        <svg viewBox="0 0 360 212">
+          <circle cx="310" cy="38" r="32" fill="#ffd9a8" opacity=".45"/><circle cx="310" cy="38" r="21" fill="#f7c34e"/><ellipse cx="60" cy="32" rx="26" ry="10" fill="#fff" opacity=".95"/>
+          <path d="M0 168h360v44H0Z" fill="#ffe9c7"/><path d="M0 176c40-10 90-12 150-8 60 4 120 4 210-6v50H0Z" fill="#b3e3b8"/>
+          <rect x="118" y="92" width="72" height="62" rx="6" fill="#fffdf8" stroke="#efe2d8" stroke-width="3"/>
+          <path d="M130 108h48M130 122h48M130 136h30" stroke="#cbb9a8" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="248" cy="88" r="14" fill="#fdeee9" stroke="#c2453f" stroke-width="3"/>
+          <path d="M241 81l14 14M255 81l-14 14" stroke="#c2453f" stroke-width="3"/>
+          <path d="M248 102v18" stroke="#8f6015" stroke-width="3"/>
+          <circle cx="248" cy="136" r="16" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="3"/>
+          <path d="M241 136h14M248 129v14" stroke="#2c7a4b" stroke-width="3"/>
+          <path d="M20 180c0-15 6.5-33 15-33s15 18 15 33v2H20Z" fill="#63b8dd"/><circle cx="35" cy="136" r="11" fill="#f7cdb4"/><path d="M24 134c1-9 5.5-13 11-13s10 4 11 13c-3.3-4-7-5.3-11-5.3s-7.7 1.3-11 5.3Z" fill="#5c4030"/>
+          <circle cx="31" cy="136.5" r="1.4" fill="#3d3028"/><circle cx="39" cy="136.5" r="1.4" fill="#3d3028"/><path d="M32 141c1.4 1.5 4 1.5 5.4 0" fill="none" stroke="#3d3028" stroke-width="1.4" stroke-linecap="round"/>
+        </svg></div>
+    </div></div>
+</header>
+
+<section id="sec1">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="step-pill"><i>1</i><span>まず3本の線を引きます</span></span>
+      <h2>だれが相続人に<span class="nowrap">なるのか</span></h2></div>
+      <div class="spot"><span class="spot-circle" data-art="spotLine" aria-hidden="true"></span></div></div>
+    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">相続人の話がややこしく感じるのは、性質のちがう線が3本まざっているからです。ここでは「だれが相続人になるか（順位の線）」「先に亡くなっていたらどうなるか（世代の線）」「戸籍の上でどういう関係か（形式の線）」を、1本ずつ順番に引いていきます。この3本さえ分かれば、あとは手元の戸籍に当てはめるだけです。</p></div>
+    <p class="qlink-lead"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/></svg>この3つ、答えられますか？</p>
+    <div class="qlinks">
+      <a class="qlink" href="#def-1"><span class="pair">順位<span class="vs">は</span>誰から？</span><span class="ask">配偶者以外に、子・父母・兄弟姉妹が同時に相続人になることはあるでしょうか。</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></a>
+      <a class="qlink" href="#def-2"><span class="pair">代襲<span class="vs">は</span>どこまで？</span><span class="ask">孫のさらに子（ひ孫）や、甥・姪の子は相続人になれるでしょうか。</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></a>
+      <a class="qlink" href="#def-3"><span class="pair">内縁<span class="vs">は</span>相続人？</span><span class="ask">何十年連れ添っても、婚姻届を出していないと相続人にはなれないのでしょうか。</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></a>
+    </div>
+
+    <div class="def-block" id="def-1">
+      <h3 class="def-h"><span class="def-ico ic-blue" data-art="icUpgrade" aria-hidden="true"></span>1本目：だれが相続人になるのか（順位の線）</h3>
+      <p class="def-lead">相続人になれるのは、配偶者と、法律で決められた順位に該当する人だけです。<strong>配偶者はどんな場合でも常に相続人</strong>になります。それに加えて、第1順位の子がいれば子が、子（や代襲する孫）が誰もいなければ第2順位の父母などの直系尊属が、それもいなければ第3順位の兄弟姉妹が相続人になります。先の順位の人が1人でもいれば、後の順位の人には出番が回ってきません。</p>
+      <p class="age-note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <span>配偶者と子がいる場合の法定相続分は、配偶者が2分の1、子が2分の1です。<b>子が複数いれば、2分の1をさらに人数で均等に分けます</b>。<small>根拠：民法900条（法定相続分）。2026年8月時点の一般的な取扱いです。</small></span></p>
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="第1順位の子がいれば子が相続人になり、第2・3順位の父母や兄弟姉妹は相続人にならないことを示す図。">
+          <text x="260" y="30" text-anchor="middle" font-size="19" font-weight="bold" fill="#1b3f5e">相続人になる順位</text>
+          <rect x="30" y="48" width="460" height="160" rx="18" fill="#eaf1f7"/><rect x="44" y="62" width="286" height="132" rx="12" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="3"/>
+          <text x="187" y="100" text-anchor="middle" font-size="20" font-weight="bold" fill="#2c7a4b">第1順位</text><text x="187" y="130" text-anchor="middle" font-size="16" fill="#2c7a4b">子（実子・養子）</text>
+          <text x="187" y="158" text-anchor="middle" font-size="15" font-weight="bold" fill="#2c7a4b">配偶者はどの場合も相続人</text>
+          <path d="M338 42v172" stroke="#c2451f" stroke-width="3" stroke-dasharray="7 6"/><rect x="350" y="62" width="126" height="132" rx="12" fill="#fdeee9" stroke="#c2453f" stroke-width="3"/>
+          <text x="413" y="104" text-anchor="middle" font-size="18" font-weight="bold" fill="#a63631">第2・3順位</text><text x="413" y="132" text-anchor="middle" font-size="13" fill="#a63631">父母・兄弟姉妹</text>
+          <text x="260" y="234" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2451f">先順位が1人でもいれば独占</text><text x="260" y="266" text-anchor="middle" font-size="13.5" fill="#5c6874">子→父母→兄弟姉妹の順に検討</text>
+        </svg>
+        <p class="venn-cap">※図は相続人になる順位だけを示したものです。実際に子や父母が「いない」と扱われるかどうかは、代襲相続の有無や戸籍上の記録によって変わります。当てはめは戸籍で確認します。</p></div>
+      <div class="cards">
+        <div class="risk-card"><div class="icon ic-blue" data-art="icKazoku" aria-hidden="true"></div>
+          <h3>配偶者と子がいる</h3><span class="judge-chip ok">どちらも相続人</span>
+          <p>もっとも多い形です。配偶者は常に相続人になり、子は第1順位の相続人としてこれに加わります。<strong>子が複数いれば、その人数で分け合う</strong>形になります。</p></div>
+        <div class="risk-card"><div class="icon ic-amber" data-art="icHitori" aria-hidden="true"></div>
+          <h3>子がなく父母が健在</h3><span class="judge-chip maybe">第2順位が繰り上がる</span>
+          <p>子（と代襲する孫）が誰もいない場合、父母などの直系尊属が第2順位として相続人になります。<strong>配偶者の取り分の割合も変わります</strong>。</p></div>
+        <div class="risk-card"><div class="icon ic-red" data-art="icKyoudai" aria-hidden="true"></div>
+          <h3>子も父母もいない</h3><span class="judge-chip ng">第3順位が繰り上がる</span>
+          <p>相続人は兄弟姉妹（すでに亡くなっていれば甥・姪）になります。<strong>この順位まで来ると、配偶者の取り分はさらに大きくなります</strong>。</p></div>
+        <div class="risk-card"><div class="icon ic-green" data-art="icUpgrade" aria-hidden="true"></div>
+          <h3>先順位者が1人でもいる</h3><span class="judge-chip ok">後順位はならない</span>
+          <p>たとえば子が1人だけ健在なら、父母や兄弟姉妹がどれだけ近くで暮らしていても、<strong>相続人にはなりません</strong>。順位は上から順に独占する仕組みです。</p></div>
+      </div>
+    </div>
+
+    <div class="def-block" id="def-2">
+      <h3 class="def-h"><span class="def-ico ic-amber" data-art="icDaishuu" aria-hidden="true"></span>2本目：代襲相続と再代襲（世代の線）</h3>
+      <p class="def-lead">相続人になるはずだった人が、相続開始より前に死亡している場合、<strong>その子が代わりに相続人になります</strong>。これを代襲相続といいます。子の系統（直系卑属）は、孫が先に死亡していればひ孫へと、<strong>何代でも代襲が続きます</strong>（再代襲）。ところが兄弟姉妹の系統は、<strong>その子である甥・姪の代までで代襲が止まり</strong>、再代襲はありません。</p>
+      <p class="age-note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <span>民法は、子の代襲相続を<b>887条2項・3項で孫・ひ孫と何代でも認める</b>一方、兄弟姉妹の代襲相続は<b>889条2項で甥・姪の代までに限る</b>と定めています。<small>根拠：民法887条2項・3項、889条2項。2026年8月時点の一般的な取扱いです。</small></span></p>
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="子の系統の代襲相続は何代でも続き、兄弟姉妹の系統の代襲相続は甥・姪の代までで止まることを示す図。">
+          <text x="260" y="30" text-anchor="middle" font-size="19" font-weight="bold" fill="#1b3f5e">代襲相続の続く範囲</text>
+          <rect x="30" y="48" width="460" height="160" rx="18" fill="#eaf1f7"/><rect x="44" y="62" width="286" height="132" rx="12" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="3"/>
+          <text x="187" y="100" text-anchor="middle" font-size="20" font-weight="bold" fill="#2c7a4b">子の系統</text><text x="187" y="130" text-anchor="middle" font-size="16" fill="#2c7a4b">孫→ひ孫→ずっと続く</text>
+          <text x="187" y="158" text-anchor="middle" font-size="15" font-weight="bold" fill="#2c7a4b">再代襲は無制限</text>
+          <path d="M338 42v172" stroke="#c2451f" stroke-width="3" stroke-dasharray="7 6"/><rect x="350" y="62" width="126" height="132" rx="12" fill="#fdeee9" stroke="#c2453f" stroke-width="3"/>
+          <text x="413" y="104" text-anchor="middle" font-size="18" font-weight="bold" fill="#a63631">甥・姪まで</text><text x="413" y="132" text-anchor="middle" font-size="13" fill="#a63631">再代襲なし</text>
+          <text x="260" y="234" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2451f">甥姪の子には引き継がれない</text><text x="260" y="266" text-anchor="middle" font-size="13.5" fill="#5c6874">系統で範囲が違う点に注意</text>
+        </svg>
+        <p class="venn-cap">※代襲相続人になるには、本来の相続人が先に死亡している事実を戸籍で証明する必要があります。図は続く範囲の違いだけを示したもので、個別の当てはめは戸籍で確認します。</p></div>
+      <div class="cards">
+        <div class="risk-card"><div class="icon ic-blue" data-art="icDaishuu" aria-hidden="true"></div>
+          <h3>子が先に死亡・孫がいる</h3><span class="judge-chip ok">代襲相続する</span>
+          <p>本来相続人になるはずだった子が相続開始より前に死亡している場合、<strong>その子である孫が代わりに相続人になります</strong>。孫が複数いれば人数で分けます。</p></div>
+        <div class="risk-card"><div class="icon ic-green" data-art="icDaishuu" aria-hidden="true"></div>
+          <h3>孫も先に死亡・ひ孫がいる</h3><span class="judge-chip ok">再代襲する</span>
+          <p>孫もさらに先に死亡していた場合、<strong>そのまた子であるひ孫が相続人になります</strong>（再代襲）。子の系統は、この代襲が何代でも続きます。</p></div>
+        <div class="risk-card"><div class="icon ic-amber" data-art="icKyoudai" aria-hidden="true"></div>
+          <h3>兄弟姉妹が先に死亡・甥姪がいる</h3><span class="judge-chip maybe">代襲相続する</span>
+          <p>兄弟姉妹が相続人になるはずだった場合も代襲の仕組みはあります。<strong>先に死亡していれば、その子である甥・姪が代わりに相続人になります</strong>。</p></div>
+        <div class="risk-card"><div class="icon ic-red" data-art="icKyoudai" aria-hidden="true"></div>
+          <h3>甥姪も先に死亡・その子がいる</h3><span class="judge-chip ng">再代襲しない</span>
+          <p>子の系統と違い、<strong>兄弟姉妹の系統の代襲は甥・姪の代までで止まります</strong>。甥・姪がさらに先に死亡していても、その子には引き継がれません。</p></div>
+      </div>
+    </div>
+
+    <div class="def-block" id="def-3">
+      <h3 class="def-h"><span class="def-ico ic-red" data-art="icNaien" aria-hidden="true"></span>3本目：内縁・離婚した配偶者・養子（形式の線）</h3>
+      <p class="def-lead">相続人になるかどうかは、実質的な関係の深さではなく、<strong>戸籍に記録された「形式」で決まります</strong>。長年連れ添った内縁のパートナーは、どれだけ実質的な夫婦であっても法律上の相続人にはなりません。離婚が成立した元配偶者も同様です。一方で、養子は養子縁組の届出により、<strong>実子と同じ扱いで相続人になります</strong>。</p>
+      <p class="age-note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <span>法律上の配偶者になるための婚姻は、<b>民法739条により「戸籍法の定めるところにより届け出ることによって、その効力を生ずる」</b>と定められています。<small>根拠：民法739条・887条1項。2026年8月時点の一般的な取扱いです。</small></span></p>
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="婚姻届を出した配偶者と養子は相続人になり、内縁の配偶者と離婚した元配偶者は相続人にならないことを示す図。">
+          <text x="260" y="30" text-anchor="middle" font-size="19" font-weight="bold" fill="#1b3f5e">婚姻届の有無が分かれ目</text>
+          <rect x="30" y="48" width="460" height="160" rx="18" fill="#eaf1f7"/><rect x="44" y="62" width="286" height="132" rx="12" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="3"/>
+          <text x="187" y="100" text-anchor="middle" font-size="20" font-weight="bold" fill="#2c7a4b">配偶者・養子</text><text x="187" y="130" text-anchor="middle" font-size="16" fill="#2c7a4b">婚姻・養子縁組</text>
+          <text x="187" y="158" text-anchor="middle" font-size="15" font-weight="bold" fill="#2c7a4b">戸籍に記録された関係</text>
+          <path d="M338 42v172" stroke="#c2451f" stroke-width="3" stroke-dasharray="7 6"/><rect x="350" y="62" width="126" height="132" rx="12" fill="#fdeee9" stroke="#c2453f" stroke-width="3"/>
+          <text x="413" y="104" text-anchor="middle" font-size="18" font-weight="bold" fill="#a63631">対象外</text><text x="413" y="132" text-anchor="middle" font-size="13" fill="#a63631">内縁・元配偶者</text>
+          <text x="260" y="234" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2451f">内縁は届出がないだけで対象外</text><text x="260" y="266" text-anchor="middle" font-size="13.5" fill="#5c6874">養子は実子と全く同じ扱い</text>
+        </svg>
+        <p class="venn-cap">※図は法律婚と養子縁組を基準にした一般的な整理です。特別養子縁組の場合は実の父母との親子関係が終了するなど、養子の種類により扱いが異なります。</p></div>
+      <div class="cards">
+        <div class="risk-card"><div class="icon ic-blue" data-art="icKazoku" aria-hidden="true"></div>
+          <h3>婚姻届を出している配偶者</h3><span class="judge-chip ok">相続人になる</span>
+          <p>法律上の婚姻関係にあれば、婚姻期間の長さに関係なく<strong>常に相続人になります</strong>。別居中であっても、離婚が成立していなければ変わりません。</p></div>
+        <div class="risk-card"><div class="icon ic-red" data-art="icNaien" aria-hidden="true"></div>
+          <h3>内縁の配偶者（婚姻届なし）</h3><span class="judge-chip ng">相続人にならない</span>
+          <p>どれだけ長く実質的な夫婦生活を送っていても、<strong>婚姻届を提出していなければ法律上の相続人にはなりません</strong>。財産を残すには別の備えが必要です。</p></div>
+        <div class="risk-card"><div class="icon ic-red" data-art="icRikon" aria-hidden="true"></div>
+          <h3>離婚が成立した元配偶者</h3><span class="judge-chip ng">相続人にならない</span>
+          <p>離婚が成立した時点で、法律上の配偶者ではなくなります。<strong>財産分与の話し合いが残っていても、相続人としての地位には影響しません</strong>。</p></div>
+        <div class="risk-card"><div class="icon ic-green" data-art="icYoushi" aria-hidden="true"></div>
+          <h3>養子縁組した子</h3><span class="judge-chip ok">実子と同じ扱い</span>
+          <p>養子縁組の届出をした養子は、<strong>実子と同じ順位・同じ割合で相続人になります</strong>。普通養子の場合、実の父母の相続人にもなり得ます。</p></div>
+      </div>
+    </div>
+    <div class="note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>3本の線に共通するのは、<strong>「一緒に暮らしていたか」より先に「戸籍上どういう関係か」を確認しないと何も始まらない</strong>ということです。戸籍をたどる作業が、結局はいちばんの近道になります。なお、相続人が受け取る財産にかかる相続税の計算は別の制度です。個別の税額計算・申告については税理士にご確認ください。</span></div>
+  </div></section>
+
+<!-- ================= セクション2：○×クイズ ================= -->
+<section id="sec2" class="band round-top">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="step-pill"><i>2</i><span>思い込みをチェック</span></span>
+      <h2>なる？ならない？　<span class="nowrap">○×</span>クイズ8問</h2></div>
+      <div class="spot"><span class="spot-circle" data-art="spotQuiz" aria-hidden="true"></span></div></div>
+    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">ここからは8問の○×クイズです。すべて実在の決まりごとがモデルで、思いつきで作った問題はひとつもありません。半分正解できれば十分です。間違えた問題は最後にリストとして残りますので、そのまま「調べること」のメモとしてお持ち帰りください。</p></div>
+    <div class="quiz-shell">
+      <div id="quizPlay">
+        <div class="q-top">
+          <div class="q-count">質問 <span id="qNum">1</span> ／ 8</div>
+          <div class="dots" id="qDots" aria-hidden="true"></div>
+        </div>
+        <div class="q-body">
+          <div class="icon" id="qIcon" aria-hidden="true"></div>
+          <p id="qText"></p>
+        </div>
+        <div class="ans-row">
+          <button type="button" class="ans-btn yes" id="btnYes">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/></svg>
+            <span id="lblYes">なる</span>
+          </button>
+          <button type="button" class="ans-btn no" id="btnNo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            <span id="lblNo">ならない</span>
+          </button>
+        </div>
+        <div class="verdict" id="verdict" aria-live="polite">
+          <div class="verdict-head">
+            <span class="verdict-answer" id="vAnswer"></span>
+            <span class="result-chip" id="vChip"></span>
+          </div>
+          <p class="expl" id="vExpl"></p>
+          <div class="kv kv-wana"><b>ワナの正体：</b><span id="vWana"></span></div>
+          <div class="kv"><b>確認ポイント：</b><span id="vCheck"></span></div>
+        </div>
+        <button type="button" class="btn-primary" id="btnNext" style="display:none;">
+          次の質問へ
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+        <button type="button" class="btn-ghost" id="btnStopHere" style="display:none;">ここまでの結果を見る（残りはあとでも大丈夫です）</button>
+      </div>
+
+      <div class="quiz-done" id="quizDone">
+        <p class="score">クイズおつかれさまでした！　<span class="nowrap"><span id="doneTotal">8</span>問中 <span class="num" id="doneScore">0</span> 問正解</span></p>
+        <p class="cmt" id="doneCmt"></p>
+        <div class="wrong-list" id="wrongList" style="display:none;"></div>
+        <div data-cta-mini></div>
+        <button type="button" class="btn-ghost" id="btnMailSelf">この結果を自分（またはご家族）に送る</button>
+        <button type="button" class="btn-ghost" id="btnPrint">印刷して戸籍謄本や家系図と一緒に保管する</button>
+        <button type="button" class="btn-ghost" id="btnRetry">もう一度挑戦する</button>
+      </div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>各問は一般的な取扱いを前提とした例で、実際の結論は戸籍上の関係・婚姻や離婚の時期・養子縁組の有無など、事実関係によって変わります。「うちはどっちだろう」と迷ったところが、手元の戸籍を確認するタイミングです。</span>
+    </div>
+  </div>
+</section>
+
+<section id="sec3" class="band-sky round-top">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="step-pill"><i>3</i><span>いちばん多い誤解</span></span>
+      <h2>「代襲相続」を<span class="nowrap">解剖する</span></h2></div>
+      <div class="spot"><span class="spot-circle" data-art="spotCalc" aria-hidden="true"></span></div></div>
+    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">「代襲相続は血がつながっていれば何代でも続く」。この覚え方は、子の系統では正しく、兄弟姉妹の系統では外れます。ここでは系統ごとの続く範囲を表にして、そのあとで法定相続分を出すシミュレーターを置きました。数字で見たほうが、線引きの意味がはっきりします。</p></div>
+    <p class="sec-lead">下の表は、本来の相続人が先に死亡していた場合に、代襲がどこまで続くのかを系統別に並べたものです。左の列が世代、右の2列が子の系統と兄弟姉妹の系統です。</p>
+    <div class="type-table-box">
+      <table class="type-table" aria-label="子の系統と兄弟姉妹の系統で代襲相続の続く範囲を比べた表">
+        <thead><tr><th>代襲する世代</th><th>子の系統<small>孫・ひ孫</small></th><th>兄弟姉妹の系統<small>甥・姪</small></th></tr></thead>
+        <tbody>
+          <tr><td>一代下（孫／甥姪）</td><td><span class="mark-ok">相続人になる</span></td><td><span class="mark-ok">相続人になる</span></td></tr>
+          <tr><td>二代下（ひ孫／甥姪の子）</td><td><span class="mark-ok">相続人になる</span></td><td>相続人にならない</td></tr>
+          <tr><td>三代下以降</td><td>再代襲が続く</td><td>―（対象外）</td></tr>
+        </tbody></table>
+      <p class="venn-cap">※法定相続分をもとにした一般的な整理です。相続人になるためには、先順位者が先に死亡している事実を戸籍で証明する必要があります。表は2026年8月時点の民法の定めにもとづく一般的な整理で、個別の事案の結論を示すものではありません。</p></div>
+    <p class="sec-lead">では、続く範囲ではなく金額にすると、どれくらいの規模の話になるのでしょうか。ご自身の状況に近い数字を入れてみてください。</p>
+    <div class="sim-box">
+      <h3>体感シミュレーター「わたしの法定相続分は、どれくらい？」</h3>
+      <p class="sub">続柄と家族構成を選ぶと、法定相続分の割合と金額の目安が出ます。このページの説明用に単純化した概算です。</p>
+      <div class="sim-ctrl">
+        <label for="simA">財産の合計（借入などを差し引いた額）<output id="simAOut">5,000万円</output></label>
+        <input type="number" id="simA" value="5000" min="0" max="100000" step="100" inputmode="numeric" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;">
+        <p style="font-size:.8rem;color:#5c6874;margin-top:5px;">単位は万円。自宅の評価額と預貯金の合計から、住宅ローンなどの残債を引いた金額を入れてください（例：5000）。</p></div>
+      <div class="sim-ctrl"><label for="simB">あなたの続柄と家族構成</label>
+        <select id="simB" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;"><option value="1">配偶者と子　（あなたは子）</option><option value="2">配偶者と子　（あなたは配偶者）</option><option value="3">子のみ　（あなたは子）</option><option value="4">子が先に死亡・孫が相続　（あなたは孫）</option><option value="5">配偶者と父母　（あなたは父母）</option><option value="6">父母のみ　（あなたは父母）</option><option value="7">配偶者と兄弟姉妹　（あなたは兄弟姉妹）</option><option value="8">兄弟姉妹のみ　（あなたは兄弟姉妹）</option><option value="9">兄弟姉妹が先に死亡・甥姪が相続　（あなたは甥姪）</option><option value="10">内縁の配偶者・離婚した元配偶者</option></select></div>
+      <div class="sim-ctrl">
+        <label for="simD">同じ立場の人数（あなたを含む）<output id="simDOut">1人</output></label>
+        <input type="number" id="simD" value="1" min="1" max="10" step="1" inputmode="numeric" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;">
+        <p style="font-size:.8rem;color:#5c6874;margin-top:5px;">子の人数、父母の人数、兄弟姉妹の人数などです。あなたが配偶者の場合は結果に影響しません。</p></div>
+      <label class="sim-check"><input type="checkbox" id="simC" checked>先順位の人（子や父母など）が他にいないことを確認済みです</label>
+      <div class="timeline" aria-hidden="true"><div class="tl-track"><div class="tl-fill" id="tlFill" style="width:2%;"></div>
+          <div class="tl-goal" style="left:50%;">この位置が<br>全体の2分の1</div></div>
+        <div class="tl-labels"><span>0</span><span>財産の4分の1</span><span>財産の2分の1</span></div></div>
+      <div class="sim-results" aria-live="polite">
+        <div class="sim-r" id="simR1"><h4>相続人になるか<small>順位の確認</small></h4><span class="r-chip" id="simR1Chip"></span><p id="simR1Txt"></p></div>
+        <div class="sim-r" id="simR2"><h4>代襲にあたるか<small>世代の確認</small></h4><span class="r-chip" id="simR2Chip"></span><p id="simR2Txt"></p></div>
+        <div class="sim-r" id="simR3"><h4>法定相続分の割合<small>取り分の確認</small></h4><span class="r-chip" id="simR3Chip"></span><p id="simR3Txt"></p></div>
+      </div>
+      <div class="sim-total">
+        <span class="lead" id="simTotalLead">この条件なら</span>
+        <span class="big" id="simTotalBig"></span><span class="sub2" id="simTotalSub"></span></div>
+      <p class="venn-cap" style="margin-top:10px;">※法定相続分をもとにした概算です。遺言がある場合や、特別受益・寄与分などの個別事情、財産の評価方法の違いは考慮していません。相続税や贈与税の負担も考慮していません。実際の税額は税理士にご確認ください。</p></div>
+    <div class="mikane" style="margin-top:26px;">
+      <h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>本当に困るのは、割合ではなく「証明できるか」</h3>
+      <ol><li><strong>相続人自身の困りごと。</strong>順位や代襲の仕組みは分かっても、それを証明する戸籍を集めるのに時間がかかります。特に代襲相続は、亡くなった人の出生から死亡までの戸籍に加えて、代襲される人の死亡も証明する必要があります。</li>
+        <li><strong>内縁・離婚の相手の困りごと。</strong>相続人ではないと分かっていても、長く生活を共にしていた実感から納得しづらいものです。財産を渡す方法が他にもあることを知らないまま終わってしまう例もあります。</li>
+        <li><strong>手続きを進める側の困りごと。</strong>相続人が誰か確定しないと、預金の解約も不動産の名義変更もできません。相続人の確定が、すべての手続きの前提になります。</li></ol>
+      <p class="caution"><strong>いちばん多い失敗は、順番の取り違えです。</strong>「まず遺産分割の話し合いをしよう」と始めてしまうと、後から<b>相続人が漏れていた</b>（あるいは対象外の人が入っていた）と分かり、やり直しになります。正しい順番は、<b>戸籍で相続人を確定する</b>、<b>相続人全員に連絡する</b>、<b>財産の一覧を作る</b>、<b>話し合いを始める</b>の4つです。この順番なら、途中で止まっても次の人に引き継げます。</p></div>
+    <div class="note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>代襲の範囲は、子の系統と兄弟姉妹の系統で扱いが違います。まずはご自身の家族に、先に亡くなっている人がいないかを確認するところから始めてみてください。相続人が受け取る財産の税金の計算は別の話ですので、個別の税額計算・申告については税理士にご確認ください。</span></div>
+  </div></section>
+
+<section id="sec4" class="band-blush round-top">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="step-pill"><i>4</i><span>実話がモデルの寸劇集</span></span>
+      <h2>相続人あるある劇場</h2></div>
+      <div class="spot"><span class="spot-circle" data-art="spotTheater" aria-hidden="true"></span></div></div>
+    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">ここからは6つの寸劇です。どれも「知っていれば防げた」種類の話ばかりを集めました。気になる題名をタップして、中をのぞいてみてください。</p></div>
+    <div class="case-grid" id="caseGrid"></div>
+    <div class="note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>各演目は一般的な内容をもとにした創作例で、実在の個人・事案とは関係ありません。取扱いは、戸籍上の関係・婚姻や離婚の時期・養子縁組の有無によって変わります。</span></div>
+  </div></section>
+
+<section id="sec5" class="band-mint round-top">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="step-pill"><i>5</i><span>知って得する側の話</span></span>
+      <h2>逆転劇場〜こんな制度が、<span class="nowrap">味方します〜</span></h2></div>
+      <div class="spot"><span class="spot-circle" data-art="spotGift" aria-hidden="true"></span></div></div>
+    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">ここまでは「知らないと損をする」話でした。ここからは反対に、知っていたおかげで穏やかに収まった8つの話です。制度は使う人の味方にもなります。むずかしいことをしたわけではなく、順番と条件を守っただけ、という話ばかりです。</p></div>
+    <div class="model-note"><strong>このページの「備える」金額の目安</strong><span class="mn-row">計算の入口となる財産5,000万円、相続人は配偶者と子2人、というモデルで置いています。</span>
+      <span class="mn-note">※実際の効果は、家族構成・戸籍上の記録・財産の中身によって変わります。手続きには期限があり、期限を過ぎると使えなくなるものがあります。</span></div>
+    <div class="case-grid" id="goodGrid"></div>
+    <div class="rule3-box">
+      <h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg>取りこぼさないための「相続人の3か条」</h3>
+      <ol><li><strong>まず、家族の形を紙に書き出す。</strong>配偶者・子・父母・兄弟姉妹のうち誰がいるか、先に死亡している人がいないかを整理します。ここが全体の土台になります。</li>
+        <li><strong>次に、戸籍で形式を確認する。</strong>婚姻・離婚・養子縁組の記録は、感覚ではなく戸籍謄本で確認します。思わぬ記録が見つかることもあります。</li>
+        <li><strong>最後に、相続人にならない人への備えを考える。</strong>内縁の配偶者やお世話になった人がいる場合、遺言や保険など別の方法をあらかじめ検討しておきます。</li></ol>
+      <p class="rule3-note">※金額はいずれも一例です。適用の可否は要件と事実関係により異なります。手続の期限は個別にご確認ください。</p></div>
+  </div></section>
+
+<section id="sec6" class="band-sky round-top">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="step-pill"><i>6</i><span>数字の話をひとつだけ</span></span>
+      <h2>数字で見る、<span class="nowrap">家族のかたち</span></h2></div>
+      <div class="spot"><span class="spot-circle" data-art="spotCal" aria-hidden="true"></span></div></div>
+    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">「うちは普通の家族だから関係ない」。相続人のルールでいちばん誤解されやすいのがこの前提です。厚生労働省の人口動態統計を見ると、婚姻や離婚の件数は時代によって大きく変化しており、家族の形はひとつではありません。だからこそ、形式のルールをあらかじめ知っておく価値があります。</p></div>
+    <div class="life-box">
+      <h3>離婚件数の推移</h3><p class="sub">年間の離婚件数（概数）</p>
+      <svg viewBox="0 56 380 196" role="img" aria-label="離婚件数は1970年頃から2002年頃にかけて増加し、直近ではやや減少していることを示す棒グラフ。">
+        <path d="M18 170h344" stroke="#d9cfc4" stroke-width="2" stroke-linecap="round"/>
+        <rect x="42" y="148" width="46" height="22" rx="4" fill="#c6e2f2"/><text x="65" y="140" text-anchor="middle" font-size="14" font-weight="bold" fill="#24729f">約9万組</text><text x="65" y="190" text-anchor="middle" font-size="12.5" fill="#5c6874">1970年頃</text><text x="65" y="206" text-anchor="middle" font-size="11" fill="#5c6874">戦後の水準</text>
+        <rect x="152" y="90" width="46" height="80" rx="4" fill="#f7c34e"/><text x="175" y="82" text-anchor="middle" font-size="14" font-weight="bold" fill="#8f6015">約29万組</text><text x="175" y="190" text-anchor="middle" font-size="12.5" fill="#5c6874">2002年頃</text><text x="175" y="206" text-anchor="middle" font-size="11" fill="#a63631">統計上のピーク</text>
+        <rect x="262" y="120" width="46" height="50" rx="4" fill="#f0846a"/><text x="285" y="112" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2451f">約18万組</text><text x="285" y="190" text-anchor="middle" font-size="12.5" fill="#5c6874">直近（概数）</text><text x="285" y="206" text-anchor="middle" font-size="11" fill="#5c6874">近年はやや減少</text>
+        <text x="190" y="240" text-anchor="middle" font-size="13" font-weight="bold" fill="#a63631">件数は時代で大きく変わる</text>
+      </svg>
+      <p class="life-cap">※厚生労働省「人口動態統計」における離婚件数をもとにした概数です。年により変動し、区分は目安の年代です。直近の数値は速報値を含みます。将来の件数を見通すものではありません。</p>
+      <div class="big3"><span class="b"><span class="n">2分の1</span><span class="l">配偶者と子の相続分</span><span class="s">配偶者の取り分目安</span></span>
+        <span class="b"><span class="n">1代</span><span class="l">兄弟姉妹の代襲の範囲</span><span class="s">甥・姪の代まで</span></span>
+        <span class="b"><span class="n">0</span><span class="l">死産だった場合の胎児</span><span class="s">相続人とされない</span></span></div></div>
+    <h3 class="sub-h"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>立場で見る、相続人チェック</h3>
+    <p class="sub-lead">相続人の話は、立っている位置によって確認すべきことが変わります。配偶者・代襲相続人・相続人にならない立場の3つに分けて整理しました。ご自身がどこにいるか、確かめてみてください。</p>
+    <div class="age-cards">
+      <div class="age-card"><p class="ttl"><span class="ico ic-red" data-art="icKazoku" aria-hidden="true"></span>配偶者</p>
+        <span class="kind">順位に関係なく相続人</span>
+        <div class="rows"><p class="row"><span>相続分（子がいる場合）</span><b>2分の1</b></p><p class="row"><span>相続分（父母のみの場合）</span><b>3分の2</b></p></div>
+        <p class="cmt">配偶者は、誰と一緒に相続するかによって取り分こそ変わりますが、相続人になること自体は常に確定しています。婚姻届が出ているかどうかだけが条件です。</p><p class="src">※民法890条・900条にもとづく一般的な整理です。</p></div>
+      <div class="age-card"><p class="ttl"><span class="ico ic-amber" data-art="icDaishuu" aria-hidden="true"></span>代襲相続人（孫・甥姪）</p>
+        <span class="kind">先順位者が先に死亡した場合</span>
+        <div class="rows"><p class="row"><span>子の代襲</span><b>何代でも続く</b></p><p class="row"><span>兄弟姉妹の代襲</span><b>甥姪の代まで</b></p></div>
+        <p class="cmt">代襲相続人になるには、本来の相続人が先に死亡していたことを、戸籍で証明する必要があります。系統によって続く範囲が違う点に注意してください。</p><p class="src">※民法887条2項・3項、889条2項にもとづく一般的な整理です。</p></div>
+      <div class="age-card"><p class="ttl"><span class="ico ic-blue" data-art="icNaien" aria-hidden="true"></span>相続人にならない立場</p>
+        <span class="kind">内縁の配偶者・離婚した元配偶者</span>
+        <div class="rows"><p class="row"><span>法律上の身分</span><b>相続人ではない</b></p><p class="row"><span>財産を残す方法</span><b>遺言・保険など</b></p></div>
+        <p class="cmt">実質的な家族であっても、法律上の身分がなければ相続人にはなりません。財産を渡したい場合は、生きているうちに別の方法で備える必要があります。</p><p class="src">※民法890条・739条にもとづく一般的な整理です。</p></div>
+    </div>
+    <div class="mikane">
+      <h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5V9.2M12 9.2 7.6 5M12 9.2 16.4 5"/><circle cx="12" cy="15" r="8.2"/></svg>だから、いまできることは3つだけ</h3>
+      <ol><li><strong>家族の形を紙に書き出す。</strong>配偶者・子・父母・兄弟姉妹のうち誰がいるか、先に死亡している人がいないかを整理してみてください。子がいなければきょうだいや甥・姪が入ります。</li>
+        <li><strong>婚姻・離婚・養子縁組の記録を確認する。</strong>戸籍謄本を取り寄せ、法律上の身分が今どうなっているかを確かめてください。感覚と記録がずれていることもあります。</li>
+        <li><strong>相続人にならない人への備えを考える。</strong>内縁の配偶者やお世話になった人がいる場合、遺言や保険など別の方法を検討してください。どれにも費用と制約があります。</li></ol>
+      <p class="caution"><strong>そして、いちばん大事なこと</strong>相続人になるかどうかは、感情や実質的な関係ではなく、戸籍に記録された形式で決まります。「うちは大丈夫」と思う前に、一度、家族の続柄を紙に書き出してみてください。それだけで、次にすべきことが見えてきます。</p></div>
+  </div></section>
+
+<section id="matome" class="band round-top">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="step-pill plain">まとめ</span>
+      <h2>あなたの相続人チェック</h2></div>
+      <div class="spot"><span class="spot-circle" data-art="spotCheck" aria-hidden="true"></span></div></div>
+    <p class="sec-lead">最後に、いまの状況を確認してみましょう。あてはまるもの・できたものをタップ（クリック）してください。</p>
+    <div class="score-box"><h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/></svg>クイズの結果</h3>
+      <div id="sumScore"><p>まだクイズに挑戦していません。<a href="#sec2">②の○×クイズ</a>で、思い込みをチェックしてみてください。</p></div></div>
+    <div class="checklist" id="checklist">
+      <p class="chk-group">今日おうちで確認できること</p>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkPeople" aria-hidden="true"></span><span><strong>相続人になる人を順位で数えた</strong>配偶者・子・父母・兄弟姉妹のうち、第何順位の人が相続人にあたるかを書き出しましたか。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkPdf" aria-hidden="true"></span><span><strong>出生から死亡までの戸籍を集め始めた</strong>亡くなった人の戸籍を、生まれたときまでさかのぼって集める必要があることをご存じでしたか。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkHome" aria-hidden="true"></span><span><strong>先に死亡している人がいないか確認した</strong>本来相続人になるはずだった人が先に亡くなっていないか（代襲の有無）を確認しましたか。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkBank" aria-hidden="true"></span><span><strong>婚姻・離婚の記録を確認した</strong>婚姻届・離婚届がいつ提出されているか、戸籍で確認しましたか。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkAoiro" aria-hidden="true"></span><span><strong>養子縁組の記録がないか確認した</strong>ご自身やご家族の戸籍に、養子縁組や認知の記載がないかを確認しましたか。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkReceipt" aria-hidden="true"></span><span><strong>内縁・事実婚の関係を整理した</strong>婚姻届を出していないパートナーがいる場合、その関係を書き出してみましたか。</span></label>
+      <p class="chk-group">今日、ご家族と話せること</p>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkPc" aria-hidden="true"></span><span><strong>相続人の範囲を家族に共有した</strong>誰が相続人にあたるかを、家族の間で認識をそろえてありますか。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkShield" aria-hidden="true"></span><span><strong>相続人にならない人への備えを話し合った</strong>内縁の相手やお世話になった人がいる場合、遺言や保険などの備えを話し合いましたか。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkInvoice" aria-hidden="true"></span><span><strong>財産の一覧づくりを始めた</strong>通帳・不動産・保険証券など、財産の全体像を書き出す準備を始めましたか。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkBack" aria-hidden="true"></span><span><strong>専門家に聞くことを整理した</strong>戸籍集め・遺言・税金のうち、どれをだれに聞くか、聞きたいことを箇条書きにしてみましたか。</span></label>
+    </div>
+    <div class="chk-msg" id="chkMsg">あてはまるもの、できているものを押してみてください。数が少なくても心配はいりません。</div>
+    <div data-cta-mini></div>
+    <details class="finder"><summary>「何から手をつければいいの？」への答え</summary>
+      <ul><li><strong>1．家族の形を紙に書き出す。</strong>配偶者・子・父母・兄弟姉妹のうち誰がいるか、先に死亡している人がいないかを整理します。ここが決まらないと、順位も代襲も判断できません。</li>
+        <li>2．戸籍を集めて、記録を確認する。本籍地の役所で戸籍謄本を取り寄せ、婚姻・離婚・養子縁組の記録を確認します。</li>
+        <li>3．財産の一覧を作る。通帳・不動産・保険証券を並べるだけで十分です。金額は概算でかまいません。</li>
+        <li>4．全部そろわなくても大丈夫です。1と2ができていれば、相談の場でほとんどの話が進みます。</li></ul>
+      <p>いちばん多いのは、3から始めてしまって行き詰まるパターンです。順番を守るだけで、同じ作業を何度もやり直さずに済みます。まずは紙を1枚、家族の続柄から書き出してみてください。</p></details>
+    <details class="finder" style="margin-top:14px;"><summary>「じゃあ、こうすればいい？」——対策のワナ</summary>
+      <ul><li><strong>念書を書けば内縁でも相続人になれる。</strong>内縁の配偶者が相続人になる方法は法律上ありません。財産を残したい場合は、遺言や生命保険など別の方法が必要です。</li>
+        <li><strong>一緒に暮らせば自動的に養子になる。</strong>養子になるには、役所への養子縁組の届出が必要です。同居や生活の実態だけでは相続人になりません。</li>
+        <li><strong>離婚すれば元配偶者との子の相続もなくなる。</strong>なりません。離婚で切れるのは配偶者との関係だけで、親子の血縁関係は続きます。</li>
+        <li><strong>代襲はどの系統でも何代でも続く。</strong>続きません。兄弟姉妹の系統の代襲は、甥・姪の代までで止まります。</li></ul>
+      <p>どれも「使えない」という意味ではなく、「条件と手続きがある」という意味です。家族の形を書き出し、戸籍で記録を確認する。この順番を守れば、備えは後からいくらでも組み立てられます。</p></details>
+    <div class="cta-box" id="soudan">
+      <h3>うちは誰が相続人か、<span class="nowrap">整理から</span></h3>
+      <p class="cta-lead">このページの内容は、あくまで一般的なしくみの話。<strong>ご自身の場合にどうなるか</strong>は、実際の家族構成・婚姻歴・養子縁組の有無で決まります。こんなご相談をよくお受けしています。</p>
+      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>内縁のパートナーがいるのですが、相続人になれないなら何を準備すればよいですか</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>誰が相続人になるのか、戸籍の集め方から分かりません</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>代襲相続に該当するかどうか、うちの場合を確認してほしいです</span></li></ul>
+      <p class="cta-lead">お時間の目安は30分ほど。資料が揃っていなくても大丈夫、揃えるところからお手伝いします。<strong>個別具体的な税務相談・税務書類の作成・税務代理は、税理士が対応します。</strong>また、個別の紛争に関する法律相談・書類の作成・代理は、弁護士が対応する事項です。相続人の範囲や遺産分割で意見が分かれている場合は、早い段階で弁護士へのご相談をおすすめします。いただいた個人情報は、ご相談への対応のみに使用し、ご本人の同意なく第三者に提供しません。</p>
+      <p class="co">株式会社Office-M</p><p class="addr">受付：平日 9:00〜17:00</p>
+      <p class="tip">家系図や戸籍謄本（あれば）がお手元にあると、その場での確認がより早く進みます。</p></div>
+  </div></section>
+
+<!-- 募集文書審査：未了。委託先保険会社の承認番号の要否を確認のうえ公開すること -->
+<footer class="disclaimer">
+  <p>本資料は、株式会社Office-Mが相続人の範囲に関する一般的なしくみをご理解いただくために作成した情報提供資料です。記載内容は2026年8月時点の法令等にもとづく一般的な取扱いであり、個別の事案への当てはめは家族構成・婚姻や離婚の時期・養子縁組の有無・戸籍上の記録によって結論が変わります。シミュレーターの結果はいずれも簡易な概算であり、実際の法定相続分や金額を示すものではありません。実際の判断にあたっては、必ず弁護士・税理士等の専門家、または所轄の市区町村・家庭裁判所にご確認ください。<strong>個別具体的な税務相談・税務書類の作成・税務代理は、税理士が対応します。</strong>また、本資料は個別の紛争についての法律相談・代理その他の法律事務を行うものではありません。本資料の内容によって生じた結果について、当社は責任を負いかねます。</p>
+  <p style="margin-top:10px;">主な根拠：民法886条（胎児の相続に関する権利能力）、887条（子及びその代襲相続人等の相続権）、889条（直系尊属及び兄弟姉妹の相続権）、890条（配偶者の相続権）、900条（法定相続分）、739条（婚姻の届出による効力発生）、727条・809条（養子縁組による法定血族関係）。統計は厚生労働省「人口動態統計」の離婚件数にもとづく概数で、年により変動します。制度は改正されることがあります。最新の内容は法務省・裁判所・国税庁の各ウェブサイトでご確認ください。</p>
+  <p style="margin-top:10px;">作成：株式会社Office-M（2026年8月）</p>
+</footer>
+<!-- ================= 演目詳細モーダル ================= -->
+<div class="cmodal" id="caseModal" aria-hidden="true">
+  <div class="cmodal-back" id="caseModalBack"></div>
+  <div class="cmodal-panel" role="dialog" aria-modal="true" aria-labelledby="caseModalTitle">
+    <div class="cmodal-head" id="caseModalHead">
+      <button type="button" class="cmodal-close" id="caseModalClose" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <div class="cmodal-ico" id="caseModalIco" aria-hidden="true"></div>
+      <div>
+        <span class="cmodal-chip" id="caseModalChip"></span>
+        <h3 class="cmodal-title" id="caseModalTitle"></h3>
+      </div>
+    </div>
+    <div class="cmodal-body">
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 15.5a2 2 0 0 1-2 2H8l-4 3.5v-15a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"/></svg>
+          <span id="caseModalLbl1">ご相談で伺ったお話（脚色あり）</span>
+        </div>
+        <blockquote class="cmodal-quote" id="caseModalStory"></blockquote>
+      </div>
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-red" id="caseModalLbl2Wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+          <span id="caseModalLbl2">何が起きたのか</span>
+        </div>
+        <div id="caseModalWhat"></div>
+      </div>
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-green">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
+          <span id="caseModalLbl3">こう確認すれば防げます</span>
+        </div>
+        <div id="caseModalHow"></div>
+      </div>
+      <div data-cta-mini></div>
+      <p class="cmodal-note">※演目は一般的な内容をもとにした創作例で、実在の個人・法人・事案とは関係ありません。税務の取扱いは事実関係により異なります。実際の判断は、顧問税理士または所轄の税務署にご確認ください。</p>
+    </div>
+  </div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- 案内役のイラスト ---------- */
+var SVG_GUIDE =
+  '<svg viewBox="0 0 64 64">' +
+  '<circle cx="32" cy="32" r="32" fill="#ffeee3"/>' +
+  '<path d="M8 64c0-13 11-20 24-20s24 7 24 20H8Z" fill="#f0846a"/>' +
+  '<rect x="27" y="39" width="10" height="11" rx="5" fill="#f7cdb4"/>' +
+  '<path d="M25 45l7 9 7-9 3.4 1.8L32 61 21.6 46.8Z" fill="#fff"/>' +
+  '<ellipse cx="32" cy="28" rx="16" ry="17" fill="#5c4030"/>' +
+  '<ellipse cx="32" cy="30" rx="12.5" ry="13.5" fill="#f7cdb4"/>' +
+  '<path d="M19.5 27c0-9 5.6-14.5 12.5-14.5S44.5 18 44.5 27c-1.6-3.6-4.2-5.7-7.2-6.6-2.6 2.4-7 3.8-10.9 3.2-1.4 1-2.4 2.1-2.9 3.4Z" fill="#5c4030"/>' +
+  '<circle cx="27" cy="30" r="1.6" fill="#3d3028"/><circle cx="37" cy="30" r="1.6" fill="#3d3028"/>' +
+  '<path d="M29.4 35.6c1.6 1.7 3.6 1.7 5.2 0" fill="none" stroke="#3d3028" stroke-width="1.6" stroke-linecap="round"/>' +
+  '</svg>';
+
+document.querySelectorAll('[data-guide]').forEach(function(el){ el.innerHTML = SVG_GUIDE; });
+
+/* ---------- スポット・アイコン ---------- */
+var S = 'fill="none" stroke-linecap="round" stroke-linejoin="round"';
+var ARTS = {
+  spotLine:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="6" y="16" width="22" height="32" rx="5" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="2.5"/>' +
+    '<rect x="36" y="16" width="22" height="32" rx="5" fill="#fdf3e2" stroke="#8f6015" stroke-width="2.5"/>' +
+    '<path d="M32 8v48" stroke="#c2451f" stroke-width="3" stroke-dasharray="5 4" stroke-linecap="round"/>' +
+    '<path d="m12 32 4 4 8-8" fill="none" stroke="#2c7a4b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M42 27l10 10M52 27l-10 10" stroke="#8f6015" stroke-width="3" stroke-linecap="round"/>' +
+    '</svg>',
+  spotQuiz:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="24" fill="#e8f4fb"/>' +
+    '<path d="M25 26.5c.6-4.2 3.6-6.6 7.4-6.6 4.2 0 7.4 2.8 7.4 6.8 0 3.4-2 5.2-4.4 6.8-2 1.3-2.9 2.3-2.9 4.5" fill="none" stroke="#24729f" stroke-width="3.4" stroke-linecap="round"/>' +
+    '<circle cx="32.4" cy="45" r="2.6" fill="#f0846a"/>' +
+    '</svg>',
+  spotCalc:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="14" y="6" width="36" height="52" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<rect x="20" y="12" width="24" height="12" rx="4" fill="#27587f"/>' +
+    '<path d="M24 18h16" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>' +
+    '<circle cx="24" cy="32" r="3.6" fill="#c6e2f2"/><circle cx="32" cy="32" r="3.6" fill="#c6e2f2"/><circle cx="40" cy="32" r="3.6" fill="#c6e2f2"/>' +
+    '<circle cx="24" cy="42" r="3.6" fill="#c6e2f2"/><circle cx="32" cy="42" r="3.6" fill="#c6e2f2"/><circle cx="40" cy="42" r="3.6" fill="#f7c34e"/>' +
+    '<circle cx="24" cy="51" r="3.6" fill="#c6e2f2"/><circle cx="32" cy="51" r="3.6" fill="#c6e2f2"/><circle cx="40" cy="51" r="3.6" fill="#f0846a"/>' +
+    '</svg>',
+  spotTheater:
+    '<svg viewBox="0 0 64 64">' +
+    '<path d="M8 10h48v8c0 4-3 7-7 7H15c-4 0-7-3-7-7Z" fill="#c2453f"/>' +
+    '<path d="M10 14c4 22 4 30 3 40h8c-2-12-1-24 3-40Z" fill="#a63631"/>' +
+    '<path d="M54 14c-4 22-4 30-3 40h-8c2-12 1-24-3-40Z" fill="#a63631"/>' +
+    '<circle cx="32" cy="38" r="13" fill="#ffeee3"/>' +
+    '<circle cx="27.5" cy="35.5" r="1.8" fill="#3d3028"/><circle cx="36.5" cy="35.5" r="1.8" fill="#3d3028"/>' +
+    '<path d="M27 42c3 3 7 3 10 0" fill="none" stroke="#3d3028" stroke-width="2" stroke-linecap="round"/>' +
+    '</svg>',
+  spotGift:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="8" y="24" width="48" height="34" rx="6" fill="#fffdf8" stroke="#c3e5d3" stroke-width="2.5"/>' +
+    '<rect x="8" y="24" width="48" height="12" rx="6" fill="#4fbf9b"/>' +
+    '<rect x="28" y="24" width="8" height="34" fill="#2c7a4b"/>' +
+    '<path d="M32 24s-6-.7-8.5-3.2a3.6 3.6 0 0 1 5.1-5.1C31.1 18.2 32 24 32 24Z" fill="#f7c34e"/>' +
+    '<path d="M32 24s6-.7 8.5-3.2a3.6 3.6 0 0 0-5.1-5.1C32.9 18.2 32 24 32 24Z" fill="#f7c34e"/>' +
+    '<circle cx="47" cy="15" r="6.5" fill="#f0846a"/>' +
+    '<path d="M44.5 15h5M47 12.5v5" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>' +
+    '</svg>',
+  spotCal:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="8" y="12" width="48" height="44" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<path d="M8 24h48" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<rect x="8" y="12" width="48" height="12" rx="7" fill="#27587f"/>' +
+    '<path d="M20 6v10M44 6v10" stroke="#1b3f5e" stroke-width="4" stroke-linecap="round"/>' +
+    '<rect x="15" y="30" width="8" height="7" rx="2" fill="#c6e2f2"/>' +
+    '<rect x="28" y="30" width="8" height="7" rx="2" fill="#f0846a"/>' +
+    '<rect x="41" y="30" width="8" height="7" rx="2" fill="#c6e2f2"/>' +
+    '<rect x="15" y="42" width="8" height="7" rx="2" fill="#f7c34e"/>' +
+    '<rect x="28" y="42" width="8" height="7" rx="2" fill="#c6e2f2"/>' +
+    '<rect x="41" y="42" width="8" height="7" rx="2" fill="#f0846a"/>' +
+    '</svg>',
+  spotCheck:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="12" y="10" width="40" height="46" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<rect x="24" y="5" width="16" height="10" rx="4" fill="#27587f"/>' +
+    '<path d="m19 26 4 4 7-8" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<rect x="34" y="25" width="12" height="3.5" rx="1.75" fill="#d9cfc4"/>' +
+    '<path d="m19 40 4 4 7-8" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<rect x="34" y="39" width="12" height="3.5" rx="1.75" fill="#d9cfc4"/>' +
+    '</svg>',
+
+  icKousai:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<path d="M10 12v7a5 5 0 0 0 10 0v-7M15 24v14"/>' +
+    '<path d="M33 12c-3 0-5 3-5 8s2 6 5 6 5-1 5-6-2-8-5-8ZM33 26v12"/>' +
+    '<path d="M9 42h12M27 42h12"/>' +
+    '</svg>',
+  icKaigi:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<circle cx="11" cy="12" r="4.5"/><circle cx="37" cy="12" r="4.5"/>' +
+    '<path d="M4 24c0-4 3.2-6.5 7-6.5s7 2.5 7 6.5M30 24c0-4 3.2-6.5 7-6.5s7 2.5 7 6.5"/>' +
+    '<ellipse cx="24" cy="25" rx="7" ry="2.6"/>' +
+    '<path d="M5 29h38M11 29v11M37 29v11"/>' +
+    '</svg>',
+  icHitori:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<circle cx="24" cy="11" r="5"/>' +
+    '<path d="M16 22c0-3.4 3.6-5 8-5s8 1.6 8 5"/>' +
+    '<path d="M10 29h28c0 6-6 10-14 10s-14-4-14-10Z"/>' +
+    '<path d="M8 42h32"/>' +
+    '</svg>',
+  icShain:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<circle cx="12" cy="14" r="4.5"/><circle cx="24" cy="11" r="4.5"/><circle cx="36" cy="14" r="4.5"/>' +
+    '<path d="M4 26c0-3.6 3.6-6 8-6s8 2.4 8 6M16 24c0-3.6 3.6-6 8-6s8 2.4 8 6M28 26c0-3.6 3.6-6 8-6s8 2.4 8 6"/>' +
+    '<path d="M8 34h32v6a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2Z"/>' +
+    '</svg>',
+  icShuzen:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M29 8a8 8 0 0 0-9.6 10.6L8 30v8h8l11.4-11.4A8 8 0 0 0 38 17l-6 3-4-4 3-6a8 8 0 0 0-2-2Z"/>' +
+    '<path d="m13 33 2 2"/>' +
+    '</svg>',
+  icPaint:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<rect x="8" y="8" width="24" height="10" rx="3"/>' +
+    '<path d="M32 13h6a3 3 0 0 1 3 3v5a3 3 0 0 1-3 3H24v6"/>' +
+    '<rect x="19" y="30" width="10" height="12" rx="3"/>' +
+    '</svg>',
+  icUpgrade:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<rect x="7" y="26" width="10" height="14" rx="2"/>' +
+    '<rect x="19" y="18" width="10" height="22" rx="2"/>' +
+    '<rect x="31" y="8" width="10" height="32" rx="2"/>' +
+    '<path d="M6 44h36"/>' +
+    '</svg>',
+  icBuild:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M8 42V16l16-9 16 9v26"/>' +
+    '<path d="M6 42h36"/>' +
+    '<rect x="15" y="22" width="7" height="7" rx="1.5"/><rect x="26" y="22" width="7" height="7" rx="1.5"/>' +
+    '<path d="M19 42v-8h10v8"/>' +
+    '</svg>',
+  icGaichu:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<rect x="6" y="16" width="36" height="22" rx="4"/>' +
+    '<path d="M18 16v-3a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v3"/>' +
+    '<path d="M6 24h36M20 27h8"/>' +
+    '</svg>',
+  icJikan:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<circle cx="24" cy="25" r="15"/>' +
+    '<path d="M24 16v9l6 4"/>' +
+    '<path d="M17 7h14"/>' +
+    '</svg>',
+  icDoc2:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<rect x="11" y="6" width="26" height="36" rx="4"/>' +
+    '<path d="M17 16h14M17 23h14M17 30h8"/>' +
+    '</svg>',
+  icKazoku:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.3">' +
+    '<circle cx="15" cy="14" r="5"/><circle cx="33" cy="14" r="5"/>' +
+    '<path d="M6 30c0-5 4-8 9-8s9 3 9 8M24 30c0-5 4-8 9-8s9 3 9 8"/>' +
+    '<circle cx="24" cy="30" r="4"/>' +
+    '<path d="M17 42c0-4 3-6 7-6s7 2 7 6"/>' +
+    '</svg>',
+  icZeimusho:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.3">' +
+    '<path d="M6 18 24 8l18 10"/>' +
+    '<path d="M9 18v18M17 18v18M31 18v18M39 18v18"/>' +
+    '<path d="M5 42h38M8 36h32"/>' +
+    '</svg>',
+  icCity:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.3">' +
+    '<rect x="7" y="14" width="16" height="28" rx="2"/>' +
+    '<rect x="25" y="22" width="16" height="20" rx="2"/>' +
+    '<path d="M12 20h6M12 27h6M12 34h6M30 28h6M30 35h6"/>' +
+    '<path d="M5 42h38"/>' +
+    '</svg>',
+  icHoken:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M24 6 9 11v11c0 9.5 6.4 17.4 15 19.6 8.6-2.2 15-10.1 15-19.6V11L24 6Z"/>' +
+    '<path d="M24 17v12M18 23h12"/>' +
+    '</svg>',
+
+  qFood:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<circle cx="24" cy="24" r="9.5"/><circle cx="24" cy="24" r="4.5"/>' +
+    '<path d="M8 8v8a3 3 0 0 0 6 0V8M11 16v24"/>' +
+    '<path d="M40 8c-3 1.2-5 4.6-5 9s2 5 5 5M40 8v32"/>' +
+    '</svg>',
+  qCar:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M8 30v6h5M40 30v6h-5"/>' +
+    '<path d="M6 30l3-10a4 4 0 0 1 3.8-2.8h22.4A4 4 0 0 1 39 20l3 10Z"/>' +
+    '<circle cx="14" cy="30" r="2.4"/><circle cx="34" cy="30" r="2.4"/>' +
+    '<path d="M20 8h8M24 4v8" stroke-width="2.8"/>' +
+    '</svg>',
+  qDock:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<path d="M14 7v9a8 8 0 0 0 16 0V7"/>' +
+    '<path d="M22 24v6a8 8 0 0 0 16 0v-4"/>' +
+    '<circle cx="38" cy="22" r="4"/>' +
+    '<path d="M10 7h8M26 7h8"/>' +
+    '</svg>',
+  qHouse:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M6 22 24 8l18 14"/>' +
+    '<path d="M10 20v20h28V20"/>' +
+    '<path d="M24 20v20" stroke-dasharray="4 3"/>' +
+    '<path d="M14 27h6M28 27h6"/>' +
+    '</svg>',
+  qPc:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<rect x="9" y="10" width="30" height="21" rx="3"/>' +
+    '<path d="M5 36h38l-3 4H8Z"/>' +
+    '</svg>',
+  qSuit:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M18 6h12l-6 8Z"/>' +
+    '<path d="M24 14 21 42h6Z"/>' +
+    '<path d="M18 6 9 12v30h8M30 6l9 6v30h-8"/>' +
+    '</svg>',
+  qShield:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<path d="M24 5 8 11v12c0 10 6.8 18.5 16 21 9.2-2.5 16-11 16-21V11L24 5Z"/>' +
+    '<path d="m18 18 6 8 6-8M24 26v9M19.5 28.5h9M19.5 32.5h9"/>' +
+    '</svg>',
+  qYen:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<circle cx="24" cy="24" r="17"/>' +
+    '<path d="m17 14 7 10 7-10M24 24v10M18.5 26.5h11M18.5 31.5h11"/>' +
+    '</svg>',
+  qInvoice:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<path d="M11 6h26v36l-4.3-3-4.4 3-4.3-3-4.4 3-4.3-3-4.3 3Z"/>' +
+    '<path d="M17 15h14M17 22h14M17 29h8"/>' +
+    '</svg>',
+  qTruck:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<path d="M4 12h22v22H4Z"/>' +
+    '<path d="M26 20h9l7 7v7h-16Z"/>' +
+    '<circle cx="14" cy="37" r="4"/><circle cx="34" cy="37" r="4"/>' +
+    '</svg>',
+  qPlane:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M24 5c2.5 0 4 4 4 10v6l14 8v4l-14-4v8l5 4v3l-9-2-9 2v-3l5-4v-8l-14 4v-4l14-8v-6c0-6 1.5-10 4-10Z"/>' +
+    '</svg>',
+  qSeed:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<path d="M24 42V20"/>' +
+    '<path d="M24 20c0-7 5-12 12-12 0 7-5 12-12 12ZM24 26c0-6-4-10-10-10 0 6 4 10 10 10Z"/>' +
+    '<path d="M12 42h24"/>' +
+    '</svg>',
+  qTrash:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M9 13h30M18 13V9a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v4"/>' +
+    '<path d="M13 13l2 26a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3l2-26"/>' +
+    '<path d="M20 20v15M28 20v15"/>' +
+    '</svg>',
+
+  chkReceipt:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2451f" stroke-width="2.3">' +
+    '<path d="M11 6h26v36l-4.3-3-4.4 3-4.3-3-4.4 3-4.3-3-4.3 3Z"/>' +
+    '<path d="M17 16h14M17 24h14M17 31h8"/>' +
+    '</svg>',
+  chkHome:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<path d="M6 22 24 8l18 14"/><path d="M10 20v20h28V20"/><path d="M24 20v20" stroke-dasharray="4 3"/>' +
+    '</svg>',
+  chkPeople:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.3">' +
+    '<circle cx="15" cy="15" r="5"/><circle cx="33" cy="15" r="5"/>' +
+    '<path d="M6 33c0-5 4-8 9-8s9 3 9 8M24 33c0-5 4-8 9-8s9 3 9 8"/>' +
+    '</svg>',
+  chkPc:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.3">' +
+    '<rect x="9" y="10" width="30" height="21" rx="3"/><path d="M5 36h38l-3 4H8Z"/>' +
+    '</svg>',
+  chkPdf:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.3">' +
+    '<path d="M13 6h16l8 8v28a2 2 0 0 1-2 2H13a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"/>' +
+    '<path d="M29 6v9h8"/><path d="M17 26h12M17 33h8"/>' +
+    '</svg>',
+  chkInvoice:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<rect x="7" y="12" width="34" height="24" rx="3"/>' +
+    '<path d="M12 18v12M17 18v12M22 18v12M27 18v12M32 18v12M37 18v12"/>' +
+    '</svg>',
+  chkBank:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.3">' +
+    '<path d="M6 19 24 9l18 10"/><path d="M11 19v17M20 19v17M28 19v17M37 19v17"/><path d="M6 41h36"/>' +
+    '</svg>',
+  chkAoiro:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#27587f" stroke-width="2.3">' +
+    '<rect x="10" y="7" width="28" height="34" rx="4"/>' +
+    '<path d="m17 22 4 4 10-10"/><path d="M17 33h14"/>' +
+    '</svg>',
+  chkShield:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.3">' +
+    '<path d="M24 6 10 11v11c0 9 6 16.5 14 18.7C32 38.5 38 31 38 22V11L24 6Z"/>' +
+    '<path d="m18 22 6 6 6-8"/>' +
+    '</svg>',
+  chkBack:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.3">' +
+    '<path d="M9 24a15 15 0 1 0 4.4-10.6"/>' +
+    '<path d="M8 8v8h8"/><path d="M24 17v8l6 4"/>' +
+    '</svg>',
+  icKyoudai:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#7a5aa0" stroke-width="2.4">' +
+    '<circle cx="16" cy="16" r="6"/><circle cx="33" cy="19" r="5"/>' +
+    '<path d="M6 39c0-6 4.5-10.5 10-10.5S26 33 26 39"/><path d="M27 39c0-5 3-8.5 6.5-8.5S40 34 40 39"/></svg>',
+  icDaishuu:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<circle cx="24" cy="9" r="5.5"/>' +
+    '<circle cx="24" cy="24" r="5.5"/><path d="M20.5 20.5l7 7M27.5 20.5l-7 7" stroke="#c2453f"/>' +
+    '<circle cx="24" cy="39" r="5.5"/>' +
+    '<path d="M24 14.5v5M24 29.5v5"/></svg>',
+  icNaien:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<circle cx="14" cy="14" r="6"/><circle cx="34" cy="14" r="6"/>' +
+    '<path d="M6 40c0-6.5 4.5-12 8-12s8 5.5 8 12M26 40c0-6.5 4.5-12 8-12s8 5.5 8 12"/>' +
+    '<path d="M19 25h10" stroke-dasharray="3 3"/></svg>',
+  icRikon:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.6">' +
+    '<path d="M8 24a8 8 0 1 1 10 7.7"/><path d="M40 24a8 8 0 1 0-10-7.7"/>' +
+    '<path d="M20 8l3 6-6 1M28 40l-3-6 6-1"/></svg>',
+  icYoushi:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<circle cx="24" cy="14" r="5.5"/>' +
+    '<path d="M10 40c0-8 6-14 14-14s14 6 14 14"/>' +
+    '<path d="M24 6c-2-3-7-2-7 2 0 3 4 5 7 8 3-3 7-5 7-8 0-4-5-5-7-2Z" fill="#2c7a4b" fill-opacity=".18"/></svg>',
+  icYuigon:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8a6d3b" stroke-width="2.4">' +
+    '<rect x="11" y="6" width="26" height="35" rx="3"/><path d="M17 15h14M17 22h14M17 29h9"/>' +
+    '<circle cx="31" cy="33" r="4.6"/></svg>',
+};
+document.querySelectorAll('[data-art]').forEach(function(el){
+  var key = el.getAttribute('data-art');
+  if(ARTS[key]) el.innerHTML = ARTS[key];
+});
+
+/* ---------- ミニCTA ---------- */
+var CTA_MINI =
+  '<div class="cta-mini"><p>「うちの場合、誰が相続人になるのだろう」と思ったところで、一度整理してみませんか。</p>' +
+  '<a href="#soudan">' +
+  '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="m3 7 9 6 9-6"/></svg>' +
+  '無料で相談してみる</a></div>';
+document.querySelectorAll('[data-cta-mini]').forEach(function(el){ el.innerHTML = CTA_MINI; });
+
+/* ---------- セクション2：○×クイズ ---------- */
+/* a: true = なる（○が正解）, false = ならない（×が正解） */
+var QUIZ = [
+  {
+    icon:'icNaien', a:false,
+    q:'15年一緒に暮らした内縁の夫が亡くなった。婚姻届は出していないが、妻は相続人になる。',
+    expl:'なりません。相続人になれる配偶者は、婚姻届を提出して法律上の夫婦になっている人に限られます。どれだけ長く同居し、実質的に夫婦と同じ生活を送っていても、婚姻届を出していなければ法律上は相続人ではありません。内縁関係にも一定の法的保護はありますが、相続の場面では及びません。財産を渡したい場合は、遺言を書く、生命保険の受取人に指定するなど、別の方法で備える必要があります。',
+    wana:'一緒に暮らした年数や実質的な夫婦関係が、法律上の身分と同じだと思い込んでしまうためです。',
+    check:'婚姻届を役所に提出しているかどうかを、戸籍謄本で確認してください。'
+  },
+  {
+    icon:'icRikon', a:false,
+    q:'3年前に離婚が成立した元夫が亡くなった。財産分与の話し合いは残っていたが、元妻は相続人になる。',
+    expl:'なりません。相続人になれる配偶者は、亡くなった時点で婚姻関係にある人だけです。離婚が成立した時点で、その相手はもう法律上の配偶者ではなくなるため、たとえ財産分与や養育費の話し合いが残っていても、相続人にはなりません。ただし、2人の間に生まれた子は、親権や同居の有無にかかわらず、実の子として第1順位の相続人になります。元配偶者本人と、その子とでは扱いがまったく異なります。',
+    wana:'別れた相手であっても、以前は家族だったという感覚から相続人になると思い込んでしまうためです。',
+    check:'離婚届が受理された日と、財産分与・養育費の取り決めが別の手続きであることを確認してください。'
+  },
+  {
+    icon:'icYoushi', a:true,
+    q:'養子縁組の届出をした養子は、実の子と同じ順位・同じ割合で相続人になる。',
+    expl:'なります。養子は養子縁組の届出をした日から、法律上は実の子と同じ立場になります。相続人になる順位も、法定相続分の割合も、実子と養子で差はありません。人数に上限を感じる方もいますが、これは相続税の基礎控除を計算するときに算入できる養子の数に制限がある話で、相続人になるかどうかとは別の制度です。なお普通養子縁組の場合、養子は実の父母との親子関係も維持されるため、両方の家の相続人になり得ます。',
+    wana:'相続税の計算で養子の人数に制限があることと、相続人になれるかどうかを混同してしまうためです。',
+    check:'養子縁組が普通養子か特別養子か、養子縁組届の記載事項を確認してください。'
+  },
+  {
+    icon:'icKazoku', a:false,
+    q:'亡くなった人に子が1人いる場合、その父母（祖父母世代）も同時に相続人になる。',
+    expl:'なりません。相続人になる順位は、配偶者は常に相続人、それに加えて第1順位の子がいればそれで確定し、第2順位の父母や第3順位の兄弟姉妹は相続人になりません。順位が上の人が1人でもいれば、下の順位の人には出番が回ってこない仕組みです。父母が相続人になるのは、子も（代襲する孫なども）誰もいない場合に限られます。近い親族なら全員が相続人になると誤解されがちです。',
+    wana:'相続人を「亡くなった人に近い親族全員」だと考えてしまい、順位で区切られることを見落とすためです。',
+    check:'亡くなった人に子（または代襲する孫）がいるかどうかを、まず確認してください。'
+  },
+  {
+    icon:'icDaishuu', a:true,
+    q:'相続人になるはずだった子が先に死亡していた。その子（孫）は代わりに相続人になる。',
+    expl:'なります。これを代襲相続といいます。本来相続人になるはずだった人が、相続開始よりも前に死亡している場合、その人の子が代わりに相続人としての地位を引き継ぎます。孫が複数いれば、本来その子が受け取るはずだった相続分を、孫たちで均等に分けます。さらにその孫も先に死亡していれば、ひ孫が相続人になります（再代襲）。子の系統（直系卑属）については、この代襲が何代でも続く点が特徴です。',
+    wana:'本人が亡くなっているのだから、その家族への相続はなくなると考えてしまうためです。',
+    check:'相続人になるはずだった人の死亡日と、亡くなった順番（どちらが先か）を確認してください。'
+  },
+  {
+    icon:'icKyoudai', a:false,
+    q:'相続人になるはずだった甥（兄弟姉妹の代襲相続人）が先に死亡していた。甥の子は再代襲で相続人になる。',
+    expl:'なりません。代襲相続は子の系統では何代でも続きますが、兄弟姉妹が相続人になる場合の代襲は、その子である甥・姪の代までで止まります。甥・姪がさらに先に死亡していても、その子（甥・姪の子）に再代襲はされません。同じ代襲という言葉でも、系統によって続く範囲が違うという、見落とされやすい線引きです。結果として、その分の相続分は他の相続人に帰属することになります。',
+    wana:'子の代襲相続と同じ感覚で、兄弟姉妹の代襲も何代でも続くと思い込んでしまうためです。',
+    check:'亡くなった兄弟姉妹の子（甥・姪）が健在かどうかを、代襲の起点として確認してください。'
+  },
+  {
+    icon:'icHitori', a:true,
+    q:'相続が開始した時点でまだ生まれていないお腹の中の子（胎児）は、相続人になる。',
+    expl:'なります。相続については、胎児はすでに生まれたものとみなすという特別な扱いがあります。ただし、これは無条件ではなく、その後生きて生まれてくることが条件です。残念ながら死産だった場合には、この扱いは適用されず、最初から相続人ではなかったことになります。実務では、遺産分割の手続きを出生まで待つ、あるいは胎児の権利に配慮した形で進めるといった対応が取られます。',
+    wana:'まだ生まれていない存在には権利がないと考えてしまい、この例外的な扱いを見落とすためです。',
+    check:'相続開始時点で懐胎していたかどうか、出産予定日と相続開始日の前後関係を確認してください。'
+  },
+  {
+    icon:'icKazoku', a:true,
+    q:'離婚した元配偶者との間に生まれた子は、親権が相手にあり同居していなくても相続人になる。',
+    expl:'なります。相続人になるかどうかは、実の親子関係があるかどうかで決まり、親権の有無や同居しているかどうかは関係ありません。離婚によって配偶者としての相続権は失われますが、親子の血縁関係そのものは離婚によって切れることはないためです。連絡を取っていない期間が長くても、法律上の親子関係が続いている限り、その子は第1順位の相続人のままです。',
+    wana:'離婚で配偶者との関係が切れることと、子との親子関係が切れることを、同じことのように考えてしまうためです。',
+    check:'離婚歴がある場合、前の婚姻でお子さんが生まれていないかを戸籍でさかのぼって確認してください。'
+  }
+];
+
+var qIdx = 0, qScore = 0, qAnswered = false, qAnsweredCount = 0;
+var wrongItems = [];
+
+var elNum   = document.getElementById('qNum');
+var elDots  = document.getElementById('qDots');
+var elIcon  = document.getElementById('qIcon');
+var elText  = document.getElementById('qText');
+var btnYes  = document.getElementById('btnYes');
+var btnNo   = document.getElementById('btnNo');
+var lblYes  = document.getElementById('lblYes');
+var lblNo   = document.getElementById('lblNo');
+var elVerd  = document.getElementById('verdict');
+var elVAns  = document.getElementById('vAnswer');
+var elVChip = document.getElementById('vChip');
+var elVExpl = document.getElementById('vExpl');
+var elVWana = document.getElementById('vWana');
+var elVChk  = document.getElementById('vCheck');
+var btnNext = document.getElementById('btnNext');
+var btnStop = document.getElementById('btnStopHere');
+var quizPlay = document.getElementById('quizPlay');
+var quizDone = document.getElementById('quizDone');
+
+function renderDots(){
+  var html = '';
+  for(var i = 0; i < QUIZ.length; i++){
+    html += '<i class="' + (i < qIdx ? 'done' : (i === qIdx ? 'now' : '')) + '"></i>';
+  }
+  elDots.innerHTML = html;
+}
+
+function renderQ(){
+  var item = QUIZ[qIdx];
+  elNum.textContent = qIdx + 1;
+  elIcon.innerHTML = ARTS[item.icon] || '';
+  elText.textContent = item.q;
+  lblYes.textContent = item.yes || 'なる';
+  lblNo.textContent = item.no || 'ならない';
+  btnYes.disabled = false;
+  btnNo.disabled = false;
+  qAnswered = false;
+  elVerd.classList.remove('show');
+  btnNext.style.display = 'none';
+  btnStop.style.display = 'none';
+  renderDots();
+}
+
+function answer(ansYes){
+  if(qAnswered) return;
+  qAnswered = true;
+  qAnsweredCount++;
+  btnYes.disabled = true;
+  btnNo.disabled = true;
+  var item = QUIZ[qIdx];
+  var correct = (ansYes === item.a);
+  if(correct) qScore++;
+  else wrongItems.push(item);
+  elVAns.textContent = '正解は「' + (item.a ? (item.yes || 'なる') : (item.no || 'ならない')) + '」';
+  elVChip.textContent = correct ? 'ご名答！' : 'ざんねん、ここがワナ';
+  elVChip.className = 'result-chip ' + (correct ? 'correct' : 'wrong');
+  elVExpl.textContent = item.expl;
+  elVWana.textContent = item.wana;
+  elVChk.textContent = item.check;
+  elVerd.classList.add('show');
+  btnNext.style.display = 'flex';
+  if(qIdx >= QUIZ.length - 1){
+    btnNext.innerHTML = '結果を見る <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  } else if(qIdx >= 2){
+    btnStop.style.display = 'block';
+  }
+}
+
+function doneComment(score, total){
+  var full = (total === QUIZ.length);
+  if(score === total && full){
+    return '全問正解です。順位と代襲の理解としては十分すぎるほどです。あとはご自身の家族構成に当てはめるだけ。だれが相続人で、先に亡くなっている人がいないか、手元の戸籍で一度だけ確かめておくと安心です。';
+  }
+  var r = score / total;
+  if(r >= 0.75){
+    return 'かなり正確に押さえていらっしゃいます。惜しかった問題こそ、実際の場面で差がつくところです。間違えた問題の「確認ポイント」を、戸籍謄本を開きながら答え合わせしてみてください。';
+  }
+  if(r >= 0.4){
+    return '半分前後という方がいちばん多い問題です。相続人の範囲は言葉こそ身近ですが、順位と代襲の線引きが独特で、ここで迷うのは普通のことです。家族構成が複雑になりやすい方ほど、早めに手元の戸籍を確認しておくことをおすすめします。';
+  }
+  return 'ここで引っかかっておいたのは、むしろ幸運です。相続人の範囲は、知らないまま手続きを進めると、あとから相続人が漏れていたと分かり、やり直しになることがあります。クイズで引っかかった論点は、本番で引っかからずに済む論点です。気になった問題だけ読み返してみてください。';
+}
+
+function showDone(){
+  quizPlay.style.display = 'none';
+  quizDone.classList.add('show');
+  document.getElementById('doneTotal').textContent = qAnsweredCount;
+  document.getElementById('doneScore').textContent = qScore;
+  document.getElementById('doneCmt').textContent = doneComment(qScore, qAnsweredCount);
+  var wl = document.getElementById('wrongList');
+  if(wrongItems.length){
+    var html = '<h4>ワナにかかった問題（＝先に調べておきたい論点）</h4>';
+    for(var i = 0; i < wrongItems.length; i++){
+      html += '<div class="w-item"><strong>' + wrongItems[i].q + '</strong><br>確認ポイント：' + wrongItems[i].check + '</div>';
+    }
+    wl.innerHTML = html;
+    wl.style.display = 'block';
+  } else {
+    wl.style.display = 'none';
+  }
+  var sum = document.getElementById('sumScore');
+  sum.innerHTML = '<p>○×クイズの結果：<strong>' + qAnsweredCount + '問中 ' + qScore + '問正解</strong>でした。' +
+    (wrongItems.length ? '間違えた問題は、そのまま「確認したいことリスト」になります。' : 'この調子で、下のチェックリストもどうぞ。') + '</p>';
+}
+
+btnYes.addEventListener('click', function(){ answer(true); });
+btnNo.addEventListener('click', function(){ answer(false); });
+btnNext.addEventListener('click', function(){
+  if(qIdx >= QUIZ.length - 1){ showDone(); return; }
+  qIdx++;
+  renderQ();
+  var shell = document.querySelector('.quiz-shell');
+  if(shell.getBoundingClientRect().top < 0) shell.scrollIntoView({behavior:'smooth'});
+});
+btnStop.addEventListener('click', showDone);
+document.getElementById('btnRetry').addEventListener('click', function(){
+  qIdx = 0; qScore = 0; qAnsweredCount = 0; wrongItems = [];
+  quizDone.classList.remove('show');
+  quizPlay.style.display = 'block';
+  btnNext.innerHTML = '次の質問へ <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  renderQ();
+});
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+document.getElementById('btnMailSelf').addEventListener('click', function(){
+  var body = '「相続人のなる・ならないチェック」の結果メモ\n\n' +
+    '○×クイズ：' + qAnsweredCount + '問中 ' + qScore + '問正解\n\n';
+  if(wrongItems.length){
+    body += '確認したいこと\n';
+    for(var i = 0; i < wrongItems.length; i++){
+      body += '・' + wrongItems[i].check + '\n';
+    }
+  }
+  body += '\n（戸籍謄本・家系図、婚姻や離婚の記録と一緒に保管しておくと、話が早く進みます）\n';
+  location.href = 'mailto:?subject=' + encodeURIComponent('相続人の「なる・ならない」チェック結果') + '&body=' + encodeURIComponent(body);
+});
+
+renderQ();
+
+/* ---------- セクション3：シミュレーター ---------- */
+var simA = document.getElementById('simA'), simB = document.getElementById('simB'),
+    simC = document.getElementById('simC'), simD = document.getElementById('simD');
+function man(x){ return Math.round(x).toLocaleString('ja-JP') + '万円'; }
+function pct(n){ return (Math.round(n * 1000) / 10) + '%'; }
+function setR(id, ok, chipTxt, txt){
+  document.getElementById(id).className = 'sim-r ' + (ok ? 'ok' : 'ng');
+  document.getElementById(id + 'Chip').textContent = chipTxt;
+  document.getElementById(id + 'Txt').textContent = txt;
+}
+function simUpdate(){
+  var a = Math.max(0, +simA.value || 0), b = simB.value, c = simC.checked;
+  var d = Math.max(1, Math.min(10, +simD.value || 1));
+  document.getElementById('simAOut').textContent = a.toLocaleString('ja-JP') + '万円';
+  document.getElementById('simDOut').textContent = d + '人';
+
+  var heir = true, bun = 0, kao = '', r1chip = '', r1txt = '', r2ok = false, r2chip = '', r2txt = '';
+  if(b === '1'){ bun = 0.5 / d; kao = '配偶者と子' + d + '人'; r1chip = '第1順位'; r1txt = '配偶者は常に相続人。子は第1順位として相続人になります。'; r2chip = '代襲なし'; r2txt = '先順位のまま相続人になるため、代襲相続は関係ありません。'; }
+  else if(b === '2'){ bun = 0.5; kao = '配偶者と子' + d + '人'; r1chip = '常に相続人'; r1txt = '配偶者は、誰と一緒に相続するかに関わらず常に相続人になります。'; r2chip = '代襲なし'; r2txt = '配偶者としての相続なので、代襲相続は関係ありません。'; }
+  else if(b === '3'){ bun = 1 / d; kao = '子' + d + '人のみ'; r1chip = '第1順位'; r1txt = '子は第1順位の相続人です。父母や兄弟姉妹には出番がありません。'; r2chip = '代襲なし'; r2txt = '先順位のまま相続人になるため、代襲相続は関係ありません。'; }
+  else if(b === '4'){ bun = 1 / d; kao = '孫' + d + '人（代襲）'; r1chip = '第1順位（代襲）'; r1txt = '子が先に死亡しているため、孫が代わりに第1順位の相続人になります。'; r2ok = true; r2chip = '代襲（何代でも）'; r2txt = '子の系統の代襲相続は、孫・ひ孫と何代でも続きます（再代襲）。'; }
+  else if(b === '5'){ bun = (1 / 3) / d; kao = '配偶者と父母' + d + '人'; r1chip = '第2順位'; r1txt = '子（と代襲する孫）がいないため、父母が第2順位の相続人になります。'; r2chip = '代襲なし'; r2txt = '直系尊属の相続には、代襲相続という制度自体がありません。'; }
+  else if(b === '6'){ bun = 1 / d; kao = '父母' + d + '人のみ'; r1chip = '第2順位'; r1txt = '子（と代襲する孫）がいないため、父母が第2順位の相続人になります。'; r2chip = '代襲なし'; r2txt = '直系尊属の相続には、代襲相続という制度自体がありません。'; }
+  else if(b === '7'){ bun = (1 / 4) / d; kao = '配偶者と兄弟姉妹' + d + '人'; r1chip = '第3順位'; r1txt = '子・父母ともにいないため、兄弟姉妹が第3順位の相続人になります。'; r2chip = '代襲なし'; r2txt = '先順位のまま相続人になるため、代襲相続は関係ありません。'; }
+  else if(b === '8'){ bun = 1 / d; kao = '兄弟姉妹' + d + '人のみ'; r1chip = '第3順位'; r1txt = '子・父母ともにいないため、兄弟姉妹が第3順位の相続人になります。'; r2chip = '代襲なし'; r2txt = '先順位のまま相続人になるため、代襲相続は関係ありません。'; }
+  else if(b === '9'){ bun = 1 / d; kao = '甥・姪' + d + '人（代襲）'; r1chip = '第3順位（代襲）'; r1txt = '兄弟姉妹が先に死亡しているため、甥・姪が代わりに第3順位の相続人になります。'; r2ok = true; r2chip = '代襲（一代限り）'; r2txt = '兄弟姉妹の系統の代襲相続は、甥・姪の代までで止まります。再代襲はありません。'; }
+  else { heir = false; bun = 0; kao = '内縁・離婚した元配偶者'; r1chip = '対象外'; r1txt = '婚姻届を出していない、または離婚が成立しているため、法律上の相続人ではありません。'; r2chip = '該当なし'; r2txt = '相続人としての地位自体がないため、代襲相続の制度は関係ありません。'; }
+
+  var rate = bun;
+  var kekka = a * rate;
+  document.getElementById('tlFill').style.width = Math.min(100, (rate / 0.5) * 100) + '%';
+
+  setR('simR1', heir, r1chip, r1txt);
+  setR('simR2', heir && r2ok, r2chip, r2txt);
+  if(!c){
+    setR('simR3', false, '前提が未確認', '先順位の人（子や父母など）が他にいないかどうかで、相続人になるかどうかが変わります。チェックを確認してください。');
+  } else if(!heir){
+    setR('simR3', false, '割合なし', '相続人でないため、法定相続分そのものがありません。');
+  } else {
+    setR('simR3', true, pct(rate), kao + 'の場合、法定相続分の割合は ' + pct(rate) + ' です。');
+  }
+
+  var big = document.getElementById('simTotalBig'), sub = document.getElementById('simTotalSub');
+  if(!heir){
+    big.innerHTML = 'あなたの法定相続分は <b>0円</b>';
+    sub.textContent = '相続人でないため、財産の多い少ないに関わらず割合はゼロです。';
+  } else if(kekka <= 0){
+    big.innerHTML = 'あなたの法定相続分は <b>0円</b>';
+    sub.textContent = '入力された財産が0のため、計算しても0になります。';
+  } else {
+    big.innerHTML = kao + ' で、あなたの法定相続分は <b>約' + man(kekka) + '</b>';
+    sub.textContent = '財産' + man(a) + 'の ' + pct(rate) + ' にあたる金額です（概算）。';
+  }
+}
+simA.addEventListener('input', simUpdate); simB.addEventListener('change', simUpdate);
+simC.addEventListener('change', simUpdate); simD.addEventListener('input', simUpdate);
+simUpdate();
+
+/* ---------- セクション4：あるある劇場 ---------- */
+var CASES = [
+  {
+    art:'icNaien', cls:'c-red', chip:'第一幕：内縁の誤算',
+    title:'「もう家族なのに」相続人になれなかった',
+    story:'「彼と20年近く一緒に暮らしてきました。籍は入れていません。お互い一度目の結婚で懲りていたので、このままでいいと思っていました。<br>彼が急に亡くなったとき、私はてっきり長年連れ添った自分にも当然、何か相続する権利があると思っていました。ところが彼のご両親から、<strong>あなたには相続する権利がありません</strong>とはっきり言われました。<br>調べてみると、法律上の相続人になれるのは婚姻届を出した配偶者だけで、内縁のパートナーは対象外なのだと知りました。20年という時間は、法律の前ではゼロと同じだったのです」<small>——50代・パートナー（脚色あり）</small>',
+    what:'<p class="cmodal-p">相続人になれる配偶者は、<strong>婚姻届を提出して法律上の夫婦になっている人</strong>に限られます。同居の年数や、実質的な夫婦としての生活の実態は、相続人になれるかどうかの判断には関係ありません。</p><p class="cmodal-p">この方は、彼の両親（第2順位の相続人）と話し合う立場にすらなれませんでした。<strong>相続人でない人は、遺産分割の話し合いに参加する権利もない</strong>のです。</p>',
+    how:'<p class="cmodal-p">今日できることは、婚姻届を出しているかどうかを確認することです。もし内縁関係のままにするご事情があるなら、<strong>遺言を書いておく、生命保険の受取人に指定しておく</strong>など、相続とは別の方法で財産を残す準備が必要になります。</p><p class="cmodal-p">遺言を書く場合、内縁のパートナーには遺留分（最低限の取り分）を求める権利もありませんので、他の相続人との関係次第では、遺言の内容がそのまま実現しやすいという面もあります。具体的な進め方は、早めに専門家にご相談ください。</p>'
+  },
+  {
+    art:'icRikon', cls:'c-amber', chip:'第二幕：離婚後の連絡',
+    title:'離婚した元夫の遺産、子には権利があった',
+    story:'「10年前に離婚しました。子どもの親権は私が持ち、元夫とはそれ以来ほとんど連絡を取っていません。<br>その元夫が亡くなったと、風の噂で聞きました。私自身はもう関係ないと思っていましたが、<strong>子どもには相続する権利がある</strong>と知り、驚きました。親権が私にあることも、長く連絡を取っていなかったことも、関係ないというのです。<br>結局、子どもの代理人として、会ったこともない元夫の親族と連絡を取ることになりました。気まずさはありましたが、子どもの権利なので放っておくわけにもいきませんでした」<small>——40代・母親（脚色あり）</small>',
+    what:'<p class="cmodal-p">離婚によって<strong>配偶者としての相続権はなくなります</strong>が、親子の血縁関係は離婚によって切れません。親権がどちらにあるか、同居しているかどうかにも関係なく、<strong>実の子は第1順位の相続人のまま</strong>です。</p><p class="cmodal-p">この方自身（元妻）はもちろん相続人ではありません。しかし未成年の子に代わって手続きを進める場面では、親権者として関わることになります。</p>',
+    how:'<p class="cmodal-p">離婚歴があり、前の婚姻でお子さんがいる場合は、<strong>そのお子さんが将来の相続人になり得る</strong>ことを念頭に置いておくとよいでしょう。連絡先が分からなくなっている場合、戸籍の附票などから住所を追う方法があります。</p><p class="cmodal-p">感情的に複雑な場面になりやすいため、当事者同士だけで進めようとせず、早い段階で専門家に間に入ってもらうという選択肢も検討してください。</p>'
+  },
+  {
+    art:'icDaishuu', cls:'c-berry', chip:'第三幕：再代襲の壁',
+    title:'甥の子には、相続の権利が引き継がれなかった',
+    story:'「独身の叔父が亡くなりました。叔父にも私の父（叔父の弟）にも子はおらず、相続人を探すと、もう一人の兄弟の子である従兄が代襲相続人にあたると分かりました。<br>ところがその従兄も、叔父より先に亡くなっていました。従兄には息子（私にとっては再従兄弟）がいます。てっきり、その息子が代わりに相続人になるものだと思っていました。<br>調べてもらうと、<strong>兄弟姉妹の代襲相続は、甥・姪の代までで止まる</strong>と分かりました。従兄の息子には、相続する権利がありませんでした」<small>——40代・親族（脚色あり）</small>',
+    what:'<p class="cmodal-p">代襲相続は、子の系統（直系卑属）では孫・ひ孫と何代でも続きますが、<strong>兄弟姉妹の系統では、その子である甥・姪の代までしか続きません</strong>。甥・姪がさらに先に死亡していても、その子への再代襲は起こりません。</p><p class="cmodal-p">同じ「代襲」という言葉が使われていても、<strong>系統によって続く範囲がまったく違う</strong>という、実務でも見落とされやすい点です。</p>',
+    how:'<p class="cmodal-p">今日できることは、代襲が問題になりそうな場面では、<strong>どちらの系統の代襲なのか</strong>（子の系統か、兄弟姉妹の系統か）を最初に区別することです。この区別だけで、確認すべき範囲がまったく変わります。</p><p class="cmodal-p">相続人の範囲が複雑になりそうな場合は、戸籍を集める前に、まず関係図を紙に書き出してみることをおすすめします。専門家に確認を依頼する際にも、その図がそのまま役立ちます。</p>'
+  },
+  {
+    art:'icUpgrade', cls:'c-blue', chip:'第四幕：父母の思い込み',
+    title:'「親なのだから」相続人になれると思っていた',
+    story:'「息子が結婚したばかりで亡くなりました。私たち夫婦は、親なのだから当然、多少なりとも相続する権利があると思っていました。<br>ところが息子には生まれたばかりの子（私たちにとっては孫）がいました。<strong>子がいる以上、親である私たちには相続する権利がない</strong>と説明を受けました。<br>気持ちの整理がつかないまま、息子の妻（孫の親権者）とやり取りすることになりました。孫の将来のための財産だと分かってはいても、複雑な気持ちが残りました」<small>——60代・父母（脚色あり）</small>',
+    what:'<p class="cmodal-p">相続人になる順位は、配偶者は常に相続人、それに加えて<strong>第1順位の子が1人でもいれば、それで確定</strong>します。父母などの第2順位の人は、子（や代襲する孫）が誰もいない場合に限って相続人になります。</p><p class="cmodal-p">「親なのだから」という感覚と、法律上の順位のルールは別のものです。この線引きを知らないまま話し合いに臨むと、思わぬところで気持ちがこじれることがあります。</p>',
+    how:'<p class="cmodal-p">今日できることは、ご自身のお子さんに子（お孫さん）がいるかどうかを確認しておくことです。子がいれば、父母であるご自身は相続人にならないという前提を、あらかじめ理解しておくと、いざというときの心の準備になります。</p><p class="cmodal-p">なお、順位にかかわらず、生前にお子さんの資産形成を助けたい場合は、生前贈与など別の方法もあります。制度ごとに条件が異なりますので、具体的な進め方は専門家にご確認ください。</p>'
+  },
+  {
+    art:'icYoushi', cls:'c-green', chip:'第五幕：養子縁組の記録',
+    title:'養子であることを、手続きの途中で初めて知った',
+    story:'「叔母が亡くなり、相続人を確定するために戸籍を集めていました。叔母には実子が2人いるはずでしたが、戸籍を遡ると、そのうち1人が<strong>養子縁組による子</strong>だったと分かりました。家族の誰もその事実を知らなかったのです。<br>養子であっても相続人になる権利は実子と同じなので、手続きに支障はありませんでした。ただ、戸籍を取り寄せる範囲が想定より広がり、手続きの日数が延びました」<small>——50代・親族（脚色あり）</small>',
+    what:'<p class="cmodal-p">養子は、養子縁組の届出をした日から<strong>実子と同じ順位・同じ割合で相続人になります</strong>。この方の家族が驚いたのは相続権の有無ではなく、養子縁組の事実そのものを知らなかったという点でした。</p><p class="cmodal-p">相続人を確定するには、<strong>亡くなった人の出生から死亡までの戸籍をすべて集める</strong>必要があります。養子縁組や認知など、家族の誰もが知らない記録が出てくることは珍しくありません。</p>',
+    how:'<p class="cmodal-p">今日できることは、ご自身やご家族の戸籍に、養子縁組や認知の記録がないかを一度確認しておくことです。本籍地の役所で戸籍謄本を取り寄せれば、記載事項を確認できます。</p><p class="cmodal-p">記録が見つかった場合でも、相続人としての権利には変わりがありません。<strong>手続きに時間がかかる可能性がある</strong>、と心づもりをしておくことが、いちばんの備えになります。</p>'
+  },
+  {
+    art:'icHitori', cls:'c-red', chip:'第六幕：急いだ話し合い',
+    title:'妊娠中の家族を待たずに、話し合いを始めかけた',
+    story:'「夫が事故で急に亡くなりました。私は妊娠中で、義理の両親からは『生まれてから相続の話をしよう』と言われましたが、義理の兄からは『早く決めてしまいたい』と急かされました。<br>後で知ったのですが、<strong>お腹の中の子にも相続人としての権利がある</strong>そうです。もし生まれる前に話し合いを終えていたら、この子の取り分が正しく反映されなかったかもしれません。<br>結局、出産まで待ってから、みんなで話し合うことになりました」<small>——30代・妻（脚色あり）</small>',
+    what:'<p class="cmodal-p">相続については、<strong>胎児はすでに生まれたものとみなす</strong>という特別な扱いがあります。ただし、これは生きて生まれてくることが条件で、残念ながら死産だった場合には適用されません。</p><p class="cmodal-p">胎児がいる状態で遺産分割の話し合いを進めてしまうと、<strong>後から相続人が1人増える（あるいは条件が変わる）</strong>ことになりかねません。実務では、出生を待ってから話し合いを始めるのが一般的です。</p>',
+    how:'<p class="cmodal-p">今日できることは、相続が発生した時点でどなたかが懐胎している場合、<strong>その事実を相続人全員で共有しておく</strong>ことです。急いで結論を出そうとする人がいても、法律上の相続人が確定していない段階での合意は、後からやり直しになるおそれがあります。</p><p class="cmodal-p">出産予定日と、遺産分割協議を始める時期の見通しについては、早めに専門家に相談しておくと、周囲の理解も得やすくなります。</p>'
+  }
+];
+
+/* ---------- セクション5：逆転劇場 ---------- */
+var GOOD_CASES = [
+  {
+    art:'icYuigon', cls:'c-blue', chip:'第一話：内縁への備え', amt:'遺言で対応',
+    title:'相続人になれないと知って、先に遺言を書いた',
+    story:'「内縁の妻とは15年一緒にいますが、籍は入れていません。彼女には子がいないので、私が亡くなれば実家の兄弟が相続人になります。彼女には相続する権利がないと知って、正直ぞっとしました。<br>そこで公正証書遺言を作りました。<strong>兄弟姉妹には遺留分がない</strong>ため、遺言の内容がそのまま実現すると聞いて安心しました。<br>彼女には『これで、もしものときも住み続けられる』と伝えました。籍を入れる入れないとは別に、備えられることがあると分かって気持ちが軽くなりました」<small>——50代・パートナー（脚色あり）</small>',
+    what:'<p class="cmodal-p">内縁のパートナーには、相続人としての権利も、遺留分（最低限の取り分）を求める権利もありません。しかし<strong>遺言によって、財産を残すこと自体は可能です</strong>。相続人でない人に財産を渡す遺言も、法律上有効です。</p><p class="cmodal-p">この方のように、相続人が兄弟姉妹（遺留分のない立場）の場合、<strong>遺言の内容がそのまま実現しやすい</strong>という事情も、備えを後押ししました。</p>',
+    how:'<p class="cmodal-p">条件は、遺言が有効な方式で作られていることです。自筆証書遺言は手軽ですが、方式の不備で無効になるリスクがあるため、公正証書遺言を選ぶ方が多くなっています。作成には手数料と証人が必要です。</p><p class="cmodal-p">なお、内縁のパートナーが財産を受け取る場合、<strong>相続税の計算では配偶者のような優遇が受けられません</strong>。税負担の見込みについては、事前に税理士にご確認ください。</p>'
+  },
+  {
+    art:'icHoken', cls:'c-green', chip:'第二話：受取人の指定', amt:'保険金で対応',
+    title:'生命保険の受取人指定で、まとまった額を残せた',
+    story:'「内縁の夫が、私を受取人にした生命保険に入ってくれていました。彼が亡くなったとき、相続人ではない私には遺産を受け取る権利がありませんでしたが、<strong>保険金は受取人である私自身の財産として支払われました</strong>。<br>手続きも、相続人全員の同意を待つ必要がなく、比較的早く進みました。彼が『籍は入れられなくても、これくらいはできる』と言っていた意味が、あとになって分かりました」<small>——40代・パートナー（脚色あり）</small>',
+    what:'<p class="cmodal-p">死亡保険金は、受取人が指定されていれば<strong>受取人自身の財産</strong>として支払われるのが一般的な取扱いです。相続人でない人を受取人に指定することもでき、遺産分割の話し合いを待たずに受け取れる場合が多くなっています。</p><p class="cmodal-p">遺言のように相続人との調整が要らない分、<strong>手続きが比較的シンプルに進みやすい</strong>という特徴があります。</p>',
+    how:'<p class="cmodal-p">条件は、契約時に受取人を正しく指定しておくことです。受取人の変更には被保険者の同意が必要になるなど、契約ごとにルールがあります。証券を出して、受取人欄を確認してみてください。</p><p class="cmodal-p">なお、相続人でない人が受け取る死亡保険金には、<strong>相続人が受け取る場合の非課税枠が適用されません</strong>。税負担は契約の形によって異なりますので、個別の税額計算・申告については税理士にご確認ください。有利・不利は加入の目的と時期によって変わりますので、条件を確かめてからご判断ください。</p>'
+  },
+  {
+    art:'icYoushi', cls:'c-amber', chip:'第三話：養子縁組', amt:'後継者に相続権',
+    title:'養子縁組で、後継ぎに相続の権利を持たせた',
+    story:'「長年一緒に店を切り盛りしてきた甥に、店を継いでもらうことにしました。ただ、甥のままでは私の相続人にはなれず、店の資産を引き継がせる方法に悩んでいました。<br>専門家に相談し、<strong>養子縁組</strong>という方法を教えてもらいました。手続きを終えると、甥は法律上、私の子と同じ立場になりました。<br>もちろん他の親族への配慮も必要でしたが、後継ぎに正式な相続権を持たせられたことで、事業の引き継ぎがずいぶんやりやすくなりました」<small>——60代・店主（脚色あり）</small>',
+    what:'<p class="cmodal-p">養子縁組の届出をすると、養子は<strong>実子と同じ順位・同じ割合で相続人になります</strong>。血縁のない後継者であっても、養子縁組によって正式な相続権を持たせることができます。</p><p class="cmodal-p">普通養子縁組の場合、養子は実の父母との親子関係も維持されるため、<strong>両方の家の相続人になり得る</strong>点も押さえておく必要があります。</p>',
+    how:'<p class="cmodal-p">条件は、養子縁組の届出を役所に提出することです。当事者の同意のほか、養親・養子の年齢などの要件があります。他の相続人（実子など）がいる場合、養子が加わることで<strong>それぞれの法定相続分の割合が変わる</strong>点も、あらかじめ説明しておくと角が立ちにくくなります。</p><p class="cmodal-p">相続税の計算では、養子の数に一定の制限が設けられている場合があります。個別の税額計算・申告については税理士にご確認ください。</p>'
+  },
+  {
+    art:'icDaishuu', cls:'c-blue', chip:'第四話：代襲の確認', amt:'孫への相続が円滑',
+    title:'代襲相続を先に確認し、孫への引き継ぎがスムーズだった',
+    story:'「息子が私より先に亡くなり、心にぽっかり穴が空いたような日々でした。それでも、いずれ自分の相続のことも考えなければと、専門家に相談しました。<br>息子には子（私の孫）がいたので、<strong>代襲相続によって孫が息子の代わりに相続人になる</strong>と分かりました。孫はまだ学生でしたが、私の意向を遺言に残しておくことで、将来の手続きの見通しが立ちました。<br>『何も分からないまま任せる』のと『先に道筋が分かっている』のとでは、家族の安心感がまったく違うと感じました」<small>——70代・祖父（脚色あり）</small>',
+    what:'<p class="cmodal-p">相続人になるはずだった人（この場合は息子）が先に死亡している場合、<strong>その子である孫が代襲相続人として相続人になります</strong>。子の系統の代襲相続は、孫・ひ孫と何代でも続くのが特徴です。</p><p class="cmodal-p">先に代襲の仕組みを知っておくことで、<strong>誰が相続人になるかを見通したうえで準備を進められる</strong>ようになります。</p>',
+    how:'<p class="cmodal-p">条件は、本来の相続人が相続開始より前に死亡している事実です。手続きの際は、亡くなった人の死亡の事実が分かる戸籍を集める必要があります。</p><p class="cmodal-p">代襲相続人がまだ未成年の場合、遺産分割の話し合いには特別代理人が必要になることがあります。<strong>早めに専門家へ相談しておく</strong>と、いざというときに慌てずに済みます。</p>'
+  },
+  {
+    art:'icKyoudai', cls:'c-berry', chip:'第五話：一代限りの理解', amt:'生前贈与で対応',
+    title:'兄弟姉妹の代襲は一代限りと知り、早めに動いた',
+    story:'「私には子も配偶者もいません。相続人は兄弟姉妹になりますが、兄はすでに亡くなっていて、その子（甥）が代襲相続人にあたります。<br>調べてみると、<strong>この甥がさらに先に死亡した場合、その子には相続権が引き継がれない</strong>と分かりました。甥にはまだ小さな子がいます。もし甥に何かあったら、私の財産の行き先が宙に浮いてしまうかもしれません。<br>そこで、生前のうちに少しずつ財産を整理し、甥に直接渡す形を検討することにしました」<small>——60代・叔母（脚色あり）</small>',
+    what:'<p class="cmodal-p">兄弟姉妹の系統の代襲相続は、<strong>甥・姪の代までで止まります</strong>。甥・姪がさらに先に死亡していても、その子への再代襲は起こりません。この方は、その先の世代まで確実に財産を届けたいという事情から、備えの必要性に早く気づけました。</p><p class="cmodal-p">系統によって代襲の続く範囲が違うと知っているかどうかで、<strong>準備を始めるタイミングが大きく変わります</strong>。</p>',
+    how:'<p class="cmodal-p">条件は、生前贈与であれば贈与の都度、正しい手続き（契約書の作成など）を踏むことです。まとまった額を一度に贈与すると贈与税の負担が大きくなる場合があるため、<strong>時期や金額の組み立てを検討する必要があります</strong>。</p><p class="cmodal-p">遺言を使う方法もあわせて検討できます。どちらの方法が合うかは、財産の内容や渡したい時期によって変わります。個別の税額計算・申告については税理士にご確認ください。</p>'
+  },
+  {
+    art:'icHitori', cls:'c-green', chip:'第六話：胎児への配慮', amt:'出生を待って解決',
+    title:'お腹の子の存在を考慮し、話し合いを待った',
+    story:'「夫が急逝したとき、私は妊娠していました。義理の家族の中には『早く手続きを終わらせたい』という声もありましたが、<strong>お腹の子にも相続人としての権利がある</strong>と知っていたので、みんなに説明して、出産まで待ってもらいました。<br>無事に子が生まれたあと、あらためて相続人全員で話し合いを行いました。急がずに待ったことで、子の権利がきちんと反映された形で手続きを終えることができました」<small>——30代・妻（脚色あり）</small>',
+    what:'<p class="cmodal-p">相続については、胎児はすでに生まれたものとみなされます。ただし<strong>生きて生まれてくることが条件</strong>です。この方は、この扱いを知っていたことで、周囲に説明し、待つべき理由をきちんと伝えることができました。</p><p class="cmodal-p">知らないまま話し合いを進めてしまうと、<strong>後から相続人の数や条件が変わり、やり直しになる</strong>おそれがありました。</p>',
+    how:'<p class="cmodal-p">条件は、相続開始の時点で懐胎の事実があることです。周囲に急かされても、<strong>法律上の相続人が確定していない段階での合意は、後から見直しが必要になる可能性がある</strong>ことを、落ち着いて伝えることが大切です。</p><p class="cmodal-p">出産予定日と手続きの見通しについては、早めに専門家へ相談しておくと、周囲の理解も得やすくなります。</p>'
+  },
+  {
+    art:'icRikon', cls:'c-amber', chip:'第七話：元配偶者の子との連絡', amt:'早めに連絡',
+    title:'疎遠だった元配偶者の子と、落ち着いて話せた',
+    story:'「再婚する前、最初の結婚でもうけた子がいました。長らく連絡を取っていませんでしたが、私が亡くなれば、<strong>その子にも相続人としての権利がある</strong>と分かり、今の家族にもその事実を伝えておくことにしました。<br>元気なうちに一度、子に連絡を取り、近況を伝え合いました。すべてが解決したわけではありませんが、少なくとも『初めて聞かされる』という状況は避けられたと思います」<small>——50代・父親（脚色あり）</small>',
+    what:'<p class="cmodal-p">離婚によって配偶者との関係は終わりますが、<strong>親子の血縁関係は切れません</strong>。前の婚姻でもうけた子は、親権や同居の有無に関わらず、第1順位の相続人であり続けます。</p><p class="cmodal-p">この事実を生前に家族で共有しておくことで、<strong>相続が始まってから初めて事実を知る、という事態を避けられます</strong>。</p>',
+    how:'<p class="cmodal-p">条件は、ご自身の戸籍をさかのぼって、前の婚姻でお子さんが生まれていないかを確認することです。連絡先が分からない場合は、戸籍の附票などから住所をたどる方法があります。</p><p class="cmodal-p">感情的な事情が絡みやすいため、<strong>ご本人だけで抱え込まず、早めに家族や専門家と共有する</strong>ことをおすすめします。</p>'
+  },
+  {
+    art:'icUpgrade', cls:'c-blue', chip:'第八話：順位の理解', amt:'無駄な手続きを回避',
+    title:'順位を理解していたので、不要な戸籍集めを避けられた',
+    story:'「父が亡くなったとき、相続人は母と私たち子ども2人だけだと最初から分かっていました。第1順位の子がいる以上、祖父母（父の親、すでに他界）や、父のきょうだいの戸籍を集める必要はありません。<br>周りには『念のため全員分の戸籍を集めたほうがいい』と言う人もいましたが、順位のルールを理解していたおかげで、<strong>必要な範囲だけに絞って手続きを進められました</strong>。結果的に時間も費用も抑えられました」<small>——40代・長男（脚色あり）</small>',
+    what:'<p class="cmodal-p">相続人になる順位を理解していると、<strong>戸籍を集める範囲を必要最小限に絞り込むことができます</strong>。第1順位の子が健在であれば、第2順位・第3順位の人の戸籍まで集める必要は、通常ありません。</p><p class="cmodal-p">逆に順位を理解していないと、念のためと称して<strong>不要な戸籍まで広く集めてしまい</strong>、時間と費用がかさむことがあります。</p>',
+    how:'<p class="cmodal-p">条件は、まず亡くなった人に子（や代襲する孫）がいるかどうかを確認することです。いる場合は、それ以降の順位の人の記録を集める必要は、原則としてありません。</p><p class="cmodal-p">ただし、遺言の有無や、養子縁組・認知の記録の有無によっては確認範囲が変わることもあります。<strong>何を集めればよいか迷ったら、最初に専門家に確認する</strong>のが、結果的にいちばんの近道です。</p>'
+  }
+];
+
+var modal = document.getElementById('caseModal');
+var CASE_LBL = {
+  bad:['よく伺うお話をもとにした創作例（脚色あり）', '何が起きたのか', 'こう確認すれば防げます'],
+  good:['よくある、うれしい誤算（創作例・脚色あり）', 'なぜ助かったのか', '使うための条件']
+};
+
+function renderCases(gridId, list, kind){
+  var grid = document.getElementById(gridId);
+  list.forEach(function(c){
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'case-card';
+    btn.innerHTML =
+      '<span class="art ' + c.cls + '">' + ARTS[c.art] + '</span>' +
+      '<span class="t"><span class="chip ' + c.cls + '">' + c.chip + '</span>' +
+      (c.amt ? '<span class="amt">' + c.amt + '</span>' : '') +
+      '<h3>' + c.title + '</h3>' +
+      '<span class="more">くわしく見る<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></span></span>';
+    btn.addEventListener('click', function(){ openCase(c, kind); });
+    grid.appendChild(btn);
+  });
+}
+
+function openCase(c, kind){
+  var lbl = CASE_LBL[kind] || CASE_LBL.bad;
+  document.getElementById('caseModalLbl1').textContent = lbl[0];
+  document.getElementById('caseModalLbl2').textContent = lbl[1];
+  document.getElementById('caseModalLbl3').textContent = lbl[2];
+  document.getElementById('caseModalLbl2Wrap').className =
+    'cmodal-label ' + (kind === 'good' ? 'lb-green' : 'lb-red');
+  document.getElementById('caseModalIco').className = 'cmodal-ico ' + c.cls;
+  document.getElementById('caseModalIco').innerHTML = ARTS[c.art];
+  document.getElementById('caseModalChip').className = 'cmodal-chip ' + c.cls;
+  document.getElementById('caseModalChip').textContent = c.chip;
+  document.getElementById('caseModalTitle').textContent = c.title;
+  document.getElementById('caseModalStory').innerHTML = c.story;
+  document.getElementById('caseModalWhat').innerHTML = c.what;
+  document.getElementById('caseModalHow').innerHTML = c.how;
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+  modal.querySelector('.cmodal-panel').scrollTop = 0;
+}
+
+renderCases('caseGrid', CASES, 'bad');
+renderCases('goodGrid', GOOD_CASES, 'good');
+
+function closeCase(){
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+document.getElementById('caseModalClose').addEventListener('click', closeCase);
+document.getElementById('caseModalBack').addEventListener('click', closeCase);
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && modal.classList.contains('show')) closeCase();
+});
+
+/* ---------- まとめ：チェックリスト ---------- */
+var chkBoxes = document.querySelectorAll('#checklist input[type=checkbox]');
+var chkMsg = document.getElementById('chkMsg');
+function chkUpdate(){
+  var n = 0;
+  chkBoxes.forEach(function(c){ if(c.checked) n++; });
+  var total = chkBoxes.length;
+  if(n === 0){
+    chkMsg.textContent = 'あてはまるもの、できているものを押してみてください。数が少なくても心配はいりません。';
+  } else if(n <= 2){
+    chkMsg.textContent = 'チェック' + n + '個。まずは配偶者以外に誰が相続人になるか、順位から数えてみるところからで大丈夫です。';
+  } else if(n <= 5){
+    chkMsg.textContent = 'チェック' + n + '個。あと少しで、話をする準備が整います。戸籍集めが次の一歩です。';
+  } else if(n < total){
+    chkMsg.textContent = 'チェック' + n + '個。かなり整っています。あとは相続人にならない人への備えを話し合うだけです。';
+  } else {
+    chkMsg.textContent = '全部そろいました。あとは家族構成が変わったときに、同じ順番で見直すだけです。';
+  }
+}
+chkBoxes.forEach(function(c){ c.addEventListener('change', chkUpdate); });
+
+})();
+</script>
+</body>
+</html>

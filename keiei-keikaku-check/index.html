@@ -1,0 +1,2009 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="売上目標だけの計画は、達成しても資金繰りが楽になりません。必要な利益を返済予定表から逆算し、限界利益率で割って必要売上を出す。この順番を、○×クイズ8問と必要売上シミュレーターで確認できます。利益と現金の違い、月次で追う仕組みまで。株式会社Office-M作成の情報提供資料。">
+<title>経営計画が「使える・使えない」チェック｜株式会社Office-M</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 6 8 18v10c0 16 10 26 24 30 14-4 24-14 24-30V18Z' fill='%232c7a4b'/%3E%3Cpath d='M20 42V30M32 42V22M44 42V34' fill='none' stroke='%23fff' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --navy:#1b3f5e;
+  --navy-2:#27587f;
+  --navy-soft:#eaf1f7;
+  --bg:#fff8f2;
+  --white:#ffffff;
+  --text:#33404d;
+  --muted:#5c6874;
+  --line:#efe2d8;
+  --shadow:0 6px 20px rgba(130,100,80,.09);
+  --shadow-sm:0 3px 10px rgba(130,100,80,.07);
+
+  --red:#c2453f;
+  --red-dark:#a63631;
+  --red-bg:#fdeee9;
+  --red-border:#f4d0c6;
+  --coral:#f0846a;
+  --coral-text:#c2451f;
+
+  --green:#2c7a4b;
+  --green-bg:#e8f6ef;
+  --green-border:#c3e5d3;
+  --mint:#4fbf9b;
+
+  --amber:#8f6015;
+  --amber-deep:#a85c12;
+  --amber-bg:#fdf3e2;
+  --amber-border:#f2dcae;
+  --sunny:#f7c34e;
+
+  --sky:#24729f;
+  --sky-bg:#e8f4fb;
+  --sky-border:#c6e2f2;
+
+  --berry:#8f4574;
+  --berry-bg:#fbeef6;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+/* スマホでも17pxを基準にする（注記・出典まわりが12pxまで小さくなっていたため） */
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;font-size:17px;}
+/* 左右の余白が広い画面ほど文字を大きくして見やすさに還元する */
+@media(min-width:1000px){ html{font-size:18px;} }
+body{
+  font-family:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho",YuMincho,"游明朝体","游明朝","MS PMincho","ＭＳ Ｐ明朝",serif;
+  color:var(--text);
+  background:var(--bg);
+  font-size:1.09rem;
+  line-height:1.95;
+  letter-spacing:.03em;
+  padding-bottom:40px;
+  overflow-wrap:break-word;
+}
+@media(min-width:768px){
+  body{font-size:1.16rem;letter-spacing:.04em;}
+}
+img,svg{max-width:100%;vertical-align:middle;}
+button{font-family:inherit;}
+/* キーボード操作でいまどこにいるかを、はっきり見せる（既定の1本線は細くて見えない） */
+a:focus-visible,button:focus-visible,summary:focus-visible,
+input:focus-visible,label:focus-visible,[tabindex]:focus-visible{
+  outline:3px solid var(--navy-2);
+  outline-offset:3px;
+  border-radius:6px;
+}
+a{color:var(--navy-2);}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px;}
+/* 広い画面では、本文の1行を約40字までに抑える（日本語の読みやすい行長の目安）。
+   カード内の短い文には効かせず、横幅いっぱいに伸びる長文だけを対象にする */
+@media(min-width:700px){
+  .guide-msg,.def-lead,.sec-lead,.sub-lead,.age-note,.note,
+  .mikane ol li,.mikane .caution,.rule3-box ol li,.rule3-note,
+  .cta-lead,details.finder p,details.finder li,footer.disclaimer p{
+    max-width:40em;
+  }
+  /* 中央寄せの箱の中にあるものは、中央のまま幅だけ詰める */
+  .venn-cap,.life-cap{max-width:40em;margin-left:auto;margin-right:auto;}
+}
+.nowrap{white-space:nowrap;}
+
+/* ---------- ヘッダー ---------- */
+.hero{
+  background:linear-gradient(168deg,#fbe6e6 0%,#fdf1ea 46%,#ddf0fb 100%);
+  color:var(--navy);
+  padding:24px 0 30px;
+  overflow:hidden;
+}
+.brand{
+  display:flex;align-items:center;gap:10px;
+  font-size:.92rem;font-weight:700;letter-spacing:.02em;color:var(--navy);
+}
+.brand .ico{
+  width:36px;height:36px;flex:0 0 36px;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--navy);border-radius:12px;
+}
+.brand .ico svg{width:20px;height:20px;stroke:#fff;}
+.brand small{display:block;font-weight:500;color:var(--muted);font-size:.82rem;letter-spacing:.04em;line-height:1.55;}
+.hero-flex{display:flex;flex-direction:column;}
+.hero h1{
+  font-size:1.58rem;line-height:1.45;font-weight:800;
+  margin:20px 0 12px;letter-spacing:.01em;color:var(--navy);
+}
+.hero h1 .accent{
+  background:linear-gradient(transparent 62%, #ffd9a8 62%);
+  padding:0 2px;
+}
+.hero .lead{font-size:1rem;color:var(--text);max-width:640px;}
+/* 文字間隔をユーザーが広げても見出しが切れないよう、狭い画面では折り返しを許す
+   （通常の表示では1行に収まるため、見た目は変わらない）— WCAG 1.4.12 */
+@media(max-width:520px){ .hero h1 .nowrap{white-space:normal;} }
+.hero-scene{margin:16px auto 0;width:100%;max-width:400px;}
+.hero-scene svg{width:100%;height:auto;display:block;}
+@media(min-width:768px){
+  .hero{padding:30px 0 40px;}
+  .hero h1{font-size:1.95rem;}
+  .hero .lead{font-size:1.06rem;}
+  .hero-flex{flex-direction:row;align-items:center;gap:28px;}
+  .hero-copy{flex:1;}
+  .hero-scene{flex:0 0 340px;margin:0;}
+}
+.hero-nav{display:flex;flex-wrap:wrap;gap:9px;margin-top:20px;}
+.hero-nav a{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--white);
+  border:2px solid #ffffff;
+  color:var(--navy);text-decoration:none;
+  padding:11px 17px;border-radius:999px;
+  font-size:.94rem;font-weight:700;min-height:48px;
+  box-shadow:var(--shadow-sm);
+}
+.hero-nav a:active{background:#fff4e9;}
+.hero-nav a svg{width:18px;height:18px;stroke:var(--coral);flex:0 0 18px;}
+
+/* ---------- セクション共通 ---------- */
+section{padding:40px 0 46px;}
+.band{background:var(--white);}
+.band-sky{background:var(--sky-bg);}
+.band-blush{background:#fdf1eb;}
+.band-mint{background:var(--green-bg);}
+.round-top{
+  border-radius:30px 30px 0 0;
+  margin-top:-24px;position:relative;z-index:1;
+  padding-top:42px;
+}
+.sec-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;}
+.sec-head .spot{flex:0 0 84px;}
+.spot-circle{
+  width:84px;height:84px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.spot-circle svg{width:52px;height:52px;}
+.step-pill{
+  display:inline-flex;align-items:center;gap:9px;
+  background:var(--amber-bg);color:var(--navy);
+  font-size:.88rem;font-weight:700;letter-spacing:.02em;
+  padding:6px 18px 6px 7px;border-radius:999px;margin-bottom:12px;
+  box-shadow:var(--shadow-sm);
+}
+.step-pill i{
+  width:28px;height:28px;flex:0 0 28px;border-radius:50%;
+  background:linear-gradient(135deg,#c2452a,#a8601a);
+  color:#fff;font-style:normal;font-weight:800;font-size:.95rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.step-pill.plain{padding:7px 18px;}
+h2{
+  font-size:1.4rem;line-height:1.5;color:var(--navy);
+  font-weight:800;letter-spacing:.01em;
+  position:relative;padding-bottom:12px;margin-bottom:10px;
+}
+h2::after{
+  content:"";position:absolute;left:0;bottom:0;
+  width:54px;height:5px;border-radius:3px;
+  background:linear-gradient(90deg,var(--coral),var(--sunny));
+}
+@media(min-width:768px){h2{font-size:1.68rem;}}
+.sec-lead{color:var(--muted);font-size:1rem;margin-bottom:22px;}
+.sub-title{font-size:1.1rem;color:var(--navy);}
+.note{
+  font-size:.9rem;color:var(--muted);line-height:1.85;
+  background:var(--white);border-radius:16px;
+  padding:14px 16px;margin-top:20px;
+  display:flex;gap:9px;align-items:flex-start;
+  box-shadow:var(--shadow-sm);
+}
+.note svg{width:20px;height:20px;flex:0 0 20px;stroke:var(--coral);margin-top:4px;}
+.band-sky .note,.band-blush .note{box-shadow:none;border:1px solid var(--line);}
+
+/* ---------- ガイド（吹き出し） ---------- */
+.guide{display:flex;align-items:flex-start;gap:12px;margin-bottom:20px;}
+.guide-ava{
+  width:58px;height:58px;flex:0 0 58px;border-radius:50%;
+  overflow:hidden;display:block;box-shadow:var(--shadow-sm);
+}
+.guide-ava svg{width:100%;height:100%;display:block;}
+.guide-msg{
+  position:relative;background:var(--white);
+  border:2px solid #ffe0cf;border-radius:18px;
+  padding:12px 16px;font-size:.95rem;line-height:1.75;
+}
+.guide-msg::before{
+  content:"";position:absolute;left:-9px;top:20px;
+  width:14px;height:14px;background:var(--white);
+  border-left:2px solid #ffe0cf;border-bottom:2px solid #ffe0cf;
+  transform:rotate(45deg);
+}
+
+/* ---------- セクション1：ちがいを問いかけるリンク ---------- */
+.qlink-lead{
+  display:flex;align-items:center;gap:9px;
+  font-size:1rem;font-weight:800;color:var(--navy);
+  margin:26px 0 12px;
+}
+.qlink-lead svg{width:23px;height:23px;flex:0 0 23px;stroke:var(--coral);}
+.qlinks{display:grid;grid-template-columns:1fr;gap:12px;}
+@media(min-width:700px){.qlinks{grid-template-columns:repeat(3,1fr);}}
+.qlink{
+  display:flex;flex-direction:column;gap:5px;
+  background:var(--white);border:2px solid var(--line);border-radius:18px;
+  padding:15px 16px 13px;text-decoration:none;color:inherit;
+  box-shadow:var(--shadow-sm);
+  transition:border-color .15s, transform .12s;
+}
+.qlink:active{transform:scale(.985);}
+.qlink:hover{border-color:var(--coral);}
+.qlink .pair{
+  display:flex;align-items:center;gap:7px;flex-wrap:wrap;
+  font-size:1.02rem;font-weight:800;color:var(--navy);line-height:1.55;
+}
+.qlink .pair .vs{
+  font-size:.8rem;font-weight:800;color:var(--red-dark);
+  background:var(--red-bg);border-radius:999px;padding:2px 10px;
+}
+.qlink .ask{font-size:.87rem;color:var(--muted);line-height:1.75;}
+.qlink .go{
+  display:inline-flex;align-items:center;gap:4px;margin-top:3px;
+  font-size:.84rem;font-weight:800;color:var(--coral-text);
+}
+.qlink .go svg{width:14px;height:14px;flex:0 0 14px;stroke:var(--coral-text);}
+/* リンクで飛んだ先を、見出しの手前で止める */
+.def-block[id]{scroll-margin-top:18px;}
+
+/* ---------- セクション1：定義のブロック ---------- */
+.def-block{
+  margin-top:34px;padding-top:26px;border-top:2px dashed var(--line);
+}
+.def-block:first-of-type{margin-top:18px;padding-top:0;border-top:none;}
+.def-h{
+  display:flex;align-items:center;gap:12px;
+  font-size:1.14rem;line-height:1.5;color:var(--navy);margin-bottom:8px;
+}
+.def-ico{
+  width:52px;height:52px;flex:0 0 52px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.def-ico svg{width:34px;height:34px;}
+.def-lead{font-size:.97rem;color:var(--muted);line-height:1.9;margin-bottom:16px;}
+@media(min-width:768px){.def-h{font-size:1.26rem;}}
+
+/* ---------- セクション1：心疾患の輪 ---------- */
+.venn-box{
+  background:var(--white);border-radius:22px;box-shadow:var(--shadow);
+  padding:20px 14px 8px;margin:6px 0 26px;text-align:center;
+}
+.venn-box svg{width:100%;max-width:520px;height:auto;}
+.venn-cap{font-size:.88rem;color:var(--muted);padding:6px 8px 12px;line-height:1.8;}
+@media(max-width:520px){.venn-box{padding:14px 4px 6px;}}
+.cards{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.cards{grid-template-columns:repeat(2,1fr);}}
+.risk-card{
+  position:relative;background:var(--white);
+  border-radius:20px;padding:20px 20px 18px;
+  box-shadow:var(--shadow);
+}
+.risk-card .icon{
+  width:68px;height:68px;border-radius:50%;
+  background:var(--navy-soft);
+  display:flex;align-items:center;justify-content:center;margin-bottom:12px;
+}
+.risk-card .icon svg{width:44px;height:44px;}
+.risk-card .icon.ic-red{background:var(--red-bg);}
+.risk-card .icon.ic-blue{background:var(--sky-bg);}
+.risk-card .icon.ic-amber{background:var(--amber-bg);}
+.risk-card .icon.ic-green{background:var(--green-bg);}
+.risk-card h3{font-size:1.02rem;color:var(--navy);margin-bottom:2px;}
+.risk-card p{font-size:.93rem;color:var(--muted);margin-top:8px;line-height:1.85;}
+.judge-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:.82rem;font-weight:700;padding:4px 13px;border-radius:999px;margin-top:4px;
+}
+.judge-chip.ng{background:var(--red-bg);color:var(--red-dark);border:1.5px solid var(--red-border);}
+.judge-chip.ok{background:var(--green-bg);color:var(--green);border:1.5px solid var(--green-border);}
+.judge-chip.maybe{background:var(--amber-bg);color:var(--amber-deep);border:1.5px solid var(--amber-border);}
+
+/* ---------- 罹患年齢のデータ（セクション1の各解説に添える） ---------- */
+.age-note{
+  display:flex;gap:10px;align-items:flex-start;
+  background:var(--white);border-radius:14px;
+  border-left:5px solid var(--sky);
+  padding:11px 15px;margin-bottom:16px;
+  font-size:.9rem;line-height:1.85;
+  box-shadow:var(--shadow-sm);
+}
+.age-note svg{width:19px;height:19px;flex:0 0 19px;stroke:var(--sky);margin-top:5px;}
+.age-note b{color:var(--sky);font-size:.98rem;}
+.age-note small{display:block;color:var(--muted);font-size:.81rem;line-height:1.7;margin-top:2px;}
+
+/* ---------- セクション6：医療費のかかりどき ---------- */
+.life-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px 14px;margin:6px 0 26px;
+}
+.life-box h3{font-size:1.08rem;color:var(--navy);margin-bottom:4px;}
+.life-box .sub{font-size:.9rem;color:var(--muted);margin-bottom:14px;}
+.life-box svg{width:100%;max-width:620px;height:auto;display:block;margin:0 auto;}
+.life-cap{font-size:.85rem;color:var(--muted);line-height:1.8;padding:10px 4px 4px;}
+.big3{display:grid;grid-template-columns:1fr;gap:12px;margin-top:16px;}
+@media(min-width:700px){.big3{grid-template-columns:repeat(3,1fr);}}
+.big3 .b{
+  background:var(--bg);border:2px solid var(--line);border-radius:16px;
+  padding:13px 15px;text-align:center;
+}
+.big3 .b .n{display:block;font-size:1.5rem;font-weight:800;color:var(--coral-text);line-height:1.4;}
+.big3 .b .l{display:block;font-size:.86rem;color:var(--navy);font-weight:700;line-height:1.7;}
+.big3 .b .s{display:block;font-size:.81rem;color:var(--muted);line-height:1.7;margin-top:3px;}
+
+.sub-h{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.1rem;color:var(--navy);margin:30px 0 6px;
+}
+.sub-h svg{width:24px;height:24px;flex:0 0 24px;stroke:var(--coral);}
+.sub-lead{font-size:.95rem;color:var(--muted);line-height:1.9;margin-bottom:16px;}
+.age-cards{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.age-cards{grid-template-columns:repeat(3,1fr);}}
+.age-card{
+  background:var(--white);border-radius:20px;box-shadow:var(--shadow);
+  padding:18px 18px 15px;
+}
+.age-card .ttl{
+  display:flex;align-items:center;gap:9px;
+  font-size:1rem;font-weight:800;color:var(--navy);margin-bottom:10px;
+}
+.age-card .ttl .ico{
+  width:38px;height:38px;flex:0 0 38px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.age-card .ttl .ico svg{width:26px;height:26px;}
+.age-card .rows{border-top:1.5px dashed var(--line);padding-top:9px;}
+.age-card .row{
+  display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  font-size:.92rem;line-height:1.9;
+}
+.age-card .row span{color:var(--muted);}
+.age-card .row b{font-size:1.28rem;font-weight:800;color:var(--red-dark);white-space:nowrap;}
+.age-card .kind{
+  display:inline-block;font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:8px;
+  background:var(--sky-bg);color:var(--sky);
+}
+.age-card .cmt{font-size:.87rem;color:var(--text);line-height:1.85;margin-top:10px;}
+.age-card .src{font-size:.8rem;color:var(--muted);line-height:1.7;margin-top:9px;
+  border-top:1.5px dashed var(--line);padding-top:8px;}
+
+/* 未来の自分への仕送り */
+.mikane{
+  margin-top:28px;background:var(--white);border-radius:24px;
+  box-shadow:var(--shadow);padding:22px 20px 18px;
+}
+.mikane h3{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.1rem;color:var(--navy);margin-bottom:12px;
+}
+.mikane h3 svg{width:25px;height:25px;flex:0 0 25px;stroke:var(--mint);}
+.mikane ol{list-style:none;counter-reset:mk;}
+.mikane ol li{
+  counter-increment:mk;position:relative;
+  padding:0 0 14px 46px;font-size:.96rem;line-height:1.9;
+}
+.mikane ol li::before{
+  content:counter(mk);position:absolute;left:0;top:2px;
+  width:32px;height:32px;border-radius:50%;
+  background:var(--sky-bg);color:var(--sky);
+  font-weight:800;font-size:1.02rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.mikane ol li b{color:var(--coral-text);}
+.mikane .caution{
+  background:var(--amber-bg);border-radius:16px;padding:14px 16px;
+  font-size:.9rem;line-height:1.9;
+  border-left:5px solid var(--sunny);
+}
+.mikane .caution strong:first-child{display:block;color:var(--amber-deep);margin-bottom:3px;}
+.mikane .caution b{color:var(--coral-text);}
+
+/* ---------- セクション2：クイズ ---------- */
+.quiz-shell{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px 24px;
+}
+.band .quiz-shell{background:var(--bg);box-shadow:none;border:2px solid var(--line);}
+.q-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.q-count{font-size:.9rem;font-weight:700;color:var(--muted);}
+.q-count span{color:var(--coral-text);font-size:1.15rem;}
+.dots{display:flex;gap:6px;}
+.dots i{width:10px;height:10px;border-radius:50%;background:#e8dbd0;}
+.dots i.done{background:var(--mint);}
+.dots i.now{background:var(--coral);}
+.q-body{display:flex;gap:14px;align-items:flex-start;margin:14px 0 18px;}
+.q-body .icon{
+  width:64px;height:64px;flex:0 0 64px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.q-body .icon svg{width:40px;height:40px;}
+.q-body p{font-size:1.06rem;font-weight:700;color:var(--navy);line-height:1.8;}
+.ans-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.ans-btn{
+  min-height:64px;border-radius:18px;cursor:pointer;
+  font-size:1.1rem;font-weight:800;letter-spacing:.06em;
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  border:2.5px solid;transition:transform .12s;
+}
+.ans-btn:active{transform:scale(.97);}
+.ans-btn svg{width:26px;height:26px;}
+.ans-btn.yes{background:var(--green-bg);border-color:var(--green-border);color:var(--green);}
+.ans-btn.no{background:var(--red-bg);border-color:var(--red-border);color:var(--red-dark);}
+.ans-btn:disabled{opacity:.45;cursor:default;}
+.verdict{
+  display:none;margin-top:18px;background:var(--white);
+  border:2px solid var(--amber-border);border-radius:20px;
+  padding:18px 18px 16px;
+}
+.verdict.show{display:block;}
+.verdict-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+.verdict-answer{font-size:1.25rem;font-weight:800;color:var(--navy);}
+.result-chip{
+  font-size:.85rem;font-weight:800;padding:4px 14px;border-radius:999px;
+}
+.result-chip.correct{background:var(--green-bg);color:var(--green);}
+.result-chip.wrong{background:var(--red-bg);color:var(--red-dark);}
+.verdict .expl{font-size:.97rem;line-height:1.95;margin-bottom:12px;}
+.verdict .kv{
+  font-size:.92rem;line-height:1.85;background:var(--sky-bg);
+  border-radius:12px;padding:9px 13px;margin-top:8px;
+}
+.verdict .kv b{color:var(--sky);}
+.verdict .kv.kv-wana{background:var(--red-bg);}
+.verdict .kv.kv-wana b{color:var(--red-dark);}
+.btn-primary{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  width:100%;min-height:58px;margin-top:16px;
+  background:linear-gradient(135deg,#cf4a22,#c2401c);
+  color:#fff;font-size:1.05rem;font-weight:800;letter-spacing:.04em;
+  border:none;border-radius:18px;cursor:pointer;
+  box-shadow:0 5px 14px rgba(194,64,28,.34);
+}
+.btn-primary:active{transform:translateY(1px);}
+.btn-primary svg{width:22px;height:22px;stroke:#fff;}
+.btn-ghost{
+  display:block;width:100%;min-height:50px;margin-top:12px;
+  background:var(--white);color:var(--navy-2);
+  font-size:.95rem;font-weight:700;
+  border:2px solid var(--sky-border);border-radius:16px;cursor:pointer;
+}
+.btn-ghost:active{background:var(--sky-bg);}
+.quiz-done{display:none;}
+.quiz-done.show{display:block;}
+.quiz-done .score{
+  font-size:1.15rem;font-weight:800;color:var(--navy);
+  text-align:center;margin:8px 0 6px;
+}
+.quiz-done .score .num{font-size:2rem;color:var(--coral-text);}
+.quiz-done .cmt{
+  background:var(--white);border-radius:16px;padding:14px 16px;
+  font-size:.97rem;line-height:1.95;margin:14px 0;
+  border:2px solid var(--amber-border);
+}
+.wrong-list{margin:14px 0;}
+.wrong-list h4{font-size:.95rem;color:var(--navy);margin-bottom:8px;}
+.wrong-list .w-item{
+  background:var(--white);border-radius:14px;padding:11px 14px;
+  font-size:.9rem;line-height:1.8;margin-bottom:8px;
+  border-left:4px solid var(--coral);box-shadow:var(--shadow-sm);
+}
+
+/* ---------- セクション3：払込免除の解剖 ---------- */
+.type-table-box{
+  background:var(--white);border-radius:22px;box-shadow:var(--shadow-sm);
+  padding:18px 14px;margin:8px 0 24px;overflow-x:auto;
+}
+.type-table{width:100%;border-collapse:collapse;min-width:520px;font-size:.9rem;}
+.type-table th,.type-table td{
+  padding:10px 10px;text-align:center;border-bottom:1.5px solid var(--line);
+  line-height:1.7;vertical-align:middle;
+}
+.type-table th{background:var(--navy-soft);color:var(--navy);font-size:.86rem;}
+.type-table th:first-child{border-radius:12px 0 0 12px;}
+.type-table th:last-child{border-radius:0 12px 12px 0;}
+.type-table td:first-child{text-align:left;font-weight:700;color:var(--navy);font-size:.88rem;}
+.type-table small{display:block;color:var(--muted);font-weight:500;font-size:.81rem;}
+.mark-ok,.mark-ng,.mark-tri{font-weight:800;font-size:1.05rem;}
+.mark-ok{color:var(--green);}
+.mark-ng{color:var(--red);}
+.mark-tri{color:var(--amber);}
+.sim-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px;margin-top:26px;
+}
+.sim-box h3{font-size:1.12rem;color:var(--navy);margin-bottom:4px;}
+.sim-box .sub{font-size:.9rem;color:var(--muted);margin-bottom:18px;}
+.sim-ctrl{margin-bottom:18px;}
+.sim-ctrl label{
+  display:flex;justify-content:space-between;align-items:baseline;
+  font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:6px;
+}
+.sim-ctrl label output{color:var(--coral-text);font-size:1.15rem;font-weight:800;}
+input[type=range]{
+  width:100%;height:34px;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;
+}
+input[type=range]::-webkit-slider-runnable-track{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--sunny),var(--coral));}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:28px;height:28px;border-radius:50%;
+  background:var(--white);border:3px solid var(--coral);margin-top:-9px;
+  box-shadow:var(--shadow-sm);
+}
+input[type=range]::-moz-range-track{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--sunny),var(--coral));}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--white);border:3px solid var(--coral);}
+.sim-check{
+  display:flex;align-items:center;gap:10px;
+  background:var(--sky-bg);border-radius:14px;padding:11px 14px;
+  font-size:.95rem;font-weight:700;color:var(--navy);cursor:pointer;
+}
+.sim-check input{width:22px;height:22px;accent-color:var(--sky);}
+.timeline{margin:48px 0 8px;}
+.tl-track{
+  position:relative;height:14px;border-radius:7px;background:#f0e4d8;
+}
+.tl-fill{
+  position:absolute;left:0;top:0;height:14px;border-radius:7px;
+  background:linear-gradient(90deg,var(--sunny),var(--coral));
+  transition:width .2s;
+}
+.tl-goal{
+  position:absolute;top:-34px;transform:translateX(-50%);
+  font-size:.81rem;font-weight:800;color:var(--red-dark);
+  text-align:center;line-height:1.3;white-space:nowrap;
+}
+.tl-goal::after{
+  content:"";display:block;width:3px;height:30px;margin:2px auto 0;
+  background:var(--red);border-radius:2px;
+}
+.tl-labels{display:flex;justify-content:space-between;font-size:.81rem;color:var(--muted);margin-top:6px;}
+.sim-results{display:grid;grid-template-columns:1fr;gap:12px;margin-top:20px;}
+@media(min-width:700px){.sim-results{grid-template-columns:repeat(3,1fr);}}
+.sim-r{
+  border-radius:18px;padding:14px 15px;border:2px solid var(--line);background:var(--bg);
+}
+.sim-r h4{font-size:.9rem;color:var(--navy);margin-bottom:6px;line-height:1.6;}
+.sim-r h4 small{display:block;font-weight:500;color:var(--muted);font-size:.8rem;}
+.sim-r .r-chip{
+  display:inline-block;font-size:.95rem;font-weight:800;
+  padding:5px 16px;border-radius:999px;margin-bottom:6px;
+}
+.sim-r.ok{border-color:var(--green-border);background:var(--green-bg);}
+.sim-r.ok .r-chip{background:var(--white);color:var(--green);}
+.sim-r.ng{border-color:var(--red-border);background:var(--red-bg);}
+.sim-r.ng .r-chip{background:var(--white);color:var(--red-dark);}
+.sim-r p{font-size:.84rem;color:var(--muted);line-height:1.75;}
+
+/* ---------- セクション4：あるある劇場 ---------- */
+.case-grid{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.case-grid{grid-template-columns:repeat(2,1fr);}}
+.case-card{
+  display:flex;align-items:center;gap:14px;text-align:left;
+  background:var(--white);border:none;border-radius:20px;
+  padding:16px 16px;cursor:pointer;box-shadow:var(--shadow);
+  font-family:inherit;transition:transform .12s;
+}
+.case-card:active{transform:scale(.985);}
+.case-card .art{
+  width:64px;height:64px;flex:0 0 64px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+}
+.case-card .art svg{width:42px;height:42px;}
+.case-card .t{flex:1;}
+.case-card .chip{
+  display:inline-block;font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:4px;
+}
+.case-card h3{font-size:.99rem;color:var(--navy);line-height:1.6;}
+.case-card .more{
+  font-size:.8rem;color:var(--coral-text);font-weight:700;
+  display:inline-flex;align-items:center;gap:4px;margin-top:4px;
+}
+.case-card .more svg{width:14px;height:14px;stroke:var(--coral-text);}
+.c-red{background:var(--red-bg);color:var(--red-dark);}
+.c-blue{background:var(--sky-bg);color:var(--sky);}
+.c-green{background:var(--green-bg);color:var(--green);}
+.c-amber{background:var(--amber-bg);color:var(--amber-deep);}
+.c-berry{background:var(--berry-bg);color:var(--berry);}
+.case-card .amt{
+  display:inline-block;margin-left:7px;
+  font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;
+  background:var(--white);color:var(--green);border:1.5px solid var(--green-border);
+}
+
+/* ---------- セクション5：逆転劇場 ---------- */
+#sec5 .case-card{box-shadow:0 6px 20px rgba(60,120,80,.12);}
+.model-note{
+  background:var(--white);border-radius:18px;padding:14px 18px;margin-bottom:18px;
+  border-left:6px solid var(--mint);box-shadow:var(--shadow-sm);
+}
+.model-note strong{display:block;font-size:.92rem;color:var(--green);margin-bottom:4px;}
+.model-note .mn-row{display:block;font-size:.95rem;line-height:1.9;color:var(--navy);}
+.model-note .mn-row b{color:var(--coral-text);}
+.model-note .mn-note{display:block;font-size:.82rem;color:var(--muted);line-height:1.8;margin-top:6px;}
+.rule3-box{
+  margin-top:28px;background:var(--white);border-radius:22px;
+  padding:20px 20px 16px;box-shadow:var(--shadow-sm);
+}
+.rule3-box h3{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.06rem;color:var(--navy);margin-bottom:12px;
+}
+.rule3-box h3 svg{width:24px;height:24px;flex:0 0 24px;stroke:var(--green);}
+.rule3-box ol{list-style:none;counter-reset:r3;}
+.rule3-box ol li{
+  counter-increment:r3;position:relative;
+  padding:0 0 12px 44px;font-size:.95rem;line-height:1.9;
+}
+.rule3-box ol li::before{
+  content:counter(r3);position:absolute;left:0;top:2px;
+  width:30px;height:30px;border-radius:50%;
+  background:var(--green-bg);color:var(--green);
+  font-weight:800;font-size:1rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.rule3-note{font-size:.8rem;color:var(--muted);border-top:1.5px dashed var(--line);padding-top:10px;line-height:1.8;}
+/* ---------- モーダル ---------- */
+.cmodal{position:fixed;inset:0;z-index:60;display:none;}
+.cmodal.show{display:block;}
+.cmodal-back{position:absolute;inset:0;background:rgba(40,30,25,.5);}
+.cmodal-panel{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(94vw,640px);max-height:88vh;overflow-y:auto;
+  background:var(--white);border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.25);
+  -webkit-overflow-scrolling:touch;
+}
+.cmodal-head{
+  position:sticky;top:0;display:flex;gap:14px;align-items:center;
+  background:var(--white);padding:18px 52px 12px 20px;
+  border-bottom:1.5px solid var(--line);z-index:2;
+}
+.cmodal-close{
+  position:absolute;right:12px;top:12px;
+  width:40px;height:40px;border-radius:50%;
+  background:var(--bg);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.cmodal-close svg{width:18px;height:18px;stroke:var(--navy);}
+.cmodal-ico{
+  width:56px;height:56px;flex:0 0 56px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+}
+.cmodal-ico svg{width:38px;height:38px;}
+.cmodal-chip{
+  display:inline-block;font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:3px;
+}
+.cmodal-title{font-size:1.08rem;color:var(--navy);line-height:1.55;}
+.cmodal-body{padding:16px 20px 22px;}
+.cmodal-block{margin-bottom:18px;}
+.cmodal-label{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:.86rem;font-weight:800;padding:5px 14px;border-radius:999px;margin-bottom:9px;
+}
+.cmodal-label svg{width:17px;height:17px;}
+.lb-blue{background:var(--sky-bg);color:var(--sky);}
+.lb-blue svg{stroke:var(--sky);}
+.lb-red{background:var(--red-bg);color:var(--red-dark);}
+.lb-red svg{stroke:var(--red-dark);}
+.lb-green{background:var(--green-bg);color:var(--green);}
+.lb-green svg{stroke:var(--green);}
+.cmodal-quote{
+  background:var(--bg);border-left:4px solid var(--coral);
+  border-radius:0 14px 14px 0;padding:12px 15px;
+  font-size:.95rem;line-height:1.9;color:var(--text);
+}
+.cmodal-quote small{display:block;text-align:right;color:var(--muted);margin-top:4px;font-size:.8rem;}
+.cmodal-p{font-size:.95rem;line-height:1.95;margin-bottom:8px;}
+.cmodal-note{
+  font-size:.8rem;color:var(--muted);line-height:1.8;margin-top:14px;
+  border-top:1.5px dashed var(--line);padding-top:12px;
+}
+
+/* ---------- まとめ・チェックリスト ---------- */
+.score-box{
+  background:var(--sky-bg);border-radius:20px;padding:18px 18px 14px;margin-bottom:24px;
+}
+.score-box h3{
+  display:flex;align-items:center;gap:8px;
+  font-size:1.02rem;color:var(--navy);margin-bottom:8px;
+}
+.score-box h3 svg{width:22px;height:22px;stroke:var(--sky);}
+.score-box p{font-size:.95rem;line-height:1.9;}
+.checklist{display:grid;grid-template-columns:1fr;gap:10px;}
+.chk-group{
+  font-size:.9rem;font-weight:800;color:var(--amber-deep);
+  margin:14px 0 2px;letter-spacing:.03em;
+}
+.chk-group:first-child{margin-top:0;}
+.chk{
+  display:flex;align-items:center;gap:12px;
+  background:var(--bg);border:2px solid var(--line);border-radius:16px;
+  padding:12px 14px;cursor:pointer;font-size:.95rem;line-height:1.7;
+  transition:border-color .15s, background .15s;
+}
+.chk input{width:24px;height:24px;flex:0 0 24px;accent-color:var(--green);cursor:pointer;}
+.chk .art{
+  width:44px;height:44px;flex:0 0 44px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.chk .art svg{width:28px;height:28px;}
+.chk:has(input:checked){background:var(--green-bg);border-color:var(--green-border);}
+.chk-msg{
+  margin-top:16px;background:var(--amber-bg);border-radius:16px;
+  padding:14px 16px;font-size:.95rem;line-height:1.9;
+}
+details.finder{
+  margin-top:26px;background:var(--bg);border-radius:18px;
+  padding:4px 18px;border:1.5px solid var(--line);
+}
+details.finder summary{
+  cursor:pointer;font-size:.98rem;font-weight:700;color:var(--navy);
+  padding:12px 0;list-style-position:inside;
+}
+details.finder ul{padding:2px 0 8px 22px;font-size:.92rem;color:var(--text);}
+details.finder li{margin-bottom:7px;line-height:1.85;}
+details.finder p{font-size:.92rem;padding:0 0 14px;line-height:1.9;}
+
+/* ---------- CTA ---------- */
+.cta-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:24px 20px;margin-top:30px;text-align:center;
+}
+.cta-box h3{font-size:1.2rem;color:var(--navy);margin-bottom:8px;line-height:1.6;}
+.cta-box .cta-lead{font-size:.95rem;color:var(--muted);text-align:left;margin-bottom:14px;line-height:1.95;}
+.cta-box ul{list-style:none;text-align:left;margin-bottom:14px;}
+.cta-box ul li{
+  display:flex;gap:9px;align-items:flex-start;
+  font-size:.94rem;line-height:1.85;margin-bottom:6px;
+}
+.cta-box ul li svg{width:19px;height:19px;flex:0 0 19px;stroke:var(--mint);margin-top:6px;}
+.co{font-size:.98rem;font-weight:800;color:var(--navy);margin-top:18px;}
+.addr{font-size:.87rem;color:var(--muted);line-height:1.7;}
+.tip{font-size:.87rem;color:var(--amber-deep);margin-top:10px;}
+.cta-mini{
+  margin-top:18px;background:var(--bg);border:2px solid var(--amber-border);
+  border-radius:18px;padding:14px 16px;text-align:center;
+}
+.cta-mini p{font-size:.92rem;line-height:1.85;margin-bottom:10px;text-align:left;}
+.cta-mini a{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--white);border:2px solid var(--coral);
+  color:var(--coral-text);text-decoration:none;font-weight:800;font-size:.95rem;
+  border-radius:999px;padding:9px 20px;
+}
+.cta-mini a svg{width:18px;height:18px;stroke:var(--coral-text);}
+
+
+/* ---------- フッター免責 ---------- */
+footer.disclaimer{
+  padding:26px 16px 30px;max-width:900px;margin:0 auto;
+}
+footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
+
+@media print{
+  .hero-nav,.cta-mini{display:none !important;}
+  body{background:#fff;}
+}
+
+/* ---------- このページ独自：シミュレーターの合計表示 ---------- */
+.sim-total{
+  background:var(--navy-soft);border-radius:18px;
+  padding:15px 16px;margin-top:18px;text-align:center;
+}
+.sim-total .lead{font-size:.88rem;color:var(--muted);line-height:1.8;margin-bottom:6px;}
+.sim-total .big{
+  display:block;font-size:1.5rem;font-weight:800;color:var(--navy);line-height:1.6;
+}
+.sim-total .big b{color:var(--coral-text);font-size:1.9rem;}
+.sim-total .sub2{display:block;font-size:.88rem;color:var(--muted);line-height:1.8;margin-top:6px;}
+/* 使いみちの色分け（出ていくお金／戻るお金） */
+.tl-fill.back{background:linear-gradient(90deg,var(--mint),var(--green));}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brand"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg></span>
+      <span>株式会社Office-M<small>会計を母体に、数字の「小さな字」まで読み解いてご案内します</small></span></div>
+    <div class="hero-flex">
+      <div class="hero-copy">
+        <h1>その計画、<br><span class="nowrap"><span class="accent">売上から</span></span><span class="nowrap">立てていませんか</span></h1>
+        <p class="lead">「前期より1割増やす」「まずは1億円を目指す」——よく聞く目標ですが、この立て方には落とし穴があります。売上をいくら伸ばしても、<strong>限界利益率が下がれば利益は増えません</strong>し、利益が出ても<strong>借入の元本返済は費用にならない</strong>ので現金は残りません。使える計画は、順番が逆です。必要な現金から必要な利益を、必要な利益から必要な売上を<strong>逆算</strong>します。その順番を、○×クイズ8問（約3分）と必要売上シミュレーターで確認してください。全部で10分ほどです。</p>
+        <nav class="hero-nav" aria-label="ページ内メニュー">
+          <a href="#sec1"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h9"/></svg>3本の線引き</a>
+          <a href="#sec2"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/></svg>○×ワナクイズ</a>
+          <a href="#sec3"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="16" r="3"/><path d="M18 6 6 18"/></svg>誤解を解剖</a>
+          <a href="#sec4"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0-3.3 11 3 3 0 0 1 1.1 1.9l.03.35h4.34l.03-.35a3 3 0 0 1 1.1-1.9A6 6 0 0 0 12 3Z"/><path d="M9.8 19.2h4.4M10.7 21.7h2.6"/></svg>あるある劇場</a>
+          <a href="#sec5"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="8" width="17" height="12.5" rx="2.5"/><path d="M3.5 12h17M12 8v12.5"/></svg>逆転劇場</a>
+          <a href="#sec6"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5h16M7 16V9.5M12 16V5.5M17 16v-4"/></svg>逆算の話</a>
+        </nav></div>
+      <div class="hero-scene" aria-hidden="true">
+        <svg viewBox="0 0 360 212">
+          <circle cx="310" cy="38" r="32" fill="#ffd9a8" opacity=".45"/><circle cx="310" cy="38" r="21" fill="#f7c34e"/><ellipse cx="60" cy="32" rx="26" ry="10" fill="#fff" opacity=".95"/>
+          <path d="M0 168h360v44H0Z" fill="#ffe9c7"/><path d="M0 176c40-10 90-12 150-8 60 4 120 4 210-6v50H0Z" fill="#b3e3b8"/>
+          <rect x="118" y="62" width="160" height="106" rx="6" fill="#fffdf8" stroke="#efe2d8" stroke-width="3"/>
+          <path d="M134 152V80" stroke="#d9cfc4" stroke-width="2.5" stroke-linecap="round"/><path d="M134 152h128" stroke="#d9cfc4" stroke-width="2.5" stroke-linecap="round"/>
+          <rect x="146" y="128" width="20" height="24" rx="2" fill="#c6e2f2"/><rect x="180" y="108" width="20" height="44" rx="2" fill="#f7c34e"/><rect x="214" y="88" width="20" height="64" rx="2" fill="#f0846a"/>
+          <path d="M146 140 190 118l44-22" fill="none" stroke="#2c7a4b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5"/>
+          <circle cx="234" cy="96" r="5" fill="#2c7a4b"/>
+          <path d="M20 180c0-15 6.5-33 15-33s15 18 15 33v2H20Z" fill="#63b8dd"/><circle cx="35" cy="136" r="11" fill="#f7cdb4"/><path d="M24 134c1-9 5.5-13 11-13s10 4 11 13c-3.3-4-7-5.3-11-5.3s-7.7 1.3-11 5.3Z" fill="#5c4030"/>
+          <circle cx="31" cy="136.5" r="1.4" fill="#3d3028"/><circle cx="39" cy="136.5" r="1.4" fill="#3d3028"/><path d="M32 141c1.4 1.5 4 1.5 5.4 0" fill="none" stroke="#3d3028" stroke-width="1.4" stroke-linecap="round"/>
+        </svg></div>
+    </div></div>
+</header>
+
+<section id="sec1">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="step-pill"><i>1</i><span>まず線を3本引きます</span></span>
+      <h2>使える計画を決める<span class="nowrap">3本の線</span></h2></div>
+      <div class="spot"><span class="spot-circle" data-art="spotLine" aria-hidden="true"></span></div></div>
+    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">経営計画が使えるかどうかは、書式でも枚数でも決まりません。線が3本、正しく引かれているかどうかです。売上と利益を分ける線、利益と現金を分ける線、そして計画と実績を分ける線。この3本が引けていれば、A4用紙1枚の計画でも十分に使えます。順番に見ていきましょう。</p></div>
+    <p class="qlink-lead"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/></svg>この3つ、答えられますか？</p>
+    <div class="qlinks">
+      <a class="qlink" href="#def-1"><span class="pair">限界利益<span class="vs">って</span>なに</span><span class="ask">売上が1割増えたとき、利益はいくら増えるでしょうか。</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></a>
+      <a class="qlink" href="#def-2"><span class="pair">利益と現金<span class="vs">は</span>別もの</span><span class="ask">黒字なのに資金が減っていく。なぜそんなことが起きるのでしょうか。</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></a>
+      <a class="qlink" href="#def-3"><span class="pair">月次で追う<span class="vs">の</span>意味</span><span class="ask">決算が出てから気づくと、なぜ手が打てないのでしょうか。</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></a>
+    </div>
+
+    <div class="def-block" id="def-1">
+      <h3 class="def-h"><span class="def-ico ic-green" data-art="icHendou" aria-hidden="true"></span>1本目：売上と一緒に増える費用か、という線</h3>
+      <p class="def-lead">費用には2種類あります。売上が増えると一緒に増える<strong>変動費</strong>と、売上が減っても出ていく<strong>固定費</strong>です。売上から変動費を引いたものが<strong>限界利益</strong>で、この限界利益から固定費を払って、残ったものが利益になります。売上をいくら伸ばしても、限界利益率が下がっていれば手元に残る額は増えません。計画を売上から立ててはいけない理由が、ここにあります。</p>
+      <p class="age-note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <span>利益がちょうどゼロになる売上高を<b>損益分岐点売上高</b>といい、<b>固定費を限界利益率で割る</b>と求められます。限界利益率が30%なら、固定費の約<b>3.3倍</b>の売上が必要という計算です<small>根拠：損益分岐点分析の一般的な定義式。会計上の計算方法であり、法令で定められたものではありません</small></span></p>
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="売上と一緒に増える変動費と、売上が減っても残る固定費を分ける図">
+          <text x="260" y="30" text-anchor="middle" font-size="19" font-weight="bold" fill="#1b3f5e">1本目の線：費用の2種類</text>
+          <rect x="30" y="48" width="460" height="160" rx="18" fill="#eaf1f7"/><rect x="44" y="62" width="286" height="132" rx="12" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="3"/>
+          <text x="187" y="100" text-anchor="middle" font-size="20" font-weight="bold" fill="#2c7a4b">売上と一緒に動く</text><text x="187" y="130" text-anchor="middle" font-size="16" fill="#2c7a4b">仕入や材料などの変動費</text>
+          <text x="187" y="158" text-anchor="middle" font-size="15" font-weight="bold" fill="#2c7a4b">引いた残りが限界利益</text>
+          <path d="M338 42v172" stroke="#c2451f" stroke-width="3" stroke-dasharray="7 6"/><rect x="350" y="62" width="126" height="132" rx="12" fill="#fdeee9" stroke="#c2453f" stroke-width="3"/>
+          <text x="413" y="104" text-anchor="middle" font-size="18" font-weight="bold" fill="#a63631">固定費</text><text x="413" y="132" text-anchor="middle" font-size="13" fill="#a63631">売れなくても出る</text>
+          <text x="260" y="234" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2451f">損益分岐点は固定費を率で割る</text><text x="260" y="266" text-anchor="middle" font-size="13.5" fill="#5c6874">率が低いほど必要な売上は増えます</text>
+        </svg>
+        <p class="venn-cap">※どの費用を変動費とみるかには、会社ごとの判断が入ります。大切なのは完璧に分けることではなく、同じ基準で毎期続けて比べられるようにしておくことです。基準を変えたときは、その旨を記録に残しておきましょう。</p></div>
+      <div class="cards">
+        <div class="risk-card"><div class="icon ic-green" data-art="qTruck" aria-hidden="true"></div>
+          <h3>商品の仕入・材料費</h3><span class="judge-chip ok">変動費</span>
+          <p>売れた分だけ発生するので、典型的な変動費です。<strong>値引きをすると、売上は落ちるのに仕入は減らない</strong>ため、限界利益率が下がります。ここが利益の効き方を決めます。</p></div>
+        <div class="risk-card"><div class="icon ic-red" data-art="icShain" aria-hidden="true"></div>
+          <h3>固定給の人件費</h3><span class="judge-chip ng">固定費</span>
+          <p>売上が半分になっても、翌月から半分にはできません。<strong>固定費のなかで最も大きい</strong>ことが多く、人を1人採るということは、その分だけ必要売上が上がるということです。</p></div>
+        <div class="risk-card"><div class="icon ic-amber" data-art="icGaichu" aria-hidden="true"></div>
+          <h3>外注費</h3><span class="judge-chip maybe">中身で分かれる</span>
+          <p>仕事の量に応じて発注するなら変動費、月極めで固定的に払っているなら固定費に近くなります。<strong>契約の形で性格が変わる</strong>ので、自社の実態で判断してください。</p></div>
+        <div class="risk-card"><div class="icon ic-red" data-art="icKotei" aria-hidden="true"></div>
+          <h3>家賃・リース料</h3><span class="judge-chip ng">固定費</span>
+          <p>契約期間中は動きません。<strong>固定費は一度上げると下げにくい</strong>のが特徴で、設備や店舗を増やす判断は、必要売上をいくら押し上げるかで見るのが確実です。</p></div>
+      </div>
+    </div>
+
+    <div class="def-block" id="def-2">
+      <h3 class="def-h"><span class="def-ico ic-red" data-art="icHensai" aria-hidden="true"></span>2本目：利益と現金を分ける線</h3>
+      <p class="def-lead">損益計算書に出てくる利益と、通帳の残高は別ものです。<strong>借入金の元本返済は費用になりません</strong>から、利益から差し引かれないまま現金だけが出ていきます。逆に<strong>減価償却費は費用になりますが現金は出ていきません</strong>。この2つのずれを押さえないと、黒字なのに資金が減るという状態が説明できません。計画で見るべきは、利益ではなく現金です。</p>
+      <p class="age-note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <span><b>税引後利益に減価償却費を足した額</b>が、返済に回せるおおよその現金です。これが<b>年間の返済元本</b>を下回っていると、続けるほど手元の資金が細っていきます<small>根拠：簡易キャッシュフローとして金融機関の融資審査などで一般に用いられる計算方法。法令で定められたものではありません</small></span></p>
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="損益計算書に出るものと、現金だけが動くものを分ける図">
+          <text x="260" y="30" text-anchor="middle" font-size="19" font-weight="bold" fill="#1b3f5e">2本目の線：利益と現金</text>
+          <rect x="30" y="48" width="460" height="160" rx="18" fill="#eaf1f7"/><rect x="44" y="62" width="286" height="132" rx="12" fill="#eaf1f7" stroke="#24729f" stroke-width="3"/>
+          <text x="187" y="100" text-anchor="middle" font-size="20" font-weight="bold" fill="#24729f">損益計算書に出る</text><text x="187" y="130" text-anchor="middle" font-size="16" fill="#24729f">売上と費用と利益の話</text>
+          <text x="187" y="158" text-anchor="middle" font-size="15" font-weight="bold" fill="#24729f">減価償却は現金が出ない</text>
+          <path d="M338 42v172" stroke="#c2451f" stroke-width="3" stroke-dasharray="7 6"/><rect x="350" y="62" width="126" height="132" rx="12" fill="#fdeee9" stroke="#c2453f" stroke-width="3"/>
+          <text x="413" y="104" text-anchor="middle" font-size="18" font-weight="bold" fill="#a63631">現金だけ</text><text x="413" y="132" text-anchor="middle" font-size="13" fill="#a63631">元本返済など</text>
+          <text x="260" y="234" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2451f">元本返済は利益から引かれません</text><text x="260" y="266" text-anchor="middle" font-size="13.5" fill="#5c6874">黒字でも資金が減る理由がここです</text>
+        </svg>
+        <p class="venn-cap">※在庫や売掛金が増えたときも、利益は変わらないまま現金だけが先に出ていきます。売上が伸びている会社ほど、この運転資金の増加で資金が苦しくなることがあります。伸びているときこそ、資金繰り表が要ります。</p></div>
+      <div class="cards">
+        <div class="risk-card"><div class="icon ic-green" data-art="icGenka" aria-hidden="true"></div>
+          <h3>減価償却費</h3><span class="judge-chip ok">費用だが現金は出ない</span>
+          <p>過去に支払った設備の代金を、使う年数に分けて費用にしているものです。<strong>その年に現金は出ていきません</strong>ので、返済に回せる現金を見るときは利益に足し戻します。</p></div>
+        <div class="risk-card"><div class="icon ic-red" data-art="icHensai" aria-hidden="true"></div>
+          <h3>借入金の元本返済</h3><span class="judge-chip ng">現金は出るが費用でない</span>
+          <p>費用になるのは利息だけで、<strong>元本は損益計算書に一切出てきません</strong>。ここを見落とすと、利益が出ているのに通帳が減っていく理由が分からなくなります。</p></div>
+        <div class="risk-card"><div class="icon ic-amber" data-art="qTruck" aria-hidden="true"></div>
+          <h3>在庫の増加</h3><span class="judge-chip maybe">売れるまで費用にならない</span>
+          <p>仕入れた時点では費用にならず、売れたときにはじめて費用になります。<strong>現金だけが先に出ていく</strong>ため、在庫を厚く持つほど資金は寝ることになります。</p></div>
+        <div class="risk-card"><div class="icon ic-amber" data-art="qInvoice" aria-hidden="true"></div>
+          <h3>売掛金の増加</h3><span class="judge-chip maybe">売上は立つが入金は先</span>
+          <p>売上は計上されて利益になりますが、<strong>入金は回収の条件しだい</strong>です。売上が伸びるほど売掛金も増えるため、成長期こそ資金が苦しくなることがあります。</p></div>
+      </div>
+    </div>
+
+    <div class="def-block" id="def-3">
+      <h3 class="def-h"><span class="def-ico ic-blue" data-art="icYojitsu" aria-hidden="true"></span>3本目：計画と実績を突き合わせる線</h3>
+      <p class="def-lead">立てた計画を、いつ、どの数字で振り返るか。ここが決まっていない計画は、書いた瞬間から使われなくなります。<strong>年に1回の決算で気づいたことは、もう手が打てません</strong>。1年を12に割って、毎月の試算表で予算と実績を突き合わせる。ずれた月にその理由を1行書き足す。それだけで、計画は資料から道具に変わります。</p>
+      <p class="age-note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <span>法人税の確定申告書は、原則として事業年度終了の日の翌日から<b>2か月以内</b>に提出することとされています。つまり<b>決算の数字が固まるのは期が終わったあと</b>で、そこから期中の手は打てません<small>根拠：法人税法第74条第1項。個別の税額計算・申告については税理士にご確認ください</small></span></p>
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="月次で予実を追う場合と、決算のときだけ数字を見る場合を分ける図">
+          <text x="260" y="30" text-anchor="middle" font-size="19" font-weight="bold" fill="#1b3f5e">3本目の線：いつ見るか</text>
+          <rect x="30" y="48" width="460" height="160" rx="18" fill="#eaf1f7"/><rect x="44" y="62" width="286" height="132" rx="12" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="3"/>
+          <text x="187" y="100" text-anchor="middle" font-size="20" font-weight="bold" fill="#2c7a4b">毎月見ている</text><text x="187" y="130" text-anchor="middle" font-size="16" fill="#2c7a4b">試算表で予実を比べる</text>
+          <text x="187" y="158" text-anchor="middle" font-size="15" font-weight="bold" fill="#2c7a4b">年に12回手を打てる</text>
+          <path d="M338 42v172" stroke="#c2451f" stroke-width="3" stroke-dasharray="7 6"/><rect x="350" y="62" width="126" height="132" rx="12" fill="#fdeee9" stroke="#c2453f" stroke-width="3"/>
+          <text x="413" y="104" text-anchor="middle" font-size="18" font-weight="bold" fill="#a63631">決算だけ</text><text x="413" y="132" text-anchor="middle" font-size="13" fill="#a63631">年に1回の報告</text>
+          <text x="260" y="234" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2451f">気づく時期が早いほど手は多い</text><text x="260" y="266" text-anchor="middle" font-size="13.5" fill="#5c6874">遅れるほど選べる手は減ります</text>
+        </svg>
+        <p class="venn-cap">※月次で見るといっても、全部の科目を細かく追う必要はありません。売上、限界利益、固定費、そして現金残高。この4つを毎月同じ形で並べるだけで、変調はかなり早く見えてきます。</p></div>
+      <div class="cards">
+        <div class="risk-card"><div class="icon ic-green" data-art="icYojitsu" aria-hidden="true"></div>
+          <h3>翌月中に試算表を見る</h3><span class="judge-chip ok">手が打てる</span>
+          <p>前月の数字を翌月のうちに確認していれば、<strong>ずれに気づいてから残り10か月</strong>あります。打てる手の数がまったく違ってきます。</p></div>
+        <div class="risk-card"><div class="icon ic-red" data-art="icJikan" aria-hidden="true"></div>
+          <h3>決算のときだけ見る</h3><span class="judge-chip ng">手が打てない</span>
+          <p>数字が固まるのは期が終わったあとです。<strong>分かったときには、その期の結果はもう変えられません</strong>。翌期に活かすしかなくなります。</p></div>
+        <div class="risk-card"><div class="icon ic-amber" data-art="qYen" aria-hidden="true"></div>
+          <h3>売上だけを見ている</h3><span class="judge-chip maybe">半分しか見えない</span>
+          <p>売上が計画どおりでも、<strong>限界利益率が落ちていれば利益は足りません</strong>。売上と一緒に、限界利益の額まで見る習慣にしてください。</p></div>
+        <div class="risk-card"><div class="icon ic-blue" data-art="icBunki" aria-hidden="true"></div>
+          <h3>限界利益と固定費まで見る</h3><span class="judge-chip ok">原因まで分かる</span>
+          <p>利益が足りない原因が、<strong>売上なのか、率なのか、固定費なのか</strong>が切り分けられます。原因が分かってはじめて、打つ手が決まります。</p></div>
+      </div>
+    </div>
+
+    <div class="note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>3本の線に共通しているのは、「順番」です。必要な現金から必要な利益へ、必要な利益から必要な売上へ。そして毎月、実績と突き合わせる。この順番が守られている計画は、枚数が少なくても使えます。なお、税金の見込みを含む試算については、個別の税額計算・申告を税理士にご確認ください。</span></div>
+  </div></section>
+
+<!-- ================= セクション2：○×クイズ ================= -->
+<section id="sec2" class="band round-top">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="step-pill"><i>2</i><span>思い込みをチェック</span></span>
+      <h2>その考え方、　<span class="nowrap">使える？</span>クイズ8問</h2></div>
+      <div class="spot"><span class="spot-circle" data-art="spotQuiz" aria-hidden="true"></span></div></div>
+    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">ここからは8問の○×クイズです。それぞれ「この考え方は、計画づくりにそのまま使えるか」を選んでください。どれも実際の会計や税法のきまりごとがモデルになっていて、経営の現場でよく取り違えられるところばかりです。半分くらい間違えるのが普通ですので、気楽に進めてください。</p></div>
+    <div class="quiz-shell">
+      <div id="quizPlay">
+        <div class="q-top">
+          <div class="q-count">質問 <span id="qNum">1</span> ／ 8</div>
+          <div class="dots" id="qDots" aria-hidden="true"></div>
+        </div>
+        <div class="q-body">
+          <div class="icon" id="qIcon" aria-hidden="true"></div>
+          <p id="qText"></p>
+        </div>
+        <div class="ans-row">
+          <button type="button" class="ans-btn yes" id="btnYes">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/></svg>
+            <span id="lblYes">使える</span>
+          </button>
+          <button type="button" class="ans-btn no" id="btnNo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            <span id="lblNo">使えない</span>
+          </button>
+        </div>
+        <div class="verdict" id="verdict" aria-live="polite">
+          <div class="verdict-head">
+            <span class="verdict-answer" id="vAnswer"></span>
+            <span class="result-chip" id="vChip"></span>
+          </div>
+          <p class="expl" id="vExpl"></p>
+          <div class="kv kv-wana"><b>ワナの正体：</b><span id="vWana"></span></div>
+          <div class="kv"><b>確認ポイント：</b><span id="vCheck"></span></div>
+        </div>
+        <button type="button" class="btn-primary" id="btnNext" style="display:none;">
+          次の質問へ
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+        <button type="button" class="btn-ghost" id="btnStopHere" style="display:none;">ここまでの結果を見る（残りはあとでも大丈夫です）</button>
+      </div>
+
+      <div class="quiz-done" id="quizDone">
+        <p class="score">クイズおつかれさまでした！　<span class="nowrap"><span id="doneTotal">8</span>問中 <span class="num" id="doneScore">0</span> 問正解</span></p>
+        <p class="cmt" id="doneCmt"></p>
+        <div class="wrong-list" id="wrongList" style="display:none;"></div>
+        <div data-cta-mini></div>
+        <button type="button" class="btn-ghost" id="btnMailSelf">この結果を自分（または経理担当）に送る</button>
+        <button type="button" class="btn-ghost" id="btnPrint">印刷して試算表・返済予定表と一緒に保管する</button>
+        <button type="button" class="btn-ghost" id="btnRetry">もう一度挑戦する</button>
+      </div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>ここでの正解は、いずれも一般的な会計・税務の取扱いを前提とした例です。実際には業種や契約の形、会計方針によって数字の並び方が変わります。ひとつでも迷ったものがあれば、それが手元の書類を出すタイミングです。</span>
+    </div>
+  </div>
+</section>
+
+<section id="sec3" class="band-sky round-top">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="step-pill"><i>3</i><span>いちばん多い誤解</span></span>
+      <h2>「黒字なのに苦しい」を<span class="nowrap">解剖します</span></h2></div>
+      <div class="spot"><span class="spot-circle" data-art="spotCalc" aria-hidden="true"></span></div></div>
+    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">「決算は黒字だと言われたのに、通帳はちっとも増えていない」。よくいただくご相談です。これは感覚のずれではなく、利益と現金がそもそも別のものを数えているからです。何が損益計算書に出て、何が現金だけ動くのか。表にして並べてみます。</p></div>
+    <p class="sec-lead">同じ取引でも、損益計算書に出るかどうかと、現金が動くかどうかは一致しません。左の列が取引、真ん中が損益への影響、右が現金への影響です。</p>
+    <div class="type-table-box">
+      <table class="type-table" aria-label="取引ごとに損益計算書に出るかどうかと現金が動くかどうかを比べた表">
+        <thead><tr><th>その取引は</th><th>損益に出るか<small>利益への影響</small></th><th>現金は動くか<small>通帳への影響</small></th></tr></thead>
+        <tbody><tr><td>借入金の元本を返した</td><td>出ない</td><td><span class="mark-ok">出ていく</span></td></tr>
+          <tr><td>減価償却をした</td><td><span class="mark-ok">費用になる</span></td><td>動かない</td></tr>
+          <tr><td>在庫を仕入れて残った</td><td>売れるまで出ない</td><td><span class="mark-ok">出ていく</span></td></tr>
+          <tr><td>法人税等を納めた</td><td>税引前利益の下</td><td><span class="mark-ok">出ていく</span></td></tr>
+        </tbody></table>
+      <p class="venn-cap">※一般的な取扱いを整理したものです。会計方針や取引の内容によって処理が異なる場合があります。法人税等の計上時期や納付時期については、個別の税額計算・申告を税理士にご確認ください。</p></div>
+    <p class="sec-lead">では、必要な売上はいくらなのでしょうか。固定費、限界利益率、そして返済額を入れて、動かしてみてください。</p>
+    <div class="sim-box">
+      <h3>体感シミュレーター「必要な売上は、いくら？」</h3>
+      <p class="sub">返済に必要な利益から逆算して、来期に必要な年間売上高を出します。このページの説明用に単純化した概算です。</p>
+      <div class="sim-ctrl">
+        <label for="simA">年間の固定費<output id="simAOut">3,000万円</output></label>
+        <input type="number" id="simA" value="3000" min="0" max="100000" step="10" inputmode="numeric" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;">
+        <p style="font-size:.8rem;color:#5c6874;margin-top:5px;">単位は万円。人件費・家賃・リース料など、売上が減っても出ていく費用の合計です。</p></div>
+      <div class="sim-ctrl"><label for="simB">限界利益率（売上から変動費を引いた割合）</label>
+        <select id="simB" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;"><option value="30" selected>30%（仕入や材料の比重が大きい）</option><option value="40">40%</option><option value="50">50%</option><option value="60">60%</option><option value="70">70%（人の手が中心）</option></select></div>
+      <div class="sim-ctrl">
+        <label for="simE">年間の借入返済額（元本のみ）<output id="simEOut">300万円</output></label>
+        <input type="number" id="simE" value="300" min="0" max="50000" step="10" inputmode="numeric" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;">
+        <p style="font-size:.8rem;color:#5c6874;margin-top:5px;">単位は万円。返済予定表の元本部分だけを1年分合計してください。利息は固定費に含めます。</p></div>
+      <div class="sim-ctrl">
+        <label for="simF">年間の減価償却費<output id="simFOut">0万円</output></label>
+        <input type="number" id="simF" value="0" min="0" max="50000" step="10" inputmode="numeric" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;">
+        <p style="font-size:.8rem;color:#5c6874;margin-top:5px;">単位は万円。現金が出ていかない費用なので、返済に回せる分として足し戻します。</p></div>
+      <label class="sim-check"><input type="checkbox" id="simC" checked>法人税等を実効税率30%の概算で考慮する</label>
+      <div class="timeline" aria-hidden="true"><div class="tl-track"><div class="tl-fill" id="tlFill" style="width:2%;"></div>
+          <div class="tl-goal" style="left:50%;">ここまでが赤字を消す分<br>その先が返済のための売上</div></div>
+        <div class="tl-labels"><span>売上ゼロ</span><span>損益分岐点</span><span>必要売上</span></div></div>
+      <div class="sim-results" aria-live="polite">
+        <div class="sim-r" id="simR1"><h4>損益分岐点売上高<small>利益がゼロになる線</small></h4><span class="r-chip" id="simR1Chip"></span><p id="simR1Txt"></p></div>
+        <div class="sim-r" id="simR2"><h4>返済のために必要な利益<small>税引前</small></h4><span class="r-chip" id="simR2Chip"></span><p id="simR2Txt"></p></div>
+        <div class="sim-r" id="simR3"><h4>1か月あたりの必要売上<small>12等分した目安</small></h4><span class="r-chip" id="simR3Chip"></span><p id="simR3Txt"></p></div>
+      </div>
+      <div class="sim-total">
+        <span class="lead" id="simTotalLead">この条件なら</span>
+        <span class="big" id="simTotalBig"></span><span class="sub2" id="simTotalSub"></span></div>
+      <p class="venn-cap" style="margin-top:10px;">※法人税等は実効税率30%として計算した概算です。中小法人の軽減税率、繰越欠損金、税額控除、消費税、在庫や売掛金の増減による運転資金、設備投資、季節による資金の谷は考慮していません。実効税率は会社の規模と所得金額によって変わります。実際の税額は税理士にご確認ください。</p></div>
+    <div class="mikane" style="margin-top:26px;">
+      <h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>本当にこわいのは、計画が外れることではありません</h3>
+      <ol><li><strong>ずれに気づくのが遅れること。</strong>計画は外れて当たり前です。問題は、外れたことに気づくのが期末になってしまうと、その期についてはもう打つ手がないという点です。</li>
+        <li><strong>原因が切り分けられないこと。</strong>利益が足りない理由が、売上なのか、限界利益率なのか、固定費なのか。ここが分からないままだと、打ち手が精神論になっていきます。</li>
+        <li><strong>社内で共有されないこと。</strong>数字が経営者の頭のなかにしかないと、現場は判断できません。「あと何件」という形に翻訳されてはじめて、計画は行動に変わります。</li></ol>
+      <p class="caution"><strong>いちばん多い失敗は、計画を精密に作りすぎること</strong>科目を細かく分け、月ごとに数字を積み上げ、立派な冊子を作る。そこで力尽きて、<b>誰も振り返らない</b>という結果になりがちです。使える計画に必要なのは、売上・限界利益・固定費・現金残高の<b>4つの数字</b>と、毎月それを見る時間を確保することだけ。精度より継続です。</p></div>
+    <div class="note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>ここに書いた計算は、いずれも一般的な管理会計の考え方にもとづく概算です。将来の売上や利益を保証するものではありませんし、業界の先行きを見通すものでもありません。税金の見込みを含む試算については、個別の税額計算・申告を税理士にご確認ください。</span></div>
+  </div></section>
+
+<section id="sec4" class="band-blush round-top">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="step-pill"><i>4</i><span>実話がモデルの寸劇集</span></span>
+      <h2>経営計画あるある劇場</h2></div>
+      <div class="spot"><span class="spot-circle" data-art="spotTheater" aria-hidden="true"></span></div></div>
+    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">ここからは6つの寸劇です。どれも「計画は立てていた」会社の話。それでもうまくいかなかったのは、数字の並べ方に理由がありました。気になる演目をタップして、中身をのぞいてみてください。</p></div>
+    <div class="case-grid" id="caseGrid"></div>
+    <div class="note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>各演目は一般的な内容をもとにした創作例で、実在の個人・事案とは関係ありません。金額はいずれも計算の例として置いたもので、実際の数字は業種や会社の状況によって変わります。</span></div>
+  </div></section>
+
+<section id="sec5" class="band-mint round-top">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="step-pill"><i>5</i><span>知って得する側の話</span></span>
+      <h2>逆転劇場〜こんな数字が、<span class="nowrap">味方します〜</span></h2></div>
+      <div class="spot"><span class="spot-circle" data-art="spotGift" aria-hidden="true"></span></div></div>
+    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">ここまでは、数字の並べ方でつまずいた話でした。ここからは逆です。たった1つの計算を知っていたから、判断が早くなった、社内が動いた、という8つの話。難しい理論はひとつも出てきません。</p></div>
+    <div class="model-note"><strong>このページの「必要売上」の目安</strong><span class="mn-row">年間の固定費3,000万円、年間の元本返済300万円、減価償却費なし、法人税等は実効税率30%として計算した例です</span>
+      <span class="mn-note">※実際の数字は業種・限界利益率・借入の条件によって変わります。実効税率は会社の規模と所得金額によって異なりますので、税額の見込みは税理士にご確認ください。</span></div>
+    <div class="case-grid" id="goodGrid"></div>
+    <div class="rule3-box">
+      <h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg>使える計画にするための「3か条」</h3>
+      <ol><li><strong>現金から逆算する。</strong>売上目標から始めるのではなく、返済予定表と減価償却費から必要な利益を出し、それに固定費を足して限界利益率で割る。順番を変えるだけで、計画の意味が変わります。</li>
+        <li><strong>数字は4つに絞る。</strong>売上、限界利益、固定費、現金残高。この4つを毎月同じ形で並べる。細かく作り込むより、続けられる形にすることのほうが、はるかに効きます。</li>
+        <li><strong>現場の言葉に翻訳する。</strong>「必要売上1億1,429万円」では動けません。「月に約953万円、1日あたり約38万円」「あと何件」まで落として、はじめて計画は行動になります。</li></ol>
+      <p class="rule3-note">※金額はいずれも一例です。適用の可否は要件と事実関係により異なります。手続の期限は個別にご確認ください。</p></div>
+  </div></section>
+
+<section id="sec6" class="band-sky round-top">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="step-pill"><i>6</i><span>数字の話をひとつだけ</span></span>
+      <h2>必要な売上は<span class="nowrap">逆算できる</span></h2></div>
+      <div class="spot"><span class="spot-circle" data-art="spotCal" aria-hidden="true"></span></div></div>
+    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">同じ固定費、同じ返済額でも、限界利益率が違えば必要な売上はまるで変わります。ここでは、固定費3,000万円・年間の元本返済300万円という同じ条件で、限界利益率だけを変えて必要売上を計算しました。将来の業績を予測したものではなく、単純な割り算の結果です。</p></div>
+    <div class="life-box">
+      <h3>限界利益率別・必要な年間売上高</h3><p class="sub">固定費3,000万円・元本返済300万円・減価償却費なし・実効税率30%で計算。単位は万円</p>
+      <svg viewBox="0 56 380 196" role="img" aria-label="限界利益率が低いほど必要な年間売上高が大きくなることを示した棒グラフ">
+        <path d="M18 170h344" stroke="#d9cfc4" stroke-width="2" stroke-linecap="round"/>
+        <rect x="42" y="76" width="46" height="94" rx="4" fill="#f0846a"/><text x="65" y="68" text-anchor="middle" font-size="13" font-weight="bold" fill="#c2451f">11,429万円</text><text x="65" y="190" text-anchor="middle" font-size="12.5" fill="#5c6874">限界利益率</text><text x="65" y="206" text-anchor="middle" font-size="11" fill="#a63631">30%</text>
+        <rect x="152" y="114" width="46" height="56" rx="4" fill="#f7c34e"/><text x="175" y="106" text-anchor="middle" font-size="13" font-weight="bold" fill="#8f6015">6,857万円</text><text x="175" y="190" text-anchor="middle" font-size="12.5" fill="#5c6874">限界利益率</text><text x="175" y="206" text-anchor="middle" font-size="11" fill="#5c6874">50%</text>
+        <rect x="262" y="130" width="46" height="40" rx="4" fill="#c6e2f2"/><text x="285" y="122" text-anchor="middle" font-size="13" font-weight="bold" fill="#24729f">4,898万円</text><text x="285" y="190" text-anchor="middle" font-size="12.5" fill="#5c6874">限界利益率</text><text x="285" y="206" text-anchor="middle" font-size="11" fill="#5c6874">70%</text>
+        <text x="190" y="240" text-anchor="middle" font-size="13" font-weight="bold" fill="#a63631">率が低いほど売上が要ります</text>
+      </svg>
+      <p class="life-cap">※固定費3,000万円、年間の元本返済300万円、減価償却費なし、法人税等は実効税率30%として計算した概算です。将来の業績を予測するものではありません。実効税率は会社の規模と所得金額で変わりますので、税額の見込みは税理士にご確認ください。</p>
+      <div class="big3"><span class="b"><span class="n">0円</span><span class="l">元本返済の費用</span><span class="s">損益計算書には出ません</span></span>
+        <span class="b"><span class="n">3.3倍</span><span class="l">限界利益率30%なら</span><span class="s">固定費の何倍の売上が要るか</span></span>
+        <span class="b"><span class="n">12回</span><span class="l">1年で予実を見る回数</span><span class="s">決算後では手が打てません</span></span></div></div>
+    <h3 class="sub-h"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>限界利益率で、固定費の重さが変わる</h3>
+    <p class="sub-lead">固定費1,000万円という同じ条件で、限界利益率だけを変えるとどうなるか。損益分岐点売上高と、固定費が100万円増えたときの必要売上の増加額を並べました。</p>
+    <div class="age-cards">
+      <div class="age-card"><p class="ttl"><span class="ico ic-red" data-art="icHendou" aria-hidden="true"></span>限界利益率30%</p>
+        <span class="kind">仕入や材料の比重が大きい形</span>
+        <div class="rows"><p class="row"><span>損益分岐点</span><b>3,333万円</b></p><p class="row"><span>固定費100万円増で</span><b>333万円増</b></p></div>
+        <p class="cmt">固定費の3.3倍の売上が必要になります。人を採る、店を増やすといった判断が、必要売上に大きく跳ね返る形です。</p><p class="src">※固定費1,000万円として計算した例。単純な割り算の結果です</p></div>
+      <div class="age-card"><p class="ttl"><span class="ico ic-amber" data-art="icBunki" aria-hidden="true"></span>限界利益率50%</p>
+        <span class="kind">仕入と手間が半々の形</span>
+        <div class="rows"><p class="row"><span>損益分岐点</span><b>2,000万円</b></p><p class="row"><span>固定費100万円増で</span><b>200万円増</b></p></div>
+        <p class="cmt">固定費のちょうど2倍の売上が必要です。値引きで率が下がると必要売上が一気に増えるので、価格の管理が効いてきます。</p><p class="src">※固定費1,000万円として計算した例。単純な割り算の結果です</p></div>
+      <div class="age-card"><p class="ttl"><span class="ico ic-blue" data-art="icShain" aria-hidden="true"></span>限界利益率70%</p>
+        <span class="kind">人の手が中心の形</span>
+        <div class="rows"><p class="row"><span>損益分岐点</span><b>1,429万円</b></p><p class="row"><span>固定費100万円増で</span><b>143万円増</b></p></div>
+        <p class="cmt">必要売上は小さくて済みますが、固定費のほとんどが人件費という形になりがちで、売上が落ちたときの下げ幅も大きくなります。</p><p class="src">※固定費1,000万円として計算した例。単純な割り算の結果です</p></div>
+    </div>
+    <div class="mikane">
+      <h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5V9.2M12 9.2 7.6 5M12 9.2 16.4 5"/><circle cx="12" cy="15" r="8.2"/></svg>だから、いまできることは3つだけ</h3>
+      <ol><li><strong>固定費の合計を1回だけ出す。</strong>販売費及び一般管理費に、固定的な人件費と支払利息を加えるだけで概算になります。この1つの数字がないと、必要売上の計算は始まりません。</li>
+        <li><strong>返済予定表から年間の元本返済額を拾う。</strong>金融機関から渡されている返済予定表の、元本の列を1年分足すだけです。減価償却費とあわせて、必要な利益の逆算ができます。</li>
+        <li><strong>毎月の確認日を予定表に入れる。</strong>15日でも20日でも構いません。日を決めてしまえば習慣になります。見る項目は、売上・限界利益・固定費・現金残高の4つだけで十分です。</li></ol>
+      <p class="caution"><strong>そして、いちばん大事なこと</strong>計画は当てるためのものではありません。<b>ずれたときに、どこがずれたのかを説明できる</b>ようにしておくための道具です。外れたら直せばよい。直した記録が積み上がるほど、次の計画は現実に近づいていきます。立派な計画より、毎月開かれる計画のほうが、ずっと役に立ちます。</p></div>
+  </div></section>
+
+<section id="matome" class="band round-top">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="step-pill plain">まとめ</span>
+      <h2>あなたの経営計画チェック</h2></div>
+      <div class="spot"><span class="spot-circle" data-art="spotCheck" aria-hidden="true"></span></div></div>
+    <p class="sec-lead">最後に、いまの状況を確認してみましょう。あてはまるもの・できたものをタップ（クリック）してください。</p>
+    <div class="score-box"><h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/></svg>クイズの結果</h3>
+      <div id="sumScore"><p>まだクイズに挑戦していません。<a href="#sec2">②の○×クイズ</a>で、思い込みをチェックしてみてください。</p></div></div>
+    <div class="checklist" id="checklist">
+      <p class="chk-group">今日、手元の書類だけで確認できること</p>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkPdf" aria-hidden="true"></span><span><strong>固定費の合計を出した</strong>直近1年の販売費及び一般管理費に、固定的な人件費と支払利息を加えて、概算の固定費を計算する。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkBank" aria-hidden="true"></span><span><strong>年間の元本返済額を拾った</strong>借入の返済予定表を出し、元本の列だけを1年分合計する。利息は固定費のほうに入れる。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkReceipt" aria-hidden="true"></span><span><strong>減価償却費を確認した</strong>決算書の販管費と製造原価報告書の両方から、年間の減価償却費を拾い出す。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkAoiro" aria-hidden="true"></span><span><strong>限界利益率を計算した</strong>売上高から仕入・材料などの変動費を引き、売上高で割る。まずは売上総利益率で代用しても構わない。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkPc" aria-hidden="true"></span><span><strong>損益分岐点売上高を出した</strong>固定費を限界利益率で割る。いまの売上高と比べて、どれだけ余裕があるかを確かめる。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkInvoice" aria-hidden="true"></span><span><strong>売上と粗利の推移を並べた</strong>直近3期の売上高と売上総利益を並べ、売上が伸びたときに率がどう動いたかを見る。</span></label>
+      <p class="chk-group">今日、社内で決められること</p>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkHome" aria-hidden="true"></span><span><strong>毎月の確認日を決めた</strong>前月の試算表を見る日を予定表に入れる。見る項目は売上・限界利益・固定費・現金残高の4つに絞る。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkPeople" aria-hidden="true"></span><span><strong>必要売上を現場の言葉に置き換えた</strong>年間の必要売上を月・日・件数まで割り、朝礼や会議で使える形にする担当を決めた。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkShield" aria-hidden="true"></span><span><strong>12か月の資金繰り表を作ると決めた</strong>入金と支払いを月ごとに並べ、賞与・税金の納付・設備の支払いまで入れる期限を決めた。</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkBack" aria-hidden="true"></span><span><strong>判断に迷った項目を書き出した</strong>このページで引っかかった項目をメモにして、次回の打ち合わせで税理士に確認することにした。</span></label>
+    </div>
+    <div class="chk-msg" id="chkMsg">あてはまるもの、もう確認できたものをタップしてみてください。数が見えると次にやることが決まります。</div>
+    <div data-cta-mini></div>
+    <details class="finder"><summary>「何から手をつければいいのか分からない」という方へ</summary>
+      <ul><li>まず<strong>直近の決算書と借入の返済予定表</strong>を机の上に出します。これだけで、必要な材料の8割が揃います。</li><li>決算書から、売上高・売上総利益・販売費及び一般管理費・減価償却費の4つを書き出します。付箋に書く程度で構いません。</li><li>返済予定表から、年間の元本返済額を合計します。複数の借入があれば、全部足してください。</li><li>この5つの数字があれば、必要売上は電卓で出せます。全部の数字が揃わなくても、概算から始めて大丈夫です。</li></ul>
+      <p>この作業は、書類さえ出せば30分ほどで終わります。難しいのは計算ではなく、書類を机に出すところです。まずは決算書を1冊、探すところから始めてみてください。</p></details>
+    <details class="finder" style="margin-top:14px;"><summary>「じゃあ売上を増やせばいい？」——対策のワナ</summary>
+      <ul><li><strong>値引きで数量を取りにいく。</strong>限界利益率が下がるため、必要な数量は感覚よりずっと多くなります。取る前に必要数量を計算してください。</li><li><strong>固定費を一気に削る。</strong>人や設備を減らせば当面の利益は出ますが、将来の売上を作る力まで落ちることがあります。順番と幅の見極めが要ります。</li><li><strong>計画を精密に作り込む。</strong>作ること自体が目的になり、振り返る時間が残らないことがあります。4つの数字から始めるほうが続きます。</li><li><strong>借入を増やして当座をしのぐ。</strong>返済元本が増えれば、必要な利益も必要な売上も上がります。構造を直さないまま重ねると、翌年さらに苦しくなります。</li></ul>
+      <p>順番さえ守れば大丈夫です。現状の数字を出す、必要な利益を逆算する、必要な売上を現場の言葉に翻訳する、そして毎月突き合わせる。この4ステップから外れなければ、計画は道具として働きます。</p></details>
+    <div class="cta-box" id="soudan">
+      <h3>計画を作る前に、<span class="nowrap">一度ご相談</span></h3>
+      <p class="cta-lead">このページの内容は、あくまで一般的な計算のしくみの話。<strong>ご自身の会社の場合にどうなるか</strong>は、実際の決算書と借入の条件で決まります。こんなご相談をよくお受けしています。</p>
+      <ul><li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>いくら売れば返済まで回るのか、自社の数字で計算してほしい</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>黒字なのに資金が増えない理由を、数字で説明してほしい</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>毎月の試算表を、予実が見える形に整えたい</span></li></ul>
+      <p class="cta-lead">お時間の目安は30分ほど。資料が揃っていなくても大丈夫、揃えるところからお手伝いします。<strong>個別具体的な税務相談・税務書類の作成・税務代理は、税理士が対応します。</strong>いただいた個人情報は、ご相談への対応のみに使用し、ご本人の同意なく第三者に提供しません。</p>
+      <p class="co">株式会社Office-M</p><p class="addr">受付：平日 9:00〜17:00</p>
+      <p class="tip">借入の返済予定表（全行分）がお手元にあると、その場での確認がより早く進みます。</p></div>
+  </div></section>
+
+<!-- 募集文書審査：未了。委託先保険会社の承認番号の要否を確認のうえ公開すること -->
+<footer class="disclaimer">
+  <p>本資料は、株式会社Office-Mが経営計画づくりの一般的な考え方をご理解いただくために作成した情報提供資料です。記載内容は2026年8月時点の法令等および一般的な管理会計の考え方にもとづくもので、個別の事案への当てはめは業種・会計方針・借入の条件によって結論が変わります。シミュレーターの結果はいずれも簡易な概算であり、実際の売上・利益・税額を示すものではなく、将来の業績を保証または予測するものでもありません。実際の判断にあたっては、必ず税理士・取引金融機関にご確認ください。<strong>個別具体的な税務相談・税務書類の作成・税務代理は、税理士が対応します。</strong>本資料の内容によって生じた結果について、当社は責任を負いかねます。特定の金融商品・保険商品の推奨を目的とするものではありません。</p>
+  <p style="margin-top:10px;">主な根拠：損益分岐点分析および限界利益の一般的な定義（会計上の計算方法であり、法令で定められたものではありません）、簡易キャッシュフローの考え方（金融機関の融資審査等で一般に用いられる計算方法）、法人税法第74条第1項（確定申告書の提出期限）、会社法第432条・第435条（会計帳簿および計算書類の作成）。実効税率30%は説明のために置いた概数で、会社の規模と所得金額により実際の税負担は異なります。制度は改正されることがあります。最新の内容は国税庁のホームページでご確認ください。</p>
+  <p style="margin-top:10px;">作成：株式会社Office-M（2026年8月）</p>
+</footer>
+<!-- ================= 演目詳細モーダル ================= -->
+<div class="cmodal" id="caseModal" aria-hidden="true">
+  <div class="cmodal-back" id="caseModalBack"></div>
+  <div class="cmodal-panel" role="dialog" aria-modal="true" aria-labelledby="caseModalTitle">
+    <div class="cmodal-head" id="caseModalHead">
+      <button type="button" class="cmodal-close" id="caseModalClose" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <div class="cmodal-ico" id="caseModalIco" aria-hidden="true"></div>
+      <div>
+        <span class="cmodal-chip" id="caseModalChip"></span>
+        <h3 class="cmodal-title" id="caseModalTitle"></h3>
+      </div>
+    </div>
+    <div class="cmodal-body">
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 15.5a2 2 0 0 1-2 2H8l-4 3.5v-15a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"/></svg>
+          <span id="caseModalLbl1">ご相談で伺ったお話（脚色あり）</span>
+        </div>
+        <blockquote class="cmodal-quote" id="caseModalStory"></blockquote>
+      </div>
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-red" id="caseModalLbl2Wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+          <span id="caseModalLbl2">何が起きたのか</span>
+        </div>
+        <div id="caseModalWhat"></div>
+      </div>
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-green">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
+          <span id="caseModalLbl3">こう確認すれば防げます</span>
+        </div>
+        <div id="caseModalHow"></div>
+      </div>
+      <div data-cta-mini></div>
+      <p class="cmodal-note">※演目は一般的な内容をもとにした創作例で、実在の個人・法人・事案とは関係ありません。税務の取扱いは事実関係により異なります。実際の判断は、顧問税理士または所轄の税務署にご確認ください。</p>
+    </div>
+  </div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- 案内役のイラスト ---------- */
+var SVG_GUIDE =
+  '<svg viewBox="0 0 64 64">' +
+  '<circle cx="32" cy="32" r="32" fill="#ffeee3"/>' +
+  '<path d="M8 64c0-13 11-20 24-20s24 7 24 20H8Z" fill="#f0846a"/>' +
+  '<rect x="27" y="39" width="10" height="11" rx="5" fill="#f7cdb4"/>' +
+  '<path d="M25 45l7 9 7-9 3.4 1.8L32 61 21.6 46.8Z" fill="#fff"/>' +
+  '<ellipse cx="32" cy="28" rx="16" ry="17" fill="#5c4030"/>' +
+  '<ellipse cx="32" cy="30" rx="12.5" ry="13.5" fill="#f7cdb4"/>' +
+  '<path d="M19.5 27c0-9 5.6-14.5 12.5-14.5S44.5 18 44.5 27c-1.6-3.6-4.2-5.7-7.2-6.6-2.6 2.4-7 3.8-10.9 3.2-1.4 1-2.4 2.1-2.9 3.4Z" fill="#5c4030"/>' +
+  '<circle cx="27" cy="30" r="1.6" fill="#3d3028"/><circle cx="37" cy="30" r="1.6" fill="#3d3028"/>' +
+  '<path d="M29.4 35.6c1.6 1.7 3.6 1.7 5.2 0" fill="none" stroke="#3d3028" stroke-width="1.6" stroke-linecap="round"/>' +
+  '</svg>';
+
+document.querySelectorAll('[data-guide]').forEach(function(el){ el.innerHTML = SVG_GUIDE; });
+
+/* ---------- スポット・アイコン ---------- */
+var S = 'fill="none" stroke-linecap="round" stroke-linejoin="round"';
+var ARTS = {
+  spotLine:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="6" y="16" width="22" height="32" rx="5" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="2.5"/>' +
+    '<rect x="36" y="16" width="22" height="32" rx="5" fill="#fdf3e2" stroke="#8f6015" stroke-width="2.5"/>' +
+    '<path d="M32 8v48" stroke="#c2451f" stroke-width="3" stroke-dasharray="5 4" stroke-linecap="round"/>' +
+    '<path d="m12 32 4 4 8-8" fill="none" stroke="#2c7a4b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M42 27l10 10M52 27l-10 10" stroke="#8f6015" stroke-width="3" stroke-linecap="round"/>' +
+    '</svg>',
+  spotQuiz:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="24" fill="#e8f4fb"/>' +
+    '<path d="M25 26.5c.6-4.2 3.6-6.6 7.4-6.6 4.2 0 7.4 2.8 7.4 6.8 0 3.4-2 5.2-4.4 6.8-2 1.3-2.9 2.3-2.9 4.5" fill="none" stroke="#24729f" stroke-width="3.4" stroke-linecap="round"/>' +
+    '<circle cx="32.4" cy="45" r="2.6" fill="#f0846a"/>' +
+    '</svg>',
+  spotCalc:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="14" y="6" width="36" height="52" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<rect x="20" y="12" width="24" height="12" rx="4" fill="#27587f"/>' +
+    '<path d="M24 18h16" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>' +
+    '<circle cx="24" cy="32" r="3.6" fill="#c6e2f2"/><circle cx="32" cy="32" r="3.6" fill="#c6e2f2"/><circle cx="40" cy="32" r="3.6" fill="#c6e2f2"/>' +
+    '<circle cx="24" cy="42" r="3.6" fill="#c6e2f2"/><circle cx="32" cy="42" r="3.6" fill="#c6e2f2"/><circle cx="40" cy="42" r="3.6" fill="#f7c34e"/>' +
+    '<circle cx="24" cy="51" r="3.6" fill="#c6e2f2"/><circle cx="32" cy="51" r="3.6" fill="#c6e2f2"/><circle cx="40" cy="51" r="3.6" fill="#f0846a"/>' +
+    '</svg>',
+  spotTheater:
+    '<svg viewBox="0 0 64 64">' +
+    '<path d="M8 10h48v8c0 4-3 7-7 7H15c-4 0-7-3-7-7Z" fill="#c2453f"/>' +
+    '<path d="M10 14c4 22 4 30 3 40h8c-2-12-1-24 3-40Z" fill="#a63631"/>' +
+    '<path d="M54 14c-4 22-4 30-3 40h-8c2-12 1-24-3-40Z" fill="#a63631"/>' +
+    '<circle cx="32" cy="38" r="13" fill="#ffeee3"/>' +
+    '<circle cx="27.5" cy="35.5" r="1.8" fill="#3d3028"/><circle cx="36.5" cy="35.5" r="1.8" fill="#3d3028"/>' +
+    '<path d="M27 42c3 3 7 3 10 0" fill="none" stroke="#3d3028" stroke-width="2" stroke-linecap="round"/>' +
+    '</svg>',
+  spotGift:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="8" y="24" width="48" height="34" rx="6" fill="#fffdf8" stroke="#c3e5d3" stroke-width="2.5"/>' +
+    '<rect x="8" y="24" width="48" height="12" rx="6" fill="#4fbf9b"/>' +
+    '<rect x="28" y="24" width="8" height="34" fill="#2c7a4b"/>' +
+    '<path d="M32 24s-6-.7-8.5-3.2a3.6 3.6 0 0 1 5.1-5.1C31.1 18.2 32 24 32 24Z" fill="#f7c34e"/>' +
+    '<path d="M32 24s6-.7 8.5-3.2a3.6 3.6 0 0 0-5.1-5.1C32.9 18.2 32 24 32 24Z" fill="#f7c34e"/>' +
+    '<circle cx="47" cy="15" r="6.5" fill="#f0846a"/>' +
+    '<path d="M44.5 15h5M47 12.5v5" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>' +
+    '</svg>',
+  spotCal:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="8" y="12" width="48" height="44" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<path d="M8 24h48" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<rect x="8" y="12" width="48" height="12" rx="7" fill="#27587f"/>' +
+    '<path d="M20 6v10M44 6v10" stroke="#1b3f5e" stroke-width="4" stroke-linecap="round"/>' +
+    '<rect x="15" y="30" width="8" height="7" rx="2" fill="#c6e2f2"/>' +
+    '<rect x="28" y="30" width="8" height="7" rx="2" fill="#f0846a"/>' +
+    '<rect x="41" y="30" width="8" height="7" rx="2" fill="#c6e2f2"/>' +
+    '<rect x="15" y="42" width="8" height="7" rx="2" fill="#f7c34e"/>' +
+    '<rect x="28" y="42" width="8" height="7" rx="2" fill="#c6e2f2"/>' +
+    '<rect x="41" y="42" width="8" height="7" rx="2" fill="#f0846a"/>' +
+    '</svg>',
+  spotCheck:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="12" y="10" width="40" height="46" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>' +
+    '<rect x="24" y="5" width="16" height="10" rx="4" fill="#27587f"/>' +
+    '<path d="m19 26 4 4 7-8" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<rect x="34" y="25" width="12" height="3.5" rx="1.75" fill="#d9cfc4"/>' +
+    '<path d="m19 40 4 4 7-8" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<rect x="34" y="39" width="12" height="3.5" rx="1.75" fill="#d9cfc4"/>' +
+    '</svg>',
+
+  icKousai:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<path d="M10 12v7a5 5 0 0 0 10 0v-7M15 24v14"/>' +
+    '<path d="M33 12c-3 0-5 3-5 8s2 6 5 6 5-1 5-6-2-8-5-8ZM33 26v12"/>' +
+    '<path d="M9 42h12M27 42h12"/>' +
+    '</svg>',
+  icKaigi:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<circle cx="11" cy="12" r="4.5"/><circle cx="37" cy="12" r="4.5"/>' +
+    '<path d="M4 24c0-4 3.2-6.5 7-6.5s7 2.5 7 6.5M30 24c0-4 3.2-6.5 7-6.5s7 2.5 7 6.5"/>' +
+    '<ellipse cx="24" cy="25" rx="7" ry="2.6"/>' +
+    '<path d="M5 29h38M11 29v11M37 29v11"/>' +
+    '</svg>',
+  icHitori:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<circle cx="24" cy="11" r="5"/>' +
+    '<path d="M16 22c0-3.4 3.6-5 8-5s8 1.6 8 5"/>' +
+    '<path d="M10 29h28c0 6-6 10-14 10s-14-4-14-10Z"/>' +
+    '<path d="M8 42h32"/>' +
+    '</svg>',
+  icShain:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<circle cx="12" cy="14" r="4.5"/><circle cx="24" cy="11" r="4.5"/><circle cx="36" cy="14" r="4.5"/>' +
+    '<path d="M4 26c0-3.6 3.6-6 8-6s8 2.4 8 6M16 24c0-3.6 3.6-6 8-6s8 2.4 8 6M28 26c0-3.6 3.6-6 8-6s8 2.4 8 6"/>' +
+    '<path d="M8 34h32v6a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2Z"/>' +
+    '</svg>',
+  icShuzen:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M29 8a8 8 0 0 0-9.6 10.6L8 30v8h8l11.4-11.4A8 8 0 0 0 38 17l-6 3-4-4 3-6a8 8 0 0 0-2-2Z"/>' +
+    '<path d="m13 33 2 2"/>' +
+    '</svg>',
+  icPaint:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<rect x="8" y="8" width="24" height="10" rx="3"/>' +
+    '<path d="M32 13h6a3 3 0 0 1 3 3v5a3 3 0 0 1-3 3H24v6"/>' +
+    '<rect x="19" y="30" width="10" height="12" rx="3"/>' +
+    '</svg>',
+  icUpgrade:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<rect x="7" y="26" width="10" height="14" rx="2"/>' +
+    '<rect x="19" y="18" width="10" height="22" rx="2"/>' +
+    '<rect x="31" y="8" width="10" height="32" rx="2"/>' +
+    '<path d="M6 44h36"/>' +
+    '</svg>',
+  icBuild:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M8 42V16l16-9 16 9v26"/>' +
+    '<path d="M6 42h36"/>' +
+    '<rect x="15" y="22" width="7" height="7" rx="1.5"/><rect x="26" y="22" width="7" height="7" rx="1.5"/>' +
+    '<path d="M19 42v-8h10v8"/>' +
+    '</svg>',
+  icGaichu:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<rect x="6" y="16" width="36" height="22" rx="4"/>' +
+    '<path d="M18 16v-3a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v3"/>' +
+    '<path d="M6 24h36M20 27h8"/>' +
+    '</svg>',
+  icJikan:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<circle cx="24" cy="25" r="15"/>' +
+    '<path d="M24 16v9l6 4"/>' +
+    '<path d="M17 7h14"/>' +
+    '</svg>',
+  icDoc2:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<rect x="11" y="6" width="26" height="36" rx="4"/>' +
+    '<path d="M17 16h14M17 23h14M17 30h8"/>' +
+    '</svg>',
+  icKazoku:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.3">' +
+    '<circle cx="15" cy="14" r="5"/><circle cx="33" cy="14" r="5"/>' +
+    '<path d="M6 30c0-5 4-8 9-8s9 3 9 8M24 30c0-5 4-8 9-8s9 3 9 8"/>' +
+    '<circle cx="24" cy="30" r="4"/>' +
+    '<path d="M17 42c0-4 3-6 7-6s7 2 7 6"/>' +
+    '</svg>',
+  icZeimusho:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.3">' +
+    '<path d="M6 18 24 8l18 10"/>' +
+    '<path d="M9 18v18M17 18v18M31 18v18M39 18v18"/>' +
+    '<path d="M5 42h38M8 36h32"/>' +
+    '</svg>',
+  icCity:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.3">' +
+    '<rect x="7" y="14" width="16" height="28" rx="2"/>' +
+    '<rect x="25" y="22" width="16" height="20" rx="2"/>' +
+    '<path d="M12 20h6M12 27h6M12 34h6M30 28h6M30 35h6"/>' +
+    '<path d="M5 42h38"/>' +
+    '</svg>',
+  icHoken:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M24 6 9 11v11c0 9.5 6.4 17.4 15 19.6 8.6-2.2 15-10.1 15-19.6V11L24 6Z"/>' +
+    '<path d="M24 17v12M18 23h12"/>' +
+    '</svg>',
+
+  qFood:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<circle cx="24" cy="24" r="9.5"/><circle cx="24" cy="24" r="4.5"/>' +
+    '<path d="M8 8v8a3 3 0 0 0 6 0V8M11 16v24"/>' +
+    '<path d="M40 8c-3 1.2-5 4.6-5 9s2 5 5 5M40 8v32"/>' +
+    '</svg>',
+  qCar:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M8 30v6h5M40 30v6h-5"/>' +
+    '<path d="M6 30l3-10a4 4 0 0 1 3.8-2.8h22.4A4 4 0 0 1 39 20l3 10Z"/>' +
+    '<circle cx="14" cy="30" r="2.4"/><circle cx="34" cy="30" r="2.4"/>' +
+    '<path d="M20 8h8M24 4v8" stroke-width="2.8"/>' +
+    '</svg>',
+  qDock:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<path d="M14 7v9a8 8 0 0 0 16 0V7"/>' +
+    '<path d="M22 24v6a8 8 0 0 0 16 0v-4"/>' +
+    '<circle cx="38" cy="22" r="4"/>' +
+    '<path d="M10 7h8M26 7h8"/>' +
+    '</svg>',
+  qHouse:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M6 22 24 8l18 14"/>' +
+    '<path d="M10 20v20h28V20"/>' +
+    '<path d="M24 20v20" stroke-dasharray="4 3"/>' +
+    '<path d="M14 27h6M28 27h6"/>' +
+    '</svg>',
+  qPc:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<rect x="9" y="10" width="30" height="21" rx="3"/>' +
+    '<path d="M5 36h38l-3 4H8Z"/>' +
+    '</svg>',
+  qSuit:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M18 6h12l-6 8Z"/>' +
+    '<path d="M24 14 21 42h6Z"/>' +
+    '<path d="M18 6 9 12v30h8M30 6l9 6v30h-8"/>' +
+    '</svg>',
+  qShield:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<path d="M24 5 8 11v12c0 10 6.8 18.5 16 21 9.2-2.5 16-11 16-21V11L24 5Z"/>' +
+    '<path d="m18 18 6 8 6-8M24 26v9M19.5 28.5h9M19.5 32.5h9"/>' +
+    '</svg>',
+  qYen:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<circle cx="24" cy="24" r="17"/>' +
+    '<path d="m17 14 7 10 7-10M24 24v10M18.5 26.5h11M18.5 31.5h11"/>' +
+    '</svg>',
+  qInvoice:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<path d="M11 6h26v36l-4.3-3-4.4 3-4.3-3-4.4 3-4.3-3-4.3 3Z"/>' +
+    '<path d="M17 15h14M17 22h14M17 29h8"/>' +
+    '</svg>',
+  qTruck:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.4">' +
+    '<path d="M4 12h22v22H4Z"/>' +
+    '<path d="M26 20h9l7 7v7h-16Z"/>' +
+    '<circle cx="14" cy="37" r="4"/><circle cx="34" cy="37" r="4"/>' +
+    '</svg>',
+  qPlane:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M24 5c2.5 0 4 4 4 10v6l14 8v4l-14-4v8l5 4v3l-9-2-9 2v-3l5-4v-8l-14 4v-4l14-8v-6c0-6 1.5-10 4-10Z"/>' +
+    '</svg>',
+  qSeed:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<path d="M24 42V20"/>' +
+    '<path d="M24 20c0-7 5-12 12-12 0 7-5 12-12 12ZM24 26c0-6-4-10-10-10 0 6 4 10 10 10Z"/>' +
+    '<path d="M12 42h24"/>' +
+    '</svg>',
+  qTrash:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<path d="M9 13h30M18 13V9a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v4"/>' +
+    '<path d="M13 13l2 26a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3l2-26"/>' +
+    '<path d="M20 20v15M28 20v15"/>' +
+    '</svg>',
+
+  chkReceipt:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2451f" stroke-width="2.3">' +
+    '<path d="M11 6h26v36l-4.3-3-4.4 3-4.3-3-4.4 3-4.3-3-4.3 3Z"/>' +
+    '<path d="M17 16h14M17 24h14M17 31h8"/>' +
+    '</svg>',
+  chkHome:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<path d="M6 22 24 8l18 14"/><path d="M10 20v20h28V20"/><path d="M24 20v20" stroke-dasharray="4 3"/>' +
+    '</svg>',
+  chkPeople:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.3">' +
+    '<circle cx="15" cy="15" r="5"/><circle cx="33" cy="15" r="5"/>' +
+    '<path d="M6 33c0-5 4-8 9-8s9 3 9 8M24 33c0-5 4-8 9-8s9 3 9 8"/>' +
+    '</svg>',
+  chkPc:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.3">' +
+    '<rect x="9" y="10" width="30" height="21" rx="3"/><path d="M5 36h38l-3 4H8Z"/>' +
+    '</svg>',
+  chkPdf:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f4574" stroke-width="2.3">' +
+    '<path d="M13 6h16l8 8v28a2 2 0 0 1-2 2H13a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"/>' +
+    '<path d="M29 6v9h8"/><path d="M17 26h12M17 33h8"/>' +
+    '</svg>',
+  chkInvoice:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.3">' +
+    '<rect x="7" y="12" width="34" height="24" rx="3"/>' +
+    '<path d="M12 18v12M17 18v12M22 18v12M27 18v12M32 18v12M37 18v12"/>' +
+    '</svg>',
+  chkBank:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.3">' +
+    '<path d="M6 19 24 9l18 10"/><path d="M11 19v17M20 19v17M28 19v17M37 19v17"/><path d="M6 41h36"/>' +
+    '</svg>',
+  chkAoiro:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#27587f" stroke-width="2.3">' +
+    '<rect x="10" y="7" width="28" height="34" rx="4"/>' +
+    '<path d="m17 22 4 4 10-10"/><path d="M17 33h14"/>' +
+    '</svg>',
+  chkShield:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.3">' +
+    '<path d="M24 6 10 11v11c0 9 6 16.5 14 18.7C32 38.5 38 31 38 22V11L24 6Z"/>' +
+    '<path d="m18 22 6 6 6-8"/>' +
+    '</svg>',
+  chkBack:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.3">' +
+    '<path d="M9 24a15 15 0 1 0 4.4-10.6"/>' +
+    '<path d="M8 8v8h8"/><path d="M24 17v8l6 4"/>' +
+    '</svg>',
+  icHendou:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<path d="M8 38 18 26l8 7 14-17"/><path d="M32 16h8v8"/><path d="M8 42h32"/></svg>',
+  icKotei:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<rect x="9" y="16" width="30" height="24" rx="3"/><path d="M9 40h30"/><path d="M16 16v-5h16v5"/>' +
+    '<path d="M9 26h30"/></svg>',
+  icBunki:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#24729f" stroke-width="2.4">' +
+    '<path d="M9 39V9"/><path d="M9 39h30"/><path d="M11 35 39 13"/><path d="M11 21h28"/>' +
+    '<circle cx="26.5" cy="21" r="3"/></svg>',
+  icGenka:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#8f6015" stroke-width="2.4">' +
+    '<rect x="8" y="14" width="32" height="20" rx="3"/><path d="M14 34v6M34 34v6"/>' +
+    '<path d="M16 24h16"/><path d="M28 20l4 4-4 4"/></svg>',
+  icHensai:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#c2453f" stroke-width="2.4">' +
+    '<circle cx="24" cy="24" r="15"/><path d="M18 20h12M18 27h12"/><path d="M22 15v18"/></svg>',
+  icYojitsu:
+    '<svg viewBox="0 0 48 48" ' + S + ' stroke="#2c7a4b" stroke-width="2.4">' +
+    '<rect x="8" y="10" width="32" height="30" rx="4"/><path d="M8 18h32"/>' +
+    '<path d="M15 27l4 4 8-8"/><path d="M15 35h18"/></svg>',
+};
+document.querySelectorAll('[data-art]').forEach(function(el){
+  var key = el.getAttribute('data-art');
+  if(ARTS[key]) el.innerHTML = ARTS[key];
+});
+
+/* ---------- ミニCTA ---------- */
+var CTA_MINI =
+  '<div class="cta-mini"><p>「うちの場合、いくら売れば回るんでしょうか」——その一言から、いつでもご相談いただけます。</p>' +
+  '<a href="#soudan">' +
+  '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="m3 7 9 6 9-6"/></svg>' +
+  '無料で相談してみる</a></div>';
+document.querySelectorAll('[data-cta-mini]').forEach(function(el){ el.innerHTML = CTA_MINI; });
+
+/* ---------- セクション2：○×クイズ ---------- */
+/* a: true = 使える（○が正解）, false = 使えない（×が正解） */
+var QUIZ = [
+  {
+    icon:'icHendou', a:false,
+    q:'売上さえ増やせば利益も増えるので、経営計画は売上目標から立てればよい。',
+    expl:'利益は、売上から変動費を引いた限界利益で固定費をまかない、残ったものです。ですから、売上が増えても限界利益率が下がっていれば、利益は増えないどころか減ることもあります。たとえば限界利益率が40%のときに10%値引きして数量を1割伸ばしても、限界利益の合計は増えません。計画を売上から立てると、この率の変化が見えなくなります。使える計画は、必要な現金から必要な利益を出し、必要な利益と固定費の合計を限界利益率で割って必要売上を求める、という逆の順番で作ります。',
+    wana:'売上という数字がいちばん目立ち、社内でも共有しやすいので、そこから考えたくなるためです。',
+    check:'直近の決算書で、売上高と売上総利益の両方が前期からどう動いたかを並べてみてください。'
+  },
+  {
+    icon:'icBunki', a:true,
+    q:'利益がちょうどゼロになる売上高は、固定費を限界利益率で割って求められる。',
+    expl:'損益分岐点売上高は、固定費を限界利益率で割って計算します。限界利益率は、限界利益を売上高で割った割合で、限界利益は売上高から変動費を引いたものです。たとえば固定費が3,000万円で限界利益率が30%なら、損益分岐点売上高は1億円になります。同じ固定費でも限界利益率が50%なら6,000万円で足ります。この式が使えると、固定費を増やす判断のときに必要売上がいくら上がるかを、その場で計算できるようになります。会計上の計算方法であり、法令で定められた式ではありません。',
+    wana:'式そのものは知られていても、自社の変動費と固定費を分けたことがないため使えない、という状態が多いためです。',
+    check:'直近1年の販売費及び一般管理費の合計を出し、そこに固定的な人件費を加えて固定費の概算を作ってください。'
+  },
+  {
+    icon:'icHensai', a:false,
+    q:'借入金の元本返済は会社の負担なので、損益計算書の利益からすでに差し引かれている。',
+    expl:'損益計算書に費用として計上されるのは利息の部分だけで、元本の返済は費用になりません。元本の返済は貸借対照表の借入金が減る取引であり、損益には出てきません。ですから、利益が出ていても年間の返済元本がそれを上回っていれば、通帳の残高は減っていきます。黒字なのに資金が苦しいという状態の多くが、これで説明できます。計画を立てるときは、損益計算書の利益ではなく、返済に回せる現金がいくらあるかで見るのが確実です。',
+    wana:'毎月きちんと返しているという実感が強いので、当然どこかで費用になっていると思ってしまうためです。',
+    check:'借入の返済予定表を出し、年間の元本返済額の合計と、直近の税引後利益を並べてみてください。'
+  },
+  {
+    icon:'icGenka', a:true,
+    q:'返済に回せる利益を見るときは、税引後利益に減価償却費を足し戻して考える。',
+    expl:'減価償却費は、過去に支払った設備の代金を使用年数に分けて費用にしたものです。その年に現金が出ていくわけではありませんので、返済に使える現金を見るときは、税引後利益に減価償却費を足し戻します。これを簡易キャッシュフローと呼び、金融機関の融資審査などでも一般に用いられます。この額が年間の返済元本を下回っていると、続けるほど資金が細っていきます。逆に言えば、必要な利益は返済予定表と減価償却費から逆算できるということでもあります。法令で定められた計算方法ではありません。',
+    wana:'減価償却費は費用の一種なので、現金が出ていないという性質まで意識されにくいためです。',
+    check:'決算書の販管費と製造原価報告書から、年間の減価償却費の合計を拾い出してみてください。'
+  },
+  {
+    icon:'qYen', a:false,
+    q:'固定費を10万円減らすことと、売上を10万円増やすことは、利益への効き方が同じである。',
+    expl:'固定費を10万円減らせば、利益はそのまま10万円増えます。一方、売上を10万円増やしても、増えるのは限界利益の分だけです。限界利益率が30%なら3万円しか増えません。同じ効果を得るには、限界利益率30%の会社で約33万円の売上増が必要になります。もちろん固定費を減らすことにも限度がありますし、人や設備を減らせば将来の売上に影響します。ただ、どちらの打ち手がいくら効くのかを同じ物差しで比べられること自体が、計画づくりでは大きな武器になります。',
+    wana:'どちらも同じ10万円という金額に見えるため、効き方まで違うとは考えにくいためです。',
+    check:'自社の限界利益率を計算し、固定費1万円の増加が必要売上をいくら押し上げるか確かめてください。'
+  },
+  {
+    icon:'icDoc2', a:false,
+    q:'経営計画は融資や補助金の申請のために作るものなので、実績と違っていても実務上は差し支えない。',
+    expl:'申請のために作った計画と、社内で使う計画が別々になっている状態は、二重の手間がかかるだけでなく、どちらも使われなくなりがちです。計画の値打ちは、実績と突き合わせて差を説明できることにあります。差が出たときに、売上なのか、限界利益率なのか、固定費なのか、どこがずれたのかを切り分ける。その繰り返しが、次の計画の精度を上げていきます。提出用と社内用を1つにまとめ、毎月の試算表と同じ形で並べておくのが、いちばん手間の少ないやり方です。',
+    wana:'計画を提出書類の一種としてとらえていると、出したあとに使うものだという発想が出てこないためです。',
+    check:'直近に提出した事業計画書を出し、いまの試算表と同じ項目で比べられる形になっているか確かめてください。'
+  },
+  {
+    icon:'icKotei', a:true,
+    q:'どの費用を変動費とみるかは、業種や自社の実態に合わせて決めてよい部分がある。',
+    expl:'変動費と固定費の分け方には、法令で定められた唯一の正解はありません。外注費のように、仕事量に応じて発注するなら変動費に近く、月極めで固定的に払っているなら固定費に近い、というものもあります。大切なのは、完璧に分けることではなく、同じ基準で毎期続けて比べられるようにしておくことです。基準を変えた期には、その旨を記録に残しておけば、前期との比較で混乱しません。まずは仕入と材料費だけを変動費として始め、必要に応じて精度を上げていく形でも十分に役に立ちます。',
+    wana:'会計には常に決まった正解があると思われがちで、自社で決めてよい部分があると想像しにくいためです。',
+    check:'総勘定元帳の費用科目を一覧にして、売上と一緒に動くものに印をつけてみてください。'
+  },
+  {
+    icon:'icHensai', a:true,
+    q:'来期に必要な利益は、借入の返済予定表と減価償却費から逆算して決めることができる。',
+    expl:'返済に回せる現金は、おおよそ税引後利益に減価償却費を足した額です。ですから、年間の返済元本から減価償却費を差し引けば、必要な税引後利益が出ます。さらに法人税等を考えるなら、実効税率で割り戻して税引前の必要利益にします。たとえば返済元本が300万円で減価償却費がゼロ、実効税率を約30%とすると、必要な税引前利益はおよそ429万円です。ここに固定費を足して限界利益率で割れば、必要売上が出ます。実効税率は会社の規模や所得金額で変わりますので、個別の税額計算・申告については税理士にご確認ください。',
+    wana:'必要な利益は経営者の意欲で決めるものだと思われがちで、計算で出せることが知られていないためです。',
+    check:'返済予定表から来期の元本返済額を拾い、そこから減価償却費を引いた額を書き出してみてください。'
+  }
+];
+
+var qIdx = 0, qScore = 0, qAnswered = false, qAnsweredCount = 0;
+var wrongItems = [];
+
+var elNum   = document.getElementById('qNum');
+var elDots  = document.getElementById('qDots');
+var elIcon  = document.getElementById('qIcon');
+var elText  = document.getElementById('qText');
+var btnYes  = document.getElementById('btnYes');
+var btnNo   = document.getElementById('btnNo');
+var lblYes  = document.getElementById('lblYes');
+var lblNo   = document.getElementById('lblNo');
+var elVerd  = document.getElementById('verdict');
+var elVAns  = document.getElementById('vAnswer');
+var elVChip = document.getElementById('vChip');
+var elVExpl = document.getElementById('vExpl');
+var elVWana = document.getElementById('vWana');
+var elVChk  = document.getElementById('vCheck');
+var btnNext = document.getElementById('btnNext');
+var btnStop = document.getElementById('btnStopHere');
+var quizPlay = document.getElementById('quizPlay');
+var quizDone = document.getElementById('quizDone');
+
+function renderDots(){
+  var html = '';
+  for(var i = 0; i < QUIZ.length; i++){
+    html += '<i class="' + (i < qIdx ? 'done' : (i === qIdx ? 'now' : '')) + '"></i>';
+  }
+  elDots.innerHTML = html;
+}
+
+function renderQ(){
+  var item = QUIZ[qIdx];
+  elNum.textContent = qIdx + 1;
+  elIcon.innerHTML = ARTS[item.icon] || '';
+  elText.textContent = item.q;
+  lblYes.textContent = item.yes || '使える';
+  lblNo.textContent = item.no || '使えない';
+  btnYes.disabled = false;
+  btnNo.disabled = false;
+  qAnswered = false;
+  elVerd.classList.remove('show');
+  btnNext.style.display = 'none';
+  btnStop.style.display = 'none';
+  renderDots();
+}
+
+function answer(ansYes){
+  if(qAnswered) return;
+  qAnswered = true;
+  qAnsweredCount++;
+  btnYes.disabled = true;
+  btnNo.disabled = true;
+  var item = QUIZ[qIdx];
+  var correct = (ansYes === item.a);
+  if(correct) qScore++;
+  else wrongItems.push(item);
+  elVAns.textContent = '正解は「' + (item.a ? (item.yes || '使える') : (item.no || '使えない')) + '」';
+  elVChip.textContent = correct ? 'ご名答！' : 'ざんねん、ここがワナ';
+  elVChip.className = 'result-chip ' + (correct ? 'correct' : 'wrong');
+  elVExpl.textContent = item.expl;
+  elVWana.textContent = item.wana;
+  elVChk.textContent = item.check;
+  elVerd.classList.add('show');
+  btnNext.style.display = 'flex';
+  if(qIdx >= QUIZ.length - 1){
+    btnNext.innerHTML = '結果を見る <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  } else if(qIdx >= 2){
+    btnStop.style.display = 'block';
+  }
+}
+
+function doneComment(score, total){
+  var full = (total === QUIZ.length);
+  if(score === total && full){
+    return '全問正解です。数字の構造はしっかり押さえられています。あとは、その考え方をご自身の会社の試算表と返済予定表に当てはめるだけです。まずは固定費の合計を出すところから始めましょう。';
+  }
+  var r = score / total;
+  if(r >= 0.75){
+    return 'かなりの高得点です。惜しかった問題は、実務でいちばん混乱しやすいところでもあります。直近の試算表を手元に置いて、その論点だけでも自社の数字で確かめてみてください。';
+  }
+  if(r >= 0.4){
+    return '半分前後という方がいちばん多いところです。利益と現金の話は、毎日やっていてもすぐには身につきません。決算で驚く前に、いまのうちに数字の並べ方を整えておくと安心です。';
+  }
+  return 'ここで引っかかっておいてよかった、という問題ばかりです。計画を立ててから気づくより、クイズで間違えるほうがずっと安上がりです。気になった項目から一つずつ確認していきましょう。';
+}
+
+function showDone(){
+  quizPlay.style.display = 'none';
+  quizDone.classList.add('show');
+  document.getElementById('doneTotal').textContent = qAnsweredCount;
+  document.getElementById('doneScore').textContent = qScore;
+  document.getElementById('doneCmt').textContent = doneComment(qScore, qAnsweredCount);
+  var wl = document.getElementById('wrongList');
+  if(wrongItems.length){
+    var html = '<h4>ワナにかかった問題（＝次に確認したい自社の数字）</h4>';
+    for(var i = 0; i < wrongItems.length; i++){
+      html += '<div class="w-item"><strong>' + wrongItems[i].q + '</strong><br>確認ポイント：' + wrongItems[i].check + '</div>';
+    }
+    wl.innerHTML = html;
+    wl.style.display = 'block';
+  } else {
+    wl.style.display = 'none';
+  }
+  var sum = document.getElementById('sumScore');
+  sum.innerHTML = '<p>○×クイズの結果：<strong>' + qAnsweredCount + '問中 ' + qScore + '問正解</strong>でした。' +
+    (wrongItems.length ? '間違えた問題は、そのまま「確認したいことリスト」になります。' : 'この調子で、下のチェックリストもどうぞ。') + '</p>';
+}
+
+btnYes.addEventListener('click', function(){ answer(true); });
+btnNo.addEventListener('click', function(){ answer(false); });
+btnNext.addEventListener('click', function(){
+  if(qIdx >= QUIZ.length - 1){ showDone(); return; }
+  qIdx++;
+  renderQ();
+  var shell = document.querySelector('.quiz-shell');
+  if(shell.getBoundingClientRect().top < 0) shell.scrollIntoView({behavior:'smooth'});
+});
+btnStop.addEventListener('click', showDone);
+document.getElementById('btnRetry').addEventListener('click', function(){
+  qIdx = 0; qScore = 0; qAnsweredCount = 0; wrongItems = [];
+  quizDone.classList.remove('show');
+  quizPlay.style.display = 'block';
+  btnNext.innerHTML = '次の質問へ <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  renderQ();
+});
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+document.getElementById('btnMailSelf').addEventListener('click', function(){
+  var body = '「経営計画が使える・使えないチェック」の結果メモ\n\n' +
+    '○×クイズ：' + qAnsweredCount + '問中 ' + qScore + '問正解\n\n';
+  if(wrongItems.length){
+    body += '確認したいこと\n';
+    for(var i = 0; i < wrongItems.length; i++){
+      body += '・' + wrongItems[i].check + '\n';
+    }
+  }
+  body += '\n（このメモは、直近の試算表と借入の返済予定表と一緒に保管すると役に立ちます）\n';
+  location.href = 'mailto:?subject=' + encodeURIComponent('経営計画の「使える・使えない」チェック結果') + '&body=' + encodeURIComponent(body);
+});
+
+renderQ();
+
+/* ---------- セクション3：シミュレーター ---------- */
+var simA = document.getElementById('simA'), simB = document.getElementById('simB'),
+    simC = document.getElementById('simC'), simE = document.getElementById('simE'),
+    simF = document.getElementById('simF');
+function man(x){ return Math.round(x).toLocaleString('ja-JP') + '万円'; }
+function pct(n){ return (Math.round(n * 1000) / 10) + '%'; }
+function setR(id, ok, chipTxt, txt){
+  document.getElementById(id).className = 'sim-r ' + (ok ? 'ok' : 'ng');
+  document.getElementById(id + 'Chip').textContent = chipTxt;
+  document.getElementById(id + 'Txt').textContent = txt;
+}
+function simUpdate(){
+  var kotei = +simA.value || 0, ritsu = (+simB.value) / 100, zei = simC.checked;
+  var hensai = +simE.value || 0, genka = +simF.value || 0;
+  document.getElementById('simAOut').textContent = kotei.toLocaleString('ja-JP') + '万円';
+  document.getElementById('simEOut').textContent = hensai.toLocaleString('ja-JP') + '万円';
+  document.getElementById('simFOut').textContent = genka.toLocaleString('ja-JP') + '万円';
+  var zeibiki = Math.max(0, hensai - genka);          /* 返済に必要な税引後利益 */
+  var zeimae = zei ? zeibiki / 0.7 : zeibiki;          /* 税引前に割り戻す */
+  var bunki = ritsu > 0 ? kotei / ritsu : 0;           /* 損益分岐点売上高 */
+  var hitsuyou = ritsu > 0 ? (kotei + zeimae) / ritsu : 0;
+  var tsuki = hitsuyou / 12;
+  var rate = hitsuyou > 0 ? bunki / hitsuyou : 0;
+  document.getElementById('tlFill').style.width = Math.max(2, Math.min(100, rate * 100)) + '%';
+  setR('simR1', false, '約' + man(bunki),
+       '固定費' + man(kotei) + 'を限界利益率' + pct(ritsu) + 'で割った金額です。ここまでは利益がゼロで、返済の原資は残りません。');
+  setR('simR2', zeimae <= 0, zeimae <= 0 ? '不要' : '約' + man(zeimae),
+       zeimae <= 0 ? '減価償却費だけで年間の元本返済をまかなえる計算です。追加の利益は求められません。' :
+       '年間の元本返済' + man(hensai) + 'から減価償却費' + man(genka) + 'を引き、' +
+       (zei ? '法人税等を実効税率30%で割り戻した' : '税金を考慮せずに置いた') + '金額です。');
+  setR('simR3', true, '約' + man(tsuki),
+       '年間の必要売上を12で割った目安です。季節による波がある場合は、月ごとに配分し直してください。');
+  var big = document.getElementById('simTotalBig'), sub = document.getElementById('simTotalSub');
+  if(ritsu <= 0 || hitsuyou <= 0){
+    big.innerHTML = '必要な売上は <b>計算できません</b>';
+    sub.textContent = '固定費と限界利益率を入れると、必要な年間売上高が表示されます。';
+  } else {
+    big.innerHTML = '必要な年間売上高は <b>約' + man(hitsuyou) + '</b>';
+    sub.textContent = 'このうち約' + pct(rate) + 'にあたる' + man(bunki) +
+      'までは赤字を消すための売上で、返済の原資が残り始めるのはその先からです。';
+  }
+}
+simA.addEventListener('input', simUpdate); simB.addEventListener('change', simUpdate);
+simC.addEventListener('change', simUpdate); simE.addEventListener('input', simUpdate);
+simF.addEventListener('input', simUpdate);
+simUpdate();
+
+/* ---------- セクション4：あるある劇場 ---------- */
+var CASES = [
+  {
+    art:'icHendou', cls:'c-red', chip:'第一幕：売上目標だけの計画',
+    title:'目標は達成した。それなのに資金は減っていた',
+    story:'「前期の売上が2億円だったので、今期は2億2,000万円という目標を立てました。全社で頑張って、結果は2億2,300万円。目標達成です。ところが決算の説明を受けたら、利益は前期より減っていました。しかも通帳の残高は、期首より少ない。<strong>売上は伸びたのに、なぜ</strong>と何度も聞き返しました。あとで教えてもらったのは、新規のお客様を取るために値引きをしていたので、<strong>粗利の率が落ちていた</strong>ということでした」<small>——香川県の卸売業・50代 代表取締役（脚色あり）</small>',
+    what:'<p class="cmodal-p">売上高だけを目標にすると、その売上をいくらの利益率で取ったかが見えなくなります。この会社では、値引きによって限界利益率が下がっていたため、<strong>売上が1割伸びても限界利益の合計は増えていなかった</strong>という状態でした。</p><p class="cmodal-p">さらに、売上を伸ばすために売掛金と在庫が増え、その分だけ現金が先に出ていきました。利益が減ったうえに運転資金が増えたので、<strong>通帳の残高は二重に減った</strong>ことになります。</p>',
+    how:'<p class="cmodal-p">目標を売上ではなく<strong>限界利益の額</strong>で置くだけで、この事故はかなり防げます。「今期は限界利益8,000万円」と決めておけば、値引きをすれば必要な売上が上がる、ということが現場にも自然に伝わります。</p><p class="cmodal-p">今日できることは2つ。直近の決算書で<strong>売上高と売上総利益の両方の推移</strong>を並べること。そして、月次の会議資料に売上総利益の額と率を入れることです。項目を1行足すだけで、見えるものが変わります。</p>'
+  },
+  {
+    art:'icHensai', cls:'c-berry', chip:'第二幕：黒字なのに資金繰り',
+    title:'利益300万円、返済600万円。差の分だけ減っていく',
+    story:'「決算で税引後の利益が300万円ほど出ました。少ないながら黒字です。ところが、借入の返済は年間で600万円ある。減価償却費は100万円くらい。つまり<strong>返済に回せるのは400万円</strong>で、200万円足りない計算でした。それを毎年続けていたので、資金がじわじわ減っていたんです。<strong>黒字だから大丈夫だと思っていた</strong>のが、いちばんこわいところでした」<small>——香川県の製造業・40代 専務（脚色あり）</small>',
+    what:'<p class="cmodal-p">借入金の元本返済は費用になりません。損益計算書には利息しか出てきませんから、<strong>利益が出ていても元本返済がそれを上回れば現金は減ります</strong>。この会社では、返済に回せる現金が400万円に対して返済が600万円で、毎年200万円ずつ資金が減る構造でした。</p><p class="cmodal-p">返済に回せるおおよその現金は、税引後利益に減価償却費を足した額です。これを簡易キャッシュフローと呼びます。<strong>黒字か赤字かではなく、この額と年間返済元本の大小</strong>が資金の増減を決めます。</p>',
+    how:'<p class="cmodal-p">まず、返済予定表から<strong>年間の元本返済額</strong>を拾います。次に決算書から税引後利益と減価償却費を拾い、足した額と比べます。この2つの数字を並べるだけで、いまの構造が黒字なのか、資金が減る形なのかが分かります。</p><p class="cmodal-p">足りないと分かったら、必要な利益から逆算して計画を立て直すことになります。借入の返済期間を見直す相談も選択肢のひとつです。<strong>数字を持って早めに相談する</strong>ほど、選べる手は多く残ります。</p>'
+  },
+  {
+    art:'icKotei', cls:'c-amber', chip:'第三幕：計画は前年のまま',
+    title:'人を2人採ったのに、計画の固定費は去年のまま',
+    story:'「忙しくなってきたので、正社員を2人採用しました。人件費は社会保険料も入れて年間800万円くらい増えます。ところが、期首に作った計画はそのまま。<strong>売上目標だけ少し上げて</strong>、あとは前年のコピーでした。半年たって試算表を見たら、売上は計画どおりなのに利益が計画を大きく下回っていて。当たり前ですよね。<strong>固定費が増えた分の必要売上を計算していなかった</strong>んですから」<small>——香川県の建設業・40代 代表取締役（脚色あり）</small>',
+    what:'<p class="cmodal-p">固定費が増えると、必要売上はその分を限界利益率で割った額だけ増えます。限界利益率が30%の会社で固定費が800万円増えたなら、<strong>必要売上は約2,667万円増える</strong>計算です。売上目標を少し上げた程度では、まったく足りません。</p><p class="cmodal-p">この会社の計画は、人を採るという意思決定と、数字の計画がつながっていませんでした。採用も設備投資も、<strong>固定費を増やす判断</strong>です。増やした瞬間に必要売上が変わる、という関係が見えていなかったことが原因です。</p>',
+    how:'<p class="cmodal-p">固定費を増やす判断をするときは、その場で<strong>増加額を限界利益率で割る</strong>習慣をつけてください。電卓ひとつでできます。「この人を採ると、年間で約2,700万円の売上増が要る」と分かれば、採用の判断そのものが具体的になります。</p><p class="cmodal-p">計画を作り直すのは大げさに感じるかもしれませんが、固定費の行を書き換えて必要売上を計算し直すだけなら数分です。<strong>期の途中でも計画は直してよい</strong>もの。前提が変わったのに直さないほうが、実は不自然です。</p>'
+  },
+  {
+    art:'icDoc2', cls:'c-blue', chip:'第四幕：提出用と社内用',
+    title:'立派な計画書は、金庫のなかで眠っていた',
+    story:'「融資のときに、それは丁寧な事業計画書を作ったんです。5年分の数字が並んでいて、グラフもついて、20ページくらいありました。融資は無事に通りました。それきりです。<strong>1度も開いていません</strong>。翌年、また別の申請でもう1つ作りました。社内で使っている数字とは別物です。あるとき顧問の先生に『あの計画、いまどのくらい進んでいますか』と聞かれて、答えられませんでした」<small>——香川県のサービス業・50代 代表取締役（脚色あり）</small>',
+    what:'<p class="cmodal-p">計画の値打ちは、書いた時点ではなく<strong>実績と突き合わせたとき</strong>に生まれます。差が出た理由を切り分け、次の手を決める。その繰り返しがなければ、どれだけ精密に作っても資料のままです。</p><p class="cmodal-p">また、提出用と社内用が別々になっていると、二重に手間がかかるうえ、どちらも使われなくなります。この会社の場合、<strong>試算表と同じ項目で並んでいなかった</strong>ため、そもそも突き合わせようがない形になっていました。</p>',
+    how:'<p class="cmodal-p">計画は、<strong>毎月の試算表と同じ形</strong>で作るのが基本です。科目の並びを揃えておけば、予算と実績を横に並べるだけで差が見えます。提出用に体裁を整える必要があるときは、同じ数字から出力する形にしておきます。</p><p class="cmodal-p">今日できることは、直近に提出した計画書を出して、<strong>いまの試算表と同じ項目で比べられるか</strong>を確かめることです。比べられない形になっていたら、そこを直すのが最初の一歩になります。</p>'
+  },
+  {
+    art:'qTruck', cls:'c-amber', chip:'第五幕：在庫と売掛金',
+    title:'売上が伸びているのに、資金が足りなくなった',
+    story:'「新しい取引先が決まって、売上が3割増えました。うれしい話です。ところが、支払いは翌月末で、入金は翌々月末。しかも欠品しないように在庫を厚めに持ちました。半年ほどたったころ、<strong>資金が回らなくなりかけて</strong>、あわてて融資を申し込みました。決算は過去最高の利益だったんです。それなのに現金がない。<strong>伸びているときほど危ない</strong>とはこのことかと思いました」<small>——香川県の食品卸・30代 代表取締役（脚色あり）</small>',
+    what:'<p class="cmodal-p">売上が伸びると、売掛金と在庫も一緒に増えます。売掛金は<strong>売上として利益にはなるが、まだ入金されていない</strong>もの。在庫は<strong>現金は出たが、まだ費用になっていない</strong>もの。どちらも、利益と現金のずれを生みます。</p><p class="cmodal-p">この増加分を運転資金と呼びます。売上が伸びるほど運転資金も増えるため、<strong>成長しているときこそ現金が足りなくなる</strong>ということが起こります。利益が出ているだけに、気づくのが遅れがちです。</p>',
+    how:'<p class="cmodal-p">対策は、<strong>12か月分の資金繰り表</strong>を作ることです。入金と支払いを月ごとに並べるだけで、どの月に谷が来るかが見えます。仕入や在庫の増加、税金の納付、賞与も忘れずに入れてください。</p><p class="cmodal-p">谷が見えていれば、必要な資金の相談を<strong>余裕をもって</strong>持ちかけられます。資金が尽きる直前に駆け込むのと、3か月前に数字を持って相談するのとでは、話の進み方がまったく違います。</p>'
+  },
+  {
+    art:'icJikan', cls:'c-red', chip:'第六幕：気づいたのは決算のあと',
+    title:'11か月分の数字を、期が終わってから見た',
+    story:'「経理は月次で締めてくれていました。でも私は、忙しさにかまけてほとんど見ていなかったんです。決算の説明を受けたのが、期が終わって2か月後。そこで<strong>下半期にずっと利益が落ちていた</strong>ことを知りました。原因は主力商品の仕入価格が上がっていたこと。毎月見ていれば、値決めの見直しなり、別の仕入先の検討なり、<strong>できることはいくらでもあった</strong>はずでした」<small>——香川県の小売業・50代 代表取締役（脚色あり）</small>',
+    what:'<p class="cmodal-p">法人税の確定申告書は、原則として事業年度終了の日の翌日から2か月以内に提出することとされています。つまり、<strong>決算の数字が固まるのは期が終わったあと</strong>です。そこで気づいても、その期についてはもう何もできません。</p><p class="cmodal-p">この会社では、仕入価格の上昇によって限界利益率が下がっていました。月次の試算表を見ていれば、数か月目には気づけたはずの変化です。<strong>気づく時期が早いほど、打てる手の数は多い</strong>という、それだけの話でもあります。</p>',
+    how:'<p class="cmodal-p">全部の科目を追う必要はありません。<strong>売上、限界利益、固定費、現金残高</strong>の4つを毎月同じ形で並べるだけで、変調はかなり早く見えます。A4用紙1枚に収まります。</p><p class="cmodal-p">大切なのは、見る日を先に決めることです。「毎月15日に前月の数字を確認する」と予定表に入れてしまう。それだけで習慣になります。個別の税額計算・申告については税理士にご確認ください。</p>'
+  }
+];
+
+/* ---------- セクション5：逆転劇場 ---------- */
+var GOOD_CASES = [
+  {
+    art:'icBunki', cls:'c-blue', chip:'第一話：損益分岐点の計算', amt:'固定費÷率',
+    title:'電卓ひとつで、会議の会話が変わった',
+    story:'「顧問の先生に教わったのは、たったひとつの式でした。<strong>固定費を限界利益率で割る</strong>。うちは固定費が3,000万円くらいで、粗利率が30%ちょっと。ということは1億円売らないと利益がゼロだと。それまで漠然と『1億円くらいかな』と思っていたのが、<strong>根拠のある1億円</strong>になったんです。会議で『あと何件』という話ができるようになったのは、この日からでした」<small>——香川県の設備工事業・40代 代表取締役（脚色あり）</small>',
+    what:'<p class="cmodal-p">損益分岐点売上高は、固定費を限界利益率で割って求めます。固定費3,000万円、限界利益率30%なら1億円です。この式のよいところは、<strong>電卓ひとつでその場で計算できる</strong>ことにあります。</p><p class="cmodal-p">数字に根拠が生まれると、社内の会話が変わります。「もっと売ろう」ではなく「月に約833万円、1日あたり約28万円」という形になり、そこから「あと何件」に翻訳できるようになります。会計上の計算方法であり、法令で定められた式ではありません。</p>',
+    how:'<p class="cmodal-p">条件は3つです。ひとつ、<strong>固定費の合計を出す</strong>こと。販売費及び一般管理費に、固定的な人件費や支払利息を加えた概算で構いません。ふたつ、<strong>限界利益率を出す</strong>こと。まずは売上総利益率で代用しても、傾向はつかめます。</p><p class="cmodal-p">みっつ、<strong>同じ基準で毎期続ける</strong>こと。分け方を変えると前期と比べられなくなります。完璧を目指すより、同じものさしを使い続けることのほうが大切です。</p>'
+  },
+  {
+    art:'icHensai', cls:'c-green', chip:'第二話：返済からの逆算', amt:'必要利益が出る',
+    title:'返済予定表から、来期の目標が決まった',
+    story:'「来期の目標をどう決めればいいか分からなくて相談しました。そうしたら、まず<strong>返済予定表を持ってきてください</strong>と言われて。年間の元本返済が300万円、減価償却費はほとんどなし。税金を考えると、税引前で<strong>およそ429万円</strong>の利益が要るという計算になりました。そこに固定費3,000万円を足して、限界利益率30%で割ると、必要な売上は約1億1,429万円。<strong>数字が意思ではなく計算から出てきた</strong>のが新鮮でした」<small>——香川県の運送業・50代 代表取締役（脚色あり）</small>',
+    what:'<p class="cmodal-p">返済に回せる現金は、おおよそ税引後利益に減価償却費を足した額です。ですから、年間の元本返済額から減価償却費を引けば、必要な税引後利益が出ます。法人税等を実効税率30%として割り戻すと、<strong>税引前で必要な利益</strong>が求められます。</p><p class="cmodal-p">300万円から減価償却費ゼロを引いて300万円、これを0.7で割ると約429万円。ここに固定費3,000万円を足した3,429万円を限界利益率30%で割ると、必要売上は約1億1,429万円になります。<strong>すべて四則演算だけ</strong>です。</p>',
+    how:'<p class="cmodal-p">条件は3つです。ひとつ、<strong>返済予定表の元本部分</strong>を1年分合計すること。利息は固定費に含めます。ふたつ、<strong>減価償却費を決算書から拾う</strong>こと。販管費と製造原価報告書の両方にある場合があります。</p><p class="cmodal-p">みっつ、<strong>税率は概算と割り切る</strong>こと。実効税率は会社の規模と所得金額で変わりますし、繰越欠損金があれば結果も変わります。おおよその目安を出す道具として使い、正確な税額は税理士にご確認ください。</p>'
+  },
+  {
+    art:'icHendou', cls:'c-amber', chip:'第三話：値引きの効き方', amt:'率で見る',
+    title:'値引き幅を決める前に、必要数量を計算した',
+    story:'「大口の引き合いがあって、10%の値引きを求められました。以前なら『数量が出るから』と受けていたと思います。でも今回は先に計算しました。限界利益率が40%なら、10%値引きすると率は約33%に下がる。<strong>同じ限界利益を確保するには数量が2割以上必要</strong>だと分かりました。実際に出る数量は1割程度。<strong>受けない判断ができた</strong>のは、この計算があったからです」<small>——香川県の部品加工業・40代 営業部長（脚色あり）</small>',
+    what:'<p class="cmodal-p">値引きは、売上を減らすと同時に限界利益率も下げます。売価100・変動費60で限界利益率40%の商品を10%値引きすると、売価90・変動費60となり、限界利益は40から30に減ります。<strong>限界利益が25%減る</strong>計算です。</p><p class="cmodal-p">同じ限界利益の合計を確保するには、数量を約33%増やす必要があります。「数量が出るから」という判断が危ないのは、<strong>必要な増加量が感覚よりずっと大きい</strong>からです。</p>',
+    how:'<p class="cmodal-p">条件は3つです。ひとつ、<strong>その商品の変動費を把握する</strong>こと。仕入や材料費だけでも構いません。ふたつ、<strong>値引き後の限界利益を計算する</strong>こと。売価から変動費を引くだけです。</p><p class="cmodal-p">みっつ、<strong>必要数量を先に出してから交渉する</strong>こと。数字が出ていれば、値引き幅の代わりに納期や数量の条件で調整するといった別の提案もできます。判断そのものは経営判断ですが、材料があるかどうかで質が変わります。</p>'
+  },
+  {
+    art:'icYojitsu', cls:'c-green', chip:'第四話：月次の予実', amt:'年に12回',
+    title:'毎月15日の30分が、期末の景色を変えた',
+    story:'「毎月15日に前月の試算表を見る、と決めました。項目は4つだけ。売上、粗利、固定費、現金残高。それを計画と並べて、ずれていたら理由を1行書く。<strong>30分もかかりません</strong>。3か月目に粗利率が落ちていることに気づいて、原因を調べたら仕入価格が上がっていました。すぐ値決めを見直したので、<strong>期末には計画に戻せた</strong>んです。前の年なら、決算まで気づかなかったはずです」<small>——香川県の食品製造業・40代 代表取締役（脚色あり）</small>',
+    what:'<p class="cmodal-p">計画と実績を月ごとに突き合わせる仕組みがあると、変化に気づく時期が大きく早まります。<strong>期の途中で気づけば、残りの月で手を打てる</strong>。決算後に気づいた場合との差は、打てる手の数そのものです。</p><p class="cmodal-p">見る項目を絞ることも大切です。全科目を追おうとすると続きません。売上、限界利益、固定費、現金残高の4つに絞れば、<strong>A4用紙1枚・30分</strong>で回せます。継続できる形にすることが、精度よりも効きます。</p>',
+    how:'<p class="cmodal-p">条件は3つです。ひとつ、<strong>見る日を先に決める</strong>こと。予定表に入れてしまうのが確実です。ふたつ、<strong>計画を試算表と同じ項目で作る</strong>こと。並びが違うと突き合わせに手間がかかり、続きません。</p><p class="cmodal-p">みっつ、<strong>ずれた理由を1行書く</strong>こと。書き残しておくと、翌期の計画を作るときの材料になります。記憶に頼ると、同じずれを繰り返します。</p>'
+  },
+  {
+    art:'icKotei', cls:'c-berry', chip:'第五話：固定費を増やす判断', amt:'割って考える',
+    title:'採用の前に、必要売上の増加を計算した',
+    story:'「人を1人採ろうという話になったとき、まず計算しました。社会保険料も入れて年間450万円。うちの限界利益率は35%だから、<strong>450万円を0.35で割って約1,286万円</strong>。それだけ売上を増やさないと、いまと同じ利益にならないということです。その数字を役員で共有したうえで、それでも採ると決めました。<strong>覚悟が違いました</strong>し、採用後の目標も具体的になりました」<small>——香川県の情報サービス業・40代 代表取締役（脚色あり）</small>',
+    what:'<p class="cmodal-p">固定費が増えると、必要売上はその増加額を限界利益率で割った分だけ増えます。限界利益率35%の会社で固定費が450万円増えるなら、<strong>必要売上は約1,286万円増える</strong>という計算です。</p><p class="cmodal-p">この計算のよいところは、採用や設備投資という判断を<strong>必要売上という同じ物差し</strong>に乗せられることです。やめる判断のためではなく、覚悟を持って進めるための計算だと考えてください。</p>',
+    how:'<p class="cmodal-p">条件は3つです。ひとつ、<strong>増加額に社会保険料などを含める</strong>こと。給与だけで計算すると過小になります。ふたつ、<strong>自社の限界利益率で割る</strong>こと。業界平均ではなく、自社の直近の数字を使います。</p><p class="cmodal-p">みっつ、<strong>その数字を関係者と共有する</strong>こと。必要売上の増加が共有されていれば、採用後の目標設定も具体的になります。数字は判断を止めるためではなく、判断の質を上げるために使うものです。</p>'
+  },
+  {
+    art:'qYen', cls:'c-blue', chip:'第六話：部門別の限界利益', amt:'やめる判断',
+    title:'商品ごとに粗利を並べたら、答えが見えた',
+    story:'「売上の大きい商品ほど大事だと思い込んでいました。試しに商品別に<strong>限界利益の額</strong>を出してもらったら、売上2位の商品が限界利益では5位だったんです。手間もかかるし、値引き要請も多い商品でした。思い切って扱いを縮小して、そのぶんの時間を別の商品に振り向けました。<strong>売上は少し減りましたが、利益は増えました</strong>。数字を並べただけで、答えは出ていたようなものです」<small>——香川県の建材販売業・50代 代表取締役（脚色あり）</small>',
+    what:'<p class="cmodal-p">売上高の順位と、限界利益の順位は一致しません。変動費の割合が高い商品は、売上が大きくても<strong>手元に残る額は小さい</strong>からです。売上だけを見ていると、この差が見えません。</p><p class="cmodal-p">さらに、その商品にかかる人の時間まで考えると、順位はもっと変わります。<strong>限界利益を投入時間で割る</strong>という見方をすると、何に時間を使うべきかがはっきりします。</p>',
+    how:'<p class="cmodal-p">条件は3つです。ひとつ、<strong>商品や部門ごとに売上と変動費を分ける</strong>こと。会計ソフトの部門管理機能が使えれば早いですが、表計算ソフトで概算しても十分です。ふたつ、<strong>限界利益の額で並べ替える</strong>こと。率ではなく額で見ると、貢献の大きさが分かります。</p><p class="cmodal-p">みっつ、<strong>すぐにやめる判断をしない</strong>こと。取引先との関係や、他の商品との組み合わせもあります。まずは数字を並べて、議論の材料にするところから始めてください。</p>'
+  },
+  {
+    art:'qInvoice', cls:'c-amber', chip:'第七話：12か月の資金繰り表', amt:'谷が見える',
+    title:'資金の谷が3か月前に見えていた',
+    story:'「入金と支払いを12か月分、月ごとに書き出しました。賞与、税金の納付、保険料、設備の支払い。全部入れてみたら、<strong>秋にはっきりした谷</strong>があることが分かったんです。3か月前の時点で分かっていたので、余裕をもって相談に行けました。数字を持っていったので話も早くて。<strong>ぎりぎりで駆け込むのとは、まるで違いました</strong>」<small>——香川県の造園業・40代 代表取締役（脚色あり）</small>',
+    what:'<p class="cmodal-p">資金繰り表は、損益ではなく<strong>現金の出入りだけ</strong>を月ごとに並べたものです。売上は入金の月に、仕入は支払いの月に置きます。ここに借入の返済、税金の納付、賞与、設備投資を加えると、資金の谷が見えてきます。</p><p class="cmodal-p">季節による波がある業種では、年間では足りていても<strong>特定の月だけ不足する</strong>ということが起こります。損益計算書だけを見ていると、この谷はまったく見えません。</p>',
+    how:'<p class="cmodal-p">条件は3つです。ひとつ、<strong>入金と支払いのサイトを正しく置く</strong>こと。売上の月ではなく、実際に入金される月に置きます。ふたつ、<strong>税金と賞与を忘れない</strong>こと。この2つは金額が大きく、抜けると谷を見落とします。</p><p class="cmodal-p">みっつ、<strong>毎月ローリングで更新する</strong>こと。1か月経つごとに1か月先を足していけば、常に12か月先まで見えている状態になります。個別の税額計算・申告については税理士にご確認ください。</p>'
+  },
+  {
+    art:'icShain', cls:'c-green', chip:'第八話：現場の言葉に翻訳', amt:'あと何件',
+    title:'1億円を「1日38万円」に置き換えたら、社内が動いた',
+    story:'「必要売上が約1億1,429万円という数字が出ました。でも、これを朝礼で言っても誰も動きません。そこで<strong>月に約953万円、営業日で割ると1日あたり約38万円</strong>と言い換えたんです。うちの平均単価だと1日あたり何件か、まで落としました。そうしたら、現場から『午前中にあと1件回れます』という声が出てきて。<strong>数字は翻訳しないと届かない</strong>と実感しました」<small>——香川県の住宅設備業・50代 代表取締役（脚色あり）</small>',
+    what:'<p class="cmodal-p">年間の必要売上は、経営者が判断するための数字です。そのままでは現場の行動にはつながりません。<strong>月・日・件数</strong>と段階的に割っていくことで、はじめて一人ひとりが自分の仕事と結びつけられます。</p><p class="cmodal-p">1億1,429万円を12で割ると約953万円、営業日を月25日とすれば1日あたり約38万円です。平均単価が分かっていれば、そこから必要な件数も出せます。<strong>計算はどれも割り算だけ</strong>です。</p>',
+    how:'<p class="cmodal-p">条件は3つです。ひとつ、<strong>割る単位を現場に合わせる</strong>こと。営業なら件数、店舗なら1日の客数と単価、製造なら1日の生産数です。ふたつ、<strong>達成できる粒度まで落とす</strong>こと。1日単位まで落ちると、遅れも取り戻しやすくなります。</p><p class="cmodal-p">みっつ、<strong>結果を毎月共有する</strong>こと。翻訳した数字に対して実績がどうだったかを返さないと、翻訳した意味がありません。数字を出しっぱなしにしないことが、続けるためのこつです。</p>'
+  }
+];
+
+var modal = document.getElementById('caseModal');
+var CASE_LBL = {
+  bad:['よく伺うお話をもとにした創作例（脚色あり）', '何が起きたのか', 'こう確認すれば防げます'],
+  good:['よくある、うれしい誤算（創作例・脚色あり）', 'なぜうまくいくのか', '始めるための条件']
+};
+
+function renderCases(gridId, list, kind){
+  var grid = document.getElementById(gridId);
+  list.forEach(function(c){
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'case-card';
+    btn.innerHTML =
+      '<span class="art ' + c.cls + '">' + ARTS[c.art] + '</span>' +
+      '<span class="t"><span class="chip ' + c.cls + '">' + c.chip + '</span>' +
+      (c.amt ? '<span class="amt">' + c.amt + '</span>' : '') +
+      '<h3>' + c.title + '</h3>' +
+      '<span class="more">くわしく見る<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></span></span>';
+    btn.addEventListener('click', function(){ openCase(c, kind); });
+    grid.appendChild(btn);
+  });
+}
+
+function openCase(c, kind){
+  var lbl = CASE_LBL[kind] || CASE_LBL.bad;
+  document.getElementById('caseModalLbl1').textContent = lbl[0];
+  document.getElementById('caseModalLbl2').textContent = lbl[1];
+  document.getElementById('caseModalLbl3').textContent = lbl[2];
+  document.getElementById('caseModalLbl2Wrap').className =
+    'cmodal-label ' + (kind === 'good' ? 'lb-green' : 'lb-red');
+  document.getElementById('caseModalIco').className = 'cmodal-ico ' + c.cls;
+  document.getElementById('caseModalIco').innerHTML = ARTS[c.art];
+  document.getElementById('caseModalChip').className = 'cmodal-chip ' + c.cls;
+  document.getElementById('caseModalChip').textContent = c.chip;
+  document.getElementById('caseModalTitle').textContent = c.title;
+  document.getElementById('caseModalStory').innerHTML = c.story;
+  document.getElementById('caseModalWhat').innerHTML = c.what;
+  document.getElementById('caseModalHow').innerHTML = c.how;
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+  modal.querySelector('.cmodal-panel').scrollTop = 0;
+}
+
+renderCases('caseGrid', CASES, 'bad');
+renderCases('goodGrid', GOOD_CASES, 'good');
+
+function closeCase(){
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+document.getElementById('caseModalClose').addEventListener('click', closeCase);
+document.getElementById('caseModalBack').addEventListener('click', closeCase);
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && modal.classList.contains('show')) closeCase();
+});
+
+/* ---------- まとめ：チェックリスト ---------- */
+var chkBoxes = document.querySelectorAll('#checklist input[type=checkbox]');
+var chkMsg = document.getElementById('chkMsg');
+function chkUpdate(){
+  var n = 0;
+  chkBoxes.forEach(function(c){ if(c.checked) n++; });
+  var total = chkBoxes.length;
+  if(n === 0){
+    chkMsg.textContent = 'あてはまるもの、もう確認できたものをタップしてみてください。数が見えると次にやることが決まります。';
+  } else if(n <= 2){
+    chkMsg.textContent = 'チェック' + n + '個。まずは直近1年の固定費の合計を出すところから始めてみてください。';
+  } else if(n <= 5){
+    chkMsg.textContent = 'チェック' + n + '個。あと少しで、必要売上を逆算する材料はひととおり揃います。';
+  } else if(n < total){
+    chkMsg.textContent = 'チェック' + n + '個。かなり整っています。あとは月次で追う仕組みに落とすだけです。';
+  } else {
+    chkMsg.textContent = 'すべて確認できました。あとは、毎月の試算表で予実を突き合わせていくだけです。';
+  }
+}
+chkBoxes.forEach(function(c){ c.addEventListener('change', chkUpdate); });
+
+})();
+</script>
+</body>
+</html>
