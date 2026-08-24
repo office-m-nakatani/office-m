@@ -1,0 +1,2533 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="事業承継で本当に渡すもの（経営・自社株・個人保証）を、○×クイズと自社株評価・納税資金の概算シミュレーターで確認できる啓発ツール。議決権の3分の2、非上場株式の評価、遺留分、事業承継税制の「猶予であって免除ではない」しくみ、特例承継計画の期限までやさしく解説。株式会社Office-M作成。">
+<title>事業承継の「間に合う・間に合わない」チェック｜株式会社Office-M</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='10' y='14' width='26' height='40' rx='3' fill='%231b3f5e'/%3E%3Crect x='36' y='26' width='18' height='28' rx='3' fill='%23f0846a'/%3E%3Cpath d='M17 22h5M26 22h5M17 31h5M26 31h5M17 40h5M26 40h5' stroke='%23fff' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M41 36h8M41 44h8' stroke='%23fff' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --navy:#1b3f5e;
+  --navy-2:#27587f;
+  --navy-soft:#eaf1f7;
+  --bg:#fff8f2;
+  --white:#ffffff;
+  --text:#33404d;
+  --muted:#5c6874;
+  --line:#efe2d8;
+  --shadow:0 6px 20px rgba(130,100,80,.09);
+  --shadow-sm:0 3px 10px rgba(130,100,80,.07);
+
+  --red:#c2453f;
+  --red-dark:#a63631;
+  --red-bg:#fdeee9;
+  --red-border:#f4d0c6;
+  --coral:#f0846a;
+  --coral-text:#c0451e;   /* 白背景・淡背景のどちらでもコントラスト比4.5以上 */
+
+  --green:#2c7a4b;
+  --green-bg:#e8f6ef;
+  --green-border:#c3e5d3;
+  --mint:#4fbf9b;
+
+  --amber:#a8701a;
+  --amber-deep:#a85c12;
+  --amber-bg:#fdf3e2;
+  --amber-border:#f2dcae;
+  --sunny:#f7c34e;
+
+  --sky:#24729f;
+  --sky-bg:#e8f4fb;
+  --sky-border:#c6e2f2;
+
+  --berry:#8f4574;
+  --berry-bg:#fbeef6;
+
+  --gray:#6f6f6f;
+  --gray-bg:#f0eeec;
+
+  /* 書体：本文はゴシック（画面表示・高齢の読み手での可読性）、
+     見出しは明朝（同シリーズの他ツールと揃えるブランド要素） */
+  --gothic:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic Medium","Yu Gothic",Meiryo,"MS PGothic",sans-serif;
+  --mincho:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho",YuMincho,"游明朝体","游明朝","MS PMincho","ＭＳ Ｐ明朝",serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;font-size:16px;}
+/* 左右の余白が広い画面ほど文字を大きくして見やすさに還元する */
+@media(min-width:600px){ html{font-size:17px;} }
+@media(min-width:1000px){ html{font-size:18px;} }
+body{
+  font-family:var(--gothic);
+  color:var(--text);
+  background:var(--bg);
+  font-size:1.09rem;
+  line-height:1.95;
+  letter-spacing:.03em;
+  padding-bottom:40px;
+  overflow-wrap:break-word;
+}
+@media(min-width:768px){
+  body{font-size:1.16rem;letter-spacing:.04em;}
+}
+/* 見出しと、読みものとしての“顔”になる部分だけ明朝で残す */
+.hero h1,h2,.def-h,.sub-h,.risk-card h3,.case-card h3,.cmodal-title,
+.sim-box h3,.life-box h3,.lev h3,.cta-box h3,.rule3-box h3,.score-box h3,
+.quiz-done .score,.verdict-answer,.cmodal-quote,.lev-quote,.guide-msg{
+  font-family:var(--mincho);
+}
+/* 数字・金額はゴシックのまま（明朝の細い横画は画面で読みにくい） */
+.m-row .vl,.big3 .b .n,.cmp-val,.sim-ctrl label output,.quiz-done .score .num,
+.lev-circle,.type-table td,.type-table th{
+  font-family:var(--gothic);
+}
+/* キーボード操作の現在位置を必ず見えるようにする */
+a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible,label.chk:focus-within{
+  outline:3px solid var(--sky);
+  outline-offset:2px;
+  border-radius:6px;
+}
+img,svg{max-width:100%;vertical-align:middle;}
+button{font-family:inherit;}
+a{color:var(--navy-2);}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px;}
+.nowrap{white-space:nowrap;}
+
+/* ---------- ヘッダー ---------- */
+.hero{
+  background:linear-gradient(168deg,#fbe6e6 0%,#fdf1ea 46%,#ddf0fb 100%);
+  color:var(--navy);
+  padding:24px 0 30px;
+  overflow:hidden;
+}
+.brand{
+  display:flex;align-items:center;gap:10px;
+  font-size:.92rem;font-weight:700;letter-spacing:.02em;color:var(--navy);
+}
+.brand .ico{
+  width:36px;height:36px;flex:0 0 36px;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--navy);border-radius:12px;
+}
+.brand .ico svg{width:20px;height:20px;stroke:#fff;}
+.brand small{display:block;font-weight:500;color:var(--muted);font-size:.88rem;letter-spacing:.04em;line-height:1.55;}
+.hero-flex{display:flex;flex-direction:column;}
+.hero h1{
+  font-size:1.58rem;line-height:1.45;font-weight:800;
+  margin:20px 0 12px;letter-spacing:.01em;color:var(--navy);
+}
+.hero h1 .accent{
+  background:linear-gradient(transparent 62%, #ffd9a8 62%);
+  padding:0 2px;
+}
+.hero .lead{font-size:1.04rem;color:var(--text);max-width:640px;}
+.hero-scene{margin:16px auto 0;width:100%;max-width:400px;}
+.hero-scene svg{width:100%;height:auto;display:block;}
+@media(min-width:768px){
+  .hero{padding:30px 0 40px;}
+  .hero h1{font-size:1.95rem;}
+  .hero .lead{font-size:1.06rem;}
+  .hero-flex{flex-direction:row;align-items:center;gap:28px;}
+  .hero-copy{flex:1;}
+  .hero-scene{flex:0 0 340px;margin:0;}
+}
+.hero-nav{display:flex;flex-wrap:wrap;gap:9px;margin-top:20px;}
+.hero-nav a{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--white);
+  border:2px solid #ffffff;
+  color:var(--navy);text-decoration:none;
+  padding:11px 17px;border-radius:999px;
+  font-size:.94rem;font-weight:700;min-height:48px;
+  box-shadow:var(--shadow-sm);
+}
+.hero-nav a:active{background:#fff4e9;}
+.hero-nav a svg{width:18px;height:18px;stroke:var(--coral);flex:0 0 18px;}
+
+/* ---------- セクション共通 ---------- */
+section{padding:40px 0 46px;}
+.band{background:var(--white);}
+.band-sky{background:var(--sky-bg);}
+.band-blush{background:#fdf1eb;}
+.band-mint{background:var(--green-bg);}
+.band-navy{background:var(--navy-soft);}
+.round-top{
+  border-radius:30px 30px 0 0;
+  margin-top:-24px;position:relative;z-index:1;
+  padding-top:42px;
+}
+.sec-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;}
+.sec-head .spot{flex:0 0 84px;}
+.spot-circle{
+  width:84px;height:84px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.spot-circle svg{width:52px;height:52px;}
+.step-pill{
+  display:inline-flex;align-items:center;gap:9px;
+  background:var(--amber-bg);color:var(--navy);
+  font-size:.92rem;font-weight:700;letter-spacing:.02em;
+  padding:6px 18px 6px 7px;border-radius:999px;margin-bottom:12px;
+  box-shadow:var(--shadow-sm);
+}
+.step-pill i{
+  width:28px;height:28px;flex:0 0 28px;border-radius:50%;
+  background:linear-gradient(135deg,#c2452a,#a8601a);
+  color:#fff;font-style:normal;font-weight:800;font-size:.95rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.step-pill.plain{padding:7px 18px;}
+h2{
+  font-size:1.4rem;line-height:1.5;color:var(--navy);
+  font-weight:800;letter-spacing:.01em;
+  position:relative;padding-bottom:12px;margin-bottom:10px;
+}
+h2::after{
+  content:"";position:absolute;left:0;bottom:0;
+  width:54px;height:5px;border-radius:3px;
+  background:linear-gradient(90deg,var(--coral),var(--sunny));
+}
+@media(min-width:768px){h2{font-size:1.68rem;}}
+.sec-lead{color:var(--muted);font-size:1.02rem;margin-bottom:22px;}
+.note{
+  font-size:.95rem;color:var(--muted);line-height:1.85;
+  background:var(--white);border-radius:16px;
+  padding:14px 16px;margin-top:20px;
+  display:flex;gap:9px;align-items:flex-start;
+  box-shadow:var(--shadow-sm);
+}
+.note svg{width:20px;height:20px;flex:0 0 20px;stroke:var(--coral);margin-top:4px;}
+.band-sky .note,.band-blush .note,.band-navy .note{box-shadow:none;border:1px solid var(--line);}
+
+/* ---------- ガイド（吹き出し） ---------- */
+.guide{display:flex;align-items:flex-start;gap:12px;margin-bottom:20px;}
+.guide-ava{
+  width:58px;height:58px;flex:0 0 58px;border-radius:50%;
+  overflow:hidden;display:block;box-shadow:var(--shadow-sm);
+}
+.guide-ava svg{width:100%;height:100%;display:block;}
+.guide-msg{
+  position:relative;background:var(--white);
+  border:2px solid #ffe0cf;border-radius:18px;
+  padding:12px 16px;font-size:1rem;line-height:1.75;
+}
+.guide-msg::before{
+  content:"";position:absolute;left:-9px;top:20px;
+  width:14px;height:14px;background:var(--white);
+  border-left:2px solid #ffe0cf;border-bottom:2px solid #ffe0cf;
+  transform:rotate(45deg);
+}
+
+/* ---------- セクション1：ちがいを問いかけるリンク ---------- */
+.qlink-lead{
+  display:flex;align-items:center;gap:9px;
+  font-size:1rem;font-weight:800;color:var(--navy);
+  margin:26px 0 12px;
+}
+.qlink-lead svg{width:23px;height:23px;flex:0 0 23px;stroke:var(--coral);}
+.qlinks{display:grid;grid-template-columns:1fr;gap:12px;}
+@media(min-width:700px){.qlinks{grid-template-columns:repeat(3,1fr);}}
+.qlink{
+  display:flex;flex-direction:column;gap:5px;
+  background:var(--white);border:2px solid var(--line);border-radius:18px;
+  padding:15px 16px 13px;text-decoration:none;color:inherit;
+  box-shadow:var(--shadow-sm);
+  transition:border-color .15s, transform .12s;
+}
+.qlink:active{transform:scale(.985);}
+.qlink:hover{border-color:var(--coral);}
+.qlink .pair{
+  display:flex;align-items:center;gap:7px;flex-wrap:wrap;
+  font-size:1.02rem;font-weight:800;color:var(--navy);line-height:1.55;
+}
+.qlink .pair .vs{
+  font-size:.76rem;font-weight:800;color:var(--coral-text);
+  background:var(--red-bg);border-radius:999px;padding:2px 10px;
+}
+.qlink .ask{font-size:.93rem;color:var(--muted);line-height:1.75;}
+.qlink .go{
+  display:inline-flex;align-items:center;gap:4px;margin-top:3px;
+  font-size:.9rem;font-weight:800;color:var(--coral-text);
+}
+.qlink .go svg{width:14px;height:14px;flex:0 0 14px;stroke:var(--coral-text);}
+.def-block[id]{scroll-margin-top:18px;}
+
+/* ---------- セクション1：定義のブロック ---------- */
+.def-block{
+  margin-top:34px;padding-top:26px;border-top:2px dashed var(--line);
+}
+.def-block:first-of-type{margin-top:18px;padding-top:0;border-top:none;}
+.def-h{
+  display:flex;align-items:center;gap:12px;
+  font-size:1.14rem;line-height:1.5;color:var(--navy);margin-bottom:8px;
+}
+.def-ico{
+  width:52px;height:52px;flex:0 0 52px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.def-ico svg{width:34px;height:34px;}
+.def-lead{font-size:1.02rem;color:var(--muted);line-height:1.9;margin-bottom:16px;}
+@media(min-width:768px){.def-h{font-size:1.26rem;}}
+
+/* ---------- 図と、カード ---------- */
+.venn-box{
+  background:var(--white);border-radius:22px;box-shadow:var(--shadow);
+  padding:20px 14px 8px;margin:6px 0 26px;text-align:center;
+}
+.venn-box svg{width:100%;max-width:540px;height:auto;}
+.venn-cap{font-size:.92rem;color:var(--muted);padding:6px 8px 12px;line-height:1.8;}
+@media(max-width:520px){.venn-box{padding:14px 4px 6px;}}
+.cards{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.cards{grid-template-columns:repeat(2,1fr);}}
+.risk-card{
+  position:relative;background:var(--white);
+  border-radius:20px;padding:20px 20px 18px;
+  box-shadow:var(--shadow);
+}
+.risk-card .icon{
+  width:68px;height:68px;border-radius:50%;
+  background:var(--navy-soft);
+  display:flex;align-items:center;justify-content:center;margin-bottom:12px;
+}
+.risk-card .icon svg{width:44px;height:44px;}
+.risk-card .icon.ic-red{background:var(--red-bg);}
+.risk-card .icon.ic-blue{background:var(--sky-bg);}
+.risk-card .icon.ic-amber{background:var(--amber-bg);}
+.risk-card .icon.ic-green{background:var(--green-bg);}
+.risk-card .icon.ic-berry{background:var(--berry-bg);}
+.risk-card h3{font-size:1.02rem;color:var(--navy);margin-bottom:2px;}
+.risk-card p{font-size:.98rem;color:var(--muted);margin-top:8px;line-height:1.85;}
+.judge-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:.88rem;font-weight:700;padding:4px 13px;border-radius:999px;margin-top:4px;
+}
+.judge-chip.ng{background:var(--red-bg);color:var(--red-dark);border:1.5px solid var(--red-border);}
+.judge-chip.ok{background:var(--green-bg);color:var(--green);border:1.5px solid var(--green-border);}
+.judge-chip.maybe{background:var(--amber-bg);color:var(--amber-deep);border:1.5px solid var(--amber-border);}
+
+.age-note{
+  display:flex;gap:10px;align-items:flex-start;
+  background:var(--white);border-radius:14px;
+  border-left:5px solid var(--sky);
+  padding:11px 15px;margin-bottom:16px;
+  font-size:.9rem;line-height:1.85;
+  box-shadow:var(--shadow-sm);
+}
+.age-note svg{width:19px;height:19px;flex:0 0 19px;stroke:var(--sky);margin-top:5px;}
+.age-note b{color:var(--sky);font-size:.98rem;}
+.age-note small{display:block;color:var(--muted);font-size:.88rem;line-height:1.7;margin-top:2px;}
+
+.sub-h{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.1rem;color:var(--navy);margin:30px 0 6px;
+}
+.sub-h svg{width:24px;height:24px;flex:0 0 24px;stroke:var(--coral);}
+.sub-lead{font-size:1rem;color:var(--muted);line-height:1.9;margin-bottom:16px;}
+
+/* ---------- セクション2：クイズ ---------- */
+.quiz-shell{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px 24px;
+}
+.band .quiz-shell{background:var(--bg);box-shadow:none;border:2px solid var(--line);}
+.q-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.q-count{font-size:.95rem;font-weight:700;color:var(--muted);}
+.q-count span{color:var(--coral-text);font-size:1.15rem;}
+.dots{display:flex;gap:6px;}
+.dots i{width:10px;height:10px;border-radius:50%;background:#e8dbd0;}
+.dots i.done{background:var(--mint);}
+.dots i.now{background:var(--coral);}
+.q-body{display:flex;gap:14px;align-items:flex-start;margin:14px 0 18px;}
+.q-body .icon{
+  width:64px;height:64px;flex:0 0 64px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.q-body .icon svg{width:40px;height:40px;}
+.q-body p{font-size:1.12rem;font-weight:700;color:var(--navy);line-height:1.8;}
+.ans-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.ans-btn{
+  min-height:64px;border-radius:18px;cursor:pointer;
+  font-size:1.08rem;font-weight:800;letter-spacing:.04em;
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  border:2.5px solid;transition:transform .12s;
+}
+.ans-btn:active{transform:scale(.97);}
+.ans-btn svg{width:24px;height:24px;flex:0 0 24px;}
+.ans-btn.yes{background:var(--green-bg);border-color:var(--green-border);color:var(--green);}
+.ans-btn.no{background:var(--red-bg);border-color:var(--red-border);color:var(--red-dark);}
+.ans-btn:disabled{opacity:.45;cursor:default;}
+.verdict{
+  display:none;margin-top:18px;background:var(--white);
+  border:2px solid var(--amber-border);border-radius:20px;
+  padding:18px 18px 16px;
+}
+.verdict.show{display:block;}
+.verdict-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+.verdict-answer{font-size:1.25rem;font-weight:800;color:var(--navy);}
+.result-chip{
+  font-size:.9rem;font-weight:800;padding:4px 14px;border-radius:999px;
+}
+.result-chip.correct{background:var(--green-bg);color:var(--green);}
+.result-chip.wrong{background:var(--red-bg);color:var(--red-dark);}
+.verdict .expl{font-size:1.02rem;line-height:1.95;margin-bottom:12px;}
+.verdict .kv{
+  font-size:.97rem;line-height:1.85;background:var(--sky-bg);
+  border-radius:12px;padding:9px 13px;margin-top:8px;
+}
+.verdict .kv b{color:var(--sky);}
+.verdict .kv.kv-wana{background:var(--red-bg);}
+.verdict .kv.kv-wana b{color:var(--red-dark);}
+.btn-primary{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  width:100%;min-height:58px;margin-top:16px;
+  background:linear-gradient(135deg,#c74a22,#b8411b);
+  color:#fff;font-size:1.1rem;font-weight:800;letter-spacing:.04em;
+  border:none;border-radius:18px;cursor:pointer;
+  box-shadow:0 5px 14px rgba(184,65,27,.3);
+}
+.btn-primary:active{transform:translateY(1px);}
+.btn-primary svg{width:22px;height:22px;stroke:#fff;}
+.btn-ghost{
+  display:block;width:100%;min-height:50px;margin-top:12px;
+  background:var(--white);color:var(--navy-2);
+  font-size:1rem;font-weight:700;
+  border:2px solid var(--sky-border);border-radius:16px;cursor:pointer;
+}
+.btn-ghost:active{background:var(--sky-bg);}
+.quiz-done{display:none;}
+.quiz-done.show{display:block;}
+.quiz-done .score{
+  font-size:1.15rem;font-weight:800;color:var(--navy);
+  text-align:center;margin:8px 0 6px;
+}
+.quiz-done .score .num{font-size:2rem;color:var(--coral-text);}
+.quiz-done .cmt{
+  background:var(--white);border-radius:16px;padding:14px 16px;
+  font-size:1.02rem;line-height:1.95;margin:14px 0;
+  border:2px solid var(--amber-border);
+}
+.wrong-list{margin:14px 0;}
+.wrong-list h4{font-size:1rem;color:var(--navy);margin-bottom:8px;}
+.wrong-list .w-item{
+  background:var(--white);border-radius:14px;padding:11px 14px;
+  font-size:.95rem;line-height:1.8;margin-bottom:8px;
+  border-left:4px solid var(--coral);box-shadow:var(--shadow-sm);
+}
+
+/* ---------- セクション3：シミュレーター ---------- */
+.type-table-box{
+  background:var(--white);border-radius:22px;box-shadow:var(--shadow-sm);
+  padding:18px 14px;margin:8px 0 24px;overflow-x:auto;
+}
+.type-table{width:100%;border-collapse:collapse;min-width:460px;font-size:.94rem;}
+.type-table th,.type-table td{
+  padding:9px 10px;text-align:center;border-bottom:1.5px solid var(--line);
+  line-height:1.7;vertical-align:middle;
+}
+.type-table th{background:var(--navy-soft);color:var(--navy);font-size:.9rem;}
+.type-table th:first-child{border-radius:12px 0 0 12px;}
+.type-table th:last-child{border-radius:0 12px 12px 0;}
+.type-table td:first-child{text-align:left;font-weight:700;color:var(--navy);font-size:.92rem;}
+.type-table small{display:block;color:var(--muted);font-weight:500;font-size:.88rem;}
+.sim-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px;margin-top:26px;
+}
+.sim-box h3{font-size:1.12rem;color:var(--navy);margin-bottom:4px;}
+.sim-box .sub{font-size:.95rem;color:var(--muted);margin-bottom:18px;}
+.sim-ctrl{margin-bottom:18px;}
+.sim-ctrl label{
+  display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:6px;
+}
+.sim-ctrl label small{display:block;font-weight:500;color:var(--muted);font-size:.88rem;line-height:1.7;}
+.sim-ctrl label output{color:var(--coral-text);font-size:1.15rem;font-weight:800;white-space:nowrap;}
+input[type=range]{
+  width:100%;height:34px;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;
+}
+input[type=range]::-webkit-slider-runnable-track{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--sunny),var(--coral));}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:28px;height:28px;border-radius:50%;
+  background:var(--white);border:3px solid var(--coral);margin-top:-9px;
+  box-shadow:var(--shadow-sm);
+}
+input[type=range]::-moz-range-track{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--sunny),var(--coral));}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--white);border:3px solid var(--coral);}
+.seg-label{font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:7px;}
+.seg-label small{display:block;font-weight:500;color:var(--muted);font-size:.88rem;line-height:1.7;}
+.seg{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+.seg button{
+  flex:1 1 auto;min-width:62px;min-height:48px;
+  border-radius:14px;border:2px solid var(--line);background:var(--bg);
+  color:var(--navy);font-size:1rem;font-weight:700;cursor:pointer;
+}
+.seg button.on{background:var(--amber-bg);border-color:var(--sunny);color:var(--amber-deep);}
+.money{background:var(--bg);border-radius:18px;padding:8px 16px 14px;margin-top:20px;}
+.m-row{
+  display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+  padding:9px 0;border-bottom:1.5px dashed var(--line);
+}
+.m-row:last-of-type{border-bottom:none;}
+.m-row .ml{font-size:.97rem;color:var(--muted);line-height:1.7;}
+.m-row .ml small{display:block;font-size:.88rem;line-height:1.7;}
+.m-row .vl{font-size:1.18rem;font-weight:800;color:var(--navy);white-space:nowrap;}
+.m-row.total{border-top:2.5px solid var(--line);border-bottom:none;margin-top:4px;padding-top:12px;}
+.m-row.total .ml{font-size:1rem;font-weight:800;color:var(--navy);}
+.m-row.total .vl{font-size:1.5rem;color:var(--red-dark);}
+.m-msg{
+  margin-top:14px;border-radius:16px;padding:14px 16px;
+  font-size:.98rem;line-height:1.9;
+}
+.m-msg.ok{background:var(--green-bg);border-left:5px solid var(--mint);}
+.m-msg.ng{background:var(--red-bg);border-left:5px solid var(--coral);}
+.m-msg b{color:var(--coral-text);}
+.kane-chip{
+  display:inline-block;font-size:.92rem;font-weight:800;
+  padding:4px 14px;border-radius:999px;margin-bottom:6px;
+}
+.kane-chip.ok{background:var(--white);color:var(--green);border:1.5px solid var(--green-border);}
+.kane-chip.ng{background:var(--white);color:var(--red-dark);border:1.5px solid var(--red-border);}
+
+/* ---------- セクション4・5：劇場 ---------- */
+.case-grid{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.case-grid{grid-template-columns:repeat(2,1fr);}}
+.case-card{
+  display:flex;align-items:center;gap:14px;text-align:left;
+  background:var(--white);border:none;border-radius:20px;
+  padding:16px 16px;cursor:pointer;box-shadow:var(--shadow);
+  font-family:inherit;transition:transform .12s;
+}
+.case-card:active{transform:scale(.985);}
+.case-card .art{
+  width:64px;height:64px;flex:0 0 64px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+}
+.case-card .art svg{width:42px;height:42px;}
+.case-card .t{flex:1;}
+.case-card .chip{
+  display:inline-block;font-size:.88rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:4px;
+}
+.case-card h3{font-size:.99rem;color:var(--navy);line-height:1.6;}
+.case-card .more{
+  font-size:.88rem;color:var(--coral-text);font-weight:700;
+  display:inline-flex;align-items:center;gap:4px;margin-top:4px;
+}
+.case-card .more svg{width:14px;height:14px;stroke:var(--coral-text);}
+.c-red{background:var(--red-bg);color:var(--red-dark);}
+.c-blue{background:var(--sky-bg);color:var(--sky);}
+.c-green{background:var(--green-bg);color:var(--green);}
+.c-amber{background:var(--amber-bg);color:var(--amber-deep);}
+.c-berry{background:var(--berry-bg);color:var(--berry);}
+.case-card .amt{
+  display:inline-block;margin-left:7px;
+  font-size:.88rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;
+  background:var(--white);color:var(--green);border:1.5px solid var(--green-border);
+}
+#sec5 .case-card{box-shadow:0 6px 20px rgba(60,120,80,.12);}
+.rule3-box{
+  margin-top:28px;background:var(--white);border-radius:22px;
+  padding:20px 20px 16px;box-shadow:var(--shadow-sm);
+}
+.rule3-box h3{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.06rem;color:var(--navy);margin-bottom:12px;
+}
+.rule3-box h3 svg{width:24px;height:24px;flex:0 0 24px;stroke:var(--green);}
+.rule3-box ol{list-style:none;counter-reset:r3;}
+.rule3-box ol li{
+  counter-increment:r3;position:relative;
+  padding:0 0 12px 44px;font-size:1rem;line-height:1.9;
+}
+.rule3-box ol li::before{
+  content:counter(r3);position:absolute;left:0;top:2px;
+  width:30px;height:30px;border-radius:50%;
+  background:var(--green-bg);color:var(--green);
+  font-weight:800;font-size:1rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.rule3-note{font-size:.88rem;color:var(--muted);border-top:1.5px dashed var(--line);padding-top:10px;line-height:1.8;}
+
+/* ---------- セクション6：データ ---------- */
+.life-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px 14px;margin:6px 0 26px;
+}
+.life-box h3{font-size:1.08rem;color:var(--navy);margin-bottom:4px;}
+.life-box .sub{font-size:.9rem;color:var(--muted);margin-bottom:14px;}
+.life-box svg{width:100%;max-width:640px;height:auto;display:block;margin:0 auto;}
+.life-cap{font-size:.9rem;color:var(--muted);line-height:1.8;padding:10px 4px 4px;}
+.big3{display:grid;grid-template-columns:1fr;gap:12px;margin-top:16px;}
+@media(min-width:700px){.big3{grid-template-columns:repeat(3,1fr);}}
+.big3 .b{
+  background:var(--bg);border:2px solid var(--line);border-radius:16px;
+  padding:13px 15px;text-align:center;
+}
+.big3 .b .n{display:block;font-size:1.5rem;font-weight:800;color:var(--coral-text);line-height:1.4;}
+.big3 .b .l{display:block;font-size:.88rem;color:var(--navy);font-weight:700;line-height:1.7;}
+.big3 .b .s{display:block;font-size:.88rem;color:var(--muted);line-height:1.7;margin-top:3px;}
+
+/* ---------- セクション7：発想の転換 ---------- */
+.flip{display:grid;grid-template-columns:1fr;gap:12px;margin:8px 0 6px;align-items:stretch;}
+@media(min-width:820px){.flip{grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;}}
+.flip-card{
+  background:var(--white);border-radius:20px;overflow:hidden;
+  box-shadow:var(--shadow);display:flex;flex-direction:column;
+}
+.flip-head{
+  display:block;text-align:center;color:#fff;font-weight:800;
+  font-size:1rem;letter-spacing:.06em;padding:9px 10px;
+}
+.flip-card.old .flip-head{background:var(--gray);}
+.flip-card.new .flip-head{background:linear-gradient(135deg,#c74a22,#b8411b);}
+.flip-body{padding:16px 16px 18px;flex:1;}
+.flip-body svg{width:100%;max-width:300px;height:auto;display:block;margin:0 auto 6px;}
+.flip-line{
+  display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
+  font-size:1rem;font-weight:800;color:var(--navy);text-align:center;line-height:1.7;
+}
+.flip-line .ar{color:var(--muted);font-size:1.1rem;}
+.flip-card.old .flip-line{color:var(--gray);}
+.flip-card.new .flip-line .hi{
+  color:var(--coral-text);
+  background:linear-gradient(transparent 60%, #ffe6a8 60%);
+}
+.flip-card.old .flip-line .hi{background:linear-gradient(transparent 60%, #e3e0dd 60%);}
+.flip-arrow{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  background:var(--navy);color:#fff;border-radius:16px;
+  font-weight:800;font-size:.95rem;letter-spacing:.08em;
+  padding:10px 16px;text-align:center;line-height:1.5;
+}
+.flip-arrow svg{width:26px;height:26px;stroke:#fff;flex:0 0 26px;transform:rotate(90deg);}
+@media(min-width:820px){
+  .flip-arrow{flex-direction:column;padding:16px 12px;min-height:120px;}
+  .flip-arrow svg{transform:none;}
+}
+.merit-band{
+  margin-top:20px;background:#fdf6e6;border-radius:20px;
+  padding:16px 16px 12px;border:2px solid var(--amber-border);
+}
+.merit-head{
+  display:inline-block;background:var(--navy);color:#fff;
+  font-size:.9rem;font-weight:800;letter-spacing:.06em;
+  padding:5px 16px;border-radius:999px;margin-bottom:12px;
+}
+.merits{display:grid;grid-template-columns:1fr;gap:12px;}
+@media(min-width:700px){.merits{grid-template-columns:repeat(3,1fr);}}
+.merit{display:flex;align-items:center;gap:11px;background:var(--white);border-radius:16px;padding:12px 14px;}
+.merit .mi{width:42px;height:42px;flex:0 0 42px;display:flex;align-items:center;justify-content:center;}
+.merit .mi svg{width:38px;height:38px;}
+.merit .mt{font-size:.94rem;color:var(--navy);line-height:1.65;}
+.merit .mt b{display:block;font-size:1.02rem;color:var(--coral-text);}
+
+.lev{
+  background:var(--white);border-radius:22px;box-shadow:var(--shadow);
+  padding:22px 18px 16px;margin-top:26px;
+}
+.lev h3{font-size:1.1rem;color:var(--navy);margin-bottom:6px;}
+.lev .sub{font-size:.97rem;color:var(--muted);line-height:1.9;margin-bottom:16px;}
+.lev-flow{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  flex-wrap:nowrap;margin:10px 0 4px;
+}
+.lev-circle{
+  border-radius:50%;background:var(--navy-2);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;text-align:center;line-height:1.3;flex:0 0 auto;
+}
+.lev-circle.small{width:96px;height:96px;font-size:1.05rem;}
+.lev-circle.big{width:140px;height:140px;font-size:1.7rem;}
+@media(max-width:520px){
+  .lev-circle.small{width:78px;height:78px;font-size:.92rem;}
+  .lev-circle.big{width:112px;height:112px;font-size:1.35rem;}
+}
+.lev-arrow{flex:1 1 auto;text-align:center;min-width:64px;}
+.lev-arrow .txt{font-size:.9rem;color:var(--muted);line-height:1.6;display:block;margin-bottom:4px;}
+.lev-arrow svg{width:100%;height:auto;}
+.lev-caps{display:flex;justify-content:space-between;font-size:.9rem;color:var(--muted);margin-top:6px;}
+.lev-quote{
+  margin-top:16px;background:var(--bg);border-left:4px solid var(--coral);
+  border-radius:0 14px 14px 0;padding:12px 15px;font-size:1rem;line-height:1.9;
+}
+.lev-quote b{color:var(--coral-text);}
+.plus{
+  display:grid;grid-template-columns:1fr;gap:0;margin-top:26px;
+}
+@media(min-width:700px){.plus{grid-template-columns:1fr 1fr;align-items:end;}}
+.plus-box{padding:18px 18px;border-radius:14px;font-weight:800;line-height:1.7;}
+.plus-box.done{
+  background:#6b7278;color:#fff;font-size:1.02rem;
+  display:flex;align-items:center;gap:10px;
+}
+.plus-box.done svg{width:24px;height:24px;flex:0 0 24px;stroke:#fff;}
+.plus-box.next{
+  background:var(--navy-2);color:#fff;font-size:1.05rem;
+  display:flex;align-items:flex-start;gap:10px;padding:26px 18px;
+}
+.plus-box.next svg{width:26px;height:26px;flex:0 0 26px;fill:#ffd98a;}
+.caution-box{
+  margin-top:24px;background:var(--amber-bg);border-radius:18px;
+  padding:16px 18px;border-left:5px solid var(--sunny);
+  font-size:.98rem;line-height:1.9;
+}
+.caution-box strong:first-child{display:block;color:var(--amber-deep);margin-bottom:4px;}
+.caution-box b{color:var(--coral-text);}
+.caution-box ul{list-style:none;margin-top:8px;}
+.caution-box li{position:relative;padding-left:18px;margin-bottom:5px;}
+.caution-box li::before{content:"";position:absolute;left:2px;top:.85em;width:7px;height:7px;border-radius:50%;background:var(--sunny);}
+
+/* ---------- 比較バー ---------- */
+.cmp{margin-top:22px;background:var(--bg);border-radius:18px;padding:16px 16px 12px;}
+.cmp-title{font-size:1.02rem;font-weight:800;color:var(--navy);margin-bottom:10px;}
+.cmp-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.cmp-lbl{flex:0 0 82px;font-size:.92rem;color:var(--muted);line-height:1.5;}
+.cmp-bar{flex:1 1 auto;height:26px;border-radius:13px;background:#efe6dc;overflow:hidden;}
+.cmp-fill{display:block;height:26px;border-radius:13px;transition:width .25s;}
+.cmp-fill.base{background:linear-gradient(90deg,#c3cfd8,#9fb3c0);}
+.cmp-fill.up{background:linear-gradient(90deg,var(--sunny),var(--coral));}
+.cmp-val{flex:0 0 auto;font-size:.98rem;font-weight:800;color:var(--navy);white-space:nowrap;}
+.cmp-note{font-size:.94rem;color:var(--text);line-height:1.85;margin-top:6px;}
+@media(max-width:520px){
+  .cmp-row{flex-wrap:wrap;}
+  .cmp-lbl{flex:0 0 auto;}
+  .cmp-val{width:100%;text-align:right;}
+}
+
+/* ---------- モーダル ---------- */
+.cmodal{position:fixed;inset:0;z-index:60;display:none;}
+.cmodal.show{display:block;}
+.cmodal-back{position:absolute;inset:0;background:rgba(40,30,25,.5);}
+.cmodal-panel{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(94vw,640px);max-height:88vh;overflow-y:auto;
+  background:var(--white);border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.25);
+  -webkit-overflow-scrolling:touch;
+}
+.cmodal-head{
+  position:sticky;top:0;display:flex;gap:14px;align-items:center;
+  background:var(--white);padding:18px 52px 12px 20px;
+  border-bottom:1.5px solid var(--line);z-index:2;
+}
+.cmodal-close{
+  position:absolute;right:12px;top:12px;
+  width:40px;height:40px;border-radius:50%;
+  background:var(--bg);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.cmodal-close svg{width:18px;height:18px;stroke:var(--navy);}
+.cmodal-ico{
+  width:56px;height:56px;flex:0 0 56px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+}
+.cmodal-ico svg{width:38px;height:38px;}
+.cmodal-chip{
+  display:inline-block;font-size:.88rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:3px;
+}
+.cmodal-title{font-size:1.08rem;color:var(--navy);line-height:1.55;}
+.cmodal-body{padding:16px 20px 22px;}
+.cmodal-block{margin-bottom:18px;}
+.cmodal-label{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:.92rem;font-weight:800;padding:5px 14px;border-radius:999px;margin-bottom:9px;
+}
+.cmodal-label svg{width:17px;height:17px;}
+.lb-blue{background:var(--sky-bg);color:var(--sky);}
+.lb-blue svg{stroke:var(--sky);}
+.lb-red{background:var(--red-bg);color:var(--red-dark);}
+.lb-red svg{stroke:var(--red-dark);}
+.lb-green{background:var(--green-bg);color:var(--green);}
+.lb-green svg{stroke:var(--green);}
+.cmodal-quote{
+  background:var(--bg);border-left:4px solid var(--coral);
+  border-radius:0 14px 14px 0;padding:12px 15px;
+  font-size:1rem;line-height:1.9;color:var(--text);
+}
+.cmodal-quote small{display:block;text-align:right;color:var(--muted);margin-top:4px;font-size:.8rem;}
+.cmodal-p{font-size:1rem;line-height:1.95;margin-bottom:8px;}
+.cmodal-note{
+  font-size:.88rem;color:var(--muted);line-height:1.8;margin-top:14px;
+  border-top:1.5px dashed var(--line);padding-top:12px;
+}
+
+/* ---------- まとめ・チェックリスト ---------- */
+.score-box{
+  background:var(--sky-bg);border-radius:20px;padding:18px 18px 14px;margin-bottom:24px;
+}
+.score-box h3{
+  display:flex;align-items:center;gap:8px;
+  font-size:1.02rem;color:var(--navy);margin-bottom:8px;
+}
+.score-box h3 svg{width:22px;height:22px;stroke:var(--sky);}
+.score-box p{font-size:1rem;line-height:1.9;}
+.checklist{display:grid;grid-template-columns:1fr;gap:10px;}
+.chk-group{
+  font-size:.94rem;font-weight:800;color:var(--amber-deep);
+  margin:14px 0 2px;letter-spacing:.03em;
+}
+.chk-group:first-child{margin-top:0;}
+.chk{
+  display:flex;align-items:center;gap:12px;
+  background:var(--bg);border:2px solid var(--line);border-radius:16px;
+  padding:12px 14px;cursor:pointer;font-size:1rem;line-height:1.7;
+  transition:border-color .15s, background .15s;
+}
+.chk input{width:24px;height:24px;flex:0 0 24px;accent-color:var(--green);cursor:pointer;}
+.chk .art{
+  width:44px;height:44px;flex:0 0 44px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.chk .art svg{width:28px;height:28px;}
+.chk:has(input:checked){background:var(--green-bg);border-color:var(--green-border);}
+.chk-msg{
+  margin-top:16px;background:var(--amber-bg);border-radius:16px;
+  padding:14px 16px;font-size:1rem;line-height:1.9;
+}
+details.finder{
+  margin-top:26px;background:var(--bg);border-radius:18px;
+  padding:4px 18px;border:1.5px solid var(--line);
+}
+details.finder summary{
+  cursor:pointer;font-size:1.02rem;font-weight:700;color:var(--navy);
+  padding:12px 0;list-style-position:inside;
+}
+details.finder ul{padding:2px 0 8px 22px;font-size:.97rem;color:var(--text);}
+details.finder li{margin-bottom:7px;line-height:1.85;}
+details.finder p{font-size:.97rem;padding:0 0 14px;line-height:1.9;}
+
+/* ---------- CTA ---------- */
+.cta-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:24px 20px;margin-top:30px;text-align:center;
+}
+.cta-box h3{font-size:1.2rem;color:var(--navy);margin-bottom:8px;line-height:1.6;}
+.cta-box .cta-lead{font-size:1rem;color:var(--muted);text-align:left;margin-bottom:14px;line-height:1.95;}
+.cta-box ul{list-style:none;text-align:left;margin-bottom:14px;}
+.cta-box ul li{
+  display:flex;gap:9px;align-items:flex-start;
+  font-size:.99rem;line-height:1.85;margin-bottom:6px;
+}
+.cta-box ul li svg{width:19px;height:19px;flex:0 0 19px;stroke:var(--mint);margin-top:6px;}
+.co{font-size:.98rem;font-weight:800;color:var(--navy);margin-top:18px;}
+.addr{font-size:.93rem;color:var(--muted);line-height:1.7;}
+.tip{font-size:.93rem;color:var(--amber-deep);margin-top:10px;}
+.cta-mini{
+  margin-top:18px;background:var(--bg);border:2px solid var(--amber-border);
+  border-radius:18px;padding:14px 16px;text-align:center;
+}
+.cta-mini p{font-size:.96rem;line-height:1.85;margin-bottom:10px;text-align:left;}
+.cta-mini a{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--white);border:2px solid var(--coral);
+  color:var(--coral-text);text-decoration:none;font-weight:800;font-size:.95rem;
+  border-radius:999px;padding:9px 20px;
+}
+.cta-mini a svg{width:18px;height:18px;stroke:var(--coral-text);}
+
+/* ---------- フッター免責 ---------- */
+footer.disclaimer{
+  padding:26px 16px 30px;max-width:900px;margin:0 auto;
+}
+footer.disclaimer p{font-size:.88rem;color:var(--muted);line-height:1.9;}
+
+/* ---------- 10ヶ月の年表（図ではなくHTMLで組み、文字を縮小させない） ---------- */
+.tl{list-style:none;margin:10px 0 6px;padding:0;}
+.tl li{
+  position:relative;display:flex;gap:14px;align-items:flex-start;
+  padding:0 0 22px 0;
+}
+.tl li::before{
+  content:"";position:absolute;left:33px;top:26px;bottom:-4px;
+  width:3px;background:var(--line);
+}
+.tl li:last-child::before{display:none;}
+.tl .tl-when{
+  flex:0 0 70px;text-align:center;
+  font-size:1rem;font-weight:800;color:var(--navy);line-height:1.4;
+  padding:6px 2px;border-radius:12px;background:var(--navy-soft);
+  position:relative;z-index:1;
+}
+.tl .tl-what{flex:1;padding-top:3px;}
+.tl .tl-what b{display:block;font-size:1.05rem;color:var(--navy);line-height:1.6;}
+.tl .tl-what small{display:block;font-size:.92rem;color:var(--muted);line-height:1.8;margin-top:2px;}
+.tl li.hot .tl-when{background:var(--red-bg);color:var(--red-dark);}
+.tl li.hot .tl-what b{color:var(--red-dark);}
+.tl li.goal .tl-when{background:var(--red);color:#fff;font-size:1.06rem;}
+.tl li.goal .tl-what b{color:var(--red-dark);font-size:1.16rem;}
+.tl li.goal .tl-what small{color:var(--red-dark);}
+@media(min-width:700px){
+  .tl .tl-when{flex:0 0 92px;font-size:1.06rem;}
+  .tl li::before{left:44px;}
+}
+
+/* ---------- 見やすさの調整（可読性ガイドラインに合わせた土台） ---------- */
+/* 1行を長くしすぎない：日本語は全角40字までが目安（WCAG 2.2 達成基準1.4.8） */
+.wrap p,.wrap li,.caution-box,.chk-msg,.m-msg,footer.disclaimer p{max-width:40em;}
+.venn-box .venn-cap{margin-left:auto;margin-right:auto;}
+.lev-caps,.quiz-done .score,.cta-box .co,.cta-box .addr,.cta-box .tip,
+.flip-line,.cmp-title,.q-count,.score-box p{max-width:none;}
+
+/* 指で操作する部分を大きく：スライダー・チェックボックス・リンク */
+input[type=range]{height:48px;}
+input[type=range]::-webkit-slider-runnable-track{height:12px;border-radius:6px;}
+input[type=range]::-webkit-slider-thumb{width:32px;height:32px;margin-top:-10px;border-width:4px;}
+input[type=range]::-moz-range-track{height:12px;border-radius:6px;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;border-width:4px;}
+.chk input{width:28px;height:28px;flex:0 0 28px;}
+.chk{padding:14px 15px;}
+.cta-mini a{min-height:48px;padding:12px 22px;}
+details.finder summary{padding:15px 0;min-height:48px;}
+.case-card .chip,.case-card .amt,.cmodal-chip{padding:3px 12px;}
+.judge-chip{padding:5px 14px;}
+
+/* 段落の間を、行間よりはっきり広く取る */
+.cmodal-p{margin-bottom:14px;}
+.rule3-box ol li,.mikane ol li{padding-bottom:16px;}
+.caution-box li{margin-bottom:8px;}
+
+@media print{
+  .hero-nav,.cta-mini{display:none !important;}
+  body{background:#fff;}
+}
+
+/* ---------- このページで追加した調整 ---------- */
+/* 狭い画面では、見出しの「折り返し禁止」を解除する。
+   事業承継の用語は長いものが多く、1行が画面幅を超えて横スクロールが出るため
+   （通常の幅では1行に収まるので、見た目は変わらない）— WCAG 1.4.10 / 1.4.12 */
+@media(max-width:600px){
+  .hero h1 .nowrap,
+  .sec-head h2 .nowrap{ white-space:normal; }
+}
+/* 見出しが長くても、右の丸アイコンを画面の外へ押し出さない */
+.sec-head > div:first-child{ min-width:0; }
+.sec-head h2{ overflow-wrap:break-word; }
+</style>
+</head>
+<body>
+
+<!-- ================= ヒーロー ================= -->
+<header class="hero">
+  <div class="wrap">
+    <div class="brand">
+      <span class="ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg>
+      </span>
+      <span>株式会社Office-M<small>会社の「渡し方」を、数字と手続きに翻訳してご案内します</small></span>
+    </div>
+    <div class="hero-flex">
+      <div class="hero-copy">
+        <h1>社長にもしもがあった日。<br><span class="nowrap">その会社、<span class="accent">ほんとうに渡せる</span>か、</span><span class="nowrap">ご存じですか。</span></h1>
+        <p class="lead">「そのうち息子に」「まだ元気だから」——その“そのうち”は、書類のどこにも残っていません。社長の座は明日にでも譲れますが、<strong>会社の持ち主（自社株）は、渡す手続きをした人にしか渡りません</strong>。しかも自社株には「売れないのに、相続税だけはしっかりかかる」という困った性質があります。私たちは、その数字と手続きを翻訳したうえで、<strong>その会社に合う渡し方をご案内する</strong>税理士事務所です。○×クイズだけなら3分、ぜんぶ読むと12分ほど。笑いながらどうぞ。最後はぜひ、決算書と株主名簿をお手元に。</p>
+        <nav class="hero-nav" aria-label="ページ内メニュー">
+          <a href="#sec1"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="6" width="10" height="14.5" rx="1.5"/><path d="M13.5 11h7v9.5h-7M6.5 10h4M6.5 13.5h4M6.5 17h4M16 14.5h2M16 17.5h2"/></svg>渡すものは3つ</a>
+          <a href="#sec2"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/><circle cx="12" cy="12" r="9"/></svg>○×ワナクイズ</a>
+          <a href="#sec3"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M8.5 7.5h7M8.5 12h2M13.5 12h2M8.5 16.5h2M13.5 16.5h2"/></svg>自社株はいくら？</a>
+          <a href="#sec4"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0-3.3 11 3 3 0 0 1 1.1 1.9l.03.35h4.34l.03-.35a3 3 0 0 1 1.1-1.9A6 6 0 0 0 12 3Z"/><path d="M9.8 19.2h4.4M10.7 21.7h2.6"/></svg>あるある劇場</a>
+          <a href="#sec5"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="8" width="17" height="12.5" rx="2.5"/><path d="M3.5 12h17M12 8v12.5M12 8S8.5 7.6 7.2 6.3a2.1 2.1 0 0 1 3-3C11.5 4.6 12 8 12 8Zm0 0s3.5-.4 4.8-1.7a2.1 2.1 0 0 0-3-3C12.5 4.6 12 8 12 8Z"/></svg>味方する制度</a>
+          <a href="#sec6"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>事業承継の時計</a>
+        </nav>
+      </div>
+      <div class="hero-scene" aria-hidden="true">
+        <svg viewBox="0 0 360 212">
+          <circle cx="312" cy="36" r="30" fill="#ffd9a8" opacity=".45"/>
+          <circle cx="312" cy="36" r="19" fill="#f7c34e"/>
+          <ellipse cx="58" cy="30" rx="25" ry="9.5" fill="#fff" opacity=".95"/>
+          <ellipse cx="88" cy="38" rx="17" ry="7.5" fill="#fff" opacity=".8"/>
+          <path d="M0 168h360v44H0Z" fill="#ffe9c7"/>
+          <path d="M0 176c40-10 90-12 150-8 60 4 120 4 210-6v50H0Z" fill="#b3e3b8"/>
+          <!-- 会社（工場・事務所） -->
+          <rect x="96" y="62" width="86" height="106" rx="6" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>
+          <rect x="182" y="96" width="62" height="72" rx="6" fill="#eaf1f7" stroke="#c6e2f2" stroke-width="2.5"/>
+          <rect x="108" y="76" width="18" height="16" rx="2.5" fill="#27587f"/>
+          <rect x="134" y="76" width="18" height="16" rx="2.5" fill="#27587f"/>
+          <rect x="108" y="102" width="18" height="16" rx="2.5" fill="#63b8dd"/>
+          <rect x="134" y="102" width="18" height="16" rx="2.5" fill="#27587f"/>
+          <rect x="108" y="128" width="18" height="16" rx="2.5" fill="#27587f"/>
+          <rect x="134" y="128" width="18" height="16" rx="2.5" fill="#63b8dd"/>
+          <rect x="156" y="76" width="16" height="68" rx="2.5" fill="#f4ece4"/>
+          <rect x="194" y="110" width="16" height="14" rx="2.5" fill="#63b8dd"/>
+          <rect x="216" y="110" width="16" height="14" rx="2.5" fill="#a9cde6"/>
+          <rect x="194" y="134" width="16" height="14" rx="2.5" fill="#a9cde6"/>
+          <rect x="216" y="134" width="16" height="14" rx="2.5" fill="#63b8dd"/>
+          <!-- 株券（バトン） -->
+          <g transform="rotate(-8 268 74)">
+            <rect x="228" y="46" width="106" height="60" rx="7" fill="#fdf3e2" stroke="#d99a1e" stroke-width="3"/>
+            <rect x="240" y="58" width="52" height="7" rx="3.5" fill="#a8701a"/>
+            <rect x="240" y="72" width="82" height="4" rx="2" fill="#e0cfc4"/>
+            <rect x="240" y="82" width="82" height="4" rx="2" fill="#e0cfc4"/>
+            <rect x="240" y="92" width="46" height="4" rx="2" fill="#e0cfc4"/>
+            <circle cx="310" cy="88" r="13" fill="none" stroke="#c2453f" stroke-width="3"/>
+            <text x="310" y="93" text-anchor="middle" font-size="13" font-weight="bold" fill="#c2453f">株</text>
+          </g>
+          <!-- 渡す人・受け取る人 -->
+          <path d="M22 180c0-15 6.5-32 15-32s15 17 15 32v2H22Z" fill="#27587f"/>
+          <circle cx="37" cy="137" r="11" fill="#f7cdb4"/>
+          <path d="M26 135c1-9 5.5-13 11-13s10 4 11 13c-3.3-4-7-5.3-11-5.3s-7.7 1.3-11 5.3Z" fill="#c3cfd8"/>
+          <circle cx="33" cy="137.5" r="1.4" fill="#3d3028"/><circle cx="41" cy="137.5" r="1.4" fill="#3d3028"/>
+          <path d="M34 142c1.4 1.5 4 1.5 5.4 0" fill="none" stroke="#3d3028" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M50 158c10-4 18-4 26 0" fill="none" stroke="#f0846a" stroke-width="5" stroke-linecap="round"/>
+          <path d="M78 152l10 6-10 6Z" fill="#f0846a"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= セクション1：渡すものは3つ ================= -->
+<section id="sec1">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>1</i><span>今日いちばん大事な国語</span></span>
+        <h2>「事業承継」で渡すもの、<span class="nowrap">じつは3つあります。</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotBiz" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">クイズの前に、国語の授業を3分だけ。「事業承継＝社長交代」と思われがちですが、渡すものは3つあります。<strong>①経営（社長の座）②自社株（会社の持ち主の座）③個人保証と、社長個人の名義で会社に貸しているもの</strong>。①は明日にでも渡せます。②と③は、渡す手続きをしないかぎり、一生渡りません。今日いちばん大事なのは、この3本の線がどこにあるかです。</p>
+    </div>
+
+    <p class="qlink-lead">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/><circle cx="12" cy="12" r="9"/></svg>
+      この3組のちがい、説明できますか？
+    </p>
+    <div class="qlinks">
+      <a class="qlink" href="#def-kabu">
+        <span class="pair">社長の座<span class="vs">と</span>会社の持ち主</span>
+        <span class="ask">代表を譲れば、会社は後継者のもの？</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+      </a>
+      <a class="qlink" href="#def-hyoka">
+        <span class="pair">売れない株<span class="vs">と</span>評価額</span>
+        <span class="ask">買い手のいない株に、いくらの値段が？</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+      </a>
+      <a class="qlink" href="#def-hosho">
+        <span class="pair">会社の借金<span class="vs">と</span>社長の保証</span>
+        <span class="ask">代表を降りれば、保証も降りられる？</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+      </a>
+    </div>
+
+    <!-- ===== ①-1 議決権 ===== -->
+    <div class="def-block" id="def-kabu">
+      <h3 class="def-h"><span class="def-ico ic-blue" data-art="icKabu" aria-hidden="true"></span>経営権：会社の持ち主は「株を持っている人」</h3>
+      <p class="def-lead">代表取締役は<strong>「会社を代表して動く人」</strong>、株主は<strong>「会社の持ち主」</strong>。代表者の変更を登記しても、株は1株も動きません。そして役員を選ぶのも解任するのも、決めるのは株主総会です。</p>
+
+      <p class="age-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <span>数字でひとこと：後継者にわたしておきたいのは、議決権の<b>3分の2以上</b>。ここを割ると、定款変更や組織再編といった「会社のかたちを変える決定」ができなくなります。
+        <small>普通決議は議決権の過半数、特別決議は原則3分の2以上（定款で加重されている会社もあります）。</small></span>
+      </p>
+
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="議決権の割合に応じてできることが変わることを示す帯グラフ。3分の1超で拒否権、過半数で普通決議、3分の2以上で特別決議ができる">
+          <text x="260" y="30" text-anchor="middle" font-size="20" font-weight="bold" fill="#1b3f5e">株を何％持っていると、何ができるか</text>
+          <text x="398" y="62" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2451f">後継者に渡したいのは、ここ</text>
+          <path d="M398 70v12" stroke="#c2453f" stroke-width="2.5" stroke-linecap="round"/>
+          <rect x="40" y="88" width="146.7" height="52" rx="5" fill="#eef1f4" stroke="#d9cfc4" stroke-width="2"/>
+          <rect x="186.7" y="88" width="73.3" height="52" fill="#fdf3e2" stroke="#eccf94" stroke-width="2"/>
+          <rect x="260" y="88" width="73.3" height="52" fill="#e8f4fb" stroke="#a9cde6" stroke-width="2"/>
+          <rect x="333.3" y="88" width="146.7" height="52" rx="5" fill="#c9451e"/>
+          <text x="113" y="120" text-anchor="middle" font-size="13" fill="#5c6874">〜3分の1</text>
+          <text x="223" y="120" text-anchor="middle" font-size="12" font-weight="bold" fill="#8a5b12">3分の1超</text>
+          <text x="296" y="120" text-anchor="middle" font-size="12" font-weight="bold" fill="#1b5478">過半数</text>
+          <text x="406" y="121" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff">3分の2以上</text>
+          <path d="M186.7 142v10M260 142v10M333.3 142v10" stroke="#8fa1ad" stroke-width="2" stroke-linecap="round"/>
+          <text x="186.7" y="168" text-anchor="middle" font-size="12" fill="#5c6874">3分の1</text>
+          <text x="260" y="168" text-anchor="middle" font-size="12" fill="#5c6874">過半数</text>
+          <text x="333.3" y="168" text-anchor="middle" font-size="12" fill="#5c6874">3分の2</text>
+          <rect x="44" y="185" width="14" height="14" rx="3" fill="#eef1f4" stroke="#d9cfc4" stroke-width="2"/>
+          <text x="70" y="197" font-size="13" fill="#5c6874">3分の1以下：決算書は見られても、ひとりでは何も決まらない</text>
+          <rect x="44" y="211" width="14" height="14" rx="3" fill="#fdf3e2" stroke="#eccf94" stroke-width="2"/>
+          <text x="70" y="223" font-size="13" fill="#8a5b12">3分の1超：定款変更などを止められる（拒否権）</text>
+          <rect x="44" y="237" width="14" height="14" rx="3" fill="#e8f4fb" stroke="#a9cde6" stroke-width="2"/>
+          <text x="70" y="249" font-size="13" fill="#1b5478">過半数：役員の選任・解任、配当を決められる</text>
+          <rect x="44" y="263" width="14" height="14" rx="3" fill="#c9451e"/>
+          <text x="70" y="275" font-size="13" font-weight="bold" fill="#a63631">3分の2以上：定款変更や組織再編もできる（特別決議）</text>
+        </svg>
+        <p class="venn-cap">※会社法上の一般的な整理です。定款で決議要件を加重している会社、種類株式を発行している会社では扱いが変わります。「議決権の」割合であり、発行済株式数とは一致しないことがあります（自己株式には議決権がありません）。</p>
+      </div>
+
+      <div class="cards">
+        <div class="risk-card">
+          <div class="icon ic-blue" data-art="icSeal" aria-hidden="true"></div>
+          <h3>代表取締役の変更</h3>
+          <span class="judge-chip maybe">承継の1歩目。でも1歩目だけ</span>
+          <p>法務局で登記を変えれば、その日から新社長です。ただし動いたのは<strong>肩書だけ</strong>。株は前社長の名義のまま、議決権も前社長のまま。「代表を譲ったのに、いつまでも口を出される」というご相談の正体は、たいていここにあります。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-amber" data-art="icPeople" aria-hidden="true"></div>
+          <h3>議決権の過半数</h3>
+          <span class="judge-chip maybe">役員を選べる・解任できる</span>
+          <p>普通決議のライン。<strong>取締役の選任と解任</strong>がここで決まります。裏を返せば、後継者が過半数を持っていなければ、いつでも社長の座から降ろされうるということ。「継がせた」つもりが「貸している」状態になっていないか、確認するラインです。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-red" data-art="icKabu" aria-hidden="true"></div>
+          <h3>議決権の3分の2</h3>
+          <span class="judge-chip ok">会社のかたちを変えられる</span>
+          <p>特別決議のライン。定款変更、事業譲渡、合併・会社分割などの組織再編、株式の併合——会社の将来を左右する決定は、ここまで持っていて初めて自分で決められます。<strong>承継のゴールは「過半数」ではなく「3分の2」</strong>と覚えてください。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-berry" data-art="icFamily" aria-hidden="true"></div>
+          <h3>相続で分散した株</h3>
+          <span class="judge-chip ng">いちばん厄介なパターン</span>
+          <p>遺産分割がまとまるまで、株は相続人全員の<strong>共有</strong>状態。権利を行使する人を決めて会社に通知しないと、議決権を使えません。兄弟の仲が良くない、連絡が取れない、認知症の方がいる——どれか一つで<strong>株主総会が開けなくなり、役員の改選すらできない</strong>会社ができあがります。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ①-2 自社株の評価 ===== -->
+    <div class="def-block" id="def-hyoka">
+      <h3 class="def-h"><span class="def-ico ic-amber" data-art="icChart" aria-hidden="true"></span>自社株の評価：買い手がいなくても、値段はつきます</h3>
+      <p class="def-lead">相続税・贈与税の世界では、非上場株式は「売れるかどうか」ではなく<strong>財産評価基本通達の決められた方式</strong>で評価します。無配でも、上場していなくても、買い手がいなくても、評価額はつきます。</p>
+
+      <p class="age-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <span>いつ高くなるか：<b>利益が出た年</b>（類似業種比準価額が上がる）、<b>不動産や保険積立金に含み益が乗ったとき</b>（純資産価額が上がる）、そして<b>退職金を払う前</b>。「業績が良い会社ほど渡しにくい」という、ほめられているのか叱られているのか分からない現象が起きます。
+        <small>どの方式で評価するかは、会社の規模（従業員数・総資産・取引金額）と、株を取得する人の立場によって決まります。</small></span>
+      </p>
+
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="自社株の評価は、株を取得する人が同族株主等かどうかで原則的評価方式と配当還元方式に分かれ、原則的評価方式はさらに類似業種比準価額と純資産価額の組み合わせになることを示す図">
+          <rect x="176" y="18" width="168" height="44" rx="10" fill="#1b3f5e"/>
+          <text x="260" y="46" text-anchor="middle" font-size="17" font-weight="bold" fill="#ffffff">自社株の評価</text>
+          <path d="M260 62v22M120 84h280M120 84v20M400 84v20" fill="none" stroke="#8fa1ad" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="20" y="104" width="200" height="164" rx="12" fill="#fdeee9" stroke="#c2453f" stroke-width="3"/>
+          <text x="120" y="128" text-anchor="middle" font-size="15" font-weight="bold" fill="#a63631">同族株主など</text>
+          <text x="120" y="147" text-anchor="middle" font-size="13" fill="#a63631">＝会社を支配する側</text>
+          <text x="120" y="172" text-anchor="middle" font-size="15" font-weight="bold" fill="#a63631">原則的評価方式</text>
+          <rect x="36" y="184" width="168" height="34" rx="8" fill="#fffdf8" stroke="#f4d0c6" stroke-width="2"/>
+          <text x="120" y="206" text-anchor="middle" font-size="13" fill="#33404d">類似業種比準価額</text>
+          <text x="120" y="234" text-anchor="middle" font-size="13" font-weight="bold" fill="#a63631">＋</text>
+          <rect x="36" y="240" width="168" height="34" rx="8" fill="#fffdf8" stroke="#f4d0c6" stroke-width="2"/>
+          <text x="120" y="262" text-anchor="middle" font-size="13" fill="#33404d">純資産価額</text>
+          <rect x="300" y="104" width="200" height="104" rx="12" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="3"/>
+          <text x="400" y="128" text-anchor="middle" font-size="15" font-weight="bold" fill="#2c7a4b">少数株主</text>
+          <text x="400" y="147" text-anchor="middle" font-size="13" fill="#2c7a4b">＝配当をもらうだけの側</text>
+          <text x="400" y="176" text-anchor="middle" font-size="15" font-weight="bold" fill="#2c7a4b">配当還元方式</text>
+          <text x="400" y="196" text-anchor="middle" font-size="12" fill="#2c7a4b">ぐっと低い評価になることが多い</text>
+          <text x="400" y="232" text-anchor="middle" font-size="13" fill="#5c6874">同じ会社の同じ1株でも、</text>
+          <text x="400" y="250" text-anchor="middle" font-size="13" fill="#5c6874">誰が持つかで評価が変わります</text>
+        </svg>
+        <p class="venn-cap">※ごく一般的な整理です。原則的評価方式では、会社の規模（大会社・中会社・小会社）に応じて2つの価額の組み合わせ割合が決まり、小さい会社ほど純資産価額の比重が高くなります。株式保有特定会社・土地保有特定会社などに当たる場合は、原則として純資産価額のみで評価します。実際の評価は、直近の決算書と株主構成を見て個別に計算します。</p>
+      </div>
+
+      <div class="cards">
+        <div class="risk-card">
+          <div class="icon ic-green" data-art="icCash" aria-hidden="true"></div>
+          <h3>配当還元方式</h3>
+          <span class="judge-chip ok">低い評価になりやすい</span>
+          <p>配当をもとに計算する、少数株主向けの評価。同じ1株でも<strong>後継者が取得すれば高く、従業員や遠い親戚が取得すれば低く</strong>なります。「誰が持つか」で値段が変わる、株式評価のいちばん不思議なところ。分散した株を集め直すときの入口にもなります。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-amber" data-art="icChart" aria-hidden="true"></div>
+          <h3>類似業種比準価額</h3>
+          <span class="judge-chip maybe">業績が良い年ほど高い</span>
+          <p>同じ業種の上場企業と、配当・利益・純資産を比べて計算する方式。<strong>利益が出た翌年ほど評価が上がります</strong>。「今期は過去最高益でした」と喜んだ年が、いちばん株を渡しにくい年になる——このねじれを知っているかどうかで、渡す年が変わります。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-red" data-art="icHome" aria-hidden="true"></div>
+          <h3>純資産価額方式</h3>
+          <span class="judge-chip maybe">含み益がそのまま乗る</span>
+          <p>会社の財産を相続税評価で洗い替えて、負債を引いた金額。<strong>昔から持っている土地、値上がりした有価証券、法人契約の保険の積立金</strong>——帳簿に出てこない含み益がここで顔を出します。「うちは借入も多いし」と思っていた会社ほど、驚くことになります。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-berry" data-art="icBiz" aria-hidden="true"></div>
+          <h3>株式保有特定会社・土地保有特定会社</h3>
+          <span class="judge-chip ng">評価を下げる道が狭くなる</span>
+          <p>総資産に占める株式や土地の割合が一定以上になると、こう呼ばれ、原則として<strong>純資産価額のみ</strong>で評価されます。持株会社化や不動産購入といった「対策」が、かえって評価を高止まりさせることがあるのはこのため。<strong>対策の副作用は、必ず先に計算する</strong>ものです。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ①-3 保証と個人名義 ===== -->
+    <div class="def-block" id="def-hosho">
+      <h3 class="def-h"><span class="def-ico ic-red" data-art="icBank" aria-hidden="true"></span>会社の外にある「会社の一部」</h3>
+      <p class="def-lead">貸借対照表には載らないのに、承継のときに必ず問題になるものがあります。<strong>社長個人の連帯保証</strong>と、<strong>社長個人の名義で会社に貸しているもの</strong>です。継ぐ側にとっては、こちらのほうが重い荷物になることもあります。</p>
+
+      <div class="cards">
+        <div class="risk-card">
+          <div class="icon ic-red" data-art="icBank" aria-hidden="true"></div>
+          <h3>社長個人の連帯保証</h3>
+          <span class="judge-chip ng">代表を降りても自動では外れない</span>
+          <p>保証は金融機関との契約なので、代表交代では消えません。放っておくと<strong>前社長は保証を抱えたまま、後継者にも保証を求められる</strong>という、誰も得しない状態に。相続が起きれば、保証債務は相続人に引き継がれます。「継ぐかどうか」を子が悩む最大の理由が、これです。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-blue" data-art="icHouse" aria-hidden="true"></div>
+          <h3>社長名義の土地に建つ、会社の建物</h3>
+          <span class="judge-chip maybe">相続財産です／特例が使えることも</span>
+          <p>名義が個人なら、その土地は社長の相続財産。会社に貸していれば評価は下がりますが、ゼロにはなりません。怖いのは<strong>その土地を後継者以外が相続したとき</strong>。会社が他人から土地を借りる形になり、地代や明け渡しの話が事業を揺らします。一定の要件を満たせば、特定同族会社事業用宅地等の特例（400㎡まで80％減）が使えます。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-amber" data-art="icYen" aria-hidden="true"></div>
+          <h3>社長が会社に貸しているお金</h3>
+          <span class="judge-chip ng">額面のまま相続財産になる</span>
+          <p>資金繰りのために社長が会社へ入れたお金（役員借入金）。会社から見れば負債ですが、社長から見れば<strong>貸付金という財産</strong>です。返ってくる見込みが薄くても、原則は額面で評価。「返ってこないお金に相続税がかかる」という、いちばん納得しづらい税金になりがちです。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-green" data-art="icPolicy" aria-hidden="true"></div>
+          <h3>役員退職金・死亡退職金</h3>
+          <span class="judge-chip ok">承継の潤滑油になる</span>
+          <p>会社から出るお金なので、うまく使えば<strong>後継者側の納税資金や、他のご家族への手当て</strong>になります。死亡退職金には「500万円×法定相続人の数」の非課税枠もあります。支給には株主総会の決議と、金額が不相当に高額でないことなどの要件があるので、<strong>先に決めて、原資も先に用意しておく</strong>のが定石です。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>3つに共通するのは、<strong>「気持ちの上では渡したつもり」と「書類の上で渡っている」がずれている</strong>ことです。確認すべきことも3つだけ。<strong>株主名簿はどうなっているか／自社株はいくらに評価されるか／保証と個人名義の資産はどうするか</strong>。この3点が固まれば、事業承継の設計図はほぼ描けます。※制度・評価方法は2026年8月時点の一般的な内容です。</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション2：○×クイズ ================= -->
+<section id="sec2" class="band round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>2</i><span>思い込みをチェック</span></span>
+        <h2>間に合う？間に合わない？　<span class="nowrap">事業承継ワナクイズ8問</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotQuiz" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">ここからが本番です。笑いどころもありますが、<strong>すべて実際の法律・税制・現場の取り扱いがモデル</strong>。直感で答えて構いません。全問正解できた社長は、ぜひ後継者にも解かせてあげてください（そして親子で同じところを間違えてください）。</p>
+    </div>
+
+    <div class="quiz-shell">
+      <div id="quizPlay">
+        <div class="q-top">
+          <div class="q-count">質問 <span id="qNum">1</span> ／ 8</div>
+          <div class="dots" id="qDots" aria-hidden="true"></div>
+        </div>
+        <div class="q-body">
+          <div class="icon" id="qIcon" aria-hidden="true"></div>
+          <p id="qText"></p>
+        </div>
+        <div class="ans-row">
+          <button type="button" class="ans-btn yes" id="btnYes">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/></svg>
+            <span id="lblYes">はい</span>
+          </button>
+          <button type="button" class="ans-btn no" id="btnNo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            <span id="lblNo">いいえ</span>
+          </button>
+        </div>
+        <div class="verdict" id="verdict" aria-live="polite">
+          <div class="verdict-head">
+            <span class="verdict-answer" id="vAnswer"></span>
+            <span class="result-chip" id="vChip"></span>
+          </div>
+          <p class="expl" id="vExpl"></p>
+          <div class="kv kv-wana"><b>ワナの正体：</b><span id="vWana"></span></div>
+          <div class="kv"><b>確認ポイント：</b><span id="vCheck"></span></div>
+        </div>
+        <button type="button" class="btn-primary" id="btnNext" style="display:none;">
+          次の質問へ
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+        <button type="button" class="btn-ghost" id="btnStopHere" style="display:none;">ここまでの結果を見る（残りはあとでも大丈夫です）</button>
+      </div>
+
+      <div class="quiz-done" id="quizDone">
+        <p class="score">クイズおつかれさまでした！　<span class="nowrap"><span id="doneTotal">8</span>問中 <span class="num" id="doneScore">0</span> 問正解</span></p>
+        <p class="cmt" id="doneCmt"></p>
+        <div class="wrong-list" id="wrongList" style="display:none;"></div>
+        <div data-cta-mini></div>
+        <button type="button" class="btn-ghost" id="btnMailSelf">この結果を自分（または後継者）に送る</button>
+        <button type="button" class="btn-ghost" id="btnPrint">印刷して決算書と一緒に保管する</button>
+        <button type="button" class="btn-ghost" id="btnRetry">もう一度挑戦する</button>
+      </div>
+    </div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>クイズの解説は、2026年8月時点の一般的な取り扱いをもとにした整理です。実際の判断は、株主構成・定款・決算内容・ご家族の状況、そしてその時点の法令によって変わります。「うちの場合は？」と思ったら、それが決算書と株主名簿を並べるベストタイミングです。</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション3：自社株シミュレーター ================= -->
+<section id="sec3" class="band-sky round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>3</i><span>わが社の数字にしてみる</span></span>
+        <h2>自社株はいくら？　<span class="nowrap">後継者は、いくら払うのか。</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotCalc" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">事業承継の話は、金額を見るまでは他人事です。スライダーを動かして、<strong>①後継者がいくら払うことになるのか、②その現金はどこから出るのか、③ほかのお子さまの取り分は足りるのか</strong>を見てみてください。自社株は「売れないのに課税される」財産。だから、税額よりも<strong>払えるかどうか</strong>のほうが先に問題になります。</p>
+    </div>
+
+    <p class="sec-lead">相続税は、財産の合計から基礎控除を引いた残りを<strong>いったん法定相続分で分けたものとして</strong>計算し、税率をかけて合計します（相続税の総額）。税率はこの速算表のとおりです。</p>
+
+    <div class="type-table-box">
+      <table class="type-table" aria-label="相続税の速算表">
+        <thead>
+          <tr>
+            <th>法定相続分に応じた取得金額</th>
+            <th>税率</th>
+            <th>控除額</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>1,000万円以下</td><td>10%</td><td>—</td></tr>
+          <tr><td>3,000万円以下</td><td>15%</td><td>50万円</td></tr>
+          <tr><td>5,000万円以下</td><td>20%</td><td>200万円</td></tr>
+          <tr><td>1億円以下</td><td>30%</td><td>700万円</td></tr>
+          <tr><td>2億円以下</td><td>40%</td><td>1,700万円</td></tr>
+          <tr><td>3億円以下</td><td>45%</td><td>2,700万円</td></tr>
+          <tr><td>6億円以下</td><td>50%</td><td>4,200万円</td></tr>
+          <tr><td>6億円超</td><td>55%</td><td>7,200万円</td></tr>
+        </tbody>
+      </table>
+      <p class="venn-cap">※2026年8月時点の相続税の速算表です。相続人ごとの取得金額に税率をかけ、控除額を引いた金額を合計したものが「相続税の総額」になります。</p>
+    </div>
+
+    <div class="sim-box">
+      <h3>自社株・納税資金・遺留分 かんたん試算</h3>
+      <p class="sub">概算です。実際の株価評価は決算内容と株主構成で決まり、税額は分け方や特例の適用で変わります。数字は「話し合いのきっかけ」としてお使いください。</p>
+
+      <div class="sim-ctrl">
+        <label for="simKabu"><span>自社株の相続税評価額<small>まだ計算したことがなければ、まずは会社の純資産（自己資本）の額を目安に入れてみてください</small></span><output id="simKabuOut">1億5,000万円</output></label>
+        <input type="range" id="simKabu" min="0" max="60000" step="500" value="15000">
+      </div>
+      <div class="sim-ctrl">
+        <label for="simOther"><span>自社株以外の財産<small>ご自宅・預貯金・有価証券・会社への貸付金など</small></span><output id="simOtherOut">8,000万円</output></label>
+        <input type="range" id="simOther" min="0" max="40000" step="500" value="8000">
+      </div>
+      <div class="sim-ctrl">
+        <label for="simCash"><span>そのうち、すぐ現金にできる割合<small>預貯金など。ご自宅・会社への貸付金は「すぐ現金にできない」側です</small></span><output id="simCashOut">30%</output></label>
+        <input type="range" id="simCash" min="0" max="100" step="5" value="30">
+      </div>
+      <div class="sim-ctrl">
+        <label for="simTaishoku"><span>会社から支給する死亡退職金<small>後継者が受け取る前提で計算します。0でも試算できます</small></span><output id="simTaishokuOut">0円</output></label>
+        <input type="range" id="simTaishoku" min="0" max="20000" step="500" value="0">
+      </div>
+
+      <p class="seg-label">配偶者<small>社長の相続を想定して選んでください</small></p>
+      <div class="seg" id="segSpouse">
+        <button type="button" data-v="1" class="on">いる</button>
+        <button type="button" data-v="0">いない</button>
+      </div>
+
+      <p class="seg-label">お子さまの人数<small>このうちお一人が後継者、という前提で計算します</small></p>
+      <div class="seg" id="segKids">
+        <button type="button" data-v="1">1人</button>
+        <button type="button" data-v="2" class="on">2人</button>
+        <button type="button" data-v="3">3人</button>
+        <button type="button" data-v="4">4人</button>
+      </div>
+
+      <p class="seg-label">事業承継税制（特例措置）<small>自社株にかかる税額の納税猶予を使うかどうか</small></p>
+      <div class="seg" id="segZeisei">
+        <button type="button" data-v="0" class="on">使わない</button>
+        <button type="button" data-v="1">使う</button>
+      </div>
+
+      <div class="money" aria-live="polite">
+        <div class="m-row"><span class="ml">法定相続人の数<small>基礎控除と非課税枠の計算に使います</small></span><span class="vl" id="rNinzu">—</span></div>
+        <div class="m-row"><span class="ml">基礎控除<small>3,000万円＋600万円×法定相続人の数</small></span><span class="vl" id="rKiso">—</span></div>
+        <div class="m-row"><span class="ml">死亡退職金の非課税枠<small>500万円×法定相続人の数／<span id="rHikazeiUse">使用 0円</span></small></span><span class="vl" id="rHikazei">—</span></div>
+        <div class="m-row"><span class="ml">課税価格<small>自社株＋その他の財産＋課税される退職金</small></span><span class="vl" id="rKakaku">—</span></div>
+        <div class="m-row"><span class="ml">財産に占める自社株の割合<small>ここが高いほど「分けられない・売れない」相続になります</small></span><span class="vl" id="rRitsu">—</span></div>
+        <div class="m-row"><span class="ml">相続税の総額<small>配偶者の税額軽減を使う前の金額</small></span><span class="vl" id="rSougaku">—</span></div>
+        <div class="m-row"><span class="ml">この相続で納める額<small>配偶者が「自社株以外の財産」の半分を相続し、配偶者の税額軽減を使った場合</small></span><span class="vl" id="rIchiji">—</span></div>
+        <div class="m-row total"><span class="ml">うち後継者が納める額<small>自社株と死亡退職金を後継者が相続した場合</small></span><span class="vl" id="rKeisha">—</span></div>
+        <div class="m-row"><span class="ml">後継者の手元にある現金<small>死亡退職金。自社株は現金にできません</small></span><span class="vl" id="rTegenkin">—</span></div>
+        <div class="m-row total"><span class="ml">後継者の納税資金の過不足<small>足りない分は、借入・自社株の買取・延納などで埋めることになります</small></span><span class="vl" id="rKabusoku">—</span></div>
+        <div class="m-row"><span class="ml">後継者以外のお子さま1人あたりの遺留分<small>目安。法定相続分の2分の1で計算しています</small></span><span class="vl" id="rIryu">—</span></div>
+      </div>
+
+      <div class="m-msg" id="rMsg"></div>
+
+      <p class="venn-cap" style="margin-top:12px;">※このページの試算の前提：法定相続人は配偶者とお子さまのみ／分け方は<strong>「自社株と死亡退職金は後継者、自社株以外の財産の半分を配偶者、残りを後継者以外のお子さまで均等に」</strong>と仮定（お子さまがお一人の場合は、配偶者の取得分以外をすべて後継者が取得）／各相続人の税額は「相続税の総額×その人の取得割合」で按分し、配偶者の税額は配偶者の税額軽減により0として計算／小規模宅地等の特例、債務・葬式費用、二次相続は考慮していません／遺留分は本来は相続開始時の時価をもとに計算しますが、ここでは相続税評価額で代用した目安です／事業承継税制を「使う」にした場合は、後継者の税額のうち自社株に対応する部分がすべて猶予されるものとして表示しています（実際の猶予額は要件と計算方法により異なります）。あくまで大きさをつかむための概算です。</p>
+    </div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>試算してみると、多くの会社で「税額そのもの」より<strong>「10ヶ月以内に、その現金を誰がどう用意するか」</strong>と<strong>「後継者以外のご家族に、何を渡せるか」</strong>のほうが大きな問題になります。株を分ければ納税資金は減りますが、議決権は割れます。逆に株を集めれば経営は守れますが、現金が要ります。<strong>この二択を、生きているうちに設計できるかどうか</strong>——事業承継の実務は、ほぼこの一点です。</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション4：あるある劇場 ================= -->
+<section id="sec4" class="band-blush round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>4</i><span>実話がモデルの寸劇集</span></span>
+        <h2>事業承継あるある劇場</h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotTheater" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">ご相談の場でよく伺うお話を、寸劇風にまとめました。笑えるのは他人事のうちです。気になる演目をタップしてご覧ください。</p>
+    </div>
+
+    <div class="case-grid" id="caseGrid"></div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>各演目は、よくあるご相談をもとにした創作例で、実在の個人・法人・事案とは関係ありません。税額や制度の適用可否は、会社の状況・ご家族の状況・その時点の法令により異なります。</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション5：逆転劇場（味方する制度） ================= -->
+<section id="sec5" class="band-mint round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>5</i><span>知っている人だけが使える話</span></span>
+        <h2>逆転劇場〜こんな制度が、<span class="nowrap">味方します〜</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotGift" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">ここまで「渡らない」「払えない」の話ばかりで、会社を継がせるのが怖くなってきませんでしたか。ご安心ください。この20年で、<strong>事業承継を助けるための制度は驚くほど整いました</strong>。税金、遺留分、保証、分散した株——どれにも、ちゃんと打ち手があります。ただし共通点がひとつ。<strong>どれも社長が元気なうちに手を挙げないと使えません</strong>。ここからは、味方になる6つの制度です。</p>
+    </div>
+
+    <div class="case-grid" id="goodGrid"></div>
+
+    <div class="rule3-box">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg>
+        取りこぼさないための「段取りの3か条」
+      </h3>
+      <ol>
+        <li><strong>制度は、申し出た人にしか使えない。</strong>事業承継税制も、遺留分の民法特例も、所在不明株主の特例も、すべて<b>事前の計画・合意・認定</b>が要ります。相続が起きてから「あの制度を使いたい」と言っても、間に合わないものがほとんどです。</li>
+        <li><strong>順番を間違えない。</strong>株価を下げてから渡す、保証を外してから代表を替える、遺留分の合意を取ってから贈与する——どれも順番が逆だと効きません。<b>設計図を先に描く</b>のが、いちばんの節約です。</li>
+        <li><strong>ひとりで決めない。</strong>税金だけを見れば有利でも、経営や家族関係では不利になる打ち手はいくらでもあります。<b>税務・法務・金融・家族</b>の4方向から見て、はじめて「使える対策」になります。</li>
+      </ol>
+      <p class="rule3-note">※制度の要件・期限は2026年8月時点の一般的な内容です。適用可否は個別の状況により異なり、法令改正によっても変わります。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション6：事業承継の時計 ================= -->
+<section id="sec6" class="band-sky round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>6</i><span>時間の話をひとつだけ</span></span>
+        <h2>事業承継の時計は、<span class="nowrap">もう動いています。</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotClock" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">最後に、時間の話をひとつだけ。事業承継で本当に足りなくなるのは、お金より先に<strong>時間</strong>です。株価を下げる、株を移す、保証を外す、後継者を育てる——どれも1年では終わりません。そして社長の平均年齢は、35年連続で上がり続けています。</p>
+    </div>
+
+    <div class="life-box">
+      <h3>いま、日本の社長に起きていること</h3>
+      <p class="sub">帝国データバンク・東京商工リサーチの調査より（2025年）</p>
+
+      <div class="big3">
+        <span class="b"><span class="n">60.8歳</span><span class="l">社長の平均年齢</span><span class="s">1990年以降、35年連続で過去最高を更新中</span></span>
+        <span class="b"><span class="n">50.1%</span><span class="l">後継者が決まっていない会社</span><span class="s">7年連続で改善。それでも、2社に1社</span></span>
+        <span class="b"><span class="n">49.1%</span><span class="l">黒字のまま休廃業した会社の割合</span><span class="s">2025年の休廃業・解散は6万7,949件</span></span>
+      </div>
+
+      <p class="age-note" style="margin-top:20px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+        <span>休廃業した会社の代表者は、<b>60代以上が90.6％</b>、<b>80代以上だけで34.0％</b>。後継者が決まらないまま踏ん張って、最後に力尽きる——という順番が、数字にはっきり出ています。
+        <small>出典：東京商工リサーチ「2025年『休廃業・解散企業』動向調査」。数値は目安です。</small></span>
+      </p>
+
+      <p class="sub-lead" style="margin-top:26px;">そして「継ぐ人」も、変わりました。いまや社長の就任経緯でいちばん多いのは<strong>内部昇格</strong>で、同族承継を上回っています。「息子がいないから畳むしかない」は、もう昔の話です。</p>
+
+      <svg viewBox="0 0 520 168" role="img" aria-label="2025年の社長就任経緯の内訳。内部昇格36.1％、同族承継32.3％、M&Aほか20.6％、外部招聘7.6％、その他3.4％を示す帯グラフ">
+        <text x="146" y="32" text-anchor="middle" font-size="15" font-weight="bold" fill="#1b5478">いちばん多いのは、親族ではなく社員</text>
+        <rect x="36" y="46" width="163" height="50" rx="4" fill="#c9451e"/>
+        <rect x="199" y="46" width="146" height="50" fill="#f7c34e"/>
+        <rect x="345" y="46" width="93" height="50" fill="#63b8dd"/>
+        <rect x="438" y="46" width="34" height="50" fill="#a9cde6"/>
+        <rect x="472" y="46" width="16" height="50" rx="4" fill="#e0dbd4"/>
+        <text x="117" y="77" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff">内部昇格 36.1%</text>
+        <text x="272" y="77" text-anchor="middle" font-size="15" font-weight="bold" fill="#7a4f0d">同族承継 32.3%</text>
+        <text x="391" y="71" text-anchor="middle" font-size="13" font-weight="bold" fill="#0f3f5c">M&amp;Aほか</text>
+        <text x="391" y="88" text-anchor="middle" font-size="13" font-weight="bold" fill="#0f3f5c">20.6%</text>
+        <path d="M455 100v14" stroke="#8fa1ad" stroke-width="2" stroke-linecap="round"/>
+        <text x="455" y="132" text-anchor="middle" font-size="12" fill="#5c6874">外部招聘</text>
+        <text x="455" y="148" text-anchor="middle" font-size="12" fill="#5c6874">7.6%</text>
+        <text x="146" y="128" text-anchor="middle" font-size="13" fill="#5c6874">社員が継ぐ会社が、いちばん多い時代に。</text>
+        <text x="146" y="146" text-anchor="middle" font-size="13" fill="#5c6874">ただし、株の買取資金という宿題がつきます</text>
+      </svg>
+      <p class="life-cap">※帝国データバンク「全国『後継者不在率』動向調査（2025年）」の就任経緯別割合（速報値）。残りは創業者などです。数値は<strong>概数・目安</strong>で、調査年・集計方法により変動します。</p>
+    </div>
+
+    <div class="life-box" style="margin-top:24px;">
+      <h3>事業承継税制を使うなら、締切は2つあります</h3>
+      <p class="sub">法人版・特例措置（2026年8月時点）</p>
+      <ol class="tl">
+        <li>
+          <span class="tl-when">いま</span>
+          <span class="tl-what"><b>株価の試算・株主名簿の確認</b><small>ここが出発点。何もしていない会社が、いちばん多い場所です</small></span>
+        </li>
+        <li class="hot">
+          <span class="tl-when">2027年<br>9月30日</span>
+          <span class="tl-what"><b>特例承継計画の提出期限</b><small>令和8年度税制改正で、2026年3月31日から1年6ヶ月延長されました。認定経営革新等支援機関（税理士など）の所見が必要です</small></span>
+        </li>
+        <li class="goal">
+          <span class="tl-when">2027年<br>12月31日</span>
+          <span class="tl-what"><b>贈与・相続の実行期限</b><small>こちらは延長されていません。計画の締切から、わずか3ヶ月</small></span>
+        </li>
+        <li>
+          <span class="tl-when">その後<br>5年間</span>
+          <span class="tl-what"><b>都道府県へ年次報告・税務署へ継続届出書</b><small>5年経過後も、3年ごとに税務署への届出が続きます。ここを忘れると猶予が取り消されます</small></span>
+        </li>
+      </ol>
+      <p class="life-cap">※特例承継計画は、出しておいて使わなくても罰則はありません。<strong>「とりあえず出しておく」がいちばん安いお守り</strong>と言われるのはこのためです。個人版事業承継税制の個人事業承継計画は2028年9月30日まで、実行は2028年12月31日までとされています。税制は改正されることがありますので、最新の期限は中小企業庁・国税庁の公表資料でご確認ください。</p>
+    </div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>出典：社長の平均年齢・後継者不在率・就任経緯・休廃業件数は帝国データバンクの各動向調査（2025年）、休廃業企業の代表者年齢は東京商工リサーチの調査によります。いずれも公表値にもとづく<strong>概数・目安</strong>で、調査主体・集計方法により数値は異なります。</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= まとめ ================= -->
+<section id="matome" class="band round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill plain">まとめ</span>
+        <h2>あなたの会社の承継チェック</h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotCheck" aria-hidden="true"></span></div>
+    </div>
+    <p class="sec-lead">最後に、いまの状況を確認してみましょう。あてはまるもの・できたものをタップ（クリック）してください。</p>
+
+    <div class="score-box">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/><circle cx="12" cy="12" r="9"/></svg>
+        クイズの結果
+      </h3>
+      <div id="sumScore">
+        <p>まだクイズに挑戦していません。<a href="#sec2">②の○×クイズ</a>で、事業承継の思い込みをチェックしてみてください。</p>
+      </div>
+    </div>
+
+    <div class="checklist" id="checklist">
+      <p class="chk-group">調べれば分かること</p>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkList" aria-hidden="true"></span><span><strong>株主名簿</strong>を確認し、誰が何株・議決権の何％を持っているか把握している</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkChart" aria-hidden="true"></span><span><strong>自社株の相続税評価額</strong>を、直近の決算書で試算したことがある（<a href="#sec3">③のシミュレーター</a>）</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkYen" aria-hidden="true"></span><span>後継者が納める税額と、<strong>10ヶ月以内に用意できる現金</strong>を比べた</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkScale" aria-hidden="true"></span><span>後継者以外のご家族の<strong>遺留分</strong>と、その方たちに渡せる財産を確認した</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkBank" aria-hidden="true"></span><span>借入ごとの<strong>連帯保証人</strong>が誰になっているか、一覧で把握している</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkHouse" aria-hidden="true"></span><span>会社が使っている<strong>不動産の名義</strong>と、会社との<strong>賃貸借契約書</strong>の有無を確認した</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkCalendar" aria-hidden="true"></span><span><strong>事業承継税制</strong>を使うかどうかを検討し、使うなら特例承継計画の段取りを決めた</span></label>
+      <p class="chk-group">今日、会社と家でできること</p>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkHands" aria-hidden="true"></span><span><strong>誰に継がせたいか</strong>を、後継者候補と一度きちんと話した（「察してくれている」は、ほぼ幻想です）</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkFamily" aria-hidden="true"></span><span>後継者以外のご家族にも、<strong>会社をどうするつもりか</strong>を伝えてある</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkWill" aria-hidden="true"></span><span><strong>遺言</strong>（できれば公正証書）で、自社株の行き先を決めてある</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkKey" aria-hidden="true"></span><span>定款・株主名簿・登記事項証明書・決算書の<strong>ありか</strong>を、後継者が知っている</span></label>
+    </div>
+    <div class="chk-msg" id="chkMsg">
+      あてはまるものにチェックを入れてみてください。調べれば分かる項目と、今日から動ける項目が混じっています。
+    </div>
+    <div data-cta-mini></div>
+
+    <details class="finder">
+      <summary>「何から手をつければいいか分からない」も、よくあるご相談です</summary>
+      <ul>
+        <li>最初の一歩は<strong>株主名簿と決算書</strong>です。誰が株を持っていて、その株がいくらに評価されるか。この2つが分かれば、打ち手は半分決まります。</li>
+        <li>次に<strong>後継者候補の確認</strong>。親族・社員・第三者の3つを、可能性がある順に並べてみてください。「まだ決めていない」も立派な出発点です。</li>
+        <li>そのうえで<strong>「渡せるか」「払えるか」「もめないか」</strong>の3点をチェック。ここまで来れば、順番と期限が見えてきます。</li>
+        <li>資料が揃っていない状態のままお持ちいただいて、まったく問題ありません。探すところからお手伝いします。</li>
+      </ul>
+      <p>「まだ元気だから」——たしかにそうです。ただ、ご相談でいちばん多い後悔は「元気なうちに決めておけばよかった」のほう。判断能力が落ちてからでは、贈与も、遺言も、株の移動も、できなくなります。</p>
+    </details>
+
+    <details class="finder" style="margin-top:14px;">
+      <summary>「株価を下げてから渡せばいい」——その対策、副作用も一緒に見ていますか</summary>
+      <ul>
+        <li>退職金の支給、含み損の実現、不動産の購入——株価を下げる打ち手はいくつもありますが、どれも<strong>会社の財務や資金繰りに影響</strong>します。</li>
+        <li>持株会社化や不動産の購入は、やり方によって<strong>株式保有特定会社・土地保有特定会社</strong>に当たり、かえって評価の下げ幅が小さくなることがあります。</li>
+        <li>株価を下げた年に渡さなければ意味がありません。<strong>「下げる」と「渡す」はセットで設計する</strong>ものです。</li>
+        <li>行きすぎた対策は否認されることもあります。<strong>事業上の合理性がある打ち手を選ぶ</strong>のが、結局いちばん安全で、いちばん安く済みます。</li>
+      </ul>
+      <p>節税だけを目的にした対策は、会社を弱くすることがあります。私たちがいつも先に確認するのは「その打ち手で、来期の資金繰りは大丈夫ですか」です。</p>
+    </details>
+
+    <div class="cta-box" id="soudan">
+      <h3>「うちの会社の場合」を、<span class="nowrap">30分で整理しませんか</span></h3>
+      <p class="cta-lead">このページの内容は、あくまで一般的なしくみの話です。<strong>自社株がいくらに評価されるか、後継者がいくら払うことになるか、どの制度が使えるか</strong>は、会社ごとにまったく違います。こんなご相談をよくお受けしています。</p>
+      <ul>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>自社株がいくらに評価されるのか、まず概算を知りたい</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>後継者にどう渡すか（贈与・相続・譲渡）を、税金と手続きで比べたい</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>事業承継税制を使うべきか、使わずに済ませるべきか判断したい</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>後継者がいない。M&amp;Aも含めて、選択肢を整理したい</span></li>
+      </ul>
+      <p class="cta-lead">お時間の目安は30分ほど。資料が揃っていなくても大丈夫、探すところからお手伝いします。株価の試算から、渡し方の設計、納税資金の準備、後継者以外のご家族への手当てまで、まとめてご相談いただけます。いただいた個人情報は、ご相談への対応のみに使用し、ご本人の同意なく第三者に提供しません。</p>
+
+      <p class="co">株式会社Office-M</p>
+      <p class="addr">受付：平日 9:00〜17:00</p>
+      <p class="tip">直近3期分の決算書・株主名簿・登記事項証明書がお手元にあると、その場での試算がぐっと具体的になります。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ⚠️公開前チェック（seimeihoken-check・souzoku-check と同じ論点）：
+     株式会社Office-Mは保険募集を行っている。本ページは⑤逆転劇場の第六話などで
+     「死亡退職金の原資として法人契約の生命保険を使う方法がある」という一般的な説明を
+     含むため、代理店独自の募集関連資料に当たるかどうかの確認が必要になり得る。
+     未了の項目：
+       (1) 委託先保険会社の募集文書審査を受けるべきかの確認
+       (2) 承認番号（管理番号）の記載要否と表示位置
+       (3) 会社名のほかに「保険募集人／代理店」である旨の表示が必要かの確認
+     ※本ページは特定の商品・保険会社に触れず、保険を「納税資金・退職金原資の選択肢のひとつ」
+       としてのみ記載している（他社比較・推奨・具体的な設計例は入れていない）。
+     ※税務についても、一般的な制度の解説であり、個別の税額計算・申告は税理士による
+       個別対応が必要である旨を footer に明記している。
+     文面を変える場合は、必ず審査担当の確認を取ってから行うこと -->
+<footer class="disclaimer">
+  <p>本資料は、株式会社Office-Mが事業承継に関する一般的なしくみをご理解いただくために作成した情報提供資料です。特定の保険商品・保険会社の推奨や勧誘、他社商品との比較を目的とするものではありません。掲載している制度・税率・控除額・期限は2026年8月時点の一般的な内容であり、法令および税制は改正されることがあります。ページ内の試算はいずれも概算であり、実際の株式評価額・税額は、決算内容・株主構成・財産の評価方法・特例の適用・遺産分割の内容・その他の事情により異なります。個別の税額計算・申告および制度の適用可否については税理士にご確認ください。会社法・民法上の手続き（定款、株主総会、遺言、遺留分など）については弁護士・司法書士等の専門家にもご相談ください。生命保険の保障内容・保険金額・保険料は、保険会社・商品・ご年齢・健康状態・ご契約内容により異なり、実際の取り扱いは各保険会社の約款によります。ご検討の際は必ず「契約概要」「注意喚起情報」「ご契約のしおり・約款」でご確認ください。</p>
+  <p style="margin-top:10px;">統計の出典：社長の平均年齢・後継者不在率・就任経緯別割合・休廃業件数は株式会社帝国データバンクの各動向調査（2025年）、休廃業企業の代表者年齢は株式会社東京商工リサーチの調査によります。事業承継税制の期限は中小企業庁および国税庁の公表資料によります。いずれも公表値にもとづく<strong>概数・目安</strong>であり、調査主体・年次・集計方法により変動します。</p>
+  <p style="margin-top:10px;">作成：株式会社Office-M（2026年8月）</p>
+</footer>
+
+<!-- ================= 演目詳細モーダル ================= -->
+<div class="cmodal" id="caseModal" aria-hidden="true">
+  <div class="cmodal-back" id="caseModalBack"></div>
+  <div class="cmodal-panel" role="dialog" aria-modal="true" aria-labelledby="caseModalTitle">
+    <div class="cmodal-head" id="caseModalHead">
+      <button type="button" class="cmodal-close" id="caseModalClose" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <div class="cmodal-ico" id="caseModalIco" aria-hidden="true"></div>
+      <div>
+        <span class="cmodal-chip" id="caseModalChip"></span>
+        <h3 class="cmodal-title" id="caseModalTitle"></h3>
+      </div>
+    </div>
+    <div class="cmodal-body">
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 15.5a2 2 0 0 1-2 2H8l-4 3.5v-15a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"/></svg>
+          <span id="caseModalLbl1">ご相談で伺ったお話（脚色あり）</span>
+        </div>
+        <blockquote class="cmodal-quote" id="caseModalStory"></blockquote>
+      </div>
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-red" id="caseModalLbl2Wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+          <span id="caseModalLbl2">何が起きたのか</span>
+        </div>
+        <div id="caseModalWhat"></div>
+      </div>
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-green">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
+          <span id="caseModalLbl3">こうしておけば防げます</span>
+        </div>
+        <div id="caseModalHow"></div>
+      </div>
+      <div data-cta-mini></div>
+      <p class="cmodal-note">※演目は、よくあるご相談をもとにした創作例で、実在の個人・法人・事案とは関係ありません。制度の適用可否・税額は、会社の状況やご家族の状況、その時点の法令により異なります。実際のご判断の前に、個別にご確認ください。</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- 案内役のイラスト ---------- */
+var SVG_GUIDE =
+  '<svg viewBox="0 0 64 64">' +
+  '<circle cx="32" cy="32" r="32" fill="#ffeee3"/>' +
+  '<path d="M8 64c0-13 11-20 24-20s24 7 24 20H8Z" fill="#f0846a"/>' +
+  '<rect x="27" y="39" width="10" height="11" rx="5" fill="#f7cdb4"/>' +
+  '<path d="M25 45l7 9 7-9 3.4 1.8L32 61 21.6 46.8Z" fill="#fff"/>' +
+  '<ellipse cx="32" cy="28" rx="16" ry="17" fill="#5c4030"/>' +
+  '<ellipse cx="32" cy="30" rx="12.5" ry="13.5" fill="#f7cdb4"/>' +
+  '<path d="M19.5 27c0-9 5.6-14.5 12.5-14.5S44.5 18 44.5 27c-1.6-3.6-4.2-5.7-7.2-6.6-2.6 2.4-7 3.8-10.9 3.2-1.4 1-2.4 2.1-2.9 3.4Z" fill="#5c4030"/>' +
+  '<circle cx="27" cy="30" r="1.6" fill="#3d3028"/><circle cx="37" cy="30" r="1.6" fill="#3d3028"/>' +
+  '<path d="M29.4 35.6c1.6 1.7 3.6 1.7 5.2 0" fill="none" stroke="#3d3028" stroke-width="1.6" stroke-linecap="round"/>' +
+  '</svg>';
+document.querySelectorAll('[data-guide]').forEach(function(el){ el.innerHTML = SVG_GUIDE; });
+
+/* ---------- アイコン ---------- */
+var ARTS = {
+  icHouse:
+    '<svg viewBox="0 0 64 64">' +
+    '<path d="M32 12 8 32h6v20h36V32h6L32 12Z" fill="#63b8dd"/>' +
+    '<path d="M6 33 32 11l26 22" fill="none" stroke="#24729f" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<rect x="26" y="38" width="12" height="14" rx="2" fill="#fff"/>' +
+    '</svg>',
+  icPolicy:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="13" y="9" width="38" height="46" rx="5" fill="#fffdf8" stroke="#c2453f" stroke-width="3"/>' +
+    '<rect x="20" y="18" width="24" height="4" rx="2" fill="#c2453f"/>' +
+    '<rect x="20" y="27" width="24" height="3" rx="1.5" fill="#e0cfc4"/>' +
+    '<rect x="20" y="34" width="16" height="3" rx="1.5" fill="#e0cfc4"/>' +
+    '<path d="M32 52s-11-6-11-13c0-4 3-7 6.4-7 1.9 0 3.5.9 4.6 2.3 1.1-1.4 2.7-2.3 4.6-2.3 3.4 0 6.4 3 6.4 7 0 7-11 13-11 13Z" fill="#f0846a"/>' +
+    '</svg>',
+  icBook:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="12" y="12" width="40" height="40" rx="5" fill="#4fbf9b"/>' +
+    '<rect x="18" y="12" width="34" height="40" rx="5" fill="#fffdf8" stroke="#2c7a4b" stroke-width="2.5"/>' +
+    '<rect x="24" y="21" width="22" height="4" rx="2" fill="#2c7a4b"/>' +
+    '<rect x="24" y="30" width="22" height="3" rx="1.5" fill="#d9cfc4"/>' +
+    '<rect x="24" y="37" width="14" height="3" rx="1.5" fill="#d9cfc4"/>' +
+    '</svg>',
+  icYen:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="21" fill="#f7c34e"/>' +
+    '<circle cx="32" cy="32" r="16" fill="none" stroke="#d99a1e" stroke-width="2"/>' +
+    '<path d="M24 22l8 10 8-10M25 34h14M25 40h14M32 32v12" fill="none" stroke="#8a5b12" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '</svg>',
+  icCash:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="8" y="18" width="48" height="28" rx="4" fill="#b3e3b8" stroke="#2c7a4b" stroke-width="2.5"/>' +
+    '<circle cx="32" cy="32" r="8" fill="#fffdf8" stroke="#2c7a4b" stroke-width="2"/>' +
+    '<path d="M28 27l4 5 4-5M29 33h6M29 37h6M32 32v6" fill="none" stroke="#2c7a4b" stroke-width="2.2" stroke-linecap="round"/>' +
+    '<path d="M14 24v16M50 24v16" stroke="#2c7a4b" stroke-width="2" stroke-linecap="round"/>' +
+    '</svg>',
+  icFamily:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="18" cy="22" r="8" fill="#f7cdb4"/><path d="M6 50c0-8 5.4-14 12-14s12 6 12 14Z" fill="#63b8dd"/>' +
+    '<circle cx="45" cy="22" r="8" fill="#f7cdb4"/><path d="M33 50c0-8 5.4-14 12-14s12 6 12 14Z" fill="#f0846a"/>' +
+    '<circle cx="32" cy="38" r="6" fill="#f7cdb4"/><path d="M23 55c0-6 4-10 9-10s9 4 9 10Z" fill="#f7c34e"/>' +
+    '</svg>',
+  icCalendar:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="10" y="14" width="44" height="40" rx="6" fill="#fffdf8" stroke="#a8701a" stroke-width="3"/>' +
+    '<path d="M10 26h44" stroke="#a8701a" stroke-width="3"/>' +
+    '<path d="M22 9v10M42 9v10" stroke="#a8701a" stroke-width="4" stroke-linecap="round"/>' +
+    '<circle cx="32" cy="40" r="9" fill="#fdeee9"/>' +
+    '<path d="M32 34v7l4 3" fill="none" stroke="#c2453f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '</svg>',
+  icClock:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="34" r="22" fill="#e8f4fb" stroke="#24729f" stroke-width="3.5"/>' +
+    '<path d="M32 20v15l10 6" fill="none" stroke="#c2453f" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M22 8l-8 6M42 8l8 6" stroke="#24729f" stroke-width="4" stroke-linecap="round"/>' +
+    '</svg>',
+  icScale:
+    '<svg viewBox="0 0 64 64">' +
+    '<path d="M32 12v40" stroke="#27587f" stroke-width="4" stroke-linecap="round"/>' +
+    '<path d="M14 20h36" stroke="#27587f" stroke-width="4" stroke-linecap="round"/>' +
+    '<circle cx="32" cy="14" r="4.5" fill="#27587f"/>' +
+    '<path d="M14 20 6 38h16Z" fill="#f0846a"/>' +
+    '<path d="M50 20l-8 18h16Z" fill="#f7c34e"/>' +
+    '<rect x="21" y="50" width="22" height="6" rx="3" fill="#27587f"/>' +
+    '</svg>',
+  icHands:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="22" r="9" fill="#f7c34e"/>' +
+    '<path d="M28 18l4 5 4-5M29 25h6M32 23v6" fill="none" stroke="#8a5b12" stroke-width="2.4" stroke-linecap="round"/>' +
+    '<path d="M6 44c6-6 12-6 18-2l6 4h8c3 0 3 4 0 4H22" fill="none" stroke="#f0846a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M58 44c-6-6-12-6-18-2" fill="none" stroke="#63b8dd" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '</svg>',
+  icGrave:
+    '<svg viewBox="0 0 64 64">' +
+    '<path d="M20 52V26a12 12 0 0 1 24 0v26Z" fill="#c3cfd8" stroke="#8fa1ad" stroke-width="2.5"/>' +
+    '<rect x="12" y="50" width="40" height="7" rx="3" fill="#8fa1ad"/>' +
+    '<path d="M32 30v14M26 36h12" stroke="#fff" stroke-width="3" stroke-linecap="round"/>' +
+    '<path d="M14 46c0-4 3-7 6-7" fill="none" stroke="#4fbf9b" stroke-width="3.5" stroke-linecap="round"/>' +
+    '</svg>',
+  icWill:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="14" y="8" width="36" height="48" rx="4" fill="#fffdf8" stroke="#8f4574" stroke-width="3"/>' +
+    '<rect x="21" y="18" width="22" height="4" rx="2" fill="#8f4574"/>' +
+    '<rect x="21" y="28" width="22" height="3" rx="1.5" fill="#ddd0d8"/>' +
+    '<rect x="21" y="35" width="16" height="3" rx="1.5" fill="#ddd0d8"/>' +
+    '<circle cx="40" cy="46" r="7" fill="#c2453f" opacity=".85"/>' +
+    '</svg>',
+  icKey:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="22" cy="26" r="12" fill="none" stroke="#a8701a" stroke-width="5"/>' +
+    '<path d="M30 34l20 20M42 46l6 6M36 40l6 6" fill="none" stroke="#a8701a" stroke-width="5" stroke-linecap="round"/>' +
+    '</svg>',
+  icCalc:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="14" y="8" width="36" height="48" rx="6" fill="#fffdf8" stroke="#27587f" stroke-width="3"/>' +
+    '<rect x="20" y="15" width="24" height="10" rx="3" fill="#e8f4fb"/>' +
+    '<circle cx="24" cy="34" r="3.2" fill="#27587f"/><circle cx="34" cy="34" r="3.2" fill="#27587f"/><circle cx="44" cy="34" r="3.2" fill="#f0846a"/>' +
+    '<circle cx="24" cy="44" r="3.2" fill="#27587f"/><circle cx="34" cy="44" r="3.2" fill="#27587f"/><circle cx="44" cy="44" r="3.2" fill="#f0846a"/>' +
+    '</svg>',
+  icList:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="12" y="8" width="40" height="48" rx="5" fill="#fffdf8" stroke="#27587f" stroke-width="3"/>' +
+    '<path d="m20 22 3 3 6-6M20 34l3 3 6-6M20 46l3 3 6-6" fill="none" stroke="#4fbf9b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<rect x="33" y="20" width="12" height="3" rx="1.5" fill="#d9cfc4"/>' +
+    '<rect x="33" y="32" width="12" height="3" rx="1.5" fill="#d9cfc4"/>' +
+    '<rect x="33" y="44" width="12" height="3" rx="1.5" fill="#d9cfc4"/>' +
+    '</svg>',
+  icShield:
+    '<svg viewBox="0 0 64 64">' +
+    '<path d="M32 6 12 13v14c0 13 8.5 24 20 27 11.5-3 20-14 20-27V13L32 6Z" fill="#1b3f5e"/>' +
+    '<path d="m23 32 6 6 13-14" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '</svg>',
+  icHome:
+    '<svg viewBox="0 0 64 64">' +
+    '<path d="M32 12 10 30h5v22h34V30h5L32 12Z" fill="#1b3f5e"/>' +
+    '<rect x="27" y="38" width="10" height="14" rx="2" fill="#fff"/>' +
+    '<path d="M50 10l2.5 5.5L58 18l-5.5 2.5L50 26l-2.5-5.5L42 18l5.5-2.5Z" fill="#f7c34e"/>' +
+    '</svg>',
+  icChart:
+    '<svg viewBox="0 0 64 64">' +
+    '<rect x="10" y="36" width="10" height="18" rx="2" fill="#1b3f5e"/>' +
+    '<rect x="26" y="26" width="10" height="28" rx="2" fill="#1b3f5e"/>' +
+    '<rect x="42" y="14" width="10" height="40" rx="2" fill="#1b3f5e"/>' +
+    '<path d="M12 26l14-10 12 6 14-14" fill="none" stroke="#f0846a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M44 8h10v10" fill="none" stroke="#f0846a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '</svg>',
+  icUp:
+    '<svg viewBox="0 0 64 64">' +
+    '<ellipse cx="20" cy="50" rx="13" ry="5" fill="#d99a1e"/>' +
+    '<ellipse cx="20" cy="44" rx="13" ry="5" fill="#f7c34e"/>' +
+    '<ellipse cx="20" cy="38" rx="13" ry="5" fill="#f7c34e"/>' +
+    '<path d="M36 40 52 18" stroke="#e8542a" stroke-width="5" stroke-linecap="round"/>' +
+    '<path d="M56 12l-2 14-12-4Z" fill="#e8542a"/>' +
+    '</svg>',
+  spotHouse:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="24" fill="#e8f4fb"/>' +
+    '<path d="M32 14 14 30h4v18h28V30h4L32 14Z" fill="#63b8dd"/>' +
+    '<rect x="27" y="36" width="10" height="12" rx="2" fill="#fff"/>' +
+    '</svg>',
+  spotQuiz:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="24" fill="#e8f4fb"/>' +
+    '<path d="M25 26.5c.6-4.2 3.6-6.6 7.4-6.6 4.2 0 7.4 2.8 7.4 6.8 0 3.4-2 5.2-4.4 6.8-2 1.3-2.9 2.3-2.9 4.5" fill="none" stroke="#24729f" stroke-width="3.4" stroke-linecap="round"/>' +
+    '<circle cx="32.4" cy="45" r="2.6" fill="#f0846a"/>' +
+    '</svg>',
+  spotCalc:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="24" fill="#fdf3e2"/>' +
+    '<rect x="20" y="14" width="24" height="36" rx="5" fill="#fffdf8" stroke="#a8701a" stroke-width="2.6"/>' +
+    '<rect x="25" y="19" width="14" height="7" rx="2" fill="#fdf3e2"/>' +
+    '<circle cx="27" cy="34" r="2.6" fill="#a8701a"/><circle cx="37" cy="34" r="2.6" fill="#f0846a"/>' +
+    '<circle cx="27" cy="43" r="2.6" fill="#a8701a"/><circle cx="37" cy="43" r="2.6" fill="#f0846a"/>' +
+    '</svg>',
+  spotTheater:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="24" fill="#fdeee9"/>' +
+    '<path d="M16 20h32v14c0 9-7 16-16 16s-16-7-16-16Z" fill="#f0846a"/>' +
+    '<circle cx="25" cy="31" r="2.6" fill="#fff"/><circle cx="39" cy="31" r="2.6" fill="#fff"/>' +
+    '<path d="M25 39c3.5 3.5 10.5 3.5 14 0" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>' +
+    '</svg>',
+  spotGift:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="24" fill="#e8f6ef"/>' +
+    '<rect x="16" y="28" width="32" height="20" rx="3" fill="#4fbf9b"/>' +
+    '<rect x="14" y="22" width="36" height="8" rx="3" fill="#2c7a4b"/>' +
+    '<path d="M32 22v26" stroke="#fff" stroke-width="3.4"/>' +
+    '<path d="M32 22s-8-1-10-4a3.6 3.6 0 0 1 5.4-4.6C29.6 15.6 32 22 32 22Zm0 0s8-1 10-4a3.6 3.6 0 0 0-5.4-4.6C34.4 15.6 32 22 32 22Z" fill="#f7c34e"/>' +
+    '</svg>',
+  spotClock:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="24" fill="#e8f4fb"/>' +
+    '<circle cx="32" cy="32" r="17" fill="#fff" stroke="#24729f" stroke-width="3"/>' +
+    '<path d="M32 21v12l8 5" fill="none" stroke="#c2453f" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '</svg>',
+  spotUp:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="24" fill="#fdf3e2"/>' +
+    '<path d="M16 42l10-9 8 5 14-15" fill="none" stroke="#e8542a" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M38 22h12v12" fill="none" stroke="#e8542a" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '</svg>',
+  spotCheck:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="24" fill="#e8f6ef"/>' +
+    '<rect x="21" y="15" width="22" height="30" rx="4" fill="#fff" stroke="#2c7a4b" stroke-width="2.6"/>' +
+    '<path d="m26 27 3 3 6-6M26 37l3 3 6-6" fill="none" stroke="#4fbf9b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '</svg>'
+};
+
+/* ---------- このページで追加するアイコン ---------- */
+ARTS.icKabu =
+  '<svg viewBox="0 0 64 64">' +
+  '<rect x="7" y="16" width="50" height="32" rx="4" fill="#fdf3e2" stroke="#d99a1e" stroke-width="3"/>' +
+  '<rect x="14" y="23" width="22" height="5" rx="2.5" fill="#a8701a"/>' +
+  '<rect x="14" y="33" width="30" height="3.5" rx="1.75" fill="#e0cfc4"/>' +
+  '<rect x="14" y="40" width="18" height="3.5" rx="1.75" fill="#e0cfc4"/>' +
+  '<circle cx="46" cy="38" r="9" fill="none" stroke="#c2453f" stroke-width="3"/>' +
+  '<path d="M41 38h10M46 33v10" stroke="#c2453f" stroke-width="2.6" stroke-linecap="round"/>' +
+  '</svg>';
+ARTS.icSeal =
+  '<svg viewBox="0 0 64 64">' +
+  '<rect x="20" y="8" width="24" height="30" rx="5" fill="#c3cfd8"/>' +
+  '<rect x="16" y="36" width="32" height="12" rx="4" fill="#8fa1ad"/>' +
+  '<circle cx="32" cy="52" r="9" fill="#fdeee9" stroke="#c2453f" stroke-width="3"/>' +
+  '<path d="M28 52h8M32 48v8" stroke="#c2453f" stroke-width="2.4" stroke-linecap="round"/>' +
+  '</svg>';
+ARTS.icPeople =
+  '<svg viewBox="0 0 64 64">' +
+  '<circle cx="14" cy="20" r="7" fill="#f7cdb4"/><path d="M3 46c0-7 5-12 11-12s11 5 11 12Z" fill="#63b8dd"/>' +
+  '<circle cx="50" cy="20" r="7" fill="#f7cdb4"/><path d="M39 46c0-7 5-12 11-12s11 5 11 12Z" fill="#8f4574"/>' +
+  '<circle cx="32" cy="30" r="8" fill="#f7cdb4"/><path d="M20 58c0-8 5.4-13 12-13s12 5 12 13Z" fill="#f0846a"/>' +
+  '<path d="M25 22h14" stroke="#d9cfc4" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="4 4"/>' +
+  '</svg>';
+ARTS.icBank =
+  '<svg viewBox="0 0 64 64">' +
+  '<path d="M32 8 6 22h52L32 8Z" fill="#1b3f5e"/>' +
+  '<rect x="6" y="26" width="52" height="5" rx="2.5" fill="#27587f"/>' +
+  '<rect x="13" y="33" width="7" height="17" rx="2" fill="#63b8dd"/>' +
+  '<rect x="28" y="33" width="7" height="17" rx="2" fill="#63b8dd"/>' +
+  '<rect x="43" y="33" width="7" height="17" rx="2" fill="#63b8dd"/>' +
+  '<rect x="6" y="52" width="52" height="6" rx="3" fill="#27587f"/>' +
+  '</svg>';
+ARTS.icBiz =
+  '<svg viewBox="0 0 64 64">' +
+  '<rect x="8" y="12" width="28" height="44" rx="4" fill="#1b3f5e"/>' +
+  '<rect x="36" y="26" width="20" height="30" rx="4" fill="#f0846a"/>' +
+  '<rect x="14" y="19" width="7" height="7" rx="1.6" fill="#fffdf8"/><rect x="24" y="19" width="7" height="7" rx="1.6" fill="#63b8dd"/>' +
+  '<rect x="14" y="30" width="7" height="7" rx="1.6" fill="#63b8dd"/><rect x="24" y="30" width="7" height="7" rx="1.6" fill="#fffdf8"/>' +
+  '<rect x="14" y="41" width="7" height="7" rx="1.6" fill="#fffdf8"/><rect x="24" y="41" width="7" height="7" rx="1.6" fill="#63b8dd"/>' +
+  '<rect x="41" y="33" width="10" height="6" rx="1.6" fill="#fffdf8"/>' +
+  '<rect x="41" y="43" width="10" height="6" rx="1.6" fill="#fffdf8"/>' +
+  '</svg>';
+ARTS.icHandshake =
+  '<svg viewBox="0 0 64 64">' +
+  '<path d="M4 26h13l9 7 6-3 8 4 12-8h8" fill="none" stroke="#d9cfc4" stroke-width="0"/>' +
+  '<rect x="4" y="24" width="15" height="20" rx="3" fill="#63b8dd"/>' +
+  '<rect x="45" y="24" width="15" height="20" rx="3" fill="#f0846a"/>' +
+  '<path d="M19 30c5-3 9-3 13 1l6 5c2 2 0 5-3 4l-5-3" fill="none" stroke="#f7cdb4" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>' +
+  '<path d="M45 30c-5-3-10-3-14 1" fill="none" stroke="#f7cdb4" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>' +
+  '<path d="M30 40c3 2 7 4 10 3" fill="none" stroke="#f7cdb4" stroke-width="5" stroke-linecap="round"/>' +
+  '</svg>';
+ARTS.icPlan =
+  '<svg viewBox="0 0 64 64">' +
+  '<rect x="12" y="8" width="40" height="48" rx="5" fill="#fffdf8" stroke="#2c7a4b" stroke-width="3"/>' +
+  '<rect x="24" y="4" width="16" height="9" rx="4" fill="#2c7a4b"/>' +
+  '<rect x="20" y="22" width="24" height="4" rx="2" fill="#2c7a4b"/>' +
+  '<rect x="20" y="31" width="24" height="3" rx="1.5" fill="#d9cfc4"/>' +
+  '<rect x="20" y="38" width="16" height="3" rx="1.5" fill="#d9cfc4"/>' +
+  '<path d="m21 48 4 4 9-9" fill="none" stroke="#4fbf9b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>' +
+  '</svg>';
+ARTS.spotBiz =
+  '<svg viewBox="0 0 64 64">' +
+  '<circle cx="32" cy="32" r="25" fill="#e8f4fb"/>' +
+  '<rect x="14" y="18" width="20" height="30" rx="3" fill="#1b3f5e"/>' +
+  '<rect x="34" y="28" width="16" height="20" rx="3" fill="#f0846a"/>' +
+  '<rect x="19" y="23" width="5" height="5" rx="1.2" fill="#fff"/><rect x="26" y="23" width="5" height="5" rx="1.2" fill="#63b8dd"/>' +
+  '<rect x="19" y="32" width="5" height="5" rx="1.2" fill="#63b8dd"/><rect x="26" y="32" width="5" height="5" rx="1.2" fill="#fff"/>' +
+  '<rect x="19" y="41" width="5" height="5" rx="1.2" fill="#fff"/><rect x="26" y="41" width="5" height="5" rx="1.2" fill="#63b8dd"/>' +
+  '<rect x="38" y="34" width="8" height="4" rx="1.2" fill="#fff"/><rect x="38" y="41" width="8" height="4" rx="1.2" fill="#fff"/>' +
+  '</svg>';
+
+/* 別名（同じ絵を使い回す） */
+ARTS.qKabu = ARTS.icKabu;        ARTS.qSeal = ARTS.icSeal;
+ARTS.qPeople = ARTS.icPeople;    ARTS.qBank = ARTS.icBank;
+ARTS.qHandshake = ARTS.icHandshake; ARTS.qPlan = ARTS.icPlan;
+ARTS.chkChart = ARTS.icChart;    ARTS.chkScale = ARTS.icScale;
+ARTS.chkBank = ARTS.icBank;      ARTS.chkKabu = ARTS.icKabu;
+ARTS.chkPlan = ARTS.icPlan;
+ARTS.chkList = ARTS.icList;      ARTS.chkYen = ARTS.icYen;
+ARTS.chkHouse = ARTS.icHouse;    ARTS.chkCalendar = ARTS.icCalendar;
+ARTS.chkHands = ARTS.icHands;    ARTS.chkFamily = ARTS.icFamily;
+ARTS.chkWill = ARTS.icWill;      ARTS.chkKey = ARTS.icKey;
+
+document.querySelectorAll('[data-art]').forEach(function(el){
+  var key = el.getAttribute('data-art');
+  if(ARTS[key]) el.innerHTML = ARTS[key];
+});
+
+/* ---------- ミニCTA ---------- */
+var CTA_MINI =
+  '<div class="cta-mini"><p>「うちの会社はどうなんだろう」と思ったら、それが決算書と株主名簿を並べるタイミングです。揃っていない状態で大丈夫、お気軽にどうぞ。</p>' +
+  '<a href="#soudan">' +
+  '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="m3 7 9 6 9-6"/></svg>' +
+  '無料で相談してみる</a></div>';
+document.querySelectorAll('[data-cta-mini]').forEach(function(el){ el.innerHTML = CTA_MINI; });
+
+/* ---------- 数字の書式 ---------- */
+function comma(n){ return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+function fmtMan(man){
+  man = Math.round(man);
+  if(man <= 0) return '0円';
+  if(man >= 10000){
+    var oku = Math.floor(man / 10000), rest = man - oku * 10000;
+    return oku + '億' + (rest ? comma(rest) + '万円' : '円');
+  }
+  return comma(man) + '万円';
+}
+
+/* ---------- セクション2：○×クイズ ---------- */
+/* a: true = 「はい」が正解, false = 「いいえ」が正解 */
+var QUIZ = [
+  {
+    icon:'icSeal', a:false, yes:'息子のものになった', no:'まだなっていない',
+    q:'代表取締役を息子に変更する登記をした。これで会社は息子のものになった？',
+    expl:'代表取締役は「会社を代表して動く人」、株主は「会社の持ち主」です。登記を変えても株は1株も動きません。しかも役員を選ぶのも解任するのも株主総会。議決権の過半数を持っている人が、いつでも社長を替えられる立場のままです。「社長を譲る」と「会社を譲る」は、まったく別の手続きなのです。',
+    wana:'代表者の変更登記と、株式の移転（贈与・譲渡・遺言）は別の手続き。登記簿を見ても、誰が株主かは分からない。',
+    check:'株主名簿。誰が何株持っていて、議決権の割合はどうなっているか。これが事業承継のスタート地点です。'
+  },
+  {
+    icon:'icChart', a:false, yes:'評価はゼロ', no:'ゼロにはならない',
+    q:'10年以上ずっと無配。上場もしていないし、買ってくれる人もいない。この自社株の相続税評価額はゼロ？',
+    expl:'相続税・贈与税の世界では、非上場株式は「売れるかどうか」ではなく、決められた方式（類似業種比準価額・純資産価額など）で評価します。利益を出してきた会社ほど、また土地や保険積立金に含み益がある会社ほど、評価額は積み上がります。無配・非上場・買い手なしでも、評価額が1億円を超えることは珍しくありません。「売れないのに、税金だけはかかる」——これが自社株のいちばん困った性質です。',
+    wana:'「値段がつかない＝評価もゼロ」ではない。むしろ堅実にコツコツやってきた会社ほど高く評価される。',
+    check:'直近の決算書の純資産（自己資本）。まずはそこを目安に、株価の概算を出してみることから。'
+  },
+  {
+    icon:'icWill', a:false, yes:'文句は出ない', no:'請求されることがある',
+    q:'「自社株はすべて長男に」と公正証書遺言を残した。これで他のお子さまから文句が出ることはない？',
+    expl:'遺言があれば、株そのものは長男に渡ります。ただし2019年の改正で、遺留分は「お金で払え」と請求できる金銭債権になりました（遺留分侵害額請求）。株を返せとは言われませんが、代わりに「現金」を用意しなければなりません。財産の大半が自社株というご家庭ほど、この請求は大きくなります。しかも払うのは会社ではなく、後継者個人です。',
+    wana:'遺言で「分け方」は決められるが、「遺留分」までは消せない。しかも現在は現金での請求。',
+    check:'財産に占める自社株の割合と、後継者以外の相続人の遺留分（法定相続分の2分の1が目安）。'
+  },
+  {
+    icon:'icShield', a:false, yes:'免除される', no:'免除ではない',
+    q:'事業承継税制（特例措置）を使えば、自社株にかかる贈与税・相続税は免除される？',
+    expl:'あれは「猶予」であって「免除」ではありません。後継者が代表を退く、対象の株を売る、会社が資産管理会社に該当する——こうした取消事由に当たると、猶予されていた税金を利子税とあわせて納めることになります。届出（都道府県への年次報告と、税務署への継続届出書）を忘れただけで取り消される例も現実にあります。もっとも、後継者が次の代へ再び贈与する、あるいは後継者が亡くなるといった場合には猶予税額が免除されます。「走り続けるかぎり払わなくていい制度」と考えるのが正確です。',
+    wana:'「税金ゼロ」の見出しだけが独り歩きしている。実態は長い長い猶予で、条件を外すと一括で来る。',
+    check:'猶予されている税額はいくらか。取消事由と、5年間の年次報告・その後の継続届出書の担当者を決めてあるか。'
+  },
+  {
+    icon:'icCalendar', a:true, yes:'必要', no:'不要',
+    q:'事業承継税制の特例措置を使うには、あらかじめ「特例承継計画」を出しておく必要がある？',
+    expl:'必要です。しかも締切が2つあります。令和8年度税制改正で、法人版の特例承継計画の提出期限は2027年（令和9年）9月30日まで1年6ヶ月延長されました。ところが、実際に贈与・相続で株を動かす期限は2027年（令和9年）12月31日のまま据え置き。計画の締切と実行の締切の間は、わずか3ヶ月です。なお計画は、出しておいて使わなくても罰則はありません。いちばん安いお守りだと言われるのはこのためです。',
+    wana:'期限が2つあり、延びたのは前の1つだけ。後ろの締切（贈与・相続の実行）は動いていない。',
+    check:'特例承継計画を出してあるか。出していないなら、認定経営革新等支援機関（税理士など）と作成の段取りを。税制は改正されることがあるため、最新の期限は中小企業庁の公表資料でご確認ください。'
+  },
+  {
+    icon:'icHouse', a:false, yes:'入らない', no:'相続財産に入る',
+    q:'会社の工場が建っている土地は、社長個人の名義。会社が使っているのだから、社長の相続財産には入らない？',
+    expl:'名義が個人なら、その土地は社長の相続財産です。会社に貸していれば貸宅地などとして評価が下がることはありますが、ゼロにはなりません。本当に怖いのは、その土地を後継者以外の方が相続したときです。会社は他人から土地を借りる形になり、地代の値上げや明け渡しの話が持ち上がれば、事業そのものが揺れます。なお一定の要件を満たせば、特定同族会社事業用宅地等の特例（400㎡まで80％減）が使えます。',
+    wana:'「会社が使っている＝会社のもの」ではない。登記簿の名義がすべて。',
+    check:'会社が使っている不動産の名義と、会社との賃貸借契約書の有無。地代の設定（無償だと特例が使えないことがあります）。'
+  },
+  {
+    icon:'icBank', a:false, yes:'自動的に外れる', no:'自動では外れない',
+    q:'後継者に代表を譲れば、社長個人の連帯保証も自動的に外れる？',
+    expl:'保証は金融機関との契約なので、代表を降りたからといって自動では外れません。放っておくと、前社長は保証を抱えたまま、後継者にも保証を求められる「二重に保証がある」状態になりがちです。ただし「経営者保証に関するガイドライン」の事業承継時の特則で、前経営者と後継者の双方から保証を取ること（二重徴求）は原則として行わない、という整理がされています。交渉のテーブルはあります。黙っていると、そのままです。',
+    wana:'「代表者の交代＝保証人の交代」ではない。解除には金融機関との個別の合意が要る。',
+    check:'借入ごとの保証人が誰になっているか。法人と個人の資産・経理が分けられているか。次の借換えや条件変更が交渉の好機です。'
+  },
+  {
+    icon:'icHandshake', a:false, yes:'廃業するしかない', no:'ほかにも道がある',
+    q:'親族に継ぐ人がいない会社は、廃業するしかない？',
+    expl:'いいえ。2025年の調査では、社長の就任経緯は内部昇格が36.1％で同族承継の32.3％を上回り、M&Aほかも20.6％あります。社員に継いでもらう、第三者に譲るという道は、もう特別な選択肢ではありません。問題はむしろ時間切れのほうです。2025年に休廃業・解散した企業は6万7,949件、そのうち直前期が黒字だった会社が49.1％。「継ぐ人が決まらないまま、黒字のまま、静かに閉じる」会社が、毎年これだけあります。',
+    wana:'「継がせられない＝畳むしかない」という思い込み。選択肢が減るのは、選ぶのが遅れたときだけ。',
+    check:'親族内・従業員・第三者の3つを、いつまでに検討するか。期限を先に決めることが、いちばんの対策になります。'
+  }
+];
+
+var qIdx = 0, qScore = 0, qAnswered = false, qAnsweredCount = 0;
+var wrongItems = [];
+
+var elNum   = document.getElementById('qNum');
+var elDots  = document.getElementById('qDots');
+var elIcon  = document.getElementById('qIcon');
+var elText  = document.getElementById('qText');
+var btnYes  = document.getElementById('btnYes');
+var btnNo   = document.getElementById('btnNo');
+var lblYes  = document.getElementById('lblYes');
+var lblNo   = document.getElementById('lblNo');
+var elVerd  = document.getElementById('verdict');
+var elVAns  = document.getElementById('vAnswer');
+var elVChip = document.getElementById('vChip');
+var elVExpl = document.getElementById('vExpl');
+var elVWana = document.getElementById('vWana');
+var elVChk  = document.getElementById('vCheck');
+var btnNext = document.getElementById('btnNext');
+var btnStop = document.getElementById('btnStopHere');
+var quizPlay = document.getElementById('quizPlay');
+var quizDone = document.getElementById('quizDone');
+
+function renderDots(){
+  var html = '';
+  for(var i = 0; i < QUIZ.length; i++){
+    html += '<i class="' + (i < qIdx ? 'done' : (i === qIdx ? 'now' : '')) + '"></i>';
+  }
+  elDots.innerHTML = html;
+}
+
+function renderQ(){
+  var item = QUIZ[qIdx];
+  elNum.textContent = qIdx + 1;
+  elIcon.innerHTML = ARTS[item.icon] || '';
+  elText.textContent = item.q;
+  lblYes.textContent = item.yes || 'はい';
+  lblNo.textContent = item.no || 'いいえ';
+  btnYes.disabled = false;
+  btnNo.disabled = false;
+  qAnswered = false;
+  elVerd.classList.remove('show');
+  btnNext.style.display = 'none';
+  btnStop.style.display = 'none';
+  renderDots();
+}
+
+function answer(ansYes){
+  if(qAnswered) return;
+  qAnswered = true;
+  qAnsweredCount++;
+  btnYes.disabled = true;
+  btnNo.disabled = true;
+  var item = QUIZ[qIdx];
+  var correct = (ansYes === item.a);
+  if(correct) qScore++;
+  else wrongItems.push(item);
+  elVAns.textContent = '正解は「' + (item.a ? (item.yes || 'はい') : (item.no || 'いいえ')) + '」';
+  elVChip.textContent = correct ? 'ご名答！' : 'ざんねん、ここがワナ';
+  elVChip.className = 'result-chip ' + (correct ? 'correct' : 'wrong');
+  elVExpl.textContent = item.expl;
+  elVWana.textContent = item.wana;
+  elVChk.textContent = item.check;
+  elVerd.classList.add('show');
+  btnNext.style.display = 'flex';
+  if(qIdx >= QUIZ.length - 1){
+    btnNext.innerHTML = '結果を見る <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  } else if(qIdx >= 2){
+    btnStop.style.display = 'block';
+  }
+}
+
+function doneComment(score, total){
+  var full = (total === QUIZ.length);
+  if(score === total && full){
+    return '全問正解！　あなたはもう、事業承継の落とし穴をひととおりご存じの方です。あとはその知識を、自社の株主名簿と決算書に当てはめるだけ。当てはめた結果が気になったら、いつでもどうぞ。';
+  }
+  var r = score / total;
+  if(r >= 0.75){
+    return 'かなりの好成績です。ただ、クイズで間違えても失うのは1問ですが、実際の承継で「知らなかった」が起こると、失うのは数千万円か、会社そのもの。惜しかった問題こそ、自社の状況で答え合わせを。';
+  }
+  if(r >= 0.4){
+    return '約半分がワナにかかりました。ご安心ください、ご相談でお会いする社長も、だいたい同じです。事業承継は一生に一度のこと。知らないのが普通で、知っている人が間に合うようにできています。';
+  }
+  return 'ワナに全力でかかりました。でも、それが普通です。むしろクイズで引っかかっておけば、実際の承継で引っかからずに済みます。今日が人生でいちばん事業承継にくわしい日。この勢いで、株主名簿の確認までいきましょう。';
+}
+
+function showDone(){
+  quizPlay.style.display = 'none';
+  quizDone.classList.add('show');
+  document.getElementById('doneTotal').textContent = qAnsweredCount;
+  document.getElementById('doneScore').textContent = qScore;
+  document.getElementById('doneCmt').textContent = doneComment(qScore, qAnsweredCount);
+  var wl = document.getElementById('wrongList');
+  if(wrongItems.length){
+    var html = '<h4>ワナにかかった問題（＝わが社で確認したい項目）</h4>';
+    for(var i = 0; i < wrongItems.length; i++){
+      html += '<div class="w-item"><strong>' + wrongItems[i].q + '</strong><br>確認ポイント：' + wrongItems[i].check + '</div>';
+    }
+    wl.innerHTML = html;
+    wl.style.display = 'block';
+  } else {
+    wl.style.display = 'none';
+  }
+  var sum = document.getElementById('sumScore');
+  sum.innerHTML = '<p>○×クイズの結果：<strong>' + qAnsweredCount + '問中 ' + qScore + '問正解</strong>でした。' +
+    (wrongItems.length ? '間違えた問題は、そのまま「わが社で確認したいことリスト」になります。' : 'この調子で、下のチェックリストもどうぞ。') + '</p>';
+}
+
+btnYes.addEventListener('click', function(){ answer(true); });
+btnNo.addEventListener('click', function(){ answer(false); });
+btnNext.addEventListener('click', function(){
+  if(qIdx >= QUIZ.length - 1){ showDone(); return; }
+  qIdx++;
+  renderQ();
+  var shell = document.querySelector('.quiz-shell');
+  if(shell.getBoundingClientRect().top < 0) shell.scrollIntoView({behavior:'smooth'});
+});
+btnStop.addEventListener('click', showDone);
+document.getElementById('btnRetry').addEventListener('click', function(){
+  qIdx = 0; qScore = 0; qAnsweredCount = 0; wrongItems = [];
+  quizDone.classList.remove('show');
+  quizPlay.style.display = 'block';
+  btnNext.innerHTML = '次の質問へ <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  renderQ();
+});
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+document.getElementById('btnMailSelf').addEventListener('click', function(){
+  var body = '「事業承継の間に合う・間に合わないチェック」の結果メモ\n\n' +
+    '○×クイズ：' + qAnsweredCount + '問中 ' + qScore + '問正解\n\n';
+  if(wrongItems.length){
+    body += '【わが社で確認したいこと】\n';
+    for(var i = 0; i < wrongItems.length; i++){
+      body += '・' + wrongItems[i].check + '\n';
+    }
+  }
+  body += '\n【試算メモ】\n' + simMemo() + '\n';
+  body += '\n（このメモを、決算書・株主名簿と一緒に保管しておくと、話し合いのときに役立ちます）\n';
+  location.href = 'mailto:?subject=' + encodeURIComponent('事業承継チェックの結果') + '&body=' + encodeURIComponent(body);
+});
+
+renderQ();
+
+/* ---------- セクション3：自社株・納税資金シミュレーター ---------- */
+/* 相続税の速算表（万円）：[上限, 税率, 控除額] */
+var RATES = [
+  [1000, 0.10, 0], [3000, 0.15, 50], [5000, 0.20, 200], [10000, 0.30, 700],
+  [20000, 0.40, 1700], [30000, 0.45, 2700], [60000, 0.50, 4200], [Infinity, 0.55, 7200]
+];
+function taxOf(man){
+  if(man <= 0) return 0;
+  for(var i = 0; i < RATES.length; i++){
+    if(man <= RATES[i][0]) return Math.max(0, man * RATES[i][1] - RATES[i][2]);
+  }
+  return 0;
+}
+/* 相続税の総額（法定相続分で分けたものとして計算） */
+function totalTax(kakaku, spouse, kids){
+  var n = (spouse ? 1 : 0) + kids;
+  if(n < 1) n = 1;
+  var kiso = 3000 + 600 * n;
+  var kazei = Math.max(0, kakaku - kiso);
+  if(kazei <= 0) return {n:n, kiso:kiso, kazei:0, total:0};
+  var total = 0;
+  if(spouse && kids > 0){
+    total += taxOf(kazei * 0.5);
+    for(var i = 0; i < kids; i++) total += taxOf(kazei * 0.5 / kids);
+  } else if(spouse){
+    total += taxOf(kazei);
+  } else {
+    var k = kids > 0 ? kids : 1;
+    for(var j = 0; j < k; j++) total += taxOf(kazei / k);
+  }
+  return {n:n, kiso:kiso, kazei:kazei, total:total};
+}
+
+var simKabu     = document.getElementById('simKabu');
+var simOther    = document.getElementById('simOther');
+var simCash     = document.getElementById('simCash');
+var simTaishoku = document.getElementById('simTaishoku');
+var state = {kabu:15000, other:8000, cash:30, taishoku:0, spouse:1, kids:2, zeisei:0};
+var LAST = null;
+
+function bindSeg(id, key, cb){
+  var box = document.getElementById(id);
+  box.addEventListener('click', function(ev){
+    var b = ev.target.closest ? ev.target.closest('button') : null;
+    if(!b) return;
+    box.querySelectorAll('button').forEach(function(x){ x.classList.remove('on'); });
+    b.classList.add('on');
+    state[key] = +b.getAttribute('data-v');
+    cb();
+  });
+}
+
+function simUpdate(){
+  state.kabu     = +simKabu.value;
+  state.other    = +simOther.value;
+  state.cash     = +simCash.value;
+  state.taishoku = +simTaishoku.value;
+
+  document.getElementById('simKabuOut').textContent     = fmtMan(state.kabu);
+  document.getElementById('simOtherOut').textContent    = fmtMan(state.other);
+  document.getElementById('simCashOut').textContent     = state.cash + '%';
+  document.getElementById('simTaishokuOut').textContent = fmtMan(state.taishoku);
+
+  var spouse = !!state.spouse, kids = state.kids;
+  var n = (spouse ? 1 : 0) + kids; if(n < 1) n = 1;
+  var hikazei = 500 * n;
+  var taiKazei = Math.max(0, state.taishoku - hikazei);
+  var kakaku = state.kabu + state.other + taiKazei;
+  var t = totalTax(kakaku, spouse, kids);
+
+  /* 分け方の前提：
+     後継者＝自社株＋死亡退職金（課税される部分）
+     配偶者＝自社株以外の財産の半分
+     後継者以外のお子さま＝残り（お子さまがお一人なら後継者が取得）
+     各人の税額は「相続税の総額×その人の取得割合」。配偶者は税額軽減で0になる前提 */
+  var spouseGet = spouse ? state.other * 0.5 : 0;
+  var otherKidsPool = state.other - spouseGet;
+  var keishaZaisan = state.kabu + taiKazei + (kids >= 2 ? 0 : otherKidsPool);
+  var ichiji = kakaku > 0 ? t.total * (1 - spouseGet / kakaku) : 0;
+  var keishaTax = kakaku > 0 ? t.total * (keishaZaisan / kakaku) : 0;
+  /* 事業承継税制：後継者の税額のうち自社株に対応する部分を猶予 */
+  var yuyo = 0;
+  if(state.zeisei && keishaZaisan > 0){
+    yuyo = keishaTax * (Math.min(state.kabu, keishaZaisan) / keishaZaisan);
+  }
+  var keishaPay = Math.max(0, keishaTax - yuyo);
+  /* 後継者の手元にある現金（死亡退職金。自社株は現金にできない） */
+  var tegenkin = state.taishoku;
+  var sabun = tegenkin - keishaPay;
+  var ritsu = kakaku > 0 ? (state.kabu / kakaku * 100) : 0;
+
+  /* 後継者以外のお子さまの取り分と遺留分（目安） */
+  var iryu = 0, otherKidGet = 0, iryuFusoku = 0;
+  if(kids >= 2){
+    var houtei = spouse ? (0.5 / kids) : (1 / kids);
+    iryu = kakaku * houtei * 0.5;
+    otherKidGet = otherKidsPool / (kids - 1);
+    iryuFusoku = Math.max(0, iryu - otherKidGet);
+  }
+
+  document.getElementById('rNinzu').textContent      = n + '人';
+  document.getElementById('rKiso').textContent       = fmtMan(t.kiso);
+  document.getElementById('rHikazei').textContent    = fmtMan(hikazei);
+  document.getElementById('rHikazeiUse').textContent = '使用 ' + fmtMan(Math.min(state.taishoku, hikazei));
+  document.getElementById('rKakaku').textContent     = fmtMan(kakaku);
+  document.getElementById('rRitsu').textContent      = Math.round(ritsu) + '%';
+  document.getElementById('rSougaku').textContent    = fmtMan(t.total);
+  document.getElementById('rIchiji').textContent     = fmtMan(ichiji);
+  document.getElementById('rKeisha').textContent     = fmtMan(keishaPay);
+  document.getElementById('rTegenkin').textContent   = fmtMan(tegenkin);
+  document.getElementById('rKabusoku').textContent   =
+    (keishaPay <= 0 && sabun >= 0) ? '不足なし' : (sabun >= 0 ? fmtMan(sabun) + 'の余裕' : fmtMan(-sabun) + 'の不足');
+  document.getElementById('rIryu').textContent       = (kids >= 2) ? fmtMan(iryu) : '—（お子さまがお一人のため）';
+
+  var msg = document.getElementById('rMsg');
+  var html = '';
+  if(t.total <= 0){
+    msg.className = 'm-msg ok';
+    html = '<span class="kane-chip ok">相続税はかからない見込み</span>' +
+      '課税価格 ' + fmtMan(kakaku) + ' は、基礎控除 ' + fmtMan(t.kiso) + ' の内側です。' +
+      'ただし<b>自社株の評価額は毎年変わります</b>。利益が出た年、不動産や保険積立金の含み益が乗った年に、あっさり基礎控除を超えることがあります。' +
+      'また税額がゼロでも、<b>議決権を後継者に集める手続き</b>と<b>分け方でもめない準備</b>は、まったく別の話です。';
+  } else if(sabun >= 0){
+    msg.className = 'm-msg ok';
+    html = '<span class="kane-chip ok">後継者の納税資金は足りる見込み</span>' +
+      '後継者が納める ' + fmtMan(keishaPay) + ' に対して、手元に用意できる現金は ' + fmtMan(tegenkin) + '。' +
+      (sabun > 0 ? '差し引き <b>' + fmtMan(sabun) + 'の余裕</b>があります。' : 'ちょうど賄える計算です。') +
+      '油断できないのは、<b>会社の資金繰り</b>のほう。死亡退職金を実際に支給できるだけの現預金が会社にあるか、そこまで含めて確認しておきましょう。';
+  } else {
+    msg.className = 'm-msg ng';
+    html = '<span class="kane-chip ng">後継者の納税資金が不足する見込み</span>' +
+      '後継者が納める ' + fmtMan(keishaPay) + ' に対して、手元に用意できる現金は ' + fmtMan(tegenkin) + '。<b>' + fmtMan(-sabun) + 'が足りません</b>。' +
+      '期限は10ヶ月、原則は現金一括です。不足分は「後継者個人が借りる」「会社に自社株を買い取ってもらう（金庫株）」「延納（利子税がかかります）」' +
+      '「事業承継税制で猶予する」「死亡退職金など会社から出るお金で手当てする」のいずれかで埋めることになります。' +
+      '上の<b>死亡退職金</b>と<b>事業承継税制</b>を動かすと、その効果が見られます。';
+  }
+  /* ご家族全体で見た現金の余力（その他の財産のうち現金＋死亡退職金） */
+  var zentaiGenkin = state.other * state.cash / 100 + state.taishoku;
+  if(t.total > 0){
+    html += '<br><b>※ご家族全体で見ると、</b>すぐ動かせるお金は ' + fmtMan(zentaiGenkin) +
+      '、この相続で納める額は ' + fmtMan(ichiji) + '。' +
+      (zentaiGenkin >= ichiji
+        ? 'ご一族の合計では足りていますが、<b>そのお金が「税金を払う人」の手元に渡る分け方</b>になっているかは別問題です。'
+        : '<b>ご一族の合計でも足りません。</b>ご自宅や会社への貸付金など、すぐ現金にできない財産の割合が高いほど、この差は開きます。');
+  }
+  if(state.zeisei && yuyo > 0){
+    html += '<br><b>※事業承継税制を「使う」にしています。</b>猶予されている税額は ' + fmtMan(yuyo) + '。これは<b>免除ではなく猶予</b>で、' +
+      '後継者が代表を退く・対象株式を売るなどの取消事由に当たると、この金額を利子税とあわせて納めることになります。' +
+      '5年間の年次報告と、その後の継続届出書を続けることが条件です。';
+  }
+  if(kids >= 2 && iryuFusoku > 0){
+    html += '<br><b>※遺留分にご注意ください。</b>後継者以外のお子さまお一人あたりの取得見込みは ' + fmtMan(otherKidGet) +
+      ' で、遺留分の目安 ' + fmtMan(iryu) + ' に <b>' + fmtMan(iryuFusoku) + '足りません</b>。' +
+      'この差額は<b>後継者個人に対する金銭の請求</b>になりえます（遺留分侵害額請求）。' +
+      '生命保険金や死亡退職金の受取人を分ける、遺留分の民法特例（除外合意）を使うなど、先に手を打てる論点です。';
+  }
+  msg.innerHTML = html;
+
+  LAST = {kakaku:kakaku, kiso:t.kiso, sougaku:t.total, ichiji:ichiji, keishaPay:keishaPay,
+          yuyo:yuyo, tegenkin:tegenkin, sabun:sabun, iryu:iryu, otherKidGet:otherKidGet, n:n};
+}
+
+function simMemo(){
+  if(!LAST) return '';
+  return '自社株の評価額：' + fmtMan(state.kabu) + '／その他の財産：' + fmtMan(state.other) + '／死亡退職金：' + fmtMan(state.taishoku) + '\n' +
+    '法定相続人：' + LAST.n + '人（配偶者' + (state.spouse ? 'あり' : 'なし') + '・子' + state.kids + '人）\n' +
+    '課税価格：' + fmtMan(LAST.kakaku) + '／相続税の総額：' + fmtMan(LAST.sougaku) + '\n' +
+    'この相続で納める額：' + fmtMan(LAST.ichiji) + '／うち後継者：' + fmtMan(LAST.keishaPay) +
+    (LAST.yuyo > 0 ? '（事業承継税制で ' + fmtMan(LAST.yuyo) + ' を猶予）' : '') + '\n' +
+    '後継者の納税資金：' + (LAST.sabun >= 0 ? fmtMan(LAST.sabun) + 'の余裕' : fmtMan(-LAST.sabun) + 'の不足') + '\n' +
+    (state.kids >= 2 ? '後継者以外のお子さま1人あたりの遺留分の目安：' + fmtMan(LAST.iryu) + '（取得見込み ' + fmtMan(LAST.otherKidGet) + '）\n' : '') +
+    '※すべて概算です';
+}
+
+simKabu.addEventListener('input', simUpdate);
+simOther.addEventListener('input', simUpdate);
+simCash.addEventListener('input', simUpdate);
+simTaishoku.addEventListener('input', simUpdate);
+bindSeg('segSpouse', 'spouse', simUpdate);
+bindSeg('segKids', 'kids', simUpdate);
+bindSeg('segZeisei', 'zeisei', simUpdate);
+simUpdate();
+
+/* ---------- セクション4：事業承継あるある劇場 ---------- */
+var CASES = [
+  {
+    art:'icSeal', cls:'c-blue', chip:'第一幕：代表交代',
+    title:'社長は譲った。株は、まだ持っていた',
+    story:'「5年前に息子に社長を譲りましてね。登記もちゃんと変えました。ところが去年、私が入院したとたんに『株主総会が開けない』と言われまして。株は全部、私の名義のままだったんです。息子には『じゃあ僕のこの5年は何だったの』と言われました。返す言葉がありませんでした」<small>——70代・製造業（脚色あり）</small>',
+    what:'<p class="cmodal-p">代表取締役の変更登記と、株式の移転はまったく別の手続きです。登記を変えても株は動かないため、議決権は前社長のまま。そして株主総会の決議は<strong>株主本人</strong>が行うものなので、その株主が判断能力を失うと、議決権を行使できなくなります。役員の改選も、定款の変更も、金融機関が求める決議書も出せない——会社の意思決定が、そこで止まります。</p>',
+    how:'<p class="cmodal-p">まず株主名簿で「誰が何株持っているか」を確認します。そのうえで、贈与・譲渡・遺言のどれで、いつ、どれだけ渡すかを決めます。<strong>判断能力があるうちにしかできない手続き</strong>ばかりですから、健康なうちが唯一のチャンスです。認知症への備えとしては、任意後見や信託を組み合わせる方法もあります。</p>'
+  },
+  {
+    art:'icChart', cls:'c-amber', chip:'第二幕：自社株の評価',
+    title:'「うちの株に、そんな値段がつくとは」',
+    story:'「無借金でコツコツやってきただけなんです。上場もしていないし、配当も出していない。それが相続税の計算では1億8千万円だと言われまして。売れないんですよ、この株。買う人がいないんだから。それで税金だけ払えと言われても、どこから出せばいいんですか」<small>——60代・後継者（脚色あり）</small>',
+    what:'<p class="cmodal-p">非上場株式は、決められた方式（類似業種比準価額・純資産価額など）で評価します。<strong>利益を積み上げてきた会社ほど、含み益のある不動産を持つ会社ほど、評価額は高くなる</strong>しくみです。しかも自社株は換金できません。「売れない財産に、現金で税金がかかる」——事業承継でいちばん最初にぶつかる壁がこれです。</p>',
+    how:'<p class="cmodal-p">まずは元気なうちに株価を試算します。そのうえで、①退職金の支給などで評価が下がる年に渡す、②事業承継税制で猶予する、③納税資金をあらかじめ用意する、の組み合わせを設計します。<strong>株価は毎年変わります</strong>から、一度計算して終わりではなく、決算のたびに見ておきたい数字です。</p>'
+  },
+  {
+    art:'icScale', cls:'c-berry', chip:'第三幕：遺留分',
+    title:'妹から、現金を用意してくれと言われた',
+    story:'「父は『会社は長男に』と遺言を残してくれました。妹もその場では納得していたんです。ところが相続税を払い終えたころに、弁護士さんから通知が来まして。遺留分侵害額として数千万円。会社にそんな現金はありませんし、株を売れとも言えない。妹とは、それきりです」<small>——50代・後継者（脚色あり）</small>',
+    what:'<p class="cmodal-p">2019年の改正で、遺留分は<strong>金銭で支払う債権</strong>になりました。株そのものを取り上げられることはなくなった代わりに、現金の請求が来ます。財産の大半が自社株というご家庭ほど、この金額は大きくなります。しかも支払うのは会社ではなく、<strong>後継者個人</strong>です。</p>',
+    how:'<p class="cmodal-p">打ち手は3つあります。①後継者以外のご家族に渡せる財産（生命保険金・死亡退職金・不動産など）を先に用意しておく、②経営承継円滑化法の<strong>遺留分の民法特例（除外合意）</strong>で、自社株を遺留分の計算から外しておく、③生前にきちんと説明して、納得のうえで合意を取っておく。どれも<strong>相続が起きる前にしかできません</strong>。</p>'
+  },
+  {
+    art:'icBank', cls:'c-red', chip:'第四幕：個人保証',
+    title:'継いだのは、会社と保証だけだった',
+    story:'「継いだ翌月に銀行から呼ばれて、保証をお願いしますと。父の保証は残ったまま、私の保証が増えました。母には『あなたの家も担保に入っているのよ』と言われて、そこで初めて知りました。会社は黒字なんですけどね。あの日から、よく眠れません」<small>——40代・後継者（脚色あり）</small>',
+    what:'<p class="cmodal-p">個人保証は金融機関との契約なので、代表を交代しても自動では外れません。何もしないと、前経営者と後継者の<strong>両方から保証を取る（二重徴求）</strong>状態になりがちです。相続が起きれば、保証債務は相続人にも引き継がれます。「継ぐかどうか」を子が悩む最大の理由が、実はこれです。</p>',
+    how:'<p class="cmodal-p">「経営者保証に関するガイドライン」には<strong>事業承継時の特則</strong>があり、前経営者・後継者の双方から保証を取ることは原則として行わない、という整理がされています。交渉の前提として、①法人と個人の資産・経理を分ける、②返済能力のある財務基盤をつくる、③金融機関への情報開示を適時に行う、の3点を整えておくこと。<strong>借換えや条件変更のタイミングが、いちばん話しやすい機会</strong>です。</p>'
+  },
+  {
+    art:'icPlan', cls:'c-red', chip:'第五幕：事業承継税制',
+    title:'届出を忘れて、猶予が消えた',
+    story:'「勧められて事業承継税制を使いました。手続きも全部お任せで。その先生が引退されて担当が変わったとき、届出の話が引き継がれなかったんですね。数年後に税務署から通知が来て、猶予は取り消しですと。利子税までついて。制度が悪いんじゃない、うちの管理が悪かったんです」<small>——60代・社長（脚色あり）</small>',
+    what:'<p class="cmodal-p">事業承継税制は「猶予」なので、<strong>使い続けるための宿題</strong>があります。適用後5年間は都道府県への年次報告と税務署への継続届出書、5年経過後も3年ごとに税務署への届出が続きます。後継者が代表を退く、対象株式を売る、会社が資産管理会社に該当する——といった取消事由に当たった場合も同じで、猶予税額を利子税とあわせて納めることになります。</p>',
+    how:'<p class="cmodal-p">この制度を使う会社には、<strong>「誰が・いつ・どこへ出すか」のカレンダー</strong>が必須です。担当税理士が替わるとき、経理担当者が替わるときの引き継ぎリストにも必ず入れてください。制度そのものは強力です。落とし穴は制度ではなく、5年・10年と続く管理のほうにあります。</p>'
+  },
+  {
+    art:'icPeople', cls:'c-berry', chip:'第六幕：名義株・所在不明株主',
+    title:'株主名簿に、知らない人の名前があった',
+    story:'「M&amp;Aの話をいただいて、初めて株主名簿をちゃんと見たんです。そうしたら父の友人の名前が並んでいて。設立のとき7人必要だったから、名前だけ借りたと。もう40年前の話で、ご本人は亡くなっていて、お子さんとも連絡がつきません。買い手からは『この株、どうするんですか』と言われまして」<small>——50代・社長（脚色あり）</small>',
+    what:'<p class="cmodal-p">1990年の商法改正前は、会社の設立に発起人が7人必要でした。そのため<strong>名前だけ借りた「名義株」</strong>が残っている会社は、いまも珍しくありません。世代が変わると、その株は相続され、面識のない方が株主になります。譲渡や組織再編、M&amp;Aの場面で、この整理がついていないことが致命傷になります。</p>',
+    how:'<p class="cmodal-p">承継やM&amp;Aを考えはじめた時点で、<strong>株主名簿の棚卸し</strong>を。実質的に会社のものだと確認できる株は、書面を残して整理します。連絡が取れない株主については、経営承継円滑化法の認定を受けることで<strong>「5年」の要件が「1年」に短縮される特例</strong>があり、裁判所の許可を得て売却する道もあります。いずれも時間がかかるので、早い着手がすべてです。</p>'
+  }
+];
+
+/* ---------- セクション5：逆転劇場（味方する制度） ---------- */
+var GOOD_CASES = [
+  {
+    art:'icShield', cls:'c-blue', chip:'第一話：事業承継税制（特例措置）', amt:'自社株の税額を猶予',
+    title:'税金を、次の代まで持ち越せる',
+    story:'「株の評価が1億円を超えていて、正直あきらめかけていました。特例承継計画を出して、贈与で一気に株を移して、贈与税の納税猶予を受けました。ゼロになったわけじゃないのは分かっています。でも『いま現金で用意しなくていい』というだけで、あんなに景色が変わるとは」<small>——60代・社長（脚色あり）</small>',
+    what:'<p class="cmodal-p">一定の要件を満たす非上場株式について、<strong>贈与税・相続税の納付を猶予する制度</strong>です。特例措置では対象株式の上限や猶予割合が拡充され、雇用の8割維持要件も、満たせない理由を都道府県に報告すれば猶予が続く扱いになりました。後継者が次の代へさらに贈与した場合や、後継者が亡くなった場合には、猶予されていた税額が免除されます。</p>',
+    how:'<p class="cmodal-p">まず<strong>特例承継計画</strong>の提出が必要です（法人版は2027年9月30日まで、贈与・相続の実行は2027年12月31日まで）。認定経営革新等支援機関の所見を付けて都道府県へ提出します。<strong>免除ではなく猶予</strong>である以上、取消事由と届出の管理が続くことが前提。使う・使わないは、会社の将来像とセットで判断します。<small>※制度の要件・期限は改正されることがあります。最新の内容は中小企業庁・国税庁の公表資料でご確認ください。</small></p>'
+  },
+  {
+    art:'icScale', cls:'c-green', chip:'第二話：遺留分の民法特例', amt:'除外合意・固定合意',
+    title:'自社株を、遺留分の計算から外しておく',
+    story:'「弟と妹に『会社の株は兄さんが継ぐべきだ』と言ってもらえて。ただ口約束では意味がないと聞いて、全員で書面をつくって、経済産業大臣の確認と家庭裁判所の許可までもらいました。手間はかかりましたが、これで『あとで蒸し返される心配』が消えました。父もほっとしていました」<small>——50代・後継者（脚色あり）</small>',
+    what:'<p class="cmodal-p">経営承継円滑化法の<strong>遺留分に関する民法の特例</strong>です。推定相続人全員の合意により、後継者が先代から取得した自社株を、①遺留分の計算の基礎から<strong>除く（除外合意）</strong>、②評価額を<strong>合意時点の価額に固定する（固定合意）</strong>ことができます。固定合意なら、後継者の頑張りで上がった株価の分が遺留分に跳ね返らずに済みます。</p>',
+    how:'<p class="cmodal-p">要件は、合意の時点で3年以上継続して事業を行っている非上場の中小企業であること、後継者が合意の対象となる株式を除くと議決権の過半数に届かず、その株式を含めると過半数を持つことなど。手続きは<strong>推定相続人全員の書面合意 → 経済産業大臣の確認 → 家庭裁判所の許可</strong>の順で、それぞれ申立ての期限があります。全員の合意が要るという点で、いちばん大事なのは制度より<strong>家族の話し合い</strong>です。</p>'
+  },
+  {
+    art:'icBank', cls:'c-amber', chip:'第三話：経営者保証ガイドライン', amt:'二重徴求は原則なし',
+    title:'保証を、そのまま引き継がずに済ませる',
+    story:'「息子に継がせるにあたって、保証だけはどうにかしたくて。顧問の先生と一緒に、会社と私個人のお金をきれいに分けて、資料も毎月出すようにして、2年かけて交渉しました。結果、私の保証は外れ、息子は保証なしで始められました。渡せた中でいちばん大きいものだったかもしれません」<small>——70代・卸売業（脚色あり）</small>',
+    what:'<p class="cmodal-p">「経営者保証に関するガイドライン」は法律ではありませんが、金融機関が自主的に尊重するルールとして定着しています。<strong>事業承継時の特則</strong>では、前経営者と後継者の双方から保証を取ること（二重徴求）は原則として行わないこと、後継者に当然に保証を求めるのではなく必要性を検討することが求められています。</p>',
+    how:'<p class="cmodal-p">交渉の土台は3つ。<strong>①法人と個人の資産・経理の分離（社長への貸付金や、会社が使う個人名義の資産の整理）②返済能力のある財務基盤 ③金融機関への適時適切な情報開示</strong>。ここが整っているほど話は早く進みます。1回の面談で決まるものではないので、<strong>承継の2〜3年前から</strong>着手するのが現実的です。</p>'
+  },
+  {
+    art:'icCash', cls:'c-blue', chip:'第四話：金庫株の特例', amt:'納税資金をつくる',
+    title:'会社に買い取ってもらって、納税する',
+    story:'「相続した株のうち一部を、会社に買い取ってもらいました。現金がまったくなかったので、それしか道がなくて。税理士さんから『申告期限から3年以内なら税金の扱いが違う』と教わって、期限内に手続きしました。知らずに数年後にやっていたら、手取りがかなり違ったそうです」<small>——50代・後継者（脚色あり）</small>',
+    what:'<p class="cmodal-p">相続で取得した非上場株式を発行会社に譲渡すると、通常は<strong>みなし配当</strong>として総合課税（累進税率）になります。ところが、相続の開始から<strong>3年10ヶ月以内</strong>（相続税の申告期限の翌日以後3年を経過する日まで）の譲渡であれば、みなし配当課税を行わず、全額を株式の譲渡所得として扱う特例があります。あわせて<strong>取得費加算の特例</strong>も使えます。</p>',
+    how:'<p class="cmodal-p">譲渡する日までに、所定の<strong>届出書を発行会社へ提出</strong>する必要があります。また会社側にも、自己株式の取得は<strong>分配可能額の範囲内</strong>でしか行えないという会社法上の制約があります。「買い取ってもらえば解決」と決め打ちせず、会社の資金繰り・財源・他の株主とのバランスまで見て判断する論点です。</p>'
+  },
+  {
+    art:'icPeople', cls:'c-berry', chip:'第五話：所在不明株主の特例', amt:'5年 → 1年',
+    title:'40年前の名義株を、整理できる',
+    story:'「連絡の取れない株主が3人いて、ずっと放置していました。承継の相談をしたときに『5年が1年になる特例がありますよ』と教わって、県の認定を受けて、裁判所の許可をもらって整理しました。長年の宿題が終わって、やっと株主名簿を人に見せられるようになりました」<small>——60代・社長（脚色あり）</small>',
+    what:'<p class="cmodal-p">会社法には、通知が5年以上到達せず配当も受け取らない株主について、その株式を競売または売却できる制度があります。経営承継円滑化法の認定（都道府県知事）を受けた中小企業は、この<strong>「5年」が「1年」に短縮</strong>されます。代表者の年齢や健康状態などから承継に支障が生じていること、株主の所在不明により円滑な承継が困難であることなどが認定の要件です。</p>',
+    how:'<p class="cmodal-p">認定申請のほかに、<strong>裁判所への売却許可の申立て</strong>が必要で、時間がかかります。承継やM&amp;Aの直前に気づくと間に合いません。株主名簿の棚卸しは、<strong>思い立った日にやっておく</strong>のが正解です。名義株についても、当時の事情を知る方がご健在のうちに書面を残しておくと、後の世代がずいぶん助かります。</p>'
+  },
+  {
+    art:'icPolicy', cls:'c-green', chip:'第六話：退職金と、その原資', amt:'非課税枠 500万円×人数',
+    title:'会社から出すお金で、二つの宿題を片づける',
+    story:'「父が亡くなったとき、会社から死亡退職金を出しました。母の生活費と、私の相続税と、両方に充てられて本当に助かりました。あとから聞くと、株価が下がるので株を移すタイミングとしても良かったそうです。父が生前に原資を用意しておいてくれたのだと、あとで知りました」<small>——40代・後継者（脚色あり）</small>',
+    what:'<p class="cmodal-p">役員退職金・死亡退職金は会社から支給されるお金なので、<strong>後継者の納税資金にも、後継者以外のご家族への手当てにも使えます</strong>。死亡退職金には「500万円×法定相続人の数」の非課税枠があります。また退職金を支給すると会社の純資産が減るため、<strong>自社株の評価が下がる要因</strong>にもなり、株を移すタイミングとして使われることがあります。</p>',
+    how:'<p class="cmodal-p">支給には株主総会の決議などの手続きが必要で、金額が不相当に高額な部分は損金になりません（功績倍率などから相当性を検討します）。そして何より、<strong>支給する日に、会社にその現金があるか</strong>。原資の準備には、内部留保のほか、法人契約の生命保険を使う方法もあります。<small>※保険は掛金の負担が続き、解約の時期によっては払い込んだ額を下回ることがあります。損金算入の取り扱いは商品や契約形態により異なります。目的・時期・金額を先に決め、そのうえで手段を選ぶ順番が大切です。</small></p>'
+  }
+];
+
+var modal = document.getElementById('caseModal');
+var CASE_LBL = {
+  bad:['よく伺うお話をもとにした創作例（脚色あり）', '何が起きたのか', 'こうしておけば防げます'],
+  good:['よくある、うれしい発見（創作例・脚色あり）', 'どういう制度なのか', '使うときのポイント']
+};
+
+function renderCases(gridId, list, kind){
+  var grid = document.getElementById(gridId);
+  list.forEach(function(c){
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'case-card';
+    btn.innerHTML =
+      '<span class="art ' + c.cls + '">' + ARTS[c.art] + '</span>' +
+      '<span class="t"><span class="chip ' + c.cls + '">' + c.chip + '</span>' +
+      (c.amt ? '<span class="amt">' + c.amt + '</span>' : '') +
+      '<h3>' + c.title + '</h3>' +
+      '<span class="more">くわしく見る<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></span></span>';
+    btn.addEventListener('click', function(){ openCase(c, kind); });
+    grid.appendChild(btn);
+  });
+}
+
+function openCase(c, kind){
+  var lbl = CASE_LBL[kind] || CASE_LBL.bad;
+  document.getElementById('caseModalLbl1').textContent = lbl[0];
+  document.getElementById('caseModalLbl2').textContent = lbl[1];
+  document.getElementById('caseModalLbl3').textContent = lbl[2];
+  document.getElementById('caseModalLbl2Wrap').className =
+    'cmodal-label ' + (kind === 'good' ? 'lb-green' : 'lb-red');
+  document.getElementById('caseModalIco').className = 'cmodal-ico ' + c.cls;
+  document.getElementById('caseModalIco').innerHTML = ARTS[c.art];
+  document.getElementById('caseModalChip').className = 'cmodal-chip ' + c.cls;
+  document.getElementById('caseModalChip').textContent = c.chip;
+  document.getElementById('caseModalTitle').textContent = c.title;
+  document.getElementById('caseModalStory').innerHTML = c.story;
+  document.getElementById('caseModalWhat').innerHTML = c.what;
+  document.getElementById('caseModalHow').innerHTML = c.how;
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+  modal.querySelector('.cmodal-panel').scrollTop = 0;
+}
+
+renderCases('caseGrid', CASES, 'bad');
+renderCases('goodGrid', GOOD_CASES, 'good');
+
+function closeCase(){
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+document.getElementById('caseModalClose').addEventListener('click', closeCase);
+document.getElementById('caseModalBack').addEventListener('click', closeCase);
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && modal.classList.contains('show')) closeCase();
+});
+
+/* ---------- まとめ：チェックリスト ---------- */
+var chkBoxes = document.querySelectorAll('#checklist input[type=checkbox]');
+var chkMsg = document.getElementById('chkMsg');
+function chkUpdate(){
+  var n = 0;
+  chkBoxes.forEach(function(c){ if(c.checked) n++; });
+  var total = chkBoxes.length;
+  if(n === 0){
+    chkMsg.textContent = 'あてはまるものにチェックを入れてみてください。調べれば分かる項目と、今日から動ける項目が混じっています。';
+  } else if(n <= 2){
+    chkMsg.textContent = 'チェック' + n + '個。正直なのは素晴らしいことです。残りの項目は、どれも決算書と株主名簿があれば半日で手がつくものばかり。まずは「株主名簿の確認」からがおすすめです。';
+  } else if(n <= 5){
+    chkMsg.textContent = 'チェック' + n + '個。平均より、だいぶ準備の進んでいる会社です。残りは資料さえ揃えば一気に片づきます。分からない部分は、そのままお持ちください。';
+  } else if(n < total){
+    chkMsg.textContent = 'チェック' + n + '個。ここまで整理できている社長は、ご相談でもめったにお会いしません。あと少しで「渡す順番まで決まっている会社」の完成です。';
+  } else {
+    chkMsg.textContent = '全項目チェック！　あなたの会社は、もう「なんとなく不安」ではなく「分かって備えている」状態です。あとは年に1回、決算のたびに株価と株主構成を見直すだけ。';
+  }
+}
+chkBoxes.forEach(function(c){ c.addEventListener('change', chkUpdate); });
+
+})();
+</script>
+</body>
+</html>
