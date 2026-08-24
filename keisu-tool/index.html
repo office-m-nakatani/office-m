@@ -18,7 +18,7 @@
 :root{
   --navy:#1b3f5e; --navy-2:#27587f; --navy-soft:#eef4f9;
   --bg:#fdf9f5; --white:#fff; --text:#2f3a45; --muted:#6b7681; --line:#e9ddd2;
-  --coral:#bf4123; --coral-bg:#fdf0ec; --coral-line:#f2cfc4; --coral-art:#d4553a;
+  --coral:#bf4123; --coral-bg:#fdf0ec; --coral-line:#f2cfc4;
   --mincho:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho",YuMincho,"MS PMincho",serif;
   --num:"Helvetica Neue",Arial,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
 }
@@ -49,8 +49,8 @@ main{padding:12px 0 30px;}
   line-height:1.45;}
 .ch .kn{font-size:.72rem;color:var(--muted);letter-spacing:.03em;margin-left:7px;white-space:nowrap;
   font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",YuGothic,Meiryo,sans-serif;font-weight:700;}
-.ch .ic{flex:none;margin-left:auto;width:60px;height:34px;}
-.ch .ic svg{width:60px;height:34px;display:block;}
+.ch .ic{flex:none;margin-left:auto;width:68px;height:44px;}
+.ch .ic svg{width:68px;height:44px;display:block;}
 
 .ins{display:flex;flex-direction:column;gap:5px;}
 .in{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);align-items:center;gap:8px;cursor:text;}
@@ -250,37 +250,48 @@ function F(r,n){
 }
 function dec(k){ return (k==='sf'||k==='cr') ? 6 : 4; }
 
-/* ---------- イラスト（インラインSVG・絵文字は使わない） ---------- */
-var A='var(--coral-art)';
-function coinBig(x){   /* 大きいコイン（縞入り） */
-  return '<ellipse cx="'+x+'" cy="17" rx="8" ry="12.5" fill="none" stroke="'+A+'" stroke-width="1.8"/>'
-       + '<path d="M'+(x-3.5)+' 8.5v17M'+x+' 6.5v21M'+(x+3.5)+' 8.5v17" stroke="'+A+'" stroke-width="1.2" opacity=".65"/>';
+/* ---------- イラスト（インラインSVG・絵文字は使わない） ----------
+   末広がりの筒＝時間が経つほどお金が大きくなる。
+   コインの山＝毎年の積立、横に並ぶ丸＝毎年の受け取り。
+   コーラル色で塗った側が「この係数で求めるもの」。 */
+var LN='#93a4b2', KY='#bf4123', KF='#fbe4dc';
+function ell(x,y,rx,ry,key){
+  return '<ellipse cx="'+x+'" cy="'+y+'" rx="'+rx+'" ry="'+ry+'" fill="'+(key?KF:'#fff')
+       + '" stroke="'+(key?KY:LN)+'" stroke-width="'+(key?2:1.5)+'"/>';
 }
-function coinSm(x){    /* 小さいコイン */
-  return '<ellipse cx="'+x+'" cy="17" rx="4.6" ry="7.4" fill="none" stroke="'+A+'" stroke-width="1.8"/>';
+function dot(x,y,r,key){
+  return '<circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="'+(key?KF:'#fff')
+       + '" stroke="'+(key?KY:LN)+'" stroke-width="'+(key?1.8:1.4)+'"/>';
 }
-function pile(x){      /* 積み上がるコインの山 */
-  var c=[[0,25],[6,25],[12,25],[3,19.5],[9,19.5],[6,14]], s='', i;
-  for(i=0;i<c.length;i++) s+='<circle cx="'+(x+c[i][0])+'" cy="'+c[i][1]+'" r="3" fill="none" stroke="'+A+'" stroke-width="1.6"/>';
+/* 末広がりの筒（一括で預ける） */
+function cone(keyRight){
+  return '<path d="M11 11.5L49 4M11 24.5L49 31.5" fill="none" stroke="'+LN+'" stroke-width="1.5"/>'
+       + ell(49,17.75,4.4,13.75,keyRight) + ell(11,18,2.6,6.5,!keyRight);
+}
+/* コインの山から広がる筒（毎年つみたてる） */
+function grow(keyRight){
+  var c=[[7,29.6],[12.4,29.6],[17.8,29.6],[9.7,25.2],[15.1,25.2],[12.4,20.8]], s='', i;
+  s = '<path d="M11 22.5L49 4M9 31.6L49 31.6" fill="none" stroke="'+LN+'" stroke-width="1.5"/>'
+    + ell(49,17.75,4.4,13.75,keyRight);
+  for(i=0;i<c.length;i++) s += dot(c[i][0],c[i][1],2.5,!keyRight);
   return s;
 }
-function rowc(x){      /* 横に並ぶコイン（毎年の受け取り） */
-  var s='', i;
-  for(i=0;i<4;i++) s+='<circle cx="'+(x+i*6.6)+'" cy="17" r="3" fill="none" stroke="'+A+'" stroke-width="1.6"/>';
+/* 大きな塊から少しずつ受け取る（取り崩す） */
+function draw(keyRight){
+  var c=[[20.4,3.2],[28.2,2.85],[35.4,2.5],[42,2.15],[47.9,1.8]], s='', i;
+  s = ell(11,18,4.4,13.75,!keyRight);
+  for(i=0;i<c.length;i++) s += dot(c[i][0],18,c[i][1],keyRight);
   return s;
 }
-function arw(x){
-  return '<path d="M'+x+' 17h9M'+(x+5.4)+' 13.4l3.6 3.6-3.6 3.6" fill="none" stroke="'+A+'" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>';
-}
-function art(inner){ return '<svg viewBox="0 0 60 34" aria-hidden="true">'+inner+'</svg>'; }
+function art(inner){ return '<svg viewBox="0 0 56 36" aria-hidden="true">'+inner+'</svg>'; }
 
 var ART={
-  fv : art(coinSm(7)  + arw(15) + coinBig(41)),
-  pv : art(coinBig(11)+ arw(24) + coinSm(50)),
-  afv: art(pile(2)    + arw(22) + coinBig(46)),
-  sf : art(coinBig(9) + arw(20) + pile(35)),
-  cr : art(coinBig(9) + arw(20) + rowc(36)),
-  apv: art(rowc(4)    + arw(31) + coinBig(50))
+  fv : art(cone(true)),    /* ① 今の一括 → 将来の金額を求める */
+  pv : art(cone(false)),   /* ② 将来の目標 → 今の一括を求める */
+  afv: art(grow(true)),    /* ③ 毎年の積立 → 将来の合計を求める */
+  sf : art(grow(false)),   /* ④ 将来の目標 → 毎年の積立を求める */
+  cr : art(draw(true)),    /* ⑤ 今の元本 → 毎年の受取を求める */
+  apv: art(draw(false))    /* ⑥ 毎年の受取 → 今の原資を求める */
 };
 
 /* ---------- 6枚のカード ---------- */
