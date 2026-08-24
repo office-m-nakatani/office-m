@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
-<title>6つの係数 計算ツール｜利回りと年数を決めれば、6つの答えが同時に出る</title>
+<title>6つの係数 計算ツール｜利回りと年数を入れて、計算するボタンひとつ</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23fff8f2'/%3E%3Crect x='7' y='5' width='18' height='22' rx='3' fill='%231b3f5e'/%3E%3Crect x='10' y='8' width='12' height='5' rx='1.4' fill='%23fff'/%3E%3Ccircle cx='12' cy='17.5' r='1.7' fill='%23f0846a'/%3E%3Ccircle cx='16' cy='17.5' r='1.7' fill='%23fff'/%3E%3Ccircle cx='20' cy='17.5' r='1.7' fill='%23fff'/%3E%3Ccircle cx='12' cy='22.5' r='1.7' fill='%23fff'/%3E%3Ccircle cx='16' cy='22.5' r='1.7' fill='%23fff'/%3E%3Ccircle cx='20' cy='22.5' r='1.7' fill='%23f0846a'/%3E%3C/svg%3E">
 <!--
-  6つの係数 計算ツール（シンプル版）
-  - 6つの係数は「同じ利回り・同じ年数」から生まれる3組の逆数。だから入力は
-    利回りと年数の2つだけで、あとは金額をどちらかに入れれば反対側が出る。
-  - スライダーは使わない（数値入力＋チップのみ）。
-  - 積立・受取は期末前提（FPの係数表と同じ）。期首は早見表の下に換算式を記載。
+  6つの係数 計算ツール（シンプル版・計算ボタン方式）
+  - 利回りと年数は共通。6つの係数を6ブロックに分け、各ブロックは
+    「入力欄 → 答え」の一方通行にした（向きを切り替えるUIは持たない）。
+  - 計算は「計算する」ボタン（またはEnter）を押したときだけ実行する。
+  - 積立・受取は期末前提（FPの係数表と同じ）。期首は早見表の下に換算式。
   - 計算のみ。入力値の保存・送信はしない。外部CDNなし。
 -->
 <style>
@@ -39,70 +39,57 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
 .hd h1{font-family:var(--mincho);font-size:1.32rem;font-weight:600;letter-spacing:.08em;color:var(--navy);}
 .hd p{font-size:.86rem;color:var(--muted);}
 
-/* ---------- 前提（利回り・年数） ---------- */
+/* ---------- 前提バー（利回り・年数・計算ボタン） ---------- */
 .prem{position:sticky;top:0;z-index:10;background:rgba(253,249,245,.97);backdrop-filter:blur(6px);
   border-bottom:1px solid var(--line);}
-.prem .wrap{display:flex;gap:38px;flex-wrap:wrap;padding:11px 20px;}
-.pg{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
-.pg > label{font-size:.8rem;font-weight:700;color:var(--navy);letter-spacing:.04em;}
+.prem .wrap{display:flex;gap:14px 30px;flex-wrap:wrap;align-items:center;padding:11px 20px;}
+.pg{display:flex;align-items:center;gap:11px;}
+.pg > label{font-size:.84rem;font-weight:700;color:var(--navy);letter-spacing:.04em;white-space:nowrap;}
 .pin{display:flex;align-items:baseline;gap:5px;}
-.pin input{width:4.6em;border:1.5px solid var(--line);border-radius:9px;background:var(--white);
-  padding:7px 10px;font-family:var(--num);font-size:1.22rem;font-weight:700;text-align:right;
+.pin input{width:5em;border:1.5px solid var(--line);border-radius:9px;background:var(--white);
+  padding:8px 11px;font-family:var(--num);font-size:1.24rem;font-weight:700;text-align:right;
   font-variant-numeric:tabular-nums;color:var(--navy);}
-.pin input:focus{border-color:var(--navy-2);outline:none;}
+.pin input:focus{border-color:var(--navy-2);outline:none;box-shadow:0 0 0 3px var(--navy-soft);}
 .pin span{font-size:.86rem;font-weight:700;color:var(--muted);}
-.tabs{display:flex;gap:5px;flex-wrap:wrap;}
-.tab{border:1px solid var(--line);background:var(--white);border-radius:7px;padding:5px 11px;
-  font-size:.8rem;font-weight:700;color:var(--muted);cursor:pointer;line-height:1.5;}
-.tab:hover{border-color:var(--navy-2);color:var(--navy);}
-.tab[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff;}
+.go{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:10px;
+  background:var(--coral);color:#fff;font-size:1rem;font-weight:700;letter-spacing:.06em;
+  padding:11px 30px;min-height:46px;cursor:pointer;box-shadow:0 3px 10px rgba(191,65,35,.24);transition:.15s;}
+.go:hover{background:#a8391e;transform:translateY(-1px);}
+.go svg{width:17px;height:17px;}
+.stale{font-size:.78rem;font-weight:700;color:var(--coral);opacity:0;transition:.2s;white-space:nowrap;}
+.stale.on{opacity:1;}
 
-/* ---------- 3行（＝6係数） ---------- */
+/* ---------- 6つのブロック ---------- */
 main{padding:16px 0 34px;}
-.row{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:13px 20px 12px;margin-bottom:11px;}
-.row > h2{font-family:var(--mincho);font-size:1.02rem;font-weight:600;color:var(--navy);letter-spacing:.06em;
-  margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid var(--line);}
-.row > h2 em{font-style:normal;font-size:.78rem;color:var(--muted);font-weight:400;letter-spacing:.02em;margin-left:10px;
-  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",YuGothic,Meiryo,sans-serif;}
-.calc{display:grid;grid-template-columns:minmax(0,1fr) minmax(215px,auto) minmax(0,1fr);gap:16px;align-items:center;}
-
-.side label{display:block;font-size:.79rem;font-weight:700;color:var(--muted);letter-spacing:.03em;margin-bottom:5px;}
-.side .box{display:flex;align-items:baseline;gap:6px;border:1.5px solid var(--line);border-radius:11px;
-  background:var(--white);padding:9px 13px;transition:.15s;}
-.side input{flex:1;min-width:0;border:none;background:none;padding:0;font-family:var(--num);
-  font-size:1.62rem;font-weight:700;text-align:right;font-variant-numeric:tabular-nums;color:var(--navy);
+.grid6{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+.blk{background:var(--white);border:1px solid var(--line);border-radius:13px;padding:13px 16px 12px;}
+.blk .bh{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-bottom:10px;
+  padding-bottom:8px;border-bottom:1px solid var(--line);}
+.blk .bh b{font-family:var(--mincho);font-size:1rem;font-weight:600;color:var(--navy);letter-spacing:.05em;}
+.blk .bh em{font-style:normal;font-size:.76rem;color:var(--muted);}
+.io{display:grid;grid-template-columns:minmax(0,1fr) 22px minmax(0,1fr);gap:9px;align-items:end;}
+.io .lab{display:block;font-size:.76rem;font-weight:700;color:var(--muted);margin-bottom:4px;line-height:1.5;}
+.io .box{display:flex;align-items:baseline;gap:5px;border:1.5px solid var(--line);border-radius:10px;
+  background:var(--white);padding:8px 11px;}
+.io .box:focus-within{border-color:var(--navy-2);box-shadow:0 0 0 3px var(--navy-soft);}
+.io input{flex:1;min-width:0;border:none;background:none;padding:0;font-family:var(--num);
+  font-size:1.42rem;font-weight:700;text-align:right;font-variant-numeric:tabular-nums;color:var(--navy);
   -moz-appearance:textfield;}
-.side input::-webkit-outer-spin-button,.side input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
-.side input:focus{outline:none;}
-.side .box:focus-within{border-color:var(--navy-2);box-shadow:0 0 0 3px var(--navy-soft);}
-.side .u{font-size:.86rem;font-weight:700;color:var(--muted);}
-.side .yen{font-size:.76rem;color:var(--muted);text-align:right;margin-top:4px;
-  font-variant-numeric:tabular-nums;min-height:1.4em;}
-/* 答えの側だけ色をつける */
-.side.out .box{background:var(--coral-bg);border-color:var(--coral-line);}
-.side.out input{color:var(--coral);}
-.side.out label{color:var(--coral);}
-
-/* 中央の係数（押すと計算の向きが変わる） */
-.fx{display:flex;flex-direction:column;gap:6px;min-width:0;}
-.fxb{display:grid;grid-template-columns:20px 1fr auto;align-items:center;gap:9px;width:100%;
-  border:1px solid var(--line);background:var(--white);border-radius:9px;padding:7px 11px;cursor:pointer;
-  text-align:left;transition:.15s;}
-.fxb:hover{border-color:var(--navy-2);}
-.fxb .no{font-size:.82rem;font-weight:700;color:var(--muted);}
-.fxb .nm{font-size:.8rem;font-weight:700;color:var(--muted);letter-spacing:.02em;white-space:nowrap;}
-.fxb .nm svg{width:14px;height:14px;vertical-align:-.18em;}
-.fxb .vl{font-family:var(--num);font-size:.92rem;font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums;}
-.fxb[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);}
-.fxb[aria-pressed="true"] .no,.fxb[aria-pressed="true"] .nm{color:#c6d8e6;}
-.fxb[aria-pressed="true"] .vl{color:#fff;}
-.fxb[aria-pressed="false"]{opacity:.6;}
-.fxb[aria-pressed="false"]:hover{opacity:1;}
-
-.sub{margin-top:9px;padding-top:8px;border-top:1px dashed var(--line);display:flex;gap:6px 24px;flex-wrap:wrap;
-  font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums;}
-.sub .f{color:var(--text);font-weight:700;}
-.sub .f b{color:var(--coral);}
+.io input::-webkit-outer-spin-button,.io input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.io input:focus{outline:none;}
+.io .u{font-size:.8rem;font-weight:700;color:var(--muted);}
+.io .arw{color:#c3b3a2;padding-bottom:12px;display:flex;justify-content:center;}
+.io .arw svg{width:19px;height:19px;}
+.io .ans{border:1.5px solid var(--coral-line);background:var(--coral-bg);border-radius:10px;padding:8px 11px;
+  display:flex;align-items:baseline;justify-content:flex-end;gap:5px;}
+.io .ans .v{font-family:var(--num);font-size:1.42rem;font-weight:700;color:var(--coral);
+  font-variant-numeric:tabular-nums;line-height:1.5;}
+.io .ans .u{color:var(--coral);}
+.io .lab.o{color:var(--coral);}
+.blk .fm{margin-top:9px;padding-top:8px;border-top:1px dashed var(--line);font-size:.79rem;color:var(--muted);
+  font-variant-numeric:tabular-nums;display:flex;gap:4px 18px;flex-wrap:wrap;}
+.blk .fm .e{color:var(--text);font-weight:700;}
+.blk .fm .e b{color:var(--coral);}
 
 .note{font-size:.78rem;color:var(--muted);line-height:1.75;margin:14px 2px 18px;max-width:52em;}
 
@@ -127,7 +114,7 @@ details[open] summary .ar{transform:rotate(90deg);}
 .scroll{overflow:auto;max-height:56vh;border:1px solid var(--line);border-radius:10px;}
 .scroll.flat{max-height:none;}
 
-.pf{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px 16px;margin-bottom:16px;}
+.pf{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px 16px;margin-bottom:14px;}
 .pf .fl label{display:block;font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:4px;}
 .pf .fl .box{display:flex;align-items:baseline;gap:5px;border:1.5px solid var(--line);border-radius:9px;
   background:var(--white);padding:7px 11px;}
@@ -137,6 +124,7 @@ details[open] summary .ar{transform:rotate(90deg);}
 .pf .fl input:focus{outline:none;}
 .pf .fl .box:focus-within{border-color:var(--navy-2);}
 .pf .fl .u{font-size:.8rem;font-weight:700;color:var(--muted);}
+.go.sm{padding:9px 22px;min-height:40px;font-size:.9rem;margin-bottom:16px;}
 .res{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:12px;}
 .res .r{border:1px solid var(--line);border-radius:11px;padding:11px 14px;}
 .res .r.key{background:var(--coral-bg);border-color:var(--coral-line);}
@@ -160,15 +148,13 @@ details[open] summary .ar{transform:rotate(90deg);}
 footer{border-top:1px solid var(--line);padding:18px 20px 26px;text-align:center;font-size:.74rem;color:var(--muted);}
 
 @media(max-width:860px){
-  .calc{grid-template-columns:minmax(0,1fr);gap:12px;}
-  .prem .wrap{gap:16px;}
-  .side input{font-size:1.45rem;}
-  .fxb{grid-template-columns:18px 1fr auto;gap:7px;padding:7px 10px;}
-  .fxb .nm{white-space:normal;font-size:.76rem;min-width:0;}
-  .fxb .vl{font-size:.86rem;}
+  .grid6{grid-template-columns:minmax(0,1fr);}
+  .prem .wrap{gap:10px 18px;}
+  .pin input{width:4.4em;}
+  .go{flex:1;}
   .bx span{font-size:.62rem;}
 }
-@media print{ .prem{position:static;} details{break-inside:avoid;} }
+@media print{ .prem{position:static;} details{break-inside:avoid;} .go{display:none;} }
 </style>
 </head>
 <body>
@@ -176,7 +162,7 @@ footer{border-top:1px solid var(--line);padding:18px 20px 26px;text-align:center
 <header class="hd">
   <div class="wrap">
     <h1>6つの係数 計算ツール</h1>
-    <p>利回りと年数を決めれば、6つの答えが同時に出ます</p>
+    <p>利回りと年数、金額を入れて「計算する」を押してください</p>
   </div>
 </header>
 
@@ -185,29 +171,21 @@ footer{border-top:1px solid var(--line);padding:18px 20px 26px;text-align:center
     <div class="pg">
       <label for="rate">想定利回り</label>
       <span class="pin"><input type="number" id="rate" value="3" min="0" max="20" step="0.1"><span>％</span></span>
-      <div class="tabs" id="rateTabs">
-        <button class="tab" data-v="0.5">0.5</button><button class="tab" data-v="1">1</button>
-        <button class="tab" data-v="1.5">1.5</button><button class="tab" data-v="2">2</button>
-        <button class="tab" data-v="3" aria-pressed="true">3</button><button class="tab" data-v="5">5</button>
-      </div>
     </div>
     <div class="pg">
       <label for="yrs">年数</label>
       <span class="pin"><input type="number" id="yrs" value="10" min="1" max="60" step="1"><span>年</span></span>
-      <div class="tabs" id="yrTabs">
-        <button class="tab" data-v="5">5</button><button class="tab" data-v="10" aria-pressed="true">10</button>
-        <button class="tab" data-v="15">15</button><button class="tab" data-v="20">20</button>
-        <button class="tab" data-v="25">25</button><button class="tab" data-v="30">30</button>
-      </div>
     </div>
+    <button class="go" id="go">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12 5l7 7-7 7"/></svg>計算する</button>
+    <span class="stale" id="stale">入力が変わりました</span>
   </div>
 </div>
 
 <main class="wrap">
-  <div id="rows"></div>
+  <div class="grid6" id="grid"></div>
 
   <p class="note">
-    どちらの欄に金額を入れても、反対側が計算されます。中央の係数を押すと計算の向きが変わります。<br>
     毎年おなじ利回りで回り続ける前提の概算です。税金・手数料・インフレは含みません（積立・受取は期末）。保険の予定利率は保険料の全額にかかるわけではないため、実際の返戻率・受取額は設計書でご確認ください。
   </p>
 
@@ -215,7 +193,7 @@ footer{border-top:1px solid var(--line);padding:18px 20px 26px;text-align:center
     <summary>係数の早見表（1〜40年）
       <svg class="ar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></summary>
     <div class="dbody">
-      <p>いまの利回り <b id="tblR"></b> での一覧です。金額に掛けるだけで答えが出ます。</p>
+      <p>利回り <b id="tblR"></b> での一覧です。金額に掛けるだけで答えが出ます。</p>
       <div class="scroll"><table class="tbl" id="ftbl"></table></div>
       <p style="margin-top:10px;font-size:.78rem;">
         期首払い（年度はじめに積立・受取）で計算する場合は、③⑥に (1+利回り) を掛け、④⑤を (1+利回り) で割ってください。
@@ -229,6 +207,8 @@ footer{border-top:1px solid var(--line);padding:18px 20px 26px;text-align:center
     <div class="dbody">
       <p>⑥で受取開始時に必要な原資を出し、①でいまの資金が育つ額を引き、残りを④で毎年の積立額に割り戻します。</p>
       <div class="pf" id="planForm"></div>
+      <button class="go sm" id="goPlan">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12 5l7 7-7 7"/></svg>計算する</button>
       <div id="planOut"></div>
     </div>
   </details>
@@ -278,7 +258,7 @@ footer{border-top:1px solid var(--line);padding:18px 20px 26px;text-align:center
 /* ---------- 数値の整形 ---------- */
 function nf(v,d){ d=d||0; return v.toLocaleString('ja-JP',{minimumFractionDigits:d,maximumFractionDigits:d}); }
 function yen(v){ return nf(Math.round(v))+'円'; }
-function man(v){                       /* v は円 */
+function man(v){                        /* v は円 */
   if(!isFinite(v)) return '—';
   var neg=v<0; v=Math.abs(v);
   if(Math.round(v)===0) return '0円';
@@ -301,77 +281,64 @@ function F(r,n){
 function dec(k){ return (k==='sf'||k==='cr') ? 6 : 4; }
 
 var R=3, N=10;
-function K(){ return F(R/100,N); }
 
-/* ---------- 3行 ＝ 3組の逆数 ---------- */
-var ROWS=[
-  { id:'lump', title:'一括で預ける', memo:'いまの一括と、将来の金額',
-    Ll:function(){ return 'いま預ける金額'; }, Rl:function(){ return N+'年後の金額'; },
-    fwd:{no:'①',nm:'終価係数',k:'fv'}, bwd:{no:'②',nm:'現価係数',k:'pv'},
-    sub:function(L,Rv){ return ['元本 '+man(L),'ふえる分 '+man(Rv-L)]; } },
-  { id:'save', title:'毎年つみたてる', memo:'毎年の積立額と、満期の金額',
-    Ll:function(){ return '毎年つみたてる金額'; }, Rl:function(){ return N+'年後の合計'; },
-    fwd:{no:'③',nm:'年金終価係数',k:'afv'}, bwd:{no:'④',nm:'減債基金係数',k:'sf'},
-    sub:function(L,Rv){ return ['月あたり '+man(L/12),'つみたて元本 '+man(L*N),'運用でふえる分 '+man(Rv-L*N)]; } },
-  { id:'draw', title:'毎年受け取る（取り崩す）', memo:'いまの元本と、毎年の受取額',
-    Ll:function(){ return 'いまある元本'; }, Rl:function(){ return '毎年受け取れる金額（'+N+'年間）'; },
-    fwd:{no:'⑤',nm:'資本回収係数',k:'cr'}, bwd:{no:'⑥',nm:'年金現価係数',k:'apv'},
-    sub:function(L,Rv){ return ['月あたり '+man(Rv/12),'受取総額 '+man(Rv*N),'運用が稼ぐ分 '+man(Rv*N-L)]; } }
+/* ---------- 6つのブロック（入力 → 答え の一方通行） ---------- */
+var BLK=[
+ { id:'fv', no:'①', nm:'終価係数', tag:'いまの一括 → 将来', k:'fv', def:500,
+   il:function(){ return 'いま預ける金額'; },
+   ol:function(){ return N+'年後の金額'; },
+   sub:function(a,o){ return ['元本 '+man(a), 'ふえる分 '+man(o-a)]; } },
+
+ { id:'pv', no:'②', nm:'現価係数', tag:'将来の目標 → いまの一括', k:'pv', def:1000,
+   il:function(){ return N+'年後に用意したい金額'; },
+   ol:function(){ return 'いま一括で必要な金額'; },
+   sub:function(a,o){ return ['目標額 '+man(a), '運用が稼ぐ分 '+man(a-o)]; } },
+
+ { id:'afv', no:'③', nm:'年金終価係数', tag:'毎年の積立 → 将来', k:'afv', def:60,
+   il:function(){ return '毎年つみたてる金額'; },
+   ol:function(){ return N+'年後の合計'; },
+   sub:function(a,o){ return ['月あたり '+man(a/12), 'つみたて元本 '+man(a*N), 'ふえる分 '+man(o-a*N)]; } },
+
+ { id:'sf', no:'④', nm:'減債基金係数', tag:'将来の目標 → 毎年の積立', k:'sf', def:2000,
+   il:function(){ return N+'年後に用意したい金額'; },
+   ol:function(){ return '毎年つみたてる金額'; },
+   sub:function(a,o){ return ['月あたり '+man(o/12), 'つみたて元本 '+man(o*N), '運用が稼ぐ分 '+man(a-o*N)]; } },
+
+ { id:'cr', no:'⑤', nm:'資本回収係数', tag:'いまの元本 → 毎年の受取', k:'cr', def:3000,
+   il:function(){ return 'いまある元本'; },
+   ol:function(){ return '毎年受け取れる金額'; },
+   sub:function(a,o){ return ['月あたり '+man(o/12), '受取総額（'+N+'年）'+man(o*N), '運用が稼ぐ分 '+man(o*N-a)]; } },
+
+ { id:'apv', no:'⑥', nm:'年金現価係数', tag:'毎年の受取 → 必要な原資', k:'apv', def:120,
+   il:function(){ return '毎年受け取りたい金額'; },
+   ol:function(){ return '必要な原資（いま）'; },
+   sub:function(a,o){ return ['受取総額（'+N+'年）'+man(a*N), '運用が稼ぐ分 '+man(a*N-o)]; } }
 ];
-/* 状態：val＝入力した側の金額（万円）、src＝入力した側 */
-var ST={ lump:{val:500,src:'L'}, save:{val:60,src:'L'}, draw:{val:3000,src:'L'} };
-function row(id){ for(var i=0;i<ROWS.length;i++) if(ROWS[i].id===id) return ROWS[i]; }
 
-var AR_R='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15M13 6l6 6-6 6"/></svg>';
-var AR_L='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12H5M11 6l-6 6 6 6"/></svg>';
+var ARW='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15M13 6l6 6-6 6"/></svg>';
 
-function rowHTML(c){
-  return '<section class="row">'
-   + '<h2>'+c.title+'<em>'+c.memo+'</em></h2>'
-   + '<div class="calc">'
-   +   '<div class="side" id="'+c.id+'-Ls"><label for="'+c.id+'-L" id="'+c.id+'-Ll"></label>'
-   +     '<div class="box"><input type="number" id="'+c.id+'-L" data-row="'+c.id+'" data-side="L" min="0" step="1" inputmode="decimal"><span class="u">万円</span></div>'
-   +     '<div class="yen" id="'+c.id+'-Ly"></div></div>'
-   +   '<div class="fx">'
-   +     '<button class="fxb" id="'+c.id+'-fwd" data-row="'+c.id+'" data-dir="L" title="左の金額から右を計算">'
-   +       '<span class="no">'+c.fwd.no+'</span><span class="nm">'+c.fwd.nm+' '+AR_R+'</span><span class="vl" id="'+c.id+'-fv"></span></button>'
-   +     '<button class="fxb" id="'+c.id+'-bwd" data-row="'+c.id+'" data-dir="R" title="右の金額から左を計算">'
-   +       '<span class="no">'+c.bwd.no+'</span><span class="nm">'+AR_L+' '+c.bwd.nm+'</span><span class="vl" id="'+c.id+'-bv"></span></button>'
-   +   '</div>'
-   +   '<div class="side" id="'+c.id+'-Rs"><label for="'+c.id+'-R" id="'+c.id+'-Rl"></label>'
-   +     '<div class="box"><input type="number" id="'+c.id+'-R" data-row="'+c.id+'" data-side="R" min="0" step="1" inputmode="decimal"><span class="u">万円</span></div>'
-   +     '<div class="yen" id="'+c.id+'-Ry"></div></div>'
+function blkHTML(c){
+  return '<section class="blk">'
+   + '<div class="bh"><b>'+c.no+' '+c.nm+'</b><em>'+c.tag+'</em></div>'
+   + '<div class="io">'
+   +   '<div><label class="lab" for="'+c.id+'" id="'+c.id+'-il"></label>'
+   +     '<div class="box"><input type="number" id="'+c.id+'" value="'+c.def+'" min="0" step="1" inputmode="decimal"><span class="u">万円</span></div></div>'
+   +   '<span class="arw">'+ARW+'</span>'
+   +   '<div><span class="lab o" id="'+c.id+'-ol"></span>'
+   +     '<div class="ans"><span class="v" id="'+c.id+'-v"></span></div></div>'
    + '</div>'
-   + '<div class="sub" id="'+c.id+'-sub"></div></section>';
+   + '<div class="fm" id="'+c.id+'-fm"></div></section>';
 }
 
-function drawRow(c, keep){        /* keep＝入力中の欄（書き換えない） */
-  var k=K(), st=ST[c.id], f=k[c.fwd.k], b=k[c.bwd.k], L, Rv;
-  if(st.src==='L'){ L=st.val*10000; Rv=L*f; } else { Rv=st.val*10000; L=Rv*b; }
-
-  if(keep!=='L') document.getElementById(c.id+'-L').value = r1(L/10000);
-  if(keep!=='R') document.getElementById(c.id+'-R').value = r1(Rv/10000);
-
-  document.getElementById(c.id+'-Ll').textContent = c.Ll();
-  document.getElementById(c.id+'-Rl').textContent = c.Rl();
-  document.getElementById(c.id+'-Ly').textContent = yen(L);
-  document.getElementById(c.id+'-Ry').textContent = yen(Rv);
-  document.getElementById(c.id+'-Ls').className = 'side' + (st.src==='R' ? ' out' : '');
-  document.getElementById(c.id+'-Rs').className = 'side' + (st.src==='L' ? ' out' : '');
-  document.getElementById(c.id+'-fv').textContent = nf(f,dec(c.fwd.k));
-  document.getElementById(c.id+'-bv').textContent = nf(b,dec(c.bwd.k));
-  document.getElementById(c.id+'-fwd').setAttribute('aria-pressed', String(st.src==='L'));
-  document.getElementById(c.id+'-bwd').setAttribute('aria-pressed', String(st.src==='R'));
-
-  var fm = (st.src==='L')
-    ? man(L)+' × '+nf(f,dec(c.fwd.k))+' ＝ <b>'+man(Rv)+'</b>'
-    : man(Rv)+' × '+nf(b,dec(c.bwd.k))+' ＝ <b>'+man(L)+'</b>';
-  var p=c.sub(L,Rv), h='<span class="f">'+fm+'</span>', i;
+function drawBlk(c,k){
+  var a=Math.max(0,gv(c.id))*10000, f=k[c.k], o=a*f;
+  document.getElementById(c.id+'-il').textContent = c.il();
+  document.getElementById(c.id+'-ol').textContent = c.ol();
+  document.getElementById(c.id+'-v').textContent  = man(o);
+  var p=c.sub(a,o), h='<span class="e">'+man(a)+' × '+nf(f,dec(c.k))+' ＝ <b>'+man(o)+'</b></span>'
+        + '<span>'+yen(o)+'</span>', i;
   for(i=0;i<p.length;i++) h += '<span>'+p[i]+'</span>';
-  document.getElementById(c.id+'-sub').innerHTML = h;
-}
-function drawRows(id, keep){
-  for(var i=0;i<ROWS.length;i++) drawRow(ROWS[i], ROWS[i].id===id ? keep : null);
+  document.getElementById(c.id+'-fm').innerHTML = h;
 }
 
 /* ---------- 早見表 ---------- */
@@ -389,6 +356,17 @@ function drawTable(){
   document.getElementById('tblR').textContent = nf(R,2)+'％';
 }
 
+/* ---------- 計算する ---------- */
+function calc(){
+  R=Math.max(0,gv('rate'));
+  N=Math.max(1,Math.round(gv('yrs')));
+  document.getElementById('yrs').value = N;
+  var k=F(R/100,N), i;
+  for(i=0;i<BLK.length;i++) drawBlk(BLK[i],k);
+  drawTable();
+  document.getElementById('stale').className='stale';
+}
+
 /* ---------- 合わせ技 ---------- */
 var PF=[
   {k:'age', l:'いまの年齢',           u:'歳',   v:45,  mn:0, mx:90},
@@ -401,7 +379,7 @@ var PF=[
   var h='', i;
   for(i=0;i<PF.length;i++){
     h += '<div class="fl"><label for="pl_'+PF[i].k+'">'+PF[i].l+'</label>'
-      +  '<div class="box"><input type="number" id="pl_'+PF[i].k+'" data-plan="1" value="'+PF[i].v
+      +  '<div class="box"><input type="number" id="pl_'+PF[i].k+'" value="'+PF[i].v
       +  '" min="'+PF[i].mn+'" max="'+PF[i].mx+'" step="1" inputmode="decimal"><span class="u">'+PF[i].u+'</span></div></div>';
   }
   h += '<div class="fl"><label for="pl_rate">想定利回り（共通）</label>'
@@ -458,47 +436,30 @@ function drawPlan(){
 /* ---------- 組み立て ---------- */
 (function(){
   var h='', i;
-  for(i=0;i<ROWS.length;i++) h += rowHTML(ROWS[i]);
-  document.getElementById('rows').innerHTML = h;
-  drawRows(); drawTable(); drawPlan();
+  for(i=0;i<BLK.length;i++) h += blkHTML(BLK[i]);
+  document.getElementById('grid').innerHTML = h;
+  calc();
+  drawPlan();
 })();
 
-/* ---------- 入力 ---------- */
-function press(id,v){
-  var b=document.getElementById(id).querySelectorAll('.tab');
-  for(var i=0;i<b.length;i++) b[i].setAttribute('aria-pressed', String(parseFloat(b[i].dataset.v)===v));
-}
-document.addEventListener('input', function(e){
-  var t=e.target;
-  if(t.id==='rate'){ R=Math.max(0,gv('rate')); press('rateTabs',R); drawRows(); drawTable(); drawPlan(); return; }
-  if(t.id==='yrs'){  N=Math.max(1,Math.round(gv('yrs'))); press('yrTabs',N); drawRows(); drawTable(); return; }
-  if(t.dataset.plan){ drawPlan(); return; }
-  if(t.dataset.row){
-    var v=parseFloat(t.value);
-    ST[t.dataset.row].val = isFinite(v) ? Math.max(0,v) : 0;
-    ST[t.dataset.row].src = t.dataset.side;
-    drawRow(row(t.dataset.row), t.dataset.side);
-  }
-});
+/* ---------- 操作 ---------- */
 document.addEventListener('click', function(e){
   var b = e.target.closest ? e.target.closest('button') : null;
   if(!b) return;
-  if(b.classList.contains('tab')){
-    var v=parseFloat(b.dataset.v);
-    if(b.parentElement.id==='rateTabs'){ R=v; document.getElementById('rate').value=v; press('rateTabs',v); drawTable(); drawPlan(); }
-    else { N=v; document.getElementById('yrs').value=v; press('yrTabs',v); drawTable(); }
-    drawRows();
-    return;
-  }
-  if(b.classList.contains('fxb')){
-    var id=b.dataset.row, dir=b.dataset.dir, inp=document.getElementById(id+'-'+dir);
-    if(ST[id].src!==dir){          /* 向きを変える。いま表示中の金額をそのまま入力値に引き継ぐ */
-      ST[id].val = parseFloat(inp.value) || 0;
-      ST[id].src = dir;
-      drawRow(row(id));
-    }
-    inp.focus(); inp.select();
-  }
+  if(b.id==='go') calc();
+  if(b.id==='goPlan') drawPlan();
+});
+document.addEventListener('input', function(e){
+  var t=e.target;
+  if(t.tagName!=='INPUT' || t.readOnly) return;
+  if(t.id.indexOf('pl_')!==0) document.getElementById('stale').className='stale on';
+});
+document.addEventListener('keydown', function(e){
+  if(e.key!=='Enter') return;
+  var t=e.target;
+  if(t.tagName!=='INPUT') return;
+  e.preventDefault();
+  if(t.id.indexOf('pl_')===0) drawPlan(); else calc();
 });
 
 })();
