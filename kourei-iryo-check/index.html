@@ -1,0 +1,2599 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="70歳・75歳で変わる医療費の窓口負担（1割・2割・3割）と、高額療養費でいくら戻るかを○×クイズで確認できる啓発ツール。入院時の食事代・差額ベッド代が高額療養費の対象外であること、限度額適用認定証とマイナ保険証、基準収入額適用申請、高額介護合算療養費、医療費控除まで、制度の小さな字をやさしく解説。株式会社Office-M（税理士事務所）作成の情報提供資料。">
+<title>高齢者の医療費の「払う・戻る」チェック｜株式会社Office-M</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 58S8 44 8 27C8 17 15.5 11 23 11c3.8 0 7.2 1.8 9 4.6 1.8-2.8 5.2-4.6 9-4.6 7.5 0 15 6 15 16C56 44 32 58 32 58Z' fill='%2324729f'/%3E%3Cpath d='M23 30h18M32 21v18' fill='none' stroke='%23fff' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --navy:#1b3f5e;
+  --navy-2:#27587f;
+  --navy-soft:#eaf1f7;
+  --bg:#fff8f2;
+  --white:#ffffff;
+  --text:#33404d;
+  /* 本文グレー：クリーム背景で7.46:1（WCAG AAA）。旧#5c6874は5.41でAA止まりだった */
+  --muted:#49535c;
+  /* 装飾の罫線。基準の対象外なので薄いまま */
+  --line:#efe2d8;
+  /* 操作パーツの輪郭。WCAG 1.4.11の非テキスト3:1を満たす（3.56:1） */
+  --ui-line:#96806c;
+  --shadow:0 6px 20px rgba(130,100,80,.09);
+  --shadow-sm:0 3px 10px rgba(130,100,80,.07);
+
+  --red:#c2453f;
+  --red-dark:#a63631;
+  --red-bg:#fdeee9;
+  --red-border:#f4d0c6;
+  --coral:#f0846a;
+  /* 強調文字：旧#d9552fは3.77:1でAA未達だった。5.69:1に */
+  --coral-text:#ad3f1d;
+  /* スライダー等の操作パーツ用。非テキスト3:1を満たす（3.82:1） */
+  --ui-accent:#d4573a;
+
+  --green:#2c7a4b;
+  --green-bg:#e8f6ef;
+  --green-border:#c3e5d3;
+  --mint:#4fbf9b;
+  --leaf:#5aa06f;
+
+  --amber:#a8701a;
+  --amber-deep:#a85c12;
+  --amber-bg:#fdf3e2;
+  --amber-border:#f2dcae;
+  --sunny:#f7c34e;
+
+  --sky:#24729f;
+  --sky-bg:#e8f4fb;
+  --sky-border:#c6e2f2;
+
+  --berry:#8f4574;
+  --berry-bg:#fbeef6;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+/* rem基準。ブラウザの文字サイズ設定を尊重するため px 直指定はしない。
+   画面が広いほど少しだけ大きく。行長は em 指定なので、拡大しても40字のまま */
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;font-size:100%;}
+@media(min-width:600px){ html{font-size:105%;} }
+@media(min-width:1000px){ html{font-size:110%;} }
+
+/* ---------- 書体 ----------
+   本文はゴシック、見出し・ブランド・数字は明朝。
+   根拠：九州大学（デザイン学研究 2018/2019）で、見出しは全年代が同じ基準で
+   判断するのに対し、本文フォントでは高齢者群だけが明確に乖離した。
+   明朝体の横画の細さが原因とされ、加齢によるコントラスト感度の低下は
+   まさにこの細い横線の帯を直撃する。見出しの明朝は読みやすさを損なわないので残す。
+   外部フォントは読み込まない（外部参照ゼロ・費用ゼロを維持）。 */
+:root{
+  --font-gothic:"Hiragino Sans","Hiragino Kaku Gothic ProN",Meiryo,"Yu Gothic",YuGothic,"Noto Sans JP","Noto Sans CJK JP",sans-serif;
+  --font-mincho:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho",YuMincho,"游明朝体","游明朝","MS PMincho","ＭＳ Ｐ明朝",serif;
+}
+body{
+  font-family:var(--font-gothic);
+  color:var(--text);
+  background:var(--bg);
+  font-size:1.125rem;   /* 18px。デジタル庁の下限16px、WAI-AGEの12〜14pt(≒16〜18.7px)の上寄り */
+  line-height:1.85;
+  /* 和文に字送りを足さない。佐川ら（照明学会・高齢者を含む実験）で文字間は狭いほど
+     読みやすく、この傾向は年齢差で変わらなかった。デジタル庁も letter-spacing:0。
+     和文は分かち書きしないので、字間を空けると語のまとまりが壊れる */
+  letter-spacing:0;
+  padding-bottom:40px;
+  overflow-wrap:break-word;
+}
+h1,h2,h3,h4,.brand,.step-pill,.money-total .vl,.quiz-done .score,.verdict-answer{
+  font-family:var(--font-mincho);
+}
+/* 段落間はフォントサイズの2倍以上（WCAG 1.4.12） */
+p + p{margin-top:1.1em;}
+
+/* ---------- 行長：和文40字以内（WCAG 1.4.8／デジタル庁） ----------
+   18px×40字＝720px。.wrap は900pxのままカード・グリッドに使い、
+   地の文だけこの幅に収める */
+.measure{max-width:42rem;}  /* ≒672px＝37字 */
+img,svg{max-width:100%;vertical-align:middle;}
+button{font-family:inherit;}
+a{color:var(--navy-2);}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px;}
+/* 語句のまとまりを保つ nowrap は使わない。装飾的な効果しかない一方で、
+   ブラウザの文字拡大時に見出しを画面外へ押し出す最大の原因だった。
+   和文はどこでも改行できるので、自然な折り返しでも読みやすさは落ちない
+   （WCAG 1.4.4：拡大しても内容や機能が失われないこと）。
+   クラスはHTML側に残してあるが、折り返しを妨げない */
+.nowrap{white-space:normal;}
+
+/* ---------- ヘッダー ---------- */
+.hero{
+  background:linear-gradient(168deg,#d9ecf7 0%,#fdf1ea 50%,#e9f6ee 100%);
+  color:var(--navy);
+  padding:24px 0 30px;
+  overflow:hidden;
+}
+.brand{
+  display:flex;align-items:center;gap:10px;
+  font-size:1rem;font-weight:700;letter-spacing:.02em;color:var(--navy);
+}
+.brand .ico{
+  width:36px;height:36px;flex:0 0 36px;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--navy);border-radius:12px;
+}
+.brand .ico svg{width:20px;height:20px;stroke:#fff;}
+.brand small{display:block;font-weight:500;color:var(--muted);font-size:.9375rem;letter-spacing:.04em;line-height:1.7;}
+.hero-flex{display:flex;flex-direction:column;}
+.hero h1{
+  font-size:1.58rem;line-height:1.45;font-weight:800;
+  margin:20px 0 12px;letter-spacing:.01em;color:var(--navy);
+}
+.hero h1 .accent{
+  background:linear-gradient(transparent 62%, #a9d8ef 62%);
+  padding:0 2px;
+}
+.hero .lead{font-size:1rem;color:var(--text);max-width:640px;}
+.hero-scene{margin:16px auto 0;width:100%;max-width:400px;}
+.hero-scene svg{width:100%;height:auto;display:block;}
+@media(min-width:768px){
+  .hero{padding:30px 0 40px;}
+  .hero h1{font-size:1.95rem;}
+  .hero .lead{font-size:1.06rem;}
+  .hero-flex{flex-direction:row;align-items:center;gap:28px;}
+  .hero-copy{flex:1;}
+  .hero-scene{flex:0 0 340px;margin:0;}
+}
+.hero-nav{display:flex;flex-wrap:wrap;gap:9px;margin-top:20px;}
+.hero-nav a{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--white);
+  border:2px solid #ffffff;
+  color:var(--navy);text-decoration:none;
+  padding:11px 17px;border-radius:999px;
+  font-size:1.0625rem;font-weight:700;min-height:48px;
+  box-shadow:var(--shadow-sm);
+}
+.hero-nav a:active{background:#e8f4fb;}
+.hero-nav a svg{width:18px;height:18px;stroke:var(--sky);flex:0 0 18px;}
+
+/* ---------- セクション共通 ---------- */
+section{padding:40px 0 46px;}
+.band{background:var(--white);}
+.band-sky{background:var(--sky-bg);}
+.band-blush{background:#fdf1eb;}
+.band-mint{background:var(--green-bg);}
+.round-top{
+  border-radius:30px 30px 0 0;
+  margin-top:-24px;position:relative;z-index:1;
+  padding-top:42px;
+}
+.sec-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;}
+.sec-head .spot{flex:0 0 84px;}
+.spot-circle{
+  width:84px;height:84px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.spot-circle svg{width:52px;height:52px;}
+.step-pill{
+  display:inline-flex;align-items:center;gap:9px;max-width:100%;flex-wrap:wrap;
+  background:var(--amber-bg);color:var(--navy);
+  font-size:1rem;font-weight:700;letter-spacing:.02em;
+  padding:6px 18px 6px 7px;border-radius:999px;margin-bottom:12px;
+  box-shadow:var(--shadow-sm);
+}
+.step-pill i{
+  width:28px;height:28px;flex:0 0 28px;border-radius:50%;
+  background:linear-gradient(135deg,#24729f,#a8601a);
+  color:#fff;font-style:normal;font-weight:800;font-size:1.0625rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.step-pill.plain{padding:7px 18px;}
+h2{
+  font-size:1.4rem;line-height:1.5;color:var(--navy);
+  font-weight:800;letter-spacing:.01em;
+  position:relative;padding-bottom:12px;margin-bottom:10px;
+}
+h2::after{
+  content:"";position:absolute;left:0;bottom:0;
+  width:54px;height:5px;border-radius:3px;
+  background:linear-gradient(90deg,var(--sky),var(--sunny));
+}
+@media(min-width:768px){h2{font-size:1.68rem;}}
+.sec-lead{color:var(--muted);font-size:1rem;margin-bottom:22px;}
+.note{
+  font-size:1rem;color:var(--muted);line-height:1.85;
+  background:var(--white);border-radius:16px;
+  padding:14px 16px;margin-top:20px;
+  display:flex;gap:9px;align-items:flex-start;
+  box-shadow:var(--shadow-sm);
+}
+.note svg{width:20px;height:20px;flex:0 0 20px;stroke:var(--coral);margin-top:4px;}
+.band-sky .note,.band-blush .note{box-shadow:none;border:1px solid var(--line);}
+
+/* ---------- ガイド（吹き出し） ---------- */
+.guide{display:flex;align-items:flex-start;gap:12px;margin-bottom:20px;}
+.guide-ava{
+  width:58px;height:58px;flex:0 0 58px;border-radius:50%;
+  overflow:hidden;display:block;box-shadow:var(--shadow-sm);
+}
+.guide-ava svg{width:100%;height:100%;display:block;}
+.guide-msg{
+  position:relative;background:var(--white);
+  border:2px solid #c6e2f2;border-radius:18px;
+  padding:12px 16px;font-size:1.0625rem;line-height:1.75;
+}
+.guide-msg::before{
+  content:"";position:absolute;left:-9px;top:20px;
+  width:14px;height:14px;background:var(--white);
+  border-left:2px solid #c6e2f2;border-bottom:2px solid #c6e2f2;
+  transform:rotate(45deg);
+}
+
+/* ---------- セクション1：ちがいを問いかけるリンク ---------- */
+.qlink-lead{
+  display:flex;align-items:center;gap:9px;
+  font-size:1rem;font-weight:800;color:var(--navy);
+  margin:26px 0 12px;
+}
+.qlink-lead svg{width:23px;height:23px;flex:0 0 23px;stroke:var(--coral);}
+.qlinks{display:grid;grid-template-columns:1fr;gap:12px;}
+@media(min-width:700px){.qlinks{grid-template-columns:repeat(3,1fr);}}
+.qlink{
+  display:flex;flex-direction:column;gap:5px;
+  background:var(--white);border:2px solid var(--line);border-radius:18px;
+  padding:15px 16px 13px;text-decoration:none;color:inherit;
+  box-shadow:var(--shadow-sm);
+  transition:border-color .15s, transform .12s;
+}
+.qlink:active{transform:scale(.985);}
+.qlink:hover{border-color:var(--sky);}
+.qlink .pair{
+  display:flex;align-items:center;gap:7px;flex-wrap:wrap;
+  font-size:1.02rem;font-weight:800;color:var(--navy);line-height:1.7;
+}
+.qlink .pair .vs{
+  font-size:.875rem;font-weight:800;color:var(--coral-text);
+  background:var(--red-bg);border-radius:999px;padding:2px 10px;
+}
+.qlink .ask{font-size:1rem;color:var(--muted);line-height:1.75;}
+.qlink .go{
+  display:inline-flex;align-items:center;gap:4px;margin-top:3px;
+  font-size:1rem;font-weight:800;color:var(--coral-text);
+}
+.qlink .go svg{width:14px;height:14px;flex:0 0 14px;stroke:var(--coral-text);}
+/* リンクで飛んだ先を、見出しの手前で止める */
+.def-block[id]{scroll-margin-top:18px;}
+
+/* ---------- セクション1：定義のブロック ---------- */
+.def-block{
+  margin-top:34px;padding-top:26px;border-top:2px dashed var(--line);
+}
+.def-block:first-of-type{margin-top:18px;padding-top:0;border-top:none;}
+.def-h{
+  display:flex;align-items:center;gap:12px;
+  font-size:1.14rem;line-height:1.5;color:var(--navy);margin-bottom:8px;
+}
+.def-ico{
+  width:52px;height:52px;flex:0 0 52px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.def-ico svg{width:34px;height:34px;}
+.def-lead{font-size:1.0625rem;color:var(--muted);line-height:1.9;margin-bottom:16px;}
+@media(min-width:768px){.def-h{font-size:1.26rem;}}
+.ic-red{background:var(--red-bg);}
+.ic-blue{background:var(--sky-bg);}
+.ic-amber{background:var(--amber-bg);}
+.ic-green{background:var(--green-bg);}
+.ic-berry{background:var(--berry-bg);}
+
+/* ---------- セクション1：範囲の図 ---------- */
+.venn-box{
+  background:var(--white);border-radius:22px;box-shadow:var(--shadow);
+  padding:20px 14px 8px;margin:6px 0 26px;text-align:center;
+}
+.venn-box svg{width:100%;max-width:520px;height:auto;}
+.venn-cap{font-size:1rem;color:var(--muted);padding:6px 8px 12px;line-height:1.8;}
+@media(max-width:520px){.venn-box{padding:14px 4px 6px;}}
+.cards{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.cards{grid-template-columns:repeat(2,1fr);}}
+.risk-card{
+  position:relative;background:var(--white);
+  border-radius:20px;padding:20px 20px 18px;
+  box-shadow:var(--shadow);
+}
+.risk-card .icon{
+  width:68px;height:68px;border-radius:50%;
+  background:var(--navy-soft);
+  display:flex;align-items:center;justify-content:center;margin-bottom:12px;
+}
+.risk-card .icon svg{width:44px;height:44px;}
+.risk-card h3{font-size:1.02rem;color:var(--navy);margin-bottom:2px;}
+.risk-card p{font-size:1.0625rem;color:var(--muted);margin-top:8px;line-height:1.85;}
+.judge-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:.9375rem;font-weight:700;padding:4px 13px;border-radius:999px;margin-top:4px;
+}
+.judge-chip.ng{background:var(--red-bg);color:var(--red-dark);border:1.5px solid var(--red-border);}
+.judge-chip.ok{background:var(--green-bg);color:var(--green);border:1.5px solid var(--green-border);}
+.judge-chip.maybe{background:var(--amber-bg);color:var(--amber-deep);border:1.5px solid var(--amber-border);}
+
+/* ---------- セクション2：クイズ ---------- */
+.quiz-shell{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px 24px;
+}
+.band .quiz-shell{background:var(--bg);box-shadow:none;border:2px solid var(--line);}
+.q-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.q-count{font-size:1rem;font-weight:700;color:var(--muted);}
+.q-count span{color:var(--coral-text);font-size:1.15rem;}
+.dots{display:flex;gap:6px;}
+.dots i{width:10px;height:10px;border-radius:50%;background:#e8dbd0;}
+.dots i.done{background:var(--mint);}
+.dots i.now{background:var(--coral);}
+.q-body{display:flex;gap:14px;align-items:flex-start;margin:14px 0 18px;}
+.q-body .icon{
+  width:64px;height:64px;flex:0 0 64px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.q-body .icon svg{width:40px;height:40px;}
+.q-body p{font-size:1.06rem;font-weight:700;color:var(--navy);line-height:1.8;}
+.ans-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.ans-btn{
+  min-height:64px;border-radius:18px;cursor:pointer;
+  font-size:1.1rem;font-weight:800;letter-spacing:.06em;
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  border:2.5px solid;transition:transform .12s;
+}
+.ans-btn:active{transform:scale(.97);}
+.ans-btn svg{width:26px;height:26px;}
+.ans-btn.yes{background:var(--green-bg);border-color:var(--green-border);color:var(--green);}
+.ans-btn.no{background:var(--red-bg);border-color:var(--red-border);color:var(--red-dark);}
+.ans-btn:disabled{opacity:.45;cursor:default;}
+.verdict{
+  display:none;margin-top:18px;background:var(--white);
+  border:2px solid var(--amber-border);border-radius:20px;
+  padding:18px 18px 16px;
+}
+.verdict.show{display:block;}
+.verdict-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+.verdict-answer{font-size:1.25rem;font-weight:800;color:var(--navy);}
+.result-chip{font-size:.9375rem;font-weight:800;padding:4px 14px;border-radius:999px;}
+.result-chip.correct{background:var(--green-bg);color:var(--green);}
+.result-chip.wrong{background:var(--red-bg);color:var(--red-dark);}
+.verdict .expl{font-size:1.0625rem;line-height:1.95;margin-bottom:12px;}
+.verdict .kv{
+  font-size:1rem;line-height:1.85;background:var(--sky-bg);
+  border-radius:12px;padding:9px 13px;margin-top:8px;
+}
+.verdict .kv b{color:var(--sky);}
+.verdict .kv.kv-wana{background:var(--red-bg);}
+.verdict .kv.kv-wana b{color:var(--red-dark);}
+.btn-primary{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  width:100%;min-height:58px;margin-top:16px;
+  background:linear-gradient(135deg,#3f9ec9,#24729f);
+  color:#fff;font-size:1.05rem;font-weight:800;letter-spacing:.04em;
+  border:none;border-radius:18px;cursor:pointer;
+  box-shadow:0 5px 14px rgba(36,114,159,.32);
+}
+.btn-primary:active{transform:translateY(1px);}
+.btn-primary svg{width:22px;height:22px;stroke:#fff;}
+.btn-ghost{
+  display:block;width:100%;min-height:50px;margin-top:12px;
+  background:var(--white);color:var(--navy-2);
+  font-size:1.0625rem;font-weight:700;
+  border:2px solid var(--sky-border);border-radius:16px;cursor:pointer;
+}
+.btn-ghost:active{background:var(--sky-bg);}
+.quiz-done{display:none;}
+.quiz-done.show{display:block;}
+.quiz-done .score{
+  font-size:1.15rem;font-weight:800;color:var(--navy);
+  text-align:center;margin:8px 0 6px;
+}
+.quiz-done .score .num{font-size:2rem;color:var(--coral-text);}
+.quiz-done .cmt{
+  background:var(--white);border-radius:16px;padding:14px 16px;
+  font-size:1.0625rem;line-height:1.95;margin:14px 0;
+  border:2px solid var(--amber-border);
+}
+.wrong-list{margin:14px 0;}
+.wrong-list h4{font-size:1.0625rem;color:var(--navy);margin-bottom:8px;}
+.wrong-list .w-item{
+  background:var(--white);border-radius:14px;padding:11px 14px;
+  font-size:1rem;line-height:1.8;margin-bottom:8px;
+  border-left:4px solid var(--sky);box-shadow:var(--shadow-sm);
+}
+
+/* ---------- セクション3：条件の解剖 ---------- */
+.type-table-box{
+  background:var(--white);border-radius:22px;box-shadow:var(--shadow-sm);
+  padding:18px 14px;margin:8px 0 24px;overflow-x:auto;
+}
+.type-table{width:100%;border-collapse:collapse;min-width:560px;font-size:1rem;}
+.type-table th,.type-table td{
+  padding:10px 10px;text-align:center;border-bottom:1.5px solid var(--line);
+  line-height:1.7;vertical-align:middle;
+}
+.type-table th{background:var(--navy-soft);color:var(--navy);font-size:.9375rem;}
+.type-table th:first-child{border-radius:12px 0 0 12px;}
+.type-table th:last-child{border-radius:0 12px 12px 0;}
+.type-table td:first-child{text-align:left;font-weight:700;color:var(--navy);font-size:1rem;}
+.type-table small{display:block;color:var(--muted);font-weight:500;font-size:1rem;}
+.mark-ok,.mark-ng,.mark-tri{font-weight:800;font-size:1.05rem;}
+.mark-ok{color:var(--green);}
+.mark-ng{color:var(--red);}
+.mark-tri{color:var(--amber);}
+.sim-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px;margin-top:26px;
+}
+.sim-box h3{font-size:1.12rem;color:var(--navy);margin-bottom:4px;}
+.sim-box .sub{font-size:1rem;color:var(--muted);margin-bottom:18px;}
+.sim-ctrl{margin-bottom:18px;}
+.sim-ctrl label{
+  display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  font-size:1.0625rem;font-weight:700;color:var(--navy);margin-bottom:6px;
+}
+.sim-ctrl label > span{flex:1 1 auto;line-height:1.65;}
+.sim-ctrl label small{display:block;font-weight:500;color:var(--muted);font-size:1rem;line-height:1.7;}
+.sim-ctrl label output{flex:0 0 auto;color:var(--coral-text);font-size:1.15rem;font-weight:800;white-space:nowrap;}
+/* スライダーは WCAG 2.5.8 上「ひとつのターゲット」として扱われるため、
+   つまみではなくコントロール全体の高さが判定対象。34px→48pxに拡大し、
+   つまみも44pxへ（旧28pxはAppleの絶対下限であって設計目標ではない）。
+   見た目のトラックは細いまま、当たり判定だけを広げている */
+input[type=range]{
+  width:100%;height:48px;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;
+}
+input[type=range]::-webkit-slider-runnable-track{height:12px;border-radius:6px;background:linear-gradient(90deg,var(--sunny),var(--ui-accent));}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:44px;height:44px;border-radius:50%;
+  background:var(--white);border:4px solid var(--ui-accent);margin-top:-16px;
+  box-shadow:var(--shadow-sm);
+}
+input[type=range]::-moz-range-track{height:12px;border-radius:6px;background:linear-gradient(90deg,var(--sunny),var(--ui-accent));}
+input[type=range]::-moz-range-thumb{width:40px;height:40px;border-radius:50%;background:var(--white);border:4px solid var(--ui-accent);}
+input[type=range]:focus-visible{outline:3px solid var(--sky);outline-offset:2px;}
+
+/* スライダーを引けない人でも値を動かせるように、±ボタンと数値表示を添える。
+   これが無いと、手の震えや細かい操作が苦手な人はこの機能に到達できない */
+.sim-stepper{display:flex;align-items:center;gap:12px;margin-top:6px;}
+.sim-stepper button{
+  width:56px;height:56px;flex:0 0 56px;border-radius:16px;cursor:pointer;
+  background:var(--white);border:2px solid var(--ui-line);
+  font-size:1.6rem;font-weight:700;line-height:1;color:var(--navy);
+  display:flex;align-items:center;justify-content:center;
+}
+.sim-stepper button:active{background:var(--navy-soft);}
+.sim-stepper button:focus-visible{outline:3px solid var(--sky);outline-offset:2px;}
+.sim-stepper .sim-range{flex:1;}
+.sim-stepper .sim-range input[type=range]{display:block;}
+.seg-label{font-size:1.0625rem;font-weight:700;color:var(--navy);margin-bottom:8px;display:block;}
+.seg{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+.seg label{
+  flex:1 1 0;min-width:92px;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  background:var(--bg);border:2px solid var(--line);border-radius:14px;
+  padding:11px 8px;font-size:1.0625rem;font-weight:700;color:var(--navy);cursor:pointer;
+  min-height:52px;text-align:center;
+}
+.seg label input{width:20px;height:20px;accent-color:var(--sky);flex:0 0 20px;}
+.seg label:has(input:checked){background:var(--green-bg);border-color:var(--green-border);}
+@media(max-width:560px){
+  .seg label{flex:1 1 calc(50% - 4px);min-width:0;}
+}
+.timeline{margin:92px 0 10px;}
+.tl-track{position:relative;height:14px;border-radius:7px;background:#f0e4d8;}
+.tl-fill{
+  position:absolute;left:0;top:0;height:14px;border-radius:7px;
+  background:linear-gradient(90deg,var(--sunny),var(--coral));
+  transition:width .2s;
+}
+/* 目印は「棒」と「文字」を分けてある。棒は必ず正しい位置に立て、
+   文字だけを帯の中に収まるよう左右にずらす（区分によっては目盛りの
+   端に近い位置に立つため、1枚にすると文字が画面外へ出てしまう） */
+.tl-mark{
+  position:absolute;bottom:100%;width:3px;height:26px;
+  background:var(--red);border-radius:2px;transform:translateX(-50%);
+}
+.tl-goal{
+  position:absolute;bottom:calc(100% + 30px);transform:translateX(-50%);
+  font-size:1rem;font-weight:800;color:var(--red-dark);
+  text-align:center;line-height:1.35;
+  /* 幅を先に決めておく。指定しないと文字の折り返し位置しだいで
+     細長い箱になり、3行4行に折り返してしまう */
+  width:min(12em,50%);
+}
+.tl-labels{display:flex;justify-content:space-between;font-size:1rem;color:var(--muted);margin-top:6px;}
+.sim-sub-h{
+  display:flex;align-items:center;gap:8px;
+  font-size:1rem;font-weight:800;color:var(--navy);
+  margin:26px 0 12px;padding-top:20px;border-top:2px dashed var(--line);
+}
+.sim-sub-h svg{width:22px;height:22px;flex:0 0 22px;stroke:var(--sky);}
+.sim-box:first-of-type .sim-sub-h:first-of-type{border-top:none;padding-top:0;margin-top:6px;}
+.sim-results{display:grid;grid-template-columns:1fr;gap:12px;margin-top:6px;}
+@media(min-width:700px){.sim-results{grid-template-columns:repeat(3,1fr);}}
+.sim-r{border-radius:18px;padding:14px 15px;border:2px solid var(--line);background:var(--bg);}
+.sim-r h4{font-size:1rem;color:var(--navy);margin-bottom:6px;line-height:1.7;}
+.sim-r h4 small{display:block;font-weight:500;color:var(--muted);font-size:.9375rem;}
+.sim-r .r-chip{
+  display:inline-block;font-size:1.0625rem;font-weight:800;
+  padding:5px 16px;border-radius:999px;margin-bottom:6px;
+}
+.sim-r.ok{border-color:var(--green-border);background:var(--green-bg);}
+.sim-r.ok .r-chip{background:var(--white);color:var(--green);}
+.sim-r.ng{border-color:var(--red-border);background:var(--red-bg);}
+.sim-r.ng .r-chip{background:var(--white);color:var(--red-dark);}
+.sim-r p{font-size:1rem;color:var(--muted);line-height:1.75;}
+/* お金の内訳 */
+.money-box{
+  background:var(--bg);border:2px solid var(--line);border-radius:18px;
+  padding:14px 16px;margin-top:6px;
+}
+.money-row{
+  display:flex;justify-content:space-between;align-items:baseline;gap:6px 12px;flex-wrap:wrap;
+  font-size:1.0625rem;line-height:1.9;padding:7px 0;border-bottom:1px dashed var(--line);
+}
+.money-row:last-of-type{border-bottom:none;}
+.money-row .lb{color:var(--navy);font-weight:700;}
+.money-row .lb small{display:block;font-weight:500;color:var(--muted);font-size:1rem;line-height:1.7;}
+.money-row .vl{font-weight:800;white-space:nowrap;font-size:1.02rem;color:var(--navy);}
+.money-row.warn .vl{color:var(--red-dark);}
+.money-row.back .vl{color:var(--green);}
+.money-total{
+  display:flex;justify-content:space-between;align-items:baseline;gap:6px 12px;flex-wrap:wrap;
+  margin-top:10px;padding:12px 14px;border-radius:14px;
+  background:var(--white);border:2px solid var(--amber-border);
+}
+.money-total .lb{font-size:1.0625rem;font-weight:800;color:var(--navy);}
+.money-total .vl{font-size:1.5rem;font-weight:800;color:var(--coral-text);white-space:nowrap;}
+.money-msg{
+  font-size:1rem;line-height:1.85;color:var(--muted);
+  background:var(--amber-bg);border-radius:14px;padding:11px 14px;margin-top:12px;
+}
+
+/* ---------- セクション4・5：劇場 ---------- */
+.case-grid{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.case-grid{grid-template-columns:repeat(2,1fr);}}
+.case-card{
+  display:flex;align-items:center;gap:14px;text-align:left;
+  background:var(--white);border:none;border-radius:20px;
+  padding:16px 16px;cursor:pointer;box-shadow:var(--shadow);
+  /* button はUA既定の13.3pxを持つので、明示的に本文サイズへ戻す */
+  font-family:inherit;font-size:1rem;transition:transform .12s;
+}
+.case-card:focus-visible{outline:3px solid var(--sky);outline-offset:2px;}
+.case-card:active{transform:scale(.985);}
+.case-card .art{
+  width:64px;height:64px;flex:0 0 64px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+}
+.case-card .art svg{width:42px;height:42px;}
+.case-card .t{flex:1;}
+.case-card .chip{
+  display:inline-block;font-size:.875rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:4px;
+}
+.case-card h3{font-size:1.0625rem;color:var(--navy);line-height:1.7;}
+.case-card .more{
+  font-size:1rem;color:var(--coral-text);font-weight:700;
+  display:inline-flex;align-items:center;gap:4px;margin-top:4px;
+}
+.case-card .more svg{width:14px;height:14px;stroke:var(--coral-text);}
+.c-red{background:var(--red-bg);color:var(--red-dark);}
+.c-blue{background:var(--sky-bg);color:var(--sky);}
+.c-green{background:var(--green-bg);color:var(--green);}
+.c-amber{background:var(--amber-bg);color:var(--amber-deep);}
+.c-berry{background:var(--berry-bg);color:var(--berry);}
+.case-card .amt{
+  display:inline-block;margin-left:7px;
+  font-size:.875rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;
+  background:var(--white);color:var(--green);border:1.5px solid var(--green-border);
+}
+#sec5 .case-card{box-shadow:0 6px 20px rgba(60,120,80,.12);}
+.model-note{
+  background:var(--white);border-radius:18px;padding:14px 18px;margin-bottom:18px;
+  border-left:6px solid var(--mint);box-shadow:var(--shadow-sm);
+}
+.model-note strong{display:block;font-size:1rem;color:var(--green);margin-bottom:4px;}
+.model-note .mn-row{display:block;font-size:1.0625rem;line-height:1.9;color:var(--navy);}
+.model-note .mn-row b{color:var(--coral-text);}
+.model-note .mn-note{display:block;font-size:.9375rem;color:var(--muted);line-height:1.8;margin-top:6px;}
+.rule3-box{
+  margin-top:28px;background:var(--white);border-radius:22px;
+  padding:20px 20px 16px;box-shadow:var(--shadow-sm);
+}
+.rule3-box h3{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.06rem;color:var(--navy);margin-bottom:12px;
+}
+.rule3-box h3 svg{width:24px;height:24px;flex:0 0 24px;stroke:var(--green);}
+.rule3-box ol{list-style:none;counter-reset:r3;}
+.rule3-box ol li{
+  counter-increment:r3;position:relative;
+  padding:0 0 12px 44px;font-size:1.0625rem;line-height:1.9;
+}
+.rule3-box ol li::before{
+  content:counter(r3);position:absolute;left:0;top:2px;
+  width:30px;height:30px;border-radius:50%;
+  background:var(--green-bg);color:var(--green);
+  font-weight:800;font-size:1rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.rule3-note{font-size:1rem;color:var(--muted);border-top:1.5px dashed var(--line);padding-top:10px;line-height:1.8;}
+
+/* ---------- モーダル ---------- */
+.cmodal{position:fixed;inset:0;z-index:60;display:none;}
+.cmodal.show{display:block;}
+.cmodal-back{position:absolute;inset:0;background:rgba(40,30,25,.5);}
+.cmodal-panel{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(94vw,640px);max-height:88vh;overflow-y:auto;
+  background:var(--white);border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.25);
+  -webkit-overflow-scrolling:touch;
+}
+.cmodal-head{
+  position:sticky;top:0;display:flex;gap:14px;align-items:center;
+  background:var(--white);padding:18px 52px 12px 20px;
+  border-bottom:1.5px solid var(--line);z-index:2;
+}
+/* 閉じるボタンは40px→56px。WCAG 2.5.5(44px)を下回っていたうえ、
+   隅に置かれるボタンは高齢者のタップ位置のばらつきが最も大きい場所 */
+.cmodal-close{
+  position:absolute;right:10px;top:10px;
+  width:56px;height:56px;border-radius:50%;
+  background:var(--bg);border:2px solid var(--ui-line);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.cmodal-close:focus-visible{outline:3px solid var(--sky);outline-offset:2px;}
+.cmodal-close svg{width:18px;height:18px;stroke:var(--navy);}
+.cmodal-ico{
+  width:56px;height:56px;flex:0 0 56px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+}
+.cmodal-ico svg{width:38px;height:38px;}
+.cmodal-chip{
+  display:inline-block;font-size:.875rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:3px;
+}
+.cmodal-title{font-size:1.08rem;color:var(--navy);line-height:1.7;}
+.cmodal-body{padding:16px 20px 22px;}
+.cmodal-block{margin-bottom:18px;}
+.cmodal-label{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:.9375rem;font-weight:800;padding:5px 14px;border-radius:999px;margin-bottom:9px;
+}
+.cmodal-label svg{width:17px;height:17px;}
+.lb-blue{background:var(--sky-bg);color:var(--sky);}
+.lb-blue svg{stroke:var(--sky);}
+.lb-red{background:var(--red-bg);color:var(--red-dark);}
+.lb-red svg{stroke:var(--red-dark);}
+.lb-green{background:var(--green-bg);color:var(--green);}
+.lb-green svg{stroke:var(--green);}
+.cmodal-quote{
+  background:var(--bg);border-left:4px solid var(--sky);
+  border-radius:0 14px 14px 0;padding:12px 15px;
+  font-size:1.0625rem;line-height:1.9;color:var(--text);
+}
+.cmodal-quote small{display:block;text-align:right;color:var(--muted);margin-top:4px;font-size:1rem;}
+.cmodal-p{font-size:1.0625rem;line-height:1.95;margin-bottom:8px;}
+.cmodal-note{
+  font-size:1rem;color:var(--muted);line-height:1.8;margin-top:14px;
+  border-top:1.5px dashed var(--line);padding-top:12px;
+}
+
+/* ---------- まとめ・チェックリスト ---------- */
+.score-box{background:var(--sky-bg);border-radius:20px;padding:18px 18px 14px;margin-bottom:24px;}
+.score-box h3{
+  display:flex;align-items:center;gap:8px;
+  font-size:1.02rem;color:var(--navy);margin-bottom:8px;
+}
+.score-box h3 svg{width:22px;height:22px;stroke:var(--sky);}
+.score-box p{font-size:1.0625rem;line-height:1.9;}
+.checklist{display:grid;grid-template-columns:1fr;gap:10px;}
+.chk-group{
+  font-size:1rem;font-weight:800;color:var(--amber-deep);
+  margin:14px 0 2px;letter-spacing:.03em;
+}
+.chk-group:first-child{margin-top:0;}
+.chk{
+  display:flex;align-items:center;gap:12px;
+  background:var(--bg);border:2px solid var(--ui-line);border-radius:16px;
+  padding:14px;cursor:pointer;font-size:1.0625rem;line-height:1.8;
+  min-height:56px;
+  transition:border-color .15s, background .15s;
+}
+/* label が input を包んでいるので、当たり判定は行全体（56px以上）。
+   それでも枠自体を28pxに上げ、指と視認の両方で見つけやすくする */
+.chk input{width:28px;height:28px;flex:0 0 28px;accent-color:var(--green);cursor:pointer;}
+.chk:focus-within{outline:3px solid var(--sky);outline-offset:2px;}
+.chk .art{
+  width:44px;height:44px;flex:0 0 44px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.chk .art svg{width:28px;height:28px;}
+.chk:has(input:checked){background:var(--green-bg);border-color:var(--green-border);}
+.chk-msg{
+  margin-top:16px;background:var(--amber-bg);border-radius:16px;
+  padding:14px 16px;font-size:1.0625rem;line-height:1.9;
+}
+details.finder{
+  margin-top:26px;background:var(--bg);border-radius:18px;
+  padding:4px 18px;border:1.5px solid var(--line);
+}
+details.finder summary{
+  cursor:pointer;font-size:1.0625rem;font-weight:700;color:var(--navy);
+  padding:12px 0;list-style-position:inside;
+}
+details.finder ul{padding:2px 0 8px 22px;font-size:1rem;color:var(--text);}
+details.finder li{margin-bottom:7px;line-height:1.85;}
+details.finder p{font-size:1rem;padding:0 0 14px;line-height:1.9;}
+
+/* ---------- CTA ---------- */
+.cta-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:24px 20px;margin-top:30px;text-align:center;
+}
+.cta-box h3{font-size:1.2rem;color:var(--navy);margin-bottom:8px;line-height:1.7;}
+.cta-box .cta-lead{font-size:1.0625rem;color:var(--muted);text-align:left;margin-bottom:14px;line-height:1.95;}
+.cta-box ul{list-style:none;text-align:left;margin-bottom:14px;}
+.cta-box ul li{
+  display:flex;gap:9px;align-items:flex-start;
+  font-size:1.0625rem;line-height:1.85;margin-bottom:6px;
+}
+.cta-box ul li svg{width:19px;height:19px;flex:0 0 19px;stroke:var(--mint);margin-top:6px;}
+.co{font-size:1.0625rem;font-weight:800;color:var(--navy);margin-top:18px;}
+.addr{font-size:1rem;color:var(--muted);line-height:1.7;}
+.tip{font-size:1rem;color:var(--amber-deep);margin-top:10px;}
+.cta-mini{
+  margin-top:18px;background:var(--bg);border:2px solid var(--amber-border);
+  border-radius:18px;padding:14px 16px;text-align:center;
+}
+.cta-mini p{font-size:1rem;line-height:1.85;margin-bottom:10px;text-align:left;}
+.cta-mini a{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--white);border:2px solid var(--sky);
+  color:var(--sky);text-decoration:none;font-weight:800;font-size:1.0625rem;
+  border-radius:999px;padding:9px 20px;
+}
+.cta-mini a svg{width:18px;height:18px;stroke:var(--sky);}
+
+/* ---------- フッター免責 ---------- */
+footer.disclaimer{padding:26px 16px 30px;max-width:900px;margin:0 auto;}
+footer.disclaimer p{font-size:1rem;color:var(--muted);line-height:1.9;}
+
+@media print{
+  .hero-nav,.cta-mini{display:none !important;}
+  body{background:#fff;}
+}
+
+/* ---------- 行長の制限（WCAG 1.4.8：和文40字以内） ----------
+   18px×40字＝720px。地の文だけを絞り、カード・グリッド・図は900pxのまま使う */
+.hero .lead,
+.sec-lead,
+.def-lead,
+.guide-msg,
+.note span,
+.venn-cap,
+.money-msg,
+.rule3-note,
+.chk-msg,
+.cta-box .cta-lead,
+details.finder p,
+details.finder ul,
+footer.disclaimer p{
+  max-width:40em;
+}
+.rule3-box ol li{max-width:38em;}
+.cmodal-p,.cmodal-quote{max-width:38em;}
+
+/* ---------- 上に戻るボタン ----------
+   NN/g：セクションごとに繰り返すリンクは予測可能すぎて無視されるので、
+   ページに1つだけ、固定で置く。数画面ぶんスクロールしてから現れる */
+.to-top{
+  position:fixed;right:16px;bottom:16px;z-index:40;
+  width:56px;height:56px;border-radius:50%;
+  background:var(--white);border:2px solid var(--ui-line);
+  box-shadow:0 4px 14px rgba(80,60,45,.22);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.to-top.show{opacity:1;pointer-events:auto;}
+.to-top svg{width:26px;height:26px;stroke:var(--navy);}
+.to-top:focus-visible{outline:3px solid var(--sky);outline-offset:2px;}
+@media print{.to-top{display:none !important;}}
+
+/* いま読んでいるセクションをヒーローのメニューで示す。
+   NN/g：固定表示の目次は現在地を示すべき。位置が分かるだけで戻り読みが楽になる */
+.hero-nav a[aria-current="true"]{
+  background:var(--sky-bg);border-color:var(--sky);
+}
+
+/* ---------- セクション6：1割の、ほんとうのところ ----------
+   生命保険版の .life-box 系を流用し、文字サイズだけこのページの基準（16〜18px）に上げてある */
+.life-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px 14px;margin:6px 0 26px;
+}
+.life-box h3{font-size:1.12rem;color:var(--navy);margin-bottom:4px;line-height:1.7;}
+.life-box .sub{font-size:1rem;color:var(--muted);margin-bottom:16px;}
+.life-box svg{width:100%;max-width:640px;height:auto;display:block;margin:0 auto;}
+.life-cap{font-size:1rem;color:var(--muted);line-height:1.85;padding:12px 4px 4px;max-width:40em;}
+.big3{display:grid;grid-template-columns:1fr;gap:12px;margin-top:18px;}
+@media(min-width:700px){.big3{grid-template-columns:repeat(3,1fr);}}
+.big3 .b{
+  background:var(--bg);border:2px solid var(--line);border-radius:16px;
+  padding:14px 15px;text-align:center;
+}
+.big3 .b .n{display:block;font-size:1.5rem;font-weight:800;color:var(--coral-text);line-height:1.45;}
+.big3 .b .l{display:block;font-size:1rem;color:var(--navy);font-weight:700;line-height:1.7;}
+.big3 .b .s{display:block;font-size:.9375rem;color:var(--muted);line-height:1.75;margin-top:4px;}
+
+.sub-h{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.12rem;color:var(--navy);margin:32px 0 6px;line-height:1.7;
+}
+.sub-h svg{width:24px;height:24px;flex:0 0 24px;stroke:var(--sky);}
+.sub-lead{font-size:1.0625rem;color:var(--muted);line-height:1.9;margin-bottom:16px;max-width:40em;}
+.age-cards{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.age-cards{grid-template-columns:repeat(3,1fr);}}
+.age-card{
+  background:var(--white);border-radius:20px;box-shadow:var(--shadow);
+  padding:18px 18px 15px;
+}
+.age-card .ttl{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.0625rem;font-weight:800;color:var(--navy);margin-bottom:10px;line-height:1.7;
+}
+.age-card .ttl .ico{
+  width:40px;height:40px;flex:0 0 40px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.age-card .ttl .ico svg{width:28px;height:28px;}
+.age-card .rows{border-top:1.5px dashed var(--line);padding-top:9px;}
+.age-card .row{
+  display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  font-size:1rem;line-height:1.95;
+}
+.age-card .row span{color:var(--muted);}
+.age-card .row b{font-size:1.28rem;font-weight:800;color:var(--red-dark);}
+.age-card .kind{
+  display:inline-block;font-size:.9375rem;font-weight:800;
+  padding:3px 12px;border-radius:999px;margin-bottom:8px;
+  background:var(--sky-bg);color:var(--sky);
+}
+.age-card .cmt{font-size:1rem;color:var(--text);line-height:1.85;margin-top:10px;}
+.age-card .src{
+  font-size:.9375rem;color:var(--muted);line-height:1.75;margin-top:10px;
+  border-top:1.5px dashed var(--line);padding-top:8px;
+}
+
+/* だから、いま確認しておくと効くこと */
+.mikane{
+  margin-top:28px;background:var(--white);border-radius:24px;
+  box-shadow:var(--shadow);padding:22px 20px 18px;
+}
+.mikane h3{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.12rem;color:var(--navy);margin-bottom:14px;line-height:1.7;
+}
+.mikane h3 svg{width:25px;height:25px;flex:0 0 25px;stroke:var(--sky);}
+.mikane ol{list-style:none;counter-reset:mk;}
+.mikane ol li{
+  counter-increment:mk;position:relative;
+  padding:0 0 14px 48px;font-size:1.0625rem;line-height:1.9;max-width:38em;
+}
+.mikane ol li::before{
+  content:counter(mk);position:absolute;left:0;top:2px;
+  width:34px;height:34px;border-radius:50%;
+  background:var(--sky-bg);color:var(--sky);
+  font-weight:800;font-size:1.0625rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.mikane ol li b{color:var(--coral-text);}
+.mikane .caution{
+  background:var(--amber-bg);border-radius:16px;padding:14px 16px;
+  font-size:1rem;line-height:1.9;max-width:40em;
+  border-left:5px solid var(--sunny);
+}
+.mikane .caution strong:first-child{display:block;color:var(--amber-deep);margin-bottom:4px;}
+.mikane .caution b{color:var(--coral-text);}
+</style>
+</head>
+<body>
+
+<!-- ================= ヒーロー ================= -->
+<header class="hero">
+  <div class="wrap">
+    <div class="brand">
+      <span class="ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg>
+      </span>
+      <span>株式会社Office-M<small>制度の小さな字を読み解いて、その方に合うかたちをご案内します</small></span>
+    </div>
+    <div class="hero-flex">
+      <div class="hero-copy">
+        <h1>70歳と75歳。<br><span class="nowrap">医療費の払い方は、</span><span class="nowrap"><span class="accent">二度変わります</span>。</span></h1>
+        <p class="lead">「お年寄りの窓口は1割です」——市の冊子の大きな字は頼もしいのに、いざという時に効いてくるのは制度の小さな字のほう。1割ではない方がいること、高額療養費で戻るお金と戻らないお金があること、そして戻るお金のほとんどが<strong>「申請しないと1円も戻らない」</strong>こと。私たちは税理士事務所として、その小さな字まで読み解いたうえで、その方に合うかたちをご案内しています。○×クイズだけなら3分、ぜんぶ読むと12分ほど。笑いながらどうぞ。最後はぜひ、ご自分とご家族の保険証でご確認を。</p>
+        <nav class="hero-nav" aria-label="ページ内メニュー">
+          <a href="#sec1"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4v-5H4Zm6 0h4V10h-4Zm6 0h4V5h-4Z"/></svg>3つの線のワナ</a>
+          <a href="#sec2"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/><circle cx="12" cy="12" r="9"/></svg>○×ワナクイズ</a>
+          <a href="#sec3"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3.5h8a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2Z"/><path d="M9.5 8h5M9.5 11.5h5M9.5 15h3"/></svg>ひと月いくら試算</a>
+          <a href="#sec4"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0-3.3 11 3 3 0 0 1 1.1 1.9l.03.35h4.34l.03-.35a3 3 0 0 1 1.1-1.9A6 6 0 0 0 12 3Z"/><path d="M9.8 19.2h4.4M10.7 21.7h2.6"/></svg>あるある劇場</a>
+          <a href="#sec5"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="8" width="17" height="12.5" rx="2.5"/><path d="M3.5 12h17M12 8v12.5M12 8S8.5 7.6 7.2 6.3a2.1 2.1 0 0 1 3-3C11.5 4.6 12 8 12 8Zm0 0s3.5-.4 4.8-1.7a2.1 2.1 0 0 0-3-3C12.5 4.6 12 8 12 8Z"/></svg>逆転劇場（戻る話）</a>
+          <a href="#sec6"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5h16M7 16V9.5M12 16V5.5M17 16v-4"/></svg>1割の、ほんとうのところ</a>
+        </nav>
+      </div>
+      <div class="hero-scene" aria-hidden="true">
+        <svg viewBox="0 0 360 212">
+          <circle cx="312" cy="36" r="32" fill="#cfe6f5" opacity=".5"/>
+          <circle cx="312" cy="36" r="21" fill="#f7c34e"/>
+          <ellipse cx="58" cy="30" rx="26" ry="10" fill="#fff" opacity=".95"/>
+          <ellipse cx="88" cy="38" rx="18" ry="8" fill="#fff" opacity=".8"/>
+          <path d="M0 168h360v44H0Z" fill="#ffe9c7"/>
+          <path d="M0 176c40-10 90-12 150-8 60 4 120 4 210-6v50H0Z" fill="#b3e3b8"/>
+          <!-- 後期高齢者医療の被保険者証（大きな紙） -->
+          <rect x="100" y="48" width="128" height="126" rx="10" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>
+          <rect x="114" y="62" width="100" height="13" rx="6" fill="#24729f"/>
+          <rect x="114" y="86" width="100" height="5" rx="2.5" fill="#d9cfc4"/>
+          <rect x="114" y="97" width="100" height="5" rx="2.5" fill="#d9cfc4"/>
+          <rect x="114" y="108" width="82" height="5" rx="2.5" fill="#d9cfc4"/>
+          <rect x="114" y="126" width="100" height="3.5" rx="1.75" fill="#e8ddd2"/>
+          <rect x="114" y="134" width="100" height="3.5" rx="1.75" fill="#e8ddd2"/>
+          <rect x="114" y="142" width="100" height="3.5" rx="1.75" fill="#e8ddd2"/>
+          <rect x="114" y="150" width="68" height="3.5" rx="1.75" fill="#e8ddd2"/>
+          <!-- 負担割合が書いてある小さい字ゾーン -->
+          <rect x="108" y="120" width="112" height="40" rx="8" fill="none" stroke="#24729f" stroke-width="2.5" stroke-dasharray="6 5"/>
+          <!-- 虫めがね -->
+          <circle cx="238" cy="142" r="30" fill="#e8f4fb" stroke="#27587f" stroke-width="6" opacity=".96"/>
+          <circle cx="238" cy="142" r="30" fill="none" stroke="#27587f" stroke-width="6"/>
+          <path d="M260 164l24 24" stroke="#27587f" stroke-width="10" stroke-linecap="round"/>
+          <rect x="222" y="132" width="32" height="5" rx="2.5" fill="#c2453f"/>
+          <rect x="222" y="143" width="32" height="5" rx="2.5" fill="#c2453f"/>
+          <rect x="222" y="154" width="20" height="5" rx="2.5" fill="#c2453f"/>
+          <!-- 医療の盾（公的医療保険のシンボル） -->
+          <path d="M76 54 46 64v25c0 17 12 31 30 37 18-6 30-20 30-37V64Z" fill="#dceaf5" stroke="#24729f" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M66 88h20M76 78v20" stroke="#24729f" stroke-width="7" stroke-linecap="round"/>
+          <!-- 小さなコイン（自己負担のイメージ） -->
+          <circle cx="46" cy="136" r="14" fill="#f7c34e" stroke="#e0a92f" stroke-width="2.5"/>
+          <path d="M40 130l6 7 6-7M46 137v8M41 141h10" fill="none" stroke="#a8701a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- 案内役 -->
+          <path d="M18 182c0-15 6.5-33 15-33s15 18 15 33v2H18Z" fill="#63b8dd"/>
+          <circle cx="33" cy="138" r="11" fill="#f7cdb4"/>
+          <path d="M22 136c1-9 5.5-13 11-13s10 4 11 13c-3.3-4-7-5.3-11-5.3s-7.7 1.3-11 5.3Z" fill="#a99b90"/>
+          <circle cx="29" cy="138.5" r="1.4" fill="#3d3028"/><circle cx="37" cy="138.5" r="1.4" fill="#3d3028"/>
+          <path d="M30 143c1.4 1.5 4 1.5 5.4 0" fill="none" stroke="#3d3028" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= セクション1：3つの線 ================= -->
+<section id="sec1">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>1</i><span>今日いちばん大事な国語</span></span>
+        <h2>「1割です」。<span class="nowrap">その1割、</span><span class="nowrap">どこまでの話？</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotStep" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">クイズの前に、国語の授業を3分だけ。高齢者の医療費には<strong>「年齢の線」「所得の線」「お金の種類の線」</strong>という3本の線が引かれています。線の内側なら安く済み、外側なら思ったより高くつく。今日いちばん大事なのは、その線が<strong>「何歳から」「いくらの所得から」「どのお金まで」</strong>引かれているかです。順番に見ていきましょう。</p>
+    </div>
+
+    <p class="qlink-lead">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/><circle cx="12" cy="12" r="9"/></svg>
+      この3組のちがい、説明できますか？
+    </p>
+    <div class="qlinks">
+      <a class="qlink" href="#def-age">
+        <span class="pair">70歳<span class="vs">と</span>75歳</span>
+        <span class="ask">安くなるのは、誕生日のその月から？　翌月から？</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+      </a>
+      <a class="qlink" href="#def-rate">
+        <span class="pair">1割<span class="vs">と</span>3割</span>
+        <span class="ask">分かれ目は「年収」ではありません。では何？</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+      </a>
+      <a class="qlink" href="#def-money">
+        <span class="pair">戻るお金<span class="vs">と</span>戻らないお金</span>
+        <span class="ask">食事代とベッド代は、どちら側？</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+      </a>
+    </div>
+
+    <!-- ===== ①-1 年齢 ===== -->
+    <div class="def-block" id="def-age">
+      <h3 class="def-h"><span class="def-ico ic-blue" data-art="icAge" aria-hidden="true"></span>年齢：制度が変わる、2つの誕生日</h3>
+      <p class="def-lead">医療費の窓口負担は、<strong>70歳と75歳で二段階に下がります</strong>。とくに75歳は、それまで入っていた健康保険を抜けて<strong>後期高齢者医療制度</strong>という別の制度に移る、いわば引っ越しです。加入の手続きは原則いりませんが、保険料の払い方は変わります。</p>
+
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="69歳以下は3割、70から74歳は2割、75歳以上は1割が原則で、所得が高い方はどの年代でも3割になることを示す帯の図">
+          <text x="260" y="30" text-anchor="middle" font-size="19" font-weight="bold" fill="#1b3f5e">窓口で払う割合は、2回変わります</text>
+
+          <rect x="150" y="46" width="108" height="28" rx="14" fill="#e8f4fb" stroke="#24729f" stroke-width="2"/>
+          <text x="204" y="65" text-anchor="middle" font-size="14" font-weight="bold" fill="#24729f">70歳の誕生日</text>
+          <rect x="266" y="46" width="108" height="28" rx="14" fill="#fdeee9" stroke="#a63631" stroke-width="2"/>
+          <text x="320" y="65" text-anchor="middle" font-size="14" font-weight="bold" fill="#a63631">75歳の誕生日</text>
+          <path d="M204 74v46" stroke="#24729f" stroke-width="2.5" stroke-dasharray="6 5"/>
+          <path d="M320 74v46" stroke="#a63631" stroke-width="2.5" stroke-dasharray="6 5"/>
+
+          <rect x="20" y="120" width="184" height="80" rx="8" fill="#eaf1f7" stroke="#c3cfd8" stroke-width="2"/>
+          <rect x="204" y="120" width="116" height="80" fill="#e8f4fb" stroke="#8fd2ec" stroke-width="2"/>
+          <rect x="320" y="120" width="180" height="80" rx="8" fill="#dceaf5" stroke="#24729f" stroke-width="2.5"/>
+          <text x="112" y="150" text-anchor="middle" font-size="15" font-weight="bold" fill="#1b3f5e">69歳以下</text>
+          <text x="112" y="184" text-anchor="middle" font-size="27" font-weight="bold" fill="#27587f">3割</text>
+          <text x="262" y="150" text-anchor="middle" font-size="15" font-weight="bold" fill="#1b3f5e">70〜74歳</text>
+          <text x="262" y="184" text-anchor="middle" font-size="27" font-weight="bold" fill="#24729f">2割</text>
+          <text x="410" y="150" text-anchor="middle" font-size="15" font-weight="bold" fill="#1b3f5e">75歳以上</text>
+          <text x="410" y="184" text-anchor="middle" font-size="27" font-weight="bold" fill="#1b5478">1割</text>
+          <text x="410" y="218" text-anchor="middle" font-size="13" fill="#24729f">後期高齢者医療制度へ引っ越し</text>
+
+          <rect x="20" y="234" width="480" height="34" rx="10" fill="#fdeee9" stroke="#c2453f" stroke-width="2" stroke-dasharray="7 5"/>
+          <text x="260" y="256" text-anchor="middle" font-size="15" font-weight="bold" fill="#a63631">ただし現役並みの所得がある方は、どの年代でも3割</text>
+          <text x="260" y="288" text-anchor="middle" font-size="14" fill="#49535c">さらに75歳以上は、一定以上の所得があると2割になります</text>
+        </svg>
+        <p class="venn-cap">※原則の割合です。65〜74歳でも一定の障害の状態にあると認定されれば、申請により後期高齢者医療制度に加入できます。割合の判定基準は改正されることがあります。</p>
+      </div>
+
+      <div class="cards">
+        <div class="risk-card">
+          <div class="icon ic-amber" data-art="icCalendar" aria-hidden="true"></div>
+          <h3>70歳の誕生日</h3>
+          <span class="judge-chip maybe">安くなるのは「翌月から」</span>
+          <p>2割になるのは<strong>誕生日の翌月1日から</strong>（1日生まれの方はその月から）。「今月70歳になったから2割だろう」と思って手術を受けると、その月はまだ3割です。健康保険から<strong>高齢受給者証</strong>が届き、保険証と2枚セットで窓口に出します（マイナ保険証なら1枚で済みます）。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-blue" data-art="icCard" aria-hidden="true"></div>
+          <h3>75歳の誕生日</h3>
+          <span class="judge-chip ok">加入の手続きは原則不要</span>
+          <p><strong>誕生日の当日から</strong>後期高齢者医療制度の被保険者になります。加入の届出は原則不要で、被保険者証は誕生日の前に郵送されてきます。それまでの健康保険は<strong>その日に自動で脱退</strong>。ここまでは親切な制度なのですが、続きがあります。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-red" data-art="icYen" aria-hidden="true"></div>
+          <h3>75歳からの保険料</h3>
+          <span class="judge-chip ng">扶養でも、自分で払う</span>
+          <p>後期高齢者医療の保険料は<strong>一人ひとりにかかります</strong>。それまでお子さんの健康保険の被扶養者で保険料ゼロだった方も、75歳からはご自分の保険料が発生します。原則は年金からの天引き（特別徴収）。しかも<strong>ご本人が抜けると、扶養されていた配偶者も健康保険から外れます</strong>（④あるある劇場の第一幕）。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-green" data-art="icBadge" aria-hidden="true"></div>
+          <h3>65〜74歳で障害のある方</h3>
+          <span class="judge-chip maybe">申請すれば移れる</span>
+          <p>一定の障害の状態（障害年金1・2級、身体障害者手帳1〜3級など）にあると認定されれば、<strong>65歳から申請により後期高齢者医療制度に加入</strong>できます。どちらが有利かは保険料と負担割合の両方で変わるため、必ず比べてから決めてください。撤回もできます。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ①-2 所得 ===== -->
+    <div class="def-block" id="def-rate">
+      <h3 class="def-h"><span class="def-ico ic-amber" data-art="icWallet" aria-hidden="true"></span>所得：1割・2割・3割は、何で決まるか</h3>
+      <p class="def-lead">分かれ目は「年収いくら」ではなく、まず<strong>課税所得</strong>（住民税の計算のもとになる金額）です。年金収入から公的年金等控除や各種控除を引いたあとの数字なので、<strong>通帳に入る金額とは一致しません</strong>。ここが、毎年8月に届く通知で驚く方が多い理由です。</p>
+
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="75歳以上の窓口負担は、課税所得145万円以上なら3割、課税所得28万円以上で年金収入等が単身200万円以上なら2割、それ以外は1割と決まることを示す図">
+          <text x="260" y="30" text-anchor="middle" font-size="19" font-weight="bold" fill="#1b3f5e">75歳以上の割合は、こう決まります</text>
+
+          <rect x="24" y="46" width="472" height="66" rx="12" fill="#fdeee9" stroke="#c2453f" stroke-width="2.5"/>
+          <text x="46" y="78" font-size="16" font-weight="bold" fill="#a63631">課税所得が145万円以上</text>
+          <text x="46" y="99" font-size="13" fill="#a63631">＝ 現役並み所得者</text>
+          <text x="440" y="90" text-anchor="middle" font-size="30" font-weight="bold" fill="#a63631">3割</text>
+
+          <rect x="24" y="122" width="472" height="84" rx="12" fill="#fdf3e2" stroke="#a8701a" stroke-width="2.5"/>
+          <text x="46" y="150" font-size="16" font-weight="bold" fill="#8a5b12">課税所得が28万円以上、かつ</text>
+          <text x="46" y="172" font-size="14" fill="#8a5b12">「年金収入＋その他の合計所得金額」が</text>
+          <text x="46" y="192" font-size="14" fill="#8a5b12">単身200万円以上／2人以上の世帯320万円以上</text>
+          <text x="440" y="172" text-anchor="middle" font-size="30" font-weight="bold" fill="#8a5b12">2割</text>
+
+          <rect x="24" y="216" width="472" height="66" rx="12" fill="#e8f4fb" stroke="#24729f" stroke-width="2.5"/>
+          <text x="46" y="248" font-size="16" font-weight="bold" fill="#1b5478">上のどちらにも当てはまらない</text>
+          <text x="46" y="269" font-size="13" fill="#1b5478">住民税が非課税の方も、ここに入ります</text>
+          <text x="440" y="260" text-anchor="middle" font-size="30" font-weight="bold" fill="#1b5478">1割</text>
+        </svg>
+        <p class="venn-cap">※後期高齢者医療（75歳以上）の一般的な判定の流れです。判定は<strong>同じ世帯の被保険者全員</strong>を見て行われ、世帯の中に一人でも現役並み所得の方がいると、同じ世帯の被保険者は全員3割になります。70〜74歳の方は、加入している健康保険・国民健康保険ごとの判定になります。金額の基準は改正されることがあります。</p>
+      </div>
+
+      <div class="cards">
+        <div class="risk-card">
+          <div class="icon ic-red" data-art="icOver" aria-hidden="true"></div>
+          <h3>3割（現役並み所得者）</h3>
+          <span class="judge-chip ng">高額療養費の上限もぐっと上がる</span>
+          <p>課税所得145万円以上。<strong>割合が3倍になるだけでなく、高額療養費の上限額も1万8,000円から8万円台へ跳ね上がります</strong>。ダブルパンチなので、影響は「3倍」では済みません。ただし<strong>収入額しだいで、申請すれば1割・2割に戻せることがあります</strong>（⑤逆転劇場の第三話）。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-amber" data-art="icRate2" aria-hidden="true"></div>
+          <h3>2割（一定以上の所得）</h3>
+          <span class="judge-chip maybe">2022年10月からの区分</span>
+          <p>75歳以上でも、課税所得28万円以上かつ年金収入等が単身200万円以上なら2割です。導入時にあった<strong>「外来の負担増を月3,000円までに抑える配慮措置」は2025年9月末で終わりました</strong>。「前は3,000円で済んでいたのに」という声が増えているのは、そのためです。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-blue" data-art="icRate1" aria-hidden="true"></div>
+          <h3>1割（一般）</h3>
+          <span class="judge-chip ok">いちばん多い区分</span>
+          <p>75歳以上の多くの方がここ。高額療養費の上限も、外来だけなら<strong>ひと月1万8,000円</strong>（年間上限14万4,000円）、入院を含む世帯なら<strong>5万7,600円</strong>と低めです。ただし「1割だから安心」とは言い切れない理由が、次の3本目の線にあります。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-green" data-art="icTax" aria-hidden="true"></div>
+          <h3>住民税非課税（低所得Ⅰ・Ⅱ）</h3>
+          <span class="judge-chip ok">上限がさらに下がる</span>
+          <p>世帯全員が住民税非課税の場合、高額療養費の上限は外来8,000円・入院を含む世帯で1万5,000〜2万4,600円まで下がります。さらに<strong>入院中の食事代も安くなります</strong>（⑤第五話）。ただしこの軽減は<strong>認定証がないと窓口で効きません</strong>。ここが取りこぼしポイントです。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ①-3 お金の種類 ===== -->
+    <div class="def-block" id="def-money">
+      <h3 class="def-h"><span class="def-ico ic-red" data-art="icBill" aria-hidden="true"></span>お金：「高額療養費で戻る」の、外側</h3>
+      <p class="def-lead">高額療養費は、ひと月の自己負担が上限を超えたら超過分が戻る、とても頼もしい制度です。ただし対象は<strong>「健康保険がきく医療費の自己負担分」だけ</strong>。入院の請求書に並ぶ金額のうち、けっこうな部分がこの円の外側にあります。</p>
+
+      <div class="venn-box">
+        <svg viewBox="0 0 520 300" role="img" aria-label="入院や通院にかかるお金ぜんぶの中に健康保険がきく医療費があり、そのさらに内側に高額療養費の対象という円がある入れ子の図">
+          <ellipse cx="248" cy="152" rx="212" ry="134" fill="#fdf1eb"/>
+          <text x="248" y="40" text-anchor="middle" font-size="18" font-weight="bold" fill="#1b3f5e">入院・通院にかかるお金ぜんぶ</text>
+          <text x="80" y="108" text-anchor="middle" font-size="13" fill="#a63631">差額ベッド代</text>
+          <text x="70" y="146" text-anchor="middle" font-size="13" fill="#a63631">食事代</text>
+          <text x="80" y="184" text-anchor="middle" font-size="13" fill="#a63631">先進医療</text>
+          <text x="98" y="222" text-anchor="middle" font-size="13" fill="#a63631">おむつ・日用品</text>
+          <text x="200" y="272" text-anchor="middle" font-size="12" fill="#a63631">通院の交通費・付き添いの費用</text>
+          <ellipse cx="288" cy="158" rx="156" ry="104" fill="#eaf1f7" stroke="#27587f" stroke-width="2.5" stroke-dasharray="8 6"/>
+          <text x="208" y="92" text-anchor="middle" font-size="15" font-weight="bold" fill="#27587f">健康保険がきく医療費</text>
+          <text x="192" y="152" text-anchor="middle" font-size="13" fill="#27587f">保険がきく分の</text>
+          <text x="192" y="170" text-anchor="middle" font-size="13" fill="#27587f">7〜9割は</text>
+          <text x="192" y="188" text-anchor="middle" font-size="13" font-weight="bold" fill="#27587f">保険が払う</text>
+          <circle cx="338" cy="160" r="76" fill="#e8f4fb" stroke="#24729f" stroke-width="3"/>
+          <text x="338" y="138" text-anchor="middle" font-size="15" font-weight="bold" fill="#1b5478">高額療養費の対象</text>
+          <text x="338" y="164" text-anchor="middle" font-size="17" font-weight="bold" fill="#1b5478">自己負担の1〜3割</text>
+          <text x="338" y="188" text-anchor="middle" font-size="12" fill="#1b5478">上限を超えた分が戻る</text>
+          <path d="M474 98c-26 8-48 16-64 26" fill="none" stroke="#24729f" stroke-width="3" stroke-dasharray="6 5"/>
+          <path d="M420 126l-15 0 6-14" fill="none" stroke="#24729f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="438" y="70" text-anchor="middle" font-size="14" font-weight="bold" fill="#1b5478">戻ってくるのは</text>
+          <text x="438" y="88" text-anchor="middle" font-size="14" font-weight="bold" fill="#1b5478">ココだけ</text>
+        </svg>
+        <p class="venn-cap">※高額療養費の対象は、保険がきく診療の自己負担分です。ひと月（1日〜末日）ごとに計算するため、月をまたぐ入院は不利になることがあります。<strong>70歳以上は、同じ月にかかった複数の病院・薬局の自己負担をすべて合算</strong>できます（69歳以下は1件2万1,000円以上のみ合算）。</p>
+      </div>
+
+      <div class="cards">
+        <div class="risk-card">
+          <div class="icon ic-red" data-art="icBed" aria-hidden="true"></div>
+          <h3>差額ベッド代（特別療養環境室料）</h3>
+          <span class="judge-chip ng">高額療養費の対象外</span>
+          <p>1日数千円〜2万円。20日入院すれば、それだけで10万円単位になります。ただし<strong>ご本人が同意書に署名していなければ、原則として支払う必要はありません</strong>。治療上の必要がある場合や、病棟の都合で個室しか空いていない場合は、そもそも請求できないことになっています（④第五幕・⑤の請求の3か条）。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-amber" data-art="icMeal" aria-hidden="true"></div>
+          <h3>入院中の食事代</h3>
+          <span class="judge-chip ng">高額療養費の対象外</span>
+          <p>入院時食事療養費の標準負担額は<strong>1食510円</strong>（2025年4月から。一般の方の場合）。1日3食で1,530円、30日入院すれば4万5,900円ほどです。<strong>住民税非課税の世帯なら減額できますが、認定証が必要</strong>です（⑤第五話）。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-berry" data-art="icAdvanced" aria-hidden="true"></div>
+          <h3>先進医療・自由診療</h3>
+          <span class="judge-chip ng">技術料は全額自己負担</span>
+          <p>先進医療は、診察・検査・入院などは保険がきくものの、<strong>先進医療にあたる技術料だけは全額自己負担</strong>で、高額療養費の対象にもなりません。数十万円から数百万円になるものもあります。自由診療（保険がまったくきかない治療）は、その場ですべて自己負担です。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-green" data-art="icInLimit" aria-hidden="true"></div>
+          <h3>保険がきく医療費の自己負担</h3>
+          <span class="judge-chip maybe">対象。ただし続きがある</span>
+          <p>診察、検査、手術、薬、入院の基本料。ここがようやく「1〜3割」と「高額療養費」の世界です。……が、こちらにも続きが。<strong>ひと月の上限を超えた分は、原則として申請しないと戻ってきません</strong>。しかも<strong>請求できる期間は2年</strong>。③で、いくら戻るのか試算してみましょう。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>3つに共通するのは、<strong>「高齢になったら医療費は安い」と「実際に払う金額」がずれている</strong>ことです。年齢が来ても、1割と聞いていても、高額療養費があると知っていても、それだけで安心とは限りません。逆に言えば、確認すべきことはたった3つ。<strong>いま何割か／高額療養費の上限はいくらか／上限の外側にいくら出ていくか</strong>。この3点を押さえれば、ご家庭の医療費の輪郭が見えます。※制度の内容は改正されることがあり、手続きの取扱いは市区町村・広域連合により異なります。</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション2：○×クイズ ================= -->
+<section id="sec2" class="band round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>2</i><span>思い込みをチェック</span></span>
+        <h2>ほんとう？ちがう？　<span class="nowrap">高齢者医療ワナクイズ8問</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotQuiz" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">ここからが本番です。笑いどころもありますが、<strong>すべて実際の制度にある決まりごとがモデル</strong>。文が正しいと思ったら「はい」、ちがうと思ったら「いいえ」を押してください。全問正解できた方は、ぜひご家族にも教えてあげてください。</p>
+    </div>
+
+    <div class="quiz-shell">
+      <div id="quizPlay">
+        <div class="q-top">
+          <div class="q-count">質問 <span id="qNum">1</span> ／ 8</div>
+          <div class="dots" id="qDots" aria-hidden="true"></div>
+        </div>
+        <div class="q-body">
+          <div class="icon" id="qIcon" aria-hidden="true"></div>
+          <p id="qText"></p>
+        </div>
+        <div class="ans-row">
+          <button type="button" class="ans-btn yes" id="btnYes">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/></svg>
+            <span id="lblYes">はい</span>
+          </button>
+          <button type="button" class="ans-btn no" id="btnNo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            <span id="lblNo">いいえ</span>
+          </button>
+        </div>
+        <div class="verdict" id="verdict" aria-live="polite">
+          <div class="verdict-head">
+            <span class="verdict-answer" id="vAnswer"></span>
+            <span class="result-chip" id="vChip"></span>
+          </div>
+          <p class="expl" id="vExpl"></p>
+          <div class="kv kv-wana"><b>ワナの正体：</b><span id="vWana"></span></div>
+          <div class="kv"><b>確認ポイント：</b><span id="vCheck"></span></div>
+        </div>
+        <button type="button" class="btn-primary" id="btnNext" style="display:none;">次の質問へ</button>
+        <button type="button" class="btn-ghost" id="btnStopHere" style="display:none;">ここまでの結果を見る（残りはあとでも大丈夫です）</button>
+      </div>
+
+      <div class="quiz-done" id="quizDone">
+        <p class="score">クイズおつかれさまでした！　<span class="nowrap"><span id="doneTotal">8</span>問中 <span class="num" id="doneScore">0</span> 問正解</span></p>
+        <p class="cmt" id="doneCmt"></p>
+        <div class="wrong-list" id="wrongList" style="display:none;"></div>
+        <div data-cta-mini></div>
+        <button type="button" class="btn-ghost" id="btnMailSelf">この結果を自分（またはご家族）に送る</button>
+        <button type="button" class="btn-ghost" id="btnPrint">印刷して保険証と一緒に保管する</button>
+        <button type="button" class="btn-ghost" id="btnRetry">もう一度挑戦する</button>
+      </div>
+    </div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>クイズの答えは、2026年8月時点の制度にもとづく一般的な内容です。実際の割合・上限額・手続きは、お住まいの市区町村や後期高齢者医療広域連合、加入している健康保険によって取扱いが異なることがあります。「うちはどうなんだろう」と思ったら、それが保険証を出してみるベストタイミングです。</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション3：解剖とシミュレーター ================= -->
+<section id="sec3" class="band-sky round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>3</i><span>名作コピーの読み方</span></span>
+        <h2>「窓口は1割です」を<span class="nowrap">解剖してみる</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotDoc" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">「お年寄りの窓口負担は1割です」——市の冊子の、実に頼もしいひと言です。問題はこの<strong>「1割」がかかる範囲</strong>と、<strong>その1割にも上限（高額療養費）がある</strong>こと、そして<strong>上限を超えた分は自分から取りに行かないと戻らない</strong>こと。今日いちばん小さな字が、この3つに書いてあります。</p>
+    </div>
+
+    <p class="sec-lead">まず、高額療養費の上限額です。70歳以上は<strong>「外来だけの上限（個人ごと）」と「入院を含む上限（世帯ごと）」の2段構え</strong>になっていて、69歳以下より低めに設定されています。ご自分がどの行かを知っているだけで、医療費の見通しが立ちます。</p>
+
+    <div class="type-table-box">
+      <table class="type-table" aria-label="70歳以上の高額療養費の自己負担限度額">
+        <thead>
+          <tr>
+            <th>所得の区分（70歳以上）</th>
+            <th>外来だけ<small>個人ごと・ひと月</small></th>
+            <th>外来＋入院<small>世帯ごと・ひと月</small></th>
+            <th>多数回該当<small>直近12ヶ月で4回目から</small></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>現役並みⅢ<small>課税所得690万円以上</small></td>
+            <td colspan="2">252,600円＋（医療費−842,000円）×1%</td>
+            <td>140,100円</td>
+          </tr>
+          <tr>
+            <td>現役並みⅡ<small>課税所得380万円以上</small></td>
+            <td colspan="2">167,400円＋（医療費−558,000円）×1%</td>
+            <td>93,000円</td>
+          </tr>
+          <tr>
+            <td>現役並みⅠ<small>課税所得145万円以上</small></td>
+            <td colspan="2">80,100円＋（医療費−267,000円）×1%</td>
+            <td>44,400円</td>
+          </tr>
+          <tr>
+            <td>一般<small>課税所得145万円未満</small></td>
+            <td>18,000円<small>年間上限144,000円</small></td>
+            <td>57,600円</td>
+            <td>44,400円</td>
+          </tr>
+          <tr>
+            <td>低所得Ⅱ<small>世帯全員が住民税非課税</small></td>
+            <td>8,000円</td>
+            <td>24,600円</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>低所得Ⅰ<small>非課税かつ所得が一定以下</small></td>
+            <td>8,000円</td>
+            <td>15,000円</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="venn-cap">※2026年8月時点の一般的な内容です。「医療費」は保険がきく診療の総額（10割）を指します。低所得Ⅰ・Ⅱの区分で窓口の支払いを上限までに抑えるには、<strong>限度額適用・標準負担額減額認定証</strong>（またはマイナ保険証での情報提供の同意）が必要です。高額療養費の上限額は見直しが議論されており、改正されることがあります。</p>
+    </div>
+
+    <p class="sec-lead">そして、上限を超えた分の戻り方です。<strong>後期高齢者医療も国民健康保険も、原則は「申請してから振り込み」</strong>。多くの市区町村では該当した方に申請書（お知らせ）が届き、<strong>一度口座を登録すれば、以後は自動で振り込まれる</strong>取扱いになっています。ただし<strong>その最初の1回を出していないと、いつまでも溜まったまま</strong>。しかも請求できるのは<strong>診療を受けた月の翌月1日から2年</strong>までです。<br>……つまり、<strong>制度が守ってくれるのは、申請書を出した人だけ</strong>なのです。</p>
+
+    <div class="sim-box">
+      <h3>体感シミュレーター「入院の請求書が来た、そのあと。」</h3>
+      <p class="sub">ひと月に医療費がかかった、という想定で動かしてみてください。窓口で払う額・高額療養費で戻る額・そして戻らない分を同時に試算します。スライダーはデモ用の単純化です。</p>
+
+      <span class="seg-label">所得の区分（後期高齢者医療被保険者証・負担割合証に書いてあります）</span>
+      <div class="seg" id="simKubun">
+        <label><input type="radio" name="kubun" value="low" >非課税</label>
+        <label><input type="radio" name="kubun" value="ippan1" checked>一般1割</label>
+        <label><input type="radio" name="kubun" value="ippan2">一般2割</label>
+        <label><input type="radio" name="kubun" value="genyaku">現役並み3割</label>
+      </div>
+
+      <div class="sim-ctrl">
+        <label for="simIryo"><span>ひと月にかかった医療費<small>1〜3割を引く前の、10割の金額</small></span><output id="simIryoOut">30万円</output></label>
+        <div class="sim-stepper"><button type="button" data-step="simIryo" data-dir="-1" aria-label="医療費を減らす">−</button><span class="sim-range"><input type="range" id="simIryo" min="0" max="1000000" step="10000" value="300000" aria-describedby="simIryoOut"></span><button type="button" data-step="simIryo" data-dir="1" aria-label="医療費を増やす">＋</button></div>
+      </div>
+      <div class="sim-ctrl">
+        <label for="simNyuin"><span>そのうち入院していた日数<small>0日なら通院だけの月として計算します</small></span><output id="simNyuinOut">10日</output></label>
+        <div class="sim-stepper"><button type="button" data-step="simNyuin" data-dir="-1" aria-label="入院日数を減らす">−</button><span class="sim-range"><input type="range" id="simNyuin" min="0" max="31" step="1" value="10" aria-describedby="simNyuinOut"></span><button type="button" data-step="simNyuin" data-dir="1" aria-label="入院日数を増やす">＋</button></div>
+      </div>
+      <div class="sim-ctrl">
+        <label for="simBed"><span>差額ベッド代（1日あたり）<small>大部屋なら0円のままで大丈夫です</small></span><output id="simBedOut">0円</output></label>
+        <div class="sim-stepper"><button type="button" data-step="simBed" data-dir="-1" aria-label="差額ベッド代を減らす">−</button><span class="sim-range"><input type="range" id="simBed" min="0" max="20000" step="1000" value="0" aria-describedby="simBedOut"></span><button type="button" data-step="simBed" data-dir="1" aria-label="差額ベッド代を増やす">＋</button></div>
+      </div>
+
+      <div class="timeline" aria-hidden="true">
+        <div class="tl-track">
+          <div class="tl-fill" id="tlFill" style="width:30%;"></div>
+          <div class="tl-mark" id="tlMark" style="left:18%;"></div>
+          <div class="tl-goal" id="tlGoal" style="left:18%;">高額療養費が効く<br>医療費18万円〜</div>
+        </div>
+        <div class="tl-labels"><span>医療費 0円</span><span>50万円</span><span>100万円</span></div>
+      </div>
+
+      <h4 class="sim-sub-h">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15 9.2A3.4 3.4 0 0 0 12 8c-1.9 0-3 1-3 2.2 0 3 6 1.6 6 4.6 0 1.2-1.1 2.2-3 2.2a3.4 3.4 0 0 1-3-1.2M12 6.2v1.8M12 16v1.8"/></svg>
+        このひと月、いくら払って、いくら戻る？
+      </h4>
+      <div class="money-box" aria-live="polite">
+        <div class="money-row">
+          <span class="lb">窓口でいったん払う額<small>医療費 × <span id="mWari">1割</span></small></span>
+          <span class="vl" id="mMadoguchi">—</span>
+        </div>
+        <div class="money-row">
+          <span class="lb">高額療養費の上限<small><span id="mCapKind">外来だけの上限（個人ごと）</span></small></span>
+          <span class="vl" id="mCap">—</span>
+        </div>
+        <div class="money-row back">
+          <span class="lb">高額療養費で戻る見込み<small>上限を超えた分（原則、申請が必要）</small></span>
+          <span class="vl" id="mBack">—</span>
+        </div>
+        <div class="money-row warn">
+          <span class="lb">入院中の食事代<small>1食510円×3食×入院日数。高額療養費の対象外</small></span>
+          <span class="vl" id="mShoku">—</span>
+        </div>
+        <div class="money-row warn">
+          <span class="lb">差額ベッド代<small>1日あたりの金額×入院日数。高額療養費の対象外</small></span>
+          <span class="vl" id="mBed">—</span>
+        </div>
+        <div class="money-total">
+          <span class="lb">払い戻し後の、このひと月の実質負担</span>
+          <span class="vl" id="mTotal">—</span>
+        </div>
+        <p class="money-msg" id="mMsg"></p>
+      </div>
+      <p class="venn-cap" style="margin-top:10px;">※試算はこのページの説明用に単純化したものです。入院日数が1日以上のときは「外来＋入院（世帯ごと）」の上限、0日のときは「外来だけ（個人ごと）」の上限で計算しています。実際は同じ世帯の他の方の自己負担も合算され、多数回該当（直近12ヶ月で4回目から上限が下がる）や、一般区分の外来年間上限144,000円もあります。現役並みは現役並みⅠで計算しています。食事代は一般の方の標準負担額（1食510円）で、住民税非課税の方は減額されます。保険がきかない先進医療・自由診療は含めていません。実際の金額は、レセプトの内容・所得区分・お住まいの市区町村の取扱いによります。</p>
+    </div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>いちばん強いのは「戻してもらう」より<strong>「はじめから上限までしか払わない」</strong>ことです。<strong>マイナンバーカードを保険証として使い、窓口で情報提供に同意すれば、限度額適用認定証がなくても自動で上限までの支払いで済みます</strong>。カードを使わない場合でも、市区町村の窓口で認定証をもらっておけば同じことができます。まとまったお金を一度立て替えなくていい、というのは、思っている以上に大きな違いです。</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション4：あるある劇場 ================= -->
+<section id="sec4" class="band-blush round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>4</i><span>実話がモデルの寸劇集</span></span>
+        <h2>高齢者医療あるある劇場</h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotTheater" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">ご相談の場でよく伺うお話を、寸劇風にまとめました。笑えるのは他人事のうちです。気になる演目をタップしてご覧ください。</p>
+    </div>
+
+    <div class="case-grid" id="caseGrid"></div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>各演目は一般的な内容をもとにした創作例で、実在の個人・事案とは関係ありません。金額・支給の可否や手続きは、市区町村・広域連合・加入している健康保険により異なります。</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション5：逆転劇場 ================= -->
+<section id="sec5" class="band-mint round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>5</i><span>知って得する側の話</span></span>
+        <h2>逆転劇場〜こんなときは、<span class="nowrap">戻ってくるんです〜</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotGift" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">ここまで「思ったより高い」の話ばかりで、病院に行くのが怖くなりかけていませんか。ご安心ください。日本の公的医療保険は<strong>世界でもかなり手厚い部類</strong>です。しかも「え、そんなものまで？」という戻り道がけっこうあります。ただし共通点がひとつ。<strong>ほとんどが「申請しないと1円も戻りません」</strong>。ここからは、取り返す側の8演目です。税理士事務所として、いちばんお伝えしたいのはこの章です。</p>
+    </div>
+
+    <div class="model-note">
+      <strong>このページの試算のモデル</strong>
+      <span class="mn-row">75歳以上／窓口 <b>1割</b>／高額療養費は一般区分（外来 <b>18,000円</b>・外来＋入院 <b>57,600円</b>）／入院時の食事代 <b>1食510円</b></span>
+      <span class="mn-note">※金額はすべてこのモデルでの試算です。実際の金額は、所得区分・お住まいの市区町村・受けた診療の内容によります。</span>
+    </div>
+
+    <div class="case-grid" id="goodGrid"></div>
+
+    <div class="rule3-box">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg>
+        取りこぼさないための「申請の3か条」
+      </h3>
+      <ol>
+        <li><strong>医療のお金は、申請しないと戻らない。</strong>高額療養費も、限度額適用認定証も、基準収入額適用申請も、高額介護合算療養費も、すべて「申請主義」。役所から自動で振り込まれることはありません（高額療養費は、初回に口座を登録すれば以後は自動振込になる市区町村が多くあります）。</li>
+        <li><strong>迷ったら、保険証に書いてある窓口に聞く。</strong>聞くだけタダです。後期高齢者医療なら市区町村の後期高齢者医療担当課、国民健康保険なら国保の窓口、会社の健康保険なら健保組合・協会けんぽ。<strong>保険証・負担割合証・領収書</strong>の3点が、いちばんの手がかりになります。</li>
+        <li><strong>期限は、高額療養費が2年・税金の還付が5年。</strong>高額療養費は診療月の翌月1日から2年、医療費控除の還付申告は<strong>その年の翌年1月1日から5年</strong>。去年の入院も、5年前の医療費控除も、まだ間に合うことがあります。「もう遅い」と思う前に、まず確認を。</li>
+      </ol>
+      <p class="rule3-note">※支給・控除の可否や金額は、ご本人の状況・所得・お住まいの市区町村の取扱いによります。本ページの金額はあくまで一例です。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション6：1割の、ほんとうのところ ================= -->
+<section id="sec6" class="band-sky round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>6</i><span>お金の話をひとつだけ</span></span>
+        <h2>「1割だから安心」の、<span class="nowrap">ほんとうのところ。</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotLife" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">最後に、お金の話をひとつだけ。「歳を取れば1割だから、医療費は安くなる」——半分は本当で、半分はそうでもありません。割合は3割から1割へ、たしかに3分の1になります。ところが<strong>医療費そのものが4倍以上に増える</strong>ので、実際に財布から出ていく金額は、現役のころより<strong>むしろ増える</strong>のがふつうです。怖がらせたいのではありません。<strong>知っていれば準備できる</strong>、という話です。</p>
+    </div>
+
+    <div class="life-box">
+      <h3>割合は3分の1になるのに、払う金額は増える</h3>
+      <p class="sub">1人あたりの年間医療費と、窓口で払う自己負担の目安（いずれも概数）</p>
+      <svg viewBox="0 0 520 250" role="img" aria-label="65歳未満は年間医療費およそ20万円で自己負担およそ6万円、75歳以上は年間医療費およそ92万円で自己負担およそ9万円であることを示す棒グラフ">
+        <path d="M30 196h460" stroke="#d9cfc4" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M255 30v176" stroke="#e6dbd0" stroke-width="2" stroke-dasharray="6 6"/>
+
+        <!-- 65歳未満 -->
+        <rect x="70" y="163" width="56" height="33" rx="4" fill="#c6e2f2" stroke="#8fd2ec" stroke-width="2"/>
+        <rect x="134" y="186" width="56" height="10" rx="3" fill="#c9451e"/>
+        <text x="98" y="154" text-anchor="middle" font-size="15" font-weight="bold" fill="#27587f">約20万円</text>
+        <text x="162" y="177" text-anchor="middle" font-size="15" font-weight="bold" fill="#a63631">約6万円</text>
+        <text x="130" y="220" text-anchor="middle" font-size="16" font-weight="bold" fill="#1b3f5e">65歳未満</text>
+        <text x="130" y="240" text-anchor="middle" font-size="13" fill="#49535c">窓口は3割</text>
+
+        <!-- 75歳以上 -->
+        <rect x="310" y="46" width="56" height="150" rx="4" fill="#c6e2f2" stroke="#8fd2ec" stroke-width="2"/>
+        <rect x="374" y="181" width="56" height="15" rx="3" fill="#c9451e"/>
+        <text x="338" y="37" text-anchor="middle" font-size="15" font-weight="bold" fill="#27587f">約92万円</text>
+        <text x="402" y="172" text-anchor="middle" font-size="15" font-weight="bold" fill="#a63631">約9万円</text>
+        <text x="370" y="220" text-anchor="middle" font-size="16" font-weight="bold" fill="#1b3f5e">75歳以上</text>
+        <text x="370" y="240" text-anchor="middle" font-size="13" fill="#49535c">窓口は1割</text>
+
+        <!-- 凡例 -->
+        <rect x="330" y="60" width="16" height="10" rx="2" fill="#c6e2f2" stroke="#8fd2ec" stroke-width="1.6" opacity="0"/>
+        <rect x="60" y="34" width="18" height="11" rx="3" fill="#c6e2f2" stroke="#8fd2ec" stroke-width="2"/>
+        <text x="86" y="44" font-size="13" fill="#49535c">かかった医療費（10割）</text>
+        <rect x="60" y="56" width="18" height="11" rx="3" fill="#c9451e"/>
+        <text x="86" y="66" font-size="13" fill="#49535c">窓口で払う自己負担</text>
+      </svg>
+      <p class="life-cap">※厚生労働省の公表資料にもとづく<strong>概数</strong>で、年度・集計方法により変動します。自己負担の額は「年間医療費×窓口の割合」で単純に計算した目安で、実際は高額療養費の上限が効くため、これより少なくなる方も、保険のきかない費用でこれより多くなる方もいます。</p>
+
+      <div class="big3">
+        <span class="b"><span class="n">4倍以上</span><span class="l">医療費そのものが増える</span><span class="s">65歳未満の年およそ20万円が、75歳以上では年およそ92万円</span></span>
+        <span class="b"><span class="n">1.5倍</span><span class="l">それでも自己負担は増える</span><span class="s">割合が3割→1割になっても、金額は約6万円→約9万円</span></span>
+        <span class="b"><span class="n">＋年8万円台</span><span class="l">75歳からは保険料も自分で</span><span class="s">後期高齢者医療の保険料は全国平均で月7,000円台（概数）</span></span>
+      </div>
+    </div>
+
+    <h3 class="sub-h">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>
+      では、いくら見ておけばいいのか
+    </h3>
+    <p class="sub-lead">「いくら備えればいいですか」は、ご相談でいちばん多い質問です。正直に申し上げると、答えは人によって大きく違います。ただ、<strong>考える順番</strong>は共通しています。次の3つの数字を、ご自分の場合に当てはめてみてください。</p>
+
+    <div class="age-cards">
+      <div class="age-card">
+        <p class="ttl"><span class="ico ic-blue" data-art="icBill" aria-hidden="true"></span>ふだんの年間医療費</p>
+        <span class="kind">1人あたりの目安</span>
+        <div class="rows">
+          <p class="row"><span>65歳未満</span><b>約20万円</b></p>
+          <p class="row"><span>65歳以上</span><b>約75万円</b></p>
+          <p class="row"><span>75歳以上</span><b>約92万円</b></p>
+        </div>
+        <p class="cmt">10割の金額です。ここに窓口の割合をかけたものが、ふだんの自己負担のおおよその姿になります。</p>
+        <p class="src">出典：厚生労働省の公表資料にもとづく概数</p>
+      </div>
+      <div class="age-card">
+        <p class="ttl"><span class="ico ic-red" data-art="icBed" aria-hidden="true"></span>入院したひと月の上限</p>
+        <span class="kind">高額療養費（一般区分）</span>
+        <div class="rows">
+          <p class="row"><span>外来だけ</span><b>18,000円</b></p>
+          <p class="row"><span>外来＋入院</span><b>57,600円</b></p>
+          <p class="row"><span>4回目から</span><b>44,400円</b></p>
+        </div>
+        <p class="cmt">保険がきく医療費は、ひと月これ以上にはなりません。怖いのは金額ではなく、この上限の<strong>外側</strong>です。</p>
+        <p class="src">出典：高額療養費制度（2026年8月時点・一般区分）</p>
+      </div>
+      <div class="age-card">
+        <p class="ttl"><span class="ico ic-amber" data-art="icMeal" aria-hidden="true"></span>上限の外側にかかる分</p>
+        <span class="kind">30日入院した場合の例</span>
+        <div class="rows">
+          <p class="row"><span>食事代</span><b>約4.6万円</b></p>
+          <p class="row"><span>個室（1日8千円）</span><b>24万円</b></p>
+          <p class="row"><span>おむつ・日用品等</span><b>数万円</b></p>
+        </div>
+        <p class="cmt">高額療養費はここまで面倒を見てくれません。民間の医療保険が本当に効くのは、この帯です。</p>
+        <p class="src">食事代は1食510円×3食×30日で計算した目安</p>
+      </div>
+    </div>
+
+    <div class="mikane">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5V9.2M12 9.2 7.6 5M12 9.2 16.4 5"/><circle cx="12" cy="15" r="8.2"/></svg>
+        だから、いま確認しておくと効く3つのこと
+      </h3>
+      <ol>
+        <li><strong>ご自分が何割かを、書類で確かめる。</strong>思い込みではなく、<b>後期高齢者医療被保険者証（または負担割合証・高齢受給者証）</b>に印字されています。割合は原則<b>毎年8月に見直され</b>、前年の所得で決まります。土地を売った年や、退職金の受け取り方によっては、翌年だけ3割になることもあります。</li>
+        <li><strong>「戻してもらう」より「はじめから上限まで」。</strong><b>マイナンバーカードを保険証として使い、窓口で情報提供に同意する</b>だけで、限度額適用認定証がなくても支払いが上限までで止まります。カードを使わない方は、市区町村で認定証をもらっておけば同じです。数十万円を一度立て替えずに済みます。</li>
+        <li><strong>戻るお金は、自分から取りに行く。</strong>高額療養費、基準収入額適用申請、高額介護合算療養費、障害者控除、おむつ代の医療費控除。どれも<b>申請しないと1円も戻りません</b>。しかも期限つき（高額療養費は2年、税金の還付は5年）。「知らなかった」がそのまま損になる、めずらしい分野です。</li>
+      </ol>
+      <p class="caution">
+        <strong>制度は変わります。数字は「いまの目安」として持ってください</strong>
+        窓口負担の割合も、高額療養費の上限額も、食事代の標準負担額も、これまで何度も改正されてきました。とくに<b>高額療養費の上限額は見直しの議論が続いています</b>。このページの数字は2026年8月時点のもので、<b>そういう仕組みになっている</b>という理解のほうが長持ちします。実際に手続きをされるときは、必ず最新の情報をお住まいの市区町村・広域連合でご確認ください。
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= まとめ ================= -->
+<section id="matome" class="band round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill plain">まとめ</span>
+        <h2>あなたの「医療費の備え」チェック</h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotCheck" aria-hidden="true"></span></div>
+    </div>
+    <p class="sec-lead">最後に、いまの備えを確認してみましょう。あてはまるもの・できたものをタップ（クリック）してください。</p>
+
+    <div class="score-box">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/><circle cx="12" cy="12" r="9"/></svg>
+        クイズの結果
+      </h3>
+      <div id="sumScore">
+        <p>まだクイズに挑戦していません。<a href="#sec2">②の○×クイズ</a>で、「安いはず」の思い込みをチェックしてみてください。</p>
+      </div>
+    </div>
+
+    <div class="checklist" id="checklist">
+      <p class="chk-group">保険証・通知書で確認できること</p>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkCard" aria-hidden="true"></span><span>ご自分（ご家族）の<strong>窓口負担が何割か</strong>を、保険証・負担割合証で確認した</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkYen" aria-hidden="true"></span><span><strong>高額療養費の上限額（所得区分）</strong>がいくらかを知っている</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkMail" aria-hidden="true"></span><span><strong>高額療養費の申請（初回の口座登録）</strong>を済ませた。心当たりのある月は2年分さかのぼって確認した</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkMyna" aria-hidden="true"></span><span><strong>マイナ保険証</strong>を使える状態にした（または<strong>限度額適用認定証</strong>を持っている）</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkDoc" aria-hidden="true"></span><span>3割の通知が来たとき、<strong>基準収入額適用申請</strong>の対象かどうかを確認した</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkGassan" aria-hidden="true"></span><span>介護保険も使っているので、<strong>高額介護合算療養費</strong>の対象かどうかを確認した</span></label>
+      <p class="chk-group">税金で取り戻せること（税理士事務所として、いちばんお伝えしたい欄です）</p>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkTax" aria-hidden="true"></span><span><strong>医療費控除</strong>のために、1年分の領収書をまとめる場所を決めた</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkBus" aria-hidden="true"></span><span><strong>通院の交通費</strong>（電車・バス、条件を満たすタクシー）のメモを始めた</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkDiaper" aria-hidden="true"></span><span>おむつを使っているご家族について、<strong>おむつ使用証明書</strong>を主治医に相談した</span></label>
+      <p class="chk-group">今日、おうちでできること</p>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkFamily" aria-hidden="true"></span><span><strong>保険証・診察券・お薬手帳の保管場所</strong>を、家族に伝えてある</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkPhone" aria-hidden="true"></span><span>かかりつけ医と、<strong>夜間・休日の連絡先</strong>を家族で共有した</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkTalk" aria-hidden="true"></span><span>入院になったときに<strong>個室を希望するかどうか</strong>を、家族で一度話した</span></label>
+    </div>
+    <div class="chk-msg" id="chkMsg">
+      あてはまるものにチェックを入れてみてください。書類で分かる項目、税金で取り戻せる項目、今日おうちでできる項目が混じっています。
+    </div>
+    <div data-cta-mini></div>
+
+    <details class="finder">
+      <summary>「高額療養費って、結局どこに申請するの？」も、よくあるご相談です</summary>
+      <ul>
+        <li>窓口は<strong>保険証に書いてあるところ</strong>です。75歳以上なら<strong>市区町村の後期高齢者医療担当課</strong>、74歳以下で国民健康保険なら<strong>国保の窓口</strong>、会社の健康保険なら<strong>健保組合・協会けんぽ</strong>。</li>
+        <li>多くの市区町村では、該当した方に<strong>申請書（お知らせ）が郵送</strong>されます。届いたら、それが申請書です。捨てないでください。</li>
+        <li>一度申請して口座を登録すれば、<strong>以後は自動で振り込まれる</strong>取扱いの市区町村が多くあります。通帳に見慣れない振込があったら、それかもしれません。</li>
+        <li>振り込みまでは、診療の月から<strong>おおむね3ヶ月以上</strong>かかります。医療機関からの請求（レセプト）を待って計算するためです。</li>
+        <li>そもそも立て替えたくない場合は、<strong>マイナ保険証</strong>か<strong>限度額適用認定証</strong>。窓口の支払いが最初から上限までで止まります。</li>
+        <li>亡くなった方の分も請求できます（相続人の方が手続きします）。<strong>葬祭費</strong>の支給がある市区町村も多く、こちらも申請制です。</li>
+      </ul>
+      <p>「制度は知らずに使い、通知は読まずにしまい、初めて読んだのは期限が過ぎたあとだった」——あるある劇場に出てくる話は、だいたいこの順番で起こります。読む順番を逆にするだけで、物語はハッピーエンドになります。</p>
+    </details>
+
+    <details class="finder" style="margin-top:14px;">
+      <summary>「まだ元気だから、医療費の話は早い？」——早いうちにしかできないことがあります</summary>
+      <ul>
+        <li><strong>75歳の少し前</strong>は、いちばん確認しておきたい時期です。ご本人が後期高齢者医療に移ると、<strong>扶養に入っていた配偶者は健康保険から外れます</strong>。国民健康保険への切り替えが必要になり、保険料も新たに発生します。</li>
+        <li>入院してからでは、<strong>個室に入るかどうかの判断をご本人ができない</strong>ことがあります。差額ベッド代は同意書ひとつで発生します。家族で方針を決めておくだけで、数十万円の差になります。</li>
+        <li><strong>マイナ保険証の登録</strong>は、元気なうちのほうが圧倒的に楽です。窓口で立て替えずに済むという意味では、いちばん費用対効果の高い準備かもしれません。</li>
+        <li>民間の医療保険を検討するなら、<strong>公的な上限額（ひと月5万7,600円など）を知ってから</strong>にしてください。上限をご存じないまま保障を厚くしている方は、そこそこいらっしゃいます。</li>
+        <li>逆に、<strong>上限の外側（食事代・差額ベッド代・通院交通費・働けない間の収入）</strong>には公的な備えがありません。民間の保険が本当に効くのはこちらです。</li>
+      </ul>
+      <p>医療費の準備は「新しい保険に入ること」だけではありません。保険証の割合を見る、マイナ保険証を登録する、領収書の置き場所を決める——お金のかからない準備のほうが、実は効き目が大きいことがよくあります。</p>
+    </details>
+
+    <div class="cta-box" id="soudan">
+      <h3>笑えなくなる前に、<span class="nowrap">30分だけ確認しませんか</span></h3>
+      <p class="cta-lead">このページの内容は、あくまで一般的なしくみの話。<strong>ご家庭の場合にどうなるか</strong>は、お手元の保険証と、お住まいの市区町村の取扱いにしか書いてありません。こんなご相談をよくお受けしています。</p>
+      <ul>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>3割という通知が来た。年金しかないのに、なぜなのか知りたい</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>親が入院した。使える制度と、戻ってくるお金を一度ぜんぶ整理してほしい</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>医療費控除や高額療養費を、過去分もさかのぼって取り戻せるか見てほしい</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>いま入っている医療保険が、公的な上限額と重なっていないか比べてほしい</span></li>
+      </ul>
+      <p class="cta-lead">お時間の目安は30分ほど。書類が見つからなくても大丈夫、探すところからお手伝いします。制度の整理から、ご家庭に合う選び方のご案内まで、まとめてご相談いただけます。いただいた個人情報は、ご相談への対応のみに使用し、ご本人の同意なく第三者に提供しません。</p>
+
+      <p class="co">株式会社Office-M</p>
+      <p class="addr">受付：平日 9:00〜17:00</p>
+      <p class="tip">保険証（後期高齢者医療被保険者証・負担割合証・高齢受給者証）と、病院の領収書がお手元にあると、その場での確認がより早く進みます。</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ⚠️最重要・未了：株式会社Office-Mは保険募集を行っている（2026-08-21にユーザーより確認）。
+     本ページは公的医療保険（後期高齢者医療制度・高額療養費）の解説が中心だが、
+     民間の医療保険に触れる記述があるため、「代理店独自の募集関連資料」に当たる可能性がある。
+     kaigo-check／seimeihoken-check と同じく、以下がまだ済んでいない：
+       (1) 委託先保険会社の募集文書審査を受ける
+       (2) 承認番号（管理番号）の記載要否と表示位置を確認し、必要なら下の footer に追記する
+       (3) 会社名のほかに「保険募集人／代理店」である旨の表示が必要かを確認する
+     ※「当社は保険の販売（募集）を行っておらず、」という事実と異なる一文は、
+       このページには最初から入れていない（他ページでは2026-08-21に削除済み）。
+     文面を変える場合は、必ず審査担当の確認を取ってから行うこと。
+
+     また本ページは公的医療保険・税制に踏み込むため、制度改正のたびに以下を点検すること：
+     窓口負担割合の判定基準（課税所得145万円／28万円・年金収入等200万円・320万円）／
+     高額療養費の上限額と多数回該当／入院時食事療養費の標準負担額（1食510円）／
+     高額介護合算療養費の年間上限／基準収入額適用申請の基準額（383万円・520万円）／
+     2割負担の配慮措置（2025年9月末で終了済み）。
+     いずれも2026年8月時点の内容で記載している -->
+<footer class="disclaimer">
+  <p>本資料は、株式会社Office-Mが公的医療保険制度（後期高齢者医療制度・高額療養費制度など）および民間の医療保険の一般的なしくみをご理解いただくために作成した情報提供資料です。特定の保険商品・保険会社の推奨や勧誘、他社商品との比較を目的とするものではありません。民間の保険の保障内容・支払条件・特約の名称は保険会社・商品・ご契約により大きく異なり、実際のお支払いの可否は各保険会社の約款およびご契約内容によります。個別の商品の内容については、必ず「契約概要」「注意喚起情報」「ご契約のしおり・約款」でご確認ください。ご契約内容の詳細は、ご契約先の保険会社または保険代理店へお問い合わせください。本資料の内容に関するお問い合わせは当社で承ります。</p>
+  <p style="margin-top:10px;">公的医療保険・税・社会保険に関する記載は、2026年8月時点の制度にもとづく一般的な説明です。制度は改正されることがあり、認定・助成・申請書類の取扱いは市区町村および後期高齢者医療広域連合によって異なります。窓口負担の割合、高額療養費の自己負担限度額、入院時食事療養費の標準負担額、高額介護合算療養費の上限額はいずれも改正の対象であり、とくに高額療養費の上限額は見直しの議論が続いています。本ページの金額はいずれも記載の前提での試算です。実際のお取り扱いは、お住まいの市区町村の後期高齢者医療・国民健康保険の担当課、ご加入の健康保険、および所轄の税務署にご確認ください。個別の税務相談は当社で承ります。</p>
+  <p style="margin-top:10px;">統計の出典：1人あたり医療費および後期高齢者医療の保険料の全国平均は、厚生労働省の公表資料によります。いずれも公表値にもとづく<strong>概数・目安</strong>であり、年度・集計方法により変動します。金額はあくまで統計上の平均であり、個々の方の医療費を示すものではありません。</p>
+  <p style="margin-top:10px;">作成：株式会社Office-M（2026年8月）</p>
+</footer>
+
+<button type="button" class="to-top" id="toTop" aria-label="ページの先頭に戻る">
+  <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<!-- ================= 演目詳細モーダル ================= -->
+<div class="cmodal" id="caseModal" aria-hidden="true">
+  <div class="cmodal-back" id="caseModalBack"></div>
+  <div class="cmodal-panel" role="dialog" aria-modal="true" aria-labelledby="caseModalTitle">
+    <div class="cmodal-head" id="caseModalHead">
+      <button type="button" class="cmodal-close" id="caseModalClose" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <div class="cmodal-ico" id="caseModalIco" aria-hidden="true"></div>
+      <div>
+        <span class="cmodal-chip" id="caseModalChip"></span>
+        <h3 class="cmodal-title" id="caseModalTitle"></h3>
+      </div>
+    </div>
+    <div class="cmodal-body">
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 15.5a2 2 0 0 1-2 2H8l-4 3.5v-15a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"/></svg>
+          <span id="caseModalLbl1">ご相談で伺ったお話（脚色あり）</span>
+        </div>
+        <blockquote class="cmodal-quote" id="caseModalStory"></blockquote>
+      </div>
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-red" id="caseModalLbl2Wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+          <span id="caseModalLbl2">何が起きたのか</span>
+        </div>
+        <div id="caseModalWhat"></div>
+      </div>
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-green">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
+          <span id="caseModalLbl3">こう確認すれば防げます</span>
+        </div>
+        <div id="caseModalHow"></div>
+      </div>
+      <div data-cta-mini></div>
+      <p class="cmodal-note">※演目は一般的な内容をもとにした創作例で、実在の個人・事案とは関係ありません。支給の可否・金額・手続きは、市区町村、後期高齢者医療広域連合、ご加入の健康保険により異なります。実際のお取り扱いは、保険証に記載の窓口にご確認ください。</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- 案内役のイラスト ---------- */
+var SVG_GUIDE =
+  '<svg viewBox="0 0 64 64">' +
+  '<circle cx="32" cy="32" r="32" fill="#e2eff8"/>' +
+  '<path d="M8 64c0-13 11-20 24-20s24 7 24 20H8Z" fill="#63b8dd"/>' +
+  '<rect x="27" y="39" width="10" height="11" rx="5" fill="#f7cdb4"/>' +
+  '<path d="M25 45l7 9 7-9 3.4 1.8L32 61 21.6 46.8Z" fill="#fff"/>' +
+  '<ellipse cx="32" cy="28" rx="16" ry="17" fill="#a99b90"/>' +
+  '<ellipse cx="32" cy="30" rx="12.5" ry="13.5" fill="#f7cdb4"/>' +
+  '<path d="M19.5 27c0-9 5.6-14.5 12.5-14.5S44.5 18 44.5 27c-1.6-3.6-4.2-5.7-7.2-6.6-2.6 2.4-7 3.8-10.9 3.2-1.4 1-2.4 2.1-2.9 3.4Z" fill="#a99b90"/>' +
+  '<circle cx="27" cy="30" r="1.6" fill="#3d3028"/><circle cx="37" cy="30" r="1.6" fill="#3d3028"/>' +
+  '<path d="M29.4 35.6c1.6 1.7 3.6 1.7 5.2 0" fill="none" stroke="#3d3028" stroke-width="1.6" stroke-linecap="round"/>' +
+  '</svg>';
+
+document.querySelectorAll('[data-guide]').forEach(function(el){ el.innerHTML = SVG_GUIDE; });
+
+/* ---------- アイコン・イラスト ---------- */
+var S = 'fill="none" stroke-linecap="round" stroke-linejoin="round"';
+var ARTS = {};
+
+/* --- セクション見出しのスポット --- */
+ARTS.spotStep =
+  '<svg viewBox="0 0 64 64">' +
+  '<rect x="8" y="42" width="13" height="14" rx="3" fill="#dceaf5"/>' +
+  '<rect x="25" y="32" width="13" height="24" rx="3" fill="#8fd2ec"/>' +
+  '<rect x="42" y="18" width="13" height="38" rx="3" fill="#24729f"/>' +
+  '<path d="M10 30l14-9 13 5 15-14" fill="none" stroke="#c9451e" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+  '<path d="M45 11h8v8" fill="none" stroke="#c9451e" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+  '</svg>';
+ARTS.spotQuiz =
+  '<svg viewBox="0 0 64 64">' +
+  '<circle cx="32" cy="32" r="24" fill="#e8f4fb"/>' +
+  '<path d="M25 26.5c.6-4.2 3.6-6.6 7.4-6.6 4.2 0 7.4 2.8 7.4 6.8 0 3.4-2 5.2-4.4 6.8-2 1.3-2.9 2.3-2.9 4.5" fill="none" stroke="#24729f" stroke-width="3.4" stroke-linecap="round"/>' +
+  '<circle cx="32.4" cy="45" r="2.6" fill="#f0846a"/>' +
+  '</svg>';
+ARTS.spotDoc =
+  '<svg viewBox="0 0 64 64">' +
+  '<rect x="14" y="8" width="36" height="48" rx="6" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>' +
+  '<rect x="20" y="16" width="24" height="5" rx="2.5" fill="#24729f"/>' +
+  '<rect x="20" y="27" width="24" height="3" rx="1.5" fill="#d9cfc4"/>' +
+  '<rect x="20" y="34" width="24" height="3" rx="1.5" fill="#d9cfc4"/>' +
+  '<rect x="20" y="41" width="16" height="3" rx="1.5" fill="#d9cfc4"/>' +
+  '<circle cx="44" cy="46" r="12" fill="#e8f4fb"/>' +
+  '<path d="M44 40v6l4 3" fill="none" stroke="#24729f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+  '<circle cx="44" cy="46" r="12" fill="none" stroke="#24729f" stroke-width="3"/>' +
+  '</svg>';
+ARTS.spotTheater =
+  '<svg viewBox="0 0 64 64">' +
+  '<path d="M8 10h48v8c0 4-3 7-7 7H15c-4 0-7-3-7-7Z" fill="#c2453f"/>' +
+  '<path d="M14 24c0 14 3 24 6 30h-8c-3-8-4-18-4-30Z" fill="#a63631"/>' +
+  '<path d="M50 24c0 14-3 24-6 30h8c3-8 4-18 4-30Z" fill="#a63631"/>' +
+  '<circle cx="32" cy="38" r="13" fill="#fdf3e2"/>' +
+  '<circle cx="27" cy="35" r="1.9" fill="#3d3028"/><circle cx="37" cy="35" r="1.9" fill="#3d3028"/>' +
+  '<path d="M26 43c3.5 3.5 8.5 3.5 12 0" fill="none" stroke="#3d3028" stroke-width="2.2" stroke-linecap="round"/>' +
+  '</svg>';
+ARTS.spotGift =
+  '<svg viewBox="0 0 64 64">' +
+  '<rect x="9" y="26" width="46" height="30" rx="5" fill="#4fbf9b"/>' +
+  '<rect x="6" y="17" width="52" height="12" rx="4" fill="#2c7a4b"/>' +
+  '<rect x="28" y="17" width="8" height="39" fill="#f7c34e"/>' +
+  '<path d="M32 17S27 16 25.2 14.2a3 3 0 0 1 4.3-4.3C31.3 11.7 32 17 32 17Zm0 0s5-1 6.8-2.8a3 3 0 0 0-4.3-4.3C32.7 11.7 32 17 32 17Z" fill="#f7c34e"/>' +
+  '</svg>';
+ARTS.spotLife =
+  '<svg viewBox="0 0 64 64">' +
+  '<rect x="8" y="40" width="10" height="12" rx="2.5" fill="#c6e2f2"/>' +
+  '<rect x="22" y="30" width="10" height="22" rx="2.5" fill="#8fd2ec"/>' +
+  '<rect x="36" y="20" width="10" height="32" rx="2.5" fill="#24729f"/>' +
+  '<rect x="50" y="10" width="10" height="42" rx="2.5" fill="#c9451e"/>' +
+  '<path d="M6 56h52" stroke="#d9cfc4" stroke-width="3" stroke-linecap="round"/>' +
+  '</svg>';
+ARTS.spotCheck =
+  '<svg viewBox="0 0 64 64">' +
+  '<rect x="13" y="10" width="38" height="46" rx="6" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>' +
+  '<rect x="24" y="6" width="16" height="9" rx="4" fill="#27587f"/>' +
+  '<path d="M21 26l4 4 7-8" fill="none" stroke="#2c7a4b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+  '<path d="M21 38l4 4 7-8" fill="none" stroke="#2c7a4b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+  '<rect x="36" y="26" width="12" height="3.4" rx="1.7" fill="#d9cfc4"/>' +
+  '<rect x="36" y="38" width="12" height="3.4" rx="1.7" fill="#d9cfc4"/>' +
+  '</svg>';
+
+/* --- 年齢・保険証 --- */
+ARTS.icAge =
+  '<svg viewBox="0 0 64 64">' +
+  '<rect x="8" y="12" width="48" height="44" rx="7" fill="#e8f4fb" stroke="#24729f" stroke-width="2.6"/>' +
+  '<rect x="8" y="12" width="48" height="12" rx="7" fill="#24729f"/>' +
+  '<rect x="17" y="6" width="5" height="11" rx="2.5" fill="#1b3f5e"/>' +
+  '<rect x="42" y="6" width="5" height="11" rx="2.5" fill="#1b3f5e"/>' +
+  '<text x="32" y="47" text-anchor="middle" font-size="19" font-weight="bold" fill="#24729f" font-family="sans-serif">70</text>' +
+  '</svg>';
+ARTS.icCalendar =
+  '<svg viewBox="0 0 64 64">' +
+  '<rect x="8" y="12" width="48" height="44" rx="7" fill="#fdf3e2" stroke="#a8701a" stroke-width="2.6"/>' +
+  '<rect x="8" y="12" width="48" height="12" rx="7" fill="#a8701a"/>' +
+  '<rect x="17" y="6" width="5" height="11" rx="2.5" fill="#8a5b12"/>' +
+  '<rect x="42" y="6" width="5" height="11" rx="2.5" fill="#8a5b12"/>' +
+  '<circle cx="24" cy="36" r="5" fill="#efdcb8"/>' +
+  '<circle cx="40" cy="36" r="6.5" fill="#c9451e"/>' +
+  '<circle cx="24" cy="48" r="5" fill="#efdcb8"/><circle cx="40" cy="48" r="5" fill="#efdcb8"/>' +
+  '</svg>';
+ARTS.icCard =
+  '<svg viewBox="0 0 64 64">' +
+  '<rect x="6" y="16" width="52" height="34" rx="6" fill="#e8f4fb" stroke="#24729f" stroke-width="2.6"/>' +
+  '<rect x="6" y="16" width="52" height="9" rx="6" fill="#24729f"/>' +
+  '<rect x="13" y="31" width="15" height="14" rx="3" fill="#8fd2ec"/>' +
+  '<rect x="33" y="32" width="18" height="4" rx="2" fill="#8fd2ec"/>' +
+  '<rect x="33" y="40" width="18" height="4" rx="2" fill="#8fd2ec"/>' +
+  '</svg>';
+ARTS.icBadge =
+  '<svg viewBox="0 0 64 64">' +
+  '<rect x="9" y="13" width="46" height="34" rx="6" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="2.6"/>' +
+  '<rect x="15" y="20" width="16" height="16" rx="8" fill="#2c7a4b"/>' +
+  '<rect x="36" y="21" width="14" height="4" rx="2" fill="#7fbf9b"/>' +
+  '<rect x="36" y="29" width="14" height="4" rx="2" fill="#7fbf9b"/>' +
+  '<path d="M24 45l4 12 4-4 4 4 4-12Z" fill="#f0846a"/>' +
+  '</svg>';
+
+/* --- お金・割合 --- */
+ARTS.icWallet =
+  '<svg viewBox="0 0 64 64">' +
+  '<rect x="7" y="16" width="50" height="34" rx="7" fill="#fdf3e2" stroke="#a8701a" stroke-width="2.6"/>' +
+  '<path d="M7 24h34a5 5 0 0 1 0 10H7Z" fill="#f7c34e"/>' +
+  '<rect x="38" y="27" width="20" height="14" rx="5" fill="#fff" stroke="#a8701a" stroke-width="2.4"/>' +
+  '<circle cx="48" cy="34" r="3.2" fill="#a8701a"/>' +
+  '</svg>';
+ARTS.icYen =
+  '<svg viewBox="0 0 64 64">' +
+  '<circle cx="32" cy="32" r="24" fill="#fdf3e2" stroke="#a8701a" stroke-width="2.8"/>' +
+  '<path d="M22 20l10 12 10-12M32 32v14M24 36h16M24 42h16" fill="none" stroke="#a8701a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>' +
+  '</svg>';
+ARTS.icOver =
+  '<svg viewBox="0 0 64 64">' +
+  '<rect x="8" y="36" width="12" height="20" rx="3" fill="#f4d0c6"/>' +
+  '<rect x="26" y="28" width="12" height="28" rx="3" fill="#f0846a"/>' +
+  '<rect x="44" y="8" width="12" height="48" rx="3" fill="#c2453f"/>' +
+  '<path d="M4 26h38" stroke="#a63631" stroke-width="3" stroke-dasharray="5 4" stroke-linecap="round"/>' +
+  '<path d="M50 4l6 8h-4v6h-4v-6h-4Z" fill="#a63631"/>' +
+  '</svg>';
+ARTS.icRate2 =
+  '<svg viewBox="0 0 64 64">' +
+  '<circle cx="32" cy="32" r="24" fill="#fdf3e2" stroke="#a8701a" stroke-width="2.8"/>' +
+  '<text x="32" y="41" text-anchor="middle" font-size="21" font-weight="bold" fill="#8a5b12" font-family="sans-serif">2割</text>' +
+  '</svg>';
+ARTS.icRate1 =
+  '<svg viewBox="0 0 64 64">' +
+  '<circle cx="32" cy="32" r="24" fill="#e8f4fb" stroke="#24729f" stroke-width="2.8"/>' +
+  '<text x="32" y="41" text-anchor="middle" font-size="21" font-weight="bold" fill="#1b5478" font-family="sans-serif">1割</text>' +
+  '</svg>';
+ARTS.icTax =
+  '<svg viewBox="0 0 64 64">' +
+  '<rect x="12" y="6" width="40" height="48" rx="6" fill="#fffdf8" stroke="#2c7a4b" stroke-width="2.6"/>' +
+  '<rect x="19" y="15" width="26" height="4" rx="2" fill="#2c7a4b"/>' +
+  '<rect x="19" y="25" width="18" height="3.4" rx="1.7" fill="#d9cfc4"/>' +
+  '<rect x="19" y="33" width="18" height="3.4" rx="1.7" fill="#d9cfc4"/>' +
+  '<circle cx="44" cy="42" r="12" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="2.6"/>' +
+  '<path d="M38 42l4 4 8-8" fill="none" stroke="#2c7a4b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+  '</svg>';
+
+/* --- 請求書・入院まわり --- */
+ARTS.icBill =
+  '<svg viewBox="0 0 64 64">' +
+  '<path d="M13 6h38v50l-6-4-6 4-7-4-7 4-6-4-6 4Z" fill="#fffdf8" stroke="#c2453f" stroke-width="2.6" stroke-linejoin="round"/>' +
+  '<rect x="20" y="16" width="24" height="4" rx="2" fill="#c2453f"/>' +
+  '<rect x="20" y="26" width="24" height="3.4" rx="1.7" fill="#d9cfc4"/>' +
+  '<rect x="20" y="34" width="24" height="3.4" rx="1.7" fill="#d9cfc4"/>' +
+  '<rect x="20" y="42" width="14" height="3.4" rx="1.7" fill="#d9cfc4"/>' +
+  '</svg>';
+ARTS.icBed =
+  '<svg viewBox="0 0 64 64">' +
+  '<rect x="6" y="34" width="52" height="16" rx="4" fill="#fdeee9"/>' +
+  '<rect x="6" y="28" width="9" height="26" rx="3" fill="#c2453f"/>' +
+  '<rect x="51" y="38" width="7" height="16" rx="3" fill="#c2453f"/>' +
+  '<circle cx="24" cy="27" r="7" fill="#f7cdb4"/>' +
+  '<path d="M30 34h21v6H30Z" fill="#f4d0c6"/>' +
+  '<path d="M17 32h16v8H17Z" fill="#e8f4fb"/>' +
+  '<circle cx="16" cy="56" r="4" fill="#8a7a6c"/><circle cx="48" cy="56" r="4" fill="#8a7a6c"/>' +
+  '</svg>';
+ARTS.icMeal =
+  '<svg viewBox="0 0 64 64">' +
+  '<ellipse cx="32" cy="48" rx="26" ry="6" fill="#f2dcae"/>' +
+  '<path d="M10 32h44c0 9-9 15-22 15s-22-6-22-15Z" fill="#fdf3e2" stroke="#a8701a" stroke-width="2.4"/>' +
+  '<path d="M20 26c0-4 2-6 2-9M32 24c0-4 2-6 2-9M44 26c0-4 2-6 2-9" fill="none" stroke="#c39a5a" stroke-width="2.6" stroke-linecap="round"/>' +
+  '</svg>';
+ARTS.icAdvanced =
+  '<svg viewBox="0 0 64 64">' +
+  '<path d="M24 8h16v14l10 22a6 6 0 0 1-5.4 8.6H19.4A6 6 0 0 1 14 44l10-22Z" fill="#fbeef6" stroke="#8f4574" stroke-width="2.6" stroke-linejoin="round"/>' +
+  '<path d="M18 36h28" stroke="#8f4574" stroke-width="2.6"/>' +
+  '<path d="M20 6h24" stroke="#8f4574" stroke-width="3.4" stroke-linecap="round"/>' +
+  '<circle cx="27" cy="44" r="3.4" fill="#b57fa0"/><circle cx="37" cy="48" r="2.6" fill="#b57fa0"/>' +
+  '</svg>';
+ARTS.icInLimit =
+  '<svg viewBox="0 0 64 64">' +
+  '<path d="M32 6 12 13v14c0 12.6 8.4 23 20 26.4C43.6 50 52 39.6 52 27V13Z" fill="#e8f4fb" stroke="#24729f" stroke-width="2.6"/>' +
+  '<path d="M24 22l8 10 8-10M32 32v14M25 38h14M25 44h14" fill="none" stroke="#24729f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+  '</svg>';
+ARTS.icClock =
+  '<svg viewBox="0 0 64 64">' +
+  '<circle cx="32" cy="34" r="22" fill="#fdeee9" stroke="#c2453f" stroke-width="2.8"/>' +
+  '<path d="M32 20v15l10 6" fill="none" stroke="#c2453f" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>' +
+  '<path d="M22 8l-8 6M42 8l8 6" stroke="#f0846a" stroke-width="3.4" stroke-linecap="round"/>' +
+  '</svg>';
+
+/* --- 逆転劇場 --- */
+ARTS.icMyna =
+  '<svg viewBox="0 0 64 64">' +
+  '<rect x="8" y="14" width="48" height="34" rx="6" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="2.6"/>' +
+  '<rect x="14" y="21" width="14" height="16" rx="3" fill="#7fbf9b"/>' +
+  '<rect x="33" y="22" width="16" height="4" rx="2" fill="#7fbf9b"/>' +
+  '<rect x="33" y="30" width="16" height="4" rx="2" fill="#7fbf9b"/>' +
+  '<path d="M36 44a10 10 0 0 1 10 10M42 44a4 4 0 0 1 4 4" fill="none" stroke="#c9451e" stroke-width="3" stroke-linecap="round"/>' +
+  '</svg>';
+ARTS.icDoc =
+  '<svg viewBox="0 0 64 64">' +
+  '<rect x="13" y="6" width="38" height="48" rx="6" fill="#fffdf8" stroke="#24729f" stroke-width="2.6"/>' +
+  '<rect x="20" y="15" width="24" height="4" rx="2" fill="#24729f"/>' +
+  '<rect x="20" y="25" width="24" height="3.4" rx="1.7" fill="#d9cfc4"/>' +
+  '<rect x="20" y="33" width="16" height="3.4" rx="1.7" fill="#d9cfc4"/>' +
+  '<path d="M22 44l6 6 14-16" fill="none" stroke="#c9451e" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>' +
+  '</svg>';
+ARTS.icGassan =
+  '<svg viewBox="0 0 64 64">' +
+  '<circle cx="24" cy="32" r="17" fill="#e8f4fb" stroke="#24729f" stroke-width="2.6"/>' +
+  '<circle cx="42" cy="32" r="17" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="2.6" fill-opacity=".75"/>' +
+  '<path d="M18 26h5M20.5 23.5v5" stroke="#24729f" stroke-width="3" stroke-linecap="round"/>' +
+  '<path d="M43 40h5" stroke="#2c7a4b" stroke-width="3" stroke-linecap="round"/>' +
+  '<text x="33" y="38" text-anchor="middle" font-size="15" font-weight="bold" fill="#1b3f5e" font-family="sans-serif">＋</text>' +
+  '</svg>';
+ARTS.icDialysis =
+  '<svg viewBox="0 0 64 64">' +
+  '<rect x="12" y="8" width="26" height="44" rx="6" fill="#e8f4fb" stroke="#24729f" stroke-width="2.6"/>' +
+  '<rect x="18" y="16" width="14" height="14" rx="3" fill="#8fd2ec"/>' +
+  '<circle cx="25" cy="40" r="5" fill="none" stroke="#24729f" stroke-width="2.6"/>' +
+  '<path d="M38 24h8a6 6 0 0 1 6 6v16" fill="none" stroke="#c2453f" stroke-width="3" stroke-linecap="round"/>' +
+  '<circle cx="52" cy="50" r="4" fill="#c2453f"/>' +
+  '</svg>';
+ARTS.icBank =
+  '<svg viewBox="0 0 64 64">' +
+  '<path d="M32 8 6 22h52Z" fill="#dceaf5" stroke="#24729f" stroke-width="2.6" stroke-linejoin="round"/>' +
+  '<rect x="12" y="26" width="6" height="20" rx="2" fill="#8fd2ec"/>' +
+  '<rect x="24" y="26" width="6" height="20" rx="2" fill="#8fd2ec"/>' +
+  '<rect x="36" y="26" width="6" height="20" rx="2" fill="#8fd2ec"/>' +
+  '<rect x="48" y="26" width="6" height="20" rx="2" fill="#8fd2ec"/>' +
+  '<rect x="6" y="49" width="52" height="7" rx="3" fill="#24729f"/>' +
+  '</svg>';
+ARTS.icBus =
+  '<svg viewBox="0 0 64 64">' +
+  '<rect x="10" y="12" width="44" height="34" rx="6" fill="#e8f6ef" stroke="#2c7a4b" stroke-width="2.6"/>' +
+  '<rect x="16" y="19" width="32" height="13" rx="3" fill="#a8dcc2"/>' +
+  '<circle cx="20" cy="49" r="5" fill="#2c7a4b"/><circle cx="44" cy="49" r="5" fill="#2c7a4b"/>' +
+  '<path d="M16 38h6M42 38h6" stroke="#2c7a4b" stroke-width="3" stroke-linecap="round"/>' +
+  '</svg>';
+
+/* --- チェックリストの小さなアイコン（32×32） --- */
+ARTS.chkCard =
+  '<svg viewBox="0 0 32 32" ' + S + ' stroke="#24729f" stroke-width="2">' +
+  '<rect x="4" y="8" width="24" height="17" rx="3"/><path d="M4 13h24M8 19h6"/></svg>';
+ARTS.chkYen =
+  '<svg viewBox="0 0 32 32" ' + S + ' stroke="#a8701a" stroke-width="2">' +
+  '<circle cx="16" cy="16" r="11"/><path d="m11.5 10 4.5 6.5L20.5 10M16 16.5V23M12.5 18h7M12.5 21h7"/></svg>';
+ARTS.chkMail =
+  '<svg viewBox="0 0 32 32" ' + S + ' stroke="#c2453f" stroke-width="2">' +
+  '<rect x="4" y="8" width="24" height="17" rx="3"/><path d="m5 10 11 8 11-8"/></svg>';
+ARTS.chkMyna =
+  '<svg viewBox="0 0 32 32" ' + S + ' stroke="#2c7a4b" stroke-width="2">' +
+  '<rect x="4" y="7" width="19" height="15" rx="3"/><path d="M8 12h5M8 17h5"/>' +
+  '<path d="M19 23a7 7 0 0 1 7 7M23 23a3 3 0 0 1 3 3"/></svg>';
+ARTS.chkDoc =
+  '<svg viewBox="0 0 32 32" ' + S + ' stroke="#24729f" stroke-width="2">' +
+  '<rect x="8" y="4" width="16" height="24" rx="3"/><path d="M12 10h8M12 15h8M12 20h5"/></svg>';
+ARTS.chkGassan =
+  '<svg viewBox="0 0 32 32" ' + S + ' stroke="#8f4574" stroke-width="2">' +
+  '<circle cx="12" cy="16" r="7"/><circle cx="20" cy="16" r="7"/></svg>';
+ARTS.chkTax =
+  '<svg viewBox="0 0 32 32" ' + S + ' stroke="#2c7a4b" stroke-width="2">' +
+  '<rect x="6" y="4" width="20" height="24" rx="3"/><path d="M11 10h10M11 15h10"/><path d="m11 21 3 3 6-6"/></svg>';
+ARTS.chkBus =
+  '<svg viewBox="0 0 32 32" ' + S + ' stroke="#24729f" stroke-width="2">' +
+  '<rect x="5" y="6" width="22" height="17" rx="3"/><path d="M8 11h16"/>' +
+  '<circle cx="10" cy="26" r="2.2"/><circle cx="22" cy="26" r="2.2"/></svg>';
+ARTS.chkDiaper =
+  '<svg viewBox="0 0 32 32" ' + S + ' stroke="#8f4574" stroke-width="2">' +
+  '<path d="M6 6h20v7c-4 1-6 3-6 6s2 5 6 6v3H6v-3c4-1 6-3 6-6s-2-5-6-6Z"/></svg>';
+ARTS.chkFamily =
+  '<svg viewBox="0 0 32 32" ' + S + ' stroke="#8f4574" stroke-width="2">' +
+  '<circle cx="11" cy="11" r="4"/><circle cx="22" cy="13" r="3.2"/>' +
+  '<path d="M4 27c0-5 3-8 7-8s7 3 7 8M17.5 27c.4-3.8 2.3-6 4.5-6 2.5 0 4.6 2.5 5 6"/></svg>';
+ARTS.chkPhone =
+  '<svg viewBox="0 0 32 32" ' + S + ' stroke="#24729f" stroke-width="2">' +
+  '<path d="M4 8c0 11 9 20 20 20h2a3 3 0 0 0 3-3v-2l-6-2-2 2c-4-1.5-8-5.5-9.5-9.5l2-2-2-6H7a3 3 0 0 0-3 3Z"/></svg>';
+ARTS.chkTalk =
+  '<svg viewBox="0 0 32 32" ' + S + ' stroke="#a8701a" stroke-width="2">' +
+  '<path d="M4 8a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3h-7l-5 4v-4H7a3 3 0 0 1-3-3Z"/>' +
+  '<path d="M22 12h3a3 3 0 0 1 3 3v5a3 3 0 0 1-3 3h-1v3l-4-3h-4"/></svg>';
+
+document.querySelectorAll('[data-art]').forEach(function(el){
+  var key = el.getAttribute('data-art');
+  if(ARTS[key]) el.innerHTML = ARTS[key];
+});
+
+/* ---------- ミニCTA ---------- */
+var CTA_MINI =
+  '<div class="cta-mini"><p>「うちの場合はどうなるんだろう」と思ったら、それが保険証を出すタイミングです。書類がそろっていなくても大丈夫、お気軽にどうぞ。</p>' +
+  '<a href="#soudan">' +
+  '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="m3 7 9 6 9-6"/></svg>' +
+  '無料で相談してみる</a></div>';
+document.querySelectorAll('[data-cta-mini]').forEach(function(el){ el.innerHTML = CTA_MINI; });
+
+/* ---------- セクション2：○×クイズ ---------- */
+/* a: true = はい が正解, false = いいえ が正解 */
+var QUIZ = [
+  {
+    icon:'icCard', a:true,
+    q:'75歳の誕生日が来ると、それまで入っていた健康保険から自動的に後期高齢者医療制度へ移る（加入の手続きは、原則いらない）。',
+    expl:'そのとおりです。75歳の誕生日当日から後期高齢者医療制度の被保険者になり、それまでの健康保険は同じ日に脱退となります。届出は原則不要で、被保険者証も誕生日の前に郵送されてきます。……ただし、ここからが本題。保険料は一人ひとりにかかるようになり、それまでお子さんの扶養に入っていて保険料ゼロだった方も、自分で払うことになります。さらに、ご本人が抜けたことで、扶養されていた配偶者まで健康保険から外れます。「手続きがいらない」と「何も起こらない」は、別の話です。',
+    wana:'「自動で移るなら何もしなくていい」と思い込み、配偶者の国民健康保険への切り替えを忘れる。切り替えが遅れると、その間の医療費をいったん全額払うことになりかねない。',
+    check:'75歳を迎える方が扶養しているご家族がいないか。いる場合は、市区町村の国民健康保険の窓口で切り替えの手続きを。'
+  },
+  {
+    icon:'icAge', a:false,
+    q:'70歳になれば、窓口で払う割合は必ず2割になる。',
+    expl:'現役並みの所得がある方は、70歳を過ぎても3割のままです。しかも2割になるのは誕生日のその月ではなく、原則として翌月1日から（1日生まれの方はその月から）。「今月70歳になったから安くなる」と思って手術の日を決めると、その月はまだ3割、ということが起こります。日程を1ヶ月ずらすだけで負担が変わることがあるのは、なんとも制度らしい話です。',
+    wana:'年齢が来れば自動的に安くなる、という思い込み。実際は「所得」と「翌月から」という2つの条件が待っている。',
+    check:'高齢受給者証（またはマイナ保険証で確認できる情報）の負担割合と、適用開始年月日。'
+  },
+  {
+    icon:'icWallet', a:false,
+    q:'75歳以上になれば、窓口で払う割合は全員1割になる。',
+    expl:'75歳以上の割合は1割・2割・3割の3段階です。課税所得145万円以上なら3割（現役並み所得者）、課税所得28万円以上で「年金収入＋その他の合計所得金額」が単身200万円以上（2人以上の世帯で320万円以上）なら2割。それ以外が1割です。ここで大事なのは、判定に使うのが「年収」ではなく「課税所得」だということ。通帳に入ってくる金額とは一致しないので、毎年8月の通知を見て驚く方がいらっしゃいます。',
+    wana:'「後期高齢者＝1割」という言い方が広まりすぎている。実際は毎年8月に、前年の所得で判定し直される。',
+    check:'保険証（または負担割合証）に印字された負担割合。3割と書かれていたら、⑤逆転劇場の第三話も必ずご覧ください。'
+  },
+  {
+    icon:'icBill', a:true,
+    q:'70歳以上は、同じ月にかかった複数の病院・薬局の自己負担をぜんぶ合わせて、高額療養費を計算できる。',
+    expl:'そのとおりです。ここは高齢者にとって、はっきり有利になっている点です。69歳以下は「1件2万1,000円以上の自己負担」しか合算できませんが、70歳以上はその縛りがなく、内科と整形外科と調剤薬局の分をぜんぶ足して計算できます。さらに、同じ世帯に70歳以上の方が複数いれば、その方々の分も合算できます。……ただし、合算した結果が上限を超えていても、原則として申請しないと戻ってきません。惜しい。',
+    wana:'有利な制度なのに知られていないため、「うちは1回あたり少額だから関係ない」と最初からあきらめてしまう。',
+    check:'ひと月分の領収書を、病院・歯科・薬局ぜんぶ合わせて数えてみる。意外と上限に届いていることがあります。'
+  },
+  {
+    icon:'icMeal', a:false,
+    q:'入院中の食事代も、高額療養費の上限額に含まれる。',
+    expl:'含まれません。入院時の食事代（入院時食事療養費の標準負担額）は、一般の方で1食510円。1日3食で1,530円、30日入院すればおよそ4万6,000円です。高額療養費が効いて医療費の自己負担が5万7,600円で止まっても、この分はまるまる別に請求されます。差額ベッド代、おむつ代、日用品代も同じ扱い。「上限があるから安心」の上限は、思ったより狭い範囲にしかかかっていません。',
+    wana:'高額療養費の上限額と、実際に請求される金額を同じものだと思ってしまう。請求書はいつも上限より高い。',
+    check:'入院の案内書に書かれた1日あたりの概算費用。食事代・室料・日用品代がいくらか、入院前に確認を。なお住民税非課税の世帯なら、認定証で食事代を減額できます。'
+  },
+  {
+    icon:'icClock', a:false,
+    q:'ひと月の自己負担が上限を超えたとき、高額療養費は何もしなくても自動で戻ってくる。',
+    expl:'原則は、申請してからの振り込みです。多くの市区町村では該当した方に申請書（お知らせ）が郵送され、一度口座を登録すれば、以後は自動で振り込まれる取扱いになっています。裏を返せば、その最初の1回を出していないと、いつまでも溜まったまま。しかも請求できるのは、診療を受けた月の翌月1日から2年間です。制度が守ってくれるのは、申請書を出した人だけ——というのが、正直なところです。',
+    wana:'「制度があるから大丈夫」と「自分に振り込まれる」は別の話。届いた封筒を、ただの案内文だと思って開けずにしまってしまう。',
+    check:'過去2年分の入院・手術があった月について、高額療養費が振り込まれているか通帳で確認。心当たりがあれば、保険証に書いてある窓口へ。'
+  },
+  {
+    icon:'icDoc', a:true,
+    q:'3割（現役並み）と判定されても、収入額によっては申請で1割・2割に下がることがある。',
+    expl:'あります。「基準収入額適用申請」といいます。課税所得145万円以上で3割と判定されても、収入額が単身で383万円未満（同じ世帯に他の被保険者がいる場合は合計520万円未満）などの条件にあてはまれば、申請によって1割・2割に変更されます。対象になりそうな方へ市区町村からお知らせが届くこともありますが、必ず届くとは限りません。土地を売った年など、一時的に所得が跳ねた翌年は、とくに確認する価値があります。',
+    wana:'「役所が決めたことだから仕方がない」とあきらめてしまう。判定は自動、変更は申請、という非対称。',
+    check:'3割と書かれた保険証・負担割合証が届いたら、市区町村の後期高齢者医療担当課に「基準収入額適用申請の対象になりますか」と電話一本。'
+  },
+  {
+    icon:'icBed', a:false,
+    q:'個室に入った日の差額ベッド代は、同意書にサインしていなくても、請求されたら払わなければならない。',
+    expl:'原則として、患者側の同意を同意書で確認していない場合、差額ベッド代（特別療養環境室料）を求めてはならないことになっています。さらに、治療上の必要があって個室に入った場合や、病棟の管理上の都合（大部屋が満床など）で個室になった場合も、求められません。もちろん、納得して選んだ個室の料金を払うのは当然のことです。問題は「気づいたらサインしていた」場合。入院の書類は分厚く、説明は早口で、ご本人は具合が悪い。断りにくい状況こそ、ご家族の出番です。',
+    wana:'言われるままサインしてしまう。1日8,000円の個室に20日入れば16万円で、高額療養費はここに一切効かない。',
+    check:'入院時の同意書の控え。金額と部屋の種類が書かれているか。希望していない個室なら、その場で相談を（言いにくければ、医療相談室・地域医療連携室が窓口になります）。'
+  }
+];
+
+var qIdx = 0, qScore = 0, qAnswered = false, qAnsweredCount = 0;
+var wrongItems = [];
+
+var elNum   = document.getElementById('qNum');
+var elDots  = document.getElementById('qDots');
+var elIcon  = document.getElementById('qIcon');
+var elText  = document.getElementById('qText');
+var btnYes  = document.getElementById('btnYes');
+var btnNo   = document.getElementById('btnNo');
+var lblYes  = document.getElementById('lblYes');
+var lblNo   = document.getElementById('lblNo');
+var elVerd  = document.getElementById('verdict');
+var elVAns  = document.getElementById('vAnswer');
+var elVChip = document.getElementById('vChip');
+var elVExpl = document.getElementById('vExpl');
+var elVWana = document.getElementById('vWana');
+var elVChk  = document.getElementById('vCheck');
+var btnNext = document.getElementById('btnNext');
+var btnStop = document.getElementById('btnStopHere');
+var quizPlay = document.getElementById('quizPlay');
+var quizDone = document.getElementById('quizDone');
+var NEXT_ICO = ' <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+
+function renderDots(){
+  var html = '';
+  for(var i = 0; i < QUIZ.length; i++){
+    html += '<i class="' + (i < qIdx ? 'done' : (i === qIdx ? 'now' : '')) + '"></i>';
+  }
+  elDots.innerHTML = html;
+}
+
+function renderQ(){
+  var item = QUIZ[qIdx];
+  qAnswered = false;
+  elNum.textContent = qIdx + 1;
+  renderDots();
+  elIcon.innerHTML = ARTS[item.icon] || '';
+  elText.textContent = item.q;
+  lblYes.textContent = item.yes || 'はい';
+  lblNo.textContent  = item.no  || 'いいえ';
+  btnYes.disabled = false;
+  btnNo.disabled = false;
+  elVerd.classList.remove('show');
+  btnNext.style.display = 'none';
+  btnStop.style.display = 'none';
+}
+
+function answer(ansYes){
+  if(qAnswered) return;
+  qAnswered = true;
+  qAnsweredCount++;
+  btnYes.disabled = true;
+  btnNo.disabled = true;
+  var item = QUIZ[qIdx];
+  var correct = (ansYes === item.a);
+  if(correct){ qScore++; } else { wrongItems.push(item); }
+  elVAns.textContent = '答え：' + (item.a ? (item.yes || 'はい') : (item.no || 'いいえ'));
+  elVChip.textContent = correct ? '正解！' : 'ワナにかかりました';
+  elVChip.className = 'result-chip ' + (correct ? 'correct' : 'wrong');
+  elVExpl.innerHTML = item.expl;
+  elVWana.textContent = item.wana;
+  elVChk.textContent = item.check;
+  elVerd.classList.add('show');
+  btnNext.style.display = 'flex';
+  if(qIdx >= QUIZ.length - 1){
+    btnNext.innerHTML = '結果を見る' + NEXT_ICO;
+  } else {
+    btnNext.innerHTML = '次の質問へ' + NEXT_ICO;
+    btnStop.style.display = 'block';
+  }
+}
+
+function doneComment(score, total){
+  var full = (total === QUIZ.length);
+  if(score === total && full){
+    return '全問正解！　あなたはもう、市の冊子の大きな字に惑わされない人です。あとはその知識を、ご自分とご家族の保険証に当てはめるだけ。……当てはめた結果が気になったら、いつでもどうぞ。';
+  }
+  var r = score / total;
+  if(r >= 0.75){
+    return 'かなりの好成績です。ただ、クイズで間違えても失うのは1問ですが、実際の医療費で「知らなかった」が起こると、失うのは数万〜数十万円。惜しかった問題こそ、ご自分の保険証と領収書で答え合わせを。';
+  }
+  if(r >= 0.4){
+    return '約半分がワナにかかりました。ご安心ください、ご相談でお会いする皆さまもだいたい同じです。つまり「普通に暮らしていると引っかかる」ようにできているのが、医療費の小さな字。だからこそ、70歳・75歳の前後と、入院した直後だけはプロと一緒に読むのが近道です。';
+  }
+  return 'ワナに全力でかかりました。でも、それが普通です。むしろクイズで引っかかっておけば、実際の請求と申請で引っかからずに済みます。今日が人生でいちばん医療制度にくわしい日。この勢いで、保険証の確認までいきましょう。';
+}
+
+function showDone(){
+  quizPlay.style.display = 'none';
+  quizDone.classList.add('show');
+  document.getElementById('doneTotal').textContent = qAnsweredCount;
+  document.getElementById('doneScore').textContent = qScore;
+  document.getElementById('doneCmt').textContent = doneComment(qScore, qAnsweredCount);
+  var wl = document.getElementById('wrongList');
+  if(wrongItems.length){
+    var html = '<h4>ワナにかかった問題（＝ご自分の書類で確認したい項目）</h4>';
+    for(var i = 0; i < wrongItems.length; i++){
+      html += '<div class="w-item"><strong>' + wrongItems[i].q + '</strong><br>確認ポイント：' + wrongItems[i].check + '</div>';
+    }
+    wl.innerHTML = html;
+    wl.style.display = 'block';
+  } else {
+    wl.style.display = 'none';
+  }
+  var sum = document.getElementById('sumScore');
+  sum.innerHTML = '<p>○×クイズの結果：<strong>' + qAnsweredCount + '問中 ' + qScore + '問正解</strong>でした。' +
+    (wrongItems.length ? '間違えた問題は、そのまま「保険証と役所で確認したいことリスト」になります。' : 'この調子で、下のチェックリストもどうぞ。') + '</p>';
+}
+
+btnYes.addEventListener('click', function(){ answer(true); });
+btnNo.addEventListener('click', function(){ answer(false); });
+btnNext.addEventListener('click', function(){
+  if(qIdx >= QUIZ.length - 1){ showDone(); return; }
+  qIdx++;
+  renderQ();
+  var shell = document.querySelector('.quiz-shell');
+  if(shell.getBoundingClientRect().top < 0) shell.scrollIntoView({behavior:'smooth'});
+});
+btnStop.addEventListener('click', showDone);
+document.getElementById('btnRetry').addEventListener('click', function(){
+  qIdx = 0; qScore = 0; qAnsweredCount = 0; wrongItems = [];
+  quizDone.classList.remove('show');
+  quizPlay.style.display = 'block';
+  renderQ();
+});
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+document.getElementById('btnMailSelf').addEventListener('click', function(){
+  var body = '「高齢者の医療費の払う・戻るチェック」の結果メモ\n\n' +
+    '○×クイズ：' + qAnsweredCount + '問中 ' + qScore + '問正解\n\n';
+  if(wrongItems.length){
+    body += '【保険証と役所で確認したいこと】\n';
+    for(var i = 0; i < wrongItems.length; i++){
+      body += '・' + wrongItems[i].check + '\n';
+    }
+  }
+  body += '\n（このメモを保険証・病院の領収書と一緒に保管しておくと、いざという時に役立ちます）\n';
+  location.href = 'mailto:?subject=' + encodeURIComponent('高齢者の医療費チェックの結果') + '&body=' + encodeURIComponent(body);
+});
+
+renderQ();
+
+/* ---------- セクション3：シミュレーター ---------- */
+/* 2026年8月時点の一般的な内容。現役並みは「現役並みⅠ」で計算する */
+var SHOKU_PER_MEAL = 510;   /* 入院時食事療養費の標準負担額（一般） */
+var KUBUN = {
+  low:     { label:'非課税（低所得Ⅱ）', rate:0.1, gairai:8000,  setai:24600 },
+  ippan1:  { label:'一般・1割',         rate:0.1, gairai:18000, setai:57600 },
+  ippan2:  { label:'一般・2割',         rate:0.2, gairai:18000, setai:57600 },
+  genyaku: { label:'現役並みⅠ・3割',    rate:0.3, gairai:null,  setai:null  }
+};
+
+var simIryo  = document.getElementById('simIryo');
+var simNyuin = document.getElementById('simNyuin');
+var simBed   = document.getElementById('simBed');
+
+function yen(v){ return Math.round(v).toLocaleString('ja-JP') + '円'; }
+function man(v){
+  if(v === 0) return '0円';
+  var m = v / 10000;
+  return (Math.round(m * 10) / 10) + '万円';
+}
+function currentKubun(){
+  var r = document.querySelector('#simKubun input[name=kubun]:checked');
+  return KUBUN[r ? r.value : 'ippan1'];
+}
+
+function simUpdate(){
+  var iryo  = +simIryo.value;
+  var nyuin = +simNyuin.value;
+  var bedRate = +simBed.value;
+  var k = currentKubun();
+  var isGen = (k.gairai === null);
+
+  document.getElementById('simIryoOut').textContent  = man(iryo);
+  document.getElementById('simNyuinOut').textContent = nyuin + '日';
+  document.getElementById('simBedOut').textContent   = bedRate === 0 ? '0円' : yen(bedRate);
+
+  /* 上限額と、高額療養費が効きはじめる医療費 */
+  var cap, capKind, threshold;
+  if(isGen){
+    cap = 80100 + Math.max(0, iryo - 267000) * 0.01;
+    capKind = '現役並みⅠ：80,100円＋（医療費−267,000円）×1%';
+    threshold = 267000;
+  } else if(nyuin > 0){
+    cap = k.setai;
+    capKind = '外来＋入院の上限（世帯ごと）';
+    threshold = k.setai / k.rate;
+  } else {
+    cap = k.gairai;
+    capKind = '外来だけの上限（個人ごと）';
+    threshold = k.gairai / k.rate;
+  }
+
+  var madoguchi = Math.round(iryo * k.rate);
+  var back      = Math.max(0, madoguchi - cap);
+  var harau     = Math.min(madoguchi, cap);
+  var shoku     = nyuin * 3 * SHOKU_PER_MEAL;
+  var bed       = nyuin * bedRate;
+  var total     = harau + shoku + bed;
+
+  document.getElementById('mWari').textContent   = Math.round(k.rate * 10) + '割';
+  document.getElementById('mCapKind').textContent = capKind;
+  document.getElementById('mMadoguchi').textContent = yen(madoguchi);
+  document.getElementById('mCap').textContent   = yen(cap);
+  document.getElementById('mBack').textContent  = back > 0 ? ('▲ ' + yen(back)) : '0円';
+  document.getElementById('mShoku').textContent = yen(shoku);
+  document.getElementById('mBed').textContent   = yen(bed);
+  document.getElementById('mTotal').textContent = yen(total);
+
+  /* 帯グラフ：医療費の目盛りの上に「効きはじめる位置」を立てる */
+  document.getElementById('tlFill').style.width = Math.min(100, iryo / 1000000 * 100) + '%';
+  var pct  = Math.min(97, Math.max(1, threshold / 1000000 * 100));
+  var mark = document.getElementById('tlMark');
+  var goal = document.getElementById('tlGoal');
+  mark.style.left = pct + '%';
+  goal.style.left = pct + '%';
+  goal.innerHTML = '高額療養費が効く<br>医療費' + man(threshold) + '〜';
+  /* 文字の箱が帯からはみ出したら、その分だけ左右に押し戻す（棒は動かさない） */
+  goal.style.transform = 'translateX(-50%)';
+  var gr = goal.getBoundingClientRect(), tr = mark.parentNode.getBoundingClientRect();
+  var shift = 0;
+  if(gr.left < tr.left)       shift = tr.left - gr.left;
+  else if(gr.right > tr.right) shift = tr.right - gr.right;
+  if(shift) goal.style.transform = 'translateX(calc(-50% + ' + Math.round(shift) + 'px))';
+
+  var msg;
+  if(iryo === 0){
+    msg = '医療費が0円のひと月です。スライダーを動かして、いくらから高額療養費が効きはじめるかを見てみてください。この区分では、ひと月の医療費が<strong>' + man(threshold) + '</strong>を超えたあたりから、上限を超えた分が戻るようになります。';
+  } else if(back > 0){
+    msg = '窓口でいったん ' + yen(madoguchi) + ' を払いますが、上限を超えた <strong>' + yen(back) + '</strong> は<strong>高額療養費</strong>として戻ってきます。ただし<strong>原則、申請が必要</strong>です（一度口座を登録すれば、以後は自動で振り込まれる市区町村が多くあります）。<strong>マイナ保険証</strong>を使うか<strong>限度額適用認定証</strong>を出しておけば、そもそも窓口の支払いが ' + yen(cap) + ' で止まり、立て替えずに済みます。';
+  } else {
+    msg = 'このひと月は上限（' + yen(cap) + '）に届いていないため、高額療養費の払い戻しはありません。医療費が<strong>' + man(threshold) + '</strong>を超えると効きはじめます。なお70歳以上は、同じ月にかかった<strong>複数の病院・薬局の自己負担をぜんぶ合算</strong>できます。1件ずつでは届かなくても、足すと届くことがあります。';
+  }
+  if(shoku + bed > 0){
+    msg += '<br><br>そして、食事代と差額ベッド代の合計 <strong>' + yen(shoku + bed) + '</strong> は、<strong>高額療養費の対象外</strong>です。この試算では食事代を一般の方の額（1食' + SHOKU_PER_MEAL + '円）で計算しています。住民税非課税の世帯なら、<strong>限度額適用・標準負担額減額認定証</strong>で食事代を減らせます（金額はお住まいの市区町村・広域連合にご確認ください）。';
+  }
+  document.getElementById('mMsg').innerHTML = msg;
+}
+
+/* ±ボタン：スライダーを引けなくても値を動かせるようにする */
+document.querySelectorAll('.sim-stepper button[data-step]').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var el = document.getElementById(btn.getAttribute('data-step'));
+    if(!el) return;
+    var step = parseFloat(el.step) || 1;
+    var dir  = parseFloat(btn.getAttribute('data-dir'));
+    var next = (parseFloat(el.value) || 0) + step * dir;
+    next = Math.min(parseFloat(el.max), Math.max(parseFloat(el.min), next));
+    el.value = next;
+    simUpdate();
+  });
+});
+simIryo.addEventListener('input', simUpdate);
+simNyuin.addEventListener('input', simUpdate);
+simBed.addEventListener('input', simUpdate);
+document.querySelectorAll('#simKubun input[name=kubun]').forEach(function(r){
+  r.addEventListener('change', simUpdate);
+});
+simUpdate();
+
+/* ---------- セクション4：あるある劇場 ---------- */
+var CASES = [
+  {
+    art:'icCard', cls:'c-blue', chip:'第一幕：75歳の誕生日',
+    title:'扶養だったのに、保険料の請求が来た',
+    story:'「父が75歳になりまして。保険証が勝手に届いたので、手続きは何もいらないんだなと安心していたんです。そうしたら父あてに保険料の納付書が来て、しばらくして母から電話。『あんた、私の保険証が使えんようになった』と。父の扶養に入っていた母の分まで、考えていませんでした」<small>——50代・ご家族の方（脚色あり）</small>',
+    what:'<p class="cmodal-p">75歳になると、その日から後期高齢者医療制度の被保険者になり、それまでの健康保険は自動的に脱退となります。ここまでは手続き不要です。ところが<strong>保険料は一人ひとりにかかる</strong>ため、それまで被扶養者として保険料ゼロだった方も自分で払うことになります。さらに、被保険者だったご本人が抜けると、<strong>扶養されていた配偶者も同時に健康保険を抜けることになり</strong>、ご自分で国民健康保険などに加入し直す必要があります。「自動で移る」のはご本人の分だけなのです。</p>',
+    how:'<p class="cmodal-p">75歳を迎える方が誰かを扶養している場合は、その方の切り替え手続き（市区町村の国民健康保険の窓口など）を、誕生日にあわせて用意しておきます。切り替えが遅れると、その間の医療費をいったん全額払うことになりかねません。あわせて、後期高齢者医療の保険料が年金から天引きされるのか、口座振替にするのかも、このタイミングで決められます（⑤逆転劇場の第八話をご覧ください）。</p>'
+  },
+  {
+    art:'icCalendar', cls:'c-amber', chip:'第二幕：70歳の誕生日',
+    title:'安くなるのは、来月からでした',
+    story:'「今月ちょうど70歳になるので、それにあわせて手術の日を決めたんです。これで2割だと。ところが会計で3割を請求されまして。『適用は来月1日からです』と。誕生日ケーキの翌日に手術した自分を、ちょっとだけ責めました」<small>——70代・自営業の方（脚色あり）</small>',
+    what:'<p class="cmodal-p">70歳になったときの負担割合の変更は、<strong>誕生日の翌月1日から</strong>適用されるのが原則です（1日生まれの方は、その月の1日から）。高齢受給者証にも、その適用開始年月日が印字されています。「70歳になった月」と「2割になる月」は、多くの方でずれます。なお、現役並みの所得がある方は70歳を過ぎても3割のままです。</p>',
+    how:'<p class="cmodal-p">予定して受ける手術や検査で、日程にある程度の幅があるなら、高齢受給者証の<strong>適用開始年月日</strong>を先に確認しておきましょう。あわせて、高額療養費は<strong>ひと月（1日〜末日）ごと</strong>の計算なので、月をまたぐ入院は上限が2回分かかることも覚えておくと役に立ちます。もちろん、治療の必要性が最優先です。担当の先生とご相談ください。</p>'
+  },
+  {
+    art:'icOver', cls:'c-red', chip:'第三幕：3割の通知',
+    title:'年金しかないのに、現役並み',
+    story:'「去年、使っていない畑を売ったんです。まとまったお金が入ったのは事実ですが、それも生活費と孫の学費で消えました。それが今年の8月、保険証が届いたら負担割合が3割になっていて。年金しかない年寄りが現役並みって、どういうことですかと窓口で聞いてしまいました」<small>——70代・年金生活の方（脚色あり）</small>',
+    what:'<p class="cmodal-p">窓口負担の割合は、<strong>前年の課税所得</strong>をもとに毎年8月に判定し直されます。土地や建物を売った譲渡所得は、その年の課税所得を押し上げるため、<strong>翌年だけ3割になる</strong>ことがあります。3割になると割合が3倍になるだけでなく、高額療養費の上限額も1万8,000円から8万円台へ上がるので、影響は「3倍」では済みません。</p>',
+    how:'<p class="cmodal-p">この場合、<strong>基準収入額適用申請</strong>で1割・2割に戻せることがあります（⑤逆転劇場の第三話）。収入額が単身383万円未満などの条件を満たす場合です。また、不動産の売却や退職金の受け取りは、その翌年の医療・介護の負担に響きます。<strong>売る前・受け取る前にご相談いただければ、時期や方法で調整できる余地があります</strong>。売ったあとでは、打てる手が減ります。</p>'
+  },
+  {
+    art:'icBill', cls:'c-red', chip:'第四幕：入院の請求書',
+    title:'1割のはずが、13万円',
+    story:'「母が1ヶ月入院しました。1割負担だし、高額療養費もあるから、せいぜい5万円くらいだろうと思っていたんです。届いた請求書が13万円。何かの間違いだと思って明細を見たら、間違ってなかった。むしろ全部きちんと書いてありました」<small>——50代・会社員の方（脚色あり）</small>',
+    what:'<p class="cmodal-p">高額療養費が効くのは、<strong>保険がきく医療費の自己負担分だけ</strong>です。一般区分なら、たしかにそこは5万7,600円で止まります。ところが請求書には、<strong>食事代（1食510円×3食×30日でおよそ4万6,000円）</strong>、テレビカードや寝間着などの日用品費、おむつ代、そして個室に入っていれば差額ベッド代が、別に並びます。どれも高額療養費の対象外です。「1割だから安い」の1割は、請求書のうちの一部にしかかかっていません。</p>',
+    how:'<p class="cmodal-p">入院が決まったら、まず<strong>入院案内の「1日あたりの概算費用」</strong>を見てください。食事代・室料・日用品代がいくらかが書かれています。そのうえで、<strong>マイナ保険証か限度額適用認定証</strong>を用意すれば、医療費の部分は最初から上限までの支払いで済みます。住民税非課税の世帯なら、食事代も減額できます（⑤第五話）。「上限の外側にいくらかかるか」を先に知っておくのが、いちばん効きます。</p>'
+  },
+  {
+    art:'icBed', cls:'c-berry', chip:'第五幕：差額ベッド代',
+    title:'サインした覚えは、あります',
+    story:'「救急で運ばれて、その日のうちに書類を何枚も書きました。あとから息子に『個室代が1日8,000円になってるよ』と言われて、初めて気づいて。大部屋がいっぱいだからと言われた記憶はあるんですが、サインもしていました。20日で16万円。あれは何のサインだったんでしょう」<small>——80代・入院された方（脚色あり）</small>',
+    what:'<p class="cmodal-p">差額ベッド代（特別療養環境室料）は、<strong>患者側の同意を同意書で確認していなければ、原則として求められません</strong>。さらに、治療上の必要があって個室になった場合や、<strong>病棟の管理上の都合（大部屋が満床など）</strong>で個室になった場合も、求められないことになっています。問題は、入院時の書類が分厚く、説明が早口で、ご本人の具合が悪いこと。断りにくい状況で、同意書だけが残ります。</p>',
+    how:'<p class="cmodal-p">入院の書類は、できればご家族が一緒に確認してください。<strong>同意書に金額と部屋の種類が書かれているか</strong>が要点です。希望していない個室なら、その場で相談を。言いにくければ、病院の<strong>医療相談室・地域医療連携室</strong>が窓口になります。納得して選んだ個室なら、もちろん堂々と払う費用です。「知らないうちに」を避けたいだけです。</p>'
+  },
+  {
+    art:'icClock', cls:'c-amber', chip:'第六幕：高額療養費の時効',
+    title:'2年前の分は、もう戻りません',
+    story:'「父の遺品を整理していたら、病院の領収書がまとめて出てきました。3年前の入院と、去年の入院。役所に相談したら、去年の分は手続きできますが、3年前の分は時効ですと。父は几帳面に領収書を取っておいたのに、封筒だけは開けていなかったんです」<small>——50代・ご家族の方（脚色あり）</small>',
+    what:'<p class="cmodal-p">高額療養費を請求できるのは、<strong>診療を受けた月の翌月1日から2年間</strong>です。多くの市区町村では該当した方に申請書（お知らせ）が郵送されますが、それを案内文だと思ってしまい込むと、そのまま時効を迎えます。ご本人が亡くなったあとでも、相続人の方が請求できますが、期限は同じです。</p>',
+    how:'<p class="cmodal-p">まずは<strong>過去2年分</strong>を確認してください。入院や手術のあった月について、通帳に払い戻しの入金があるかを見るのがいちばん早いです。心当たりがあれば、保険証に書いてある窓口（後期高齢者医療担当課・国保の窓口・健保組合）へ。あわせて、<strong>医療費控除の還付申告は5年さかのぼれます</strong>。高額療養費は間に合わなくても、税金のほうは間に合うことがあります。</p>'
+  }
+];
+
+/* ---------- セクション5：逆転劇場（戻る話） ---------- */
+var GOOD_CASES = [
+  {
+    art:'icYen', cls:'c-blue', chip:'第一話：高額療養費', amt:'戻り例 12万円',
+    title:'封筒を開けたら、12万円戻ってきた',
+    story:'「母の入院で18万円ほど払いました。高額療養費という制度があるらしいとは聞いていましたが、どうせ手続きが面倒なんだろうと。しばらくして役所から封筒が届いて、開けてみたら申請書でした。名前と口座を書いて出しただけで、12万円ちょっと振り込まれました。開けておいてよかった」<small>——60代・ご家族の方（脚色あり）</small>',
+    what:'<p class="cmodal-p">ひと月の自己負担が上限額を超えると、超えた分が<strong>高額療養費</strong>として戻ってきます。70歳以上の一般区分なら、外来＋入院で<strong>ひと月5万7,600円</strong>が上限。18万円払っていれば、およそ12万円が戻る計算です。多くの市区町村では該当した方に申請書が郵送され、<strong>一度口座を登録すれば、以後は自動で振り込まれる</strong>取扱いになっています。</p>',
+    how:'<p class="cmodal-p">届いた封筒は、まず開けてください。申請書が入っています。振り込みまでは診療の月から<strong>おおむね3ヶ月以上</strong>かかります（医療機関からの請求を待って計算するため）。心当たりがあるのに何も届かない場合は、保険証に書いてある窓口へ。請求できるのは<strong>診療月の翌月1日から2年</strong>です。</p>'
+  },
+  {
+    art:'icMyna', cls:'c-green', chip:'第二話：限度額適用認定証・マイナ保険証', amt:'立て替えが不要に',
+    title:'そもそも、立て替えなくてよかった',
+    story:'「手術で30万円くらい払うと言われて、定期預金を解約しようとしていたんです。そうしたら病院の方が『マイナンバーカードはお持ちですか。それなら限度額までのお支払いで済みますよ』と。会計は5万7,600円でした。解約しなくて済みました」<small>——70代・年金生活の方（脚色あり）</small>',
+    what:'<p class="cmodal-p"><strong>マイナンバーカードを保険証として使い、窓口で情報提供に同意する</strong>と、限度額適用認定証がなくても、支払いが<strong>その月の上限額まで</strong>で止まります。カードを使わない場合でも、あらかじめ市区町村や健保組合で<strong>限度額適用認定証</strong>（住民税非課税の方は限度額適用・標準負担額減額認定証）をもらっておけば同じことができます。あとから戻してもらうより、はじめから払わないほうが、確実で早いのです。</p>',
+    how:'<p class="cmodal-p">入院や高額な治療が決まったら、<strong>入院の手続きより先に</strong>用意してください。認定証は申請したその日〜数日で発行されることが多く、月をまたぐと使えない月が出ます。なお70歳以上の一般区分・現役並みⅢの方は、保険証（負担割合証）だけで上限が適用されるため、認定証はもともと不要です。<strong>認定証が必要なのは、現役並みⅠ・Ⅱと住民税非課税の区分</strong>——つまり、いちばん助かるはずの方に手続きが必要という構造になっています。</p>'
+  },
+  {
+    art:'icDoc', cls:'c-amber', chip:'第三話：基準収入額適用申請', amt:'3割 → 1割に',
+    title:'3割の通知は、ひっくり返せた',
+    story:'「畑を売った翌年、保険証の負担割合が3割になりました。仕方ないと思って1年払うつもりでいたら、税理士さんに『収入額で申請できますよ』と言われて。窓口に行ったら、その場で対象だと分かりました。手続きは15分。あとから差額も戻ってきました」<small>——70代・年金生活の方（脚色あり）</small>',
+    what:'<p class="cmodal-p">課税所得145万円以上で3割（現役並み所得者）と判定されても、<strong>収入額</strong>が一定額に満たなければ、申請により1割・2割になります。これが<strong>基準収入額適用申請</strong>。目安は、後期高齢者医療の被保険者が<strong>単身なら収入383万円未満</strong>、同じ世帯に他の被保険者がいる場合は<strong>合計520万円未満</strong>などです。「課税所得」で判定され、「収入」で救済される、という二段構えになっています。</p>',
+    how:'<p class="cmodal-p">3割と書かれた保険証・負担割合証が届いたら、市区町村の後期高齢者医療担当課へ「基準収入額適用申請の対象になりますか」と電話一本。対象になりそうな方へお知らせが届くこともありますが、<strong>必ず届くとは限りません</strong>。不動産を売った翌年、退職金や一時金を受け取った翌年は、とくに確認する価値があります。申請が認められれば、さかのぼって適用されるのが一般的です。</p>'
+  },
+  {
+    art:'icGassan', cls:'c-blue', chip:'第四話：高額介護合算療養費', amt:'戻り例 18万円',
+    title:'医療と介護、足していいんです',
+    story:'「母は病院にも通っていて、デイサービスも使っていました。医療のほうも介護のほうも、それぞれ上限があるのは知っていたんです。でも両方合わせた上限があるとは知らなくて。ケアマネさんに教えてもらって申請したら、18万円ほど戻ってきました。両方使っている家は、みんな対象だと思うんですけど」<small>——50代・ご家族の方（脚色あり）</small>',
+    what:'<p class="cmodal-p"><strong>高額介護合算療養費</strong>は、8月から翌年7月までの1年間で、<strong>医療保険と介護保険の自己負担を合算</strong>し、年間の上限額を超えた分が戻る制度です。後期高齢者医療と介護保険の組み合わせなら、一般区分で<strong>年56万円</strong>が上限（所得区分により異なります）。ひと月ごとの高額療養費・高額介護サービス費を適用したあとの、さらに上に乗っている制度です。医療と介護の両方を長く使っているご家庭ほど効きます。</p>',
+    how:'<p class="cmodal-p">こちらも<strong>申請が必要</strong>です。窓口は、医療保険のほう（後期高齢者医療なら市区町村の担当課）。対象になりそうな方へお知らせが届く市区町村もありますが、届かないこともあります。<strong>医療と介護の両方を使っている</strong>という自覚があれば、それだけで一度聞いてみる価値があります。ケアマネジャーさんに相談すると話が早いことも多いです。</p>'
+  },
+  {
+    art:'icMeal', cls:'c-amber', chip:'第五話：食事代の減額', amt:'ひと月で数万円',
+    title:'食事代も、安くできました',
+    story:'「長期入院で、食事代だけで毎月5万円近くかかっていました。年金だけの母には重くて。市役所で相談したら『非課税世帯なら減額認定証が出せます』と。もっと早く言ってほしかったです。いえ、聞かなかった私が悪いんですが」<small>——60代・ご家族の方（脚色あり）</small>',
+    what:'<p class="cmodal-p">入院時の食事代（入院時食事療養費の標準負担額）は、一般の方で<strong>1食510円</strong>。1日3食で1,530円、30日でおよそ4万6,000円です。高額療養費の対象外なので、いくら医療費がかさんでも、この分は減りません。ただし<strong>世帯全員が住民税非課税</strong>であれば、<strong>限度額適用・標準負担額減額認定証</strong>を出すことで食事代が減額されます。入院が長期になるほど（一定の日数を超えると、さらに下がる区分もあります）差は大きくなります。</p>',
+    how:'<p class="cmodal-p">住民税非課税の世帯かどうかは、市区町村の窓口で確認できます。認定証は<strong>窓口に出して初めて効く</strong>ので、入院の手続きのときに一緒に提出してください。減額の金額は制度改正で変わりますので、最新の額はお住まいの市区町村・後期高齢者医療広域連合にご確認を。なお、この認定証は高額療養費の上限（低所得区分）を窓口で適用するためにも使えます。一枚で二役です。</p>'
+  },
+  {
+    art:'icDialysis', cls:'c-berry', chip:'第六話：特定疾病療養受療証', amt:'ひと月1万円まで',
+    title:'透析の自己負担は、月1万円',
+    story:'「人工透析が始まると聞いて、これはもう家計がもたないと覚悟したんです。週3回で、一生続くと。ところが病院の相談員さんが『受療証を出せば、ひと月1万円までですよ』と。信じられなくて、市役所でもう一度確認しました。本当でした」<small>——70代・透析を受けている方（脚色あり）</small>',
+    what:'<p class="cmodal-p">人工透析が必要な慢性腎不全、血友病、抗ウイルス剤を投与している後天性免疫不全症候群。この3つは<strong>特定疾病</strong>として、<strong>特定疾病療養受療証</strong>を提示すれば、その病気の治療にかかる自己負担が<strong>ひと月1万円まで</strong>になります（70歳未満の一部の方は2万円）。医療費そのものは月に数十万円かかる治療ですが、公的医療保険がここまで支えています。日本の制度の、いちばん手厚い部分のひとつです。</p>',
+    how:'<p class="cmodal-p">こちらも<strong>申請して受療証を受け取り、病院に出す</strong>まで効きません。窓口は保険証に書いてあるところ（後期高齢者医療なら市区町村の担当課）。医師の意見書などが必要です。透析が決まった時点で、病院の医療相談室（ソーシャルワーカー）に相談すると、あわせて障害者手帳や自立支援医療、障害年金など、使える制度をまとめて案内してもらえます。</p>'
+  },
+  {
+    art:'icBus', cls:'c-green', chip:'第七話：医療費控除', amt:'還付例 3万円',
+    title:'通院のバス代も、医療費でした',
+    story:'「父の通院に週2回付き添っていました。医療費控除は病院で払った分だけだと思っていたので、電車とバスの代金なんて数えたこともなくて。税理士さんに『それも医療費ですよ』と言われて数え直したら、1年で7万円近くありました。申告し直して、3万円ほど戻ってきました」<small>——50代・会社員の方（脚色あり）</small>',
+    what:'<p class="cmodal-p">医療費控除の対象は、病院や薬局で払った分だけではありません。<strong>通院のための公共交通機関の交通費</strong>（電車・バス）は対象になり、領収書が出ないため<strong>日付と経路のメモで足ります</strong>。歩行が困難などの事情があればタクシー代も対象になり得ます。付き添いが必要な場合の付添人の交通費も、対象になることがあります。<strong>寝たきりの方のおむつ代</strong>も、医師の<strong>おむつ使用証明書</strong>があれば対象です。</p>',
+    how:'<p class="cmodal-p">まず、領収書とメモを入れる場所をひとつ決めてください。それだけで来年が楽になります。注意点は2つ。<strong>高額療養費や保険金で補てんされた分は差し引く</strong>こと、そして<strong>自家用車のガソリン代・駐車場代は対象外</strong>であることです。そして朗報。<strong>還付申告は、その年の翌年1月1日から5年間さかのぼれます</strong>。5年分まとめて見直すと、思わぬ金額になることがあります。ここは私たちの得意分野です。</p>'
+  },
+  {
+    art:'icBank', cls:'c-blue', chip:'第八話：保険料の口座振替', amt:'世帯で節税になることも',
+    title:'親の保険料を、子が払うと',
+    story:'「母の後期高齢者医療の保険料は、年金から天引きされていました。母は所得が少なくて、そもそも税金がほとんどかかっていない。だったら私が払って私の控除にすればいいのでは、と税理士さんに聞いたら『できますよ』と。口座振替に変えて、私の口座から引き落とすようにしました」<small>——50代・会社員の方（脚色あり）</small>',
+    what:'<p class="cmodal-p">後期高齢者医療の保険料は、原則として<strong>年金からの天引き（特別徴収）</strong>ですが、申し出により<strong>口座振替に変更</strong>できます。そして、<strong>生計を一にする親族の口座から振り替えて支払った場合、その支払った方の社会保険料控除の対象</strong>になります。年金天引きのままだと、控除はご本人の分にしかならず、ご本人の所得が少なければ<strong>控除しきれずに無駄になっている</strong>ことがあります。同じ金額を払うなら、税金が減る側で払ったほうが、世帯全体では有利です。</p>',
+    how:'<p class="cmodal-p">手続きは、市区町村の窓口（または金融機関）で口座振替の申し出をするだけです。ただし<strong>誰にとっても有利とは限りません</strong>。親御さんご自身に十分な所得があって控除を使い切っている場合や、扶養の判定・自治体の各種軽減に影響する場合もあります。<strong>介護保険料についても同じ考え方ができるか</strong>は、市区町村の取扱いによります。ご家族の所得を並べて、どちらで払うのが得かを計算する——まさに税理士事務所の仕事です。ぜひ一度、ご相談ください。</p>'
+  }
+];
+
+var modal = document.getElementById('caseModal');
+var CASE_LBL = {
+  bad:['よく伺うお話をもとにした創作例（脚色あり）', '何が起きたのか', 'こう確認すれば防げます'],
+  good:['よくある、うれしい誤算（創作例・脚色あり）', 'なぜ戻るのか', '手続きのポイント']
+};
+
+function renderCases(gridId, list, kind){
+  var grid = document.getElementById(gridId);
+  list.forEach(function(c){
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'case-card';
+    btn.innerHTML =
+      '<span class="art ' + c.cls + '">' + (ARTS[c.art] || '') + '</span>' +
+      '<span class="t"><span class="chip ' + c.cls + '">' + c.chip + '</span>' +
+      (c.amt ? '<span class="amt">' + c.amt + '</span>' : '') +
+      '<h3>' + c.title + '</h3>' +
+      '<span class="more">くわしく見る<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></span></span>';
+    btn.addEventListener('click', function(){ openCase(c, kind); });
+    grid.appendChild(btn);
+  });
+}
+
+function openCase(c, kind){
+  var lbl = CASE_LBL[kind] || CASE_LBL.bad;
+  document.getElementById('caseModalLbl1').textContent = lbl[0];
+  document.getElementById('caseModalLbl2').textContent = lbl[1];
+  document.getElementById('caseModalLbl3').textContent = lbl[2];
+  document.getElementById('caseModalLbl2Wrap').className =
+    'cmodal-label ' + (kind === 'good' ? 'lb-green' : 'lb-red');
+  document.getElementById('caseModalIco').className = 'cmodal-ico ' + c.cls;
+  document.getElementById('caseModalIco').innerHTML = ARTS[c.art] || '';
+  document.getElementById('caseModalChip').className = 'cmodal-chip ' + c.cls;
+  document.getElementById('caseModalChip').textContent = c.chip;
+  document.getElementById('caseModalTitle').textContent = c.title;
+  document.getElementById('caseModalStory').innerHTML = c.story;
+  document.getElementById('caseModalWhat').innerHTML = c.what;
+  document.getElementById('caseModalHow').innerHTML = c.how;
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+  modal.querySelector('.cmodal-panel').scrollTop = 0;
+}
+
+renderCases('caseGrid', CASES, 'bad');
+renderCases('goodGrid', GOOD_CASES, 'good');
+
+function closeCase(){
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+document.getElementById('caseModalClose').addEventListener('click', closeCase);
+document.getElementById('caseModalBack').addEventListener('click', closeCase);
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && modal.classList.contains('show')) closeCase();
+});
+
+/* ---------- まとめ：チェックリスト ---------- */
+var chkBoxes = document.querySelectorAll('#checklist input[type=checkbox]');
+var chkMsg = document.getElementById('chkMsg');
+function chkUpdate(){
+  var n = 0;
+  chkBoxes.forEach(function(c){ if(c.checked) n++; });
+  var total = chkBoxes.length;
+  if(n === 0){
+    chkMsg.textContent = 'あてはまるものにチェックを入れてみてください。書類で分かる項目、税金で取り戻せる項目、今日おうちでできる項目が混じっています。';
+  } else if(n <= 3){
+    chkMsg.textContent = 'チェック' + n + '個。正直なのは素晴らしいことです。残りの項目は、どれも30分あれば動き出せるものばかり。まずは「保険証の負担割合を見る」からがおすすめです。';
+  } else if(n <= 7){
+    chkMsg.textContent = 'チェック' + n + '個。平均より、だいぶ制度に強いご家庭です。残りの項目も、保険証と領収書が手元にあれば一気に片づきます。分からない通知は、そのまま当社へお持ちください。';
+  } else if(n < total){
+    chkMsg.textContent = 'チェック' + n + '個。ここまで準備できている方は、ご相談でもめったにお会いしません。あと少しで「小さな字に強い家族」の完成です。';
+  } else {
+    chkMsg.textContent = '全項目チェック！　あなたのご家庭は、もう「なんとかなるだろう」ではなく「分かって備えている」状態です。この状態を、毎年8月の通知の確認とセットで維持していきましょう。';
+  }
+}
+chkBoxes.forEach(function(c){ c.addEventListener('change', chkUpdate); });
+
+/* ---------- 上に戻る／現在地の表示 ---------- */
+var toTop = document.getElementById('toTop');
+var navLinks = [].slice.call(document.querySelectorAll('.hero-nav a[href^="#"]'));
+var navTargets = navLinks.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+
+toTop.addEventListener('click', function(){
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+
+var ticking = false;
+function onScroll(){
+  if(ticking) return;
+  ticking = true;
+  window.requestAnimationFrame(function(){
+    /* 2画面ぶん下がったら「上に戻る」を出す */
+    if(window.scrollY > window.innerHeight * 2) toTop.classList.add('show');
+    else toTop.classList.remove('show');
+
+    /* いま画面の上寄りにあるセクションを現在地とする */
+    var cur = -1;
+    for(var i = 0; i < navTargets.length; i++){
+      var t = navTargets[i];
+      if(t && t.getBoundingClientRect().top <= window.innerHeight * 0.35) cur = i;
+    }
+    for(var j = 0; j < navLinks.length; j++){
+      if(j === cur) navLinks[j].setAttribute('aria-current','true');
+      else navLinks[j].removeAttribute('aria-current');
+    }
+    ticking = false;
+  });
+}
+window.addEventListener('scroll', onScroll, {passive:true});
+onScroll();
+
+})();
+</script>
+</body>
+</html>
