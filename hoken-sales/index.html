@@ -25,6 +25,7 @@
   --amber:#966417; --amber-bg:#fdf3e2; --amber-border:#f2dcae;
   --sky:#24729f; --sky-bg:#e8f4fb; --sky-border:#c6e2f2;
   --berry:#8f4574; --berry-bg:#fbeef6;
+  --teal:#0f7a80; --teal-bg:#e3f4f5; --teal-border:#b7e2e4;
   --red-text:#bb413c; --red-bg:#fdeee9;
   --chart-1:#2273b8;
   --mincho:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho",YuMincho,"游明朝体","MS PMincho",serif;
@@ -120,6 +121,7 @@ a{color:var(--navy-2);}
 .bg-PZ{background:var(--amber-bg);border-color:var(--amber-border);color:var(--amber);}
 .bg-CL{background:var(--coral-bg);border-color:var(--coral-border);color:var(--coral-text);}
 .bg-KY{background:var(--green-bg);border-color:var(--green-border);color:var(--green);}
+.bg-TH{background:var(--teal-bg);border-color:var(--teal-border);color:var(--teal);}   /* 定期訪問 */
 .bg-lost{background:#f1f1f1;border-color:#ddd;color:#666;}
 .bg-hold{background:#f4f1fb;border-color:#ddd5f0;color:#5b4a91;}
 .bg-bd{background:#fdf6e3;border-color:#ecd9a8;color:#7d5413;}   /* 誕生日 */
@@ -160,7 +162,8 @@ a{color:var(--navy-2);}
 .icon-btn svg{width:16px;height:16px;}
 
 /* ---------- 活動種別ボタン ---------- */
-.type-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:var(--sp-2);}
+/* 6種類あるので3列×2段。5＋1で折り返すより読みやすい */
+.type-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-2);}
 .type-btn{min-height:56px;border:1.5px solid var(--line);background:var(--white);border-radius:12px;cursor:pointer;
   font-weight:700;font-size:var(--fs-base);color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:8px;}
 .type-btn small{font-size:var(--fs-xs);font-weight:400;}
@@ -170,6 +173,7 @@ a{color:var(--navy-2);}
 .type-btn[data-type="PZ"][aria-pressed="true"]{background:var(--amber);border-color:var(--amber);}
 .type-btn[data-type="CL"][aria-pressed="true"]{background:var(--coral-btn);border-color:var(--coral-btn);}
 .type-btn[data-type="KY"][aria-pressed="true"]{background:var(--green);border-color:var(--green);}
+.type-btn[data-type="TH"][aria-pressed="true"]{background:var(--teal);border-color:var(--teal);}
 .contract-box{margin-top:var(--sp-4);border:1.5px dashed var(--green-border);background:var(--green-bg);
   border-radius:14px;padding:var(--sp-4);}
 .contract-box h3{font-size:var(--fs-md);color:var(--green);margin-bottom:var(--sp-3);}
@@ -262,6 +266,37 @@ a{color:var(--navy-2);}
 .tp-btn[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff;}
 .tp-foot{display:flex;gap:var(--sp-2);margin-top:var(--sp-3);}
 .tp-foot .btn{flex:1;justify-content:center;}
+
+/* ---------- 誕生日の選択（年・月を選んでから日を押す） ---------- */
+.date-wrap{position:relative;}
+.date-input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px;
+  background:#fdfaf6;font-size:var(--fs-base);font-weight:700;color:var(--text);cursor:pointer;font-family:inherit;text-align:left;}
+.date-input:focus{border-color:var(--navy-2);outline:none;box-shadow:0 0 0 3px var(--navy-soft);}
+.dp{position:absolute;top:calc(100% + 6px);left:0;z-index:70;background:var(--white);border:1.5px solid var(--line);
+  border-radius:14px;box-shadow:0 14px 34px rgba(60,40,30,.22);padding:var(--sp-3);width:356px;
+  max-width:min(356px,calc(100vw - 64px));}
+.dp.right{left:auto;right:0;}
+.dp.up{top:auto;bottom:calc(100% + 6px);}
+.dp-head{display:flex;align-items:center;gap:6px;background:var(--navy-soft);border-radius:10px;padding:6px;}
+.dp-nav{flex:none;width:32px;height:32px;border-radius:8px;border:1.5px solid var(--line);background:var(--white);
+  color:var(--navy);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;}
+.dp-nav:hover{border-color:var(--navy-2);}
+.dp-nav svg{width:15px;height:15px;}
+.dp-sel{flex:1;min-width:0;min-height:32px;border:1.5px solid var(--line);border-radius:8px;background:var(--white);
+  font-family:inherit;font-size:var(--fs-sm);font-weight:700;color:var(--navy);padding:2px 6px;cursor:pointer;}
+.dp-sel.mo{flex:none;width:4.7em;}
+.dp-wd{display:grid;grid-template-columns:repeat(7,1fr);margin-top:var(--sp-3);}
+.dp-wd span{text-align:center;font-size:var(--fs-xs);font-weight:700;color:var(--muted);}
+.dp-wd .sun{color:var(--red-text);} .dp-wd .sat{color:var(--sky);}
+.dp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:4px;}
+.dp-d{min-height:34px;border:1.5px solid transparent;background:var(--white);border-radius:9px;cursor:pointer;
+  font-size:var(--fs-sm);font-weight:700;color:var(--navy);padding:0;font-family:inherit;}
+.dp-d.sun{color:var(--red-text);} .dp-d.sat{color:var(--sky);}
+.dp-d:hover{background:var(--navy-soft);}
+.dp-d[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff;}
+.dp-d.empty{visibility:hidden;}
+.dp-foot{display:flex;gap:var(--sp-2);margin-top:var(--sp-3);}
+.dp-foot .btn{flex:1;justify-content:center;}
 
 /* ---------- 商品ピッカー（種類 → 推奨商品 → 取り扱い商品） ---------- */
 .pick{display:grid;grid-template-columns:minmax(240px,1fr) minmax(240px,1.2fr);gap:var(--sp-4);align-items:start;}
@@ -505,7 +540,8 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
           <div class="fld"><label for="cfKana">ふりがな</label><input type="text" id="cfKana"></div>
           <div class="fld"><label for="cfCompany">会社・職業</label><input type="text" id="cfCompany"></div>
           <div class="fld"><label for="cfTel">連絡先</label><input type="text" id="cfTel"></div>
-          <div class="fld"><label for="cfBirth">誕生日</label><input type="date" id="cfBirth">
+          <div class="fld"><label for="cfBirth">誕生日</label>
+            <div class="date-wrap"><input type="text" class="date-input" id="cfBirth" readonly autocomplete="off" placeholder="押して年・月・日を選ぶ"></div>
             <div class="hint">入れるとカレンダーに「◯歳の誕生日」が出ます</div></div>
           <div class="fld"><label for="cfSource">紹介元・きっかけ</label><input type="text" id="cfSource"></div>
           <div class="fld"><label for="cfStage">現在のステージ</label><select id="cfStage"></select></div>
@@ -576,7 +612,7 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
         <div class="cal-legend">
           <span class="badge bg-AP">AP</span><span class="badge bg-FF">FF</span>
           <span class="badge bg-PZ">プレゼン</span><span class="badge bg-CL">クロージング</span>
-          <span class="badge bg-KY">契約</span>
+          <span class="badge bg-KY">契約</span><span class="badge bg-TH">定期訪問</span>
           <span class="badge bg-bd">誕生日（顧客カルテの誕生日から表示）</span>
         </div>
         <div class="day-panel" id="dayPanel"></div>
@@ -783,7 +819,8 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
         <div class="fld"><label for="bdName">お名前</label>
           <input type="text" id="bdName" list="custDatalist" autocomplete="off" placeholder="名前を入力、または一覧から選ぶ">
           <div class="hint">一覧にない名前は、新しい顧客として登録します</div></div>
-        <div class="fld"><label for="bdDate">誕生日</label><input type="date" id="bdDate">
+        <div class="fld"><label for="bdDate">誕生日</label>
+          <div class="date-wrap"><input type="text" class="date-input" id="bdDate" readonly autocomplete="off" placeholder="押して年・月・日を選ぶ"></div>
           <div class="hint">カレンダーに「◯歳の誕生日」として毎年出ます</div></div>
       </div>
       <div class="frm-actions" style="margin-top:var(--sp-3);">
@@ -817,6 +854,7 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
           <button class="type-btn" data-type="PZ" aria-pressed="false">プレゼン<small>提案・設計書</small></button>
           <button class="type-btn" data-type="CL" aria-pressed="false">クロージング<small>意思確認</small></button>
           <button class="type-btn" data-type="KY" aria-pressed="false">契約<small>申込・成立</small></button>
+          <button class="type-btn" data-type="TH" aria-pressed="false">定期訪問<small>フォロー・アフター</small></button>
         </div>
       </div>
       <div class="frm">
@@ -914,7 +952,10 @@ var STAGES = [
   { k:'CL', label:'クロージング', full:'意思確認' },
   { k:'KY', label:'契約',      full:'申込・成立' }
 ];
-function stageLabel(k){ for (var i=0;i<STAGES.length;i++) if (STAGES[i].k===k) return STAGES[i].label; return k; }
+/* 活動の種類＝ステージ5つ＋定期訪問。定期訪問は契約までの段階ではない（＝見込みの絞り込みや
+   確度設定には出さない）ので STAGES には入れず、記録するときの選択肢としてだけ足す */
+var ACT_TYPES = STAGES.concat([{ k:'TH', label:'定期訪問', full:'フォロー・アフター' }]);
+function stageLabel(k){ for (var i=0;i<ACT_TYPES.length;i++) if (ACT_TYPES[i].k===k) return ACT_TYPES[i].label; return k; }
 var MODES = { m:'月払', h:'半年払', y:'年払', s:'一時払' };
 
 /* ============================================================
@@ -1148,7 +1189,7 @@ function openCustForm(cust){
   $('cfKana').value = cust ? (cust.kana||'') : '';
   $('cfCompany').value = cust ? (cust.company||'') : '';
   $('cfTel').value = cust ? (cust.tel||'') : '';
-  $('cfBirth').value = cust ? (cust.birth||'') : '';
+  setDpValue('cfBirth', cust ? (cust.birth||'') : '');
   $('cfSource').value = cust ? (cust.source||'') : '';
   $('cfStage').value = cust ? cust.stage : 'AP';
   $('cfProd').value = cust ? (cust.prodType||'level') : 'level';
@@ -1166,7 +1207,7 @@ $('cfSave').addEventListener('click', function(){
   var c = editCustId ? custById(editCustId) : null;
   if (!c) { c = { id: uid('c'), created: Date.now(), status:'active' }; state.customers.push(c); }
   c.name = name; c.kana = $('cfKana').value.trim(); c.company = $('cfCompany').value.trim();
-  c.tel = $('cfTel').value.trim(); c.birth = $('cfBirth').value; c.source = $('cfSource').value.trim();
+  c.tel = $('cfTel').value.trim(); c.birth = dpValue('cfBirth'); c.source = $('cfSource').value.trim();
   c.stage = $('cfStage').value; c.prodType = $('cfProd').value;
   c.expAmt = +$('cfAmt').value || 0; c.expMode = $('cfMode').value;
   c.memo = $('cfMemo').value.trim();
@@ -1200,7 +1241,7 @@ function openDetail(id){
     '<dl class="kv">' +
       '<dt>会社・職業</dt><dd>' + esc(c.company || '—') + '</dd>' +
       '<dt>連絡先</dt><dd>' + esc(c.tel || '—') + '</dd>' +
-      '<dt>誕生日</dt><dd>' + (c.birth ? esc(c.birth) + '（' + esc(birthNote(c)) + '）' : '—') + '</dd>' +
+      '<dt>誕生日</dt><dd>' + (c.birth ? esc(fmtBirth(c.birth)) + '（' + esc(birthNote(c)) + '）' : '—') + '</dd>' +
       '<dt>紹介元</dt><dd>' + esc(c.source || '—') + '</dd>' +
       '<dt>見込み保険料</dt><dd>' + exp + '</dd>' +
       (c.memo ? '<dt>メモ</dt><dd>' + esc(c.memo) + '</dd>' : '') +
@@ -1319,6 +1360,7 @@ var selDate = null;             /* 選択中の日付 yyyy-mm-dd */
 function ymd(d){ return d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2) + '-' + ('0'+d.getDate()).slice(-2); }
 function parseYmd(s){ var p = String(s || '').split('-'); return new Date(+p[0], (+p[1] || 1) - 1, +p[2] || 1); }
 function fmtJpDate(s){ var d = parseYmd(s); return (d.getMonth()+1) + '月' + d.getDate() + '日（' + DOW[d.getDay()] + '）'; }
+function fmtBirth(s){ if (!s) return ''; var d = parseYmd(s); return d.getFullYear() + '年' + (d.getMonth()+1) + '月' + d.getDate() + '日'; }
 function timeLabel(a){ return a.start ? (a.start + (a.end ? '〜' + a.end : '')) : '終日'; }
 function actsOn(dateStr){
   return state.activities.filter(function(a){ return a.date === dateStr; })
@@ -1432,7 +1474,7 @@ function renderDay(){
       '<span class="day-body"><span><span class="badge bg-bd">誕生日</span> ' +
       '<b>' + esc(o.c.name) + '</b> さん　' + o.age + '歳</span>' +
       '<span class="tl-meta">お祝いの連絡・保障の見直しのきっかけに</span></span>' +
-      '<span class="day-go" style="color:var(--muted);">' + esc(o.c.birth) + '</span></div>';
+      '<span class="day-go" style="color:var(--muted);">' + esc(fmtBirth(o.c.birth)) + '</span></div>';
   }).join('');
   html += evs.map(function(a){
     var meta = [];
@@ -1612,7 +1654,7 @@ $('aeSave').addEventListener('click', function(){
   var a = state.activities.filter(function(x){ return x.id === aeId; })[0];
   if (!a) return;
   var err = $('aeErr'); err.textContent = '';
-  if (!aeType) { err.textContent = '活動の種類（AP〜契約）を選んでください。'; return; }
+  if (!aeType) { err.textContent = '活動の種類（AP〜契約・定期訪問）を選んでください。'; return; }
   var who = resolveWho($('aeCust').value);
   if (!who) { err.textContent = '誰と会ったかを入力してください（一覧から選ぶこともできます）。'; return; }
   var cid = who.cid;
@@ -1650,7 +1692,7 @@ $('aeSave').addEventListener('click', function(){
 
 function saveNewFromSheet(){
   var err = $('aeErr'); err.textContent = '';
-  if (!aeType) { err.textContent = '活動の種類（AP〜契約）を選んでください。'; return; }
+  if (!aeType) { err.textContent = '活動の種類（AP〜契約・定期訪問）を選んでください。'; return; }
   var who = resolveWho($('aeCust').value);
   if (!who) { err.textContent = '誰と会ったかを入力してください（一覧から選ぶこともできます）。'; return; }
   var cid = who.cid;
@@ -1676,6 +1718,7 @@ function saveNewFromSheet(){
   state.activities.push(act);
   var c = custById(cid);
   if (c) {
+    /* 記録した種類が今のステージより先なら進める。定期訪問は STAGES に無い（-1）ので進まない */
     var order = STAGES.map(function(sg){ return sg.k; });
     if (order.indexOf(aeType) > order.indexOf(c.stage)) c.stage = aeType;
     if (aeType === 'KY') c.status = 'won';
@@ -1841,6 +1884,154 @@ document.addEventListener('click', function(ev){
 document.addEventListener('keydown', function(ev){ if (ev.key === 'Escape' && tpField) { closeTimePicker(); document.activeElement.blur(); } });
 
 /* ------------------------------------------------------------
+   誕生日の選択（年・月を選んでから日を押す）
+   生まれ年は type="date" だと打ちにくいので、和暦つきの年の一覧から選ぶ形にした。
+   値は data-ymd に YYYY-MM-DD で持ち（保存はこれまでと同じ形）、見た目は「1993年6月3日」。
+   ------------------------------------------------------------ */
+var DP_FIELDS = ['bdDate', 'cfBirth'];
+var DP_MIN_YEAR = 1912;
+var dpField = null;    /* いま開いている誕生日欄のid */
+var dpView = null;     /* 一覧に出している年月 { y, m } */
+
+/* 年の途中で改元した年は、その年の大半を占める元号で出す（1989→平成元・2019→令和元） */
+function wareki(y){
+  if (y >= 2019) return '令和' + eraNo(y - 2018);
+  if (y >= 1989) return '平成' + eraNo(y - 1988);
+  if (y >= 1927) return '昭和' + eraNo(y - 1925);
+  if (y >= 1913) return '大正' + eraNo(y - 1911);
+  return '明治' + eraNo(y - 1867);
+}
+function eraNo(n){ return n === 1 ? '元' : String(n); }
+
+function dpValue(id){ return $(id).getAttribute('data-ymd') || ''; }
+function setDpValue(id, s){
+  var el = $(id);
+  if (s) {
+    var d = parseYmd(s);
+    el.setAttribute('data-ymd', s);
+    el.value = d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日';
+  } else {
+    el.removeAttribute('data-ymd');
+    el.value = '';
+  }
+}
+function closeDatePicker(back){
+  var el = document.querySelector('.dp');
+  if (el) el.parentNode.removeChild(el);
+  /* 一覧を出すためにシートを送っているので、選び終わったら入力欄まで戻す */
+  if (back && dpField && $(dpField).scrollIntoView) $(dpField).scrollIntoView({ block: 'nearest' });
+  dpField = null; dpView = null;
+}
+function openDatePicker(id){
+  if (dpField === id) return;
+  closeDatePicker();
+  dpField = id;
+  var cur = dpValue(id);
+  var now = new Date();
+  /* 空のときは、だいたい大人の生まれ年あたりから選び始められるようにしておく */
+  if (cur) { var d = parseYmd(cur); dpView = { y: d.getFullYear(), m: d.getMonth() }; }
+  else { dpView = { y: now.getFullYear() - 40, m: 0 }; }
+  var pop = document.createElement('div');
+  pop.className = 'dp';
+  $(id).parentNode.appendChild(pop);
+  renderDp();
+
+  /* シートや画面の外にはみ出すときは、右寄せ・上開きにする */
+  var host = pop.closest('.sheet') || pop.closest('.card') || document.body;
+  var limit = Math.min(window.innerWidth - 8, host.getBoundingClientRect().right - 8);
+  if (pop.getBoundingClientRect().right > limit) pop.classList.add('right');
+  var box = pop.getBoundingClientRect();
+  if (box.bottom > window.innerHeight - 8 && $(id).getBoundingClientRect().top > box.height + 16) pop.classList.add('up');
+  /* シートの下にはみ出したときは、一覧全体が見えるところまでシートを送る */
+  if (pop.scrollIntoView) pop.scrollIntoView({ block: 'nearest' });
+
+  pop.addEventListener('change', function(ev){
+    var what = ev.target.getAttribute && ev.target.getAttribute('data-dp');
+    if (what === 'year') dpView.y = +ev.target.value;
+    else if (what === 'month') dpView.m = +ev.target.value;
+    else return;
+    renderDp();
+  });
+  pop.addEventListener('click', function(ev){
+    var btn = ev.target.closest ? ev.target.closest('button') : null;
+    if (!btn) return;
+    var day = btn.getAttribute('data-d');
+    if (day) { setDpValue(dpField, ymd(new Date(dpView.y, dpView.m, +day))); closeDatePicker(true); return; }
+    var what = btn.getAttribute('data-dp');
+    if (what === 'prev' || what === 'next') {
+      dpView.m += (what === 'next' ? 1 : -1);
+      if (dpView.m > 11) { dpView.m = 0; dpView.y++; }
+      if (dpView.m < 0) { dpView.m = 11; dpView.y--; }
+      dpView.y = Math.max(DP_MIN_YEAR, Math.min(new Date().getFullYear(), dpView.y));
+      renderDp();
+    } else if (what === 'clear') { setDpValue(dpField, ''); closeDatePicker(true); }
+    else if (what === 'close') { closeDatePicker(true); }
+  });
+}
+function renderDp(){
+  var pop = document.querySelector('.dp');
+  if (!pop || !dpField) return;
+  var cur = dpValue(dpField), sel = cur ? parseYmd(cur) : null;
+  var y = dpView.y, m = dpView.m, maxY = new Date().getFullYear();
+  var years = '';
+  for (var yy = maxY; yy >= DP_MIN_YEAR; yy--) {
+    years += '<option value="' + yy + '"' + (yy === y ? ' selected' : '') + '>' + yy + '年（' + wareki(yy) + '）</option>';
+  }
+  var months = '';
+  for (var mm = 0; mm < 12; mm++) {
+    months += '<option value="' + mm + '"' + (mm === m ? ' selected' : '') + '>' + (mm + 1) + '月</option>';
+  }
+  var cells = '';
+  for (var i = 0; i < new Date(y, m, 1).getDay(); i++) cells += '<span class="dp-d empty"></span>';
+  var last = new Date(y, m + 1, 0).getDate();
+  for (var dd = 1; dd <= last; dd++) {
+    var w = new Date(y, m, dd).getDay();
+    var on = !!sel && sel.getFullYear() === y && sel.getMonth() === m && sel.getDate() === dd;
+    cells += '<button type="button" class="dp-d' + (w === 0 ? ' sun' : w === 6 ? ' sat' : '') + '" data-d="' + dd + '"' +
+      ' aria-pressed="' + (on ? 'true' : 'false') + '">' + dd + '</button>';
+  }
+  pop.innerHTML =
+    '<div class="dp-head">' +
+      '<button type="button" class="dp-nav" data-dp="prev" aria-label="前の月">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>' +
+      '<select class="dp-sel" data-dp="year" aria-label="生まれた年">' + years + '</select>' +
+      '<select class="dp-sel mo" data-dp="month" aria-label="生まれた月">' + months + '</select>' +
+      '<button type="button" class="dp-nav" data-dp="next" aria-label="次の月">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></button>' +
+    '</div>' +
+    '<div class="dp-wd">' + DOW.map(function(w, i){
+      return '<span class="' + (i === 0 ? 'sun' : i === 6 ? 'sat' : '') + '">' + w + '</span>';
+    }).join('') + '</div>' +
+    '<div class="dp-grid">' + cells + '</div>' +
+    '<div class="dp-foot">' +
+      '<button type="button" class="btn btn-ghost btn-sm" data-dp="clear">空にする</button>' +
+      '<button type="button" class="btn btn-ghost btn-sm" data-dp="close">閉じる</button>' +
+    '</div>';
+}
+DP_FIELDS.forEach(function(id){
+  var el = $(id);
+  /* 開くのは click（＝ボタンを離したあと）。押している途中に開いてシートが動くと、
+     指を離した先が別のところになって、開いた一覧がすぐ閉じてしまう */
+  el.addEventListener('click', function(){ openDatePicker(id); });
+  el.addEventListener('keydown', function(ev){
+    if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); openDatePicker(id); }
+  });
+});
+document.addEventListener('click', function(ev){
+  if (!dpField) return;
+  if (ev.target.closest && (ev.target.closest('.dp') || ev.target === $(dpField))) return;
+  closeDatePicker();
+});
+document.addEventListener('keydown', function(ev){
+  /* 一覧が開いているときのEscapeは、その一覧だけを閉じる（お誕生日のシートは閉じない） */
+  if (ev.key === 'Escape' && dpField) {
+    ev.stopImmediatePropagation();
+    closeDatePicker();
+    document.activeElement.blur();
+  }
+});
+
+/* ------------------------------------------------------------
    お誕生日の登録（営業活動の右上のボタンから開く）
    登録済みの顧客なら誕生日を入れるだけ。一覧にない名前は新しい顧客として登録する。
    ------------------------------------------------------------ */
@@ -1876,7 +2067,7 @@ function renderBdList(){
 }
 function openBdSheet(){
   fillAeSelectors();
-  $('bdName').value = ''; $('bdDate').value = '';
+  $('bdName').value = ''; setDpValue('bdDate', '');
   $('bdErr').textContent = '';
   renderBdList();
   $('bdOvl').classList.remove('hide');
@@ -1899,7 +2090,7 @@ $('bdSave').addEventListener('click', function(){
   err.style.color = 'var(--red-text)';
   var name = $('bdName').value.trim();
   if (!name) { err.textContent = 'お名前を入れてください。'; $('bdName').focus(); return; }
-  var d = $('bdDate').value;
+  var d = dpValue('bdDate');
   if (!d) { err.textContent = '誕生日を選んでください。'; $('bdDate').focus(); return; }
   var who = resolveWho(name);
   var c = who.cid ? custById(who.cid) : null;
@@ -1912,7 +2103,7 @@ $('bdSave').addEventListener('click', function(){
   save();
   fillCustSelectors(); fillAeSelectors();
   renderBdList(); renderAct();
-  $('bdName').value = ''; $('bdDate').value = '';
+  $('bdName').value = ''; setDpValue('bdDate', '');
   err.style.color = 'var(--green)';
   err.textContent = '「' + c.name + '」の誕生日を登録しました。';
   setTimeout(function(){ err.textContent = ''; }, 4000);
