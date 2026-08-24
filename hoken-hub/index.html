@@ -230,6 +230,9 @@ a{color:var(--navy-2);}
 /* 営業ダッシュボードは教育ツールと役割が違うので、青系にして見分けられるようにする */
 .training-banner.b-sales{background:linear-gradient(160deg,#e8f4fb 0%,#fff8f2 70%);border-color:var(--sky-border);}
 .training-banner.b-sales .t-go{color:var(--sky);}
+/* 資格試験トレーニングは緑系（合格＝ゴールのイメージ） */
+.training-banner.b-shikaku{background:linear-gradient(160deg,#e8f6ef 0%,#fff8f2 70%);border-color:var(--green-border);}
+.training-banner.b-shikaku .t-go{color:var(--green);}
 /* 公開URLがまだ無いとき（Web上では開けない）の表示 */
 .training-banner .t-soon{display:inline-flex;align-items:center;gap:7px;font-size:var(--fs-base);font-weight:700;
   color:var(--amber);white-space:nowrap;}
@@ -452,6 +455,12 @@ a{color:var(--navy-2);}
           <span class="t-body"><h3>保険営業ダッシュボード</h3>
           <p>見込み数字（AP・FF・プレゼン・クロージング）の積み上げ、顧客カルテ、面談の記録、手数料の料率表。入力した内容はこの端末のブラウザにだけ残ります。</p></span>
           <span class="t-go" id="salesGo"></span>
+        </div>
+        <div class="training-banner b-shikaku" id="shikakuBanner" tabindex="0" role="button" aria-label="保険資格試験トレーニングを開く">
+          <span class="t-art"><svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#e8f6ef"/><rect x="14" y="10" width="30" height="38" rx="4" fill="#fffdf8" stroke="#2c7a4b" stroke-width="2.6"/><path d="M20 20h18M20 27h18M20 34h11" stroke="#a9cde6" stroke-width="3" stroke-linecap="round"/><circle cx="44" cy="42" r="10" fill="#f7c34e" stroke="#a8701a" stroke-width="2.4"/><path d="m39.8 42 3 3 5.4-6" fill="none" stroke="#1b3f5e" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M40 51.5 38 60l6-3.4L50 60l-2-8.5" fill="#f0846a"/></svg></span>
+          <span class="t-body"><h3>保険資格試験トレーニング</h3>
+          <p>生保協会（一般・専門・変額・応用）、損保一般（基礎・自動車・火災・傷害疾病）、FP3〜1級の想定問題405問。分野別ドリル・模擬テスト・弱点復習つき。学習記録は端末内にだけ残ります。</p></span>
+          <span class="t-go" id="shikakuGo"></span>
         </div>
       </div>
     </section>
@@ -889,7 +898,8 @@ var TS_TAGS = ['がん', '払込免除', '高額療養費', '介護', '年金', 
    ------------------------------------------------------------ */
 var INHOUSE = {
   training: { local: '保険社員教育ツール.html', url: 'https://office-m-nakatani.github.io/office-m/hoken-training/' },
-  sales:    { local: '保険営業管理ツール.html', url: 'https://office-m-nakatani.github.io/office-m/hoken-sales/' }
+  sales:    { local: '保険営業管理ツール.html', url: 'https://office-m-nakatani.github.io/office-m/hoken-sales/' },
+  shikaku:  { local: '保険資格試験対策ツール.html', url: 'https://office-m-nakatani.github.io/office-m/hoken-shikaku/' }
 };
 
 /* 社内ツールも「言葉でさがす」から辿れるようにするための見せかけの1件（共有リンクは出さない） */
@@ -899,7 +909,10 @@ var INHOUSE_SEARCH = [
     keys: '社内 社員教育 教育 研修 トレーニング 勉強 学習 テスト 理解度 朝礼 ロープレ NGトーク 添削 早見表' },
   { key: 'sales', name: '保険営業ダッシュボード（社内）',
     label: '見込み数字の積み上げ・顧客カルテ・面談記録・手数料の料率表',
-    keys: '社内 営業 ダッシュボード 見込み 見込客 AP FF プレゼン クロージング 顧客カルテ カルテ 面談 記録 日報 手数料 料率 定期訪問 誕生日' }
+    keys: '社内 営業 ダッシュボード 見込み 見込客 AP FF プレゼン クロージング 顧客カルテ カルテ 面談 記録 日報 手数料 料率 定期訪問 誕生日' },
+  { key: 'shikaku', name: '保険資格試験トレーニング（社内）',
+    label: '生保協会・損保一般・FP3〜1級の想定問題405問（ドリル・模試・弱点復習）',
+    keys: '社内 資格 試験 試験対策 問題集 過去問 想定問題 模試 模擬テスト 一般課程 専門課程 変額 応用課程 大学課程 損保 基礎単位 商品単位 FP ファイナンシャルプランナー 3級 2級 1級 勉強 学習 合格' }
 ];
 function inhousePseudo(s) {
   var t = INHOUSE[s.key] || {};
@@ -907,7 +920,8 @@ function inhousePseudo(s) {
 }
 /* 検索結果に出すアイコンは、下の社内ツールバナーと同じ絵を使い回す */
 function inhouseArt(id) {
-  var banner = document.getElementById(id === 'inh-training' ? 'trainingBanner' : id === 'inh-sales' ? 'salesBanner' : '');
+  var banner = document.getElementById(
+    id === 'inh-training' ? 'trainingBanner' : id === 'inh-sales' ? 'salesBanner' : id === 'inh-shikaku' ? 'shikakuBanner' : '');
   var art = banner && banner.querySelector('.t-art');
   return art ? art.innerHTML : '';
 }
@@ -1871,6 +1885,7 @@ function bindAdmin() {
   document.getElementById('btnLock').onclick = function () { forgetAuth(); location.reload(); };
   bindInhouse('trainingBanner', 'trainingGo', 'training');
   bindInhouse('salesBanner', 'salesGo', 'sales');
+  bindInhouse('shikakuBanner', 'shikakuGo', 'shikaku');
 
   /* キーワードでさがす。言葉を入れているあいだは分野カードを引っ込めて、結果だけを出す */
   renderSearchTags();
