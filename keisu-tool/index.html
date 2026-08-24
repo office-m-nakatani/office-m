@@ -170,7 +170,7 @@ footer{border-top:1px solid var(--line);padding:18px 20px 26px;text-align:center
     <div class="dbody">
       <div class="drow">
         <div class="fl"><label for="tblRate">利回り（年）</label>
-          <span class="bx"><input type="number" id="tblRate" value="3" min="0" max="20" step="0.1"><i>％</i></span></div>
+          <span class="bx"><input type="number" id="tblRate" min="0" max="20" step="0.1" autocomplete="off"><i>％</i></span></div>
         <button class="calc" id="goTbl" style="margin-top:0;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12 5l7 7-7 7"/></svg>表を作る</button>
       </div>
@@ -341,7 +341,8 @@ var CARD=[
 
 function inHTML(id,lab,unit,mn,mx,st){    /* 初期値は入れない（空の状態から始める） */
   return '<label class="in" for="'+id+'"><span>'+lab+'</span>'
-       + '<span class="bx"><input type="number" id="'+id+'" min="'+mn+'" max="'+mx+'" step="'+st+'" inputmode="decimal"><i>'+unit+'</i></span></label>';
+       + '<span class="bx"><input type="number" id="'+id+'" min="'+mn+'" max="'+mx+'" step="'+st
+       + '" inputmode="decimal" autocomplete="off"><i>'+unit+'</i></span></label>';
 }
 function cardHTML(c){
   return '<section class="card" id="card-'+c.id+'">'
@@ -388,6 +389,11 @@ function card(id){ for(var i=0;i<CARD.length;i++) if(CARD[i].id===id) return CAR
 
 /* ---------- 早見表 ---------- */
 function drawTable(){
+  if(blank('tblRate')){
+    document.getElementById('ftbl').innerHTML =
+      '<tbody><tr><td style="white-space:normal;color:var(--muted)">利回りを入れて「表を作る」を押してください。</td></tr></tbody>';
+    return;
+  }
   var rr=Math.max(0,gv('tblRate'))/100;
   var h='<thead><tr><th class="n">年数</th><th class="n">① 終価</th><th class="n">② 現価</th>'
     +'<th class="n">③ 年金終価</th><th class="n">④ 減債基金</th><th class="n">⑤ 資本回収</th>'
@@ -414,14 +420,22 @@ var PF=[
   var h='', i;
   for(i=0;i<PF.length;i++){
     h += '<div class="fl"><label for="pl_'+PF[i].k+'">'+PF[i].l+'</label>'
-      +  '<span class="bx"><input type="number" id="pl_'+PF[i].k+'" value="'+PF[i].v
-      +  '" min="'+PF[i].mn+'" max="'+PF[i].mx+'" step="'+(PF[i].k==='rate'?'0.1':'1')+'" inputmode="decimal"><i>'+PF[i].u+'</i></span></div>';
+      +  '<span class="bx"><input type="number" id="pl_'+PF[i].k
+      +  '" min="'+PF[i].mn+'" max="'+PF[i].mx+'" step="'+(PF[i].k==='rate'?'0.1':'1')
+      +  '" inputmode="decimal" autocomplete="off"><i>'+PF[i].u+'</i></span></div>';
   }
   document.getElementById('planForm').innerHTML = h;
 })();
 
 function drawPlan(){
-  var out=document.getElementById('planOut'), r=Math.max(0,gv('pl_rate'))/100;
+  var out=document.getElementById('planOut'), i;
+  for(i=0;i<PF.length;i++){
+    if(blank('pl_'+PF[i].k)){
+      out.innerHTML='<div class="warn">上の6つの欄をすべて入れてから「計算」を押してください。</div>';
+      return;
+    }
+  }
+  var r=Math.max(0,gv('pl_rate'))/100;
   var age=gv('pl_age'), st=gv('pl_st'), en=gv('pl_en'), need=gv('pl_need')*10000, have=gv('pl_have')*10000;
   var m=st-age, n=en-st;
   if(m<0 || n<1){
@@ -433,7 +447,7 @@ function drawPlan(){
   var annual = m>0 ? short*kM.sf : short;
   var enough = short<=0;
 
-  var bal=have, ser=[{v:bal,c:'#2c7a4b'}], i;
+  var bal=have, ser=[{v:bal,c:'#2c7a4b'}];
   for(i=1;i<=m;i++){ bal=bal*(1+r)+annual; ser.push({v:Math.max(0,bal),c:'#2c7a4b'}); }
   for(i=1;i<=n;i++){ bal=bal*(1+r)-need;   ser.push({v:Math.max(0,bal),c:'#bf4123'}); }
   var mx=0; for(i=0;i<ser.length;i++) if(ser[i].v>mx) mx=ser[i].v;
@@ -473,6 +487,22 @@ function drawPlan(){
   drawTable();
   drawPlan();
 })();
+
+/* ブラウザが再読み込み時に前回の入力値を復元することがあるので、
+   ページが表示されたタイミングで必ず空に戻す（bfcacheでの復帰も含む） */
+function clearAll(){
+  var ids=[], i;
+  for(i=0;i<CARD.length;i++) ids.push(CARD[i].id+'_a', CARD[i].id+'_r', CARD[i].id+'_n');
+  for(i=0;i<PF.length;i++)   ids.push('pl_'+PF[i].k);
+  ids.push('tblRate');
+  for(i=0;i<ids.length;i++){ var e=document.getElementById(ids[i]); if(e) e.value=''; }
+  for(i=0;i<CARD.length;i++){
+    var box=document.getElementById('card-'+CARD[i].id);
+    if(box) box.className='card';
+  }
+  drawTable(); drawPlan();
+}
+window.addEventListener('pageshow', clearAll);
 
 /* ---------- 操作 ---------- */
 document.addEventListener('click', function(e){
