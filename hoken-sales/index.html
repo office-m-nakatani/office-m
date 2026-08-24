@@ -5,34 +5,47 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
 <title>保険営業ダッシュボード｜顧客・活動・見込み数字</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23fff8f2'/%3E%3Cpath d='M7 25V15M13 25V8M19 25v-6M25 25V12' stroke='%23bf4123' stroke-width='3.4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231c5cab'/%3E%3Cpath d='M7 25V15M13 25V8M19 25v-6M25 25V12' stroke='%23fff' stroke-width='3.4' stroke-linecap='round'/%3E%3C/svg%3E">
 <!--
   ⚠️ 社内利用専用ツール（顧客向けに配布しない）
   - 顧客名・面談記録・コミッション額はこの端末のブラウザ（localStorage）にのみ保存される。
     サーバー送信は一切ない。共有PCでは使わない・バックアップはJSON書き出しで行うこと。
   - 手数料率の初期値は公開情報からの「参考値」。実際の料率は保険会社・代理店委託契約ごとに
     異なる（非公開）ため、必ず「手数料・設定」タブで自社の料率に直して使うこと。
-  - 保険ツール管理画面.html と同じデザイントークン・パスワードゲートを使用（平文は書かない）。
+  - パスワードゲートは保険ツール管理画面.html と同じ方式（平文は書かない）。
+  - デザインは2026-08に製品版として全面刷新：他ツールのパステル基調から独立した専用トークン。
+    活動種別6色（AP青・FF橙・プレゼン水・クロージング菫・契約緑・定期訪問桃）と
+    ファネルの青5段階は、dataviz規約のvalidate_palette.jsで色覚多様性・コントラスト検証済み。
+    トークン名（--coral-btn等）は互換のため旧名のまま値だけ差し替えている。
 -->
 <style>
 :root{
-  --navy:#1b3f5e; --navy-2:#27587f; --navy-soft:#eaf1f7;
-  --bg:#fff8f2; --white:#fff; --text:#33404d; --muted:#5c6874; --line:#efe2d8;
-  --shadow:0 6px 20px rgba(130,100,80,.09); --shadow-sm:0 3px 10px rgba(130,100,80,.07);
-  --coral:#f0846a; --coral-btn:#bf4123; --coral-btn-h:#aa391f;
-  --coral-text:#bd4523; --coral-bg:#fdeee9; --coral-border:#f4d0c6;
-  --green:#2c7a4b; --green-bg:#e8f6ef; --green-border:#c3e5d3;
-  --amber:#966417; --amber-bg:#fdf3e2; --amber-border:#f2dcae;
-  --sky:#24729f; --sky-bg:#e8f4fb; --sky-border:#c6e2f2;
-  --berry:#8f4574; --berry-bg:#fbeef6;
-  --teal:#0f7a80; --teal-bg:#e3f4f5; --teal-border:#b7e2e4;
-  --red-text:#bb413c; --red-bg:#fdeee9;
-  --chart-1:#2273b8;
-  --mincho:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho",YuMincho,"游明朝体","MS PMincho",serif;
+  /* インク（旧 --navy 系。名前は互換のため維持） */
+  --navy:#16283c; --navy-2:#2e4763; --navy-soft:#eaf0f7;
+  --bg:#f3f5f8; --white:#fff; --text:#26313d; --muted:#5f6b78; --line:#e2e7ed;
+  --shadow:0 8px 24px rgba(23,42,64,.08); --shadow-sm:0 2px 8px rgba(23,42,64,.06);
+  /* 主ボタン＝ブランドブルー（旧coral名のまま値だけ差し替え。白文字コントラスト5.9:1） */
+  --coral:#2a78d6; --coral-btn:#1c5cab; --coral-btn-h:#164a8c;
+  --coral-text:#1c5cab; --coral-bg:#e8f1fb; --coral-border:#c4dcf5;
+  --green:#008300; --green-bg:#e7f4e7; --green-border:#bfe3bf;
+  --amber:#9a6a10; --amber-bg:#fbf3e0; --amber-border:#eeddb2;
+  --sky:#1c5cab; --sky-bg:#e8f1fb; --sky-border:#c4dcf5;
+  --berry:#b03569; --berry-bg:#fdedf4;
+  --teal:#b03569; --teal-bg:#fdedf4; --teal-border:#f6cade;   /* 旧teal＝定期訪問。現在は桃色系 */
+  --red-text:#c22f2f; --red-bg:#fbeaea;
+  --chart-1:#2a78d6;
+  /* 活動種別6色（マーク用）とバッジ文字色（白地4.5:1確保用） */
+  --tAP:#2a78d6; --tFF:#eb6834; --tPZ:#1baf7a; --tCL:#4a3aa7; --tKY:#008300; --tTH:#e87ba4;
+  --tAPtx:#1c5cab; --tFFtx:#ba4413; --tPZtx:#0d7a52; --tCLtx:#4a3aa7; --tKYtx:#006300; --tTHtx:#b03569;
+  --tAPbg:#e8f1fb; --tFFbg:#fdeee4; --tPZbg:#e2f6ee; --tCLbg:#edeafa; --tKYbg:#e7f4e7; --tTHbg:#fdedf4;
+  --tAPbd:#c4dcf5; --tFFbd:#f8d2bd; --tPZbd:#b8e8d5; --tCLbd:#d5cef2; --tKYbd:#bfe3bf; --tTHbd:#f6cade;
+  /* 見出しも本文と同じサンセリフ（旧minchoトークンは互換のため名前だけ残す） */
+  --mincho:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",YuGothic,Meiryo,"Noto Sans JP",sans-serif;
   --fs-xs:.8125rem; --fs-sm:.9rem; --fs-base:1rem; --fs-md:1.125rem;
-  --fs-lg:1.35rem; --fs-xl:1.6rem; --fs-2xl:1.9rem;
-  --lh-tight:1.5; --lh-base:1.75;
+  --fs-lg:1.3rem; --fs-xl:1.55rem; --fs-2xl:2rem;
+  --lh-tight:1.45; --lh-base:1.75;
   --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:20px; --sp-6:24px; --sp-8:32px;
+  --r:14px;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html{-webkit-text-size-adjust:100%;font-size:16px;}
@@ -52,44 +65,43 @@ a{color:var(--navy-2);}
 :focus-visible{outline:3px solid var(--navy-2);outline-offset:2px;border-radius:5px;}
 
 /* ---------- ヘッダー ---------- */
-.topbar{background:linear-gradient(168deg,#fbe6e6 0%,#fdf1ea 46%,#ddf0fb 100%);border-bottom:1px solid var(--line);}
-.topbar .wrap{display:flex;align-items:center;gap:var(--sp-4);min-height:74px;flex-wrap:wrap;padding:var(--sp-3) 16px;}
+.topbar{background:var(--white);border-bottom:1px solid var(--line);}
+.topbar .wrap{display:flex;align-items:center;gap:var(--sp-4);min-height:64px;flex-wrap:wrap;padding:var(--sp-3) 16px;}
 .tb-brand{display:flex;align-items:center;gap:var(--sp-3);color:var(--navy);}
-.tb-brand .tb-art{width:46px;height:46px;flex:none;}
-.tb-brand .tb-art svg{width:46px;height:46px;}
-.tb-brand b{display:block;font-family:var(--mincho);font-size:var(--fs-lg);letter-spacing:.06em;font-weight:600;line-height:1.35;}
+.tb-brand .tb-art{width:40px;height:40px;flex:none;}
+.tb-brand .tb-art svg{width:40px;height:40px;}
+.tb-brand b{display:block;font-size:var(--fs-md);letter-spacing:.04em;font-weight:700;line-height:1.3;}
 .tb-brand small{display:block;font-size:var(--fs-xs);color:var(--muted);letter-spacing:.02em;line-height:1.5;}
-.tb-tag{margin-left:auto;font-size:var(--fs-xs);font-weight:700;letter-spacing:.06em;color:var(--amber);
-  background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:999px;padding:6px 14px;}
+.tb-tag{margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-xs);font-weight:700;
+  letter-spacing:.03em;color:var(--muted);background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:6px 13px;}
 
 /* ---------- タブ ---------- */
-.tabs{position:sticky;top:0;z-index:30;background:rgba(255,248,242,.96);backdrop-filter:blur(4px);
+.tabs{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.95);backdrop-filter:blur(6px);
   border-bottom:1px solid var(--line);}
-.tabs .wrap{display:flex;gap:var(--sp-2);padding:10px 16px;overflow-x:auto;}
-.tab{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--line);background:var(--white);
-  border-radius:999px;padding:10px 18px;min-height:44px;cursor:pointer;font-weight:700;font-size:var(--fs-sm);
+.tabs .wrap{display:flex;gap:var(--sp-2);padding:9px 16px;overflow-x:auto;}
+.tab{display:inline-flex;align-items:center;gap:8px;border:1px solid transparent;background:transparent;
+  border-radius:10px;padding:9px 16px;min-height:44px;cursor:pointer;font-weight:700;font-size:var(--fs-sm);
   color:var(--muted);white-space:nowrap;transition:.15s;}
 .tab svg{width:18px;height:18px;}
 .tab[aria-selected="true"]{background:var(--navy);border-color:var(--navy);color:#fff;box-shadow:var(--shadow-sm);}
-.tab:not([aria-selected="true"]):hover{border-color:var(--navy-2);color:var(--navy);}
+.tab:not([aria-selected="true"]):hover{background:var(--navy-soft);color:var(--navy);}
 
 /* ---------- セクション ---------- */
 .sec{margin-top:var(--sp-6);}
 .sec-head{display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-4);}
-.sec-head .sh-art{width:52px;height:52px;flex:none;}
-.sec-head .sh-art svg{width:52px;height:52px;}
-.sec-head h2{font-family:var(--mincho);font-size:var(--fs-xl);color:var(--navy);letter-spacing:.06em;font-weight:600;
-  display:inline-block;padding-bottom:5px;border-bottom:4px solid var(--coral);border-radius:2px;}
+.sec-head .sh-art{display:none;}   /* 旧イラスト枠。製品版デザインでは使わない */
+.sec-head h2{font-size:var(--fs-lg);color:var(--navy);letter-spacing:.03em;font-weight:700;}
 .sec-head p{font-size:var(--fs-sm);color:var(--muted);margin-top:2px;}
-.sec-note{font-size:var(--fs-sm);color:var(--muted);max-width:44em;margin:var(--sp-2) 0 var(--sp-4);}
+.sec-note{font-size:var(--fs-sm);color:var(--muted);max-width:46em;margin:var(--sp-2) 0 var(--sp-4);}
 
 /* ---------- カード・ボタン ---------- */
-.card{background:var(--white);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow-sm);
+.card{background:var(--white);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-sm);
   padding:var(--sp-5);}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:999px;
+.card h3{font-size:var(--fs-md);}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:10px;
   padding:12px 22px;min-height:44px;cursor:pointer;font-size:var(--fs-base);font-weight:700;letter-spacing:.03em;transition:.15s;text-decoration:none;}
 .btn svg{width:17px;height:17px;}
-.btn-primary{background:var(--coral-btn);color:#fff;box-shadow:0 4px 12px rgba(176,60,26,.26);}
+.btn-primary{background:var(--coral-btn);color:#fff;box-shadow:0 4px 12px rgba(28,92,171,.28);}
 .btn-primary:hover{background:var(--coral-btn-h);transform:translateY(-1px);}
 .btn-navy{background:var(--navy);color:#fff;}
 .btn-navy:hover{background:#16344e;}
@@ -116,14 +128,15 @@ a{color:var(--navy-2);}
   cursor:pointer;font-size:var(--fs-sm);font-weight:700;color:var(--muted);}
 .chip[aria-pressed="true"]{background:var(--navy-soft);border-color:var(--navy-2);color:var(--navy);}
 .badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:3px 11px;font-size:var(--fs-xs);font-weight:700;border:1px solid;}
-.bg-AP{background:var(--sky-bg);border-color:var(--sky-border);color:var(--sky);}
-.bg-FF{background:var(--berry-bg);border-color:#ecd2e2;color:var(--berry);}
-.bg-PZ{background:var(--amber-bg);border-color:var(--amber-border);color:var(--amber);}
-.bg-CL{background:var(--coral-bg);border-color:var(--coral-border);color:var(--coral-text);}
-.bg-KY{background:var(--green-bg);border-color:var(--green-border);color:var(--green);}
-.bg-TH{background:var(--teal-bg);border-color:var(--teal-border);color:var(--teal);}   /* 定期訪問 */
-.bg-lost{background:#f1f1f1;border-color:#ddd;color:#666;}
-.bg-hold{background:#f4f1fb;border-color:#ddd5f0;color:#5b4a91;}
+/* 活動種別の6色（AP青・FF橙・プレゼン水・クロージング菫・契約緑・定期訪問桃。色覚検証済みセット） */
+.bg-AP{background:var(--tAPbg);border-color:var(--tAPbd);color:var(--tAPtx);}
+.bg-FF{background:var(--tFFbg);border-color:var(--tFFbd);color:var(--tFFtx);}
+.bg-PZ{background:var(--tPZbg);border-color:var(--tPZbd);color:var(--tPZtx);}
+.bg-CL{background:var(--tCLbg);border-color:var(--tCLbd);color:var(--tCLtx);}
+.bg-KY{background:var(--tKYbg);border-color:var(--tKYbd);color:var(--tKYtx);}
+.bg-TH{background:var(--tTHbg);border-color:var(--tTHbd);color:var(--tTHtx);}   /* 定期訪問 */
+.bg-lost{background:#eef0f3;border-color:#d9dee4;color:#5f6b78;}
+.bg-hold{background:#f2f0fa;border-color:#dcd6f0;color:#5b4a91;}
 .bg-bd{background:#fdf6e3;border-color:#ecd9a8;color:#7d5413;}   /* 誕生日 */
 
 /* ---------- 顧客一覧 ---------- */
@@ -135,8 +148,14 @@ a{color:var(--navy-2);}
 .cust-row{display:flex;align-items:center;gap:var(--sp-4);width:100%;text-align:left;background:var(--white);
   border:1px solid var(--line);border-radius:14px;padding:14px 18px;cursor:pointer;box-shadow:var(--shadow-sm);transition:.15s;}
 .cust-row:hover{border-color:var(--navy-2);transform:translateY(-1px);}
-.cust-row .cr-name{font-weight:700;color:var(--navy);font-size:var(--fs-md);}
-.cust-row .cr-sub{font-size:var(--fs-xs);color:var(--muted);}
+.cust-row .cr-main{flex:1;min-width:0;}
+.cust-row .cr-name{display:block;font-weight:700;color:var(--navy);font-size:var(--fs-md);}
+.cust-row .cr-sub{display:block;font-size:var(--fs-xs);color:var(--muted);margin-top:2px;}
+.cust-row .cr-mlab{font-weight:400;color:var(--muted);font-size:var(--fs-xs);margin-right:5px;}
+/* 顧客詳細：ステータスとステージの関係をひと言で（保留・失注のとき） */
+.cd-state{font-size:var(--fs-sm);color:#7d5413;background:#fdf6e3;border:1px solid #ecd9a8;
+  border-radius:10px;padding:8px 12px;margin:10px 0 4px;}
+.cd-state b{color:#7d5413;}
 .cust-row .cr-right{margin-left:auto;text-align:right;flex:none;}
 .cust-row .cr-money{font-weight:700;color:var(--text);font-size:var(--fs-sm);}
 
@@ -167,13 +186,14 @@ a{color:var(--navy-2);}
 .type-btn{min-height:56px;border:1.5px solid var(--line);background:var(--white);border-radius:12px;cursor:pointer;
   font-weight:700;font-size:var(--fs-base);color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:8px;}
 .type-btn small{font-size:var(--fs-xs);font-weight:400;}
-.type-btn[aria-pressed="true"]{color:#fff;}
-.type-btn[data-type="AP"][aria-pressed="true"]{background:var(--sky);border-color:var(--sky);}
-.type-btn[data-type="FF"][aria-pressed="true"]{background:var(--berry);border-color:var(--berry);}
-.type-btn[data-type="PZ"][aria-pressed="true"]{background:var(--amber);border-color:var(--amber);}
-.type-btn[data-type="CL"][aria-pressed="true"]{background:var(--coral-btn);border-color:var(--coral-btn);}
-.type-btn[data-type="KY"][aria-pressed="true"]{background:var(--green);border-color:var(--green);}
-.type-btn[data-type="TH"][aria-pressed="true"]{background:var(--teal);border-color:var(--teal);}
+/* 選択中＝淡色地＋種別色の枠＋濃色文字（白抜きだと水色・桃色で文字が読めないため） */
+.type-btn[aria-pressed="true"]{font-weight:700;}
+.type-btn[data-type="AP"][aria-pressed="true"]{background:var(--tAPbg);border:2px solid var(--tAP);color:var(--tAPtx);}
+.type-btn[data-type="FF"][aria-pressed="true"]{background:var(--tFFbg);border:2px solid var(--tFF);color:var(--tFFtx);}
+.type-btn[data-type="PZ"][aria-pressed="true"]{background:var(--tPZbg);border:2px solid var(--tPZ);color:var(--tPZtx);}
+.type-btn[data-type="CL"][aria-pressed="true"]{background:var(--tCLbg);border:2px solid var(--tCL);color:var(--tCLtx);}
+.type-btn[data-type="KY"][aria-pressed="true"]{background:var(--tKYbg);border:2px solid var(--tKY);color:var(--tKYtx);}
+.type-btn[data-type="TH"][aria-pressed="true"]{background:var(--tTHbg);border:2px solid var(--tTH);color:var(--tTHtx);}
 .contract-box{margin-top:var(--sp-4);border:1.5px dashed var(--green-border);background:var(--green-bg);
   border-radius:14px;padding:var(--sp-4);}
 .contract-box h3{font-size:var(--fs-md);color:var(--green);margin-bottom:var(--sp-3);}
@@ -190,7 +210,7 @@ a{color:var(--navy-2);}
 .cal-dow.sun{color:var(--red-text);} .cal-dow.sat{color:var(--sky);}
 .cal-cell{background:var(--white);min-height:124px;padding:5px 5px 7px;position:relative;
   display:flex;flex-direction:column;gap:2px;}
-.cal-cell:hover{background:#fffaf5;}
+.cal-cell:hover{background:#f5f8fc;}
 /* セル全体が「日付を選ぶ」ボタン。中身はその上に重ねて表示する */
 .cal-pick{position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent;cursor:pointer;padding:0;}
 .cal-pick:focus-visible{outline:3px solid var(--sky);outline-offset:-3px;}
@@ -201,16 +221,20 @@ a{color:var(--navy-2);}
 .cal-add svg{width:14px;height:14px;}
 .cal-add:hover{background:var(--coral-bg);border-color:var(--coral-border);}
 .cal-add:focus-visible{outline:3px solid var(--sky);outline-offset:1px;}
-.cal-cell.out{background:#faf6f1;}
-.cal-cell.out .cd{color:#6f6358;}   /* 前後の月の日付。薄くしすぎるとコントラスト不足になる */
+.cal-cell.out{background:#f7f9fb;}
+.cal-cell.out .cd{color:#7c8794;}   /* 前後の月の日付。薄くしすぎるとコントラスト不足になる */
 .cal-cell.sel{box-shadow:inset 0 0 0 2.5px var(--coral-btn);}
 .cal-cell .cd{align-self:flex-start;font-size:var(--fs-sm);font-weight:700;color:var(--text);
   min-width:26px;padding:3px 7px;border-radius:8px;text-align:center;}
 .cal-cell.sun .cd{color:var(--red-text);} .cal-cell.sat .cd{color:var(--sky);}
 .cal-cell.today .cd{background:var(--navy);color:#fff;}
-.cal-ev{display:block;font-size:12.5px;line-height:1.5;font-weight:700;border:1px solid;border-radius:6px;
+.cal-ev{display:block;font-size:12.5px;line-height:1.5;font-weight:700;border:1px solid;border-left-width:3px;border-radius:5px;
   padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.cal-ev.bd{background:#fdf6e3;border-color:#ecd9a8;color:#7d5413;}
+/* 左端の太線＝種別のマーク色（マスを一目で見分ける） */
+.cal-ev.bg-AP{border-left-color:var(--tAP);} .cal-ev.bg-FF{border-left-color:var(--tFF);}
+.cal-ev.bg-PZ{border-left-color:var(--tPZ);} .cal-ev.bg-CL{border-left-color:var(--tCL);}
+.cal-ev.bg-KY{border-left-color:var(--tKY);} .cal-ev.bg-TH{border-left-color:var(--tTH);}
+.cal-ev.bd{background:#fdf6e3;border-color:#ecd9a8;border-left-color:#d9b14d;color:#7d5413;}
 .cal-more{font-size:11px;color:var(--muted);padding-left:4px;}
 .day-row.bd{cursor:default;border-color:#ecd9a8;background:#fdf9f0;}
 .cal-legend{display:flex;gap:var(--sp-2);flex-wrap:wrap;margin-top:var(--sp-3);}
@@ -241,7 +265,7 @@ a{color:var(--navy-2);}
 .sheet-foot{display:flex;gap:var(--sp-3);flex-wrap:wrap;padding:var(--sp-4) var(--sp-5);border-top:1px solid var(--line);}
 .sheet-foot .btn-del{margin-left:auto;color:var(--red-text);border-color:var(--coral-border);}
 .chk,.fld label.chk{display:inline-flex;align-items:center;gap:12px;font-size:var(--fs-base);font-weight:700;color:var(--text);
-  min-height:48px;cursor:pointer;border:1.5px solid var(--line);border-radius:12px;padding:8px 16px;background:#fdfaf6;
+  min-height:48px;cursor:pointer;border:1.5px solid var(--line);border-radius:12px;padding:8px 16px;background:#fbfcfe;
   transition:.15s;}
 .chk:hover{border-color:var(--navy-2);}
 .chk input{width:24px;height:24px;flex:none;accent-color:var(--navy);cursor:pointer;}
@@ -251,9 +275,9 @@ a{color:var(--navy-2);}
 /* ---------- 時刻の選択（時→分の順に押して決める） ---------- */
 .time-wrap{position:relative;}
 .time-input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px;
-  background:#fdfaf6;font-size:var(--fs-base);font-weight:700;color:var(--text);cursor:pointer;font-family:inherit;}
+  background:#fbfcfe;font-size:var(--fs-base);font-weight:700;color:var(--text);cursor:pointer;font-family:inherit;}
 .time-input:focus{border-color:var(--navy-2);outline:none;box-shadow:0 0 0 3px var(--navy-soft);}
-.time-input:disabled{background:#f1ece6;color:var(--muted);cursor:not-allowed;}
+.time-input:disabled{background:#eef1f5;color:var(--muted);cursor:not-allowed;}
 .tp{position:absolute;top:calc(100% + 6px);left:0;z-index:70;background:var(--white);border:1.5px solid var(--line);
   border-radius:14px;box-shadow:0 14px 34px rgba(60,40,30,.22);padding:var(--sp-3);width:320px;
   max-width:min(320px,calc(100vw - 32px));}
@@ -270,7 +294,7 @@ a{color:var(--navy-2);}
 /* ---------- 誕生日の選択（年・月を選んでから日を押す） ---------- */
 .date-wrap{position:relative;}
 .date-input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px;
-  background:#fdfaf6;font-size:var(--fs-base);font-weight:700;color:var(--text);cursor:pointer;font-family:inherit;text-align:left;}
+  background:#fbfcfe;font-size:var(--fs-base);font-weight:700;color:var(--text);cursor:pointer;font-family:inherit;text-align:left;}
 .date-input:focus{border-color:var(--navy-2);outline:none;box-shadow:0 0 0 3px var(--navy-soft);}
 .dp{position:absolute;top:calc(100% + 6px);left:0;z-index:70;background:var(--white);border:1.5px solid var(--line);
   border-radius:14px;box-shadow:0 14px 34px rgba(60,40,30,.22);padding:var(--sp-3);width:356px;
@@ -323,47 +347,91 @@ a{color:var(--navy-2);}
 .pm-table th{background:var(--navy-soft);color:var(--navy);font-size:var(--fs-xs);text-align:left;padding:8px 10px;white-space:nowrap;}
 .pm-table td{border-bottom:1px solid var(--line);padding:6px 8px;vertical-align:middle;}
 .pm-table input[type=text],.pm-table input[type=number],.pm-table select{width:100%;min-width:80px;border:1.5px solid var(--line);
-  border-radius:8px;padding:7px 9px;min-height:40px;background:#fdfaf6;font-size:var(--fs-sm);}
+  border-radius:8px;padding:7px 9px;min-height:40px;background:#fbfcfe;font-size:var(--fs-sm);}
 .pm-table input[type=checkbox]{width:24px;height:24px;}
 .pm-table .pm-num input{text-align:right;}
-.pm-locked input,.pm-locked select{background:#f5f0ea;color:var(--muted);pointer-events:none;}
+.pm-locked input,.pm-locked select{background:#eef1f5;color:var(--muted);pointer-events:none;}
 .pm-meta{font-size:var(--fs-xs);color:var(--muted);margin-top:var(--sp-3);}
 .pm-code{width:100%;min-height:76px;border:1.5px solid var(--line);border-radius:10px;padding:9px 11px;
-  font-size:var(--fs-xs);background:#fdfaf6;font-family:ui-monospace,Menlo,Consolas,monospace;}
+  font-size:var(--fs-xs);background:#fbfcfe;font-family:ui-monospace,Menlo,Consolas,monospace;}
 
 /* ---------- KPI・統計 ---------- */
-.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--sp-3);}
-.tile{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:var(--sp-4) var(--sp-5);box-shadow:var(--shadow-sm);}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:var(--sp-3);}
+.tile{background:var(--white);border:1px solid var(--line);border-radius:var(--r);padding:var(--sp-4) var(--sp-5);box-shadow:var(--shadow-sm);
+  display:flex;flex-direction:column;gap:3px;}
 .tile .t-label{font-size:var(--fs-xs);font-weight:700;color:var(--muted);letter-spacing:.04em;}
-.tile .t-value{font-size:var(--fs-xl);font-weight:700;color:var(--navy);line-height:1.4;}
-.tile .t-value small{font-size:var(--fs-sm);font-weight:700;}
+.tile .t-value{font-size:var(--fs-2xl);font-weight:700;color:var(--navy);line-height:1.25;letter-spacing:-.01em;}
+.tile .t-value small{font-size:var(--fs-md);font-weight:700;}
 .tile .t-sub{font-size:var(--fs-xs);color:var(--muted);}
-.tile.t-coral .t-value{color:var(--coral-text);}
-.tile.t-green .t-value{color:var(--green);}
+.tile .t-delta{font-size:var(--fs-xs);font-weight:700;display:inline-flex;align-items:center;gap:4px;
+  align-self:flex-start;border-radius:999px;padding:2px 9px;}
+.tile .t-delta:empty{display:none;}
+.tile .t-delta.up{color:#006300;background:#e7f4e7;}       /* 前月比プラス */
+.tile .t-delta.down{color:#b32424;background:#fdecec;}     /* 前月比マイナス */
+.tile .t-delta.flat{color:var(--muted);background:#f0f2f5;}
+/* 値の色は全カード同じインク色（意味色はデルタチップだけが持つ） */
+
+/* ---------- 目標メーター ---------- */
+.goal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:var(--sp-4) var(--sp-6);}
+.goal-item .g-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+.goal-item .g-name{font-size:var(--fs-sm);font-weight:700;color:var(--navy);}
+.goal-item .g-num{margin-left:auto;font-size:var(--fs-sm);color:var(--muted);}
+.goal-item .g-num b{font-size:var(--fs-md);color:var(--navy);}
+.meter{height:10px;border-radius:999px;background:#dbe7f6;overflow:hidden;margin-top:7px;}
+.meter i{display:block;height:100%;border-radius:999px;background:var(--chart-1);transition:width .3s;}
+/* 達成時はトラックごと同系の緑に切り替える（塗りと違うランプの混在を避ける） */
+.meter.done{background:var(--tKYbg);}
+.meter i.done{background:var(--tKY);}
+.goal-item .g-note{font-size:var(--fs-xs);color:var(--muted);margin-top:5px;}
+.goal-item .g-note b{color:#006300;}
+.goal-unset{font-size:var(--fs-sm);color:var(--muted);}
+.goal-unset a{font-weight:700;cursor:pointer;text-decoration:underline;}
 
 /* ---------- ファネル ---------- */
-.funnel{display:grid;gap:var(--sp-2);}
-.fn-row{display:grid;grid-template-columns:7.2em 1fr;gap:var(--sp-3);align-items:center;}
+/* 3列グリッドの実体は .funnel（行は display:contents）。
+   トラック幅が全行で同じになり、棒の長さが人数に正確に比例する */
+.funnel{display:grid;grid-template-columns:max-content minmax(0,1fr) max-content;
+  column-gap:var(--sp-3);row-gap:12px;align-items:center;}
+.fn-row{display:contents;}
 .fn-label{font-weight:700;font-size:var(--fs-sm);color:var(--navy);text-align:right;}
-.fn-barwrap{display:flex;align-items:center;gap:var(--sp-2);min-height:30px;}
-.fn-bar{height:26px;border-radius:4px 6px 6px 4px;min-width:4px;border:2px solid var(--white);}
-.fn-val{font-size:var(--fs-sm);color:var(--text);white-space:nowrap;}
-.fn-val b{color:var(--navy);}
+.fn-track{height:22px;}
+.fn-bar{display:block;height:22px;border-radius:0 4px 4px 0;}
+.fn-val{font-size:var(--fs-sm);color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums;}
+.fn-val b{color:var(--navy);font-size:var(--fs-base);}
+/* ステージ間の転換率（これまでの累計） */
+.conv{display:flex;flex-wrap:wrap;gap:var(--sp-2) var(--sp-4);margin-top:var(--sp-4);padding-top:var(--sp-3);border-top:1px solid var(--line);}
+.conv .cv{font-size:var(--fs-xs);color:var(--muted);display:inline-flex;align-items:center;gap:5px;}
+.conv .cv b{color:var(--navy);font-size:var(--fs-sm);font-variant-numeric:tabular-nums;}
+.conv .cv svg{width:13px;height:13px;color:var(--muted);}
+
+/* ---------- 今週の活動（種別ごと） ---------- */
+.wk-grid{display:grid;gap:var(--sp-2);}
+.wk-row{display:grid;grid-template-columns:8.6em 1fr auto;gap:var(--sp-3);align-items:center;min-height:30px;}
+.wk-bar{height:16px;border-radius:0 4px 4px 0;min-width:0;}
+.wk-num{font-size:var(--fs-sm);color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums;}
+.wk-num b{color:var(--navy);font-size:var(--fs-base);}
 
 /* ---------- 棒グラフ ---------- */
 .chart{margin-top:var(--sp-3);}
-.bars{display:flex;align-items:flex-end;gap:6px;height:150px;padding-top:26px;}
-.bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%;
-  background:none;border:none;cursor:default;position:relative;min-width:0;border-radius:6px;}
-.bar .b-fill{width:100%;max-width:44px;background:var(--chart-1);border-radius:4px 4px 0 0;border:2px solid var(--white);border-bottom:none;min-height:2px;}
+.bars{display:flex;align-items:flex-end;gap:6px;height:150px;padding-top:26px;
+  border-bottom:1px solid var(--line);position:relative;}   /* ベースライン */
+/* 直接ラベルの無い月の値を拾うための目盛線（ヘアライン・実線） */
+.gline{position:absolute;left:0;right:0;border-top:1px solid #e9edf2;pointer-events:none;}
+.gline span{position:absolute;left:0;top:-15px;font-size:11px;color:var(--muted);
+  background:rgba(255,255,255,.85);padding:0 4px;border-radius:4px;}
+.bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;
+  background:none;border:none;cursor:default;position:relative;min-width:0;}
+.bar .b-fill{width:100%;max-width:24px;background:var(--chart-1);border-radius:4px 4px 0 0;}   /* 値0の月は描かない */
 .bar .b-val{position:absolute;left:50%;transform:translateX(-50%);font-size:var(--fs-xs);font-weight:700;color:var(--navy);white-space:nowrap;display:none;}
 .bar.show-val .b-val,.bar:hover .b-val,.bar:focus-visible .b-val{display:block;}
-.bar-x{display:flex;gap:6px;margin-top:4px;}
+.bar:hover .b-fill,.bar:focus-visible .b-fill{background:var(--coral-btn);}
+.bar-x{display:flex;gap:6px;margin-top:6px;}
 .bar-x span{flex:1;text-align:center;font-size:var(--fs-xs);color:var(--muted);min-width:0;}
 .tbl{width:100%;border-collapse:collapse;font-size:var(--fs-sm);margin-top:var(--sp-3);}
-.tbl th,.tbl td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;}
-.tbl th{color:var(--navy);font-size:var(--fs-xs);letter-spacing:.04em;background:var(--navy-soft);}
+.tbl th,.tbl td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;white-space:nowrap;}
+.tbl th{color:var(--muted);font-size:var(--fs-xs);letter-spacing:.04em;background:#f7f9fb;border-bottom:1.5px solid var(--line);}
 .tbl td.num,.tbl th.num{text-align:right;font-variant-numeric:tabular-nums;}
+.tbl td b{font-variant-numeric:tabular-nums;}
 .tbl-scroll{overflow-x:auto;}
 
 /* ---------- 料率表 ---------- */
@@ -400,16 +468,26 @@ details.know .kn-body li{margin-bottom:4px;}
 
 footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-size:var(--fs-xs);color:var(--muted);border-top:1px solid var(--line);}
 @media(max-width:640px){
-  .fn-row{grid-template-columns:5.4em 1fr;}
+  .funnel{column-gap:8px;}
+  .fn-label{font-size:var(--fs-xs);}
+  .fn-val{font-size:11.5px;}
+  .fn-val b{font-size:var(--fs-sm);}
   .bars{height:120px;gap:2px;}
   .bar{min-width:24px;}
   .bar-x{gap:2px;}
   .bar-x span:nth-child(even){visibility:hidden;}
-  /* カレンダー：狭い画面では1日ぶんの高さを詰め、予定は2件まで＋「ほかN件」 */
-  .cal-cell{min-height:86px;padding:3px 2px 4px;}
+  /* カレンダー：狭い画面では名前チップをやめ、種別色のドットに置き換える。
+     中身は日付をタップ→下の当日リストで見る（追加もそこの「この日に記録する」から） */
+  .cal-cell{min-height:64px;padding:3px 2px 4px;}
   .cal-cell .cd{font-size:12px;padding:1px 4px;min-width:20px;}
-  .cal-ev{font-size:10.5px;padding:1px 3px;border-radius:5px;}
-  .cal-add{width:24px;height:24px;top:2px;right:2px;}
+  .cal-ev{width:9px;height:9px;border-radius:50%;padding:0;border:none;margin:2px 2px 0 0;
+    display:inline-block;vertical-align:middle;overflow:hidden;color:transparent;font-size:0;line-height:9px;}
+  .cal-ev.bg-AP{background:var(--tAP);} .cal-ev.bg-FF{background:var(--tFF);}
+  .cal-ev.bg-PZ{background:var(--tPZ);} .cal-ev.bg-CL{background:var(--tCL);}
+  .cal-ev.bg-KY{background:var(--tKY);} .cal-ev.bg-TH{background:var(--tTH);}
+  .cal-ev.bd{background:#d9b14d;}
+  .cal-more{font-size:9.5px;}
+  .cal-add{display:none;}
   .day-row{padding:10px 12px;}
   .day-row .day-time{min-width:4.6em;}
   .pick{grid-template-columns:1fr;}
@@ -424,7 +502,7 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
 <!-- ================= ロック ================= -->
 <div id="lock" class="hide">
   <div class="card">
-    <div class="lk-art"><svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#ffeee3"/><path d="M8 64c0-13 11-20 24-20s24 7 24 20H8Z" fill="#f0846a"/><rect x="27" y="39" width="10" height="11" rx="5" fill="#f7cdb4"/><path d="m25 45 7 9 7-9 3.4 1.8L32 61 21.6 46.8Z" fill="#fff"/><ellipse cx="32" cy="28" rx="16" ry="17" fill="#5c4030"/><ellipse cx="32" cy="30" rx="12.5" ry="13.5" fill="#f7cdb4"/><path d="M19.5 27c0-9 5.6-14.5 12.5-14.5S44.5 18 44.5 27c-1.6-3.6-4.2-5.7-7.2-6.6-2.6 2.4-7 3.8-10.9 3.2-1.4 1-2.4 2.1-2.9 3.4Z" fill="#5c4030"/><circle cx="27" cy="30" r="1.6" fill="#3d3028"/><circle cx="37" cy="30" r="1.6" fill="#3d3028"/><path d="M29.4 35.6c1.6 1.7 3.6 1.7 5.2 0" fill="none" stroke="#3d3028" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+    <div class="lk-art"><svg aria-hidden="true" viewBox="0 0 40 40"><rect width="40" height="40" rx="9" fill="#1c5cab"/><path d="M9 30V20M16.4 30V10M23.6 30v-7M31 30V14" stroke="#fff" stroke-width="3.6" stroke-linecap="round"/></svg></div>
     <h1>保険営業ダッシュボード</h1>
     <p>社内利用専用です。パスワードを入力してください。</p>
     <div class="fld"><input type="password" id="passInput" autocomplete="current-password" aria-label="パスワード"></div>
@@ -438,10 +516,10 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
 <header class="topbar">
   <div class="wrap">
     <div class="tb-brand">
-      <span class="tb-art"><svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#ffeee3"/><path d="M8 64c0-13 11-20 24-20s24 7 24 20H8Z" fill="#f0846a"/><rect x="27" y="39" width="10" height="11" rx="5" fill="#f7cdb4"/><path d="m25 45 7 9 7-9 3.4 1.8L32 61 21.6 46.8Z" fill="#fff"/><ellipse cx="32" cy="28" rx="16" ry="17" fill="#5c4030"/><ellipse cx="32" cy="30" rx="12.5" ry="13.5" fill="#f7cdb4"/><path d="M19.5 27c0-9 5.6-14.5 12.5-14.5S44.5 18 44.5 27c-1.6-3.6-4.2-5.7-7.2-6.6-2.6 2.4-7 3.8-10.9 3.2-1.4 1-2.4 2.1-2.9 3.4Z" fill="#5c4030"/><circle cx="27" cy="30" r="1.6" fill="#3d3028"/><circle cx="37" cy="30" r="1.6" fill="#3d3028"/><path d="M29.4 35.6c1.6 1.7 3.6 1.7 5.2 0" fill="none" stroke="#3d3028" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+      <span class="tb-art"><svg aria-hidden="true" viewBox="0 0 40 40"><rect width="40" height="40" rx="9" fill="#1c5cab"/><path d="M9 30V20M16.4 30V10M23.6 30v-7M31 30V14" stroke="#fff" stroke-width="3.6" stroke-linecap="round"/></svg></span>
       <span><b>保険営業ダッシュボード</b><small>顧客・営業活動・見込み数字をこの1枚で</small></span>
     </div>
-    <span class="tb-tag">社内利用・データはこの端末のみ</span>
+    <span class="tb-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>データはこの端末のみ・外部送信なし</span>
   </div>
 </header>
 
@@ -466,24 +544,42 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
       <div class="sec-head">
         <span class="sh-art"><svg aria-hidden="true" viewBox="0 0 64 64"><rect x="10" y="36" width="10" height="18" rx="2" fill="#1b3f5e"/><rect x="26" y="26" width="10" height="28" rx="2" fill="#1b3f5e"/><rect x="42" y="14" width="10" height="40" rx="2" fill="#1b3f5e"/><path d="M12 26l14-10 12 6 14-14" fill="none" stroke="#f0846a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M44 8h10v10" fill="none" stroke="#f0846a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         <div><h2>見込み数字</h2><p>確定コミッションとパイプラインの期待値をひと目で</p></div>
+        <div class="head-action" style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-primary btn-sm" id="qaAct"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>活動を記録</button>
+          <button class="btn btn-ghost btn-sm" id="qaCust"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>顧客を追加</button>
+        </div>
       </div>
       <div class="tiles">
-        <div class="tile t-green"><div class="t-label">今月の確定 初年度コミッション</div><div class="t-value" id="tileMonth"></div><div class="t-sub" id="tileMonthSub"></div></div>
-        <div class="tile"><div class="t-label">今年の確定 初年度コミッション（1〜12月）</div><div class="t-value" id="tileYear"></div><div class="t-sub" id="tileYearSub"></div></div>
-        <div class="tile t-coral"><div class="t-label">パイプライン期待値（確度加重）</div><div class="t-value" id="tilePipe"></div><div class="t-sub" id="tilePipeSub"></div></div>
-        <div class="tile"><div class="t-label">来年の継続コミッション見込み</div><div class="t-value" id="tileRenew"></div><div class="t-sub">登録済み契約の継続コミッションから</div></div>
-      </div>
-      <div class="frm-actions">
-        <button class="btn btn-primary btn-sm" id="qaAct"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>活動を記録</button>
-        <button class="btn btn-ghost btn-sm" id="qaCust"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>顧客を追加</button>
+        <div class="tile"><div class="t-label">今月の確定コミッション</div><div class="t-value" id="tileMonth"></div><div class="t-delta" id="tileMonthDelta"></div><div class="t-sub" id="tileMonthSub"></div></div>
+        <div class="tile"><div class="t-label">今年の確定コミッション</div><div class="t-value" id="tileYear"></div><div class="t-sub" id="tileYearSub"></div></div>
+        <div class="tile"><div class="t-label">パイプライン期待値</div><div class="t-value" id="tilePipe"></div><div class="t-sub" id="tilePipeSub"></div></div>
+        <div class="tile"><div class="t-label">来年の継続コミッション</div><div class="t-value" id="tileRenew"></div><div class="t-sub">登録済み契約の継続分（見込み）</div></div>
       </div>
     </div>
 
     <div class="sec">
       <div class="card">
-        <h3 style="color:var(--navy);font-size:var(--fs-md);margin-bottom:4px;">営業ファネル（進行中の顧客）</h3>
+        <h3 style="color:var(--navy);margin-bottom:var(--sp-3);">今月の目標</h3>
+        <div id="goalBox"></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="card">
+        <h3 style="color:var(--navy);margin-bottom:4px;">営業ファネル（進行中の顧客）</h3>
         <p class="sec-note" style="margin-top:0;">AP → FF → プレゼン → クロージング → 契約。棒の長さは人数、右の金額は確度をかけた初年度コミッションの期待値。</p>
         <div class="funnel" id="funnel"></div>
+        <div class="conv" id="funnelConv"></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="card">
+        <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:4px;">
+          <h3 style="color:var(--navy);">今週の活動</h3>
+          <span class="sec-note" style="margin:0;" id="weekRange"></span>
+        </div>
+        <div class="wk-grid" id="weekGrid"></div>
       </div>
     </div>
 
@@ -493,24 +589,36 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
           <h3 style="color:var(--navy);font-size:var(--fs-md);">月別の確定初年度コミッション（<span id="mchartYear"></span>年）</h3>
           <button class="btn btn-ghost btn-sm" id="mtableBtn" style="margin-left:auto;" aria-expanded="false">表で見る</button>
         </div>
-        <div class="chart" id="mchart" role="img" aria-label="月別の確定初年度コミッションの棒グラフ"></div>
+        <div class="chart" id="mchart" role="group" aria-label="月別の確定初年度コミッションの棒グラフ"></div>
         <div class="tbl-scroll hide" id="mtable"></div>
       </div>
     </div>
 
     <div class="sec">
       <div class="card">
-        <h3 style="color:var(--navy);font-size:var(--fs-md);margin-bottom:4px;">継続コミッションの見込み（今後5年）</h3>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <h3 style="color:var(--navy);font-size:var(--fs-md);margin-bottom:4px;">継続コミッションの見込み（今後5年）</h3>
+          <button class="btn btn-ghost btn-sm" id="rtableBtn" style="margin-left:auto;" aria-expanded="false">表で見る</button>
+        </div>
         <p class="sec-note" style="margin-top:0;">登録した契約の「継続コミッション×継続年数」を年ごとに合計。継続率100%を前提とした上限の目安。</p>
-        <div class="chart" id="rchart" role="img" aria-label="継続コミッション見込みの棒グラフ"></div>
+        <div class="chart" id="rchart" role="group" aria-label="継続コミッション見込みの棒グラフ"></div>
+        <div class="tbl-scroll hide" id="rtable"></div>
       </div>
     </div>
 
     <div class="sec">
       <div class="card">
-        <h3 style="color:var(--navy);font-size:var(--fs-md);margin-bottom:4px;">パイプライン明細</h3>
+        <h3 style="color:var(--navy);margin-bottom:4px;">パイプライン明細</h3>
         <p class="sec-note" style="margin-top:0;">進行中の顧客ごとの見込み。確度は「手数料・設定」タブで変えられます。</p>
         <div class="tbl-scroll"><table class="tbl" id="pipeTable"></table></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="card">
+        <h3 style="color:var(--navy);margin-bottom:4px;">紹介元の分析</h3>
+        <p class="sec-note" style="margin-top:0;">顧客カルテの「紹介元・きっかけ」ごとに集計。どの入口が成約と収益につながっているかが分かります。</p>
+        <div class="tbl-scroll"><table class="tbl" id="srcTable"></table></div>
       </div>
     </div>
   </section>
@@ -523,7 +631,7 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
         <div><h2>顧客管理</h2><p>見込み客から契約者まで、ステージで一元管理</p></div>
       </div>
 
-      <div class="toolrow">
+      <div class="toolrow" id="custToolrow">
         <div class="search">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-3.8-3.8"/></svg>
           <input type="text" id="custSearch" placeholder="氏名・会社名で検索" aria-label="顧客を検索">
@@ -600,6 +708,7 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
       <div class="card">
         <div class="cal-head">
           <span class="cal-title" id="calTitle"></span>
+          <span class="sec-note" id="calWeekNote" style="margin:0;"></span>
           <div class="cal-nav">
             <button class="icon-btn" id="calPrev" aria-label="前の月">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
@@ -617,7 +726,7 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
         </div>
         <div class="day-panel" id="dayPanel"></div>
       </div>
-
+    </div>
   </section>
 
   <!-- ================= 手数料・設定 ================= -->
@@ -647,6 +756,16 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
         <div class="fld" style="max-width:260px;"><label for="setSingleAnp">一時払保険料の何%をANPと数えるか</label>
           <input type="number" id="setSingleAnp" min="0" max="100" step="1">
           <div class="hint">業界慣行は10%（10分の1）が一般的</div></div>
+
+        <h3 style="color:var(--navy);font-size:var(--fs-md);margin:var(--sp-4) 0 var(--sp-2);">自分の目標（見込み数字タブに進捗が出ます）</h3>
+        <div class="frm" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr));">
+          <div class="fld"><label for="setGoalComm">月間目標：確定 初年度コミッション（円）</label>
+            <input type="number" id="setGoalComm" min="0" step="10000" placeholder="例：500000">
+            <div class="hint">0または空欄で非表示</div></div>
+          <div class="fld"><label for="setGoalAp">週間目標：AP（アプローチ）件数</label>
+            <input type="number" id="setGoalAp" min="0" step="1" placeholder="例：10">
+            <div class="hint">月曜はじまりの1週間で数えます</div></div>
+        </div>
 
         <div class="frm-actions"><button class="btn btn-primary" id="rateSave">設定を保存</button>
           <span id="rateSaved" style="color:var(--green);font-weight:700;font-size:var(--fs-sm);align-self:center;"></span></div>
@@ -795,6 +914,10 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
           <button class="btn btn-ghost btn-sm" id="expActCsv">活動記録をCSVで書き出す</button>
         </div>
         <div class="frm-actions">
+          <button class="btn btn-ghost btn-sm" id="demoBtn">デモデータを入れてみる（体験用）</button>
+        </div>
+        <p class="sec-note" style="margin:var(--sp-1) 0 0;">はじめての方向けに、架空の顧客・活動・契約を読み込んで画面の動きを確かめられます。現在のデータは置き換わるため、実データ投入後は使わないでください。</p>
+        <div class="frm-actions">
           <button class="btn btn-danger btn-sm" id="lockBtn">画面をロックする（パスワードを忘れる）</button>
           <button class="btn btn-danger btn-sm" id="wipeBtn">全データを削除する</button>
         </div>
@@ -804,7 +927,7 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
 
 </main>
 
-<footer>保険営業ダッシュボード｜社内利用専用・データはこの端末にのみ保存されます</footer>
+<footer>保険営業ダッシュボード｜データはこの端末のブラウザにのみ保存されます（外部送信なし）</footer>
 
 <!-- ================= お誕生日の登録 ================= -->
 <div class="ovl hide" id="bdOvl" role="dialog" aria-modal="true" aria-labelledby="bdTitle">
@@ -850,7 +973,7 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
         <label>活動の種類</label>
         <div class="type-grid" id="aeTypes">
           <button class="type-btn" data-type="AP" aria-pressed="false">AP<small>アプローチ</small></button>
-          <button class="type-btn" data-type="FF" aria-pressed="false">FF<small>ファクトファインディング</small></button>
+          <button class="type-btn" data-type="FF" aria-pressed="false">FF<small>情報収集・ヒアリング</small></button>
           <button class="type-btn" data-type="PZ" aria-pressed="false">プレゼン<small>提案・設計書</small></button>
           <button class="type-btn" data-type="CL" aria-pressed="false">クロージング<small>意思確認</small></button>
           <button class="type-btn" data-type="KY" aria-pressed="false">契約<small>申込・成立</small></button>
@@ -858,7 +981,8 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
         </div>
       </div>
       <div class="frm">
-        <div class="fld"><label for="aeDate">日付</label><input type="date" id="aeDate"></div>
+        <div class="fld"><label for="aeDate">日付</label>
+          <div class="date-wrap"><input type="text" class="date-input" id="aeDate" readonly autocomplete="off" placeholder="押して日付を選ぶ"></div></div>
         <div class="fld"><label for="aeStart">開始時刻</label>
           <div class="time-wrap"><input type="text" class="time-input" id="aeStart" inputmode="numeric" autocomplete="off" placeholder="例：10:00"></div></div>
         <div class="fld"><label for="aeEnd">終了時刻</label>
@@ -866,10 +990,10 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
           <div class="hint">開始の2時間後が自動で入ります</div></div>
         <div class="fld full"><label class="chk" id="aeAlldayLabel"><input type="checkbox" id="aeAllday"><span>終日にする（時刻を使わない）</span></label></div>
         <div class="fld"><label for="aeCust">顧客（誰と）</label>
-          <input type="text" id="aeCust" list="custDatalist" autocomplete="off" placeholder="名前を入力、または一覧から選ぶ">
+          <input type="text" id="aeCust" list="custDatalist" autocomplete="off" placeholder="名前を入力または選択">
           <datalist id="custDatalist"></datalist>
           <div class="hint">登録済みの名前ならカルテとつながります。未登録の名前もそのまま記録できます</div></div>
-        <div class="fld"><label for="aePlace">場所（どこで）</label><input type="text" id="aePlace" placeholder="例：顧客宅、事務所、オンライン"></div>
+        <div class="fld"><label for="aePlace">場所（どこで）</label><input type="text" id="aePlace" placeholder="例：顧客宅、事務所"></div>
         <div class="fld full"><label for="aeWho">同席者・相手メモ</label><input type="text" id="aeWho" placeholder="例：奥様同席、社長と経理部長"></div>
         <div class="fld full"><label for="aeMemo">内容メモ</label><textarea id="aeMemo" placeholder="話した内容・次のアクションなど"></textarea></div>
       </div>
@@ -1060,7 +1184,7 @@ function defaultState(){
     rates: JSON.parse(JSON.stringify(DEFAULT_RATES)),
     products: JSON.parse(JSON.stringify(DEFAULT_PRODUCTS)),
     master: { rev:1, updated:'', by:'' },
-    set:{ singleAnpPct:10 } };
+    set:{ singleAnpPct:10, goalCommM:0, goalApW:0 } };
 }
 function load(){
   try {
@@ -1156,6 +1280,8 @@ function renderCust(){
   renderCustFilters();
   $('custDetail').classList.add('hide');
   $('custListWrap').classList.remove('hide');
+  $('custToolrow').classList.remove('hide');
+  $('custFilters').classList.remove('hide');
   var q = ($('custSearch').value || '').trim();
   var list = state.customers.filter(function(c){
     if (custFilter === 'lost' || custFilter === 'hold') { if (c.status !== custFilter) return false; }
@@ -1169,11 +1295,11 @@ function renderCust(){
     var badge = c.status === 'lost' ? '<span class="badge bg-lost">失注</span>'
       : c.status === 'hold' ? '<span class="badge bg-hold">保留</span>'
       : '<span class="badge bg-' + c.stage + '">' + esc(stageLabel(c.stage)) + '</span>';
-    var money = c.stage === 'KY' ? '' : (+c.expAmt ? '見込C ' + fmtYen(custExpComm(c)) : '');
+    var money = c.stage === 'KY' ? '' : (+c.expAmt ? '<span class="cr-mlab">見込みコミッション</span>' + esc(fmtYen(custExpComm(c))) : '');
     return '<button class="cust-row" data-id="' + esc(c.id) + '">' +
-      '<span><span class="cr-name">' + esc(c.name) + '</span>' +
+      '<span class="cr-main"><span class="cr-name">' + esc(c.name) + '</span>' +
       '<span class="cr-sub">' + esc([c.company, c.source].filter(Boolean).join('／')) + '</span></span>' +
-      '<span class="cr-right">' + badge + (money ? '<div class="cr-money">' + esc(money) + '</div>' : '') + '</span>' +
+      '<span class="cr-right">' + badge + (money ? '<div class="cr-money">' + money + '</div>' : '') + '</span>' +
       '</button>';
   }).join('');
   $('custEmpty').classList.toggle('hide', state.customers.length > 0);
@@ -1224,6 +1350,9 @@ function openDetail(id){
   detailCustId = id;
   $('custListWrap').classList.add('hide');
   $('custForm').classList.add('hide');
+  /* 詳細表示中は一覧用の検索・フィルター・追加ボタンをしまう（階層を濁さない） */
+  $('custToolrow').classList.add('hide');
+  $('custFilters').classList.add('hide');
   $('custDetail').classList.remove('hide');
   var statusBadge = c.status === 'lost' ? '<span class="badge bg-lost">失注</span>'
     : c.status === 'hold' ? '<span class="badge bg-hold">保留</span>'
@@ -1238,6 +1367,10 @@ function openDetail(id){
       return '<button class="stp" data-stage="' + s.k + '" aria-pressed="' + (c.stage === s.k) + '">' +
         '<span class="stp-no">' + (i+1) + '</span>' + esc(s.label) + '</button>';
     }).join('') + '</div>' +
+    (c.status === 'hold'
+      ? '<p class="cd-state">現在は<b>保留</b>（' + esc(stageLabel(c.stage)) + 'の段階で停止中）。再開するときは下の「進行中に戻す」を押してください。</p>'
+      : c.status === 'lost'
+      ? '<p class="cd-state">この顧客は<b>失注</b>として記録されています（最終ステージ：' + esc(stageLabel(c.stage)) + '）。</p>' : '') +
     '<dl class="kv">' +
       '<dt>会社・職業</dt><dd>' + esc(c.company || '—') + '</dd>' +
       '<dt>連絡先</dt><dd>' + esc(c.tel || '—') + '</dd>' +
@@ -1394,6 +1527,13 @@ function renderCal(){
   if (calY === null) { var t = new Date(); calY = t.getFullYear(); calM = t.getMonth(); }
   if (!selDate) selDate = todayStr();
   $('calTitle').textContent = calY + '年 ' + (calM + 1) + '月';
+  /* 今週の動きをひと言（月曜はじまり） */
+  var wkMon = mondayOf(new Date()), wkSun = addDays(wkMon, 6);
+  var wc = typeCountsBetween(ymd(wkMon), ymd(wkSun));
+  var wkTotal = 0; ACT_TYPES.forEach(function(t2){ wkTotal += wc[t2.k]; });
+  $('calWeekNote').textContent = wkTotal
+    ? '今週：' + ACT_TYPES.map(function(t2){ return t2.label + ' ' + wc[t2.k]; }).join('・')
+    : '今週はまだ記録がありません';
 
   var first = new Date(calY, calM, 1);
   var start = new Date(calY, calM, 1 - first.getDay());   /* 日曜はじまり */
@@ -1568,7 +1708,7 @@ function openActNew(dateStr){
   aeNew = true; aeId = null;
   fillAeSelectors();
   $('aeCust').value = '';
-  $('aeDate').value = dateStr || selDate || todayStr();
+  setDpValue('aeDate', dateStr || selDate || todayStr());
   $('aeAllday').checked = false;     /* 既定は時刻を使う。空欄のままなら終日あつかい */
   $('aeStart').value = ''; $('aeEnd').value = '';
   resetTimePair('ae');
@@ -1581,7 +1721,7 @@ function openActNew(dateStr){
   setAeType(null);
   renderPicker('ae');
   $('aeTitle').textContent = '活動を記録する';
-  $('aeWhen').textContent = fmtJpDate($('aeDate').value);
+  $('aeWhen').textContent = fmtJpDate(dpValue('aeDate'));
   $('aeDel').classList.add('hide');
   $('aeErr').textContent = '';
   $('aeOvl').classList.remove('hide');
@@ -1598,7 +1738,7 @@ function openActEdit(id){
   $('aeTitle').textContent = '活動の編集';
   $('aeDel').classList.remove('hide');
 
-  $('aeDate').value = a.date;
+  setDpValue('aeDate', a.date);
   $('aeAllday').checked = !a.start;
   $('aeStart').value = a.start || '';
   $('aeEnd').value = a.end || '';
@@ -1658,7 +1798,7 @@ $('aeSave').addEventListener('click', function(){
   var who = resolveWho($('aeCust').value);
   if (!who) { err.textContent = '誰と会ったかを入力してください（一覧から選ぶこともできます）。'; return; }
   var cid = who.cid;
-  var date = $('aeDate').value || a.date;
+  var date = dpValue('aeDate') || a.date;
   var off = $('aeAllday').checked;
   var st = off ? '' : normTime($('aeStart').value), en = off ? '' : normTime($('aeEnd').value);
   if (st && en && en < st) { err.textContent = '終了時刻は開始時刻より後にしてください。'; return; }
@@ -1696,7 +1836,7 @@ function saveNewFromSheet(){
   var who = resolveWho($('aeCust').value);
   if (!who) { err.textContent = '誰と会ったかを入力してください（一覧から選ぶこともできます）。'; return; }
   var cid = who.cid;
-  var date = $('aeDate').value || todayStr();
+  var date = dpValue('aeDate') || todayStr();
   var off = $('aeAllday').checked;
   var st = off ? '' : normTime($('aeStart').value), en = off ? '' : normTime($('aeEnd').value);
   if (st && en && en < st) { err.textContent = '終了時刻は開始時刻より後にしてください。'; return; }
@@ -1888,8 +2028,9 @@ document.addEventListener('keydown', function(ev){ if (ev.key === 'Escape' && tp
    生まれ年は type="date" だと打ちにくいので、和暦つきの年の一覧から選ぶ形にした。
    値は data-ymd に YYYY-MM-DD で持ち（保存はこれまでと同じ形）、見た目は「1993年6月3日」。
    ------------------------------------------------------------ */
-var DP_FIELDS = ['bdDate', 'cfBirth'];
+var DP_FIELDS = ['bdDate', 'cfBirth', 'aeDate'];
 var DP_MIN_YEAR = 1912;
+var DP_FUTURE = { aeDate: 1 };   /* 活動日は来年の予定まで選べる（誕生日は当年まで） */
 var dpField = null;    /* いま開いている誕生日欄のid */
 var dpView = null;     /* 一覧に出している年月 { y, m } */
 
@@ -1914,6 +2055,8 @@ function setDpValue(id, s){
     el.removeAttribute('data-ymd');
     el.value = '';
   }
+  /* 活動シートの見出しの日付表示も連動させる */
+  if (id === 'aeDate') $('aeWhen').textContent = s ? fmtJpDate(s) : '';
 }
 function closeDatePicker(back){
   var el = document.querySelector('.dp');
@@ -1928,8 +2071,9 @@ function openDatePicker(id){
   dpField = id;
   var cur = dpValue(id);
   var now = new Date();
-  /* 空のときは、だいたい大人の生まれ年あたりから選び始められるようにしておく */
+  /* 空のとき：誕生日はだいたい大人の生まれ年あたり、活動日は今月から */
   if (cur) { var d = parseYmd(cur); dpView = { y: d.getFullYear(), m: d.getMonth() }; }
+  else if (DP_FUTURE[id]) { dpView = { y: now.getFullYear(), m: now.getMonth() }; }
   else { dpView = { y: now.getFullYear() - 40, m: 0 }; }
   var pop = document.createElement('div');
   pop.className = 'dp';
@@ -1962,7 +2106,7 @@ function openDatePicker(id){
       dpView.m += (what === 'next' ? 1 : -1);
       if (dpView.m > 11) { dpView.m = 0; dpView.y++; }
       if (dpView.m < 0) { dpView.m = 11; dpView.y--; }
-      dpView.y = Math.max(DP_MIN_YEAR, Math.min(new Date().getFullYear(), dpView.y));
+      dpView.y = Math.max(DP_MIN_YEAR, Math.min(new Date().getFullYear() + (DP_FUTURE[dpField] || 0), dpView.y));
       renderDp();
     } else if (what === 'clear') { setDpValue(dpField, ''); closeDatePicker(true); }
     else if (what === 'close') { closeDatePicker(true); }
@@ -1972,7 +2116,7 @@ function renderDp(){
   var pop = document.querySelector('.dp');
   if (!pop || !dpField) return;
   var cur = dpValue(dpField), sel = cur ? parseYmd(cur) : null;
-  var y = dpView.y, m = dpView.m, maxY = new Date().getFullYear();
+  var y = dpView.y, m = dpView.m, maxY = new Date().getFullYear() + (DP_FUTURE[dpField] || 0);
   var years = '';
   for (var yy = maxY; yy >= DP_MIN_YEAR; yy--) {
     years += '<option value="' + yy + '"' + (yy === y ? ' selected' : '') + '>' + yy + '年（' + wareki(yy) + '）</option>';
@@ -1994,8 +2138,8 @@ function renderDp(){
     '<div class="dp-head">' +
       '<button type="button" class="dp-nav" data-dp="prev" aria-label="前の月">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>' +
-      '<select class="dp-sel" data-dp="year" aria-label="生まれた年">' + years + '</select>' +
-      '<select class="dp-sel mo" data-dp="month" aria-label="生まれた月">' + months + '</select>' +
+      '<select class="dp-sel" data-dp="year" aria-label="年を選ぶ">' + years + '</select>' +
+      '<select class="dp-sel mo" data-dp="month" aria-label="月を選ぶ">' + months + '</select>' +
       '<button type="button" class="dp-nav" data-dp="next" aria-label="次の月">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></button>' +
     '</div>' +
@@ -2387,7 +2531,8 @@ $('pmPaste').addEventListener('click', function(){
 /* ============================================================
    6. 見込み数字
    ============================================================ */
-var FUNNEL_COLORS = ['#cfe3f4','#a8cce8','#7cb0d9','#4d90c4','#2273b8'];
+/* ファネルの5段階＝青の順序ランプ（dataviz規約の--ordinal検証済み） */
+var FUNNEL_COLORS = ['#86b6ef','#5598e7','#2a78d6','#1c5cab','#104281'];
 
 function activePipeline(){
   return state.customers.filter(function(c){
@@ -2395,25 +2540,65 @@ function activePipeline(){
   });
 }
 
+/* 週の集計ヘルパー（月曜はじまり） */
+function mondayOf(d){
+  var x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  x.setDate(x.getDate() - (x.getDay() + 6) % 7);
+  return x;
+}
+function addDays(d, n){ return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n); }
+function typeCountsBetween(from, to){   /* from・to は yyyy-mm-dd（両端含む） */
+  var counts = {};
+  ACT_TYPES.forEach(function(t){ counts[t.k] = 0; });
+  state.activities.forEach(function(a){
+    if (a.date >= from && a.date <= to && counts.hasOwnProperty(a.type)) counts[a.type]++;
+  });
+  return counts;
+}
+var ICO_UP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>';
+var ICO_DOWN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>';
+var ICO_NEXT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+
+/* 棒グラフの目盛線：最大値に対してきりの良い金額を1〜3本返す */
+function yTicks(maxV){
+  if (maxV <= 0) return [];
+  var raw = maxV / 3;
+  var pow = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10));
+  var mults = [1, 2, 2.5, 5, 10], step = pow;
+  for (var i = 0; i < mults.length; i++) { step = mults[i] * pow; if (maxV / step <= 3.2) break; }
+  var out = [];
+  for (var v = step; v <= maxV; v += step) out.push(v);
+  return out;
+}
+
 function renderNum(){
   var now = new Date();
   var y = now.getFullYear(), m = now.getMonth() + 1;
   var mPrefix = y + '-' + ('0'+m).slice(-2);
-  var monthSum = 0, yearSum = 0, monthN = 0, yearN = 0;
+  var py = m === 1 ? y - 1 : y, pm = m === 1 ? 12 : m - 1;
+  var pPrefix = py + '-' + ('0'+pm).slice(-2);
+  var monthSum = 0, yearSum = 0, monthN = 0, yearN = 0, prevSum = 0;
   state.contracts.forEach(function(k){
     if ((k.date||'').slice(0,4) == y) { yearSum += k.init; yearN++; }
     if ((k.date||'').indexOf(mPrefix) === 0) { monthSum += k.init; monthN++; }
+    if ((k.date||'').indexOf(pPrefix) === 0) { prevSum += k.init; }
   });
   $('tileMonth').textContent = fmtYen(monthSum);
-  $('tileMonthSub').textContent = monthN + '件の契約';
+  $('tileMonthSub').textContent = monthN + '件の契約・初年度分';
+  /* 前月比（金額差。%は前月ゼロのとき破綻するので金額で示す） */
+  var diff = monthSum - prevSum;
+  $('tileMonthDelta').className = 't-delta ' + (diff > 0 ? 'up' : diff < 0 ? 'down' : 'flat');
+  $('tileMonthDelta').innerHTML = (monthSum === 0 && prevSum === 0) ? ''
+    : (diff === 0 ? '前月と同じ'
+      : (diff > 0 ? ICO_UP : ICO_DOWN) + '前月比 ' + (diff > 0 ? '+' : '−') + esc(fmtYen(Math.abs(diff))));
   $('tileYear').textContent = fmtYen(yearSum);
-  $('tileYearSub').textContent = yearN + '件の契約';
+  $('tileYearSub').textContent = yearN + '件の契約（1〜12月・初年度分）';
 
   var pipe = activePipeline();
   var pipeSum = 0;
   pipe.forEach(function(c){ pipeSum += custExpComm(c) * ((state.probs[c.stage]||0) / 100); });
   $('tilePipe').textContent = fmtYen(pipeSum);
-  $('tilePipeSub').textContent = '進行中 ' + pipe.length + '人';
+  $('tilePipeSub').textContent = '確度加重・進行中 ' + pipe.length + '人';
 
   var renewNext = 0;
   state.contracts.forEach(function(k){
@@ -2422,6 +2607,28 @@ function renderNum(){
     renewNext += renewAt(k, offset);
   });
   $('tileRenew').textContent = fmtYen(renewNext);
+
+  /* ---- 今月の目標 ---- */
+  var mon = mondayOf(now), sun = addDays(mon, 6);
+  var weekCounts = typeCountsBetween(ymd(mon), ymd(sun));
+  var gComm = +state.set.goalCommM || 0, gAp = +state.set.goalApW || 0;
+  var goalHtml = '';
+  function goalItem(name, cur, goal, curLabel, goalLabel, remainLabel){
+    var pct = Math.min(100, goal ? cur / goal * 100 : 0);
+    var done = cur >= goal;
+    return '<div class="goal-item"><div class="g-top"><span class="g-name">' + esc(name) + '</span>' +
+      '<span class="g-num"><b>' + esc(curLabel) + '</b> / ' + esc(goalLabel) + '</span></div>' +
+      '<div class="meter' + (done ? ' done' : '') + '"><i class="' + (done ? 'done' : '') + '" style="width:' + pct + '%;"></i></div>' +
+      '<div class="g-note">' + (done ? '<b>目標達成</b>（' + Math.round(goal ? cur / goal * 100 : 0) + '%）'
+        : '達成率 ' + Math.round(pct) + '%・あと' + esc(remainLabel)) + '</div></div>';
+  }
+  if (gComm) goalHtml += goalItem('確定 初年度コミッション', monthSum, gComm, fmtYen(monthSum), fmtYen(gComm), fmtYen(gComm - monthSum));
+  if (gAp) goalHtml += goalItem('今週のAP（アプローチ）', weekCounts.AP, gAp, weekCounts.AP + '件', gAp + '件', (gAp - weekCounts.AP) + '件');
+  $('goalBox').innerHTML = goalHtml
+    ? '<div class="goal-grid">' + goalHtml + '</div>'
+    : '<p class="goal-unset">目標を設定すると、ここに達成メーターが出ます。<a id="goalSetLink">「手数料・設定」タブで目標を入れる</a></p>';
+  var gl = $('goalSetLink');
+  if (gl) gl.addEventListener('click', function(){ showTab('rate'); setTimeout(function(){ $('setGoalComm').focus(); }, 0); });
 
   /* ---- ファネル ---- */
   var counts = {}, expects = {};
@@ -2435,13 +2642,42 @@ function renderNum(){
   STAGES.forEach(function(s){ if (counts[s.k] > maxN) maxN = counts[s.k]; });
   $('funnel').innerHTML = STAGES.map(function(s, i){
     var n = counts[s.k];
-    var w = Math.max(n / maxN * 100, n ? 6 : 1);
+    var w = n ? Math.max(n / maxN * 100, 3) : 0;   /* 棒の長さ＝人数。0人は描かない */
     var val = s.k === 'KY'
       ? '<b>' + n + '人</b>（成約）'
       : '<b>' + n + '人</b>' + (expects[s.k] ? '　期待値 ' + esc(fmtYen(expects[s.k])) : '');
     return '<div class="fn-row"><span class="fn-label">' + esc(s.label) + '</span>' +
-      '<span class="fn-barwrap"><span class="fn-bar" style="width:' + w + '%;background:' + FUNNEL_COLORS[i] + ';"></span>' +
-      '<span class="fn-val">' + val + '</span></span></div>';
+      '<span class="fn-track"><span class="fn-bar" style="width:' + w + '%;background:' + FUNNEL_COLORS[i] + ';"></span></span>' +
+      '<span class="fn-val">' + val + '</span></div>';
+  }).join('');
+
+  /* ---- ステージ転換率（これまでの累計。失注・保留も分母に入れた正直な数字） ---- */
+  var order = STAGES.map(function(s){ return s.k; });
+  var reached = order.map(function(k, i){
+    return state.customers.filter(function(c){ return order.indexOf(c.stage) >= i; }).length;
+  });
+  $('funnelConv').innerHTML = '<span class="cv" style="color:var(--muted);">転換率（これまでの累計）：</span>' +
+    order.slice(0, -1).map(function(k, i){
+      var a = reached[i], b = reached[i+1];
+      var pct = a ? Math.round(b / a * 100) : null;
+      return '<span class="cv">' + esc(stageLabel(k)) + ICO_NEXT + esc(stageLabel(order[i+1])) + '　' +
+        (pct === null ? '<b>—</b>' : '<b>' + pct + '%</b>（' + b + '/' + a + '人）') + '</span>';
+    }).join('');
+
+  /* ---- 今週の活動（先週との比較つき） ---- */
+  var pmon = addDays(mon, -7), psun = addDays(mon, -1);
+  var prevCounts = typeCountsBetween(ymd(pmon), ymd(psun));
+  $('weekRange').textContent = (mon.getMonth()+1) + '/' + mon.getDate() + '（月）〜' +
+    (sun.getMonth()+1) + '/' + sun.getDate() + '（日）';
+  var wkMax = 1;
+  ACT_TYPES.forEach(function(t){ if (weekCounts[t.k] > wkMax) wkMax = weekCounts[t.k]; });
+  var TYPE_MARK = { AP:'var(--tAP)', FF:'var(--tFF)', PZ:'var(--tPZ)', CL:'var(--tCL)', KY:'var(--tKY)', TH:'var(--tTH)' };
+  $('weekGrid').innerHTML = ACT_TYPES.map(function(t){
+    var n = weekCounts[t.k], p = prevCounts[t.k];
+    var w = Math.max(n / wkMax * 100, n ? 4 : 0);
+    return '<div class="wk-row"><span class="badge bg-' + t.k + '">' + esc(t.label) + '</span>' +
+      '<span class="wk-bar" style="width:' + w + '%;background:' + TYPE_MARK[t.k] + ';"></span>' +
+      '<span class="wk-num"><b>' + n + '</b>件（先週 ' + p + '件）</span></div>';
   }).join('');
 
   /* ---- 月別棒グラフ ---- */
@@ -2456,14 +2692,21 @@ function renderNum(){
   var maxV = Math.max.apply(null, months.concat([1]));
   var maxIdx = months.indexOf(Math.max.apply(null, months));
   var bars = months.map(function(v, i){
-    var h = Math.max(v / maxV * 100, v ? 3 : 1);
+    var h = v ? Math.max(v / maxV * 100, 3) : 0;   /* 0円の月は描かない */
     var show = (v > 0 && (i === maxIdx || i === m - 1)) ? ' show-val' : '';
     return '<button class="bar' + show + '" tabindex="0" aria-label="' + (i+1) + '月 ' + esc(fmtYenFull(v)) + '">' +
       '<span class="b-val" style="bottom:calc(' + h + '% + 4px);">' + esc(fmtYen(v)) + '</span>' +
       '<span class="b-fill" style="height:' + h + '%;"></span></button>';
   }).join('');
+  /* 直接ラベルの無い月の値を拾う目盛線（きりの良い金額で1〜3本） */
+  var glines = '';
+  if (months.some(function(v){ return v > 0; })) {
+    glines = yTicks(maxV).map(function(v){
+      return '<div class="gline" style="bottom:calc((100% - 26px) * ' + (v / maxV) + ');"><span>' + esc(fmtYen(v)) + '</span></div>';
+    }).join('');
+  }
   var xlab = months.map(function(v, i){ return '<span>' + (i+1) + '月</span>'; }).join('');
-  $('mchart').innerHTML = '<div class="bars">' + bars + '</div><div class="bar-x">' + xlab + '</div>';
+  $('mchart').innerHTML = '<div class="bars">' + glines + bars + '</div><div class="bar-x">' + xlab + '</div>';
   $('mtable').innerHTML = '<table class="tbl"><thead><tr><th>月</th><th class="num">確定 初年度コミッション</th></tr></thead><tbody>' +
     months.map(function(v, i){ return '<tr><td>' + (i+1) + '月</td><td class="num">' + esc(fmtYenFull(v)) + '</td></tr>'; }).join('') +
     '</tbody></table>';
@@ -2481,10 +2724,13 @@ function renderNum(){
   }
   var maxR = Math.max.apply(null, years.map(function(o){ return o.v; }).concat([1]));
   $('rchart').innerHTML = '<div class="bars" style="height:120px;">' + years.map(function(o){
-    var h = Math.max(o.v / maxR * 100, o.v ? 3 : 1);
+    var h = o.v ? Math.max(o.v / maxR * 100, 3) : 0;   /* 0円の年は描かない */
     return '<button class="bar show-val" tabindex="0" aria-label="' + o.y + '年 ' + esc(fmtYenFull(o.v)) + '">' +
       '<span class="b-val" style="bottom:calc(' + h + '% + 4px);">' + esc(fmtYen(o.v)) + '</span><span class="b-fill" style="height:' + h + '%;"></span></button>';
   }).join('') + '</div><div class="bar-x">' + years.map(function(o){ return '<span>' + o.y + '</span>'; }).join('') + '</div>';
+  $('rtable').innerHTML = '<table class="tbl"><thead><tr><th>年</th><th class="num">継続コミッション見込み</th></tr></thead><tbody>' +
+    years.map(function(o){ return '<tr><td>' + o.y + '年</td><td class="num">' + esc(fmtYenFull(o.v)) + '</td></tr>'; }).join('') +
+    '</tbody></table>';
 
   /* ---- パイプライン明細 ---- */
   var rows = activePipeline().slice().sort(function(a,b){
@@ -2500,11 +2746,47 @@ function renderNum(){
         '<td class="num">' + esc(fmtYen(custExpComm(c) * p / 100)) + '</td></tr>';
     }).join('') : '<tr><td colspan="5" style="color:var(--muted);">進行中の顧客がいません。顧客管理タブから追加してください。</td></tr>') +
     '</tbody>';
+
+  /* ---- 紹介元の分析 ---- */
+  var srcMap = {}, srcOrder = [];
+  state.customers.forEach(function(c){
+    var s = (c.source || '').trim() || '（未記入）';
+    if (!srcMap[s]) { srcMap[s] = { n:0, won:0, comm:0, exp:0 }; srcOrder.push(s); }
+    var o = srcMap[s];
+    o.n++;
+    if (c.status === 'won' || c.stage === 'KY') o.won++;
+    if (c.status !== 'lost' && c.status !== 'hold' && c.stage !== 'KY') {
+      o.exp += custExpComm(c) * ((state.probs[c.stage]||0)/100);
+    }
+  });
+  state.contracts.forEach(function(k){
+    var c = custById(k.cid);
+    var s = c ? ((c.source || '').trim() || '（未記入）') : '（未登録の相手）';
+    if (!srcMap[s]) { srcMap[s] = { n:0, won:0, comm:0, exp:0 }; srcOrder.push(s); }
+    var o = srcMap[s];
+    if (!c) { o.n++; o.won++; }   /* 顧客カルテの無い契約は1件＝1人・成約として数える */
+    o.comm += (+k.init || 0);
+  });
+  srcOrder.sort(function(a, b){ return (srcMap[b].comm - srcMap[a].comm) || (srcMap[b].n - srcMap[a].n); });
+  $('srcTable').innerHTML = '<thead><tr><th>紹介元・きっかけ</th><th class="num">人数</th><th class="num">成約</th>' +
+    '<th class="num">成約率</th><th class="num">確定 初年度コミッション</th><th class="num">パイプライン期待値</th></tr></thead><tbody>' +
+    (srcOrder.length ? srcOrder.map(function(s){
+      var o = srcMap[s];
+      return '<tr><td>' + esc(s) + '</td><td class="num">' + o.n + '人</td><td class="num">' + o.won + '件</td>' +
+        '<td class="num">' + (o.n ? Math.round(o.won / o.n * 100) : 0) + '%</td>' +
+        '<td class="num"><b>' + esc(fmtYen(o.comm)) + '</b></td><td class="num">' + esc(fmtYen(o.exp)) + '</td></tr>';
+    }).join('') : '<tr><td colspan="6" style="color:var(--muted);">顧客カルテに「紹介元・きっかけ」を入れると、ここに集計が出ます。</td></tr>') +
+    '</tbody>';
 }
 $('mtableBtn').addEventListener('click', function(){
   var open = $('mtable').classList.toggle('hide');
   $('mtableBtn').setAttribute('aria-expanded', String(!open));
   $('mtableBtn').textContent = open ? '表で見る' : '表を閉じる';
+});
+$('rtableBtn').addEventListener('click', function(){
+  var open = $('rtable').classList.toggle('hide');
+  $('rtableBtn').setAttribute('aria-expanded', String(!open));
+  $('rtableBtn').textContent = open ? '表で見る' : '表を閉じる';
 });
 $('qaAct').addEventListener('click', function(){
   showTab('act');
@@ -2527,6 +2809,8 @@ function renderRate(){
       '<input type="number" id="prob' + s.k + '" min="0" max="100" step="5" value="' + (state.probs[s.k]||0) + '"></div>';
   }).join('');
   $('setSingleAnp').value = state.set.singleAnpPct;
+  $('setGoalComm').value = state.set.goalCommM || '';
+  $('setGoalAp').value = state.set.goalApW || '';
   renderMaster();
 }
 $('rateSave').addEventListener('click', function(){
@@ -2540,6 +2824,8 @@ $('rateSave').addEventListener('click', function(){
     if (inp) state.probs[s.k] = Math.min(100, Math.max(0, +inp.value || 0));
   });
   state.set.singleAnpPct = Math.min(100, Math.max(0, +$('setSingleAnp').value || 0));
+  state.set.goalCommM = Math.max(0, +$('setGoalComm').value || 0);
+  state.set.goalApW = Math.max(0, +$('setGoalAp').value || 0);
   save();
   $('rateSaved').textContent = '保存しました';
   setTimeout(function(){ $('rateSaved').textContent = ''; }, 2500);
@@ -2596,6 +2882,83 @@ $('expActCsv').addEventListener('click', function(){
   var csv = '﻿' + [head].concat(rows).map(function(r){ return r.map(csvCell).join(','); }).join('\r\n');
   download('hoken-activities-' + todayStr() + '.csv', csv, 'text/csv');
 });
+/* ---- デモデータ（体験用・すべて架空） ---- */
+function buildDemoState(){
+  var st = defaultState();
+  var now = new Date();
+  var names = [
+    ['佐藤 健一','さとう けんいち','（株）佐藤工務店 代表','既契約者からの紹介','KY','won','level','m',38000,'1965-04-12'],
+    ['鈴木 美咲','すずき みさき','看護師','保険見直しセミナー','KY','won','level','m',16000,'1988-11-02'],
+    ['高橋 誠','たかはし まこと','（株）タカハシ物流 代表','税理士事務所からの紹介','KY','won','l5','y',1800000,'1972-07-30'],
+    ['田中 由美','たなか ゆみ','パート','既契約者からの紹介','KY','won','iryo-dummy','m',9000,''],
+    ['伊藤 大輔','いとう だいすけ','会社員（メーカー）','HPからの問い合わせ','CL','active','level','m',22000,'1990-01-25'],
+    ['渡辺 恵子','わたなべ けいこ','自営業（美容室）','既契約者からの紹介','CL','active','level','m',15000,''],
+    ['中村 修','なかむら おさむ','（有）ナカムラ電設 代表','税理士事務所からの紹介','PZ','active','l10','y',900000,'1968-09-17'],
+    ['小林 直子','こばやし なおこ','公務員','保険見直しセミナー','PZ','active','level','m',12000,''],
+    ['加藤 隆史','かとう たかし','会社員（IT）','HPからの問い合わせ','FF','active','level','m',18000,''],
+    ['吉田 真理','よしだ まり','主婦','既契約者からの紹介','FF','active','level','m',10000,''],
+    ['山本 剛','やまもと つよし','（株）ヤマモト建装 代表','地域の異業種交流会','AP','active','l7','y',600000,''],
+    ['松本 咲子','まつもと さきこ','歯科衛生士','保険見直しセミナー','AP','active','level','m',8000,''],
+    ['井上 浩二','いのうえ こうじ','会社員（商社）','HPからの問い合わせ','PZ','lost','level','m',20000,''],
+    ['木村 幸恵','きむら ゆきえ','パート','既契約者からの紹介','FF','hold','level','m',7000,'']
+  ];
+  names.forEach(function(r, i){
+    st.customers.push({ id:'demo_c'+i, created: Date.now() - (names.length - i) * 86400000 * 5,
+      name:r[0], kana:r[1], company:r[2], tel:'', birth:r[9], source:r[3], stage:r[4], status:r[5],
+      prodType: r[6] === 'iryo-dummy' ? 'level' : r[6], expAmt:r[8], expMode:r[7], memo:'デモデータ（架空）' });
+  });
+  /* 誕生日を「今月の近い日」にひとつ寄せて、カレンダーの見どころを作る */
+  var bd = new Date(now.getFullYear() - 51, now.getMonth(), Math.min(now.getDate() + 3, 28));
+  st.customers[0].birth = ymd(bd);
+  /* 契約（今年の各月に散らす。金額は架空） */
+  var kdefs = [
+    [0, -6, 'サンプル生命', '終身保険（低解約型）', 'level', 38000, 'm', 182000, 11000, 9],
+    [1, -4, 'サンプル生命', '収入保障保険', 'level', 16000, 'm', 77000, 4600, 9],
+    [2, -2, 'サンプル生命', '逓増定期（5年払込）', 'l5', 1800000, 'y', 270000, 36000, 4],
+    [3, -1, 'サンプル生命', '医療保険', 'level', 9000, 'm', 43000, 2600, 9],
+    [0, 0, 'サンプル損保', 'がん保険', 'level', 7000, 'm', 33000, 2000, 9]
+  ];
+  kdefs.forEach(function(r, i){
+    var mm = now.getMonth() + r[1];
+    if (mm < 0) mm = i;   /* 年始に投入しても契約日が今年の1〜12月に収まるようにする */
+    var d = new Date(now.getFullYear(), mm, 5 + i * 4);
+    var aid = 'demo_a_k' + i;
+    st.contracts.push({ id:'demo_k'+i, cid:'demo_c'+r[0], actId:aid, date:ymd(d), company:r[2], product:r[3],
+      ptype:r[4], insured:names[r[0]][0], amt:r[5], mode:r[6], payNote:'', init:r[7], renew:r[8], years:r[9] });
+    st.activities.push({ id:aid, cid:'demo_c'+r[0], guest:'', type:'KY', date:ymd(d), start:'15:00', end:'16:30',
+      place:'お客様宅', who:'', memo:'ご契約手続き（デモ）', contractId:'demo_k'+i });
+  });
+  /* 直近8週間の活動（今週も含めて、それらしい濃さで） */
+  var plan = [ ['AP',3],['FF',1],['TH',1] , ['AP',2],['FF',2],['PZ',1] , ['AP',4],['PZ',1],['CL',1] ,
+    ['AP',2],['FF',1],['TH',2] , ['AP',3],['PZ',2] , ['AP',2],['FF',1],['CL',1] , ['AP',3],['FF',2],['TH',1] , ['AP',2],['PZ',1] ];
+  var actCust = ['demo_c4','demo_c5','demo_c6','demo_c7','demo_c8','demo_c9','demo_c10','demo_c11'];
+  var places = ['お客様宅','事務所','オンライン','喫茶店'];
+  var week = 0, wi = 0, n = 0;
+  plan.forEach(function(p, idx){
+    if (idx && idx % 3 === 0) week++;
+    for (var j = 0; j < p[1]; j++) {
+      var base = mondayOf(now);
+      var d = addDays(base, -7 * week + (n % 6));
+      if (d > now) d = now;
+      st.activities.push({ id:'demo_a'+(n++), cid:actCust[(wi++) % actCust.length], guest:'', type:p[0],
+        date:ymd(d), start:pad2(9 + (n % 8)) + ':00', end:pad2(11 + (n % 8)) + ':00',
+        place:places[n % places.length], who:'', memo:'' });
+    }
+  });
+  st.set.goalCommM = 500000;
+  st.set.goalApW = 10;
+  return st;
+}
+$('demoBtn').addEventListener('click', function(){
+  if (state.customers.length &&
+      !confirm('現在のデータ（顧客' + state.customers.length + '人）をデモデータで置き換えます。実データがある場合は先にJSONバックアップを書き出してください。続けますか？')) return;
+  if (!state.customers.length && !confirm('体験用の架空データ（顧客14人・契約5件・活動記録）を読み込みます。よろしいですか？')) return;
+  state = buildDemoState();
+  save();
+  fillCustSelectors();
+  showTab('num');
+});
+
 $('lockBtn').addEventListener('click', function(){ forgetAuth(); location.reload(); });
 $('wipeBtn').addEventListener('click', function(){
   if (!confirm('顧客・活動・契約のデータをすべて削除します。よろしいですか？')) return;
@@ -2614,19 +2977,21 @@ function startApp(){
   state = load();
   fillCustSelectors();
   renderPicker('ae');
-  takeSharedMaster();
-  showTab('act');   /* 開いたらすぐ今日の予定と記録が見える */
+  /* マスタ取り込み時は設定タブの表示を上書きしない */
+  if (!takeSharedMaster()) showTab('act');   /* 開いたらすぐ今日の予定と記録が見える */
 }
-/* 経営者から届いた「メンバー用リンク」（#m=…）で開いたとき、商品マスタを取り込む */
+/* 経営者から届いた「メンバー用リンク」（#m=…）で開いたとき、商品マスタを取り込む。
+   取り込んで画面を切り替えたら true を返す */
 function takeSharedMaster(){
   var h = location.hash || '';
-  if (h.indexOf('#m=') !== 0) return;
+  if (h.indexOf('#m=') !== 0) return false;
   var code = h.slice(3);
   history.replaceState(null, '', location.href.split('#')[0]);   /* URLに残さない */
   try {
     var o = decodeMaster(code);
-    if (importMaster(o)) { showTab('rate'); }
+    if (importMaster(o)) { showTab('rate'); return true; }
   } catch (e) { alert('リンクの商品マスタを読み取れませんでした。経営者にJSONファイルでの配布をお願いしてください。'); }
+  return false;
 }
 function showLock(){
   $('lock').classList.remove('hide');
