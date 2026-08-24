@@ -124,7 +124,6 @@ a{color:var(--navy-2);}
 .ts-row.r-money .ts-chip{background:var(--amber-bg);color:var(--amber);}
 .ts-row.r-plan .ts-chip{background:var(--green-bg);color:var(--green);}
 .ts-row.r-zei .ts-chip{background:var(--berry-bg);color:var(--berry);}
-.ts-row.r-inhouse .ts-chip{background:var(--navy-soft);color:var(--navy);}
 .ts-row .ts-go{flex:none;font-size:var(--fs-sm);font-weight:700;color:var(--coral-text);display:inline-flex;align-items:center;gap:5px;}
 .ts-row .ts-go svg{width:14px;height:14px;}
 .ts-row .ts-go.pend{color:var(--muted);}
@@ -230,8 +229,6 @@ a{color:var(--navy-2);}
 /* 営業ダッシュボードは教育ツールと役割が違うので、青系にして見分けられるようにする */
 .training-banner.b-sales{background:linear-gradient(160deg,#e8f4fb 0%,#fff8f2 70%);border-color:var(--sky-border);}
 .training-banner.b-sales .t-go{color:var(--sky);}
-.training-banner.b-keisu{background:linear-gradient(160deg,#e8f6ef 0%,#fff8f2 70%);border-color:var(--green-border);}
-.training-banner.b-keisu .t-go{color:var(--green);}
 /* 公開URLがまだ無いとき（Web上では開けない）の表示 */
 .training-banner .t-soon{display:inline-flex;align-items:center;gap:7px;font-size:var(--fs-base);font-weight:700;
   color:var(--amber);white-space:nowrap;}
@@ -440,7 +437,7 @@ a{color:var(--navy-2);}
     <section class="sec">
       <div class="sec-head">
         <h2>社内ツール</h2>
-        <p>お客様向けではありません。スタッフの知識を鍛える画面、営業の数字・顧客・活動を記録する画面、面談でその場で数字を出す計算ツールです。いずれも共有リンクの対象外です。</p>
+        <p>お客様向けではありません。スタッフの知識を鍛える画面と、営業の数字・顧客・活動を記録する画面です。どちらも共有リンクの対象外です。</p>
       </div>
       <div class="inhouse-list">
         <div class="training-banner" id="trainingBanner" tabindex="0" role="button" aria-label="社員教育ツールを開く">
@@ -454,12 +451,6 @@ a{color:var(--navy-2);}
           <span class="t-body"><h3>保険営業ダッシュボード</h3>
           <p>見込み数字（AP・FF・プレゼン・クロージング）の積み上げ、顧客カルテ、面談の記録、手数料の料率表。入力した内容はこの端末のブラウザにだけ残ります。</p></span>
           <span class="t-go" id="salesGo"></span>
-        </div>
-        <div class="training-banner b-keisu" id="keisuBanner" tabindex="0" role="button" aria-label="6つの係数 計算ツールを開く">
-          <span class="t-art"><svg aria-hidden="true" viewBox="0 0 64 64"><rect x="14" y="8" width="36" height="48" rx="6" fill="#fffdf8" stroke="#27587f" stroke-width="3"/><rect x="20" y="14" width="24" height="10" rx="2.5" fill="#e8f4fb"/><g fill="#27587f"><circle cx="24" cy="33" r="2.8"/><circle cx="32" cy="33" r="2.8"/><circle cx="40" cy="33" r="2.8"/><circle cx="24" cy="42" r="2.8"/><circle cx="32" cy="42" r="2.8"/></g><rect x="36" y="38" width="7" height="12" rx="3" fill="#f0846a"/><path d="M22 50h11" stroke="#27587f" stroke-width="3.6" stroke-linecap="round"/></svg></span>
-          <span class="t-body"><h3>6つの係数 計算ツール</h3>
-          <p>終価・現価・年金終価・減債基金・年金現価・資本回収の6つ。「65歳までに2,000万円なら毎月いくら」を面談のその場で出せます。営業でのトーク例つきなので、お客様への共有リンクは出しません。</p></span>
-          <span class="t-go" id="keisuGo"></span>
         </div>
       </div>
     </section>
@@ -651,6 +642,12 @@ var TOOLS = [
     owner: '株式会社Office-M', local: 'ライフプラン案.html',
     url: 'https://office-m-nakatani.github.io/lifeplan/',
     desc: '住宅・教育・老後・資産運用までを一枚で見える化。必要保障額の話に入る前の「土台」としてお使いいただけます。'
+  },
+  {
+    id: 'keisu', short: '6つの係数', cat: 'plan', name: '6つの係数 計算ツール',
+    owner: '株式会社Office-M', local: 'keisu-tool/index.html',
+    url: 'https://office-m-nakatani.github.io/office-m/keisu-tool/',
+    desc: '終価・現価・年金終価・減債基金・年金現価・資本回収の6つ。金額・想定利回り・年数を入れると、「65歳までに2,000万円なら毎月いくら積み立てるか」「3,000万円を25年で取り崩すと毎年いくらか」がその場で出ます。目標から逆算するときの計算機です。'
   }
 ];
 
@@ -664,7 +661,6 @@ var CATS = [
 ];
 var CAT_LABEL = {};
 CATS.forEach(function (c) { CAT_LABEL[c.id] = c.label; });
-CAT_LABEL.inhouse = '社内ツール';   /* 分野カードには出さない。検索結果の目印だけ */
 
 /* ------------------------------------------------------------
    検索の見出し（ツールの中にある「話題」）
@@ -877,9 +873,7 @@ var TS_TAGS = ['がん', '払込免除', '高額療養費', '介護', '年金', 
    ------------------------------------------------------------ */
 var INHOUSE = {
   training: { local: '保険社員教育ツール.html', url: 'https://office-m-nakatani.github.io/office-m/hoken-training/' },
-  sales:    { local: '保険営業管理ツール.html', url: 'https://office-m-nakatani.github.io/office-m/hoken-sales/' },
-  /* 6つの係数は「営業でのトーク例」が入っているので、お客様への共有リンクは出さない */
-  keisu:    { local: 'keisu-tool/index.html', url: 'https://office-m-nakatani.github.io/office-m/keisu-tool/' }
+  sales:    { local: '保険営業管理ツール.html', url: 'https://office-m-nakatani.github.io/office-m/hoken-sales/' }
 };
 
 /* ============================================================
@@ -910,16 +904,6 @@ function save() {
 function tool(id) { for (var i = 0; i < TOOLS.length; i++) if (TOOLS[i].id === id) return TOOLS[i]; return null; }
 
 /* 社内ツールも検索から辿れるようにするための見せかけの1件（共有リンクは出さない） */
-var INHOUSE_CARDS = [
-  { id: 'keisu', short: '6つの係数', cat: 'inhouse', name: '計算ツール（お客様への共有リンクは出しません）',
-    desc: '終価・現価・年金終価・減債基金・年金現価・資本回収の6つ。面談のその場で積立額や取り崩し額を出せます。' }
-];
-function anyTool(id) {
-  var t = tool(id);
-  if (t) return t;
-  for (var i = 0; i < INHOUSE_CARDS.length; i++) if (INHOUSE_CARDS[i].id === id) return INHOUSE_CARDS[i];
-  return null;
-}
 function toolUrl(t) { return (state.urls[t.id] || t.url || '').trim(); }
 
 /* file:// で開いているときは手元のHTMLを、Web上なら登録した公開URLを開く */
@@ -929,13 +913,7 @@ function openTarget(t) {
 }
 function openTool(id) {
   var t = tool(id);
-  /* 検索結果からは社内ツールも開ける（こちらは共有リンクを作らないので別扱い） */
-  if (!t) {
-    var inh = inhouseTarget(id);
-    if (inh) { window.open(inh, '_blank', 'noopener'); return; }
-    toast('この画面はまだ公開していません');
-    return;
-  }
+  if (!t) return;
   var target = openTarget(t);
   if (!target) { toast('先に公開URLを登録してください'); openSettingsFor(t); return; }
   window.open(target, '_blank', 'noopener');
@@ -1644,7 +1622,7 @@ function searchHits(q) {
   if (!n) return [];
   var hits = [], seenTool = {};
   TOPICS.forEach(function (tp) {
-    var t = anyTool(tp.tool);
+    var t = tool(tp.tool);
     if (!t) return;
     var score = normQ(tp.keys).indexOf(n) >= 0 ? 3
       : (normQ(tp.label).indexOf(n) >= 0 ? 2
@@ -1654,7 +1632,7 @@ function searchHits(q) {
     seenTool[t.id] = true;
   });
   /* 見出しでは当たらなかったツールも、名前や説明文が合えば拾う */
-  TOOLS.concat(INHOUSE_CARDS).forEach(function (t) {
+  TOOLS.forEach(function (t) {
     if (seenTool[t.id]) return;
     if (normQ(t.short + t.name + t.desc).indexOf(n) >= 0) hits.push({ t: t, label: t.name, score: 1 });
   });
@@ -1681,8 +1659,7 @@ function renderSearch() {
   }
   res.innerHTML = '<p class="ts-count">「' + esc(q.trim()) + '」に近いもの <b>' + hits.length + '件</b>　開きたいものを選んでください</p>' +
     '<div class="ts-list">' + hits.map(function (h) {
-      var ready = h.t.cat === 'inhouse' ? !!inhouseTarget(h.t.id)
-        : (!!toolUrl(h.t) || (location.protocol === 'file:' && h.t.local));
+      var ready = !!toolUrl(h.t) || (location.protocol === 'file:' && h.t.local);
       return '<button type="button" class="ts-row r-' + h.t.cat + '" data-open="' + h.t.id + '"' +
         (ready ? '' : ' aria-disabled="true"') + '>' +
         '<span class="ts-art">' + (TOOL_ART[h.t.id] || '') + '</span>' +
@@ -1835,7 +1812,6 @@ function bindAdmin() {
   document.getElementById('btnLock').onclick = function () { forgetAuth(); location.reload(); };
   bindInhouse('trainingBanner', 'trainingGo', 'training');
   bindInhouse('salesBanner', 'salesGo', 'sales');
-  bindInhouse('keisuBanner', 'keisuGo', 'keisu');
 
   /* キーワードでさがす。言葉を入れているあいだは分野カードを引っ込めて、結果だけを出す */
   renderSearchTags();
