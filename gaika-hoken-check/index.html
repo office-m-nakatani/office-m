@@ -1,0 +1,2345 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="ドル建てを中心とした外貨建て保険の「ふえる・へる」を○×クイズと円換算シミュレーターで確認できる啓発ツール。積立利率と実質の利回り、為替手数料、解約控除・市場価格調整、損益分岐レート、受け取り時の税金までやさしく整理。株式会社Office-M（税理士事務所グループ）作成の情報提供資料。">
+<title>外貨建て保険の「ふえる・へる」チェック｜株式会社Office-M</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='25' cy='36' r='20' fill='%2363b8dd'/%3E%3Cpath d='M17 26l8 11 8-11M17 40h16M17 46h16M25 37v10' fill='none' stroke='%23fff' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='44' cy='23' r='17' fill='%23f0846a' stroke='%23fffdf8' stroke-width='3'/%3E%3Cpath d='M44 12v22M50 18c0-2.6-2.7-4-6-4s-6 1.4-6 3.6 2.7 3.4 6 3.9 6 1.4 6 3.9-2.7 3.6-6 3.6-6-1.4-6-4' fill='none' stroke='%23fff' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --navy:#1b3f5e;
+  --navy-2:#27587f;
+  --navy-soft:#eaf1f7;
+  --bg:#fff8f2;
+  --white:#ffffff;
+  --text:#33404d;
+  --muted:#5c6874;
+  --line:#efe2d8;
+  --shadow:0 6px 20px rgba(130,100,80,.09);
+  --shadow-sm:0 3px 10px rgba(130,100,80,.07);
+
+  --red:#c2453f;
+  --red-dark:#a63631;
+  --red-bg:#fdeee9;
+  --red-border:#f4d0c6;
+  --coral:#f0846a;
+  --coral-text:#c2451f;
+
+  --green:#2c7a4b;
+  --green-bg:#e8f6ef;
+  --green-border:#c3e5d3;
+  --mint:#4fbf9b;
+
+  --amber:#8f6015;
+  --amber-deep:#a85c12;
+  --amber-bg:#fdf3e2;
+  --amber-border:#f2dcae;
+  --sunny:#f7c34e;
+
+  --sky:#24729f;
+  --sky-bg:#e8f4fb;
+  --sky-border:#c6e2f2;
+
+  --berry:#8f4574;
+  --berry-bg:#fbeef6;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+/* スマホでも17pxを基準にする（注記・出典まわりが12pxまで小さくなっていたため） */
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;font-size:17px;}
+/* 左右の余白が広い画面ほど文字を大きくして見やすさに還元する */
+@media(min-width:1000px){ html{font-size:18px;} }
+body{
+  font-family:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho",YuMincho,"游明朝体","游明朝","MS PMincho","ＭＳ Ｐ明朝",serif;
+  color:var(--text);
+  background:var(--bg);
+  font-size:1.09rem;
+  line-height:1.95;
+  letter-spacing:.03em;
+  padding-bottom:40px;
+  overflow-wrap:break-word;
+}
+@media(min-width:768px){
+  body{font-size:1.16rem;letter-spacing:.04em;}
+}
+img,svg{max-width:100%;vertical-align:middle;}
+button{font-family:inherit;}
+/* キーボード操作でいまどこにいるかを、はっきり見せる（既定の1本線は細くて見えない） */
+a:focus-visible,button:focus-visible,summary:focus-visible,
+input:focus-visible,label:focus-visible,[tabindex]:focus-visible{
+  outline:3px solid var(--navy-2);
+  outline-offset:3px;
+  border-radius:6px;
+}
+a{color:var(--navy-2);}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px;}
+/* 広い画面では、本文の1行を約40字までに抑える（日本語の読みやすい行長の目安）。
+   カード内の短い文には効かせず、横幅いっぱいに伸びる長文だけを対象にする */
+@media(min-width:700px){
+  .guide-msg,.def-lead,.sec-lead,.sub-lead,.age-note,.note,
+  .mikane ol li,.mikane .caution,.rule3-box ol li,.rule3-note,
+  .cta-lead,details.finder p,details.finder li,footer.disclaimer p{
+    max-width:40em;
+  }
+  /* 中央寄せの箱の中にあるものは、中央のまま幅だけ詰める */
+  .venn-cap,.life-cap{max-width:40em;margin-left:auto;margin-right:auto;}
+}
+.nowrap{white-space:nowrap;}
+
+/* ---------- ヘッダー ---------- */
+.hero{
+  background:linear-gradient(168deg,#fbe6e6 0%,#fdf1ea 46%,#ddf0fb 100%);
+  color:var(--navy);
+  padding:24px 0 30px;
+  overflow:hidden;
+}
+.brand{
+  display:flex;align-items:center;gap:10px;
+  font-size:.92rem;font-weight:700;letter-spacing:.02em;color:var(--navy);
+}
+.brand .ico{
+  width:36px;height:36px;flex:0 0 36px;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--navy);border-radius:12px;
+}
+.brand .ico svg{width:20px;height:20px;stroke:#fff;}
+.brand small{display:block;font-weight:500;color:var(--muted);font-size:.82rem;letter-spacing:.04em;line-height:1.55;}
+.hero-flex{display:flex;flex-direction:column;}
+.hero h1{
+  font-size:1.58rem;line-height:1.45;font-weight:800;
+  margin:20px 0 12px;letter-spacing:.01em;color:var(--navy);
+}
+.hero h1 .accent{
+  background:linear-gradient(transparent 62%, #ffd9a8 62%);
+  padding:0 2px;
+}
+.hero .lead{font-size:1rem;color:var(--text);max-width:640px;}
+/* 文字間隔をユーザーが広げても見出しが切れないよう、狭い画面では折り返しを許す
+   （通常の表示では1行に収まるため、見た目は変わらない）— WCAG 1.4.12 */
+@media(max-width:520px){ .hero h1 .nowrap{white-space:normal;} }
+.hero-scene{margin:16px auto 0;width:100%;max-width:400px;}
+.hero-scene svg{width:100%;height:auto;display:block;}
+@media(min-width:768px){
+  .hero{padding:30px 0 40px;}
+  .hero h1{font-size:1.95rem;}
+  .hero .lead{font-size:1.06rem;}
+  .hero-flex{flex-direction:row;align-items:center;gap:28px;}
+  .hero-copy{flex:1;}
+  .hero-scene{flex:0 0 340px;margin:0;}
+}
+.hero-nav{display:flex;flex-wrap:wrap;gap:9px;margin-top:20px;}
+.hero-nav a{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--white);
+  border:2px solid #ffffff;
+  color:var(--navy);text-decoration:none;
+  padding:11px 17px;border-radius:999px;
+  font-size:.94rem;font-weight:700;min-height:48px;
+  box-shadow:var(--shadow-sm);
+}
+.hero-nav a:active{background:#fff4e9;}
+.hero-nav a svg{width:18px;height:18px;stroke:var(--coral);flex:0 0 18px;}
+
+/* ---------- セクション共通 ---------- */
+section{padding:40px 0 46px;}
+.band{background:var(--white);}
+.band-sky{background:var(--sky-bg);}
+.band-blush{background:#fdf1eb;}
+.band-mint{background:var(--green-bg);}
+.round-top{
+  border-radius:30px 30px 0 0;
+  margin-top:-24px;position:relative;z-index:1;
+  padding-top:42px;
+}
+.sec-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;}
+.sec-head .spot{flex:0 0 84px;}
+.spot-circle{
+  width:84px;height:84px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.spot-circle svg{width:52px;height:52px;}
+.step-pill{
+  display:inline-flex;align-items:center;gap:9px;
+  background:var(--amber-bg);color:var(--navy);
+  font-size:.88rem;font-weight:700;letter-spacing:.02em;
+  padding:6px 18px 6px 7px;border-radius:999px;margin-bottom:12px;
+  box-shadow:var(--shadow-sm);
+}
+.step-pill i{
+  width:28px;height:28px;flex:0 0 28px;border-radius:50%;
+  background:linear-gradient(135deg,#c2452a,#a8601a);
+  color:#fff;font-style:normal;font-weight:800;font-size:.95rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.step-pill.plain{padding:7px 18px;}
+h2{
+  font-size:1.4rem;line-height:1.5;color:var(--navy);
+  font-weight:800;letter-spacing:.01em;
+  position:relative;padding-bottom:12px;margin-bottom:10px;
+}
+h2::after{
+  content:"";position:absolute;left:0;bottom:0;
+  width:54px;height:5px;border-radius:3px;
+  background:linear-gradient(90deg,var(--coral),var(--sunny));
+}
+@media(min-width:768px){h2{font-size:1.68rem;}}
+.sec-lead{color:var(--muted);font-size:1rem;margin-bottom:22px;}
+.sub-title{font-size:1.1rem;color:var(--navy);}
+.note{
+  font-size:.9rem;color:var(--muted);line-height:1.85;
+  background:var(--white);border-radius:16px;
+  padding:14px 16px;margin-top:20px;
+  display:flex;gap:9px;align-items:flex-start;
+  box-shadow:var(--shadow-sm);
+}
+.note svg{width:20px;height:20px;flex:0 0 20px;stroke:var(--coral);margin-top:4px;}
+.band-sky .note,.band-blush .note{box-shadow:none;border:1px solid var(--line);}
+
+/* ---------- ガイド（吹き出し） ---------- */
+.guide{display:flex;align-items:flex-start;gap:12px;margin-bottom:20px;}
+.guide-ava{
+  width:58px;height:58px;flex:0 0 58px;border-radius:50%;
+  overflow:hidden;display:block;box-shadow:var(--shadow-sm);
+}
+.guide-ava svg{width:100%;height:100%;display:block;}
+.guide-msg{
+  position:relative;background:var(--white);
+  border:2px solid #ffe0cf;border-radius:18px;
+  padding:12px 16px;font-size:.95rem;line-height:1.75;
+}
+.guide-msg::before{
+  content:"";position:absolute;left:-9px;top:20px;
+  width:14px;height:14px;background:var(--white);
+  border-left:2px solid #ffe0cf;border-bottom:2px solid #ffe0cf;
+  transform:rotate(45deg);
+}
+
+/* ---------- セクション1：ちがいを問いかけるリンク ---------- */
+.qlink-lead{
+  display:flex;align-items:center;gap:9px;
+  font-size:1rem;font-weight:800;color:var(--navy);
+  margin:26px 0 12px;
+}
+.qlink-lead svg{width:23px;height:23px;flex:0 0 23px;stroke:var(--coral);}
+.qlinks{display:grid;grid-template-columns:1fr;gap:12px;}
+@media(min-width:700px){.qlinks{grid-template-columns:repeat(3,1fr);}}
+.qlink{
+  display:flex;flex-direction:column;gap:5px;
+  background:var(--white);border:2px solid var(--line);border-radius:18px;
+  padding:15px 16px 13px;text-decoration:none;color:inherit;
+  box-shadow:var(--shadow-sm);
+  transition:border-color .15s, transform .12s;
+}
+.qlink:active{transform:scale(.985);}
+.qlink:hover{border-color:var(--coral);}
+.qlink .pair{
+  display:flex;align-items:center;gap:7px;flex-wrap:wrap;
+  font-size:1.02rem;font-weight:800;color:var(--navy);line-height:1.55;
+}
+.qlink .pair .vs{
+  font-size:.8rem;font-weight:800;color:var(--red-dark);
+  background:var(--red-bg);border-radius:999px;padding:2px 10px;
+}
+.qlink .ask{font-size:.87rem;color:var(--muted);line-height:1.75;}
+.qlink .go{
+  display:inline-flex;align-items:center;gap:4px;margin-top:3px;
+  font-size:.84rem;font-weight:800;color:var(--coral-text);
+}
+.qlink .go svg{width:14px;height:14px;flex:0 0 14px;stroke:var(--coral-text);}
+/* リンクで飛んだ先を、見出しの手前で止める */
+.def-block[id]{scroll-margin-top:18px;}
+
+/* ---------- セクション1：定義のブロック ---------- */
+.def-block{
+  margin-top:34px;padding-top:26px;border-top:2px dashed var(--line);
+}
+.def-block:first-of-type{margin-top:18px;padding-top:0;border-top:none;}
+.def-h{
+  display:flex;align-items:center;gap:12px;
+  font-size:1.14rem;line-height:1.5;color:var(--navy);margin-bottom:8px;
+}
+.def-ico{
+  width:52px;height:52px;flex:0 0 52px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.def-ico svg{width:34px;height:34px;}
+.def-lead{font-size:.97rem;color:var(--muted);line-height:1.9;margin-bottom:16px;}
+@media(min-width:768px){.def-h{font-size:1.26rem;}}
+
+/* ---------- セクション1：心疾患の輪 ---------- */
+.venn-box{
+  background:var(--white);border-radius:22px;box-shadow:var(--shadow);
+  padding:20px 14px 8px;margin:6px 0 26px;text-align:center;
+}
+.venn-box svg{width:100%;max-width:520px;height:auto;}
+.venn-cap{font-size:.88rem;color:var(--muted);padding:6px 8px 12px;line-height:1.8;}
+@media(max-width:520px){.venn-box{padding:14px 4px 6px;}}
+.cards{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.cards{grid-template-columns:repeat(2,1fr);}}
+.risk-card{
+  position:relative;background:var(--white);
+  border-radius:20px;padding:20px 20px 18px;
+  box-shadow:var(--shadow);
+}
+.risk-card .icon{
+  width:68px;height:68px;border-radius:50%;
+  background:var(--navy-soft);
+  display:flex;align-items:center;justify-content:center;margin-bottom:12px;
+}
+.risk-card .icon svg{width:44px;height:44px;}
+.risk-card .icon.ic-red{background:var(--red-bg);}
+.risk-card .icon.ic-blue{background:var(--sky-bg);}
+.risk-card .icon.ic-amber{background:var(--amber-bg);}
+.risk-card .icon.ic-green{background:var(--green-bg);}
+.risk-card h3{font-size:1.02rem;color:var(--navy);margin-bottom:2px;}
+.risk-card p{font-size:.93rem;color:var(--muted);margin-top:8px;line-height:1.85;}
+.judge-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:.82rem;font-weight:700;padding:4px 13px;border-radius:999px;margin-top:4px;
+}
+.judge-chip.ng{background:var(--red-bg);color:var(--red-dark);border:1.5px solid var(--red-border);}
+.judge-chip.ok{background:var(--green-bg);color:var(--green);border:1.5px solid var(--green-border);}
+.judge-chip.maybe{background:var(--amber-bg);color:var(--amber-deep);border:1.5px solid var(--amber-border);}
+
+/* ---------- 罹患年齢のデータ（セクション1の各解説に添える） ---------- */
+.age-note{
+  display:flex;gap:10px;align-items:flex-start;
+  background:var(--white);border-radius:14px;
+  border-left:5px solid var(--sky);
+  padding:11px 15px;margin-bottom:16px;
+  font-size:.9rem;line-height:1.85;
+  box-shadow:var(--shadow-sm);
+}
+.age-note svg{width:19px;height:19px;flex:0 0 19px;stroke:var(--sky);margin-top:5px;}
+.age-note b{color:var(--sky);font-size:.98rem;}
+.age-note small{display:block;color:var(--muted);font-size:.81rem;line-height:1.7;margin-top:2px;}
+
+/* ---------- セクション6：医療費のかかりどき ---------- */
+.life-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px 14px;margin:6px 0 26px;
+}
+.life-box h3{font-size:1.08rem;color:var(--navy);margin-bottom:4px;}
+.life-box .sub{font-size:.9rem;color:var(--muted);margin-bottom:14px;}
+.life-box svg{width:100%;max-width:620px;height:auto;display:block;margin:0 auto;}
+.life-cap{font-size:.85rem;color:var(--muted);line-height:1.8;padding:10px 4px 4px;}
+.big3{display:grid;grid-template-columns:1fr;gap:12px;margin-top:16px;}
+@media(min-width:700px){.big3{grid-template-columns:repeat(3,1fr);}}
+.big3 .b{
+  background:var(--bg);border:2px solid var(--line);border-radius:16px;
+  padding:13px 15px;text-align:center;
+}
+.big3 .b .n{display:block;font-size:1.5rem;font-weight:800;color:var(--coral-text);line-height:1.4;}
+.big3 .b .l{display:block;font-size:.86rem;color:var(--navy);font-weight:700;line-height:1.7;}
+.big3 .b .s{display:block;font-size:.81rem;color:var(--muted);line-height:1.7;margin-top:3px;}
+
+.sub-h{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.1rem;color:var(--navy);margin:30px 0 6px;
+}
+.sub-h svg{width:24px;height:24px;flex:0 0 24px;stroke:var(--coral);}
+.sub-lead{font-size:.95rem;color:var(--muted);line-height:1.9;margin-bottom:16px;}
+.age-cards{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.age-cards{grid-template-columns:repeat(3,1fr);}}
+.age-card{
+  background:var(--white);border-radius:20px;box-shadow:var(--shadow);
+  padding:18px 18px 15px;
+}
+.age-card .ttl{
+  display:flex;align-items:center;gap:9px;
+  font-size:1rem;font-weight:800;color:var(--navy);margin-bottom:10px;
+}
+.age-card .ttl .ico{
+  width:38px;height:38px;flex:0 0 38px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.age-card .ttl .ico svg{width:26px;height:26px;}
+.age-card .rows{border-top:1.5px dashed var(--line);padding-top:9px;}
+.age-card .row{
+  display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  font-size:.92rem;line-height:1.9;
+}
+.age-card .row span{color:var(--muted);}
+.age-card .row b{font-size:1.28rem;font-weight:800;color:var(--red-dark);white-space:nowrap;}
+.age-card .kind{
+  display:inline-block;font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:8px;
+  background:var(--sky-bg);color:var(--sky);
+}
+.age-card .cmt{font-size:.87rem;color:var(--text);line-height:1.85;margin-top:10px;}
+.age-card .src{font-size:.8rem;color:var(--muted);line-height:1.7;margin-top:9px;
+  border-top:1.5px dashed var(--line);padding-top:8px;}
+
+/* 未来の自分への仕送り */
+.mikane{
+  margin-top:28px;background:var(--white);border-radius:24px;
+  box-shadow:var(--shadow);padding:22px 20px 18px;
+}
+.mikane h3{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.1rem;color:var(--navy);margin-bottom:12px;
+}
+.mikane h3 svg{width:25px;height:25px;flex:0 0 25px;stroke:var(--mint);}
+.mikane ol{list-style:none;counter-reset:mk;}
+.mikane ol li{
+  counter-increment:mk;position:relative;
+  padding:0 0 14px 46px;font-size:.96rem;line-height:1.9;
+}
+.mikane ol li::before{
+  content:counter(mk);position:absolute;left:0;top:2px;
+  width:32px;height:32px;border-radius:50%;
+  background:var(--sky-bg);color:var(--sky);
+  font-weight:800;font-size:1.02rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.mikane ol li b{color:var(--coral-text);}
+.mikane .caution{
+  background:var(--amber-bg);border-radius:16px;padding:14px 16px;
+  font-size:.9rem;line-height:1.9;
+  border-left:5px solid var(--sunny);
+}
+.mikane .caution strong:first-child{display:block;color:var(--amber-deep);margin-bottom:3px;}
+.mikane .caution b{color:var(--coral-text);}
+
+/* ---------- セクション2：クイズ ---------- */
+.quiz-shell{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px 24px;
+}
+.band .quiz-shell{background:var(--bg);box-shadow:none;border:2px solid var(--line);}
+.q-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.q-count{font-size:.9rem;font-weight:700;color:var(--muted);}
+.q-count span{color:var(--coral-text);font-size:1.15rem;}
+.dots{display:flex;gap:6px;}
+.dots i{width:10px;height:10px;border-radius:50%;background:#e8dbd0;}
+.dots i.done{background:var(--mint);}
+.dots i.now{background:var(--coral);}
+.q-body{display:flex;gap:14px;align-items:flex-start;margin:14px 0 18px;}
+.q-body .icon{
+  width:64px;height:64px;flex:0 0 64px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.q-body .icon svg{width:40px;height:40px;}
+.q-body p{font-size:1.06rem;font-weight:700;color:var(--navy);line-height:1.8;}
+.ans-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.ans-btn{
+  min-height:64px;border-radius:18px;cursor:pointer;
+  font-size:1.1rem;font-weight:800;letter-spacing:.06em;
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  border:2.5px solid;transition:transform .12s;
+}
+.ans-btn:active{transform:scale(.97);}
+.ans-btn svg{width:26px;height:26px;}
+.ans-btn.yes{background:var(--green-bg);border-color:var(--green-border);color:var(--green);}
+.ans-btn.no{background:var(--red-bg);border-color:var(--red-border);color:var(--red-dark);}
+.ans-btn:disabled{opacity:.45;cursor:default;}
+.verdict{
+  display:none;margin-top:18px;background:var(--white);
+  border:2px solid var(--amber-border);border-radius:20px;
+  padding:18px 18px 16px;
+}
+.verdict.show{display:block;}
+.verdict-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+.verdict-answer{font-size:1.25rem;font-weight:800;color:var(--navy);}
+.result-chip{
+  font-size:.85rem;font-weight:800;padding:4px 14px;border-radius:999px;
+}
+.result-chip.correct{background:var(--green-bg);color:var(--green);}
+.result-chip.wrong{background:var(--red-bg);color:var(--red-dark);}
+.verdict .expl{font-size:.97rem;line-height:1.95;margin-bottom:12px;}
+.verdict .kv{
+  font-size:.92rem;line-height:1.85;background:var(--sky-bg);
+  border-radius:12px;padding:9px 13px;margin-top:8px;
+}
+.verdict .kv b{color:var(--sky);}
+.verdict .kv.kv-wana{background:var(--red-bg);}
+.verdict .kv.kv-wana b{color:var(--red-dark);}
+.btn-primary{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  width:100%;min-height:58px;margin-top:16px;
+  background:linear-gradient(135deg,#cf4a22,#c2401c);
+  color:#fff;font-size:1.05rem;font-weight:800;letter-spacing:.04em;
+  border:none;border-radius:18px;cursor:pointer;
+  box-shadow:0 5px 14px rgba(194,64,28,.34);
+}
+.btn-primary:active{transform:translateY(1px);}
+.btn-primary svg{width:22px;height:22px;stroke:#fff;}
+.btn-ghost{
+  display:block;width:100%;min-height:50px;margin-top:12px;
+  background:var(--white);color:var(--navy-2);
+  font-size:.95rem;font-weight:700;
+  border:2px solid var(--sky-border);border-radius:16px;cursor:pointer;
+}
+.btn-ghost:active{background:var(--sky-bg);}
+.quiz-done{display:none;}
+.quiz-done.show{display:block;}
+.quiz-done .score{
+  font-size:1.15rem;font-weight:800;color:var(--navy);
+  text-align:center;margin:8px 0 6px;
+}
+.quiz-done .score .num{font-size:2rem;color:var(--coral-text);}
+.quiz-done .cmt{
+  background:var(--white);border-radius:16px;padding:14px 16px;
+  font-size:.97rem;line-height:1.95;margin:14px 0;
+  border:2px solid var(--amber-border);
+}
+.wrong-list{margin:14px 0;}
+.wrong-list h4{font-size:.95rem;color:var(--navy);margin-bottom:8px;}
+.wrong-list .w-item{
+  background:var(--white);border-radius:14px;padding:11px 14px;
+  font-size:.9rem;line-height:1.8;margin-bottom:8px;
+  border-left:4px solid var(--coral);box-shadow:var(--shadow-sm);
+}
+
+/* ---------- セクション3：払込免除の解剖 ---------- */
+.type-table-box{
+  background:var(--white);border-radius:22px;box-shadow:var(--shadow-sm);
+  padding:18px 14px;margin:8px 0 24px;overflow-x:auto;
+}
+.type-table{width:100%;border-collapse:collapse;min-width:520px;font-size:.9rem;}
+.type-table th,.type-table td{
+  padding:10px 10px;text-align:center;border-bottom:1.5px solid var(--line);
+  line-height:1.7;vertical-align:middle;
+}
+.type-table th{background:var(--navy-soft);color:var(--navy);font-size:.86rem;}
+.type-table th:first-child{border-radius:12px 0 0 12px;}
+.type-table th:last-child{border-radius:0 12px 12px 0;}
+.type-table td:first-child{text-align:left;font-weight:700;color:var(--navy);font-size:.88rem;}
+.type-table small{display:block;color:var(--muted);font-weight:500;font-size:.81rem;}
+.mark-ok,.mark-ng,.mark-tri{font-weight:800;font-size:1.05rem;}
+.mark-ok{color:var(--green);}
+.mark-ng{color:var(--red);}
+.mark-tri{color:var(--amber);}
+.sim-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:22px 18px;margin-top:26px;
+}
+.sim-box h3{font-size:1.12rem;color:var(--navy);margin-bottom:4px;}
+.sim-box .sub{font-size:.9rem;color:var(--muted);margin-bottom:18px;}
+.sim-ctrl{margin-bottom:18px;}
+.sim-ctrl label{
+  display:flex;justify-content:space-between;align-items:baseline;
+  font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:6px;
+}
+.sim-ctrl label output{color:var(--coral-text);font-size:1.15rem;font-weight:800;}
+input[type=range]{
+  width:100%;height:34px;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;
+}
+input[type=range]::-webkit-slider-runnable-track{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--sunny),var(--coral));}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:28px;height:28px;border-radius:50%;
+  background:var(--white);border:3px solid var(--coral);margin-top:-9px;
+  box-shadow:var(--shadow-sm);
+}
+input[type=range]::-moz-range-track{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--sunny),var(--coral));}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--white);border:3px solid var(--coral);}
+.sim-check{
+  display:flex;align-items:center;gap:10px;
+  background:var(--sky-bg);border-radius:14px;padding:11px 14px;
+  font-size:.95rem;font-weight:700;color:var(--navy);cursor:pointer;
+}
+.sim-check input{width:22px;height:22px;accent-color:var(--sky);}
+.timeline{margin:48px 0 8px;}
+.tl-track{
+  position:relative;height:14px;border-radius:7px;background:#f0e4d8;
+}
+.tl-fill{
+  position:absolute;left:0;top:0;height:14px;border-radius:7px;
+  background:linear-gradient(90deg,var(--sunny),var(--coral));
+  transition:width .2s;
+}
+.tl-goal{
+  position:absolute;top:-34px;transform:translateX(-50%);
+  font-size:.81rem;font-weight:800;color:var(--red-dark);
+  text-align:center;line-height:1.3;white-space:nowrap;
+}
+.tl-goal::after{
+  content:"";display:block;width:3px;height:30px;margin:2px auto 0;
+  background:var(--red);border-radius:2px;
+}
+.tl-labels{display:flex;justify-content:space-between;font-size:.81rem;color:var(--muted);margin-top:6px;}
+.sim-results{display:grid;grid-template-columns:1fr;gap:12px;margin-top:20px;}
+@media(min-width:700px){.sim-results{grid-template-columns:repeat(3,1fr);}}
+.sim-r{
+  border-radius:18px;padding:14px 15px;border:2px solid var(--line);background:var(--bg);
+}
+.sim-r h4{font-size:.9rem;color:var(--navy);margin-bottom:6px;line-height:1.6;}
+.sim-r h4 small{display:block;font-weight:500;color:var(--muted);font-size:.8rem;}
+.sim-r .r-chip{
+  display:inline-block;font-size:.95rem;font-weight:800;
+  padding:5px 16px;border-radius:999px;margin-bottom:6px;
+}
+.sim-r.ok{border-color:var(--green-border);background:var(--green-bg);}
+.sim-r.ok .r-chip{background:var(--white);color:var(--green);}
+.sim-r.ng{border-color:var(--red-border);background:var(--red-bg);}
+.sim-r.ng .r-chip{background:var(--white);color:var(--red-dark);}
+.sim-r p{font-size:.84rem;color:var(--muted);line-height:1.75;}
+
+/* ---------- セクション4：あるある劇場 ---------- */
+.case-grid{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.case-grid{grid-template-columns:repeat(2,1fr);}}
+.case-card{
+  display:flex;align-items:center;gap:14px;text-align:left;
+  background:var(--white);border:none;border-radius:20px;
+  padding:16px 16px;cursor:pointer;box-shadow:var(--shadow);
+  font-family:inherit;transition:transform .12s;
+}
+.case-card:active{transform:scale(.985);}
+.case-card .art{
+  width:64px;height:64px;flex:0 0 64px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+}
+.case-card .art svg{width:42px;height:42px;}
+.case-card .t{flex:1;}
+.case-card .chip{
+  display:inline-block;font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:4px;
+}
+.case-card h3{font-size:.99rem;color:var(--navy);line-height:1.6;}
+.case-card .more{
+  font-size:.8rem;color:var(--coral-text);font-weight:700;
+  display:inline-flex;align-items:center;gap:4px;margin-top:4px;
+}
+.case-card .more svg{width:14px;height:14px;stroke:var(--coral-text);}
+.c-red{background:var(--red-bg);color:var(--red-dark);}
+.c-blue{background:var(--sky-bg);color:var(--sky);}
+.c-green{background:var(--green-bg);color:var(--green);}
+.c-amber{background:var(--amber-bg);color:var(--amber-deep);}
+.c-berry{background:var(--berry-bg);color:var(--berry);}
+.case-card .amt{
+  display:inline-block;margin-left:7px;
+  font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;
+  background:var(--white);color:var(--green);border:1.5px solid var(--green-border);
+}
+
+/* ---------- セクション5：逆転劇場 ---------- */
+#sec5 .case-card{box-shadow:0 6px 20px rgba(60,120,80,.12);}
+.model-note{
+  background:var(--white);border-radius:18px;padding:14px 18px;margin-bottom:18px;
+  border-left:6px solid var(--mint);box-shadow:var(--shadow-sm);
+}
+.model-note strong{display:block;font-size:.92rem;color:var(--green);margin-bottom:4px;}
+.model-note .mn-row{display:block;font-size:.95rem;line-height:1.9;color:var(--navy);}
+.model-note .mn-row b{color:var(--coral-text);}
+.model-note .mn-note{display:block;font-size:.82rem;color:var(--muted);line-height:1.8;margin-top:6px;}
+.rule3-box{
+  margin-top:28px;background:var(--white);border-radius:22px;
+  padding:20px 20px 16px;box-shadow:var(--shadow-sm);
+}
+.rule3-box h3{
+  display:flex;align-items:center;gap:9px;
+  font-size:1.06rem;color:var(--navy);margin-bottom:12px;
+}
+.rule3-box h3 svg{width:24px;height:24px;flex:0 0 24px;stroke:var(--green);}
+.rule3-box ol{list-style:none;counter-reset:r3;}
+.rule3-box ol li{
+  counter-increment:r3;position:relative;
+  padding:0 0 12px 44px;font-size:.95rem;line-height:1.9;
+}
+.rule3-box ol li::before{
+  content:counter(r3);position:absolute;left:0;top:2px;
+  width:30px;height:30px;border-radius:50%;
+  background:var(--green-bg);color:var(--green);
+  font-weight:800;font-size:1rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.rule3-note{font-size:.8rem;color:var(--muted);border-top:1.5px dashed var(--line);padding-top:10px;line-height:1.8;}
+/* ---------- 動画（カードの中・図の下） ---------- */
+.video-wrap.wide video{max-width:100%;aspect-ratio:16/9;}
+.video-cta{margin-top:22px;text-align:center;}
+.video-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:11px;
+  min-height:56px;padding:11px 26px;cursor:pointer;
+  background:linear-gradient(135deg,#cf4a22,#c2401c);color:#fff;
+  font-size:1rem;font-weight:800;letter-spacing:.03em;
+  border:none;border-radius:999px;font-family:inherit;text-align:left;
+  box-shadow:0 5px 14px rgba(194,64,28,.32);
+}
+.video-btn:active{transform:translateY(1px);}
+.video-btn svg{width:26px;height:26px;fill:#fff;flex:0 0 26px;}
+.video-btn small{display:block;font-size:.81rem;font-weight:600;opacity:.92;letter-spacing:0;}
+.video-wrap{display:none;margin-top:14px;}
+.video-wrap.show{display:block;}
+.video-wrap video{
+  width:100%;max-width:262px;aspect-ratio:9/16;margin:0 auto;display:block;
+  border-radius:16px;background:var(--navy);box-shadow:var(--shadow);
+}
+.video-wrap .vw-note{font-size:.8rem;color:var(--muted);line-height:1.8;margin-top:8px;}
+
+/* ---------- モーダル ---------- */
+.cmodal{position:fixed;inset:0;z-index:60;display:none;}
+.cmodal.show{display:block;}
+.cmodal-back{position:absolute;inset:0;background:rgba(40,30,25,.5);}
+.cmodal-panel{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(94vw,640px);max-height:88vh;overflow-y:auto;
+  background:var(--white);border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.25);
+  -webkit-overflow-scrolling:touch;
+}
+.cmodal-head{
+  position:sticky;top:0;display:flex;gap:14px;align-items:center;
+  background:var(--white);padding:18px 52px 12px 20px;
+  border-bottom:1.5px solid var(--line);z-index:2;
+}
+.cmodal-close{
+  position:absolute;right:12px;top:12px;
+  width:40px;height:40px;border-radius:50%;
+  background:var(--bg);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.cmodal-close svg{width:18px;height:18px;stroke:var(--navy);}
+.cmodal-ico{
+  width:56px;height:56px;flex:0 0 56px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+}
+.cmodal-ico svg{width:38px;height:38px;}
+.cmodal-chip{
+  display:inline-block;font-size:.8rem;font-weight:800;
+  padding:2px 11px;border-radius:999px;margin-bottom:3px;
+}
+.cmodal-title{font-size:1.08rem;color:var(--navy);line-height:1.55;}
+.cmodal-body{padding:16px 20px 22px;}
+.cmodal-scene{
+  background:var(--bg);border-radius:18px;padding:8px 6px;margin-bottom:16px;
+}
+.cmodal-scene svg{width:100%;height:auto;display:block;}
+.case-card .art.scene{
+  width:104px;height:78px;flex:0 0 104px;border-radius:14px;
+  padding:2px;overflow:hidden;
+}
+.case-card .art.scene svg{width:100%;height:auto;}
+@media(max-width:480px){
+  .case-card .art.scene{width:88px;height:66px;flex:0 0 88px;}
+}
+.cmodal-block{margin-bottom:18px;}
+.cmodal-label{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:.86rem;font-weight:800;padding:5px 14px;border-radius:999px;margin-bottom:9px;
+}
+.cmodal-label svg{width:17px;height:17px;}
+.lb-blue{background:var(--sky-bg);color:var(--sky);}
+.lb-blue svg{stroke:var(--sky);}
+.lb-red{background:var(--red-bg);color:var(--red-dark);}
+.lb-red svg{stroke:var(--red-dark);}
+.lb-green{background:var(--green-bg);color:var(--green);}
+.lb-green svg{stroke:var(--green);}
+.cmodal-quote{
+  background:var(--bg);border-left:4px solid var(--coral);
+  border-radius:0 14px 14px 0;padding:12px 15px;
+  font-size:.95rem;line-height:1.9;color:var(--text);
+}
+.cmodal-quote small{display:block;text-align:right;color:var(--muted);margin-top:4px;font-size:.8rem;}
+.cmodal-p{font-size:.95rem;line-height:1.95;margin-bottom:8px;}
+.cmodal-note{
+  font-size:.8rem;color:var(--muted);line-height:1.8;margin-top:14px;
+  border-top:1.5px dashed var(--line);padding-top:12px;
+}
+
+/* ---------- まとめ・チェックリスト ---------- */
+.score-box{
+  background:var(--sky-bg);border-radius:20px;padding:18px 18px 14px;margin-bottom:24px;
+}
+.score-box h3{
+  display:flex;align-items:center;gap:8px;
+  font-size:1.02rem;color:var(--navy);margin-bottom:8px;
+}
+.score-box h3 svg{width:22px;height:22px;stroke:var(--sky);}
+.score-box p{font-size:.95rem;line-height:1.9;}
+.checklist{display:grid;grid-template-columns:1fr;gap:10px;}
+.chk-group{
+  font-size:.9rem;font-weight:800;color:var(--amber-deep);
+  margin:14px 0 2px;letter-spacing:.03em;
+}
+.chk-group:first-child{margin-top:0;}
+.chk{
+  display:flex;align-items:center;gap:12px;
+  background:var(--bg);border:2px solid var(--line);border-radius:16px;
+  padding:12px 14px;cursor:pointer;font-size:.95rem;line-height:1.7;
+  transition:border-color .15s, background .15s;
+}
+.chk input{width:24px;height:24px;flex:0 0 24px;accent-color:var(--green);cursor:pointer;}
+.chk .art{
+  width:44px;height:44px;flex:0 0 44px;border-radius:50%;
+  background:var(--white);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.chk .art svg{width:28px;height:28px;}
+.chk:has(input:checked){background:var(--green-bg);border-color:var(--green-border);}
+.chk-msg{
+  margin-top:16px;background:var(--amber-bg);border-radius:16px;
+  padding:14px 16px;font-size:.95rem;line-height:1.9;
+}
+details.finder{
+  margin-top:26px;background:var(--bg);border-radius:18px;
+  padding:4px 18px;border:1.5px solid var(--line);
+}
+details.finder summary{
+  cursor:pointer;font-size:.98rem;font-weight:700;color:var(--navy);
+  padding:12px 0;list-style-position:inside;
+}
+details.finder ul{padding:2px 0 8px 22px;font-size:.92rem;color:var(--text);}
+details.finder li{margin-bottom:7px;line-height:1.85;}
+details.finder p{font-size:.92rem;padding:0 0 14px;line-height:1.9;}
+
+/* ---------- CTA ---------- */
+.cta-box{
+  background:var(--white);border-radius:24px;box-shadow:var(--shadow);
+  padding:24px 20px;margin-top:30px;text-align:center;
+}
+.cta-box h3{font-size:1.2rem;color:var(--navy);margin-bottom:8px;line-height:1.6;}
+.cta-box .cta-lead{font-size:.95rem;color:var(--muted);text-align:left;margin-bottom:14px;line-height:1.95;}
+.cta-box ul{list-style:none;text-align:left;margin-bottom:14px;}
+.cta-box ul li{
+  display:flex;gap:9px;align-items:flex-start;
+  font-size:.94rem;line-height:1.85;margin-bottom:6px;
+}
+.cta-box ul li svg{width:19px;height:19px;flex:0 0 19px;stroke:var(--mint);margin-top:6px;}
+.co{font-size:.98rem;font-weight:800;color:var(--navy);margin-top:18px;}
+.addr{font-size:.87rem;color:var(--muted);line-height:1.7;}
+.tip{font-size:.87rem;color:var(--amber-deep);margin-top:10px;}
+.cta-mini{
+  margin-top:18px;background:var(--bg);border:2px solid var(--amber-border);
+  border-radius:18px;padding:14px 16px;text-align:center;
+}
+.cta-mini p{font-size:.92rem;line-height:1.85;margin-bottom:10px;text-align:left;}
+.cta-mini a{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--white);border:2px solid var(--coral);
+  color:var(--coral-text);text-decoration:none;font-weight:800;font-size:.95rem;
+  border-radius:999px;padding:9px 20px;
+}
+.cta-mini a svg{width:18px;height:18px;stroke:var(--coral-text);}
+
+
+/* ---------- フッター免責 ---------- */
+footer.disclaimer{
+  padding:26px 16px 30px;max-width:900px;margin:0 auto;
+}
+footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
+
+@media print{
+  .hero-nav,.cta-mini{display:none !important;}
+  body{background:#fff;}
+}
+
+/* ================= 外貨ページ専用の追加 ================= */
+/* 円換算シミュレーターの結果カード */
+.fx-out{display:grid;grid-template-columns:1fr;gap:12px;margin-top:18px;}
+@media(min-width:700px){.fx-out{grid-template-columns:repeat(3,1fr);}}
+.fx-card{
+  background:var(--white);border:2px solid var(--line);border-radius:18px;
+  padding:14px 16px;box-shadow:var(--shadow-sm);
+}
+.fx-card h4{font-size:.9rem;color:var(--navy);margin-bottom:6px;line-height:1.6;}
+.fx-card h4 small{display:block;font-weight:500;color:var(--muted);font-size:.79rem;line-height:1.7;}
+.fx-card .v{font-size:1.42rem;font-weight:800;line-height:1.5;color:var(--navy);letter-spacing:0;}
+.fx-card .v small{font-size:.84rem;font-weight:700;letter-spacing:.02em;}
+.fx-card .d{font-size:.86rem;line-height:1.8;margin-top:5px;color:var(--muted);}
+.fx-card.up{border-color:var(--green-border);background:var(--green-bg);}
+.fx-card.up .v{color:var(--green);}
+.fx-card.down{border-color:var(--red-border);background:var(--red-bg);}
+.fx-card.down .v{color:var(--red-dark);}
+.fx-card.mid{border-color:var(--sky-border);background:var(--sky-bg);}
+.fx-card.mid .v{color:var(--sky);}
+
+/* 損益分岐レートのものさし（ラベルは絶対配置せず、下の凡例で示す） */
+.gauge{margin:24px 0 4px;}
+.gauge-wrap{position:relative;padding:7px 0;}
+.gauge-track{
+  height:26px;border-radius:13px;border:1.5px solid var(--line);overflow:hidden;
+  background:linear-gradient(90deg,#fbe6df,#fdf6ea 52%,#e2f2ea);
+}
+.gauge-zone{height:100%;background:rgba(194,69,63,.17);}
+.gauge-mark{position:absolute;top:0;height:100%;width:5px;margin-left:-2.5px;border-radius:3px;}
+.gauge-mark.brk{background:var(--coral-text);}
+.gauge-mark.now{background:var(--navy);}
+.gauge-scale{display:flex;justify-content:space-between;font-size:.79rem;color:var(--muted);margin-top:9px;}
+.gauge-legend{display:flex;flex-wrap:wrap;gap:9px 18px;margin-top:12px;font-size:.87rem;}
+.gauge-legend span{display:flex;align-items:center;gap:8px;color:var(--text);line-height:1.7;}
+.gauge-legend i{width:13px;height:13px;border-radius:4px;flex:0 0 13px;}
+.gauge-legend i.brk{background:var(--coral-text);}
+.gauge-legend i.now{background:var(--navy);}
+.gauge-legend i.zone{background:rgba(194,69,63,.3);}
+
+/* 為替の歴史グラフ */
+.chart-box{
+  background:var(--white);border-radius:20px;box-shadow:var(--shadow);
+  padding:18px 12px 10px;margin-top:18px;
+}
+.chart-box svg{width:100%;height:auto;display:block;}
+.chart-cap{font-size:.84rem;color:var(--muted);line-height:1.8;padding:10px 4px 2px;}
+
+/* 兄弟ページへのリンク */
+.sister{
+  display:block;margin-top:20px;background:var(--white);border:2px solid var(--line);
+  border-radius:18px;padding:14px 16px;box-shadow:var(--shadow-sm);text-decoration:none;
+}
+.sister:active{background:var(--sky-bg);}
+.sister b{display:block;font-size:1rem;color:var(--navy);line-height:1.6;}
+.sister span{display:block;font-size:.87rem;color:var(--muted);line-height:1.8;margin-top:4px;}
+
+/* 数値の入力欄（スライダーが使いにくい環境むけ） */
+.sim-ctrl .num-in{
+  width:7.4em;font-family:inherit;font-size:1rem;font-weight:700;color:var(--navy);
+  border:2px solid var(--line);border-radius:12px;padding:9px 10px;background:var(--white);
+  text-align:right;min-height:44px;
+}
+</style>
+</head>
+<body>
+
+<!-- ================= ヒーロー ================= -->
+<header class="hero">
+  <div class="wrap">
+    <div class="brand">
+      <span class="ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg>
+      </span>
+      <span>株式会社Office-M<small>保険の「小さな字」と、受け取るときの税金まで、まとめて読み解きます</small></span>
+    </div>
+    <div class="hero-flex">
+      <div class="hero-copy">
+        <h1>その外貨建て保険、<br><span class="nowrap">いま<span class="accent">円でいくら</span>か、</span><span class="nowrap">ご存じですか。</span></h1>
+        <p class="lead">「積立利率○％」「米ドルでの元本確保」——パンフレットの大きな字は頼もしいのに、手元に戻る金額を決めるのは、<strong>受け取るその日の為替</strong>と、契約中に引かれていく<strong>費用</strong>のほうです。ドルではふえながら、円ではへっている。その逆もある。どちらも同時に本当のことが起こるのが、外貨建ての世界です。○×クイズだけなら3分、ぜんぶ読むと10分ほど。最後はぜひ、ご自分の証券と「ご契約内容のお知らせ」でご確認を。</p>
+        <nav class="hero-nav" aria-label="ページ内メニュー">
+          <a href="#sec1"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5h16M7 16V9.5M12 16V5.5M17 16v-4"/></svg>3つの線引き</a>
+          <a href="#sec2"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/><circle cx="12" cy="12" r="9"/></svg>○×ワナクイズ</a>
+          <a href="#sec3"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7.5h15M4.5 16.5h15"/><circle cx="9" cy="7.5" r="2.6"/><circle cx="15" cy="16.5" r="2.6"/></svg>円換算シミュレーター</a>
+          <a href="#sec4"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0-3.3 11 3 3 0 0 1 1.1 1.9l.03.35h4.34l.03-.35a3 3 0 0 1 1.1-1.9A6 6 0 0 0 12 3Z"/><path d="M9.8 19.2h4.4M10.7 21.7h2.6"/></svg>あるある劇場</a>
+          <a href="#sec5"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="8" width="17" height="12.5" rx="2.5"/><path d="M3.5 12h17M12 8v12.5M12 8S8.5 7.6 7.2 6.3a2.1 2.1 0 0 1 3-3C11.5 4.6 12 8 12 8Zm0 0s3.5-.4 4.8-1.7a2.1 2.1 0 0 0-3-3C12.5 4.6 12 8 12 8Z"/></svg>逆転劇場</a>
+          <a href="#sec6"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/></svg>ドル円の50年と税金</a>
+        </nav>
+      </div>
+      <div class="hero-scene" aria-hidden="true">
+        <svg viewBox="0 0 360 212">
+          <circle cx="314" cy="34" r="30" fill="#ffd9a8" opacity=".45"/>
+          <circle cx="314" cy="34" r="19" fill="#f7c34e"/>
+          <ellipse cx="62" cy="30" rx="26" ry="10" fill="#fff" opacity=".95"/>
+          <ellipse cx="92" cy="38" rx="18" ry="8" fill="#fff" opacity=".8"/>
+          <path d="M0 168h360v44H0Z" fill="#ffe9c7"/>
+          <path d="M0 176c40-10 90-12 150-8 60 4 120 4 210-6v50H0Z" fill="#b3e3b8"/>
+
+          <rect x="88" y="48" width="152" height="118" rx="12" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/>
+          <path d="M104 152h122" stroke="#e8ddd2" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M104 62v90" stroke="#e8ddd2" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M104 140c12-4 16-22 26-24s14 16 24 10 14-30 24-32 14 20 22 16 12-16 20-20" fill="none" stroke="#f0846a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="220" cy="90" r="5.5" fill="#c2451f"/>
+          <rect x="104" y="102" width="122" height="3" rx="1.5" fill="#63b8dd" opacity=".55"/>
+
+          <circle cx="292" cy="106" r="28" fill="#f7c34e" stroke="#e0a92f" stroke-width="3"/>
+          <path d="M292 90v32M299 96c0-3.4-3.2-5-7-5s-7 1.6-7 4.4 3.2 4 7 4.6 7 1.8 7 4.6-3.2 4.4-7 4.4-7-1.6-7-4.4" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+
+          <circle cx="262" cy="144" r="22" fill="#63b8dd" stroke="#3f9cc6" stroke-width="3"/>
+          <path d="M254 134l8 10 8-10M254 148h16M254 155h16M262 144v13" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+
+          <path d="M20 180c0-15 6.5-33 15-33s15 18 15 33v2H20Z" fill="#63b8dd"/>
+          <circle cx="35" cy="136" r="11" fill="#f7cdb4"/>
+          <path d="M24 134c1-9 5.5-13 11-13s10 4 11 13c-3.3-4-7-5.3-11-5.3s-7.7 1.3-11 5.3Z" fill="#5c4030"/>
+          <circle cx="31" cy="136.5" r="1.4" fill="#3d3028"/><circle cx="39" cy="136.5" r="1.4" fill="#3d3028"/>
+          <path d="M32 141c1.4 1.5 4 1.5 5.4 0" fill="none" stroke="#3d3028" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= セクション1：3つの線引き ================= -->
+<section id="sec1">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>1</i><span>今日いちばん大事な国語</span></span>
+        <h2>外貨建てで<span class="nowrap">つまずくのは、</span><span class="nowrap">この3か所</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotFx" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">クイズの前に、国語の授業を3分だけ。外貨建て保険の「思っていたのと違う」は、だいたい<strong>3か所</strong>から生まれます。①<strong>利率</strong>と実際の増え方の違い、②<strong>為替</strong>が往復でかかること、③<strong>「元本」がどちらの通貨の話か</strong>。この3本の線がどこに引かれているかが分かれば、あとの話はぜんぶ枝葉です。</p>
+    </div>
+
+    <p class="qlink-lead">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/><circle cx="12" cy="12" r="9"/></svg>
+      この3組のちがい、説明できますか？
+    </p>
+    <div class="qlinks">
+      <a class="qlink" href="#def-riritsu">
+        <span class="pair">積立利率<span class="vs">と</span>手取りの増え方</span>
+        <span class="ask">払ったお金の全部に、その利率が付く？</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+      </a>
+      <a class="qlink" href="#def-kawase">
+        <span class="pair">TTS<span class="vs">と</span>TTB</span>
+        <span class="ask">同じレートで戻したのに、なぜ減る？</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+      </a>
+      <a class="qlink" href="#def-genpon">
+        <span class="pair">ドルの元本<span class="vs">と</span>円の元本</span>
+        <span class="ask">「元本確保」は、どちらの通貨の話？</span>
+        <span class="go">解説へ<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span>
+      </a>
+    </div>
+
+    <!-- ===== 1-1 利率 ===== -->
+    <div class="def-block" id="def-riritsu">
+      <h3 class="def-h"><span class="def-ico ic-amber" data-art="icRate" aria-hidden="true"></span>利率：その％が付くのは、払った額の全部？</h3>
+      <p class="def-lead">積立利率は、<strong>「積立部分」に付く利率</strong>です。払い込んだ保険料がまるごとその利率で増えていく、という意味ではありません。保険である以上、そこから<strong>費用</strong>が引かれます。ここが、いちばん最初のすれ違いポイントです。</p>
+
+      <div class="venn-box">
+        <svg viewBox="0 0 520 236" role="img" aria-label="払い込んだ保険料から契約初期費用と保険関係費用が引かれ、残った積立部分に積立利率が付くことを示す図">
+          <text x="260" y="26" text-anchor="middle" font-size="17" font-weight="bold" fill="#1b3f5e">払い込んだ保険料</text>
+          <rect x="30" y="40" width="460" height="44" rx="8" fill="#eaf1f7" stroke="#c6d7e5" stroke-width="2"/>
+          <rect x="30" y="40" width="74" height="44" rx="8" fill="#fdeee9" stroke="#f4d0c6" stroke-width="2"/>
+          <rect x="104" y="40" width="60" height="44" fill="#fdf3e2" stroke="#f2dcae" stroke-width="2"/>
+          <text x="67" y="67" text-anchor="middle" font-size="12" font-weight="bold" fill="#a63631">初期費用</text>
+          <text x="134" y="67" text-anchor="middle" font-size="12" font-weight="bold" fill="#8f6015">保険の費用</text>
+          <text x="327" y="68" text-anchor="middle" font-size="15" font-weight="bold" fill="#1b5478">積立部分</text>
+          <path d="M327 92v20" stroke="#24729f" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="5 4"/>
+          <text x="327" y="132" text-anchor="middle" font-size="15" font-weight="bold" fill="#24729f">ここに積立利率が付く</text>
+          <rect x="30" y="152" width="460" height="54" rx="10" fill="#fff8f2" stroke="#efe2d8" stroke-width="2"/>
+          <text x="260" y="176" text-anchor="middle" font-size="14" fill="#5c6874">さらに、途中でやめると</text>
+          <text x="260" y="197" text-anchor="middle" font-size="14" font-weight="bold" fill="#a63631">解約控除・市場価格調整が引かれることも</text>
+        </svg>
+        <p class="venn-cap">※費用の名前・引かれ方・割合は、保険会社と商品によって大きく異なります。この図は仕組みを説明するための模式図で、特定の商品の数値ではありません。</p>
+      </div>
+
+      <div class="cards">
+        <div class="risk-card">
+          <div class="icon ic-amber" data-art="icCost" aria-hidden="true"></div>
+          <h3>契約初期費用</h3>
+          <span class="judge-chip ng">最初に引かれる</span>
+          <p>契約のはじめにかかる費用。ここを引いた残りが、積立てのスタート地点になります。だから「加入した直後に解約すると、いちばん目減りが大きい」という現象が起きます。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-blue" data-art="icUmbrella" aria-hidden="true"></div>
+          <h3>保険関係費用</h3>
+          <span class="judge-chip maybe">ずっと引かれる</span>
+          <p>死亡保障を用意しておくための費用や、契約の管理にかかる費用。保険である以上、これが積立部分から引かれ続けます。増える力と、引かれる力が同時に働いている、とお考えください。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-red" data-art="icScissors" aria-hidden="true"></div>
+          <h3>解約控除</h3>
+          <span class="judge-chip ng">早くやめるほど重い</span>
+          <p>一定の期間内に解約すると差し引かれるもの。年数が経つほど小さくなり、期間を過ぎるとゼロになるのが一般的です。「◯年は置いておく前提の商品」と言われるのは、これが理由です。</p>
+        </div>
+        <div class="risk-card">
+          <div class="icon ic-berry" data-art="icWave" aria-hidden="true"></div>
+          <h3>市場価格調整（MVA）</h3>
+          <span class="judge-chip maybe">金利で増えも減りもする</span>
+          <p>途中で解約するとき、そのときの市場金利に応じて受取額が調整される仕組み。<strong>契約したときより金利が上がっていると減る</strong>方向に働くのが一般的です（下がっていれば増えることも）。仕組みの有無は商品によります。</p>
+        </div>
+      </div>
+
+      <p class="age-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+        <span>ここを見れば分かります：<b>契約締結前交付書面（契約概要・注意喚起情報）</b>
+        <small>外貨建て保険は投資性のある「特定保険契約」にあたり、金融商品取引法の規定が準用されます。費用の種類・水準や、円で受け取るときの為替の影響は、この書面に書かれています。お手元にない場合は、保険会社に再交付を頼めます。</small></span>
+      </p>
+    </div>
+
+    <!-- ===== 1-2 為替 ===== -->
+    <div class="def-block" id="def-kawase">
+      <h3 class="def-h"><span class="def-ico ic-blue" data-art="icExchange" aria-hidden="true"></span>為替：行きと帰りで、レートが違う</h3>
+      <p class="def-lead">ニュースで流れる「1ドル＝○○円」は<strong>TTM（仲値）</strong>。実際に円をドルに換えるときは<strong>それより高いレート（TTS）</strong>で買い、ドルを円に戻すときは<strong>それより安いレート（TTB）</strong>で売ります。この差が為替手数料です。しかも<strong>往復で2回</strong>かかります。</p>
+
+      <div class="venn-box">
+        <svg viewBox="0 0 520 210" role="img" aria-label="仲値を中心に、円をドルに換えるときは高いレート、ドルを円に戻すときは安いレートになることを示す図">
+          <path d="M40 108h440" stroke="#d9cfc4" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="260" cy="108" r="9" fill="#27587f"/>
+          <text x="260" y="88" text-anchor="middle" font-size="15" font-weight="bold" fill="#1b3f5e">TTM（仲値）</text>
+          <text x="260" y="140" text-anchor="middle" font-size="13" fill="#5c6874">ニュースのレート</text>
+          <circle cx="368" cy="108" r="9" fill="#c2453f"/>
+          <text x="368" y="58" text-anchor="middle" font-size="14" font-weight="bold" fill="#a63631">TTS</text>
+          <text x="368" y="80" text-anchor="middle" font-size="13" fill="#a63631">円→ドル（行き）</text>
+          <path d="M272 108h84" stroke="#c2453f" stroke-width="3" stroke-dasharray="6 5"/>
+          <circle cx="152" cy="108" r="9" fill="#2c7a4b"/>
+          <text x="152" y="58" text-anchor="middle" font-size="14" font-weight="bold" fill="#2c7a4b">TTB</text>
+          <text x="152" y="80" text-anchor="middle" font-size="13" fill="#2c7a4b">ドル→円（帰り）</text>
+          <path d="M248 108h-84" stroke="#2c7a4b" stroke-width="3" stroke-dasharray="6 5"/>
+          <rect x="118" y="158" width="284" height="40" rx="10" fill="#fdf3e2" stroke="#f2dcae" stroke-width="2"/>
+          <text x="260" y="184" text-anchor="middle" font-size="14" font-weight="bold" fill="#8f6015">行きと帰り、2回ぶんの手数料がかかる</text>
+        </svg>
+        <p class="venn-cap">※為替手数料は1米ドルあたり数銭から数十銭程度で、保険会社・商品・通貨によって異なります。「当社所定の為替レートによります」という書き方をしていることも多く、明細に手数料として現れないことがあります。</p>
+      </div>
+
+      <p class="note">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+        <span>たとえば片道50銭・往復1円の契約で、<strong>1ドル160円で入って、1ドル160円で受け取った</strong>とします。為替は動いていないのに、円に戻したときには往復1円ぶん、およそ<strong>0.6％</strong>が目減りしています。為替が動かなかったときでも、行って帰るだけでこの分は必要になる——ここが出発点です。</span>
+      </p>
+    </div>
+
+    <!-- ===== 1-3 元本 ===== -->
+    <div class="def-block" id="def-genpon">
+      <h3 class="def-h"><span class="def-ico ic-green" data-art="icRuler" aria-hidden="true"></span>元本：ものさしが、2本あります</h3>
+      <p class="def-lead">外貨建ての契約には、<strong>ドルのものさし</strong>と<strong>円のものさし</strong>があります。「米ドルでの元本確保」とうたわれていても、それは<strong>ドルのものさしで測った話</strong>。円のものさしで測った結果は、受け取る日の為替しだいで上にも下にも動きます。</p>
+
+      <div class="type-table-box">
+        <table class="type-table" aria-label="ドル建てで7万5千ドルに育ったとき、為替により円換算額がどう変わるかの表">
+          <thead>
+            <tr>
+              <th>受け取るときの為替</th>
+              <th>円にすると<small>7万5,000ドルの場合</small></th>
+              <th>払った1,000万円と比べて</th>
+              <th>ドルのものさしでは</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1ドル 100円<small>大きく円高</small></td>
+              <td>750万円</td>
+              <td><span class="mark-ng">−250万円</span></td>
+              <td><span class="mark-ok">＋20％</span></td>
+            </tr>
+            <tr>
+              <td>1ドル 120円</td>
+              <td>900万円</td>
+              <td><span class="mark-ng">−100万円</span></td>
+              <td><span class="mark-ok">＋20％</span></td>
+            </tr>
+            <tr>
+              <td>1ドル 133.3円<small>損益の分かれ目</small></td>
+              <td>約1,000万円</td>
+              <td><span class="mark-tri">±0</span></td>
+              <td><span class="mark-ok">＋20％</span></td>
+            </tr>
+            <tr>
+              <td>1ドル 160円<small>契約したときと同じ</small></td>
+              <td>1,200万円</td>
+              <td><span class="mark-ok">＋200万円</span></td>
+              <td><span class="mark-ok">＋20％</span></td>
+            </tr>
+            <tr>
+              <td>1ドル 180円<small>さらに円安</small></td>
+              <td>1,350万円</td>
+              <td><span class="mark-ok">＋350万円</span></td>
+              <td><span class="mark-ok">＋20％</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="venn-cap">※1ドル160円のときに1,000万円を6万2,500ドルに換え、ドル建てで7万5,000ドル（＋20％）に育った場合の単純計算です。為替手数料・税金は考慮していません。<strong>ドルのものさしでは、どの行も同じ「＋20％」</strong>——変わっているのは円のものさしのほうだけ、という点にご注目ください。</p>
+      </div>
+
+      <div class="mikane">
+        <h3>
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5V9.2M12 9.2 7.6 5M12 9.2 16.4 5"/><circle cx="12" cy="15" r="8.2"/></svg>
+          だから、覚えておきたい数字はひとつだけ
+        </h3>
+        <ol>
+          <li><strong>「損益分岐レート」を知っておく。</strong>いまのドル建て評価額で、<b>何円まで円高になったら払った円と同じになるか</b>。これさえ分かっていれば、為替のニュースを見るたびに一喜一憂しなくて済みます。計算は<a href="#sec3">③のシミュレーター</a>でどうぞ。</li>
+          <li><strong>分かれ目は、時間とともに下がっていく。</strong>ドル建ての評価額が増えれば、その分だけ「耐えられる円高」は深くなります。<b>時間は外貨建てにとって味方の側</b>——ただし、増える前提が崩れなければ、の話です。</li>
+          <li><strong>受け取る時期を選べるかどうかが効く。</strong>「この年に必ず円で使う」お金だと、その日のレートを受け入れるしかありません。<b>時期をずらせるお金かどうか</b>で、外貨建てとの相性は大きく変わります。</li>
+        </ol>
+        <p class="caution">
+          <strong>将来の為替は、誰にも分かりません</strong>
+          このページでは、為替が上がる・下がるといった見通しは一切申しません（できません）。<b>お伝えできるのは「こうなったら、こうなる」という関係だけ</b>です。そのうえで、ご自身が受け入れられる範囲かどうかを判断していただくためのページです。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション2：○×クイズ ================= -->
+<section id="sec2" class="band round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>2</i><span>思い込みをチェック</span></span>
+        <h2>ふえる？へる？　<span class="nowrap">ワナクイズ8問</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotQuiz" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">ここからが本番です。笑いどころもありますが、<strong>すべて実際の契約でよくあるすれ違いがモデル</strong>。「そのとおり」と思ったら○、「ちがう」と思ったら×を押してください。全問正解できた方は、ぜひご家族にも教えてあげてください。</p>
+    </div>
+
+    <div class="quiz-shell">
+      <div id="quizPlay">
+        <div class="q-top">
+          <div class="q-count">質問 <span id="qNum">1</span> ／ 8</div>
+          <div class="dots" id="qDots" aria-hidden="true"></div>
+        </div>
+        <div class="q-body">
+          <div class="icon" id="qIcon" aria-hidden="true"></div>
+          <p id="qText"></p>
+        </div>
+        <div class="ans-row">
+          <button type="button" class="ans-btn yes" id="btnYes">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/></svg>
+            <span id="lblYes">そのとおり</span>
+          </button>
+          <button type="button" class="ans-btn no" id="btnNo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            <span id="lblNo">ちがいます</span>
+          </button>
+        </div>
+        <div class="verdict" id="verdict" aria-live="polite">
+          <div class="verdict-head">
+            <span class="verdict-answer" id="vAnswer"></span>
+            <span class="result-chip" id="vChip"></span>
+          </div>
+          <p class="expl" id="vExpl"></p>
+          <div class="kv kv-wana"><b>ワナの正体：</b><span id="vWana"></span></div>
+          <div class="kv"><b>確認ポイント：</b><span id="vCheck"></span></div>
+        </div>
+        <button type="button" class="btn-primary" id="btnNext" style="display:none;">
+          次の質問へ
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+        <button type="button" class="btn-ghost" id="btnStopHere" style="display:none;">ここまでの結果を見る（残りはあとでも大丈夫です）</button>
+      </div>
+
+      <div class="quiz-done" id="quizDone">
+        <p class="score">クイズおつかれさまでした！　<span class="nowrap"><span id="doneTotal">8</span>問中 <span class="num" id="doneScore">0</span> 問正解</span></p>
+        <p class="cmt" id="doneCmt"></p>
+        <div class="wrong-list" id="wrongList" style="display:none;"></div>
+        <div data-cta-mini></div>
+        <button type="button" class="btn-ghost" id="btnMailSelf">この結果を自分（またはご家族）に送る</button>
+        <button type="button" class="btn-ghost" id="btnPrint">印刷して保険証券と一緒に保管する</button>
+        <button type="button" class="btn-ghost" id="btnRetry">もう一度挑戦する</button>
+      </div>
+    </div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>クイズの答えは、外貨建て保険に一般的にみられる仕組みを想定した例です。実際の取り扱いは、保険会社・商品・ご契約内容によって異なります。「うちのはどうなっているんだろう」と思ったら、それが「契約締結前交付書面」と「ご契約内容のお知らせ」を開くベストタイミングです。</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション3：円換算シミュレーター ================= -->
+<section id="sec3" class="band-sky round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>3</i><span>数字で体感してみる</span></span>
+        <h2>円で見るか、<span class="nowrap">ドルで見るか。</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotScale" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">言葉で100回聞くより、いちど動かしてみたほうが早いところです。<strong>1,000万円を一時払いでドル建ての保険に入れた</strong>という想定で、スライダーを動かしてみてください。知りたいのはひとつ、<strong>「いま何円なら、円で損をしないのか」</strong>です。</p>
+    </div>
+
+    <div class="sim-box">
+      <h3>体感シミュレーター「ドルではふえた。円では？」</h3>
+      <p class="sub">一時払保険料 1,000万円のモデルで計算します。数値はこのページの説明用に単純化したもので、特定の商品の数値ではありません。</p>
+
+      <div class="sim-ctrl">
+        <label for="simRate0">契約したときの為替（1ドル）<output id="simRate0Out">160円</output></label>
+        <input type="range" id="simRate0" min="80" max="200" step="1" value="160">
+      </div>
+      <div class="sim-ctrl">
+        <label for="simYears">経過年数<output id="simYearsOut">10年</output></label>
+        <input type="range" id="simYears" min="0" max="30" step="1" value="10">
+      </div>
+      <div class="sim-ctrl">
+        <label for="simAcc">積立利率（年・仮の数値）<output id="simAccOut">3.5％</output></label>
+        <input type="range" id="simAcc" min="0.5" max="5" step="0.1" value="3.5">
+      </div>
+      <div class="sim-ctrl">
+        <label for="simCost">保険関係費用など（年・仮の数値）<output id="simCostOut">1.0％</output></label>
+        <input type="range" id="simCost" min="0" max="2" step="0.1" value="1">
+      </div>
+      <div class="sim-ctrl">
+        <label for="simRate1">受け取るときの為替（1ドル）<output id="simRate1Out">150円</output></label>
+        <input type="range" id="simRate1" min="80" max="200" step="1" value="150">
+      </div>
+      <div class="sim-ctrl">
+        <label for="simFee">為替手数料（片道・1ドルあたり）<output id="simFeeOut">50銭</output></label>
+        <input type="range" id="simFee" min="0" max="1" step="0.05" value="0.5">
+      </div>
+
+      <div class="fx-out" aria-live="polite">
+        <div class="fx-card mid" id="fxDollar">
+          <h4>ドルのものさし<small>解約して受け取れるドル建ての額</small></h4>
+          <p class="v" id="fxDollarV">－</p>
+          <p class="d" id="fxDollarD">－</p>
+        </div>
+        <div class="fx-card" id="fxYen">
+          <h4>円のものさし<small>円に戻したときの手取り（税金は考慮せず）</small></h4>
+          <p class="v" id="fxYenV">－</p>
+          <p class="d" id="fxYenD">－</p>
+        </div>
+        <div class="fx-card mid" id="fxBrk">
+          <h4>損益分岐レート<small>これより円高になると、円では元本割れ</small></h4>
+          <p class="v" id="fxBrkV">－</p>
+          <p class="d" id="fxBrkD">－</p>
+        </div>
+      </div>
+
+      <div class="gauge">
+        <div class="gauge-wrap">
+          <div class="gauge-track"><div class="gauge-zone" id="gZone" style="width:35%;"></div></div>
+          <div class="gauge-mark brk" id="gBrk" style="left:35%;"></div>
+          <div class="gauge-mark now" id="gNow" style="left:58%;"></div>
+        </div>
+        <div class="gauge-scale"><span>1ドル80円（円高）</span><span>1ドル200円（円安）</span></div>
+        <div class="gauge-legend">
+          <span><i class="brk"></i>損益分岐レート</span>
+          <span><i class="now"></i>受け取るときの為替</span>
+          <span><i class="zone"></i>円では元本割れになる範囲</span>
+        </div>
+      </div>
+
+      <p class="venn-cap" style="margin-top:12px;">※計算の前提：契約時は「その日の為替＋手数料」で円をドルに、受取時は「その日の為替−手数料」でドルを円に換えるものとしています。積立利率から費用を引いた率で毎年ふえていくものとし、10年以内の解約には解約控除（1年あたり0.8％ずつ小さくなり、10年でゼロ）がかかるものとしました。<strong>実際の商品の利率・費用・解約控除・市場価格調整の仕組みは、商品ごとにまったく異なります。</strong>税金・特約は考慮していません。</p>
+    </div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>大事なのは、ここで出てくる<strong>損益分岐レート</strong>という一本の線です。これは「解約して円に戻したら」の話であって、<strong>亡くなったときに支払われる死亡保険金は、ドル建てでは契約の当初から決まっている</strong>のがふつうです（円でいくらになるかは、やはりそのときの為替しだいですが）。何のために持っている契約なのか——貯めるためか、遺すためか——で、見るべき数字も変わります。</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション4：あるある劇場 ================= -->
+<section id="sec4" class="band-blush round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>4</i><span>ご相談でよく伺う話</span></span>
+        <h2>外貨建てあるある劇場</h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotTheater" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">ご相談の場でよく伺うお話を、寸劇風にまとめました。笑えるのは他人事のうちです。気になる演目をタップしてご覧ください。なお、どの演目も<strong>「外貨建てが悪い」という話ではありません</strong>。<strong>説明を受けた気になっていた一点</strong>が、あとで効いてくる——という話です。</p>
+    </div>
+
+    <div class="case-grid" id="caseGrid"></div>
+
+    <div class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span>各演目は一般的な内容をもとにした創作例で、実在の個人・事案とは関係ありません。取り扱いは保険会社・商品・ご契約により異なります。</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション5：逆転劇場 ================= -->
+<section id="sec5" class="band-mint round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>5</i><span>かみ合ったときの話</span></span>
+        <h2>逆転劇場〜こんなときは、<span class="nowrap">効くんです〜</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotGift" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">ここまで「へる」話ばかりで、外貨建てが嫌いになりかけていませんか。ご安心ください。外貨建ては<strong>目的と期間がかみ合ったときには、ちゃんと働きます</strong>。ここからは、かみ合った側の4演目です。共通しているのは、<strong>「使う予定」と「通貨」と「時期」がそろっている</strong>ことです。</p>
+    </div>
+
+    <div class="model-note">
+      <strong>この章に共通する考え方</strong>
+      <span class="mn-row">為替リスクが小さくなるのは、<b>使う通貨と持つ通貨がそろっている</b>とき、あるいは<b>受け取る時期を選べる</b>とき。</span>
+      <span class="mn-note">※どの演目も「だから外貨建てがよい」という話ではなく、「こういう条件がそろうと、かみ合いやすい」という整理です。ご自身に当てはまるかどうかは、目的と期間から考えます。</span>
+    </div>
+
+    <div class="case-grid" id="goodGrid"></div>
+
+    <div class="rule3-box">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg>
+        持っている方が、今日からできる3か条
+      </h3>
+      <ol>
+        <li><strong>いまの評価額を、両方の通貨で書き出す。</strong>ドル建ての解約返戻金がいくらで、いまのレートで円にするといくらか。年に1回届く「ご契約内容のお知らせ」に載っています。<b>年1回、同じ紙を同じ場所に貼っておく</b>だけで、値動きの実感がまるで変わります。</li>
+        <li><strong>損益分岐レートを1回だけ計算する。</strong><a href="#sec3">③のシミュレーター</a>で出るあの数字です。これが分かっていれば、為替が動くたびに慌てずに済みます。<b>「まだ大丈夫な線」を知っておく</b>ことが、いちばんの精神安定剤です。</li>
+        <li><strong>受け取り方の選択肢を、いま確認しておく。</strong>ドルのまま受け取れるか、据え置けるか、年金形式にできるか。<b>選択肢は、必要になってから調べると間に合わないことがあります</b>。慌てて解約する前に、まず「他にどんな出口があるか」を。</li>
+      </ol>
+      <p class="rule3-note">※取り扱いはご契約内容・商品によります。手続きの期限が決まっているものもありますので、実行の前に必ず保険会社にご確認ください。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= セクション6：ドル円の50年と税金 ================= -->
+<section id="sec6" class="band-sky round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill"><i>6</i><span>数字と、税金の話</span></span>
+        <h2>ドル円は、これだけ動いてきました。</h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotChart" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="guide">
+      <span class="guide-ava" data-guide aria-hidden="true"></span>
+      <p class="guide-msg">最後に、数字の話をふたつだけ。ひとつめは<strong>ドル円が過去にどれだけ動いたか</strong>。ふたつめは、意外と後回しにされがちな<strong>受け取るときの税金</strong>です。ここは税理士事務所グループとしての本業でもあります。</p>
+    </div>
+
+    <div class="chart-box">
+      <svg viewBox="0 0 520 264" role="img" aria-label="1971年の1ドル360円固定から、1995年79円台、2011年75円台、2024年161円台までのドル円の主な節目を示す折れ線の模式図">
+        <text x="260" y="20" text-anchor="middle" font-size="15" font-weight="bold" fill="#1b3f5e">1ドルが何円だったか（主な節目）</text>
+
+        <path d="M46 46h452" stroke="#c9b8a8" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <text x="40" y="50" text-anchor="end" font-size="11" fill="#5c6874">360円</text>
+        <path d="M46 128h452" stroke="#c9b8a8" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <text x="40" y="132" text-anchor="end" font-size="11" fill="#5c6874">160円</text>
+        <path d="M46 210h452" stroke="#c9b8a8" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <text x="40" y="214" text-anchor="end" font-size="11" fill="#5c6874">75円</text>
+
+        <path d="M46 40v182M46 222h452" stroke="#d9cfc4" stroke-width="2.5" stroke-linecap="round"/>
+
+        <path d="M60 46H104" fill="none" stroke="#8f4574" stroke-width="5" stroke-linecap="round"/>
+        <path d="M104 46 130 116 152 91 168 95 188 159 200 143 234 206 254 143 274 154 300 165 322 210 350 162 366 186 394 181 452 127 486 130" fill="none" stroke="#f0846a" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
+
+        <circle cx="82" cy="46" r="5.5" fill="#8f4574"/>
+        <circle cx="234" cy="206" r="5.5" fill="#24729f"/>
+        <circle cx="322" cy="210" r="5.5" fill="#24729f"/>
+        <circle cx="452" cy="127" r="5.5" fill="#c2451f"/>
+
+        <text x="82" y="240" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#8f4574">〜1971年</text>
+        <text x="82" y="256" text-anchor="middle" font-size="11.5" fill="#5c6874">360円で固定</text>
+        <text x="234" y="240" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#24729f">1995年</text>
+        <text x="234" y="256" text-anchor="middle" font-size="11.5" fill="#5c6874">79円台</text>
+        <text x="322" y="240" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#24729f">2011年</text>
+        <text x="322" y="256" text-anchor="middle" font-size="11.5" fill="#5c6874">75円台</text>
+        <text x="452" y="240" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#c2451f">2024年</text>
+        <text x="452" y="256" text-anchor="middle" font-size="11.5" fill="#5c6874">161円台</text>
+      </svg>
+      <p class="chart-cap">※主な節目だけを取り出した模式図です（線の形は実際の値動きそのものではありません）。1971年まで1ドル360円の固定相場、1973年に変動相場制へ移行。1995年4月に1ドル79円台、2011年10月に75円台という円高を記録し、2024年7月には161円台の円安をつけました。2026年8月時点では155〜160円あたりで推移しています。<strong>過去の実績であり、将来の為替を示すものではありません。</strong></p>
+    </div>
+
+    <div class="big3">
+      <span class="b"><span class="n">約4.8倍</span><span class="l">75円と360円の開き</span><span class="s">同じ1万ドルが、75万円にも360万円にもなった</span></span>
+      <span class="b"><span class="n">約2倍</span><span class="l">75円と161円の開き</span><span class="s">この15年ほどの間だけで、これだけ動いた</span></span>
+      <span class="b"><span class="n">1日で数円</span><span class="l">動くこともある</span><span class="s">受け取る日を1週間ずらすだけで金額が変わる</span></span>
+    </div>
+
+    <h3 class="sub-h">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5h16M7 16V9.5M12 16V5.5M17 16v-4"/></svg>
+      では、実際に持っている方はどうなっているのか
+    </h3>
+    <p class="sub-lead">金融庁が毎年公表している「保険モニタリングレポート」に、外貨建て保険の実情がまとまっています。<strong>売る側の話でも、批判する側の話でもない数字</strong>として、2つだけご紹介します。</p>
+
+    <div class="age-cards">
+      <div class="age-card">
+        <p class="ttl"><span class="ico ic-blue" data-art="icChartUp" aria-hidden="true"></span>運用損益がプラスの人の割合</p>
+        <span class="kind">共通KPIの集計</span>
+        <div class="rows">
+          <p class="row"><span>2024年3月末</span><b>約8割</b></p>
+          <p class="row"><span>2025年3月末</span><b>7割弱</b></p>
+        </div>
+        <p class="cmt">為替の水準などが動いた結果、1年で下がりました。裏を返せば<strong>3割強の方は、その時点ではマイナス</strong>だったということです。</p>
+        <p class="src">出典：金融庁「2026年 保険モニタリングレポート」（2026年8月公表）。2026年3月時点で155の金融事業者が共通KPIを公表</p>
+      </div>
+      <div class="age-card">
+        <p class="ttl"><span class="ico ic-amber" data-art="icVoice" aria-hidden="true"></span>代理店で発生した苦情の件数</p>
+        <span class="kind">新契約に関するもの</span>
+        <div class="rows">
+          <p class="row"><span>2019年</span><b>2,822件</b></p>
+          <p class="row"><span>2025年</span><b>744件</b></p>
+        </div>
+        <p class="cmt">ピークから大きく減りましたが、金融庁は<strong>「他の保険と比べるとまだ高い水準」</strong>としています。減ったのは、説明の仕方が改善されてきたからでもあります。</p>
+        <p class="src">出典：同上（生命保険協会の公表データをもとに金融庁が作成）。苦情発生率は対保有契約件数で0.02％</p>
+      </div>
+      <div class="age-card">
+        <p class="ttl"><span class="ico ic-green" data-art="icShield" aria-hidden="true"></span>売るときのルール</p>
+        <span class="kind">2022年4月から</span>
+        <div class="rows">
+          <p class="row"><span>販売資格</span><b>登録制</b></p>
+          <p class="row"><span>法律</span><b>金商法準用</b></p>
+        </div>
+        <p class="cmt">外貨建て保険を販売するには、生命保険協会の<strong>外貨建保険販売資格</strong>の登録が必要です。「特定保険契約」として、契約締結前の書面交付や適合性の原則も課されます。</p>
+        <p class="src">出典：生命保険協会「外貨建保険販売資格者登録制度」</p>
+      </div>
+    </div>
+
+    <h3 class="sub-h">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3.5h8a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2Z"/><path d="M9.5 8h5M9.5 11.5h5M9.5 15h3"/></svg>
+      受け取るときの税金（ここは本業です）
+    </h3>
+    <p class="sub-lead">外貨建てだからといって、特別な税金がかかるわけではありません。<strong>円建ての生命保険と同じ考え方</strong>で、<strong>受け取り方によって税金の種類が変わります</strong>。ただし外貨ならではの注意点がひとつだけあります。</p>
+
+    <div class="type-table-box">
+      <table class="type-table" aria-label="外貨建て保険の受け取り方と税金の関係">
+        <thead>
+          <tr>
+            <th>受け取り方</th>
+            <th>税金の種類<small>契約者＝受取人の場合</small></th>
+            <th>ざっくりした計算</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>解約する<br>満期で受け取る</td>
+            <td>所得税（<strong>一時所得</strong>）・住民税</td>
+            <td>（受取額−払込保険料−50万円）÷2 を他の所得と合算</td>
+          </tr>
+          <tr>
+            <td>年金の形で<br>毎年受け取る</td>
+            <td>所得税（<strong>雑所得</strong>）・住民税</td>
+            <td>その年の年金額−対応する払込保険料</td>
+          </tr>
+          <tr>
+            <td>亡くなって<br>死亡保険金<small>契約者＝被保険者、受取人が相続人</small></td>
+            <td><strong>相続税</strong></td>
+            <td>500万円×法定相続人の数までは非課税</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="venn-cap">※契約者・被保険者・受取人の関係によって税金の種類は変わります（贈与税になる組み合わせもあります）。上の表は代表的なケースの整理です。</p>
+    </div>
+
+    <div class="mikane">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.6C9.5 8.3 10.6 7.5 12 7.5s2.5.8 2.5 2-1.1 1.8-2.5 2.2-2.5 1-2.5 2.3 1.1 2 2.5 2 2.5-.8 2.5-2"/></svg>
+        外貨ならではの、税金の注意点
+      </h3>
+      <ol>
+        <li><strong>為替差益だけを切り出して計算することはしません。</strong>「ドルでの増えた分は一時所得、為替でふえた分は別」ではなく、<b>円に換算した受取額と、円に換算した払込保険料の差</b>で、まとめて一時所得として計算するのが基本的な取り扱いです。<b>ドルでは損をしていても、円では利益が出ていて課税される</b>——ということが起こりえます。</li>
+        <li><strong>いつのレートで円に直すか、が決まっています。</strong>外貨のままのやりとりでも、税金の計算では円に直す必要があります。<b>相続や贈与で外貨建ての財産を評価するときは、原則としてその日の対顧客直物電信買相場（TTB）</b>を使います。「レートは自分で選べる」ものではありません。</li>
+        <li><strong>一時所得は「50万円の特別控除」と「2分の1」が効きます。</strong>ほかに一時所得がなければ、<b>もうけが50万円までなら課税されません</b>。さらに超えた分も2分の1だけが課税対象。この扱いを知らずに「解約すると税金が大変」と思い込んで、動けなくなっている方は少なくありません。</li>
+      </ol>
+      <p class="caution">
+        <strong>まとまった金額のときほど、順番が大事です</strong>
+        一時所得は他の所得と合算されるため、<b>受け取る年によって手取りが変わることがあります</b>。退職金を受け取る年、不動産を売る年、ご家族の扶養や社会保険料の判定にかかる年——このあたりが重なると、話は一気に複雑になります。個別具体的な税務相談・税務書類の作成・税務代理は、グループの<b>高橋秀和税理士事務所（税理士）</b>が対応します。
+      </p>
+    </div>
+
+    <a class="sister" href="../seimeihoken-check/">
+      <b>あわせて読む：三大疾病と生命保険の「出る・出ない」チェック</b>
+      <span>同じシリーズの「保障の保険」版です。がん・心臓・脳の一時金や払込免除特約が、どんな条件で出るのか——約款の小さな字を○×クイズで確認できます。</span>
+    </a>
+    <a class="sister" href="../nisa-hoken-check/">
+      <b>あわせて読む：保険とNISAの「そもそも別物」チェック</b>
+      <span>「増やす」と「備える」を混ぜて考えると迷子になります。外貨建て保険を検討する前に、そもそも保険で持つべきお金かどうかを整理したい方はこちらへ。</span>
+    </a>
+  </div>
+</section>
+
+<!-- ================= まとめ ================= -->
+<section id="matome" class="band round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill plain">まとめ</span>
+        <h2>あなたの契約チェック</h2>
+      </div>
+      <div class="spot"><span class="spot-circle" data-art="spotCheck" aria-hidden="true"></span></div>
+    </div>
+    <p class="sec-lead">最後に、いまのご契約を確認してみましょう。あてはまるもの・できたものをタップ（クリック）してください。すでに持っている方も、これから検討する方も同じ項目です。</p>
+
+    <div class="score-box">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/><circle cx="12" cy="12" r="9"/></svg>
+        クイズの結果
+      </h3>
+      <div id="sumScore">
+        <p>まだクイズに挑戦していません。<a href="#sec2">②の○×クイズ</a>で、「ふえる・へる」の思い込みをチェックしてみてください。</p>
+      </div>
+    </div>
+
+    <div class="checklist" id="checklist">
+      <p class="chk-group">書面で確認できること</p>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkGlobe" aria-hidden="true"></span><span>ご契約の通貨（<strong>米ドル・豪ドル・ユーロなど</strong>）と、保険金額が<strong>外貨でいくら</strong>かを確認した</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkRate" aria-hidden="true"></span><span><strong>積立利率</strong>と、そこから引かれる<strong>費用（契約初期費用・保険関係費用）</strong>を確認した</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkCoin" aria-hidden="true"></span><span><strong>為替手数料</strong>が1米ドルあたり何銭か、契約時と受取時の両方を確認した</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkScissors" aria-hidden="true"></span><span><strong>解約控除</strong>の期間と、<strong>市場価格調整（MVA）</strong>の有無を確認した</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkBalance" aria-hidden="true"></span><span>契約したときの為替レートと、<strong>いまの円換算の評価額</strong>を確認した</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkLine" aria-hidden="true"></span><span>自分の<strong>損益分岐レート</strong>（何円まで円高になると円で元本割れか）を把握した</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkTarget" aria-hidden="true"></span><span><strong>目標到達（ターゲット）型</strong>かどうかと、到達したあとどうなるかを確認した</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkDoor" aria-hidden="true"></span><span><strong>受け取り方の選択肢</strong>（円かドルか／一時金か年金か／据え置けるか）を確認した</span></label>
+      <p class="chk-group">今日、おうちでできること</p>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkFamily" aria-hidden="true"></span><span>この契約が<strong>外貨建てであること</strong>と証券の保管場所を、家族に伝えてある</span></label>
+      <label class="chk"><input type="checkbox"><span class="art" data-art="chkTax" aria-hidden="true"></span><span>受け取ったときの<strong>税金（一時所得・雑所得・相続税）</strong>がどれに当たるか確認した</span></label>
+    </div>
+    <div class="chk-msg" id="chkMsg">
+      あてはまるものにチェックを入れてみてください。書面を見れば分かる項目と、今日おうちでできる項目が混じっています。
+    </div>
+    <div data-cta-mini></div>
+
+    <details class="finder">
+      <summary>「そもそも、どの書類を見ればいいの？」も、よくあるご相談です</summary>
+      <ul>
+        <li><strong>ご契約内容のお知らせ</strong>（年1回届きます）……いまの解約返戻金が<strong>外貨でいくら</strong>か、円換算でいくらかが載っています。まずはこれ。</li>
+        <li><strong>契約締結前交付書面（契約概要・注意喚起情報）</strong>……費用の種類、解約控除、市場価格調整、為替手数料。<strong>探すべき情報のほとんどはここ</strong>にあります。</li>
+        <li><strong>ご契約のしおり・約款</strong>……受け取り方の選択肢、据え置きの可否、手続きの期限など。</li>
+        <li>見当たらなければ、保険会社のコールセンターやマイページで再交付を頼めます。<strong>「私の契約の損益分岐レートを教えてください」と聞いてもかまいません</strong>。</li>
+      </ul>
+      <p>「よく分からないまま入って、よく分からないまま持っていて、初めて中身を見たのは解約しようと思った日だった」——あるある劇場の話は、だいたいこの順番で起こります。順番を先に戻すだけで、選べる手が増えます。</p>
+    </details>
+
+    <details class="finder" style="margin-top:14px;">
+      <summary>「円高になってしまった。いま解約すべき？」——いちばん多いご質問です</summary>
+      <ul>
+        <li>まず、<strong>解約以外の出口があるか</strong>を確認します。ドルのまま受け取る、据え置く、年金形式にする、払済にする——契約によって選べる手は違います。</li>
+        <li>次に、<strong>その資金をいつ・何に使う予定か</strong>を確認します。使う時期をずらせるお金なのか、来年必ず円で必要なお金なのかで、答えは正反対になります。</li>
+        <li><strong>解約控除の期間が残っていないか</strong>も確認します。あと少しで抜けるなら、待つという選択肢が現実的なこともあります。</li>
+        <li>そして<strong>税金</strong>。受け取る年によって手取りが変わることがあります。急いで年内に解約する前に、ひと呼吸。</li>
+      </ul>
+      <p>私たちは「解約すべき」とも「続けるべき」とも申しません。<strong>どちらを選んでも、その先に何が起こるか</strong>を数字で並べます。決めるのはご本人です。</p>
+    </details>
+
+    <div class="cta-box" id="soudan">
+      <h3>いま何円なら大丈夫か、<span class="nowrap">30分で整理しませんか</span></h3>
+      <p class="cta-lead">このページの内容は、あくまで一般的なしくみの話。<strong>あなたの契約がどうなっているか</strong>は、あなたの書面にしか書いてありません。こんなご相談をよくお受けしています。</p>
+      <ul>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>いま持っている外貨建て保険の<strong>損益分岐レート</strong>と、円換算の現状を知りたい</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>親が銀行ですすめられて入った契約の中身を、<strong>家族として理解しておきたい</strong></span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>解約・据え置き・受け取り方の選択肢を、<strong>税金まで含めて</strong>並べて比べたい</span></li>
+      </ul>
+      <p class="cta-lead">お時間の目安は30分ほど。書類が見つからなくても大丈夫、探すところからお手伝いします。保険のしくみの整理から、受け取るときの税金のご相談まで、税理士事務所グループとしてまとめてお受けできます。いただいた個人情報は、ご相談への対応のみに使用し、ご本人の同意なく第三者に提供しません。</p>
+
+      <p class="co">株式会社Office-M</p>
+      <p class="addr">受付：平日 9:00〜17:00</p>
+      <p class="tip">「ご契約内容のお知らせ」と「契約締結前交付書面」がお手元にあると、その場での確認がより早く進みます。</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ⚠️最重要・未了：株式会社Office-Mは保険募集を行っている。したがって本ページは
+     「代理店独自の募集関連資料」に当たる可能性が高く、生命保険会社の募集文書等の審査
+     （届出・承認）の対象になり得る。以下がまだ済んでいない：
+       (1) 委託先保険会社の募集文書審査を受ける
+       (2) 承認番号（管理番号）の記載要否と表示位置を確認し、必要なら下の footer に追記する
+       (3) 会社名のほかに「保険募集人／代理店」である旨の表示が必要かを確認する
+     ※本ページは外貨建て保険（特定保険契約）を扱うため、他ページより注意が要る：
+       ・断定的判断の提供の禁止（金商法38条2号の準用）に触れないよう、為替の見通しは
+         一切書いていない。将来の相場に言及する記述を追加しないこと。
+       ・特定商品の比較・推奨をしていない（費用の水準・利率の実数値も載せていない）。
+       ・不利益事実（費用・解約控除・市場価格調整・元本割れ）を、有利な面と同じ大きさで
+         書いてある。片方だけを削らないこと。
+     文面を変える場合は、必ず審査担当の確認を取ってから行うこと -->
+<footer class="disclaimer">
+  <p>本資料は、株式会社Office-Mが外貨建て保険の一般的なしくみをご理解いただくために作成した情報提供資料です。特定の保険商品・保険会社の推奨や勧誘、他社商品との比較を目的とするものではありません。外貨建て保険は、為替相場の変動により受け取る円換算の金額が払い込んだ保険料を下回る（元本割れとなる）ことがあります。また、契約初期費用・保険関係費用・解約控除・市場価格調整などの費用や仕組みがあり、その名称・水準・有無は保険会社・商品・ご契約により大きく異なります。本ページの数値・計算例は、しくみを説明するために単純化したモデルであり、特定の商品の数値ではありません。将来の為替相場や運用成果について、当社は一切の予測・断定を行いません。実際のご契約内容は「契約締結前交付書面（契約概要・注意喚起情報）」「ご契約のしおり・約款」「ご契約内容のお知らせ」でご確認ください。</p>
+  <p style="margin-top:10px;">税務の取り扱いは、2026年8月時点の法令等にもとづく一般的な説明です。ご契約者・被保険者・受取人の関係やその年の他の所得によって結論が変わります。<strong>個別具体的な税務相談・税務書類の作成・税務代理は、グループの高橋秀和税理士事務所（税理士）が対応します。</strong></p>
+  <p style="margin-top:10px;">統計・数値の出典：外貨建保険の共通KPI（運用損益がプラスの顧客割合）および代理店で発生した外貨建保険・年金の新契約に関する苦情件数は、金融庁「2026年 保険モニタリングレポート」（2026年8月公表。苦情件数は生命保険協会の公表データをもとに金融庁が作成）によります。外貨建保険販売資格者登録制度は生命保険協会によります。為替の水準は各時点の公表相場にもとづく概数で、<strong>過去の実績であり将来を示すものではありません</strong>。</p>
+  <p style="margin-top:10px;">作成：株式会社Office-M（2026年8月）</p>
+</footer>
+
+<!-- ================= 演目詳細モーダル ================= -->
+<div class="cmodal" id="caseModal" aria-hidden="true">
+  <div class="cmodal-back" id="caseModalBack"></div>
+  <div class="cmodal-panel" role="dialog" aria-modal="true" aria-labelledby="caseModalTitle">
+    <div class="cmodal-head" id="caseModalHead">
+      <button type="button" class="cmodal-close" id="caseModalClose" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <div class="cmodal-ico" id="caseModalIco" aria-hidden="true"></div>
+      <div>
+        <span class="cmodal-chip" id="caseModalChip"></span>
+        <h3 class="cmodal-title" id="caseModalTitle"></h3>
+      </div>
+    </div>
+    <div class="cmodal-body">
+      <div class="cmodal-scene" id="caseModalScene"></div>
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 15.5a2.5 2.5 0 0 1-2.5 2.5H8l-4 3V6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5Z"/></svg>
+          <span id="caseModalLbl1">ご相談で伺ったお話（脚色あり）</span>
+        </div>
+        <blockquote class="cmodal-quote" id="caseModalStory"></blockquote>
+      </div>
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-red" id="caseModalLbl2Wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+          <span id="caseModalLbl2">何が起きたのか</span>
+        </div>
+        <div id="caseModalWhat"></div>
+      </div>
+      <div class="cmodal-block">
+        <div class="cmodal-label lb-green">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
+          <span id="caseModalLbl3">こう確認すれば防げます</span>
+        </div>
+        <div id="caseModalHow"></div>
+      </div>
+      <div class="video-cta" id="caseModalVideo"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- 案内役のイラスト ---------- */
+var SVG_GUIDE =
+  '<svg viewBox="0 0 64 64">' +
+  '<circle cx="32" cy="32" r="32" fill="#ffeee3"/>' +
+  '<path d="M8 64c0-13 11-20 24-20s24 7 24 20H8Z" fill="#f0846a"/>' +
+  '<rect x="27" y="39" width="10" height="11" rx="5" fill="#f7cdb4"/>' +
+  '<path d="M25 45l7 9 7-9 3.4 1.8L32 61 21.6 46.8Z" fill="#fff"/>' +
+  '<ellipse cx="32" cy="28" rx="16" ry="17" fill="#5c4030"/>' +
+  '<ellipse cx="32" cy="30" rx="12.5" ry="13.5" fill="#f7cdb4"/>' +
+  '<path d="M19.5 27c0-9 5.6-14.5 12.5-14.5S44.5 18 44.5 27c-1.6-3.6-4.2-5.7-7.2-6.6-2.6 2.4-7 3.8-10.9 3.2-1.4 1-2.4 2.1-2.9 3.4Z" fill="#5c4030"/>' +
+  '<circle cx="27" cy="30" r="1.6" fill="#3d3028"/><circle cx="37" cy="30" r="1.6" fill="#3d3028"/>' +
+  '<path d="M29.4 35.6c1.6 1.7 3.6 1.7 5.2 0" fill="none" stroke="#3d3028" stroke-width="1.6" stroke-linecap="round"/>' +
+  '</svg>';
+
+document.querySelectorAll('[data-guide]').forEach(function(el){ el.innerHTML = SVG_GUIDE; });
+
+/* ---------- スポット・アイコン ---------- */
+var S = 'fill="none" stroke-linecap="round" stroke-linejoin="round"';
+var ARTS = {
+  spotFx:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="24" cy="38" r="17" fill="#63b8dd"/>' +
+    '<path d="M17 31l7 9 7-9M17 41h14M17 47h14M24 40v8" stroke="#fff" stroke-width="3" ' + S + '/>' +
+    '<circle cx="42" cy="24" r="15" fill="#f0846a" stroke="#fffdf8" stroke-width="3"/>' +
+    '<path d="M42 14v20M47 19c0-2.4-2.3-3.6-5-3.6s-5 1.2-5 3.2 2.3 3 5 3.4 5 1.2 5 3.4-2.3 3.2-5 3.2-5-1.2-5-3.4" stroke="#fff" stroke-width="2.6" ' + S + '/>' +
+    '</svg>',
+  spotQuiz:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="24" fill="#e8f4fb"/>' +
+    '<path d="M25 26.5c.6-4.2 3.6-6.6 7.4-6.6 4.2 0 7.4 2.8 7.4 6.8 0 3.4-2 5.2-4.4 6.8-2 1.3-2.9 2.3-2.9 4.5" fill="none" stroke="#24729f" stroke-width="3.4" stroke-linecap="round"/>' +
+    '<circle cx="32.4" cy="45" r="2.6" fill="#f0846a"/>' +
+    '</svg>',
+  spotScale:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="24" fill="#e8f4fb"/>' +
+    '<path d="M32 17v31M21 48h22M18 24h28" stroke="#24729f" stroke-width="3.2" ' + S + '/>' +
+    '<path d="M18 24l-5.5 11h11ZM46 24l5.5 11h-11Z" fill="#63b8dd"/>' +
+    '<circle cx="32" cy="20" r="3.4" fill="#f0846a"/>' +
+    '</svg>',
+  spotTheater:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="24" fill="#fdeee9"/>' +
+    '<rect x="13" y="15" width="38" height="7" rx="2.5" fill="#a63631"/>' +
+    '<path d="M18 22c1 12-3 16-4 24h11c2-9 1-17 1-24Z" fill="#f0846a"/>' +
+    '<path d="M46 22c-1 12 3 16 4 24H39c-2-9-1-17-1-24Z" fill="#f0846a"/>' +
+    '<path d="M28 22h8v24h-8Z" fill="#f7c34e"/>' +
+    '</svg>',
+  spotGift:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="24" fill="#e8f6ef"/>' +
+    '<rect x="16" y="29" width="32" height="19" rx="3" fill="#4fbf9b"/>' +
+    '<rect x="13" y="22" width="38" height="9" rx="3.5" fill="#2c7a4b"/>' +
+    '<path d="M32 22v26" stroke="#fff" stroke-width="3.2" ' + S + '/>' +
+    '<path d="M32 22c-5-7-13-5-12 0 .6 3 7 2.4 12 0Zm0 0c5-7 13-5 12 0-.6 3-7 2.4-12 0Z" fill="#f7c34e"/>' +
+    '</svg>',
+  spotChart:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="24" fill="#e8f4fb"/>' +
+    '<path d="M17 46h30" stroke="#24729f" stroke-width="3" ' + S + '/>' +
+    '<rect x="19" y="34" width="8" height="11" rx="2.5" fill="#63b8dd"/>' +
+    '<rect x="29" y="26" width="8" height="19" rx="2.5" fill="#f7c34e"/>' +
+    '<rect x="39" y="18" width="8" height="27" rx="2.5" fill="#f0846a"/>' +
+    '</svg>',
+  spotCheck:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="24" fill="#e8f6ef"/>' +
+    '<rect x="20" y="16" width="24" height="32" rx="4" fill="#fff" stroke="#2c7a4b" stroke-width="2.6"/>' +
+    '<rect x="26" y="12" width="12" height="8" rx="3" fill="#4fbf9b"/>' +
+    '<path d="m25 32 4.6 4.6L39 27" stroke="#2c7a4b" stroke-width="3.4" ' + S + '/>' +
+    '</svg>',
+  icRate:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="22" fill="#fdf3e2"/>' +
+    '<circle cx="25" cy="25" r="5.4" stroke="#8f6015" stroke-width="3.2" ' + S + '/>' +
+    '<circle cx="39" cy="39" r="5.4" stroke="#8f6015" stroke-width="3.2" ' + S + '/>' +
+    '<path d="M42 22 22 42" stroke="#8f6015" stroke-width="3.2" ' + S + '/>' +
+    '</svg>',
+  icCost:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="22" fill="#fdf3e2"/>' +
+    '<path d="M16 26v9c0 2.6 5.4 4.6 12 4.6s12-2 12-4.6v-9" fill="#e0a92f"/>' +
+    '<ellipse cx="28" cy="26" rx="12" ry="4.8" fill="#f7c34e"/>' +
+    '<path d="M45 33v13M41 41l4 5 4-5" stroke="#a63631" stroke-width="3.2" ' + S + '/>' +
+    '</svg>',
+  icUmbrella:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="22" fill="#e8f4fb"/>' +
+    '<path d="M14 33c0-10 8-17 18-17s18 7 18 17c-3-2.6-6-2.6-9 0-3-2.6-6-2.6-9 0-3-2.6-6-2.6-9 0-3-2.6-6-2.6-9 0Z" fill="#63b8dd"/>' +
+    '<path d="M32 33v11a4.2 4.2 0 0 1-8.4 0" stroke="#24729f" stroke-width="3.2" ' + S + '/>' +
+    '</svg>',
+  icScissors:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="22" fill="#fdeee9"/>' +
+    '<path d="M21 17l22 26M43 17 21 43" stroke="#c2453f" stroke-width="3.2" ' + S + '/>' +
+    '<circle cx="21" cy="47" r="4.6" stroke="#c2453f" stroke-width="3.2" ' + S + '/>' +
+    '<circle cx="43" cy="47" r="4.6" stroke="#c2453f" stroke-width="3.2" ' + S + '/>' +
+    '</svg>',
+  icWave:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="22" fill="#fbeef6"/>' +
+    '<path d="M14 26c3.6-5 7.2-5 10.8 0s7.2 5 10.8 0 7.2-5 10.8 0M14 38c3.6-5 7.2-5 10.8 0s7.2 5 10.8 0 7.2-5 10.8 0" stroke="#8f4574" stroke-width="3.2" ' + S + '/>' +
+    '</svg>',
+  icExchange:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="22" fill="#e8f4fb"/>' +
+    '<path d="M17 26h27M38 20l6 6-6 6M47 40H20M26 34l-6 6 6 6" stroke="#24729f" stroke-width="3.2" ' + S + '/>' +
+    '</svg>',
+  icRuler:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="22" fill="#e8f6ef"/>' +
+    '<rect x="13" y="26" width="38" height="13" rx="3" fill="#4fbf9b"/>' +
+    '<path d="M21 26v5M29 26v8M37 26v5M45 26v8" stroke="#fff" stroke-width="2.6" ' + S + '/>' +
+    '</svg>',
+  icChartUp:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="22" fill="#e8f4fb"/>' +
+    '<path d="M16 44l10-10 7 6 13-14" stroke="#24729f" stroke-width="3.4" ' + S + '/>' +
+    '<path d="M37 25h10v10" stroke="#24729f" stroke-width="3.4" ' + S + '/>' +
+    '</svg>',
+  icVoice:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="22" fill="#fdf3e2"/>' +
+    '<path d="M47 36a4.2 4.2 0 0 1-4.2 4.2H27l-8 6V22.6A4.2 4.2 0 0 1 23.2 18.4h19.6A4.2 4.2 0 0 1 47 22.6Z" fill="#f7c34e"/>' +
+    '<path d="M27 27h12M27 33h8" stroke="#8f6015" stroke-width="2.8" ' + S + '/>' +
+    '</svg>',
+  icShield:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="22" fill="#e8f6ef"/>' +
+    '<path d="M32 15 18 20v11c0 9 6 16.4 14 18.8 8-2.4 14-9.8 14-18.8V20Z" fill="#4fbf9b"/>' +
+    '<path d="m25.5 32 4.8 4.8L39 27" stroke="#fff" stroke-width="3.4" ' + S + '/>' +
+    '</svg>',
+  icGlobe:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="22" fill="#e8f4fb"/>' +
+    '<circle cx="32" cy="32" r="15" fill="#63b8dd"/>' +
+    '<path d="M17 32h30M32 17c4 4 6 9 6 15s-2 11-6 15c-4-4-6-9-6-15s2-11 6-15Z" stroke="#fff" stroke-width="2.6" ' + S + '/>' +
+    '</svg>',
+  icTarget:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="22" fill="#fdeee9"/>' +
+    '<circle cx="32" cy="32" r="15" stroke="#c2453f" stroke-width="3.2" ' + S + '/>' +
+    '<circle cx="32" cy="32" r="7.6" stroke="#c2453f" stroke-width="3.2" ' + S + '/>' +
+    '<circle cx="32" cy="32" r="3" fill="#c2453f"/>' +
+    '</svg>',
+  icDoor:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="22" fill="#e8f6ef"/>' +
+    '<rect x="21" y="15" width="22" height="34" rx="3" fill="#4fbf9b"/>' +
+    '<circle cx="37" cy="33" r="2.6" fill="#fff"/>' +
+    '</svg>',
+  icTax:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="22" fill="#fdf3e2"/>' +
+    '<rect x="21" y="15" width="22" height="31" rx="3" fill="#fff" stroke="#8f6015" stroke-width="2.6"/>' +
+    '<path d="M27 24l5 6 5-6M27 32h10M27 38h10M32 30v9" stroke="#8f6015" stroke-width="2.6" ' + S + '/>' +
+    '</svg>',
+  icFamily:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="22" fill="#fdeee9"/>' +
+    '<circle cx="24" cy="25" r="6.4" fill="#f0846a"/>' +
+    '<path d="M13 46c0-6.2 4.8-10.4 11-10.4S35 39.8 35 46Z" fill="#f0846a"/>' +
+    '<circle cx="41" cy="28" r="5.2" fill="#63b8dd"/>' +
+    '<path d="M32 46c0-5 4-8.4 9-8.4S50 41 50 46Z" fill="#63b8dd"/>' +
+    '</svg>',
+  icLine:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="22" fill="#e8f4fb"/>' +
+    '<rect x="13" y="27" width="38" height="11" rx="5.5" fill="#c6e2f2"/>' +
+    '<path d="M13 27h15v11H13Z" fill="#f4d0c6"/>' +
+    '<path d="M28 21v23" stroke="#c2451f" stroke-width="4" ' + S + '/>' +
+    '</svg>',
+  icCoin:
+    '<svg viewBox="0 0 64 64">' +
+    '<circle cx="32" cy="32" r="22" fill="#fdf3e2"/>' +
+    '<circle cx="32" cy="32" r="15" fill="#f7c34e"/>' +
+    '<path d="M25 26l7 9 7-9M25 36h14M25 42h14M32 35v8" stroke="#fff" stroke-width="2.8" ' + S + '/>' +
+    '</svg>'
+};
+/* チェックリスト用の別名（同じ絵を使い回す） */
+ARTS.chkGlobe = ARTS.icGlobe;
+ARTS.chkRate = ARTS.icRate;
+ARTS.chkCoin = ARTS.icCoin;
+ARTS.chkScissors = ARTS.icScissors;
+ARTS.chkBalance = ARTS.spotScale;
+ARTS.chkLine = ARTS.icLine;
+ARTS.chkTarget = ARTS.icTarget;
+ARTS.chkDoor = ARTS.icDoor;
+ARTS.chkFamily = ARTS.icFamily;
+ARTS.chkTax = ARTS.icTax;
+
+document.querySelectorAll('[data-art]').forEach(function(el){
+  var key = el.getAttribute('data-art');
+  if(ARTS[key]) el.innerHTML = ARTS[key];
+});
+
+/* ---------- ミニCTA ---------- */
+var CTA_MINI =
+  '<div class="cta-mini"><p>「うちの契約の分かれ目は何円だろう」と思ったら、それが書面の読みどきです。ご契約内容のお知らせをお手元に、お気軽にどうぞ。</p>' +
+  '<a href="#soudan">' +
+  '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="m3 7 9 6 9-6"/></svg>' +
+  '無料で相談してみる</a></div>';
+document.querySelectorAll('[data-cta-mini]').forEach(function(el){ el.innerHTML = CTA_MINI; });
+
+/* ---------- セクション2：○×クイズ ---------- */
+/* a: true =「そのとおり」が正解, false =「ちがいます」が正解 */
+var QUIZ = [
+  {
+    icon:'icRate', a:false,
+    q:'「積立利率3.5％」の外貨建て保険。払い込んだ保険料が、毎年3.5％ずつふえていく？',
+    expl:'積立利率が付くのは、払込保険料から契約初期費用などを引いた「積立部分」です。さらにそこから保険関係費用が引かれ続けます。つまり手元で実感する増え方は、積立利率よりも小さくなるのがふつうです。「3.5％」は商品の性能表示であって、あなたの手取りの伸び率ではありません。',
+    wana:'大きく書かれた利率は「積立部分に付く利率」。払った金額の全部が、その利率で回るわけではない。',
+    check:'契約締結前交付書面（契約概要）で、契約初期費用・保険関係費用がどう引かれるかを見る。'
+  },
+  {
+    icon:'icRuler', a:false,
+    q:'「米ドルでの元本確保型」と書いてある。円で受け取るときも、元本割れしない？',
+    expl:'その「元本」は、ドルのものさしで測った元本です。円に戻すときのレートが契約時より円高になっていれば、円では元本割れになりえます。ドルでは減っていないのに円では減っている——外貨建てでいちばん多いすれ違いが、これです。',
+    wana:'「元本確保」という言葉は強いが、どの通貨の元本かが省略されがち。ものさしは2本ある。',
+    check:'書面の「為替リスク」の説明欄。円換算では元本割れすることがある、と必ず書かれています。'
+  },
+  {
+    icon:'icExchange', a:false,
+    q:'契約したときも受け取るときも1ドル160円ちょうど。為替が動いていないので、為替による損得はゼロ？',
+    expl:'円をドルに換えるときは仲値より高いレート（TTS）、ドルを円に戻すときは仲値より安いレート（TTB）を使います。この差が為替手数料で、往復で2回かかります。片道50銭なら往復1円、160円に対して約0.6％。相場が動かなくても、行って帰るだけでこの分は目減りします。',
+    wana:'ニュースのレート（仲値）で計算してしまう。実際に使われるのは、その両側にあるレート。',
+    check:'為替手数料が1米ドルあたり何銭か。契約時と受取時、それぞれの数字を確認する。'
+  },
+  {
+    icon:'icScissors', a:false,
+    q:'契約したときより円安になった。それなら、いつ解約しても円では得をする？',
+    expl:'為替が有利になっていても、契約から間もない時期は契約初期費用や解約控除の影響が大きく、ドル建ての解約返戻金そのものが払込額を下回っていることがあります。為替の追い風だけでそれを埋められるとは限りません。「円安だから今だ」と早期に解約して、思ったより戻らなかった——というのは、よく伺うお話です。',
+    wana:'為替だけを見て損得を判断してしまう。実際は「ドル建ての評価額 × 為替」の掛け算。',
+    check:'いまのドル建ての解約返戻金がいくらか。解約控除の期間が残っていないか。'
+  },
+  {
+    icon:'icWave', a:true,
+    q:'途中で解約するとき、契約したころより世の中の金利が上がっていると、受け取れる額が減ることがある？',
+    expl:'市場価格調整（MVA）という仕組みです。解約時の市場金利に応じて受取額が調整され、契約時より金利が上がっていると減る方向、下がっていると増える方向に働くのが一般的です。「金利が上がったのだから有利になるはず」という直感とは逆に動くので、驚かれる方が多いところです。仕組みの有無は商品によります。',
+    wana:'金利上昇＝有利、と思い込む。解約時の調整では、むしろ逆に働くのが一般的。',
+    check:'書面に「市場価格調整」の記載があるか。ある場合、その計算のしかたと対象期間。'
+  },
+  {
+    icon:'icTax', a:false,
+    q:'外貨建て保険を解約して利益が出た。ドルでふえた分は一時所得、為替でふえた分は別の所得——と分けて計算する？',
+    expl:'分けません。円に換算した受取額と、円に換算した払込保険料の差額で、まとめて一時所得として計算するのが基本的な取り扱いです。ということは、ドルのものさしでは減っていても、円のものさしで増えていれば課税対象になりえます。逆に、ドルでふえていても円で減っていれば、一時所得は生じないことになります。',
+    wana:'「為替差益は雑所得」という別の話（外貨預金など）と混ざりやすい。保険の場合はまとめて一時所得。',
+    check:'一時所得は（受取額−払込保険料−50万円）÷2。他に一時所得がなければ、もうけ50万円までは課税なし。'
+  },
+  {
+    icon:'icShield', a:true,
+    q:'外貨建ての死亡保険金でも、相続税の非課税枠「500万円×法定相続人の数」は使える？',
+    expl:'使えます。契約者・被保険者がご本人で、受取人が相続人であれば、円建てと同じように非課税枠の対象です。外貨建てだから不利になるということはありません。ただし相続税の計算では外貨を円に直す必要があり、原則として課税時期の対顧客直物電信買相場（TTB）で評価します。「レートは有利な日を選べる」ものではない、という点にはご注意を。',
+    wana:'外貨建てというだけで、税制上の取り扱いも特別だと思ってしまう。基本は円建てと同じ。',
+    check:'契約者・被保険者・受取人の関係。ここが違うと、相続税ではなく所得税や贈与税になります。'
+  },
+  {
+    icon:'icGlobe', a:false, yes:'なくなる', no:'残る',
+    q:'円で払い込み、円で受け取る特約（円入金特約・円換算支払特約）を付ければ、為替リスクはなくなる？',
+    expl:'なくなりません。これらは「円で手続きできる」ようにする特約で、円とドルの換算はそのつど、その時点のレートで行われます。つまり為替の影響はそのまま残ります。窓口が円になるだけで、中身は外貨建てのままです。便利さと、リスクがなくなることは別の話です。',
+    wana:'「円で払えて円で受け取れる」＝円建てと同じ、という誤解。手続きの通貨と、契約の通貨は別。',
+    check:'特約の名前と内容。円で受け取る場合に、いつのレートで換算されるのかも確認しておく。'
+  }
+];
+
+var qIdx = 0, qScore = 0, qAnswered = false, qAnsweredCount = 0;
+var wrongItems = [];
+
+var elNum   = document.getElementById('qNum');
+var elDots  = document.getElementById('qDots');
+var elIcon  = document.getElementById('qIcon');
+var elText  = document.getElementById('qText');
+var btnYes  = document.getElementById('btnYes');
+var btnNo   = document.getElementById('btnNo');
+var lblYes  = document.getElementById('lblYes');
+var lblNo   = document.getElementById('lblNo');
+var elVerd  = document.getElementById('verdict');
+var elVAns  = document.getElementById('vAnswer');
+var elVChip = document.getElementById('vChip');
+var elVExpl = document.getElementById('vExpl');
+var elVWana = document.getElementById('vWana');
+var elVChk  = document.getElementById('vCheck');
+var btnNext = document.getElementById('btnNext');
+var btnStop = document.getElementById('btnStopHere');
+var quizPlay = document.getElementById('quizPlay');
+var quizDone = document.getElementById('quizDone');
+
+function renderDots(){
+  var html = '';
+  for(var i = 0; i < QUIZ.length; i++){
+    html += '<i class="' + (i < qIdx ? 'done' : (i === qIdx ? 'now' : '')) + '"></i>';
+  }
+  elDots.innerHTML = html;
+}
+
+function renderQ(){
+  var item = QUIZ[qIdx];
+  elNum.textContent = qIdx + 1;
+  elIcon.innerHTML = ARTS[item.icon] || '';
+  elText.textContent = item.q;
+  lblYes.textContent = item.yes || 'そのとおり';
+  lblNo.textContent = item.no || 'ちがいます';
+  btnYes.disabled = false;
+  btnNo.disabled = false;
+  qAnswered = false;
+  elVerd.classList.remove('show');
+  btnNext.style.display = 'none';
+  btnStop.style.display = 'none';
+  renderDots();
+}
+
+function answer(ansYes){
+  if(qAnswered) return;
+  qAnswered = true;
+  qAnsweredCount++;
+  btnYes.disabled = true;
+  btnNo.disabled = true;
+  var item = QUIZ[qIdx];
+  var correct = (ansYes === item.a);
+  if(correct) qScore++;
+  else wrongItems.push(item);
+  elVAns.textContent = '正解は「' + (item.a ? (item.yes || 'そのとおり') : (item.no || 'ちがいます')) + '」';
+  elVChip.textContent = correct ? 'ご名答！' : 'ざんねん、ここがワナ';
+  elVChip.className = 'result-chip ' + (correct ? 'correct' : 'wrong');
+  elVExpl.textContent = item.expl;
+  elVWana.textContent = item.wana;
+  elVChk.textContent = item.check;
+  elVerd.classList.add('show');
+  btnNext.style.display = 'flex';
+  if(qIdx >= QUIZ.length - 1){
+    btnNext.innerHTML = '結果を見る <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  } else if(qIdx >= 2){
+    btnStop.style.display = 'block';
+  }
+}
+
+function doneComment(score, total){
+  var full = (total === QUIZ.length);
+  if(score === total && full){
+    return '全問正解！　あなたはもう、「積立利率」と「元本確保」の大きな字に惑わされない人です。あとはその知識をご自分の契約に当てはめるだけ。……当てはめた結果が気になったら、いつでもどうぞ。';
+  }
+  var r = score / total;
+  if(r >= 0.75){
+    return 'かなりの好成績です。ただ、クイズで間違えても失うのは1問ですが、実際の契約で「思っていたのと違う」が起こると、動くのは数十万〜数百万円。惜しかった問題こそ、ご自分の書面で答え合わせを。';
+  }
+  if(r >= 0.4){
+    return '約半分がワナにかかりました。ご安心ください、ご相談でお会いする皆さまもだいたい同じです。外貨建ては「通貨」「費用」「税金」という3つの話が同時に走るので、誰でも混ざります。だからこそ、入るときと見直すときだけは、誰かと一緒に読むのが近道です。';
+  }
+  return 'ワナに全力でかかりました。でも、それが普通です。むしろクイズで引っかかっておけば、実際の受け取りで引っかからずに済みます。今日が人生でいちばん外貨建てにくわしい日。この勢いで、書面の確認までいきましょう。';
+}
+
+function showDone(){
+  quizPlay.style.display = 'none';
+  quizDone.classList.add('show');
+  document.getElementById('doneTotal').textContent = qAnsweredCount;
+  document.getElementById('doneScore').textContent = qScore;
+  document.getElementById('doneCmt').textContent = doneComment(qScore, qAnsweredCount);
+  var wl = document.getElementById('wrongList');
+  if(wrongItems.length){
+    var html = '<h4>ワナにかかった問題（＝ご自分の書面で確認したい項目）</h4>';
+    for(var i = 0; i < wrongItems.length; i++){
+      html += '<div class="w-item"><strong>' + wrongItems[i].q + '</strong><br>確認ポイント：' + wrongItems[i].check + '</div>';
+    }
+    wl.innerHTML = html;
+    wl.style.display = 'block';
+  } else {
+    wl.style.display = 'none';
+  }
+  var sum = document.getElementById('sumScore');
+  sum.innerHTML = '<p>○×クイズの結果：<strong>' + qAnsweredCount + '問中 ' + qScore + '問正解</strong>でした。' +
+    (wrongItems.length ? '間違えた問題は、そのまま「書面で確認したいことリスト」になります。' : 'この調子で、下のチェックリストもどうぞ。') + '</p>';
+}
+
+btnYes.addEventListener('click', function(){ answer(true); });
+btnNo.addEventListener('click', function(){ answer(false); });
+btnNext.addEventListener('click', function(){
+  if(qIdx >= QUIZ.length - 1){ showDone(); return; }
+  qIdx++;
+  renderQ();
+  var shell = document.querySelector('.quiz-shell');
+  if(shell.getBoundingClientRect().top < 0) shell.scrollIntoView({behavior:'smooth'});
+});
+btnStop.addEventListener('click', showDone);
+document.getElementById('btnRetry').addEventListener('click', function(){
+  qIdx = 0; qScore = 0; qAnsweredCount = 0; wrongItems = [];
+  quizDone.classList.remove('show');
+  quizPlay.style.display = 'block';
+  btnNext.innerHTML = '次の質問へ <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  renderQ();
+});
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+document.getElementById('btnMailSelf').addEventListener('click', function(){
+  var body = '「外貨建て保険のふえる・へるチェック」の結果メモ\n\n' +
+    '○×クイズ：' + qAnsweredCount + '問中 ' + qScore + '問正解\n\n';
+  if(wrongItems.length){
+    body += '【書面で確認したいこと】\n';
+    for(var i = 0; i < wrongItems.length; i++){
+      body += '・' + wrongItems[i].check + '\n';
+    }
+  }
+  if(lastSim){
+    body += '\n【円換算シミュレーターの結果（モデル計算）】\n' +
+      '・契約時の為替：1ドル' + lastSim.r0 + '円／受取時の為替：1ドル' + lastSim.r1 + '円\n' +
+      '・損益分岐レート：1ドル' + lastSim.brk + '円\n';
+  }
+  body += '\n（このメモを「ご契約内容のお知らせ」と一緒に保管しておくと、見直しのときに役立ちます）\n';
+  location.href = 'mailto:?subject=' + encodeURIComponent('外貨建て保険のふえる・へるチェック結果') + '&body=' + encodeURIComponent(body);
+});
+
+renderQ();
+
+/* ---------- セクション3：円換算シミュレーター ---------- */
+var PREMIUM_YEN = 10000000; /* モデル：一時払保険料 1,000万円 */
+var G_MIN = 80, G_MAX = 200; /* ものさしの範囲 */
+var lastSim = null;
+
+var simRate0 = document.getElementById('simRate0');
+var simYears = document.getElementById('simYears');
+var simAcc   = document.getElementById('simAcc');
+var simCost  = document.getElementById('simCost');
+var simRate1 = document.getElementById('simRate1');
+var simFee   = document.getElementById('simFee');
+
+function yenMan(v){
+  /* 円 → 「◯◯◯万円」表記（小数第1位まで） */
+  var man = v / 10000;
+  return (Math.round(man * 10) / 10).toLocaleString('ja-JP') + '万円';
+}
+function usdFmt(v){
+  return '$' + Math.round(v).toLocaleString('en-US');
+}
+function pct(v){
+  var s = (v >= 0 ? '＋' : '−') + Math.abs(Math.round(v * 10) / 10).toFixed(1) + '％';
+  return s;
+}
+function gaugePos(rate){
+  var p = (rate - G_MIN) / (G_MAX - G_MIN) * 100;
+  return Math.max(0, Math.min(100, p));
+}
+
+function simUpdate(){
+  var r0   = +simRate0.value;
+  var n    = +simYears.value;
+  var acc  = +simAcc.value;
+  var cost = +simCost.value;
+  var r1   = +simRate1.value;
+  var fee  = +simFee.value;
+
+  document.getElementById('simRate0Out').textContent = r0 + '円';
+  document.getElementById('simYearsOut').textContent = n + '年';
+  document.getElementById('simAccOut').textContent = acc.toFixed(1) + '％';
+  document.getElementById('simCostOut').textContent = cost.toFixed(1) + '％';
+  document.getElementById('simRate1Out').textContent = r1 + '円';
+  document.getElementById('simFeeOut').textContent = Math.round(fee * 100) + '銭';
+
+  /* 円をドルに換える（仲値＋手数料で買う） */
+  var usdPrem = PREMIUM_YEN / (r0 + fee);
+  /* 積立利率から費用を引いた率で複利。マイナスにもなりうる */
+  var net = (acc - cost) / 100;
+  var usdAcc = usdPrem * Math.pow(1 + net, n);
+  /* 解約控除：10年で逓減してゼロ（このページの説明用の仮定） */
+  var scRate = n < 10 ? (10 - n) * 0.008 : 0;
+  var usdCash = usdAcc * (1 - scRate);
+  /* ドルを円に戻す（仲値−手数料で売る） */
+  var sellRate = Math.max(0.01, r1 - fee);
+  var yenOut = usdCash * sellRate;
+  /* 損益分岐レート：この仲値なら、円で払込額と同じになる */
+  var brk = PREMIUM_YEN / usdCash + fee;
+
+  var usdGain = (usdCash / usdPrem - 1) * 100;
+  var yenGain = (yenOut / PREMIUM_YEN - 1) * 100;
+
+  /* ドルのものさし */
+  document.getElementById('fxDollarV').innerHTML =
+    usdFmt(usdCash) + ' <small>（' + pct(usdGain) + '）</small>';
+  document.getElementById('fxDollarD').textContent =
+    '契約時に ' + usdFmt(usdPrem) + ' でスタート。' +
+    (scRate > 0 ? '解約控除の期間中のため、' + (Math.round(scRate * 1000) / 10) + '％が差し引かれた後の額です。'
+                : '解約控除の期間は過ぎています。') +
+    (net < 0 ? '　※費用が積立利率を上回っているため、ドルでも減っていく設定になっています。' : '');
+
+  /* 円のものさし */
+  var yenCard = document.getElementById('fxYen');
+  yenCard.className = 'fx-card ' + (yenOut >= PREMIUM_YEN ? 'up' : 'down');
+  document.getElementById('fxYenV').innerHTML =
+    yenMan(yenOut) + ' <small>（' + pct(yenGain) + '）</small>';
+  document.getElementById('fxYenD').textContent =
+    '払い込んだ1,000万円との差は ' +
+    (yenOut >= PREMIUM_YEN ? '＋' : '−') + yenMan(Math.abs(yenOut - PREMIUM_YEN)) + '。' +
+    (yenOut >= PREMIUM_YEN ? 'この為替なら、円のものさしでも増えています。'
+                           : 'ドルでは増えていても、円のものさしでは減っている状態です。');
+
+  /* 損益分岐レート */
+  document.getElementById('fxBrkV').innerHTML =
+    '1ドル ' + (Math.round(brk * 10) / 10).toFixed(1) + '<small>円</small>';
+  document.getElementById('fxBrkD').textContent =
+    '受け取るときの為替がこれより円高（数字が小さい）になると、円では元本割れになります。いまの設定は1ドル' + r1 + '円なので、' +
+    (r1 >= brk ? 'まだ' + (Math.round((r1 - brk) * 10) / 10).toFixed(1) + '円ぶんの余裕があります。'
+               : 'すでに' + (Math.round((brk - r1) * 10) / 10).toFixed(1) + '円ぶん、分かれ目を下回っています。');
+
+  /* ものさし（ゲージ） */
+  document.getElementById('gZone').style.width = gaugePos(brk) + '%';
+  document.getElementById('gBrk').style.left = gaugePos(brk) + '%';
+  document.getElementById('gNow').style.left = gaugePos(r1) + '%';
+
+  lastSim = { r0:r0, r1:r1, brk:(Math.round(brk * 10) / 10).toFixed(1) };
+}
+[simRate0, simYears, simAcc, simCost, simRate1, simFee].forEach(function(el){
+  el.addEventListener('input', simUpdate);
+});
+simUpdate();
+
+/* ---------- セクション4：あるある劇場 ---------- */
+var CASES = [
+  {
+    art:'icRuler', cls:'c-red', chip:'第一幕：ものさしのすれ違い',
+    title:'「ドルではふえていますよ」',
+    story:'「5年前に銀行で1,000万円を預けたんです。先日ようすを聞きに行ったら、担当の方が『ドルではしっかりふえていますよ』と。ええ、それは分かりました。でも私が知りたいのは、いま解約したら円でいくら戻るのかなんです。そこを3回聞いて、やっと数字が出てきました」<small>——70代・女性（脚色あり）</small>',
+    what:'<p class="cmodal-p">ドルのものさしと円のものさし、どちらも嘘ではありません。ただ、<strong>ご本人が生活で使うのは円のものさし</strong>です。契約時より円高になっていれば、ドルでふえていても円では減っている、ということが起こります。説明する側が悪気なくドルのものさしで話し、聞く側が円のものさしで聞く——このすれ違いが、外貨建てでいちばん多いトラブルの入口です。</p>',
+    how:'<p class="cmodal-p">確認するときは、<strong>「外貨建ての解約返戻金はいくらですか」「それを今日のレートで円にするといくらですか」を、必ず両方</strong>聞いてください。年1回届く「ご契約内容のお知らせ」には、たいてい両方が載っています。あわせて<a href="#sec3">損益分岐レート</a>を1回計算しておけば、次からはニュースを見るだけで自分の状況が分かります。</p>'
+  },
+  {
+    art:'icScissors', cls:'c-amber', chip:'第二幕：早期の解約',
+    title:'3年でやめたら、こんなに減った',
+    story:'「事情があって、3年で解約することになったんです。為替は入ったときとほとんど同じだったので、まあ利息ぶんくらいは増えているだろうと思っていました。実際に振り込まれた額を見て、電卓を3回たたき直しました」<small>——50代・自営業の方（脚色あり）</small>',
+    what:'<p class="cmodal-p">契約のはじめには契約初期費用がかかり、さらに一定期間内の解約には<strong>解約控除</strong>が差し引かれるのが一般的です。市場価格調整（MVA）のある商品なら、金利の動き次第でさらに増減します。<strong>外貨建ての一時払い商品は、多くが「10年ほど置いておく」前提で設計されています</strong>。その前提が崩れると、数字は厳しくなります。</p>',
+    how:'<p class="cmodal-p">加入の前に「<strong>この資金は何年動かさずにいられるか</strong>」を、いちばん先に決めてください。教育費や住宅資金など、使う時期が決まっているお金とは相性がよくありません。すでに持っている場合は、<strong>解約控除がいつ抜けるか</strong>を確認しておくと、いざというときに慌てずに済みます。</p>'
+  },
+  {
+    art:'icTarget', cls:'c-berry', chip:'第三幕：目標到達型',
+    title:'知らないうちに、円に変わっていた',
+    story:'「目標に届いたら自動的に円に移りますよ、と言われて、それは安心だと思ったんです。数年後、お知らせが届いて『目標到達により円建てに移行しました』と。ドルのままもう少し持っていたかったのに、と言ったら、そういう仕組みですと。……たしかに、そう聞いた気もします」<small>——60代・会社員の方（脚色あり）</small>',
+    what:'<p class="cmodal-p">いわゆる<strong>目標到達型（ターゲット型）</strong>は、あらかじめ決めた水準に達すると自動的に円建てに移行する仕組みです。利益を確定できる安心感がある一方、<strong>その後さらに有利になっても、もう乗れません</strong>。「安心のしくみ」と「機会を手放すこと」は裏表です。なお近年は、この機能を見直す動きも広がっています。</p>',
+    how:'<p class="cmodal-p">ご自分の契約が目標到達型かどうか、目標の水準がいくつに設定されているか、到達したあとどうなるかを確認してください。<strong>目標水準を変更できる商品もあります</strong>。「勝手に切り替わって驚いた」の大半は、この設定を知らなかったことが原因です。</p>'
+  },
+  {
+    art:'icTax', cls:'c-blue', chip:'第四幕：受け取る年',
+    title:'受け取る年を変えるだけで、手取りが変わった',
+    story:'「退職した年に、ちょうど保険も満期でした。両方まとめて受け取って、確定申告の時期になって初めて『これ、一緒の年にしなくてもよかったのでは』と気づきました。1年ずらすという発想が、そもそもなかったんです」<small>——60代・会社員の方（脚色あり）</small>',
+    what:'<p class="cmodal-p">解約や満期で受け取る利益は<strong>一時所得</strong>として、その年の他の所得と合算されます。退職金の受け取り、不動産の売却、ご家族の扶養や社会保険料の判定——こうしたものが同じ年に重なると、手取りが変わることがあります。金額が大きいほど、<strong>「いつ受け取るか」の影響も大きくなります</strong>。</p>',
+    how:'<p class="cmodal-p">まとまった額を受け取る予定があるときは、<strong>実行の前に</strong>その年の他の収入を並べてみてください。据え置ける契約なら、時期を選べることもあります。個別具体的な税務のご相談は、グループの高橋秀和税理士事務所（税理士）が対応します。保険と税金を別々に相談すると、こういう「順番の話」が抜けがちです。</p>'
+  },
+  {
+    art:'icFamily', cls:'c-green', chip:'第五幕：家族が知らない',
+    title:'母の契約が、外貨建てだと知らなかった',
+    story:'「母が亡くなったあと、保険の書類が出てきて。米ドル建て、と書いてあって家族全員がびっくりしました。いくらなんだろう、と。手続きも、円で受け取るのかドルで受け取るのか、その場で決めてくださいと言われて、正直よく分からないまま円を選びました」<small>——40代・ご家族の方（脚色あり）</small>',
+    what:'<p class="cmodal-p">外貨建ての契約は、<strong>受け取るご家族が仕組みを知らない</strong>ことが少なくありません。受け取り方（円かドルか、一時金か年金か）を選ぶ場面が来ますが、事情が分からないまま短時間で判断することになります。相続税の計算では原則として課税時期の対顧客直物電信買相場（TTB）で円に換算するなど、円建てにはない論点も出てきます。</p>',
+    how:'<p class="cmodal-p">証券の保管場所と保険会社名に加えて、<strong>「これは外貨建てである」ことをひと言</strong>ご家族に伝えておいてください。それだけで、いざというときの選択の質が変わります。ご相談では、ご本人とご家族が一緒に来られるケースがいちばんスムーズです。</p>'
+  },
+  {
+    art:'icGlobe', cls:'c-blue', chip:'第六幕：円で払える特約',
+    title:'円で払えるから、円建てだと思っていた',
+    story:'「毎月、円で引き落とされていたんです。だからずっと円建ての保険だと思っていました。ある日、受け取り額の見込みを聞いたら『為替によって変わります』と言われて、えっ、と。契約書を見たら、たしかに米ドル建てと書いてありました」<small>——40代・会社員の方（脚色あり）</small>',
+    what:'<p class="cmodal-p">円入金特約や円換算支払特約は、<strong>手続きを円でできるようにする</strong>ものです。契約そのものは外貨建てのままなので、換算はそのつどのレートで行われ、為替の影響は残ります。窓口が日本語だからといって、中身が変わるわけではないのと同じです。</p>',
+    how:'<p class="cmodal-p">証券の<strong>「保険金額」の欄に何と書いてあるか</strong>を見てください。「$」や「米ドル」の表記があれば外貨建てです。毎月の引き落とし額が一定でも、それは円での払込額を固定しているだけで、ドルに換わる金額のほうが動いている場合もあります。</p>'
+  }
+];
+
+/* ---------- セクション5：逆転劇場 ---------- */
+var GOOD_CASES = [
+  {
+    art:'icGlobe', cls:'c-blue', chip:'第一話：通貨を合わせる', amt:'使う通貨がドル',
+    title:'留学費用を、ドルのまま渡せた',
+    story:'「息子がアメリカの大学に行くことになって。学費はもちろんドル建てです。ずっと前にドル建ての契約をしていたのを思い出して、ドルのまま送金しました。円に戻して、また向こうでドルに換えて……という往復をしなくて済んだんです。為替がどうなろうと、学費はドルで払うんだから、と思えたのが何より楽でした」<small>——50代・ご両親（脚色あり）</small>',
+    what:'<p class="cmodal-p">為替リスクとは「持っている通貨と、使う通貨がずれていること」から生まれます。<strong>使う予定がドルなら、ドルで持っておくほうがずれは小さくなります</strong>。留学、海外での生活、外貨建ての支出が見込まれる方にとっては、外貨で持つことそのものがリスクを減らす方向に働くことがあります。</p>',
+    how:'<p class="cmodal-p">ポイントは<strong>ドルのまま受け取れる契約かどうか</strong>。円換算でしか受け取れない契約だと、この使い方はできません。外貨で受け取れるか、送金の手続きはどうなるかを、必要になる前に確認しておいてください。</p>'
+  },
+  {
+    art:'icExchange', cls:'c-amber', chip:'第二話：時期を選べた', amt:'待てるお金だった',
+    title:'急がなかったから、待てた',
+    story:'「解約を考えた時期は、ちょうど円高で。担当の方に相談したら『このお金、いつまでに必要ですか』と聞かれて、答えに詰まりました。よく考えたら、すぐ要るお金ではなかったんです。据え置いて、しばらく様子を見ることにしました」<small>——60代・主婦の方（脚色あり）</small>',
+    what:'<p class="cmodal-p">外貨建てと相性がよいのは、<strong>受け取る時期をずらせるお金</strong>です。「今年でなくてもいい」と言えるなら、選択肢が一気に増えます。逆に「来年3月に必ず円で必要」というお金だと、その日のレートを受け入れるしかありません。<strong>待てるかどうかは、商品ではなく、お金の性格で決まります</strong>。</p>',
+    how:'<p class="cmodal-p">解約を考えたときは、まず<strong>「このお金は、いつ・何に使う予定か」</strong>を書き出してみてください。据え置き・年金形式・一部だけ解約など、契約によっては解約以外の出口もあります。判断の前に、選べる手を全部並べるのがおすすめです。なお、待てば有利になるという意味ではありません。為替がその後どう動くかは、誰にも分かりません。</p>'
+  },
+  {
+    art:'icShield', cls:'c-green', chip:'第三話：遺すかたち', amt:'非課税枠500万円×人数',
+    title:'保険の形にしておいてよかった',
+    story:'「父が遺した財産のうち、まとまった額が保険でした。相続の手続きでは、預金は名義変更まで動かせないものもあって時間がかかったのに、保険金は受取人が決まっていたのですぐでした。外貨建てでしたが、非課税の枠も使えると聞いて、少しほっとしました」<small>——50代・ご家族の方（脚色あり）</small>',
+    what:'<p class="cmodal-p">死亡保険金には<strong>「500万円×法定相続人の数」の非課税枠</strong>があり、これは外貨建てでも同じです（契約者・被保険者がご本人、受取人が相続人の場合）。受取人が指定されているため、遺産分割の話し合いを待たずに手続きできるのも保険の特徴です。<strong>相続税の計算では、原則として課税時期の対顧客直物電信買相場（TTB）で円に換算します。</strong></p>',
+    how:'<p class="cmodal-p">確認するのは<strong>受取人が誰になっているか</strong>。結婚・離婚・お子さんの独立などのあと、そのままになっている契約は珍しくありません。非課税枠は「相続人」が受け取る場合の話なので、受取人の設定しだいで結論が変わります。</p>'
+  },
+  {
+    art:'icChartUp', cls:'c-berry', chip:'第四話：かたよりを直す', amt:'資産のバランス',
+    title:'家じゅうの資産が、全部円だった',
+    story:'「うちは預金しかなくて、これは安全だと思っていたんです。でもある時、生活費も年金も預金も、全部が円だと気づいて。円の価値が下がったときに、逃げ場がひとつもないんだな、と。それで一部だけ、通貨を分けてみることにしました」<small>——60代・ご夫婦（脚色あり）</small>',
+    what:'<p class="cmodal-p">「円で持っているのがいちばん安全」は、円で見たときの話です。輸入品の値段が上がるように、<strong>円の側が動くこともあります</strong>。資産の一部を別の通貨で持つことは、その意味では偏りを減らす方向に働きます。ただし<strong>それは「減らない」という意味ではありません</strong>。円高の局面では、円で見た評価は下がります。</p>',
+    how:'<p class="cmodal-p">大事なのは<strong>割合</strong>です。生活に必要なお金や近く使う予定のあるお金まで外貨にすると、かえって身動きが取れなくなります。外貨で持つのは「当面使わない部分の一部」まで、と決めておくのが現実的です。なお、通貨を分ける手段は保険だけではありません。保険という形が向いているかどうかは、目的（遺すのか、貯めるのか）から考えます。</p>'
+  }
+];
+
+var modal = document.getElementById('caseModal');
+var CASE_LBL = {
+  bad:['よく伺うお話をもとにした創作例（脚色あり）', '何が起きたのか', 'こう確認すれば防げます'],
+  good:['かみ合ったときのお話（創作例・脚色あり）', 'なぜかみ合ったのか', '確認しておきたいこと']
+};
+
+function renderCases(gridId, list, kind){
+  var grid = document.getElementById(gridId);
+  list.forEach(function(c){
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'case-card';
+    btn.innerHTML =
+      '<span class="art ' + c.cls + '">' + ARTS[c.art] + '</span>' +
+      '<span class="t"><span class="chip ' + c.cls + '">' + c.chip + '</span>' +
+      (c.amt ? '<span class="amt">' + c.amt + '</span>' : '') +
+      '<h3>' + c.title + '</h3>' +
+      '<span class="more">くわしく見る<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></span></span>';
+    btn.addEventListener('click', function(){ openCase(c, kind); });
+    grid.appendChild(btn);
+  });
+}
+
+function openCase(c, kind){
+  var lbl = CASE_LBL[kind] || CASE_LBL.bad;
+  document.getElementById('caseModalLbl1').textContent = lbl[0];
+  document.getElementById('caseModalLbl2').textContent = lbl[1];
+  document.getElementById('caseModalLbl3').textContent = lbl[2];
+  document.getElementById('caseModalLbl2Wrap').className =
+    'cmodal-label ' + (kind === 'good' ? 'lb-green' : 'lb-red');
+  document.getElementById('caseModalIco').className = 'cmodal-ico ' + c.cls;
+  document.getElementById('caseModalIco').innerHTML = ARTS[c.art];
+  document.getElementById('caseModalChip').className = 'cmodal-chip ' + c.cls;
+  document.getElementById('caseModalChip').textContent = c.chip;
+  document.getElementById('caseModalTitle').textContent = c.title;
+  document.getElementById('caseModalVideo').innerHTML = '';
+  var sceneEl = document.getElementById('caseModalScene');
+  sceneEl.innerHTML = '';
+  sceneEl.style.display = 'none';
+  document.getElementById('caseModalStory').innerHTML = c.story;
+  document.getElementById('caseModalWhat').innerHTML = c.what;
+  document.getElementById('caseModalHow').innerHTML = c.how;
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+  modal.querySelector('.cmodal-panel').scrollTop = 0;
+}
+
+renderCases('caseGrid', CASES, 'bad');
+renderCases('goodGrid', GOOD_CASES, 'good');
+function closeCase(){
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+document.getElementById('caseModalClose').addEventListener('click', closeCase);
+document.getElementById('caseModalBack').addEventListener('click', closeCase);
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && modal.classList.contains('show')) closeCase();
+});
+
+/* ---------- まとめ：チェックリスト ---------- */
+var chkBoxes = document.querySelectorAll('#checklist input[type=checkbox]');
+var chkMsg = document.getElementById('chkMsg');
+function chkUpdate(){
+  var n = 0;
+  chkBoxes.forEach(function(c){ if(c.checked) n++; });
+  var total = chkBoxes.length;
+  if(n === 0){
+    chkMsg.textContent = 'あてはまるものにチェックを入れてみてください。書面を見れば分かる項目と、今日おうちでできる項目が混じっています。';
+  } else if(n <= 2){
+    chkMsg.textContent = 'チェック' + n + '個。正直なのは素晴らしいことです。残りの項目は、どれも「ご契約内容のお知らせ」と「契約締結前交付書面」の2枚でほとんど確認できます。まずは通貨と評価額からどうぞ。';
+  } else if(n <= 5){
+    chkMsg.textContent = 'チェック' + n + '個。平均より、だいぶ書面に強いご家庭です。残りの項目も、書類が手元にあれば一気に片づきます。分からない用語は、そのまま当社へお持ちください。';
+  } else if(n < total){
+    chkMsg.textContent = 'チェック' + n + '個。ここまで確認できている方は、ご相談でもめったにお会いしません。あと少しで「損益分岐レートを言える人」の完成です。';
+  } else {
+    chkMsg.textContent = '全項目チェック！　あなたの契約は、もう「持っているつもり」ではなく「分かって持っている」状態です。あとは年に1回、届いたお知らせで評価額と分かれ目を見直すだけ。';
+  }
+}
+chkBoxes.forEach(function(c){ c.addEventListener('change', chkUpdate); });
+
+
+})();
+</script>
+</body>
+</html>
