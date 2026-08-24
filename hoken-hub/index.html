@@ -124,6 +124,7 @@ a{color:var(--navy-2);}
 .ts-row.r-money .ts-chip{background:var(--amber-bg);color:var(--amber);}
 .ts-row.r-plan .ts-chip{background:var(--green-bg);color:var(--green);}
 .ts-row.r-zei .ts-chip{background:var(--berry-bg);color:var(--berry);}
+.ts-row.r-inhouse .ts-chip{background:var(--navy-soft);color:var(--navy);}
 .ts-row .ts-go{flex:none;font-size:var(--fs-sm);font-weight:700;color:var(--coral-text);display:inline-flex;align-items:center;gap:5px;}
 .ts-row .ts-go svg{width:14px;height:14px;}
 .ts-row .ts-go.pend{color:var(--muted);}
@@ -497,6 +498,12 @@ var TOOLS = [
     desc: '「節税」のカラクリ、損金ルール、解約返戻金のピーク、出口戦略を○×クイズで。バレンタインショック・功績倍率・契約者貸付まで解説します。'
   },
   {
+    id: 'hojinsim', short: '解約返戻金', cat: 'life', name: '法人保険 解約返戻金シミュレーター',
+    owner: '株式会社Office-M', local: '法人保険シミュレーター.html',
+    url: 'https://office-m-nakatani.github.io/hoken-sim/',
+    desc: '逓増定期・長期平準定期の解約返戻率の推移と、損金算入ルールを踏まえた出口の試算。ピーク時期と実質負担額を数字で確認できます。'
+  },
+  {
     id: 'shakaihoshou', short: '社会保障', cat: 'life', name: '社会保障の「どこまで出る」チェック',
     owner: '株式会社Office-M', local: 'shakaihoshou-check/index.html',
     url: 'https://office-m-nakatani.github.io/office-m/shakaihoshou-check/',
@@ -552,12 +559,6 @@ var TOOLS = [
     owner: '株式会社Office-M', local: 'jigyoshokei-check/index.html',
     url: 'https://office-m-nakatani.github.io/office-m/jigyoshokei-check/',
     desc: '事業承継で渡すものは経営・自社株・個人保証の3つ。議決権の3分の2、非上場株式の評価、遺留分、個人保証、事業承継税制の「猶予であって免除ではない」しくみを○×クイズで。自社株の評価額から後継者の納税資金と遺留分までを概算できるシミュレーター付きです。'
-  },
-  {
-    id: 'hojinsim', short: '解約返戻金', cat: 'life', name: '法人保険 解約返戻金シミュレーター',
-    owner: '株式会社Office-M', local: '法人保険シミュレーター.html',
-    url: 'https://office-m-nakatani.github.io/hoken-sim/',
-    desc: '逓増定期・長期平準定期の解約返戻率の推移と、損金算入ルールを踏まえた出口の試算。ピーク時期と実質負担額を数字で確認できます。'
   },
   {
     id: 'jishin', short: '地震保険', cat: 'sonpo', name: '地震保険の「出る・出ない」チェック',
@@ -661,6 +662,7 @@ var CATS = [
 ];
 var CAT_LABEL = {};
 CATS.forEach(function (c) { CAT_LABEL[c.id] = c.label; });
+CAT_LABEL.inhouse = '社内ツール';   /* 検索結果のチップ用。分野カードには出さない */
 
 /* ------------------------------------------------------------
    検索の見出し（ツールの中にある「話題」）
@@ -876,6 +878,26 @@ var INHOUSE = {
   sales:    { local: '保険営業管理ツール.html', url: 'https://office-m-nakatani.github.io/office-m/hoken-sales/' }
 };
 
+/* 社内ツールも「言葉でさがす」から辿れるようにするための見せかけの1件（共有リンクは出さない） */
+var INHOUSE_SEARCH = [
+  { key: 'training', name: '保険知識トレーニング（社員教育）',
+    label: '理解度テスト・朝礼の1問・数字早見表・NGトーク添削・ロープレお題',
+    keys: '社内 社員教育 教育 研修 トレーニング 勉強 学習 テスト 理解度 朝礼 ロープレ NGトーク 添削 早見表' },
+  { key: 'sales', name: '保険営業ダッシュボード（社内）',
+    label: '見込み数字の積み上げ・顧客カルテ・面談記録・手数料の料率表',
+    keys: '社内 営業 ダッシュボード 見込み 見込客 AP FF プレゼン クロージング 顧客カルテ カルテ 面談 記録 日報 手数料 料率 定期訪問 誕生日' }
+];
+function inhousePseudo(s) {
+  var t = INHOUSE[s.key] || {};
+  return { id: 'inh-' + s.key, cat: 'inhouse', short: '社内ツール', name: s.name, local: t.local, url: t.url };
+}
+/* 検索結果に出すアイコンは、下の社内ツールバナーと同じ絵を使い回す */
+function inhouseArt(id) {
+  var banner = document.getElementById(id === 'inh-training' ? 'trainingBanner' : id === 'inh-sales' ? 'salesBanner' : '');
+  var art = banner && banner.querySelector('.t-art');
+  return art ? art.innerHTML : '';
+}
+
 /* ============================================================
    2. 保存データ
    ============================================================ */
@@ -914,6 +936,13 @@ function openTarget(t) {
   return toolUrl(t);
 }
 function openTool(id) {
+  /* 検索結果から社内ツールを開くとき（バナーと同じ動き） */
+  if (id.lastIndexOf('inh-', 0) === 0) {
+    var inh = inhouseTarget(id.slice(4));
+    if (!inh) { toast('この画面はまだ公開していません（社内のパソコンではファイルから直接開けます）'); return; }
+    window.open(inh, '_blank', 'noopener');
+    return;
+  }
   var t = tool(id);
   if (!t) return;
   var target = openTarget(t);
@@ -1620,25 +1649,36 @@ function normQ(s) {
     .replace(/[\s　・,、.。/／\-ー]/g, '');
 }
 function searchHits(q) {
-  var n = normQ(q);
-  if (!n) return [];
+  /* 「がん 保険」のように複数の言葉が入ったら、全部の言葉が入っている見出しだけを出す（AND）。
+     語に分けてから normQ するので、1語のときの動きは今までと同じ */
+  var words = String(q == null ? '' : q).split(/[\s　・,、.。/／]+/).map(normQ).filter(Boolean);
+  if (!words.length) return [];
+  var every = function (hay) {
+    for (var i = 0; i < words.length; i++) if (hay.indexOf(words[i]) < 0) return false;
+    return true;
+  };
   var hits = [], seenTool = {};
   TOPICS.forEach(function (tp) {
     var t = tool(tp.tool);
     if (!t) return;
-    var score = normQ(tp.keys).indexOf(n) >= 0 ? 3
-      : (normQ(tp.label).indexOf(n) >= 0 ? 2
-      : (normQ(t.short + t.name).indexOf(n) >= 0 ? 1 : 0));
-    if (!score) return;
+    var hk = normQ(tp.keys), hl = normQ(tp.label), hn = normQ(t.short + t.name);
+    if (!every(hk + hl + hn)) return;
+    var score = every(hk) ? 3 : (every(hk + hl) ? 2 : 1);
     hits.push({ t: t, label: tp.label, score: score });
     seenTool[t.id] = true;
   });
   /* 見出しでは当たらなかったツールも、名前や説明文が合えば拾う */
   TOOLS.forEach(function (t) {
     if (seenTool[t.id]) return;
-    if (normQ(t.short + t.name + t.desc).indexOf(n) >= 0) hits.push({ t: t, label: t.name, score: 1 });
+    if (every(normQ(t.short + t.name + t.desc))) hits.push({ t: t, label: t.name, score: 1 });
   });
-  hits.sort(function (a, b) { return b.score - a.score; });
+  /* 社内ツール（社員教育・営業ダッシュボード）も言葉から辿れるようにする。共有リンクは出さない */
+  INHOUSE_SEARCH.forEach(function (s) {
+    if (!every(normQ(s.keys + s.label + s.name))) return;
+    hits.push({ t: inhousePseudo(s), label: s.label, score: every(normQ(s.keys)) ? 3 : 1 });
+  });
+  /* カード一覧と同じく、いま開けるものを先に。そのうえで関係の深い順 */
+  hits.sort(function (a, b) { return (toolReady(b.t) ? 1 : 0) - (toolReady(a.t) ? 1 : 0) || b.score - a.score; });
   return hits;
 }
 
@@ -1664,7 +1704,7 @@ function renderSearch() {
       var ready = toolReady(h.t);
       return '<button type="button" class="ts-row r-' + h.t.cat + '" data-open="' + h.t.id + '"' +
         (ready ? '' : ' aria-disabled="true"') + '>' +
-        '<span class="ts-art">' + (TOOL_ART[h.t.id] || '') + '</span>' +
+        '<span class="ts-art">' + (TOOL_ART[h.t.id] || inhouseArt(h.t.id)) + '</span>' +
         '<span class="ts-main">' +
           '<span class="ts-h">' + esc(h.label) + '</span>' +
           '<span class="ts-sub"><span class="ts-chip">' + esc(CAT_LABEL[h.t.cat] || '') + '</span>' +
