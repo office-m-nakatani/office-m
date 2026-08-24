@@ -71,8 +71,9 @@ main{padding:12px 0 30px;}
 .calc:hover{background:#16344e;}
 .calc svg{width:15px;height:15px;}
 
-.res{margin-top:8px;border:1.5px solid var(--coral-line);background:var(--coral-bg);border-radius:12px;
-  padding:9px 13px;transition:opacity .2s;}
+.res{display:none;margin-top:8px;border:1.5px solid var(--coral-line);background:var(--coral-bg);
+  border-radius:12px;padding:9px 13px;transition:opacity .2s;}
+.card.done .res{display:block;}
 .res .rl{display:block;font-size:.76rem;font-weight:700;color:var(--coral);letter-spacing:.02em;}
 .res .rv{display:block;font-family:var(--num);font-size:1.46rem;font-weight:700;color:var(--coral);
   font-variant-numeric:tabular-nums;line-height:1.4;}
@@ -360,7 +361,9 @@ function calcCard(c){
   document.getElementById(c.id+'_rv').textContent = man(shown);
   document.getElementById(c.id+'_rs').innerHTML =
       man(a)+' × '+nf(f,dec(c.k))+' ＝ '+man(o)+'（'+yen(shown)+'）<br>'+c.sub(a,o,n);
-  document.getElementById('card-'+c.id).classList.remove('stale');
+  var el=document.getElementById('card-'+c.id);
+  el.classList.add('done');
+  el.classList.remove('stale');
 }
 function card(id){ for(var i=0;i<CARD.length;i++) if(CARD[i].id===id) return CARD[i]; }
 
@@ -447,8 +450,7 @@ function drawPlan(){
 (function(){
   var h='', i;
   for(i=0;i<CARD.length;i++) h += cardHTML(CARD[i]);
-  document.getElementById('grid').innerHTML = h;
-  for(i=0;i<CARD.length;i++) calcCard(CARD[i]);
+  document.getElementById('grid').innerHTML = h;   /* 結果は「計算」を押すまで出さない */
   drawTable();
   drawPlan();
 })();
