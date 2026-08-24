@@ -4,501 +4,270 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
-<title>6つの係数 計算ツール｜終価・現価・年金終価・減債基金・資本回収・年金現価</title>
+<title>6つの係数 計算ツール｜利回りと年数を決めれば、6つの答えが同時に出る</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23fff8f2'/%3E%3Crect x='7' y='5' width='18' height='22' rx='3' fill='%231b3f5e'/%3E%3Crect x='10' y='8' width='12' height='5' rx='1.4' fill='%23fff'/%3E%3Ccircle cx='12' cy='17.5' r='1.7' fill='%23f0846a'/%3E%3Ccircle cx='16' cy='17.5' r='1.7' fill='%23fff'/%3E%3Ccircle cx='20' cy='17.5' r='1.7' fill='%23fff'/%3E%3Ccircle cx='12' cy='22.5' r='1.7' fill='%23fff'/%3E%3Ccircle cx='16' cy='22.5' r='1.7' fill='%23fff'/%3E%3Ccircle cx='20' cy='22.5' r='1.7' fill='%23f0846a'/%3E%3C/svg%3E">
 <!--
-  6つの係数 計算ツール（保険営業ダッシュボードと同じデザイントークン）
-  - 計算のみ。入力値はどこにも保存・送信しない（localStorage も使わない）。
-  - 期末払い（年度末にまとめて）が既定。期首を選ぶと年金系の係数に (1+r) を掛け戻す。
-  - 税金・手数料・インフレは考慮しない。保険の予定利率＝実質利回りではない点に注意。
+  6つの係数 計算ツール（シンプル版）
+  - 6つの係数は「同じ利回り・同じ年数」から生まれる3組の逆数。だから入力は
+    利回りと年数の2つだけで、あとは金額をどちらかに入れれば反対側が出る。
+  - スライダーは使わない（数値入力＋チップのみ）。
+  - 積立・受取は期末前提（FPの係数表と同じ）。期首は早見表の下に換算式を記載。
+  - 計算のみ。入力値の保存・送信はしない。外部CDNなし。
 -->
 <style>
 :root{
-  --navy:#1b3f5e; --navy-2:#27587f; --navy-soft:#eaf1f7; --navy-border:#c9dcea;
-  --bg:#fff8f2; --white:#fff; --text:#33404d; --muted:#5c6874; --line:#efe2d8;
-  --shadow:0 6px 20px rgba(130,100,80,.09); --shadow-sm:0 3px 10px rgba(130,100,80,.07);
-  --coral:#f0846a; --coral-btn:#bf4123; --coral-btn-h:#aa391f;
-  --coral-text:#bd4523; --coral-bg:#fdeee9; --coral-border:#f4d0c6;
-  --green:#2c7a4b; --green-bg:#e8f6ef; --green-border:#c3e5d3;
-  --amber:#966417; --amber-bg:#fdf3e2; --amber-border:#f2dcae;
-  --sky:#24729f; --sky-bg:#e8f4fb; --sky-border:#c6e2f2;
-  --berry:#8f4574; --berry-bg:#fbeef6; --berry-border:#ecd2e2;
-  --red-text:#bb413c; --red-bg:#fdeee9;
-  --mincho:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho",YuMincho,"游明朝体","MS PMincho",serif;
-  --fs-xs:.8125rem; --fs-sm:.9rem; --fs-base:1rem; --fs-md:1.125rem;
-  --fs-lg:1.35rem; --fs-xl:1.6rem; --fs-2xl:1.9rem;
-  --lh-tight:1.5; --lh-base:1.75;
-  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:20px; --sp-6:24px; --sp-8:32px;
+  --navy:#1b3f5e; --navy-2:#27587f; --navy-soft:#eef4f9;
+  --bg:#fdf9f5; --white:#fff; --text:#2f3a45; --muted:#6b7681; --line:#e9ddd2;
+  --coral:#bf4123; --coral-bg:#fdf0ec; --coral-line:#f2cfc4;
+  --mincho:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho",YuMincho,"MS PMincho",serif;
+  --num:"Helvetica Neue",Arial,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-html{-webkit-text-size-adjust:100%;font-size:16px;scroll-behavior:smooth;}
-@media(min-width:640px){ html{font-size:16.5px;} }
-@media(min-width:1100px){ html{font-size:17px;} }
+html{-webkit-text-size-adjust:100%;font-size:16px;}
+@media(min-width:1100px){ html{font-size:16.5px;} }
 body{
-  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",YuGothic,Meiryo,"Noto Sans JP",sans-serif;
-  color:var(--text); background:var(--bg);
-  font-size:var(--fs-base); line-height:var(--lh-base);
-  overflow-wrap:break-word; padding-bottom:40px;
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",YuGothic,Meiryo,sans-serif;
+  color:var(--text); background:var(--bg); line-height:1.7; overflow-wrap:break-word;
 }
-svg{width:1.05em;height:1.05em;vertical-align:-.16em;flex:none;}
-button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit;}
-a{color:var(--navy-2);}
-.wrap{max-width:1020px;margin:0 auto;padding:0 16px;}
-.hide{display:none !important;}
-:focus-visible{outline:3px solid var(--navy-2);outline-offset:2px;border-radius:5px;}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px;}
+button,input{font-family:inherit;font-size:inherit;color:inherit;}
+:focus-visible{outline:2.5px solid var(--navy-2);outline-offset:2px;border-radius:4px;}
 
 /* ---------- ヘッダー ---------- */
-.topbar{background:linear-gradient(168deg,#fbe6e6 0%,#fdf1ea 46%,#ddf0fb 100%);border-bottom:1px solid var(--line);}
-.topbar .wrap{display:flex;align-items:center;gap:var(--sp-4);min-height:74px;flex-wrap:wrap;padding:var(--sp-3) 16px;}
-.tb-brand{display:flex;align-items:center;gap:var(--sp-3);color:var(--navy);}
-.tb-brand .tb-art{width:46px;height:46px;flex:none;}
-.tb-brand .tb-art svg{width:46px;height:46px;}
-.tb-brand b{display:block;font-family:var(--mincho);font-size:var(--fs-lg);letter-spacing:.06em;font-weight:600;line-height:1.35;}
-.tb-brand small{display:block;font-size:var(--fs-xs);color:var(--muted);letter-spacing:.02em;line-height:1.5;}
-.tb-tag{margin-left:auto;font-size:var(--fs-xs);font-weight:700;letter-spacing:.06em;color:var(--amber);
-  background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:999px;padding:6px 14px;}
+.hd{border-bottom:1px solid var(--line);background:var(--white);}
+.hd .wrap{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:11px 20px;}
+.hd h1{font-family:var(--mincho);font-size:1.32rem;font-weight:600;letter-spacing:.08em;color:var(--navy);}
+.hd p{font-size:.86rem;color:var(--muted);}
 
-/* ---------- タブ ---------- */
-.tabs{position:sticky;top:0;z-index:30;background:rgba(255,248,242,.96);backdrop-filter:blur(4px);
+/* ---------- 前提（利回り・年数） ---------- */
+.prem{position:sticky;top:0;z-index:10;background:rgba(253,249,245,.97);backdrop-filter:blur(6px);
   border-bottom:1px solid var(--line);}
-.tabs .wrap{display:flex;gap:var(--sp-2);padding:10px 16px;overflow-x:auto;}
-.tab{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--line);background:var(--white);
-  border-radius:999px;padding:10px 18px;min-height:44px;cursor:pointer;font-weight:700;font-size:var(--fs-sm);
-  color:var(--muted);white-space:nowrap;transition:.15s;}
-.tab svg{width:18px;height:18px;}
-.tab[aria-selected="true"]{background:var(--navy);border-color:var(--navy);color:#fff;box-shadow:var(--shadow-sm);}
-.tab:not([aria-selected="true"]):hover{border-color:var(--navy-2);color:var(--navy);}
+.prem .wrap{display:flex;gap:38px;flex-wrap:wrap;padding:11px 20px;}
+.pg{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.pg > label{font-size:.8rem;font-weight:700;color:var(--navy);letter-spacing:.04em;}
+.pin{display:flex;align-items:baseline;gap:5px;}
+.pin input{width:4.6em;border:1.5px solid var(--line);border-radius:9px;background:var(--white);
+  padding:7px 10px;font-family:var(--num);font-size:1.22rem;font-weight:700;text-align:right;
+  font-variant-numeric:tabular-nums;color:var(--navy);}
+.pin input:focus{border-color:var(--navy-2);outline:none;}
+.pin span{font-size:.86rem;font-weight:700;color:var(--muted);}
+.tabs{display:flex;gap:5px;flex-wrap:wrap;}
+.tab{border:1px solid var(--line);background:var(--white);border-radius:7px;padding:5px 11px;
+  font-size:.8rem;font-weight:700;color:var(--muted);cursor:pointer;line-height:1.5;}
+.tab:hover{border-color:var(--navy-2);color:var(--navy);}
+.tab[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff;}
 
-/* ---------- セクション・カード ---------- */
-.sec{margin-top:var(--sp-6);}
-.sec-head{display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-4);flex-wrap:wrap;}
-.sec-head .sh-art{width:52px;height:52px;flex:none;}
-.sec-head .sh-art svg{width:52px;height:52px;}
-.sec-head h2{font-family:var(--mincho);font-size:var(--fs-xl);color:var(--navy);letter-spacing:.06em;font-weight:600;
-  display:inline-block;padding-bottom:5px;border-bottom:4px solid var(--coral);border-radius:2px;}
-.sec-head p{font-size:var(--fs-sm);color:var(--muted);margin-top:2px;}
-.sec-note{font-size:var(--fs-sm);color:var(--muted);max-width:46em;margin:var(--sp-2) 0 var(--sp-4);}
-.card{background:var(--white);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow-sm);padding:var(--sp-5);}
-.card h3{color:var(--navy);font-size:var(--fs-md);margin-bottom:var(--sp-2);}
+/* ---------- 3行（＝6係数） ---------- */
+main{padding:16px 0 34px;}
+.row{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:13px 20px 12px;margin-bottom:11px;}
+.row > h2{font-family:var(--mincho);font-size:1.02rem;font-weight:600;color:var(--navy);letter-spacing:.06em;
+  margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid var(--line);}
+.row > h2 em{font-style:normal;font-size:.78rem;color:var(--muted);font-weight:400;letter-spacing:.02em;margin-left:10px;
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",YuGothic,Meiryo,sans-serif;}
+.calc{display:grid;grid-template-columns:minmax(0,1fr) minmax(215px,auto) minmax(0,1fr);gap:16px;align-items:center;}
 
-/* ---------- ボタン ---------- */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:999px;
-  padding:12px 22px;min-height:44px;cursor:pointer;font-size:var(--fs-base);font-weight:700;letter-spacing:.03em;transition:.15s;text-decoration:none;}
-.btn svg{width:17px;height:17px;}
-.btn-primary{background:var(--coral-btn);color:#fff;box-shadow:0 4px 12px rgba(176,60,26,.26);}
-.btn-primary:hover{background:var(--coral-btn-h);transform:translateY(-1px);}
-.btn-navy{background:var(--navy);color:#fff;}
-.btn-navy:hover{background:#16344e;}
-.btn-ghost{background:var(--white);border:1.5px solid var(--line);color:var(--navy);}
-.btn-ghost:hover{border-color:var(--navy-2);}
-.btn-sm{padding:8px 14px;min-height:36px;font-size:var(--fs-sm);}
+.side label{display:block;font-size:.79rem;font-weight:700;color:var(--muted);letter-spacing:.03em;margin-bottom:5px;}
+.side .box{display:flex;align-items:baseline;gap:6px;border:1.5px solid var(--line);border-radius:11px;
+  background:var(--white);padding:9px 13px;transition:.15s;}
+.side input{flex:1;min-width:0;border:none;background:none;padding:0;font-family:var(--num);
+  font-size:1.62rem;font-weight:700;text-align:right;font-variant-numeric:tabular-nums;color:var(--navy);
+  -moz-appearance:textfield;}
+.side input::-webkit-outer-spin-button,.side input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.side input:focus{outline:none;}
+.side .box:focus-within{border-color:var(--navy-2);box-shadow:0 0 0 3px var(--navy-soft);}
+.side .u{font-size:.86rem;font-weight:700;color:var(--muted);}
+.side .yen{font-size:.76rem;color:var(--muted);text-align:right;margin-top:4px;
+  font-variant-numeric:tabular-nums;min-height:1.4em;}
+/* 答えの側だけ色をつける */
+.side.out .box{background:var(--coral-bg);border-color:var(--coral-line);}
+.side.out input{color:var(--coral);}
+.side.out label{color:var(--coral);}
 
-/* ---------- フォーム ---------- */
-.frm{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--sp-3) var(--sp-4);}
-.frm .full{grid-column:1 / -1;}
-.fld label{display:block;font-size:var(--fs-xs);font-weight:700;color:var(--navy);margin-bottom:4px;letter-spacing:.03em;}
-.fld input[type=number],.fld input[type=text],.fld select{
-  width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px;background:#fdfaf6;
-  font-weight:700;text-align:right;font-variant-numeric:tabular-nums;}
-.fld input:focus,.fld select:focus{border-color:var(--navy-2);outline:none;box-shadow:0 0 0 3px var(--navy-soft);}
-.fld .hint{font-size:var(--fs-xs);color:var(--muted);margin-top:3px;line-height:1.5;}
-.in-unit{display:flex;align-items:center;gap:8px;}
-.in-unit .unit{flex:none;font-size:var(--fs-sm);font-weight:700;color:var(--muted);white-space:nowrap;min-width:2.6em;}
-.rng{width:100%;margin-top:6px;height:26px;accent-color:var(--navy-2);cursor:pointer;}
-.chips{display:flex;gap:var(--sp-2);flex-wrap:wrap;}
-.chip{border:1.5px solid var(--line);background:var(--white);border-radius:999px;padding:7px 14px;min-height:36px;
-  cursor:pointer;font-size:var(--fs-sm);font-weight:700;color:var(--muted);}
-.chip:hover{border-color:var(--navy-2);color:var(--navy);}
-.chip[aria-pressed="true"]{background:var(--navy-soft);border-color:var(--navy-2);color:var(--navy);}
+/* 中央の係数（押すと計算の向きが変わる） */
+.fx{display:flex;flex-direction:column;gap:6px;min-width:0;}
+.fxb{display:grid;grid-template-columns:20px 1fr auto;align-items:center;gap:9px;width:100%;
+  border:1px solid var(--line);background:var(--white);border-radius:9px;padding:7px 11px;cursor:pointer;
+  text-align:left;transition:.15s;}
+.fxb:hover{border-color:var(--navy-2);}
+.fxb .no{font-size:.82rem;font-weight:700;color:var(--muted);}
+.fxb .nm{font-size:.8rem;font-weight:700;color:var(--muted);letter-spacing:.02em;white-space:nowrap;}
+.fxb .nm svg{width:14px;height:14px;vertical-align:-.18em;}
+.fxb .vl{font-family:var(--num);font-size:.92rem;font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums;}
+.fxb[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);}
+.fxb[aria-pressed="true"] .no,.fxb[aria-pressed="true"] .nm{color:#c6d8e6;}
+.fxb[aria-pressed="true"] .vl{color:#fff;}
+.fxb[aria-pressed="false"]{opacity:.6;}
+.fxb[aria-pressed="false"]:hover{opacity:1;}
 
-/* ---------- 共通の前提バー ---------- */
-.assume{background:var(--white);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow-sm);
-  padding:var(--sp-4) var(--sp-5);display:grid;grid-template-columns:minmax(230px,1fr) minmax(230px,1fr);gap:var(--sp-4) var(--sp-5);align-items:start;}
-@media(max-width:760px){ .assume{grid-template-columns:1fr;} }
-.assume .as-h{font-size:var(--fs-xs);font-weight:700;color:var(--navy);letter-spacing:.04em;margin-bottom:6px;}
-.assume .rate-big{display:flex;align-items:baseline;gap:6px;}
-.assume input[type=number]{border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px;
-  background:#fdfaf6;font-weight:700;text-align:right;font-variant-numeric:tabular-nums;}
-.assume input[type=number]:focus{border-color:var(--navy-2);outline:none;box-shadow:0 0 0 3px var(--navy-soft);}
-.assume .rate-big input{width:6.6em;font-size:var(--fs-lg);}
-.assume .rate-big span{font-size:var(--fs-md);font-weight:700;color:var(--navy);}
+.sub{margin-top:9px;padding-top:8px;border-top:1px dashed var(--line);display:flex;gap:6px 24px;flex-wrap:wrap;
+  font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums;}
+.sub .f{color:var(--text);font-weight:700;}
+.sub .f b{color:var(--coral);}
 
-/* ---------- 係数ナビ ---------- */
-.ks-nav{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:var(--sp-2);}
-.ks-navbtn{display:flex;align-items:flex-start;gap:10px;text-align:left;border:1.5px solid var(--line);background:var(--white);
-  border-radius:14px;padding:12px 14px;min-height:66px;cursor:pointer;font:inherit;color:inherit;transition:.15s;}
-.ks-navbtn:hover{border-color:var(--navy-2);background:#fffaf5;transform:translateY(-1px);}
-.ks-navbtn .nb-no{flex:none;width:30px;height:30px;border-radius:9px;color:#fff;font-weight:700;font-size:var(--fs-sm);
-  display:flex;align-items:center;justify-content:center;}
-.ks-navbtn .nb-q{display:block;font-size:var(--fs-sm);font-weight:700;color:var(--text);line-height:1.5;}
-.ks-navbtn .nb-name{display:block;font-size:var(--fs-xs);color:var(--muted);margin-top:2px;}
+.note{font-size:.78rem;color:var(--muted);line-height:1.75;margin:14px 2px 18px;max-width:52em;}
 
-/* ---------- 係数カード ---------- */
-.ks-card{background:var(--white);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow-sm);
-  padding:var(--sp-5);margin-top:var(--sp-4);scroll-margin-top:80px;transition:box-shadow .3s;}
-.ks-card.flash{box-shadow:0 0 0 3px var(--coral),var(--shadow);}
-.ks-head{display:flex;align-items:center;gap:var(--sp-3);flex-wrap:wrap;padding-bottom:var(--sp-3);border-bottom:1px solid var(--line);}
-.ks-no{flex:none;width:40px;height:40px;border-radius:12px;color:#fff;font-weight:700;font-size:var(--fs-md);
-  display:flex;align-items:center;justify-content:center;}
-.ks-title b{display:block;font-family:var(--mincho);font-size:var(--fs-lg);color:var(--navy);font-weight:600;letter-spacing:.05em;line-height:1.4;}
-.ks-title small{display:block;font-size:var(--fs-xs);color:var(--muted);letter-spacing:.03em;}
-.ks-pill{margin-left:auto;font-size:var(--fs-xs);font-weight:700;border-radius:999px;padding:5px 13px;border:1px solid;white-space:nowrap;}
-.ks-q{margin-top:var(--sp-3);border-radius:12px;padding:11px 15px;font-size:var(--fs-sm);border:1px solid;line-height:1.7;}
-.ks-q b{font-size:var(--fs-md);font-variant-numeric:tabular-nums;}
-.ks-grid{display:grid;grid-template-columns:minmax(250px,1fr) minmax(250px,1.02fr);gap:var(--sp-4) var(--sp-5);
-  margin-top:var(--sp-4);align-items:start;}
-@media(max-width:820px){ .ks-grid{grid-template-columns:1fr;} }
-.ks-out{border-radius:16px;padding:var(--sp-4) var(--sp-5);border:1.5px solid;}
-.ks-out .o-label{font-size:var(--fs-xs);font-weight:700;letter-spacing:.04em;}
-.ks-out .o-main{font-size:var(--fs-2xl);font-weight:700;line-height:1.32;font-variant-numeric:tabular-nums;letter-spacing:.01em;}
-.ks-out .o-yen{font-size:var(--fs-xs);color:var(--muted);font-variant-numeric:tabular-nums;}
-.ks-out .o-extra{font-size:var(--fs-sm);font-weight:700;margin-top:4px;}
-.o-subs{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:var(--sp-2);margin-top:var(--sp-3);}
-.o-sub{background:rgba(255,255,255,.8);border:1px solid var(--line);border-radius:10px;padding:7px 10px;}
-.o-sub .s-l{display:block;font-size:11.5px;color:var(--muted);font-weight:700;line-height:1.5;}
-.o-sub .s-v{display:block;font-size:var(--fs-sm);font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums;}
-.formula{margin-top:var(--sp-3);background:var(--white);border:1px dashed var(--line);border-radius:10px;
-  padding:9px 12px;font-size:var(--fs-sm);font-variant-numeric:tabular-nums;line-height:1.7;}
-.formula em{font-style:normal;color:var(--muted);font-size:var(--fs-xs);}
-.o-err{background:var(--red-bg);border:1px solid var(--coral-border);color:var(--red-text);border-radius:10px;
-  padding:9px 12px;font-size:var(--fs-sm);font-weight:700;margin-top:var(--sp-3);}
+/* ---------- 折りたたみ ---------- */
+details{background:var(--white);border:1px solid var(--line);border-radius:12px;margin-bottom:10px;}
+summary{cursor:pointer;list-style:none;padding:13px 18px;font-size:.9rem;font-weight:700;color:var(--navy);
+  display:flex;align-items:center;gap:10px;}
+summary::-webkit-details-marker{display:none;}
+summary .ar{margin-left:auto;transition:.2s;color:var(--muted);width:15px;height:15px;flex:none;}
+details[open] summary .ar{transform:rotate(90deg);}
+.dbody{padding:0 18px 18px;font-size:.88rem;}
+.dbody p{margin-bottom:9px;max-width:50em;color:var(--muted);}
+.dbody p.t{color:var(--text);}
+.talk{border-left:3px solid var(--coral-line);padding:2px 0 2px 12px;margin:5px 0 14px;color:var(--text);
+  font-size:.85rem;line-height:1.8;max-width:50em;}
 
-/* ---------- 棒グラフ ---------- */
-.chart{margin-top:var(--sp-4);}
-.chart .c-h{font-size:var(--fs-xs);font-weight:700;color:var(--muted);letter-spacing:.04em;margin-bottom:2px;}
-.bars{display:flex;align-items:flex-end;gap:4px;height:150px;padding-top:26px;}
-.bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%;
-  background:none;border:none;position:relative;min-width:0;border-radius:6px;}
-.bar .b-fill{width:100%;max-width:40px;border-radius:4px 4px 0 0;border:2px solid var(--white);border-bottom:none;min-height:2px;}
-.bar .b-val{position:absolute;top:0;left:50%;transform:translateX(-50%);font-size:11.5px;font-weight:700;color:var(--navy);
-  white-space:nowrap;display:none;}
-.bar.show-val .b-val,.bar:hover .b-val{display:block;}
-.bar:first-child .b-val{left:0;transform:none;}
-.bar:last-child .b-val{left:auto;right:0;transform:none;}
-.bar-x{display:flex;gap:4px;margin-top:4px;}
-.bar-x span{flex:1;text-align:center;font-size:11.5px;color:var(--muted);min-width:0;white-space:nowrap;}
-.legend{display:flex;gap:var(--sp-3);flex-wrap:wrap;margin-top:var(--sp-2);font-size:var(--fs-xs);color:var(--muted);}
-.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px;}
+.tbl{width:100%;border-collapse:collapse;font-size:.84rem;}
+.tbl th,.tbl td{border-bottom:1px solid var(--line);padding:7px 9px;text-align:left;white-space:nowrap;}
+.tbl th{background:var(--navy-soft);color:var(--navy);font-size:.76rem;position:sticky;top:0;font-weight:700;}
+.tbl td.n,.tbl th.n{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--num);}
+.tbl tr.hi td{background:#fdf6ee;font-weight:700;}
+.scroll{overflow:auto;max-height:56vh;border:1px solid var(--line);border-radius:10px;}
+.scroll.flat{max-height:none;}
 
-/* ---------- 解説 ---------- */
-details.know{background:#fdfaf6;border:1px solid var(--line);border-radius:14px;margin-top:var(--sp-4);}
-details.know summary{cursor:pointer;font-weight:700;color:var(--navy);padding:12px 16px;list-style:none;
-  display:flex;align-items:center;gap:10px;min-height:44px;font-size:var(--fs-sm);}
-details.know summary::-webkit-details-marker{display:none;}
-details.know summary .kn-arrow{margin-left:auto;transition:.2s;color:var(--muted);}
-details.know[open] summary .kn-arrow{transform:rotate(90deg);}
-details.know .kn-body{padding:0 16px 16px;font-size:var(--fs-sm);}
-details.know .kn-body ul{margin:0 0 var(--sp-3) 1.3em;max-width:46em;}
-details.know .kn-body li{margin-bottom:5px;}
-.talk{background:var(--white);border:1px solid var(--line);border-left:4px solid var(--coral);border-radius:10px;
-  padding:11px 14px;max-width:46em;line-height:1.8;}
-.talk b{display:block;font-size:var(--fs-xs);color:var(--coral-text);letter-spacing:.04em;margin-bottom:3px;}
+.pf{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px 16px;margin-bottom:16px;}
+.pf .fl label{display:block;font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:4px;}
+.pf .fl .box{display:flex;align-items:baseline;gap:5px;border:1.5px solid var(--line);border-radius:9px;
+  background:var(--white);padding:7px 11px;}
+.pf .fl input{flex:1;min-width:0;border:none;background:none;font-family:var(--num);font-size:1.12rem;
+  font-weight:700;text-align:right;font-variant-numeric:tabular-nums;color:var(--navy);-moz-appearance:textfield;}
+.pf .fl input::-webkit-outer-spin-button,.pf .fl input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.pf .fl input:focus{outline:none;}
+.pf .fl .box:focus-within{border-color:var(--navy-2);}
+.pf .fl .u{font-size:.8rem;font-weight:700;color:var(--muted);}
+.res{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:12px;}
+.res .r{border:1px solid var(--line);border-radius:11px;padding:11px 14px;}
+.res .r.key{background:var(--coral-bg);border-color:var(--coral-line);}
+.res .r .l{display:block;font-size:.76rem;font-weight:700;color:var(--muted);}
+.res .r.key .l{color:var(--coral);}
+.res .r .v{display:block;font-family:var(--num);font-size:1.5rem;font-weight:700;color:var(--navy);
+  font-variant-numeric:tabular-nums;line-height:1.35;}
+.res .r.key .v{color:var(--coral);}
+.res .r .s{display:block;font-size:.74rem;color:var(--muted);font-variant-numeric:tabular-nums;}
+.steps{margin-top:12px;font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums;line-height:1.9;}
+.steps b{color:var(--text);}
+.bars{display:flex;align-items:flex-end;gap:2px;height:104px;margin-top:14px;}
+.bars i{flex:1;min-width:0;border-radius:2px 2px 0 0;display:block;}
+.bx{display:flex;gap:2px;margin-top:4px;font-size:.7rem;color:var(--muted);overflow:hidden;}
+.bx span{flex:1;text-align:center;min-width:0;white-space:nowrap;}
+.lg{display:flex;gap:16px;flex-wrap:wrap;font-size:.76rem;color:var(--muted);margin-top:7px;}
+.lg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;}
+.warn{background:#fdf6ea;border:1px solid #f0dfbe;color:#8a5c14;border-radius:9px;padding:9px 13px;
+  font-size:.82rem;margin-top:12px;}
 
-/* ---------- テーブル ---------- */
-.tbl{width:100%;border-collapse:collapse;font-size:var(--fs-sm);}
-.tbl th,.tbl td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;white-space:nowrap;}
-.tbl th{color:var(--navy);font-size:var(--fs-xs);letter-spacing:.03em;background:var(--navy-soft);position:sticky;top:0;}
-.tbl td.num,.tbl th.num{text-align:right;font-variant-numeric:tabular-nums;}
-.tbl tbody tr:hover{background:#fffaf5;}
-.tbl tr.hi td{background:var(--amber-bg);font-weight:700;}
-.tbl-scroll{overflow:auto;max-height:62vh;border:1px solid var(--line);border-radius:12px;}
+footer{border-top:1px solid var(--line);padding:18px 20px 26px;text-align:center;font-size:.74rem;color:var(--muted);}
 
-/* ---------- 関係図 ---------- */
-.pairs{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:var(--sp-3);}
-.pair{border:1px solid var(--line);border-radius:14px;background:var(--white);padding:var(--sp-4);box-shadow:var(--shadow-sm);}
-.pair .p-h{font-size:var(--fs-xs);font-weight:700;color:var(--muted);letter-spacing:.04em;margin-bottom:var(--sp-2);}
-.pair .p-row{display:flex;align-items:center;gap:10px;}
-.pair .p-box{flex:1;border-radius:10px;padding:9px 8px;text-align:center;font-weight:700;font-size:12.5px;
-  line-height:1.5;border:1px solid;}
-.pair .p-arrow{flex:none;color:var(--muted);font-size:var(--fs-xs);font-weight:700;text-align:center;line-height:1.3;}
-.pair .p-note{font-size:var(--fs-xs);color:var(--muted);margin-top:var(--sp-2);line-height:1.6;}
-.callout{border-radius:12px;padding:12px 16px;font-size:var(--fs-sm);margin:var(--sp-3) 0;border:1px solid;max-width:48em;line-height:1.75;}
-.callout.warn{background:var(--amber-bg);border-color:var(--amber-border);color:var(--amber);}
-.callout.info{background:var(--sky-bg);border-color:var(--sky-border);color:var(--sky);}
-.callout b{display:block;margin-bottom:3px;}
-
-/* ---------- 色テーマ ---------- */
-.c-sky .ks-no,.c-sky .nb-no{background:var(--sky);}
-.c-sky .ks-out{background:var(--sky-bg);border-color:var(--sky-border);}
-.c-sky .o-main,.c-sky .o-label,.c-sky .o-extra{color:var(--sky);}
-.c-sky .ks-q{background:var(--sky-bg);border-color:var(--sky-border);}
-.c-sky .ks-pill{background:var(--sky-bg);border-color:var(--sky-border);color:var(--sky);}
-.c-navy .ks-no,.c-navy .nb-no{background:var(--navy);}
-.c-navy .ks-out{background:var(--navy-soft);border-color:var(--navy-border);}
-.c-navy .o-main,.c-navy .o-label,.c-navy .o-extra{color:var(--navy);}
-.c-navy .ks-q{background:var(--navy-soft);border-color:var(--navy-border);}
-.c-navy .ks-pill{background:var(--navy-soft);border-color:var(--navy-border);color:var(--navy);}
-.c-green .ks-no,.c-green .nb-no{background:var(--green);}
-.c-green .ks-out{background:var(--green-bg);border-color:var(--green-border);}
-.c-green .o-main,.c-green .o-label,.c-green .o-extra{color:var(--green);}
-.c-green .ks-q{background:var(--green-bg);border-color:var(--green-border);}
-.c-green .ks-pill{background:var(--green-bg);border-color:var(--green-border);color:var(--green);}
-.c-amber .ks-no,.c-amber .nb-no{background:var(--amber);}
-.c-amber .ks-out{background:var(--amber-bg);border-color:var(--amber-border);}
-.c-amber .o-main,.c-amber .o-label,.c-amber .o-extra{color:var(--amber);}
-.c-amber .ks-q{background:var(--amber-bg);border-color:var(--amber-border);}
-.c-amber .ks-pill{background:var(--amber-bg);border-color:var(--amber-border);color:var(--amber);}
-.c-coral .ks-no,.c-coral .nb-no{background:var(--coral-btn);}
-.c-coral .ks-out{background:var(--coral-bg);border-color:var(--coral-border);}
-.c-coral .o-main,.c-coral .o-label,.c-coral .o-extra{color:var(--coral-text);}
-.c-coral .ks-q{background:var(--coral-bg);border-color:var(--coral-border);}
-.c-coral .ks-pill{background:var(--coral-bg);border-color:var(--coral-border);color:var(--coral-text);}
-.c-berry .ks-no,.c-berry .nb-no{background:var(--berry);}
-.c-berry .ks-out{background:var(--berry-bg);border-color:var(--berry-border);}
-.c-berry .o-main,.c-berry .o-label,.c-berry .o-extra{color:var(--berry);}
-.c-berry .ks-q{background:var(--berry-bg);border-color:var(--berry-border);}
-.c-berry .ks-pill{background:var(--berry-bg);border-color:var(--berry-border);color:var(--berry);}
-
-footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-size:var(--fs-xs);color:var(--muted);border-top:1px solid var(--line);}
-@media(max-width:640px){
-  .bars{height:124px;gap:2px;}
-  .bar-x{gap:2px;}
-  .ks-out .o-main{font-size:var(--fs-xl);}
-  .tb-tag{margin-left:0;}
+@media(max-width:860px){
+  .calc{grid-template-columns:minmax(0,1fr);gap:12px;}
+  .prem .wrap{gap:16px;}
+  .side input{font-size:1.45rem;}
+  .fxb{grid-template-columns:18px 1fr auto;gap:7px;padding:7px 10px;}
+  .fxb .nm{white-space:normal;font-size:.76rem;min-width:0;}
+  .fxb .vl{font-size:.86rem;}
+  .bx span{font-size:.62rem;}
 }
-@media print{
-  .tabs,.ks-nav,.btn,.chips{display:none !important;}
-  body{background:#fff;}
-  .ks-card,.card{break-inside:avoid;box-shadow:none;}
-}
+@media print{ .prem{position:static;} details{break-inside:avoid;} }
 </style>
 </head>
 <body>
 
-<header class="topbar">
+<header class="hd">
   <div class="wrap">
-    <div class="tb-brand">
-      <span class="tb-art"><svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#ffeee3"/><rect x="14" y="10" width="36" height="44" rx="6" fill="#1b3f5e"/><rect x="20" y="16" width="24" height="10" rx="2.5" fill="#fff"/><circle cx="25" cy="34" r="3.4" fill="#f0846a"/><circle cx="32" cy="34" r="3.4" fill="#fff"/><circle cx="39" cy="34" r="3.4" fill="#fff"/><circle cx="25" cy="44" r="3.4" fill="#fff"/><circle cx="32" cy="44" r="3.4" fill="#fff"/><circle cx="39" cy="44" r="3.4" fill="#f7c34e"/></svg></span>
-      <span><b>6つの係数 計算ツール</b><small>いくら・いつから・何年間 を入れるだけで、将来の金額と毎年の積立額を出す</small></span>
-    </div>
-    <span class="tb-tag">計算だけ・データは保存しません</span>
+    <h1>6つの係数 計算ツール</h1>
+    <p>利回りと年数を決めれば、6つの答えが同時に出ます</p>
   </div>
 </header>
 
-<nav class="tabs" aria-label="ページ切り替え">
-  <div class="wrap" role="tablist">
-    <button class="tab" role="tab" data-tab="calc" aria-selected="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M8.5 7h7M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01"/></svg>6つの係数で計算</button>
-    <button class="tab" role="tab" data-tab="plan" aria-selected="false">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20c2-8 5-12 9-12s6 2 9 6"/><path d="M3 20h18"/><circle cx="12" cy="4.5" r="2"/></svg>合わせ技プラン</button>
-    <button class="tab" role="tab" data-tab="table" aria-selected="false">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M9 9.5V19.5M15 9.5V19.5"/></svg>係数の早見表</button>
-    <button class="tab" role="tab" data-tab="learn" aria-selected="false">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.2A2.5 2.5 0 0 1 14.5 10c0 1.7-2.5 2-2.5 3.6M12 17h.01"/></svg>係数のしくみ</button>
+<div class="prem">
+  <div class="wrap">
+    <div class="pg">
+      <label for="rate">想定利回り</label>
+      <span class="pin"><input type="number" id="rate" value="3" min="0" max="20" step="0.1"><span>％</span></span>
+      <div class="tabs" id="rateTabs">
+        <button class="tab" data-v="0.5">0.5</button><button class="tab" data-v="1">1</button>
+        <button class="tab" data-v="1.5">1.5</button><button class="tab" data-v="2">2</button>
+        <button class="tab" data-v="3" aria-pressed="true">3</button><button class="tab" data-v="5">5</button>
+      </div>
+    </div>
+    <div class="pg">
+      <label for="yrs">年数</label>
+      <span class="pin"><input type="number" id="yrs" value="10" min="1" max="60" step="1"><span>年</span></span>
+      <div class="tabs" id="yrTabs">
+        <button class="tab" data-v="5">5</button><button class="tab" data-v="10" aria-pressed="true">10</button>
+        <button class="tab" data-v="15">15</button><button class="tab" data-v="20">20</button>
+        <button class="tab" data-v="25">25</button><button class="tab" data-v="30">30</button>
+      </div>
+    </div>
   </div>
-</nav>
+</div>
 
 <main class="wrap">
+  <div id="rows"></div>
 
-<!-- ================= 6つの係数で計算 ================= -->
-<section id="tab-calc" role="tabpanel">
+  <p class="note">
+    どちらの欄に金額を入れても、反対側が計算されます。中央の係数を押すと計算の向きが変わります。<br>
+    毎年おなじ利回りで回り続ける前提の概算です。税金・手数料・インフレは含みません（積立・受取は期末）。保険の予定利率は保険料の全額にかかるわけではないため、実際の返戻率・受取額は設計書でご確認ください。
+  </p>
 
-  <div class="sec">
-    <div class="sec-head">
-      <span class="sh-art"><svg aria-hidden="true" viewBox="0 0 64 64"><rect x="10" y="36" width="10" height="18" rx="2" fill="#1b3f5e"/><rect x="26" y="26" width="10" height="28" rx="2" fill="#1b3f5e"/><rect x="42" y="14" width="10" height="40" rx="2" fill="#1b3f5e"/><path d="M12 26l14-10 12 6 14-14" fill="none" stroke="#f0846a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M44 8h10v10" fill="none" stroke="#f0846a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-      <div><h2>6つの係数で計算</h2><p>いま／将来、一括／毎年。この4つの組み合わせで使う係数が決まります</p></div>
+  <details>
+    <summary>係数の早見表（1〜40年）
+      <svg class="ar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></summary>
+    <div class="dbody">
+      <p>いまの利回り <b id="tblR"></b> での一覧です。金額に掛けるだけで答えが出ます。</p>
+      <div class="scroll"><table class="tbl" id="ftbl"></table></div>
+      <p style="margin-top:10px;font-size:.78rem;">
+        期首払い（年度はじめに積立・受取）で計算する場合は、③⑥に (1+利回り) を掛け、④⑤を (1+利回り) で割ってください。
+      </p>
     </div>
+  </details>
 
-    <!-- 共通の前提 -->
-    <div class="assume">
-      <div>
-        <div class="as-h">共通の想定利回り（年・複利）</div>
-        <div class="rate-big">
-          <input type="number" id="baseRate" value="3" min="0" max="15" step="0.1" aria-label="共通の想定利回り"><span>％</span>
-        </div>
-        <input type="range" class="rng" id="baseRateR" min="0" max="10" step="0.1" value="3" aria-label="共通の想定利回りスライダー">
-        <div class="chips" style="margin-top:6px;" id="rateChips">
-          <button class="chip" data-r="0.5">0.5%</button>
-          <button class="chip" data-r="1">1%</button>
-          <button class="chip" data-r="1.5">1.5%</button>
-          <button class="chip" data-r="3" aria-pressed="true">3%</button>
-          <button class="chip" data-r="5">5%</button>
-        </div>
-        <div class="hint" style="font-size:var(--fs-xs);color:var(--muted);margin-top:8px;line-height:1.6;">
-          提案する商品に合わせて入れてください（円建て保険の予定利率、外貨建ての積立利率、変額の想定利回りなど）。手数料・税金を引く前の数字です。
-        </div>
-      </div>
-      <div>
-        <div class="as-h">積立・受取のタイミング</div>
-        <div class="chips" id="modeChips">
-          <button class="chip" data-m="end" aria-pressed="true">期末（年度末にまとめて）</button>
-          <button class="chip" data-m="begin">期首（年度はじめに）</button>
-        </div>
-        <div class="hint" style="font-size:var(--fs-xs);color:var(--muted);margin-top:8px;line-height:1.6;">
-          FPの係数表・試験は「期末」が基本です。月払いの保険を年額に直して使う場合も、まずは期末で見ておけば大きくは外れません。
-        </div>
-        <div style="margin-top:var(--sp-3);display:flex;gap:var(--sp-2);flex-wrap:wrap;">
-          <button class="btn btn-navy btn-sm" id="applyAll">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>この利回りを6つ全部に反映</button>
-          <button class="btn btn-ghost btn-sm" id="resetAll">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>入力をはじめに戻す</button>
-        </div>
-      </div>
+  <details>
+    <summary>合わせ技：いつから・何年間・毎年いくら受け取りたい → 毎月の積立額
+      <svg class="ar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></summary>
+    <div class="dbody">
+      <p>⑥で受取開始時に必要な原資を出し、①でいまの資金が育つ額を引き、残りを④で毎年の積立額に割り戻します。</p>
+      <div class="pf" id="planForm"></div>
+      <div id="planOut"></div>
     </div>
+  </details>
 
-    <div class="callout warn" style="margin-top:var(--sp-4);">
-      <b>この計算のお約束</b>
-      毎年おなじ利回りで回り続ける前提の「目安」です。税金・手数料・インフレは含みません。保険の予定利率は保険料の全額にかかるわけではないため、実際の返戻率・受取額は必ず設計書でご確認ください。
-    </div>
-  </div>
-
-  <!-- 何を知りたい？ -->
-  <div class="sec">
-    <div class="card">
-      <h3>何を知りたいですか？</h3>
-      <p class="sec-note" style="margin:0 0 var(--sp-3);">押すとその係数のカードに移動します。</p>
-      <div class="ks-nav" id="ksNav"></div>
-    </div>
-  </div>
-
-  <!-- 6つのカード -->
-  <div id="ksCards"></div>
-</section>
-
-<!-- ================= 合わせ技プラン ================= -->
-<section id="tab-plan" role="tabpanel" class="hide">
-  <div class="sec">
-    <div class="sec-head">
-      <span class="sh-art"><svg aria-hidden="true" viewBox="0 0 64 64"><path d="M6 52h52" stroke="#1b3f5e" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M10 44c0-14 8-24 18-24s12 8 12 16 4 12 10 12" fill="none" stroke="#f0846a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="28" cy="20" r="6" fill="#f7c34e"/><circle cx="50" cy="48" r="5" fill="#63b8dd"/></svg></span>
-      <div><h2>合わせ技プラン</h2><p>「いつから・何年間・毎年いくら受け取りたい」から、毎月の積立額まで一気に逆算</p></div>
-    </div>
-    <p class="sec-note">
-      ⑥年金現価係数で「受取開始時に必要な原資」を出し、①終価係数で「いまある資金がそこまでに育つ額」を引き、足りない分を④減債基金係数で「毎年の積立額」に割り戻します。提案書の1ページ目に置く数字がこれです。
-    </p>
-
-    <div class="card">
-      <div class="chips" style="margin-bottom:var(--sp-4);" id="planPresets">
-        <button class="chip" data-p="老後" aria-pressed="true">老後資金</button>
-        <button class="chip" data-p="学資">学資（子の年齢で入力）</button>
-        <button class="chip" data-p="介護">介護・医療の備え</button>
-      </div>
-      <div class="frm" id="planForm"></div>
-    </div>
-
-    <div id="planOut"></div>
-  </div>
-</section>
-
-<!-- ================= 早見表 ================= -->
-<section id="tab-table" role="tabpanel" class="hide">
-  <div class="sec">
-    <div class="sec-head">
-      <span class="sh-art"><svg aria-hidden="true" viewBox="0 0 64 64"><rect x="8" y="12" width="48" height="40" rx="5" fill="#fff" stroke="#1b3f5e" stroke-width="3.5"/><path d="M8 24h48M24 24v28M40 24v28" stroke="#1b3f5e" stroke-width="3"/><rect x="8" y="12" width="48" height="12" rx="5" fill="#1b3f5e"/><path d="M12 40h8M28 34h8M44 44h8" stroke="#f0846a" stroke-width="3.5" stroke-linecap="round"/></svg></span>
-      <div><h2>係数の早見表</h2><p>お客様の前で電卓を叩かずに使える、利回り別の一覧</p></div>
-    </div>
-    <div class="card" style="margin-bottom:var(--sp-4);">
-      <div style="display:flex;gap:var(--sp-4);flex-wrap:wrap;align-items:flex-end;">
-        <div class="fld" style="min-width:190px;">
-          <label for="tblRate">利回り（年）</label>
-          <div class="in-unit"><input type="number" id="tblRate" value="3" min="0" max="15" step="0.1"><span class="unit">％</span></div>
-        </div>
-        <div style="flex:1;min-width:220px;">
-          <div class="as-h" style="font-size:var(--fs-xs);font-weight:700;color:var(--navy);margin-bottom:6px;">よく使う利回り</div>
-          <div class="chips" id="tblChips">
-            <button class="chip" data-r="0.3">0.3%</button>
-            <button class="chip" data-r="0.5">0.5%</button>
-            <button class="chip" data-r="1">1%</button>
-            <button class="chip" data-r="1.5">1.5%</button>
-            <button class="chip" data-r="2">2%</button>
-            <button class="chip" data-r="3" aria-pressed="true">3%</button>
-            <button class="chip" data-r="4">4%</button>
-            <button class="chip" data-r="5">5%</button>
-            <button class="chip" data-r="6">6%</button>
-            <button class="chip" data-r="7">7%</button>
-          </div>
-        </div>
-      </div>
-      <div class="callout info" style="margin-top:var(--sp-4);">
-        <b>表の読み方</b>
-        たとえば年3%・10年の終価係数は 1.3439。100万円 × 1.3439 ＝ 約134.4万円。掛けるだけで答えが出ます。<span id="tblModeNote"></span>
-      </div>
-    </div>
-    <div class="tbl-scroll">
-      <table class="tbl" id="factorTable"></table>
-    </div>
-    <p class="sec-note" style="margin-top:var(--sp-3);">※ 小数第4位まで表示（四捨五入）。金額を出すときの端数は、実際の設計書の数字とわずかにずれることがあります。</p>
-  </div>
-</section>
-
-<!-- ================= 係数のしくみ ================= -->
-<section id="tab-learn" role="tabpanel" class="hide">
-  <div class="sec">
-    <div class="sec-head">
-      <span class="sh-art"><svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="24" fill="#eaf1f7" stroke="#1b3f5e" stroke-width="3.5"/><path d="M24 26a8 8 0 1 1 10 7.6V38" fill="none" stroke="#f0846a" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="34" cy="45" r="2.8" fill="#f0846a"/></svg></span>
-      <div><h2>係数のしくみ</h2><p>6つは3組の「逆算どうし」。ここを押さえると迷いません</p></div>
-    </div>
-
-    <div class="card" style="margin-bottom:var(--sp-4);">
-      <h3>使い分けの早見</h3>
-      <div class="tbl-scroll" style="max-height:none;">
+  <details>
+    <summary>使い分けと、営業でのトーク例
+      <svg class="ar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></summary>
+    <div class="dbody">
+      <div class="scroll flat" style="margin-bottom:16px;">
         <table class="tbl">
-          <thead><tr><th>知りたいこと</th><th>お金の出入り</th><th>使う係数</th><th class="num">計算式</th></tr></thead>
+          <thead><tr><th>知りたいこと</th><th>使う係数</th><th class="n">計算式</th></tr></thead>
           <tbody>
-            <tr><td>いまの一括 → 将来いくら</td><td>一括で預ける</td><td>① 終価係数</td><td class="num">(1+r)<sup>n</sup></td></tr>
-            <tr><td>将来の目標 → いまいくら</td><td>一括で預ける</td><td>② 現価係数</td><td class="num">1 ÷ (1+r)<sup>n</sup></td></tr>
-            <tr><td>毎年の積立 → 将来いくら</td><td>毎年積み立てる</td><td>③ 年金終価係数</td><td class="num">{(1+r)<sup>n</sup> − 1} ÷ r</td></tr>
-            <tr><td>将来の目標 → 毎年いくら積立</td><td>毎年積み立てる</td><td>④ 減債基金係数</td><td class="num">r ÷ {(1+r)<sup>n</sup> − 1}</td></tr>
-            <tr><td>いまの元本 → 毎年いくら受取</td><td>毎年取り崩す</td><td>⑤ 資本回収係数</td><td class="num">r ÷ {1 − (1+r)<sup>−n</sup>}</td></tr>
-            <tr><td>毎年の受取 → いまいくら必要</td><td>毎年取り崩す</td><td>⑥ 年金現価係数</td><td class="num">{1 − (1+r)<sup>−n</sup>} ÷ r</td></tr>
+            <tr><td>いまの一括 → 将来いくら</td><td>① 終価係数</td><td class="n">(1+r)<sup>n</sup></td></tr>
+            <tr><td>将来の目標 → いまいくら</td><td>② 現価係数</td><td class="n">1 ÷ (1+r)<sup>n</sup></td></tr>
+            <tr><td>毎年の積立 → 将来いくら</td><td>③ 年金終価係数</td><td class="n">{(1+r)<sup>n</sup> − 1} ÷ r</td></tr>
+            <tr><td>将来の目標 → 毎年いくら積立</td><td>④ 減債基金係数</td><td class="n">r ÷ {(1+r)<sup>n</sup> − 1}</td></tr>
+            <tr><td>いまの元本 → 毎年いくら受取</td><td>⑤ 資本回収係数</td><td class="n">r ÷ {1 − (1+r)<sup>−n</sup>}</td></tr>
+            <tr><td>毎年の受取 → いまいくら必要</td><td>⑥ 年金現価係数</td><td class="n">{1 − (1+r)<sup>−n</sup>} ÷ r</td></tr>
           </tbody>
         </table>
       </div>
-      <p class="sec-note" style="margin-bottom:0;">r＝利回り（小数）、n＝年数。期首払いの場合、③⑥は (1+r) を掛け、④⑤は (1+r) で割ります。</p>
+      <p class="t"><b>① 終価係数</b>／退職金・満期金の置き場所を考えてもらうとき</p>
+      <p class="talk">退職金の2,000万円、普通預金に置いたままだと10年後もほぼ2,000万円です。年3%で回った場合は約2,688万円。この差が「置き場所」で変わる部分です。</p>
+      <p class="t"><b>② 現価係数</b>／目標額から一時払いの金額を出すとき</p>
+      <p class="talk">お子さんの大学費用500万円。18年後の話ですから、いま一括で用意するなら年2%で約350万円。残りは時間が稼いでくれる計算です。</p>
+      <p class="t"><b>③ 年金終価係数</b>／積立を続ける理由を数字で示すとき</p>
+      <p class="talk">毎月2万円を20年続けると元本は480万円。年3%で回った場合は約645万円です。165万円ぶんが時間の働きということになります。</p>
+      <p class="t"><b>④ 減債基金係数</b>／提案する保険料の根拠をつくるとき（提案書の中心）</p>
+      <p class="talk">65歳までに2,000万円。あと20年あるので年3%なら月6.2万円。これが5年遅れて15年になると月8.9万円まで上がります。</p>
+      <p class="t"><b>⑤ 資本回収係数</b>／年金額を具体化するとき（住宅ローンの年間返済額も同じ係数）</p>
+      <p class="talk">3,000万円を65歳から25年で取り崩すと、年3%運用で毎年約172万円、月14万円。公的年金と合わせて足りるかを確認しましょう。</p>
+      <p class="t"><b>⑥ 年金現価係数</b>／必要な原資・必要保障額を出すとき</p>
+      <p class="talk">奥さまに毎年240万円を20年間。単純合計は4,800万円ですが、運用しながら取り崩す前提（年1%）なら約4,330万円が目安です。</p>
     </div>
-
-    <h3 style="color:var(--navy);font-size:var(--fs-md);margin-bottom:var(--sp-3);">3組の「逆数」の関係</h3>
-    <div class="pairs">
-      <div class="pair">
-        <div class="p-h">一括で預ける</div>
-        <div class="p-row">
-          <div class="p-box" style="background:var(--sky-bg);border-color:var(--sky-border);color:var(--sky);">① 終価係数</div>
-          <div class="p-arrow">逆数<br>1 ÷</div>
-          <div class="p-box" style="background:var(--navy-soft);border-color:var(--navy-border);color:var(--navy);">② 現価係数</div>
-        </div>
-        <p class="p-note">いまの100万円が10年後にいくらか（①）と、10年後の100万円がいまいくらの価値か（②）。同じ話を、向きだけ変えて見ています。</p>
-      </div>
-      <div class="pair">
-        <div class="p-h">毎年積み立てる</div>
-        <div class="p-row">
-          <div class="p-box" style="background:var(--green-bg);border-color:var(--green-border);color:var(--green);">③ 年金終価係数</div>
-          <div class="p-arrow">逆数<br>1 ÷</div>
-          <div class="p-box" style="background:var(--amber-bg);border-color:var(--amber-border);color:var(--amber);">④ 減債基金係数</div>
-        </div>
-        <p class="p-note">毎年10万円積むと将来いくらか（③）と、将来1,000万円にするには毎年いくら積むか（④）。提案保険料の根拠は④で作ります。</p>
-      </div>
-      <div class="pair">
-        <div class="p-h">毎年取り崩す</div>
-        <div class="p-row">
-          <div class="p-box" style="background:var(--berry-bg);border-color:var(--berry-border);color:var(--berry);">⑥ 年金現価係数</div>
-          <div class="p-arrow">逆数<br>1 ÷</div>
-          <div class="p-box" style="background:var(--coral-bg);border-color:var(--coral-border);color:var(--coral-text);">⑤ 資本回収係数</div>
-        </div>
-        <p class="p-note">毎年もらうために原資がいくら要るか（⑥）と、いまの原資で毎年いくらもらえるか（⑤）。⑤は住宅ローンの年間返済額の計算にもそのまま使えます。</p>
-      </div>
-    </div>
-
-    <div class="sec">
-      <h3 style="color:var(--navy);font-size:var(--fs-md);margin-bottom:var(--sp-3);">保険の提案で使うときの注意</h3>
-      <div class="callout warn">
-        <b>予定利率＝運用利回りではありません</b>
-        円建て保険の予定利率は、保険料から付加保険料（経費）や保障部分の費用を引いた後の責任準備金にかかります。予定利率1.0%の商品でも、払込総額に対する実質利回りはそれより低くなるのが普通です。このツールの数字は「比較のものさし」として使い、最終的な金額は設計書で確認してください。
-      </div>
-      <div class="callout info">
-        <b>それでも係数が役に立つ理由</b>
-        お客様が本当に知りたいのは「毎月いくら出せば、将来いくら受け取れるのか」です。商品説明の前にこの数字を出すと、話が「商品の良し悪し」から「必要な金額」に変わります。特に④（毎年いくら積立）と⑥（必要な原資）は、そのまま提案保険料と必要保障額の根拠になります。
-      </div>
-      <div class="callout warn">
-        <b>インフレは入っていません</b>
-        「20年後の毎年120万円」は、いまの120万円と同じ価値ではありません。物価上昇を織り込むなら、受取額を多めに置くか、利回りから想定インフレ率を引いた「実質利回り」で計算してください（例：想定3% − インフレ1% ＝ 2%で計算）。
-      </div>
-    </div>
-  </div>
-</section>
-
+  </details>
 </main>
 
 <footer>
-  6つの係数 計算ツール ／ 一定利回りの複利を前提とした概算です。税金・手数料・インフレは考慮していません。<br>
+  一定利回りの複利を前提とした概算です。税金・手数料・インフレは考慮していません。<br>
   実際の保険商品の受取額・返戻率は各社の設計書をご確認ください。入力内容は端末の外に出ません。
 </footer>
 
@@ -506,591 +275,231 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
 'use strict';
 (function(){
 
-/* ============ 共通ヘルパー ============ */
-var NOW = new Date().getFullYear();
+/* ---------- 数値の整形 ---------- */
 function nf(v,d){ d=d||0; return v.toLocaleString('ja-JP',{minimumFractionDigits:d,maximumFractionDigits:d}); }
 function yen(v){ return nf(Math.round(v))+'円'; }
-/* 万円・億円で読みやすく */
-function man(v){
-  var neg = v<0; v = Math.abs(v);
+function man(v){                       /* v は円 */
+  if(!isFinite(v)) return '—';
+  var neg=v<0; v=Math.abs(v);
   if(Math.round(v)===0) return '0円';
-  var m = v/10000, s;
-  if(m>=10000){
-    var oku = Math.floor(m/10000), rest = Math.round(m-oku*10000);
-    s = nf(oku)+'億'+(rest>0? nf(rest)+'万円' : '円');
-  }else{
-    s = nf(m, m<100?1:0)+'万円';
-  }
+  var m=v/10000, s;
+  if(m>=10000){ var o=Math.floor(m/10000), r=Math.round(m-o*10000);
+    s=nf(o)+'億'+(r>0?nf(r)+'万円':'円'); }
+  else s=nf(m, (Math.abs(m-Math.round(m))<0.05) ? 0 : (m<1000?1:0))+'万円';
   return (neg?'−':'')+s;
 }
-function el(html){ var d=document.createElement('div'); d.innerHTML=html.trim(); return d.firstChild; }
-function num(id){ var e=document.getElementById(id); if(!e) return 0; var v=parseFloat(e.value); return isFinite(v)?v:0; }
+function r1(v){ return Math.round(v*10)/10; }
+function gv(id){ var e=document.getElementById(id); if(!e) return 0;
+  var v=parseFloat(e.value); return isFinite(v)?v:0; }
 
-/* ============ 係数の計算 ============ */
-/* r: 年利（小数）, n: 年数, begin: 期首払いなら true */
-function F(r,n,begin){
-  var g = Math.pow(1+r,n), o;
-  if(Math.abs(r)<1e-12){
-    o = { fv:1, pv:1, afv:n, sf:(n?1/n:0), cr:(n?1/n:0), apv:n };
-  }else{
-    o = { fv:g, pv:1/g, afv:(g-1)/r, sf:r/(g-1), cr:r/(1-1/g), apv:(1-1/g)/r };
-  }
-  if(begin){ o.afv*=(1+r); o.apv*=(1+r); o.sf/=(1+r); o.cr/=(1+r); }
-  return o;
+/* ---------- 6つの係数 ---------- */
+function F(r,n){
+  if(Math.abs(r)<1e-12) return {fv:1,pv:1,afv:n,sf:(n?1/n:0),cr:(n?1/n:0),apv:n};
+  var g=Math.pow(1+r,n);
+  return {fv:g, pv:1/g, afv:(g-1)/r, sf:r/(g-1), cr:r/(1-1/g), apv:(1-1/g)/r};
 }
-var MODE = 'end';                       // end | begin
-function isBegin(){ return MODE==='begin'; }
-function f(r,n){ return F(r,n,isBegin()); }
+function dec(k){ return (k==='sf'||k==='cr') ? 6 : 4; }
 
-/* ============ 棒グラフ ============ */
-/* series: [{label, v, color}] */
-function bars(series){
-  if(!series.length) return '';
-  var max = 0, i;
-  for(i=0;i<series.length;i++){ if(series[i].v>max) max=series[i].v; }
-  if(max<=0) max = 1;
-  var step = series.length<=12 ? 1 : Math.ceil(series.length/10);
-  var b='<div class="bars">', x='<div class="bar-x">';
-  for(i=0;i<series.length;i++){
-    var s = series[i];
-    var h = Math.max(1.5, s.v/max*100);
-    var show = ((i===0 || i===series.length-1) && Math.round(s.v)>0) ? ' show-val' : '';
-    b += '<div class="bar'+show+'" title="'+s.label+'：'+man(s.v)+'">'
-       + '<span class="b-val">'+man(s.v)+'</span>'
-       + '<span class="b-fill" style="height:'+h+'%;background:'+s.color+'"></span></div>';
-    x += '<span>'+((i===0||i===series.length-1||i%step===0)? s.label : '')+'</span>';
-  }
-  return b+'</div>'+x+'</div>';
-}
+var R=3, N=10;
+function K(){ return F(R/100,N); }
 
-/* 積立フェーズ・据置フェーズ・取崩しフェーズの残高推移をつくる */
-function simulate(opt){
-  // opt: {r, start(残高), add(毎年の積立), addYears, waitYears, draw(毎年の受取), drawYears, labelBase}
-  var r=opt.r, bal=opt.start||0, out=[], i;
-  var c0 = opt.cAdd || ((opt.waitYears>0) ? opt.cWait : opt.cDraw);
-  var lab = function(k){
-    if(opt.ageMode) return (opt.labelBase+k)+'歳';
-    if(opt.labelBase) return (opt.labelBase+k)+'年';
-    return k===0 ? '現在' : k+'年後';
-  };
-  out.push({label:lab(0), v:bal, color:c0});
-  for(i=1;i<=(opt.addYears||0);i++){
-    bal = isBegin() ? (bal+opt.add)*(1+r) : bal*(1+r)+opt.add;
-    out.push({label:lab(i), v:Math.max(0,bal), color:opt.cAdd});
-  }
-  var off = opt.addYears||0;
-  for(i=1;i<=(opt.waitYears||0);i++){
-    bal = bal*(1+r);
-    out.push({label:lab(off+i), v:Math.max(0,bal), color:opt.cWait});
-  }
-  off += opt.waitYears||0;
-  for(i=1;i<=(opt.drawYears||0);i++){
-    bal = isBegin() ? (bal-opt.draw)*(1+r) : bal*(1+r)-opt.draw;
-    out.push({label:lab(off+i), v:Math.max(0,bal), color:opt.cDraw});
-  }
-  return out;
-}
-
-/* ============ 6つの係数の定義 ============ */
-var C_SKY='#24729f', C_NAVY='#1b3f5e', C_GREEN='#2c7a4b', C_AMBER='#b8801f', C_CORAL='#e2724f', C_BERRY='#8f4574', C_WAIT='#c9b79f';
-
-var CARDS = [
-{
-  id:'fv', no:'①', color:'sky', bar:C_SKY,
-  name:'終価係数', en:'Future Value Factor', pill:'一括 → 将来',
-  navQ:'いまのお金は、将来いくらになる？',
-  fields:[
-    {k:'amt',  t:'money', label:'いま預けるお金',   unit:'万円', def:2000, min:0,  max:100000, step:10, hint:'退職金・満期金・相続で入った現金など'},
-    {k:'rate', t:'rate',  label:'想定利回り（年）', unit:'％',   def:null},
-    {k:'year', t:'year',  label:'何年間 運用する',  unit:'年',   def:10, min:1, max:50, step:1},
-    {k:'from', t:'plain', label:'預け始める年（西暦）', unit:'年', def:NOW, min:1990, max:2100, step:1, hint:'表示用。計算には使いません'}
-  ],
-  calc:function(v){
-    var k=f(v.rate,v.year), amt=v.amt*10000, res=amt*k.fv;
-    return {
-      q:'いまの <b>'+man(amt)+'</b> を 年<b>'+nf(v.rate*100,2)+'％</b> で <b>'+v.year+'年</b> 運用すると？',
-      label:(v.from+v.year)+'年（'+v.year+'年後）の金額',
-      main:man(res), yen:yen(res),
-      subs:[{l:'預けた元手',v:man(amt)},{l:'ふえた分',v:man(res-amt)},{l:'終価係数',v:nf(k.fv,4)}],
-      formula:man(amt)+' × '+nf(k.fv,4)+' ＝ <b>'+man(res)+'</b><br><em>終価係数（年'+nf(v.rate*100,2)+'％・'+v.year+'年）</em>',
-      chartH:'残高の推移（'+v.from+'年 → '+(v.from+v.year)+'年）',
-      series:simulate({r:v.rate,start:amt,addYears:v.year,add:0,cAdd:C_SKY,labelBase:v.from})
-    };
-  },
-  use:['一時払終身・一時払年金を「そのまま置いておく」場合の将来額','普通預金に置いたままと運用した場合の差を、金額で見せる','相続で入った現金の置き場所を検討してもらう入口'],
-  talk:'退職金の2,000万円を普通預金に置いたままだと、10年後もほぼ2,000万円のままです。年3%で回った場合は約2,688万円。この差の688万円が「置き場所」だけで変わる部分です（運用実績を保証するものではありません）。'
-},
-{
-  id:'pv', no:'②', color:'navy', bar:C_NAVY,
-  name:'現価係数', en:'Present Value Factor', pill:'将来 → 一括',
-  navQ:'将来の目標額、いま一括ならいくら要る？',
-  fields:[
-    {k:'goal', t:'money', label:'将来 用意したい金額', unit:'万円', def:1000, min:0, max:100000, step:10, hint:'教育費・老後資金・相続の納税資金など'},
-    {k:'rate', t:'rate',  label:'想定利回り（年）',   unit:'％',   def:null},
-    {k:'year', t:'year',  label:'何年後に必要',       unit:'年',   def:15, min:1, max:50, step:1},
-    {k:'from', t:'plain', label:'いまの年（西暦）',   unit:'年',   def:NOW, min:1990, max:2100, step:1, hint:'表示用。計算には使いません'}
-  ],
-  calc:function(v){
-    var k=f(v.rate,v.year), goal=v.goal*10000, need=goal*k.pv;
-    return {
-      q:'<b>'+v.year+'年後</b>（'+(v.from+v.year)+'年）に <b>'+man(goal)+'</b> を用意したい。年<b>'+nf(v.rate*100,2)+'％</b> なら？',
-      label:'いま一括で必要な金額',
-      main:man(need), yen:yen(need),
-      subs:[{l:'目標額',v:man(goal)},{l:'運用が稼ぐ分',v:man(goal-need)},{l:'現価係数',v:nf(k.pv,4)}],
-      formula:man(goal)+' × '+nf(k.pv,4)+' ＝ <b>'+man(need)+'</b><br><em>現価係数（年'+nf(v.rate*100,2)+'％・'+v.year+'年）＝ 終価係数 '+nf(k.fv,4)+' の逆数</em>',
-      chartH:'いま '+man(need)+' を預けた場合の残高推移',
-      series:simulate({r:v.rate,start:need,addYears:v.year,add:0,cAdd:C_NAVY,labelBase:v.from})
-    };
-  },
-  use:['「18年後に大学費用500万円」から一時払いの金額を出す','相続税の納税資金を、いくらの一時払いで用意できるか','目標額から逆算するので、商品の話より先に金額の話ができる'],
-  talk:'お子さんの大学費用500万円。18年後の話ですから、いま一括で用意するなら年2%で約350万円です。残りの150万円ぶんは、時間に働いてもらう計算になります。'
-},
-{
-  id:'afv', no:'③', color:'green', bar:C_GREEN,
-  name:'年金終価係数', en:'Future Value of Annuity Factor', pill:'毎年積立 → 将来',
-  navQ:'毎年つみたてたら、将来いくらになる？',
-  fields:[
-    {k:'amt',  t:'money', label:'毎年つみたてる金額', unit:'万円', def:60, min:0, max:5000, step:1, hint:'月払いなら「月額×12」を入れてください'},
-    {k:'rate', t:'rate',  label:'想定利回り（年）',   unit:'％',   def:null},
-    {k:'year', t:'year',  label:'何年間 つみたてる',  unit:'年',   def:20, min:1, max:50, step:1},
-    {k:'from', t:'plain', label:'つみたて開始の年（西暦）', unit:'年', def:NOW, min:1990, max:2100, step:1, hint:'表示用。計算には使いません'}
-  ],
-  calc:function(v){
-    var k=f(v.rate,v.year), y=v.amt*10000, res=y*k.afv, moto=y*v.year;
-    return {
-      q:'毎年 <b>'+man(y)+'</b>（月 '+man(y/12)+'）を 年<b>'+nf(v.rate*100,2)+'％</b> で <b>'+v.year+'年間</b> つみたてると？',
-      label:(v.from+v.year)+'年（つみたて終了時）の金額',
-      main:man(res), yen:yen(res),
-      extra:'月あたりのつみたて額 '+man(y/12),
-      subs:[{l:'つみたて元本',v:man(moto)},{l:'運用でふえた分',v:man(res-moto)},{l:'年金終価係数',v:nf(k.afv,4)}],
-      formula:man(y)+' × '+nf(k.afv,4)+' ＝ <b>'+man(res)+'</b><br><em>年金終価係数（年'+nf(v.rate*100,2)+'％・'+v.year+'年'+(isBegin()?'・期首':'')+'）</em>',
-      chartH:'つみたて残高の推移（'+v.from+'年 → '+(v.from+v.year)+'年）',
-      series:simulate({r:v.rate,start:0,add:y,addYears:v.year,cAdd:C_GREEN,labelBase:v.from})
-    };
-  },
-  use:['積立型保険・個人年金の「満期にいくら」を見せる','元本と運用分を分けて示すと、続ける理由が伝わる','つみたてNISA・iDeCoと並べて比較する土台にもなる'],
-  talk:'毎月2万円、年間24万円を20年続けると、払った元本は480万円。年3%で回った場合は約645万円です。165万円ぶんは、時間が働いてくれた結果ということになります。'
-},
-{
-  id:'sf', no:'④', color:'amber', bar:C_AMBER,
-  name:'減債基金係数', en:'Sinking Fund Factor', pill:'将来 → 毎年積立',
-  navQ:'目標額のために、毎年いくら積み立てる？',
-  fields:[
-    {k:'goal', t:'money', label:'将来 用意したい金額', unit:'万円', def:2000, min:0, max:100000, step:10, hint:'老後資金・教育費・退職金原資など'},
-    {k:'rate', t:'rate',  label:'想定利回り（年）',   unit:'％',   def:null},
-    {k:'year', t:'year',  label:'何年間で 貯める',    unit:'年',   def:20, min:1, max:50, step:1},
-    {k:'from', t:'plain', label:'つみたて開始の年（西暦）', unit:'年', def:NOW, min:1990, max:2100, step:1, hint:'表示用。計算には使いません'}
-  ],
-  calc:function(v){
-    var k=f(v.rate,v.year), goal=v.goal*10000, y=goal*k.sf, moto=y*v.year;
-    return {
-      q:'<b>'+v.year+'年後</b>（'+(v.from+v.year)+'年）までに <b>'+man(goal)+'</b>。年<b>'+nf(v.rate*100,2)+'％</b> なら毎年いくら？',
-      label:'毎年つみたてる金額',
-      main:man(y), yen:yen(y),
-      extra:'月あたり '+man(y/12)+'（年額 ÷ 12）',
-      subs:[{l:'つみたて元本',v:man(moto)},{l:'運用が稼ぐ分',v:man(goal-moto)},{l:'減債基金係数',v:nf(k.sf,6)}],
-      formula:man(goal)+' × '+nf(k.sf,6)+' ＝ <b>'+man(y)+'</b>（毎年）<br><em>減債基金係数（年'+nf(v.rate*100,2)+'％・'+v.year+'年'+(isBegin()?'・期首':'')+'）＝ 年金終価係数 '+nf(k.afv,4)+' の逆数</em>',
-      chartH:'つみたて残高の推移（目標 '+man(goal)+'）',
-      series:simulate({r:v.rate,start:0,add:y,addYears:v.year,cAdd:C_AMBER,labelBase:v.from})
-    };
-  },
-  use:['提案する保険料の「根拠」をつくる。ここが提案書の中心','「あと何年あるか」を変えて、先送りのコストを見せる','法人の退職金準備でも、目標額から毎期の保険料を逆算できる'],
-  talk:'65歳までに2,000万円。あと20年ありますから、年3%なら毎年約74.4万円、月にすると約6.2万円です。これが5年遅れて15年になると、月8.9万円まで上がります。早く始めるほど、毎月の負担は軽くなります。'
-},
-{
-  id:'cr', no:'⑤', color:'coral', bar:C_CORAL,
-  name:'資本回収係数', en:'Capital Recovery Factor', pill:'いまの元本 → 毎年受取',
-  navQ:'いまの元本で、毎年いくら受け取れる？',
-  fields:[
-    {k:'amt',  t:'money', label:'受取の原資（元本）', unit:'万円', def:3000, min:0, max:100000, step:10, hint:'退職金・一時払保険の年金原資など'},
-    {k:'rate', t:'rate',  label:'受取中の想定利回り（年）', unit:'％', def:null},
-    {k:'year', t:'year',  label:'何年間 受け取る',    unit:'年',   def:20, min:1, max:50, step:1, hint:'「20年確定年金」なら20年'},
-    {k:'wait', t:'year',  label:'受取開始まで（据置）', unit:'年', def:0, min:0, max:40, step:1, hint:'0なら今すぐ受取開始。据置中も同じ利回りで運用する前提'}
-  ],
-  calc:function(v){
-    var kw=f(v.rate,v.wait), k=f(v.rate,v.year);
-    var amt=v.amt*10000, atStart=amt*kw.fv, y=atStart*k.cr, total=y*v.year;
-    return {
-      q:'<b>'+man(amt)+'</b> を'+(v.wait>0? ' <b>'+v.wait+'年</b> 据え置いてから':'')+' 年<b>'+nf(v.rate*100,2)+'％</b> で <b>'+v.year+'年間</b> 取り崩すと？',
-      label:'毎年 受け取れる金額',
-      main:man(y), yen:yen(y),
-      extra:'月あたり '+man(y/12)+(v.wait>0? '　／　受取開始時の原資 '+man(atStart) : ''),
-      subs:[{l:'受取総額',v:man(total)},{l:'元本',v:man(amt)},{l:'資本回収係数',v:nf(k.cr,6)}],
-      formula:(v.wait>0? man(amt)+' × '+nf(kw.fv,4)+'（据置'+v.wait+'年）＝ '+man(atStart)+'<br>' : '')
-             +man(atStart)+' × '+nf(k.cr,6)+' ＝ <b>'+man(y)+'</b>（毎年）<br><em>資本回収係数（年'+nf(v.rate*100,2)+'％・'+v.year+'年'+(isBegin()?'・期首':'')+'）</em>',
-      chartH:'残高の推移（'+(v.wait>0? '据置'+v.wait+'年 → ':'')+'受取'+v.year+'年）',
-      series:simulate({r:v.rate,start:amt,waitYears:v.wait,draw:y,drawYears:v.year,cWait:C_WAIT,cDraw:C_CORAL,labelBase:0})
-    };
-  },
-  use:['「取り崩しながら運用」した場合の年金額を具体的に見せる','公的年金の不足額と並べて、必要な上乗せ額を確認する','借入額 × 資本回収係数 ＝ 年間返済額。住宅ローンの計算にも同じ係数を使う'],
-  talk:'3,000万円を65歳から25年で取り崩すと、年3%運用なら毎年約172万円、月14万円です。公的年金と合わせて生活費に届くか、ここで一度確認しておきましょう。'
-},
-{
-  id:'apv', no:'⑥', color:'berry', bar:C_BERRY,
-  name:'年金現価係数', en:'Present Value of Annuity Factor', pill:'毎年受取 → 必要な原資',
-  navQ:'毎年受け取るには、いまいくら必要？',
-  fields:[
-    {k:'amt',  t:'money', label:'毎年 受け取りたい金額', unit:'万円', def:120, min:0, max:5000, step:1, hint:'月20万円なら240万円（月額×12）'},
-    {k:'rate', t:'rate',  label:'想定利回り（年）',      unit:'％',   def:null},
-    {k:'year', t:'year',  label:'何年間 受け取る',       unit:'年',   def:20, min:1, max:50, step:1},
-    {k:'wait', t:'year',  label:'受取開始まで（据置）',  unit:'年',   def:20, min:0, max:40, step:1, hint:'いま45歳で65歳から受け取るなら20年'}
-  ],
-  calc:function(v){
-    var k=f(v.rate,v.year), kw=f(v.rate,v.wait);
-    var y=v.amt*10000, atStart=y*k.apv, now=atStart*kw.pv, total=y*v.year;
-    return {
-      q:'毎年 <b>'+man(y)+'</b>（月 '+man(y/12)+'）を'+(v.wait>0? ' <b>'+v.wait+'年後</b>から':'')+' <b>'+v.year+'年間</b> 受け取りたい。年<b>'+nf(v.rate*100,2)+'％</b> なら？',
-      label:(v.wait>0? 'いま一括で必要な原資' : '必要な原資'),
-      main:man(now), yen:yen(now),
-      extra:(v.wait>0? '受取開始時点で必要な額 '+man(atStart) : '受取総額との差 '+man(total-now)),
-      subs:[{l:'受取総額',v:man(total)},{l:'運用が稼ぐ分',v:man(total-now)},{l:'年金現価係数',v:nf(k.apv,4)}],
-      formula:man(y)+' × '+nf(k.apv,4)+' ＝ '+man(atStart)+'（受取開始時）'
-             +(v.wait>0? '<br>'+man(atStart)+' × '+nf(kw.pv,4)+'（'+v.wait+'年の現価）＝ <b>'+man(now)+'</b>' : '')
-             +'<br><em>年金現価係数（年'+nf(v.rate*100,2)+'％・'+v.year+'年'+(isBegin()?'・期首':'')+'）＝ 資本回収係数 '+nf(k.cr,6)+' の逆数</em>',
-      chartH:'残高の推移（'+(v.wait>0? '据置'+v.wait+'年 → ':'')+'受取'+v.year+'年）',
-      series:simulate({r:v.rate,start:now,waitYears:v.wait,draw:y,drawYears:v.year,cWait:C_WAIT,cDraw:C_BERRY,labelBase:0})
-    };
-  },
-  use:['個人年金・iDeCoで「いくら準備すればいいか」の答えを出す','遺族の生活費 × 年数 の現在価値 ＝ 必要保障額の目安にも使える','単純合計より小さくなる理由（運用が一部を賄う）を説明できる'],
-  talk:'万一のとき、奥さまに毎年240万円を20年間お渡ししたい。単純合計は4,800万円ですが、受け取りながら年1%で運用できる前提なら約4,330万円が目安です。この差が、保障を組むときの「置いておくお金」の考え方です。'
-}
+/* ---------- 3行 ＝ 3組の逆数 ---------- */
+var ROWS=[
+  { id:'lump', title:'一括で預ける', memo:'いまの一括と、将来の金額',
+    Ll:function(){ return 'いま預ける金額'; }, Rl:function(){ return N+'年後の金額'; },
+    fwd:{no:'①',nm:'終価係数',k:'fv'}, bwd:{no:'②',nm:'現価係数',k:'pv'},
+    sub:function(L,Rv){ return ['元本 '+man(L),'ふえる分 '+man(Rv-L)]; } },
+  { id:'save', title:'毎年つみたてる', memo:'毎年の積立額と、満期の金額',
+    Ll:function(){ return '毎年つみたてる金額'; }, Rl:function(){ return N+'年後の合計'; },
+    fwd:{no:'③',nm:'年金終価係数',k:'afv'}, bwd:{no:'④',nm:'減債基金係数',k:'sf'},
+    sub:function(L,Rv){ return ['月あたり '+man(L/12),'つみたて元本 '+man(L*N),'運用でふえる分 '+man(Rv-L*N)]; } },
+  { id:'draw', title:'毎年受け取る（取り崩す）', memo:'いまの元本と、毎年の受取額',
+    Ll:function(){ return 'いまある元本'; }, Rl:function(){ return '毎年受け取れる金額（'+N+'年間）'; },
+    fwd:{no:'⑤',nm:'資本回収係数',k:'cr'}, bwd:{no:'⑥',nm:'年金現価係数',k:'apv'},
+    sub:function(L,Rv){ return ['月あたり '+man(Rv/12),'受取総額 '+man(Rv*N),'運用が稼ぐ分 '+man(Rv*N-L)]; } }
 ];
+/* 状態：val＝入力した側の金額（万円）、src＝入力した側 */
+var ST={ lump:{val:500,src:'L'}, save:{val:60,src:'L'}, draw:{val:3000,src:'L'} };
+function row(id){ for(var i=0;i<ROWS.length;i++) if(ROWS[i].id===id) return ROWS[i]; }
 
-/* ============ フィールドのHTML ============ */
-function fieldHTML(cid, fd){
-  var id = cid+'_'+fd.k;
-  var isRange = (fd.t==='year' || fd.t==='rate');
-  var min = fd.t==='rate' ? 0 : fd.min, max = fd.t==='rate' ? 10 : fd.max, step = fd.t==='rate' ? 0.1 : fd.step;
-  var h = '<div class="fld'+(fd.t==='money'?' full':'')+'">'
-    + '<label for="'+id+'">'+fd.label+'</label>'
-    + '<div class="in-unit"><input type="number" id="'+id+'" data-card="'+cid+'" data-k="'+fd.k+'" min="'+min+'" max="'+max+'" step="'+step+'"><span class="unit">'+fd.unit+'</span></div>';
-  if(isRange){
-    h += '<input type="range" class="rng" id="'+id+'_r" data-for="'+id+'" min="'+min+'" max="'+max+'" step="'+step+'" aria-label="'+fd.label+'（スライダー）">';
-  }
-  if(fd.t==='money'){ h += '<div class="hint" id="'+id+'_h"></div>'; }
-  else if(fd.hint){ h += '<div class="hint">'+fd.hint+'</div>'; }
-  return h+'</div>';
+var AR_R='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15M13 6l6 6-6 6"/></svg>';
+var AR_L='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12H5M11 6l-6 6 6 6"/></svg>';
+
+function rowHTML(c){
+  return '<section class="row">'
+   + '<h2>'+c.title+'<em>'+c.memo+'</em></h2>'
+   + '<div class="calc">'
+   +   '<div class="side" id="'+c.id+'-Ls"><label for="'+c.id+'-L" id="'+c.id+'-Ll"></label>'
+   +     '<div class="box"><input type="number" id="'+c.id+'-L" data-row="'+c.id+'" data-side="L" min="0" step="1" inputmode="decimal"><span class="u">万円</span></div>'
+   +     '<div class="yen" id="'+c.id+'-Ly"></div></div>'
+   +   '<div class="fx">'
+   +     '<button class="fxb" id="'+c.id+'-fwd" data-row="'+c.id+'" data-dir="L" title="左の金額から右を計算">'
+   +       '<span class="no">'+c.fwd.no+'</span><span class="nm">'+c.fwd.nm+' '+AR_R+'</span><span class="vl" id="'+c.id+'-fv"></span></button>'
+   +     '<button class="fxb" id="'+c.id+'-bwd" data-row="'+c.id+'" data-dir="R" title="右の金額から左を計算">'
+   +       '<span class="no">'+c.bwd.no+'</span><span class="nm">'+AR_L+' '+c.bwd.nm+'</span><span class="vl" id="'+c.id+'-bv"></span></button>'
+   +   '</div>'
+   +   '<div class="side" id="'+c.id+'-Rs"><label for="'+c.id+'-R" id="'+c.id+'-Rl"></label>'
+   +     '<div class="box"><input type="number" id="'+c.id+'-R" data-row="'+c.id+'" data-side="R" min="0" step="1" inputmode="decimal"><span class="u">万円</span></div>'
+   +     '<div class="yen" id="'+c.id+'-Ry"></div></div>'
+   + '</div>'
+   + '<div class="sub" id="'+c.id+'-sub"></div></section>';
 }
 
-function cardHTML(c){
-  var i, h = '<article class="ks-card c-'+c.color+'" id="card-'+c.id+'">'
-    + '<div class="ks-head">'
-    + '<span class="ks-no">'+c.no+'</span>'
-    + '<span class="ks-title"><b>'+c.name+'</b><small>'+c.en+'</small></span>'
-    + '<span class="ks-pill">'+c.pill+'</span></div>'
-    + '<div class="ks-q" id="'+c.id+'_q"></div>'
-    + '<div class="ks-grid"><div><div class="frm">';
-  for(i=0;i<c.fields.length;i++){ h += fieldHTML(c.id, c.fields[i]); }
-  h += '</div></div><div class="ks-out">'
-    + '<div class="o-label" id="'+c.id+'_lb"></div>'
-    + '<div class="o-main" id="'+c.id+'_mn"></div>'
-    + '<div class="o-yen" id="'+c.id+'_yn"></div>'
-    + '<div class="o-extra" id="'+c.id+'_ex"></div>'
-    + '<div class="o-subs" id="'+c.id+'_sb"></div>'
-    + '<div class="formula" id="'+c.id+'_fm"></div>'
-    + '</div></div>'
-    + '<div class="chart"><div class="c-h" id="'+c.id+'_ch"></div><div id="'+c.id+'_bar"></div></div>'
-    + '<details class="know"><summary>保険営業での使いどころ・トーク例'
-    + '<svg class="kn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></summary>'
-    + '<div class="kn-body"><ul>';
-  for(i=0;i<c.use.length;i++){ h += '<li>'+c.use[i]+'</li>'; }
-  h += '</ul><div class="talk"><b>トーク例</b>'+c.talk+'</div></div></details></article>';
-  return h;
+function drawRow(c, keep){        /* keep＝入力中の欄（書き換えない） */
+  var k=K(), st=ST[c.id], f=k[c.fwd.k], b=k[c.bwd.k], L, Rv;
+  if(st.src==='L'){ L=st.val*10000; Rv=L*f; } else { Rv=st.val*10000; L=Rv*b; }
+
+  if(keep!=='L') document.getElementById(c.id+'-L').value = r1(L/10000);
+  if(keep!=='R') document.getElementById(c.id+'-R').value = r1(Rv/10000);
+
+  document.getElementById(c.id+'-Ll').textContent = c.Ll();
+  document.getElementById(c.id+'-Rl').textContent = c.Rl();
+  document.getElementById(c.id+'-Ly').textContent = yen(L);
+  document.getElementById(c.id+'-Ry').textContent = yen(Rv);
+  document.getElementById(c.id+'-Ls').className = 'side' + (st.src==='R' ? ' out' : '');
+  document.getElementById(c.id+'-Rs').className = 'side' + (st.src==='L' ? ' out' : '');
+  document.getElementById(c.id+'-fv').textContent = nf(f,dec(c.fwd.k));
+  document.getElementById(c.id+'-bv').textContent = nf(b,dec(c.bwd.k));
+  document.getElementById(c.id+'-fwd').setAttribute('aria-pressed', String(st.src==='L'));
+  document.getElementById(c.id+'-bwd').setAttribute('aria-pressed', String(st.src==='R'));
+
+  var fm = (st.src==='L')
+    ? man(L)+' × '+nf(f,dec(c.fwd.k))+' ＝ <b>'+man(Rv)+'</b>'
+    : man(Rv)+' × '+nf(b,dec(c.bwd.k))+' ＝ <b>'+man(L)+'</b>';
+  var p=c.sub(L,Rv), h='<span class="f">'+fm+'</span>', i;
+  for(i=0;i<p.length;i++) h += '<span>'+p[i]+'</span>';
+  document.getElementById(c.id+'-sub').innerHTML = h;
+}
+function drawRows(id, keep){
+  for(var i=0;i<ROWS.length;i++) drawRow(ROWS[i], ROWS[i].id===id ? keep : null);
 }
 
-/* ============ 描画・再計算 ============ */
-function readCard(c){
-  var v={}, i;
-  for(i=0;i<c.fields.length;i++){
-    var fd=c.fields[i], x=num(c.id+'_'+fd.k);
-    if(fd.t==='rate') x = x/100;
-    v[fd.k]=x;
+/* ---------- 早見表 ---------- */
+function drawTable(){
+  var rr=R/100, h='<thead><tr><th class="n">年数</th><th class="n">① 終価</th><th class="n">② 現価</th>'
+    +'<th class="n">③ 年金終価</th><th class="n">④ 減債基金</th><th class="n">⑤ 資本回収</th>'
+    +'<th class="n">⑥ 年金現価</th></tr></thead><tbody>';
+  for(var n=1;n<=40;n++){
+    var k=F(rr,n);
+    h += '<tr'+(n===N?' class="hi"':'')+'><td class="n">'+n+'年</td><td class="n">'+nf(k.fv,4)
+      +'</td><td class="n">'+nf(k.pv,4)+'</td><td class="n">'+nf(k.afv,4)+'</td><td class="n">'+nf(k.sf,6)
+      +'</td><td class="n">'+nf(k.cr,6)+'</td><td class="n">'+nf(k.apv,4)+'</td></tr>';
   }
-  return v;
+  document.getElementById('ftbl').innerHTML = h+'</tbody>';
+  document.getElementById('tblR').textContent = nf(R,2)+'％';
 }
 
-function renderCard(c){
-  var v = readCard(c), i;
-  // 金額欄のヒント（円表示）
-  for(i=0;i<c.fields.length;i++){
-    var fd=c.fields[i];
-    if(fd.t==='money'){
-      var hint=document.getElementById(c.id+'_'+fd.k+'_h');
-      if(hint) hint.textContent = yen(num(c.id+'_'+fd.k)*10000) + (fd.hint? '　／　'+fd.hint : '');
-    }
+/* ---------- 合わせ技 ---------- */
+var PF=[
+  {k:'age', l:'いまの年齢',           u:'歳',   v:45,  mn:0, mx:90},
+  {k:'st',  l:'受け取り始める年齢',   u:'歳',   v:65,  mn:1, mx:100},
+  {k:'en',  l:'受け取りを終える年齢', u:'歳',   v:85,  mn:2, mx:110},
+  {k:'need',l:'毎年 受け取りたい額',  u:'万円', v:120, mn:0, mx:99999},
+  {k:'have',l:'いますでにある資金',   u:'万円', v:300, mn:0, mx:999999}
+];
+(function(){
+  var h='', i;
+  for(i=0;i<PF.length;i++){
+    h += '<div class="fl"><label for="pl_'+PF[i].k+'">'+PF[i].l+'</label>'
+      +  '<div class="box"><input type="number" id="pl_'+PF[i].k+'" data-plan="1" value="'+PF[i].v
+      +  '" min="'+PF[i].mn+'" max="'+PF[i].mx+'" step="1" inputmode="decimal"><span class="u">'+PF[i].u+'</span></div></div>';
   }
-  var year = v.year||0;
-  var out;
-  if(year<1){
-    document.getElementById(c.id+'_mn').textContent='—';
-    document.getElementById(c.id+'_fm').innerHTML='<em>年数を1年以上で入れてください。</em>';
-    return;
-  }
-  out = c.calc(v);
-  document.getElementById(c.id+'_q').innerHTML  = out.q;
-  document.getElementById(c.id+'_lb').textContent = out.label;
-  document.getElementById(c.id+'_mn').textContent = out.main;
-  document.getElementById(c.id+'_yn').textContent = out.yen;
-  document.getElementById(c.id+'_ex').textContent = out.extra||'';
-  var sb='';
-  for(i=0;i<out.subs.length;i++){ sb += '<div class="o-sub"><span class="s-l">'+out.subs[i].l+'</span><span class="s-v">'+out.subs[i].v+'</span></div>'; }
-  document.getElementById(c.id+'_sb').innerHTML = sb;
-  document.getElementById(c.id+'_fm').innerHTML = out.formula;
-  document.getElementById(c.id+'_ch').textContent = out.chartH;
-  document.getElementById(c.id+'_bar').innerHTML = bars(out.series);
-}
-
-function renderAll(){ for(var i=0;i<CARDS.length;i++){ renderCard(CARDS[i]); } }
-
-function setDefaults(){
-  var base = num('baseRate');
-  for(var i=0;i<CARDS.length;i++){
-    var c=CARDS[i];
-    for(var j=0;j<c.fields.length;j++){
-      var fd=c.fields[j], e=document.getElementById(c.id+'_'+fd.k);
-      e.value = (fd.t==='rate') ? base : fd.def;
-      var r=document.getElementById(c.id+'_'+fd.k+'_r');
-      if(r) r.value = e.value;
-    }
-  }
-}
-
-/* ---- 組み立て ---- */
-(function build(){
-  var nav='', cards='', i;
-  for(i=0;i<CARDS.length;i++){
-    var c=CARDS[i];
-    nav += '<button class="ks-navbtn c-'+c.color+'" data-go="card-'+c.id+'">'
-        + '<span class="nb-no">'+c.no+'</span>'
-        + '<span><span class="nb-q">'+c.navQ+'</span><span class="nb-name">'+c.name+'</span></span></button>';
-    cards += cardHTML(c);
-  }
-  document.getElementById('ksNav').innerHTML = nav;
-  document.getElementById('ksCards').innerHTML = cards;
-  setDefaults();
-  renderAll();
+  h += '<div class="fl"><label for="pl_rate">想定利回り（共通）</label>'
+    +  '<div class="box" style="background:#faf7f3;"><input type="number" id="pl_rate" value="3" readonly tabindex="-1"><span class="u">％</span></div></div>';
+  document.getElementById('planForm').innerHTML = h;
 })();
 
-/* ============ イベント ============ */
+function drawPlan(){
+  var out=document.getElementById('planOut'), r=R/100;
+  document.getElementById('pl_rate').value = R;
+  var age=gv('pl_age'), st=gv('pl_st'), en=gv('pl_en'), need=gv('pl_need')*10000, have=gv('pl_have')*10000;
+  var m=st-age, n=en-st;
+  if(m<0 || n<1){
+    out.innerHTML='<div class="warn">「いまの年齢 ＜ 受け取り始める年齢 ＜ 受け取りを終える年齢」の順で入れてください。</div>';
+    return;
+  }
+  var kN=F(r,n), kM=F(r,m);
+  var atStart=need*kN.apv, grown=have*kM.fv, short=Math.max(0,atStart-grown);
+  var annual = m>0 ? short*kM.sf : short;
+  var enough = short<=0;
+
+  var bal=have, ser=[{v:bal,c:'#2c7a4b'}], i;
+  for(i=1;i<=m;i++){ bal=bal*(1+r)+annual; ser.push({v:Math.max(0,bal),c:'#2c7a4b'}); }
+  for(i=1;i<=n;i++){ bal=bal*(1+r)-need;   ser.push({v:Math.max(0,bal),c:'#bf4123'}); }
+  var mx=0; for(i=0;i<ser.length;i++) if(ser[i].v>mx) mx=ser[i].v;
+  if(mx<=0) mx=1;
+  var bh='<div class="bars">', bx='<div class="bx">', step=Math.ceil(ser.length/9);
+  for(i=0;i<ser.length;i++){
+    bh += '<i style="height:'+Math.max(1.5,ser[i].v/mx*100)+'%;background:'+ser[i].c+'"></i>';
+    bx += '<span>'+((i%step===0 || i===ser.length-1) ? (age+i)+'歳' : '')+'</span>';
+  }
+
+  out.innerHTML =
+     '<div class="res">'
+   +   '<div class="r"><span class="l">'+st+'歳の時点で必要な原資</span><span class="v">'+man(atStart)+'</span>'
+   +     '<span class="s">受取総額 '+man(need*n)+'（'+n+'年）</span></div>'
+   +   '<div class="r"><span class="l">いまの資金が育つ額</span><span class="v">'+man(grown)+'</span>'
+   +     '<span class="s">不足 '+man(short)+'</span></div>'
+   +   '<div class="r key"><span class="l">'+(enough?'追加の積立':'これから毎年 つみたてる額')+'</span>'
+   +     '<span class="v">'+(enough?'不要':man(annual))+'</span>'
+   +     '<span class="s">'+(enough ? 'いまの資金だけで届きます（余裕 '+man(grown-atStart)+'）'
+                                    : '月あたり '+man(annual/12)+'　'+m+'年間')+'</span></div>'
+   + '</div>'
+   + '<div class="steps">'
+   +   '⑥ '+man(need)+' × '+nf(kN.apv,4)+'（年金現価・'+n+'年）＝ <b>'+man(atStart)+'</b><br>'
+   +   '① '+man(have)+' × '+nf(kM.fv,4)+'（終価・'+m+'年）＝ <b>'+man(grown)+'</b><br>'
+   +   '④ '+man(short)+' × '+(m>0?nf(kM.sf,6):'—')+'（減債基金・'+m+'年）＝ <b>'+(enough?'0円':man(annual))+'</b>'
+   + '</div>'
+   + bh+'</div>'+bx+'</div>'
+   + '<div class="lg"><span><i style="background:#2c7a4b"></i>つみたて期（'+age+'〜'+st+'歳）</span>'
+   +   '<span><i style="background:#bf4123"></i>取り崩し期（'+st+'〜'+en+'歳）</span></div>';
+}
+
+/* ---------- 組み立て ---------- */
+(function(){
+  var h='', i;
+  for(i=0;i<ROWS.length;i++) h += rowHTML(ROWS[i]);
+  document.getElementById('rows').innerHTML = h;
+  drawRows(); drawTable(); drawPlan();
+})();
+
+/* ---------- 入力 ---------- */
+function press(id,v){
+  var b=document.getElementById(id).querySelectorAll('.tab');
+  for(var i=0;i<b.length;i++) b[i].setAttribute('aria-pressed', String(parseFloat(b[i].dataset.v)===v));
+}
 document.addEventListener('input', function(e){
   var t=e.target;
-  if(t.classList.contains('rng') && t.dataset.for){
-    var tgt=document.getElementById(t.dataset.for);
-    if(tgt){ tgt.value=t.value; tgt.dispatchEvent(new Event('input',{bubbles:true})); }
-    return;
+  if(t.id==='rate'){ R=Math.max(0,gv('rate')); press('rateTabs',R); drawRows(); drawTable(); drawPlan(); return; }
+  if(t.id==='yrs'){  N=Math.max(1,Math.round(gv('yrs'))); press('yrTabs',N); drawRows(); drawTable(); return; }
+  if(t.dataset.plan){ drawPlan(); return; }
+  if(t.dataset.row){
+    var v=parseFloat(t.value);
+    ST[t.dataset.row].val = isFinite(v) ? Math.max(0,v) : 0;
+    ST[t.dataset.row].src = t.dataset.side;
+    drawRow(row(t.dataset.row), t.dataset.side);
   }
-  if(t.dataset && t.dataset.card){
-    var slider=document.getElementById(t.id+'_r');
-    if(slider && slider!==t) slider.value=t.value;
-    for(var i=0;i<CARDS.length;i++){ if(CARDS[i].id===t.dataset.card){ renderCard(CARDS[i]); break; } }
-    return;
-  }
-  if(t.id==='baseRate'){ document.getElementById('baseRateR').value=t.value; return; }
-  if(t.id==='baseRateR'){ document.getElementById('baseRate').value=t.value; return; }
-  if(t.id==='tblRate'){ pressChips('tblChips', t.value); renderTable(); return; }
-  if(t.dataset && t.dataset.plan){ renderPlan(); return; }
 });
-
-function pressChips(wrapId, val){
-  var w=document.getElementById(wrapId); if(!w) return;
-  var b=w.querySelectorAll('.chip');
-  for(var i=0;i<b.length;i++){
-    var d=b[i].dataset.r!==undefined? b[i].dataset.r : b[i].dataset.m;
-    b[i].setAttribute('aria-pressed', String(parseFloat(d)===parseFloat(val)));
-  }
-}
-
 document.addEventListener('click', function(e){
-  var t=e.target.closest ? e.target.closest('button') : null;
-  if(!t) return;
-
-  if(t.dataset.go){
-    var card=document.getElementById(t.dataset.go);
-    if(card){
-      card.scrollIntoView({behavior:'smooth',block:'start'});
-      card.classList.add('flash');
-      setTimeout(function(){ card.classList.remove('flash'); },1400);
+  var b = e.target.closest ? e.target.closest('button') : null;
+  if(!b) return;
+  if(b.classList.contains('tab')){
+    var v=parseFloat(b.dataset.v);
+    if(b.parentElement.id==='rateTabs'){ R=v; document.getElementById('rate').value=v; press('rateTabs',v); drawTable(); drawPlan(); }
+    else { N=v; document.getElementById('yrs').value=v; press('yrTabs',v); drawTable(); }
+    drawRows();
+    return;
+  }
+  if(b.classList.contains('fxb')){
+    var id=b.dataset.row, dir=b.dataset.dir, inp=document.getElementById(id+'-'+dir);
+    if(ST[id].src!==dir){          /* 向きを変える。いま表示中の金額をそのまま入力値に引き継ぐ */
+      ST[id].val = parseFloat(inp.value) || 0;
+      ST[id].src = dir;
+      drawRow(row(id));
     }
-    return;
-  }
-  if(t.parentElement && t.parentElement.id==='rateChips'){
-    document.getElementById('baseRate').value=t.dataset.r;
-    document.getElementById('baseRateR').value=t.dataset.r;
-    pressChips('rateChips', t.dataset.r);
-    applyRateToAll();
-    return;
-  }
-  if(t.parentElement && t.parentElement.id==='tblChips'){
-    document.getElementById('tblRate').value=t.dataset.r;
-    pressChips('tblChips', t.dataset.r);
-    renderTable();
-    return;
-  }
-  if(t.parentElement && t.parentElement.id==='modeChips'){
-    MODE=t.dataset.m;
-    var b=t.parentElement.querySelectorAll('.chip');
-    for(var i=0;i<b.length;i++){ b[i].setAttribute('aria-pressed', String(b[i].dataset.m===MODE)); }
-    renderAll(); renderTable(); renderPlan();
-    return;
-  }
-  if(t.id==='applyAll'){ applyRateToAll(); return; }
-  if(t.id==='resetAll'){ setDefaults(); renderAll(); return; }
-  if(t.parentElement && t.parentElement.id==='planPresets'){
-    applyPreset(t.dataset.p);
-    var pb=t.parentElement.querySelectorAll('.chip');
-    for(var j=0;j<pb.length;j++){ pb[j].setAttribute('aria-pressed', String(pb[j]===t)); }
-    return;
-  }
-  if(t.classList.contains('tab')){
-    var tabs=document.querySelectorAll('.tab');
-    for(var k=0;k<tabs.length;k++){ tabs[k].setAttribute('aria-selected', String(tabs[k]===t)); }
-    var ids=['calc','plan','table','learn'];
-    for(var m=0;m<ids.length;m++){
-      document.getElementById('tab-'+ids[m]).classList.toggle('hide', ids[m]!==t.dataset.tab);
-    }
-    window.scrollTo({top:0,behavior:'smooth'});
-    return;
+    inp.focus(); inp.select();
   }
 });
-
-function applyRateToAll(){
-  var base=num('baseRate');
-  for(var i=0;i<CARDS.length;i++){
-    var c=CARDS[i], e=document.getElementById(c.id+'_rate');
-    if(e){ e.value=base; var r=document.getElementById(c.id+'_rate_r'); if(r) r.value=base; }
-    renderCard(c);
-  }
-  document.getElementById('tblRate').value=base;
-  pressChips('tblChips', base);
-  renderTable();
-  var pr=document.getElementById('pl_rate'); if(pr){ pr.value=base; var prr=document.getElementById('pl_rate_r'); if(prr) prr.value=base; renderPlan(); }
-}
-
-/* ============ 早見表 ============ */
-function renderTable(){
-  var r=num('tblRate')/100, rows='', n;
-  var head='<thead><tr><th class="num">年数</th>'
-    +'<th class="num">① 終価</th><th class="num">② 現価</th><th class="num">③ 年金終価</th>'
-    +'<th class="num">④ 減債基金</th><th class="num">⑤ 資本回収</th><th class="num">⑥ 年金現価</th></tr></thead>';
-  for(n=1;n<=40;n++){
-    var k=f(r,n);
-    var hi = (n%5===0) ? ' class="hi"' : '';
-    rows += '<tr'+hi+'><td class="num">'+n+'年</td>'
-      +'<td class="num">'+nf(k.fv,4)+'</td><td class="num">'+nf(k.pv,4)+'</td>'
-      +'<td class="num">'+nf(k.afv,4)+'</td><td class="num">'+nf(k.sf,6)+'</td>'
-      +'<td class="num">'+nf(k.cr,6)+'</td><td class="num">'+nf(k.apv,4)+'</td></tr>';
-  }
-  document.getElementById('factorTable').innerHTML = head+'<tbody>'+rows+'</tbody>';
-  document.getElementById('tblModeNote').textContent = isBegin()
-    ? '（いまは「期首」で計算しています。③⑥は期末の値に(1+r)を掛け、④⑤は(1+r)で割った数字です）'
-    : '（いまは「期末」で計算しています。FPの係数表と同じ前提です）';
-}
-
-/* ============ 合わせ技プラン ============ */
-var PLAN_FIELDS = [
-  {k:'age',   label:'いまの年齢',            unit:'歳',   def:45, min:0,  max:90,  step:1, hint:'学資なら「お子さまの年齢」で入力'},
-  {k:'start', label:'受け取り始める年齢',    unit:'歳',   def:65, min:1,  max:100, step:1, hint:''},
-  {k:'end',   label:'受け取りを終える年齢',  unit:'歳',   def:85, min:2,  max:110, step:1, hint:''},
-  {k:'need',  label:'毎年 受け取りたい金額', unit:'万円', def:120,min:0,  max:5000,step:1, hint:'月10万円なら120万円'},
-  {k:'have',  label:'いますでにある資金',    unit:'万円', def:300,min:0,  max:100000,step:10,hint:'貯蓄・既契約の解約返戻金など'},
-  {k:'rate',  label:'想定利回り（年）',      unit:'％',   def:3,  min:0,  max:10,  step:0.1, hint:'積立期・受取期とも同じ利回りで計算'}
-];
-var PRESETS = {
-  '老後':{age:45,start:65,end:85,need:120,have:300},
-  '学資':{age:0, start:18,end:22,need:100,have:50},
-  '介護':{age:50,start:75,end:85,need:90, have:200}
-};
-
-(function buildPlan(){
-  var h='', i;
-  for(i=0;i<PLAN_FIELDS.length;i++){
-    var fd=PLAN_FIELDS[i], id='pl_'+fd.k;
-    h += '<div class="fld"><label for="'+id+'">'+fd.label+'</label>'
-      + '<div class="in-unit"><input type="number" id="'+id+'" data-plan="1" value="'+fd.def+'" min="'+fd.min+'" max="'+fd.max+'" step="'+fd.step+'"><span class="unit">'+fd.unit+'</span></div>'
-      + '<input type="range" class="rng" id="'+id+'_r" data-for="'+id+'" min="'+fd.min+'" max="'+fd.max+'" step="'+fd.step+'" value="'+fd.def+'" aria-label="'+fd.label+'（スライダー）">'
-      + (fd.hint? '<div class="hint">'+fd.hint+'</div>':'')
-      + '</div>';
-  }
-  document.getElementById('planForm').innerHTML=h;
-})();
-
-function applyPreset(p){
-  var d=PRESETS[p]; if(!d) return;
-  for(var k in d){
-    var e=document.getElementById('pl_'+k);
-    if(e){ e.value=d[k]; var r=document.getElementById('pl_'+k+'_r'); if(r) r.value=d[k]; }
-  }
-  renderPlan();
-}
-
-function renderPlan(){
-  var out=document.getElementById('planOut'); if(!out) return;
-  var age=num('pl_age'), st=num('pl_start'), en=num('pl_end'),
-      need=num('pl_need')*10000, have=num('pl_have')*10000, r=num('pl_rate')/100;
-  var m = st-age, n = en-st;
-  if(m<0 || n<1){
-    out.innerHTML='<div class="callout warn" style="margin-top:var(--sp-4);"><b>年齢の関係を確認してください</b>'
-      +'「いまの年齢 ＜ 受け取り始める年齢 ＜ 受け取りを終える年齢」の順になるように入れてください。</div>';
-    return;
-  }
-  var kN=f(r,n), kM=f(r,m);
-  var atStart = need*kN.apv;              // 受取開始時に必要な原資
-  var grown   = have*kM.fv;               // いまの資金がそこまでに育つ額
-  var short   = Math.max(0, atStart-grown);
-  var annual  = m>0 ? short*kM.sf : short;
-  var total   = need*n;
-  var enough  = short<=0;
-
-  var series = simulate({r:r,start:have,add:annual,addYears:m,draw:need,drawYears:n,
-                         cAdd:C_GREEN,cDraw:C_CORAL,labelBase:age,ageMode:true});
-
-  var h = '<div class="ks-card c-coral" style="margin-top:var(--sp-4);">'
-    + '<div class="ks-head"><span class="ks-no">＝</span>'
-    + '<span class="ks-title"><b>あなたのプラン</b><small>'+st+'歳から'+en+'歳まで（'+n+'年間）毎年 '+man(need)+' を受け取る</small></span>'
-    + '<span class="ks-pill">⑥→①→④ の合わせ技</span></div>'
-    + '<div class="ks-q">いま<b>'+age+'歳</b>。<b>'+m+'年後</b>の'+st+'歳から <b>'+n+'年間</b>、毎年 <b>'+man(need)+'</b>（月 '+man(need/12)+'）。年<b>'+nf(r*100,2)+'％</b>で計算すると？</div>'
-    + '<div class="ks-grid"><div class="ks-out" style="background:var(--white);border-color:var(--line);">'
-    + '<div class="o-label" style="color:var(--muted);">'+st+'歳の時点で必要な原資</div>'
-    + '<div class="o-main" style="color:var(--navy);">'+man(atStart)+'</div>'
-    + '<div class="o-yen">'+yen(atStart)+'　／　受取総額 '+man(total)+'</div>'
-    + '<div class="o-subs">'
-    + '<div class="o-sub"><span class="s-l">いまの資金が育つ額</span><span class="s-v">'+man(grown)+'</span></div>'
-    + '<div class="o-sub"><span class="s-l">不足する額</span><span class="s-v">'+man(short)+'</span></div>'
-    + '<div class="o-sub"><span class="s-l">年金現価係数</span><span class="s-v">'+nf(kN.apv,4)+'</span></div>'
-    + '</div></div>'
-    + '<div class="ks-out">'
-    + '<div class="o-label">'+(enough? '追加の積立' : 'これから毎年 つみたてる金額')+'</div>'
-    + '<div class="o-main">'+(enough? '不要' : man(annual))+'</div>'
-    + '<div class="o-yen">'+(enough? 'いまある資金だけで届く計算です（余裕 '+man(grown-atStart)+'）' : yen(annual)+'（'+m+'年間）')+'</div>'
-    + '<div class="o-extra">'+(enough? '' : '月あたり '+man(annual/12))+'</div>'
-    + '<div class="o-subs">'
-    + '<div class="o-sub"><span class="s-l">つみたて総額</span><span class="s-v">'+man(annual*m)+'</span></div>'
-    + '<div class="o-sub"><span class="s-l">運用が稼ぐ分</span><span class="s-v">'+man(Math.max(0,atStart-grown-annual*m))+'</span></div>'
-    + '<div class="o-sub"><span class="s-l">減債基金係数</span><span class="s-v">'+(m>0? nf(kM.sf,6):'—')+'</span></div>'
-    + '</div></div></div>'
-    + '<div class="formula">'
-    + '⑥ '+man(need)+' × '+nf(kN.apv,4)+'（年金現価・'+n+'年）＝ '+man(atStart)+'（'+st+'歳で必要）<br>'
-    + '① '+man(have)+' × '+nf(kM.fv,4)+'（終価・'+m+'年）＝ '+man(grown)+'（いまの資金が育つ額）<br>'
-    + '④ '+man(short)+' × '+(m>0? nf(kM.sf,6):'—')+'（減債基金・'+m+'年）＝ <b>'+man(annual)+'</b>（毎年のつみたて）'
-    + '</div>'
-    + '<div class="chart"><div class="c-h">資産残高の推移（'+age+'歳 → '+en+'歳）</div>'+bars(series)
-    + '<div class="legend"><span><i style="background:'+C_GREEN+'"></i>つみたて期（'+age+'〜'+st+'歳）</span>'
-    + '<span><i style="background:'+C_CORAL+'"></i>取り崩し期（'+st+'〜'+en+'歳）</span></div></div>'
-    + '<details class="know"><summary>この数字の使い方'
-    + '<svg class="kn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></summary>'
-    + '<div class="kn-body"><ul>'
-    + '<li>「毎年 '+man(annual)+'（月 '+man(annual/12)+'）」が、提案する保険料の上限の目安になります。家計から無理なく出せる額かをまず確認してください。</li>'
-    + '<li>公的年金の見込額（ねんきん定期便）を「毎年受け取りたい金額」から引くと、上乗せで準備すべき金額だけが残ります。</li>'
-    + '<li>受取期間を終身にしたい場合、この計算（確定年金）より多くの原資が必要です。終身年金・トンチン性のある商品との比較材料に使ってください。</li>'
-    + '<li>物価上昇を織り込むなら、利回りから想定インフレ率を引いた数字（例：3% − 1% ＝ 2%）で計算し直すと保守的な目安になります。</li>'
-    + '</ul></div></details>'
-    + '</div>';
-  out.innerHTML = h;
-}
-
-/* ============ 初期表示 ============ */
-renderTable();
-renderPlan();
 
 })();
 </script>
