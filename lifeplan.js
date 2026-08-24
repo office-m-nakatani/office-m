@@ -207,7 +207,7 @@ function fmtDateTime(ts) {
       act: [
         'まず親御さまの資産の棚卸し（不動産の評価額・預貯金・保険・有価証券）を一覧にすることから。当サイトの相続税シミュレーションで概算もできます。'],
       care: [
-        '不動産の生前贈与や名義変更は、贈与税・不動産取得税・登録免許税で逆に高くつくことがあります。実行前に必ず税理士へ確認を。当社はグループの高橋秀和税理士事務所と連携し、ワンストップでサポートできます。'] },
+        '不動産の生前贈与や名義変更は、贈与税・不動産取得税・登録免許税で逆に高くつくことがあります。実行前に必ず税理士へ確認を。'] },
     { id: '贈与', kw: ['贈与', '生前贈与', '援助', '親から', '住宅資金贈与', '110万'],
       open: [
         '贈与は「年110万円の基礎控除」を長期間コツコツ使うのが王道です。10年で1,100万円を無税で移転でき、相続財産の圧縮効果も大きくなります。',
@@ -297,7 +297,7 @@ function fmtDateTime(ts) {
     '「うちの場合は？」の答えは無料のライフプラン診断で数分で出せます。',
     '一般論はここまで。ここから先はあなた専用の設計図の出番です。',
     '疑問が残れば、角度を変えてもう一度聞いてみてください。別の視点でお答えします。',
-    '無料相談では、必要に応じてグループの高橋秀和税理士事務所との連携も含め、税金まわりまで一緒に整理できます。'
+    '無料相談では、税金まわりのことも一緒に整理できます。'
   ];
   const FALLBACK = [
     'ご質問の意図を正しく捉えたいので、少しだけ具体的に教えてください。例えば「35歳・年収600万・子ども2人で住宅予算は？」のように、状況を添えていただくと精度の高い回答ができます。',
@@ -755,7 +755,7 @@ document.getElementById('calc-inheritance')?.addEventListener('click', () => {
       <p style="font-size:.75rem;color:#6f8494;margin-bottom:4px;">最終的な相続税額（概算）</p>
       <p style="font-size:2rem;font-weight:900;color:#c0392b;">${finalTax.toLocaleString()}<span style="font-size:1rem;">万円</span></p>
     </div>
-    <p style="font-size:.72rem;color:#93a6b3;line-height:1.7;">※ 課税遺産総額を相続人数で均等按分した簡易試算です（実際の法定相続分による計算とは異なる場合があります）。実際の税額は遺産の内容・分割方法・各種特例の適用により異なります。正式な申告・具体的な税務判断は、グループの高橋秀和税理士事務所（税理士）にご確認ください。</p>
+    <p style="font-size:.72rem;color:#93a6b3;line-height:1.7;">※ 課税遺産総額を相続人数で均等按分した簡易試算です（実際の法定相続分による計算とは異なる場合があります）。実際の税額は遺産の内容・分割方法・各種特例の適用により異なります。正式な申告・具体的な税務判断は、税理士にご確認ください。</p>
     <a href="#reserve" style="display:inline-flex;margin-top:14px;align-items:center;gap:6px;background:#16425f;color:#fff;padding:12px 22px;border-radius:100px;font-weight:800;font-size:.85rem;">相続の詳細を専門家に相談 →</a>
   </div>`);
 });
@@ -804,7 +804,7 @@ document.getElementById('calc-gift')?.addEventListener('click', () => {
         <p style="font-size:.75rem;color:#6f8494;margin-bottom:4px;">贈与税額（概算）</p>
         <p style="font-size:1.8rem;font-weight:900;color:${tax === 0 ? '#1d6b46' : '#c0392b'};">${tax.toLocaleString()}<span style="font-size:.9rem;">万円</span></p>
       </div>
-      <p style="font-size:.72rem;color:#93a6b3;margin-top:12px;line-height:1.7;">※ 要件を満たす場合の試算です。詳細は、グループの高橋秀和税理士事務所（税理士）にご確認ください。</p>
+      <p style="font-size:.72rem;color:#93a6b3;margin-top:12px;line-height:1.7;">※ 要件を満たす場合の試算です。詳細は、税理士にご確認ください。</p>
     </div>`);
     return;
   }
@@ -828,7 +828,7 @@ document.getElementById('calc-gift')?.addEventListener('click', () => {
       <p style="font-size:.75rem;color:#6f8494;margin-bottom:4px;">贈与税額（概算）</p>
       <p style="font-size:1.8rem;font-weight:900;color:#c0392b;">${tax.toLocaleString()}<span style="font-size:.9rem;">万円</span></p>
     </div>
-    <p style="font-size:.72rem;color:#93a6b3;line-height:1.7;">※ 簡易試算です。実際の税額は、グループの高橋秀和税理士事務所（税理士）にご確認ください。</p>
+    <p style="font-size:.72rem;color:#93a6b3;line-height:1.7;">※ 簡易試算です。実際の税額は、税理士にご確認ください。</p>
     <a href="#reserve" style="display:inline-flex;margin-top:12px;align-items:center;gap:6px;background:#2aa793;color:#fff;padding:11px 20px;border-radius:100px;font-weight:800;font-size:.83rem;">贈与・相続を相談する（無料）→</a>
   </div>`);
 });
