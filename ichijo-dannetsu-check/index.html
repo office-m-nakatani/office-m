@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="一条工務店の断熱性（UA値0.25前後の目安）を、断熱等級4〜7の基準値やChart.jsのグラフ、○×クイズ、かんたんシミュレーターで深掘りする情報提供コンテンツ。公開情報にもとづき株式会社Office-Mが作成。">
+<title>断熱性を数字で読み解く｜一条工務店のUA値から学ぶ家づくりの視点｜株式会社Office-M</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 8 6 28h6v28h40V28h6Z' fill='%23c1652e'/%3E%3Crect x='26' y='40' width='12' height='16' fill='%23fdf3ea'/%3E%3Cpath d='M18 30h28v6H18z' fill='%23fdf3ea'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Noto+Serif+JP:wght@600;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --cream:#fdf8f1;
+  --white:#ffffff;
+  --ink:#2c2620;
+  --muted:#6b5f52;
+  --line:#ecdec9;
+  --shadow:0 6px 20px rgba(120,80,40,.09);
+  --shadow-sm:0 3px 10px rgba(120,80,40,.07);
+
+  --terra:#c1652e;
+  --terra-dark:#a14f21;
+  --terra-bg:#fbe9dc;
+  --terra-border:#f0cdab;
+
+  --navy:#233c52;
+  --navy-2:#2f5170;
+  --navy-bg:#e9eff4;
+  --navy-border:#cfdce6;
+
+  --sage:#4f8a6d;
+  --sage-dark:#396a51;
+  --sage-bg:#e7f2ec;
+  --sage-border:#c4e0d2;
+
+  --amber:#c98a2c;
+  --amber-bg:#fbf0dc;
+  --amber-border:#eed6a4;
+
+  --red:#b8483a;
+  --red-bg:#fbeae7;
+  --red-border:#eec9c1;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;font-size:17px;}
+@media(min-width:1000px){ html{font-size:18px;} }
+body{
+  font-family:"Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+  color:var(--ink);
+  background:var(--cream);
+  font-size:1rem;
+  line-height:1.9;
+  letter-spacing:.02em;
+  overflow-wrap:break-word;
+}
+img,svg{max-width:100%;vertical-align:middle;}
+button{font-family:inherit;cursor:pointer;}
+a{color:var(--navy-2);}
+a:focus-visible,button:focus-visible,summary:focus-visible,
+input:focus-visible,label:focus-visible,[tabindex]:focus-visible{
+  outline:3px solid var(--navy-2);outline-offset:3px;border-radius:6px;
+}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px;}
+.nowrap{white-space:nowrap;}
+@media(max-width:520px){ .hero h1 .nowrap{white-space:normal;} }
+@media(min-width:700px){
+  .sec-lead,.stat-note,.note p,.faq p,.faq li,
+  .cta-lead,.chart-box .chart-cap,footer.disclaimer p{max-width:42em;}
+}
+h1,h2,h3{font-family:"Noto Serif JP",serif;}
+
+/* ---------- ヒーロー ---------- */
+.hero{
+  background:linear-gradient(165deg,#fdece1 0%,#fdf6ec 45%,#e7f1f8 100%);
+  padding:26px 0 34px;overflow:hidden;
+}
+.brand{display:flex;align-items:center;gap:10px;font-size:.9rem;font-weight:700;color:var(--navy);}
+.brand .ico{
+  width:38px;height:38px;flex:0 0 38px;border-radius:11px;
+  background:var(--navy);display:inline-flex;align-items:center;justify-content:center;
+}
+.brand .ico svg{width:21px;height:21px;stroke:#fff;}
+.brand small{display:block;font-weight:500;color:var(--muted);font-size:.8rem;line-height:1.5;}
+.hero-flex{display:flex;flex-direction:column;}
+.hero h1{font-size:1.5rem;line-height:1.5;font-weight:800;color:var(--navy);margin:22px 0 13px;}
+.hero h1 .accent{background:linear-gradient(transparent 62%, #f6d7a8 62%);padding:0 2px;}
+.hero .lead{font-size:1rem;color:var(--ink);max-width:620px;}
+.hero-scene{margin:20px auto 0;width:100%;max-width:360px;}
+.hero-scene svg{width:100%;height:auto;display:block;}
+@media(min-width:768px){
+  .hero{padding:34px 0 44px;}
+  .hero h1{font-size:1.92rem;}
+  .hero .lead{font-size:1.07rem;}
+  .hero-flex{flex-direction:row;align-items:center;gap:30px;}
+  .hero-copy{flex:1;}
+  .hero-scene{flex:0 0 320px;margin:0;}
+}
+.hero-nav{display:flex;flex-wrap:wrap;gap:9px;margin-top:22px;}
+.hero-nav a{
+  display:inline-flex;align-items:center;gap:8px;background:var(--white);
+  border:2px solid #fff;color:var(--navy);text-decoration:none;
+  padding:11px 16px;border-radius:999px;font-size:.9rem;font-weight:700;
+  min-height:46px;box-shadow:var(--shadow-sm);
+}
+.hero-nav a svg{width:17px;height:17px;stroke:var(--terra);flex:0 0 17px;}
+.hero-nav a:active{background:#fff4e9;}
+
+/* ---------- セクション共通 ---------- */
+section{padding:42px 0 46px;}
+.band{background:var(--white);}
+.band-navy{background:var(--navy-bg);}
+.band-sage{background:var(--sage-bg);}
+.band-terra{background:#fdf1e6;}
+.round-top{border-radius:28px 28px 0 0;margin-top:-22px;position:relative;z-index:1;padding-top:40px;}
+.sec-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;}
+.sec-head .spot{flex:0 0 78px;}
+.spot-circle{
+  width:78px;height:78px;border-radius:50%;background:var(--white);
+  box-shadow:var(--shadow-sm);display:flex;align-items:center;justify-content:center;
+}
+.spot-circle svg{width:44px;height:44px;stroke:var(--terra);}
+.step-pill{
+  display:inline-flex;align-items:center;gap:8px;background:var(--amber-bg);color:var(--navy);
+  font-size:.85rem;font-weight:700;padding:6px 16px;border-radius:999px;margin-bottom:12px;
+  box-shadow:var(--shadow-sm);
+}
+h2{font-size:1.34rem;line-height:1.5;color:var(--navy);font-weight:800;position:relative;padding-bottom:11px;margin-bottom:10px;}
+h2::after{content:"";position:absolute;left:0;bottom:0;width:52px;height:5px;border-radius:3px;background:linear-gradient(90deg,var(--terra),var(--amber));}
+@media(min-width:768px){h2{font-size:1.6rem;}}
+h3{font-size:1.1rem;color:var(--navy);font-weight:700;}
+.sec-lead{color:var(--muted);font-size:.98rem;margin-bottom:22px;}
+
+/* ---------- 統計タイル ---------- */
+.stat-grid{display:grid;grid-template-columns:1fr;gap:14px;margin:22px 0;}
+@media(min-width:640px){.stat-grid{grid-template-columns:1fr 1fr;}}
+.stat-card{
+  background:var(--white);border:1px solid var(--line);border-radius:18px;
+  padding:20px 20px 18px;box-shadow:var(--shadow-sm);
+}
+.stat-card .num{font-family:"Noto Serif JP",serif;font-size:2rem;font-weight:800;color:var(--terra-dark);line-height:1.2;}
+.stat-card .num small{font-size:1rem;font-weight:700;margin-left:2px;}
+.stat-card .label{font-size:.92rem;font-weight:700;color:var(--navy);margin-top:4px;}
+.stat-card .src{font-size:.78rem;color:var(--muted);margin-top:8px;line-height:1.7;}
+.stat-note{
+  display:flex;gap:9px;align-items:flex-start;background:var(--white);border-radius:16px;
+  padding:14px 16px;margin-top:6px;box-shadow:var(--shadow-sm);font-size:.88rem;color:var(--muted);line-height:1.85;
+}
+.stat-note svg{width:19px;height:19px;flex:0 0 19px;stroke:var(--terra);margin-top:3px;}
+
+/* ---------- スペック比較表 ---------- */
+.spec-table{width:100%;border-collapse:collapse;margin-top:20px;font-size:.92rem;background:var(--white);border-radius:16px;overflow:hidden;box-shadow:var(--shadow-sm);}
+.spec-table th,.spec-table td{padding:11px 12px;text-align:left;border-bottom:1px solid var(--line);}
+.spec-table th{background:var(--navy-bg);color:var(--navy);font-weight:700;font-size:.85rem;}
+.spec-table tr:last-child td{border-bottom:none;}
+.spec-table td.hi{color:var(--terra-dark);font-weight:800;}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+
+/* ---------- チャート ---------- */
+.chart-box{background:var(--white);border-radius:18px;padding:18px 16px 10px;margin-top:22px;box-shadow:var(--shadow-sm);}
+.chart-box .chart-cap{font-size:.82rem;color:var(--muted);text-align:center;margin-top:8px;}
+.chart-canvas-wrap{position:relative;height:280px;}
+
+/* ---------- 熱の出入り内訳 ---------- */
+.heatbar{
+  background:var(--white);border-radius:18px;padding:20px;margin:22px 0;box-shadow:var(--shadow-sm);
+}
+.heatbar-track{
+  display:flex;width:100%;height:40px;border-radius:12px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--line);
+}
+.heatbar-seg{display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;}
+.heatbar-seg.mado{background:var(--terra);}
+.heatbar-seg.sonota{background:var(--navy-border);color:var(--navy);}
+.heatbar-legend{display:flex;justify-content:space-between;margin-top:10px;font-size:.82rem;color:var(--muted);}
+.heat-rank{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;}
+.heat-rank li{
+  list-style:none;display:flex;align-items:center;gap:7px;background:var(--cream);border:1px solid var(--line);
+  border-radius:999px;padding:7px 14px;font-size:.85rem;color:var(--ink);
+}
+.heat-rank li b{color:var(--terra-dark);font-family:"Noto Serif JP",serif;}
+.heat-rank li .arrow{color:var(--muted);}
+
+/* ---------- 取り組み・基礎知識カード ---------- */
+.feature-list{display:grid;grid-template-columns:1fr;gap:14px;margin-top:22px;}
+@media(min-width:680px){.feature-list{grid-template-columns:1fr 1fr;}}
+.feature{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow-sm);}
+.feature .fi{
+  width:44px;height:44px;border-radius:12px;background:var(--sage-bg);display:flex;align-items:center;justify-content:center;margin-bottom:10px;
+}
+.feature .fi svg{width:24px;height:24px;stroke:var(--sage-dark);}
+.feature h4{font-size:1rem;color:var(--navy);font-weight:700;margin-bottom:6px;}
+.feature p{font-size:.88rem;color:var(--muted);line-height:1.85;}
+
+/* ---------- ○×クイズ ---------- */
+.quiz-list{display:flex;flex-direction:column;gap:16px;margin-top:22px;}
+.quiz-item{background:var(--white);border:1px solid var(--line);border-radius:20px;padding:18px 18px 20px;box-shadow:var(--shadow-sm);}
+.quiz-q{display:flex;gap:12px;align-items:flex-start;margin-bottom:16px;}
+.quiz-q .qn{
+  flex:0 0 30px;width:30px;height:30px;border-radius:9px;background:var(--navy-bg);color:var(--navy);
+  font-weight:800;font-size:.9rem;display:flex;align-items:center;justify-content:center;font-family:"Noto Serif JP",serif;
+}
+.quiz-q p{font-size:1rem;font-weight:700;color:var(--ink);line-height:1.8;padding-top:2px;}
+.quiz-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.quiz-btn{
+  min-height:56px;border-radius:14px;border:2px solid var(--line);background:var(--cream);
+  font-size:1.05rem;font-weight:800;color:var(--navy);display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:transform .1s;
+}
+.quiz-btn:active{transform:scale(.97);}
+.quiz-btn svg{width:22px;height:22px;}
+.quiz-btn:disabled{cursor:default;}
+.quiz-btn.chosen-correct{background:var(--sage-bg);border-color:var(--sage-border);color:var(--sage-dark);}
+.quiz-btn.chosen-wrong{background:var(--red-bg);border-color:var(--red-border);color:var(--red);}
+.quiz-btn.faded{opacity:.45;}
+.quiz-explain{display:none;margin-top:14px;border-radius:14px;padding:14px 15px;font-size:.9rem;line-height:1.85;}
+.quiz-explain.show{display:block;}
+.quiz-explain.is-correct{background:var(--sage-bg);border:1px solid var(--sage-border);}
+.quiz-explain.is-wrong{background:var(--red-bg);border:1px solid var(--red-border);}
+.quiz-explain .res{display:flex;align-items:center;gap:8px;font-weight:800;margin-bottom:6px;}
+.quiz-explain .res.ok{color:var(--sage-dark);}
+.quiz-explain .res.ng{color:var(--red);}
+.quiz-explain .res svg{width:19px;height:19px;}
+.quiz-explain .ans{font-weight:700;color:var(--navy);}
+.quiz-summary{
+  margin-top:8px;background:var(--white);border-radius:18px;padding:20px;box-shadow:var(--shadow);text-align:center;
+}
+.quiz-summary .score{font-family:"Noto Serif JP",serif;font-size:1.5rem;font-weight:800;color:var(--navy);}
+.quiz-summary .score b{color:var(--terra-dark);font-size:1.9rem;}
+.quiz-summary .msg{margin-top:8px;font-size:.94rem;color:var(--ink);line-height:1.85;}
+.btn-ghost{
+  display:inline-flex;align-items:center;gap:7px;background:var(--white);border:2px solid var(--line);
+  color:var(--navy);font-weight:700;font-size:.88rem;padding:10px 16px;border-radius:999px;
+}
+.btn-ghost svg{width:16px;height:16px;stroke:var(--navy);}
+
+/* ---------- シミュレーター ---------- */
+.sim-box{background:var(--white);border-radius:20px;padding:22px 20px;margin-top:22px;box-shadow:var(--shadow-sm);}
+.sim-box .sub{font-size:.9rem;color:var(--muted);margin-bottom:16px;line-height:1.85;}
+.grade-picker{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px;}
+.grade-btn{
+  min-height:64px;border-radius:14px;border:2px solid var(--line);background:var(--cream);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+}
+.grade-btn .g-num{font-family:"Noto Serif JP",serif;font-weight:800;font-size:1.15rem;color:var(--navy);}
+.grade-btn .g-lbl{font-size:.7rem;color:var(--muted);}
+.grade-btn.active{background:var(--terra-bg);border-color:var(--terra);}
+.grade-btn.active .g-num{color:var(--terra-dark);}
+.sim-chart-wrap{position:relative;height:220px;margin-top:6px;}
+.sim-output{
+  display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;background:var(--navy-bg);border-radius:16px;
+  padding:16px 18px;margin-top:18px;
+}
+.sim-output .big{font-family:"Noto Serif JP",serif;font-size:2.1rem;font-weight:800;color:var(--navy);}
+.sim-output .unit{font-size:.95rem;color:var(--navy);font-weight:700;}
+.sim-output .txt{width:100%;margin-top:6px;font-size:.88rem;color:var(--muted);line-height:1.8;}
+.sim-warn{
+  display:flex;gap:9px;align-items:flex-start;background:var(--amber-bg);border:1px solid var(--amber-border);
+  border-radius:14px;padding:13px 15px;margin-top:14px;font-size:.85rem;color:#7a5a1c;line-height:1.85;
+}
+.sim-warn svg{width:18px;height:18px;flex:0 0 18px;stroke:var(--amber);margin-top:2px;}
+
+/* ---------- FAQ ---------- */
+.faq{margin-top:20px;}
+.faq details{background:var(--white);border-radius:16px;padding:15px 17px;margin-bottom:10px;box-shadow:var(--shadow-sm);}
+.faq summary{font-weight:700;color:var(--navy);font-size:.98rem;cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;}
+.faq summary::-webkit-details-marker{display:none;}
+.faq summary::before{content:"Q";flex:0 0 26px;height:26px;border-radius:8px;background:var(--terra-bg);color:var(--terra-dark);font-weight:800;display:flex;align-items:center;justify-content:center;font-size:.85rem;}
+.faq p,.faq li{font-size:.9rem;color:var(--muted);margin-top:10px;line-height:1.85;}
+.faq ul{padding-left:18px;}
+
+/* ---------- リンクカード（姉妹ページ） ---------- */
+.link-cards{display:grid;grid-template-columns:1fr;gap:14px;margin:22px 0;}
+@media(min-width:680px){.link-cards{grid-template-columns:repeat(3,1fr);}}
+.link-card{
+  display:flex;flex-direction:column;gap:8px;background:var(--white);border:1px solid var(--line);
+  border-radius:18px;padding:18px;box-shadow:var(--shadow-sm);text-decoration:none;color:var(--ink);
+}
+.link-card .fi{
+  width:40px;height:40px;border-radius:11px;background:var(--terra-bg);display:flex;align-items:center;justify-content:center;
+}
+.link-card .fi svg{width:22px;height:22px;stroke:var(--terra-dark);}
+.link-card h4{font-size:.98rem;color:var(--navy);font-weight:700;}
+.link-card p{font-size:.82rem;color:var(--muted);line-height:1.75;}
+.link-card .go{margin-top:auto;font-size:.82rem;font-weight:700;color:var(--terra-dark);display:flex;align-items:center;gap:5px;}
+.link-card .go svg{width:14px;height:14px;stroke:var(--terra-dark);}
+.link-card.disabled{opacity:.68;}
+.link-card .soon{display:inline-block;font-size:.7rem;font-weight:700;color:var(--muted);background:var(--navy-bg);padding:2px 8px;border-radius:999px;margin-left:6px;}
+
+/* ---------- CTA ---------- */
+.cta-box{background:var(--navy);color:#fff;border-radius:22px;padding:26px 22px;margin-top:26px;box-shadow:var(--shadow);}
+.cta-box h3{color:#fff;font-size:1.2rem;}
+.cta-box .cta-lead{color:#d9e2ea;font-size:.92rem;margin:10px 0 16px;line-height:1.85;}
+.cta-box ul{list-style:none;display:flex;flex-direction:column;gap:9px;margin-bottom:16px;}
+.cta-box ul li{display:flex;gap:9px;align-items:flex-start;font-size:.92rem;color:#eef3f7;}
+.cta-box ul li svg{width:19px;height:19px;flex:0 0 19px;stroke:#f6d7a8;margin-top:2px;}
+.cta-box .co{margin-top:16px;font-weight:800;font-size:1rem;}
+.cta-box .addr{font-size:.85rem;color:#c3d1dc;margin-top:3px;}
+.cta-box a.mailbtn{
+  display:inline-flex;align-items:center;gap:9px;background:#fff;color:var(--navy);
+  font-weight:800;padding:12px 20px;border-radius:999px;margin-top:16px;text-decoration:none;font-size:.94rem;
+}
+.cta-box a.mailbtn svg{width:18px;height:18px;stroke:var(--navy);}
+
+/* ---------- フッター ---------- */
+footer.disclaimer{max-width:900px;margin:0 auto;padding:30px 16px 60px;}
+footer.disclaimer p{font-size:.79rem;color:var(--muted);line-height:1.9;}
+footer.disclaimer p + p{margin-top:10px;}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brand">
+      <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg></span>
+      <span>株式会社Office-M<small>家づくりとお金の話を、まとめてご案内します</small></span>
+    </div>
+    <div class="hero-flex">
+      <div class="hero-copy">
+        <h1>一条工務店の「断熱性」を、<span class="nowrap accent">UA値という数字で</span>読み解く</h1>
+        <p class="lead">「高断熱らしい」で終わらせず、UA値・断熱等級という共通のものさしで確認してみませんか。断熱等級4〜7の基準値と一条工務店の主力仕様を比較しながら、○×クイズとかんたんシミュレーターで理解を深めるページです。沿革・気密性・健康との関係は、姉妹ページの概要ページでまとめてご覧いただけます。</p>
+        <div class="hero-nav">
+          <a href="#kiso"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4v10.5a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></svg>断熱性の基礎</a>
+          <a href="#uchiwake"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V10l8-6 8 6v11M9 21v-6h6v6"/></svg>熱の出入りの内訳</a>
+          <a href="#quiz"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>○×クイズ</a>
+          <a href="#sim"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16M7 19V9M12 19V5M17 19v7"/></svg>シミュレーター</a>
+        </div>
+      </div>
+      <div class="hero-scene" aria-hidden="true">
+        <svg viewBox="0 0 320 260">
+          <defs>
+            <linearGradient id="skyGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#cfe4f2"/><stop offset="1" stop-color="#fbe6d6"/>
+            </linearGradient>
+            <linearGradient id="warmGrad" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0" stop-color="#f6d7a8"/><stop offset="1" stop-color="#fdf1e2"/>
+            </linearGradient>
+          </defs>
+          <rect x="0" y="0" width="320" height="260" rx="20" fill="url(#skyGrad)"/>
+          <path d="M60 130 160 60 260 130" fill="none" stroke="#233c52" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="78" y="128" width="164" height="96" rx="6" fill="#ffffff" stroke="#233c52" stroke-width="6"/>
+          <rect x="78" y="128" width="164" height="96" rx="6" fill="url(#warmGrad)" opacity=".55"/>
+          <rect x="66" y="118" width="188" height="116" rx="14" fill="none" stroke="#c1652e" stroke-width="3" stroke-dasharray="2 8" stroke-linecap="round"/>
+          <rect x="96" y="150" width="34" height="34" rx="4" fill="#fff" stroke="#c1652e" stroke-width="4"/>
+          <rect x="190" y="150" width="34" height="34" rx="4" fill="#fff" stroke="#c1652e" stroke-width="4"/>
+          <rect x="144" y="176" width="32" height="48" rx="3" fill="#a14f21"/>
+          <g stroke="#c1652e" stroke-width="3" stroke-linecap="round">
+            <path d="M96 150v34M130 150v34M96 167h34"/>
+            <path d="M190 150v34M224 150v34M190 167h34"/>
+          </g>
+          <path d="M50 226h220" stroke="#c9b79b" stroke-width="4" stroke-linecap="round"/>
+          <text x="160" y="112" text-anchor="middle" font-size="11" fill="#a14f21" font-weight="700">外皮（断熱ライン）</text>
+          <path d="M40 100q6-10 14-2M270 90q6-10 14-2" stroke="#8aa9c2" stroke-width="3" stroke-linecap="round" fill="none"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ================= はじめに（沿革は軽く） ================= -->
+<section id="intro" class="band round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill">はじめに</span>
+        <h2>「断熱性」だけを、<span class="nowrap">じっくり深掘りします</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg></span></div>
+    </div>
+    <p class="sec-lead">一条工務店は1978年、静岡県浜松市で創業した住宅専業のハウスメーカーです。「家は、性能。」を掲げ、1985年に社内インテリア事業部を設立してヨーロッパの高級家具を直輸入するとともに、住宅設備・サッシの自社開発に着手しました。これが、断熱・気密性能を自社で作り込んでいく路線の起点になったとされています。現在は本社を東京都江東区に置き、全国（沖縄を除く）約500拠点、国内工場18か所・米国2か所を展開しています。</p>
+    <div class="stat-note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg>
+      <p>沿革そのものの詳しい年表や、気密性（C値）・健康との関係は、姉妹ページの概要ページで詳しく扱っています。このページでは「断熱性」だけを、UA値という共通のものさしで深掘りします。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 断熱性の基礎知識 ================= -->
+<section id="kiso" class="band-sage round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill">基礎知識</span>
+        <h2>「断熱性」って、<span class="nowrap">結局なに？</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4v10.5a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></svg></span></div>
+    </div>
+    <p class="sec-lead">断熱性は「壁・窓・屋根・床から、どれくらい熱が逃げにくいか」を表す性能です。専門的には<strong>UA値（外皮平均熱貫流率、単位はW/㎡K）</strong>という数値で示され、家全体から逃げる熱の量を、外壁・窓・屋根・床などの外皮の面積で平均したものです。<strong>数値が小さいほど、熱を通しにくい＝断熱性が高い</strong>ということになります。</p>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="num">0.25<small>前後 W/㎡K</small></div>
+        <div class="label">一条工務店 主力仕様のUA値の目安</div>
+        <div class="src">出典：各種公開情報にもとづく目安。仕様変更で変わるため最新は公式資料でご確認ください。</div>
+      </div>
+      <div class="stat-card">
+        <div class="num">等級6<small>以上が標準</small></div>
+        <div class="label">「等級5相当のみ」の仕様を用意していないとされる</div>
+        <div class="src">出典：各種公開情報にもとづく。性能を落としてコストを抑える選択肢が基本的にない、という商品設計とされています。</div>
+      </div>
+    </div>
+
+    <div class="chart-box">
+      <div class="chart-canvas-wrap"><canvas id="uaChart" role="img" aria-label="断熱等級4から7までのUA値基準と、一条工務店の主力仕様のUA値を比較した棒グラフ"></canvas></div>
+      <p class="chart-cap">6地域（東京・大阪など多くの地域が該当）の断熱等級とUA値基準の目安。数値が小さいほど高性能。出典：国土交通省の公表資料をもとに作成。一条工務店の値は各種公開情報にもとづく目安（仕様変更により変わる場合あり）。</p>
+    </div>
+
+    <div class="tbl-wrap">
+      <table class="spec-table">
+        <thead><tr><th>断熱等級</th><th>UA値の基準（6地域）</th><th>目安</th></tr></thead>
+        <tbody>
+          <tr><td>等級4</td><td>0.87 以下</td><td>2025年4月〜新築住宅に義務化された現行基準</td></tr>
+          <tr><td>等級5</td><td>0.60 以下</td><td>いわゆるZEH水準</td></tr>
+          <tr><td>等級6</td><td>0.46 以下</td><td>2022年新設。HEAT20 G2相当</td></tr>
+          <tr><td>等級7</td><td>0.26 以下</td><td>2022年新設・現行の最高等級。HEAT20 G3相当</td></tr>
+          <tr><td>一条工務店 主力仕様</td><td class="hi">0.25 前後</td><td>公開情報にもとづく目安。等級7の基準さえ下回る水準</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="stat-note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg>
+      <p>一条工務店は「等級5相当のみ」という仕様を用意しておらず、主力商品の標準仕様がすでに等級6以上に設定されているとされています。他社ではオプションになりやすい高い断熱性能が、標準の中に含まれている、という説明の仕方もできます。数値・仕様は変更されることがあるため、最新の内容は公式サイト・展示場でご確認ください。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 熱の出入りの内訳 ================= -->
+<section id="uchiwake" class="band round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill">熱の出入り</span>
+        <h2>熱は、どこから<span class="nowrap">逃げているのか</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4M17 12h4M12 3v4M12 17v4"/><circle cx="12" cy="12" r="4"/></svg></span></div>
+    </div>
+    <p class="sec-lead">断熱性能を考えるとき、家のどこから熱が逃げやすいのかを知っておくと、優先順位がつけやすくなります。無断熱〜低断熱の住宅では、冬季の熱損失のうち<strong>窓（開口部）からの割合が最も大きく、概ね5割前後を占める</strong>とされ、次いで外壁・換気・床・屋根の順に続く傾向があると、経済産業省・国土交通省などの省エネ関連資料でよく紹介されています。</p>
+
+    <div class="heatbar">
+      <div class="heatbar-track" role="img" aria-label="冬季の熱損失の内訳の目安。窓が約5割、残りを外壁・換気・床・屋根が占める">
+        <div class="heatbar-seg mado" style="flex:50;">窓　概ね5割前後</div>
+        <div class="heatbar-seg sonota" style="flex:50;">外壁・換気・床・屋根　合わせて残り</div>
+      </div>
+      <div class="heatbar-legend"><span>0%</span><span>50%</span><span>100%</span></div>
+      <ul class="heat-rank">
+        <li><b>1位</b>窓（開口部）</li>
+        <li class="arrow">→</li>
+        <li><b>2位</b>外壁</li>
+        <li class="arrow">→</li>
+        <li><b>3位</b>換気</li>
+        <li class="arrow">→</li>
+        <li><b>4位</b>床</li>
+        <li class="arrow">→</li>
+        <li><b>5位</b>屋根</li>
+      </ul>
+    </div>
+    <div class="stat-note">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg>
+      <p>この内訳はあくまで一般的な傾向の目安であり、断熱等級・地域・住宅の仕様によって変動します。「窓を優先的に強化する」という考え方が広まっている背景には、この内訳があります。ただし、窓だけを高性能にしても家全体の断熱性能が十分に上がるとは限らない点は、後の○×クイズでも扱います。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 断熱材・サッシの基礎 ================= -->
+<section id="zairyo" class="band-navy round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill">部材の基礎</span>
+        <h2>断熱材と<span class="nowrap">サッシの話</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg></span></div>
+    </div>
+
+    <div class="feature-list">
+      <div class="feature">
+        <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M10 4v16"/></svg></div>
+        <h4>断熱材は「種類」より「隙間なく」が重要</h4>
+        <p>断熱材にはグラスウールや発泡系（硬質ウレタンフォームなど）といった種類がありますが、種類そのものの優劣だけでなく、<strong>施工時に隙間なく充填されているか</strong>が性能に大きく影響します。これは気密性（C値）とも深く関わる部分で、いくら高性能な断熱材でも施工に隙間があれば、そこから熱が出入りしてしまいます。</p>
+      </div>
+      <div class="feature">
+        <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 12h16M12 4v16"/></svg></div>
+        <h4>サッシ・窓ガラスは、熱の出入りが最も大きい部位</h4>
+        <p>前の章で見たとおり、窓は熱の出入りが特に大きい部位です。フレーム部分は樹脂サッシやアルミ樹脂複合サッシ、ガラス部分はLow-E複層ガラスやトリプルガラスといった技術キーワードがよく使われますが、製品ごとの断定的な優劣比較はこのページの目的ではありません。「窓は熱の出入りが大きい部位」という考え方だけ押さえておけば十分です。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ○×クイズ ================= -->
+<section id="quiz" class="band-terra round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill">○×クイズ</span>
+        <h2>断熱性の<span class="nowrap">よくある誤解チェック</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span></div>
+    </div>
+    <p class="sec-lead">断熱性については、なんとなくのイメージで誤解されがちなポイントがいくつかあります。○か×か、答えを予想してから押してみてください。</p>
+
+    <div class="quiz-list" id="quizList"></div>
+
+    <div class="quiz-summary" id="quizSummary" style="display:none;">
+      <div class="score">正解数：<b id="quizScore">0</b> / <span id="quizTotal">0</span></div>
+      <p class="msg" id="quizMsg"></p>
+      <div style="margin-top:14px;"><button type="button" class="btn-ghost" id="btnQuizReset"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/></svg>もう一度挑戦する</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= かんたんシミュレーター ================= -->
+<section id="sim" class="band round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill">かんたんシミュレーター</span>
+        <h2>断熱等級で、<span class="nowrap">暖房費の体感はどう変わる？</span></h2>
+      </div>
+      <div class="spot"><span class="spot-circle"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16M7 19V9M12 19V5M17 19v7"/></svg></span></div>
+    </div>
+    <p class="sec-lead">断熱等級を選ぶと、年間の暖房費イメージを「等級4を100とした場合の目安指数」で比較します。円額の断定はせず、あくまで体感の目安としてご覧ください。</p>
+
+    <div class="sim-box">
+      <p class="sub">気になる断熱等級を選んでください。</p>
+      <div class="grade-picker" id="gradePicker">
+        <button type="button" class="grade-btn" data-grade="4"><span class="g-num">等級4</span><span class="g-lbl">現行基準</span></button>
+        <button type="button" class="grade-btn" data-grade="5"><span class="g-num">等級5</span><span class="g-lbl">ZEH水準</span></button>
+        <button type="button" class="grade-btn" data-grade="6"><span class="g-num">等級6</span><span class="g-lbl">HEAT20 G2</span></button>
+        <button type="button" class="grade-btn" data-grade="7"><span class="g-num">等級7</span><span class="g-lbl">HEAT20 G3</span></button>
+      </div>
+
+      <div class="sim-chart-wrap"><canvas id="simChart" role="img" aria-label="等級4を100とした場合の、各断熱等級の年間暖房費イメージ指数を比較した棒グラフ。選んだ等級のバーが強調されます"></canvas></div>
+
+      <div class="sim-output">
+        <span class="big" id="simBig">100</span><span class="unit">（等級4を100とした目安指数）</span>
+        <p class="txt" id="simTxt">等級4を基準（指数100）とした場合の目安です。等級を選ぶと、指数と一言コメントが変わります。</p>
+      </div>
+
+      <div class="sim-warn">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 16.5h.01"/><path d="M10.3 3.9 2.5 17a2 2 0 0 0 1.7 3h15.6a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+        <p>この指数は厳密な計算ではなく「体感の目安」です。地域・延床面積・使い方により大きく変わる目安値であり、具体的な円額をお約束するものではありません。実際の光熱費は、お住まいの地域区分・延床面積・日射条件・暮らし方によって大きく異なります。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FAQ ================= -->
+<section id="faq" class="band-navy round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill">よくある質問</span>
+        <h2>知っておきたいこと</h2>
+      </div>
+    </div>
+    <div class="faq">
+      <details>
+        <summary>このページは一条工務店の宣伝ですか？</summary>
+        <p>いいえ。本ページは一条工務店の公式ページではなく、公開されている情報をもとに株式会社Office-Mが独自に作成した情報提供コンテンツです。特定の住宅会社の推奨や勧誘、他社との比較を目的とするものではありません。</p>
+      </details>
+      <details>
+        <summary>断熱等級5以上は、いつから義務化されますか？</summary>
+        <p>2025年4月に義務化されたのは<strong>等級4</strong>（UA値0.87以下）です。等級5（ZEH水準）以上の義務化は2030年以降の予定とされており、混同しやすいポイントです。「もう等級5が義務」という誤解には注意が必要です。</p>
+      </details>
+      <details>
+        <summary>今の家のUA値・断熱等級は、あとから確認できますか？</summary>
+        <p>新築時の設計図書や住宅性能評価書、省エネ性能表示のラベルなどに記載されている場合があります。手元に資料がない場合は、建てた（買った）住宅会社や不動産会社に問い合わせると分かることがあります。</p>
+      </details>
+      <details>
+        <summary>家づくりの費用も、税理士事務所に相談できますか？</summary>
+        <p>住宅の取得は人生でも大きな金額が動く意思決定です。住宅ローン控除などの税制、家計全体でのライフプランを含めて、まとめてご相談いただけます。</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 姉妹ページ・まとめ・CTA ================= -->
+<section id="soudan" class="band round-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="step-pill plain">関連ページ</span>
+        <h2>沿革・気密性・健康も、<span class="nowrap">あわせてご覧ください</span></h2>
+      </div>
+    </div>
+    <p class="sec-lead">このページでは「断熱性」だけを深掘りしました。一条工務店については、切り口ごとに以下のページでもご紹介しています。</p>
+
+    <div class="link-cards">
+      <a class="link-card" href="https://office-m-nakatani.github.io/office-m/ichijo-seinou-check/">
+        <span class="fi"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg></span>
+        <h4>概要ページ</h4>
+        <p>沿革・気密性・断熱性・健康との関係を、まとめてダイジェストで見る。</p>
+        <span class="go">見る<svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></span>
+      </a>
+      <a class="link-card" href="https://office-m-nakatani.github.io/office-m/ichijo-kimitsu-check/">
+        <span class="fi"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4M17 12h4M12 3v4M12 17v4"/><circle cx="12" cy="12" r="4"/></svg></span>
+        <h4>気密性ページ</h4>
+        <p>C値（相当隙間面積）を切り口に、気密性を深掘りする姉妹ページ。</p>
+        <span class="go">見る<svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></span>
+      </a>
+      <a class="link-card" href="https://office-m-nakatani.github.io/office-m/ichijo-kenko-check/">
+        <span class="fi"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 8.6c0 4.4-8.8 10.4-8.8 10.4S3.2 13 3.2 8.6a4.6 4.6 0 0 1 8.8-1.9 4.6 4.6 0 0 1 8.8 1.9Z"/></svg></span>
+        <h4>健康ページ</h4>
+        <p>住まいの温熱環境と健康の関係を深掘りする姉妹ページ。</p>
+        <span class="go">見る<svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></span>
+      </a>
+    </div>
+
+    <div class="cta-box">
+      <h3>家づくりの前に、30分だけ確認しませんか</h3>
+      <p class="cta-lead">このページの内容は、あくまで一般的な知識の整理です。<strong>ご自身・ご家族に合った選び方</strong>は、資金計画や税制も含めて個別に確認する必要があります。こんなご相談をよくお受けしています。</p>
+      <ul>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>UA値・断熱等級の見方や、住宅会社ごとの違いを整理して知りたい</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>住宅ローン控除など、家づくりにまつわる税金の仕組みを知りたい</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>家計全体の中で、無理のない住宅予算を一緒に考えてほしい</span></li>
+      </ul>
+      <p class="co">株式会社Office-M</p>
+      <p class="addr">受付：平日 9:00〜17:00　TEL 000-0000-0000（デモ用の仮番号です）</p>
+      <a class="mailbtn" href="mailto:y.nakatani@office-m-tax.com?subject=%E6%96%AD%E7%86%B1%E6%80%A7%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6%E7%9B%B8%E8%AB%87%E3%81%97%E3%81%9F%E3%81%84&body=%E4%B8%80%E6%9D%A1%E5%B7%A5%E5%8B%99%E5%BA%97%E3%81%AE%E6%96%AD%E7%86%B1%E6%80%A7%E3%83%9A%E3%83%BC%E3%82%B8%EF%BC%88ichijo-dannetsu-check%EF%BC%89%E3%82%92%E8%A6%8B%E3%81%A6%E3%81%94%E9%80%A3%E7%B5%A1%E3%81%97%E3%81%A6%E3%81%84%E3%81%BE%E3%81%99%E3%80%82"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>メールで相談する</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="disclaimer">
+  <p>本ページは、株式会社Office-Mが住宅の断熱性能（UA値）についてご理解いただくために、公開されている情報をもとに独自に作成した情報提供コンテンツです。一条工務店の公式資料ではなく、同社の許諾を受けたものでもありません。特定のハウスメーカー・工法の推奨や勧誘、他社商品との比較を目的とするものではなく、性能表示の考え方や仕様の一例として同社の情報を紹介するものです。会社概要・沿革・仕様に関する数値は各種公開情報にもとづく概数・目安であり、時点や仕様変更により変わることがあります。最新の情報は一条工務店の公式サイト・展示場で直接ご確認ください。</p>
+  <p>断熱等級とUA値の基準（6地域）、義務化の時期、熱損失の内訳の傾向は、国土交通省・経済産業省の断熱等級・省エネ基準に関する公表資料をもとにしています。かんたんシミュレーターの指数は、これらの公表資料にある削減率の目安をもとにOffice-Mが単純化して作成した概算であり、実際の光熱費を保証・約定するものではありません。いずれの数値も公表値にもとづく概数であり、地域区分・年度・調査方法・住宅の仕様により変動します。</p>
+  <p style="margin-top:10px;">作成：株式会社Office-M（2026年8月）</p>
+</footer>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- UA値チャート ---------- */
+var uaCanvas = document.getElementById('uaChart');
+if (uaCanvas && window.Chart) {
+  var uaLabels = ['等級4','等級5','等級6','等級7','一条工務店\n主力仕様'];
+  var uaValues = [0.87, 0.60, 0.46, 0.26, 0.25];
+  var uaColors = ['#cfdce6','#cfdce6','#cfdce6','#cfdce6','#c1652e'];
+  new Chart(uaCanvas.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: uaLabels,
+      datasets: [{
+        data: uaValues,
+        backgroundColor: uaColors,
+        borderRadius: 6,
+        maxBarThickness: 56
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(ctx){ return 'UA値 ' + ctx.parsed.y.toFixed(2) + ' W/㎡K'; }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          suggestedMax: 1.0,
+          title: { display: true, text: 'UA値（W/㎡K）／数値が小さいほど高性能', color: '#6b5f52', font: { size: 11 } },
+          grid: { color: '#ecdec9' },
+          ticks: { color: '#6b5f52' }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { color: '#233c52', font: { weight: '700' } }
+        }
+      }
+    }
+  });
+}
+
+/* ---------- ○×クイズ ---------- */
+var QUIZ = [
+  {
+    q: '断熱性能が高い家は、夏は蒸し暑くなる。',
+    ans: false,
+    expl: '断熱は外気の影響を受けにくくする性能です。冬の寒さだけでなく、夏の外の暑さが室内に侵入するのも防ぐため、エアコンの効きも良くなりやすいとされています。「断熱＝冬対策」というイメージだけで語られがちですが、夏にも効果がある性能です。'
+  },
+  {
+    q: '断熱等級の数字は、大きいほど高性能を表す。',
+    ans: true,
+    expl: '等級4→5→6→7の順に基準が厳しくなり、UA値の基準値も小さくなっていきます（等級4は0.87以下、等級7は0.26以下）。数字が大きいほど断熱性能が高い基準、という理解で問題ありません。'
+  },
+  {
+    q: '新築住宅は、すべて断熱等級5以上にすることが法律で義務化されている。',
+    ans: false,
+    expl: '2025年4月に義務化されたのは<strong>等級4</strong>（UA値0.87以下）です。等級5（ZEH水準）以上の義務化は2030年以降の予定とされており、まだ「すべての新築で義務」ではありません。等級4の義務化と混同しやすいポイントなので要注意です。'
+  },
+  {
+    q: '窓を高性能にするだけで、家全体の断熱性能は十分に上がる。',
+    ans: false,
+    expl: '窓（開口部）は熱の出入りが大きい部位で優先度は高いものの、UA値は壁・屋根・床・換気など家全体のバランスで決まります。窓だけを強化しても、他の部位の断熱が弱ければ家全体の性能は頭打ちになります。'
+  },
+  {
+    q: 'UA値は、数値が小さいほど断熱性能が高いことを表す。',
+    ans: true,
+    expl: 'UA値（外皮平均熱貫流率）は、家全体から逃げる熱の量を外皮の面積で平均した値です。逃げる熱が少ないほど数値は小さくなるため、<strong>数値が小さいほど断熱性が高い</strong>という関係になります。'
+  },
+  {
+    q: '断熱等級7は、2026年現在、最高等級である。',
+    ans: true,
+    expl: '断熱等級6・7は2022年10月に新設された比較的新しい区分で、等級7（UA値0.26以下）が2026年時点での最高等級です。今後さらに上位等級が新設される可能性はありますが、現時点では等級7が最上位です。'
+  }
+];
+
+var quizList = document.getElementById('quizList');
+var quizSummary = document.getElementById('quizSummary');
+var quizScoreEl = document.getElementById('quizScore');
+var quizTotalEl = document.getElementById('quizTotal');
+var quizMsgEl = document.getElementById('quizMsg');
+var answered = [];
+
+function iconCircle(){
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/></svg>';
+}
+function iconCross(){
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+}
+function iconCheckSm(){
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>';
+}
+function iconCrossSm(){
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+}
+
+function renderQuiz(){
+  quizList.innerHTML = '';
+  answered = new Array(QUIZ.length).fill(false);
+  QUIZ.forEach(function(item, idx){
+    var card = document.createElement('div');
+    card.className = 'quiz-item';
+    card.innerHTML =
+      '<div class="quiz-q"><span class="qn">' + (idx + 1) + '</span><p>' + item.q + '</p></div>' +
+      '<div class="quiz-btns">' +
+        '<button type="button" class="quiz-btn" data-val="true">' + iconCircle() + '<span>○</span></button>' +
+        '<button type="button" class="quiz-btn" data-val="false">' + iconCross() + '<span>×</span></button>' +
+      '</div>' +
+      '<div class="quiz-explain" id="qexp' + idx + '"></div>';
+    quizList.appendChild(card);
+
+    var btns = card.querySelectorAll('.quiz-btn');
+    btns.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        if (answered[idx]) return;
+        answered[idx] = true;
+        var chosen = btn.getAttribute('data-val') === 'true';
+        var correct = chosen === item.ans;
+        btns.forEach(function(b){
+          b.disabled = true;
+          var bVal = b.getAttribute('data-val') === 'true';
+          if (b === btn) {
+            b.classList.add(correct ? 'chosen-correct' : 'chosen-wrong');
+          } else if (bVal === item.ans) {
+            b.classList.add('chosen-correct');
+          } else {
+            b.classList.add('faded');
+          }
+        });
+        var exp = document.getElementById('qexp' + idx);
+        exp.className = 'quiz-explain show ' + (correct ? 'is-correct' : 'is-wrong');
+        exp.innerHTML =
+          '<div class="res ' + (correct ? 'ok' : 'ng') + '">' + (correct ? iconCheckSm() : iconCrossSm()) +
+          '<span>' + (correct ? '正解です' : '不正解です') + '</span></div>' +
+          '<p class="ans">正解は「' + (item.ans ? '○' : '×') + '」</p>' +
+          '<p style="margin-top:6px;">' + item.expl + '</p>';
+
+        checkQuizDone();
+      });
+    });
+  });
+  quizSummary.style.display = 'none';
+}
+
+function checkQuizDone(){
+  if (answered.every(function(v){ return v; })) {
+    var score = 0;
+    QUIZ.forEach(function(item, idx){
+      var exp = document.getElementById('qexp' + idx);
+      if (exp.classList.contains('is-correct')) score++;
+    });
+    quizScoreEl.textContent = score;
+    quizTotalEl.textContent = QUIZ.length;
+    quizMsgEl.textContent = quizMessage(score, QUIZ.length);
+    quizSummary.style.display = 'block';
+    quizSummary.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+function quizMessage(score, total){
+  var rate = score / total;
+  if (rate === 1) return '全問正解です！UA値・断熱等級の考え方は、しっかり押さえられています。';
+  if (rate >= 0.66) return 'よくできています。間違えた問題の解説だけ、もう一度読み返してみてください。';
+  if (rate >= 0.34) return '半分前後の正解でした。断熱性は誤解されやすいテーマなので、この機会に整理しておきましょう。';
+  return 'これから知っていけば大丈夫です。上の「断熱性の基礎知識」から、もう一度読み返してみることをおすすめします。';
+}
+
+document.getElementById('btnQuizReset').addEventListener('click', renderQuiz);
+
+renderQuiz();
+
+/* ---------- シミュレーター ---------- */
+var SIM_INDEX = { 4: 100, 5: 80, 6: 70, 7: 60 };
+var SIM_LABEL = { 4: '等級4（現行基準）', 5: '等級5（ZEH水準）', 6: '等級6（HEAT20 G2）', 7: '等級7（HEAT20 G3）' };
+var simChartInstance = null;
+var simCanvas = document.getElementById('simChart');
+var gradeBtns = document.querySelectorAll('.grade-btn');
+var simBig = document.getElementById('simBig');
+var simTxt = document.getElementById('simTxt');
+var currentGrade = 4;
+
+function simColors(selected){
+  return [4, 5, 6, 7].map(function(g){ return g === selected ? '#c1652e' : '#cfdce6'; });
+}
+
+function renderSimChart(){
+  if (!simCanvas || !window.Chart) return;
+  var labels = ['等級4', '等級5', '等級6', '等級7'];
+  var values = [4, 5, 6, 7].map(function(g){ return SIM_INDEX[g]; });
+  simChartInstance = new Chart(simCanvas.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: values,
+        backgroundColor: simColors(currentGrade),
+        borderRadius: 6,
+        maxBarThickness: 56
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(ctx){ return '目安指数 ' + ctx.parsed.y; }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          suggestedMax: 110,
+          title: { display: true, text: '年間暖房費イメージ指数／等級4=100・小さいほど目安が少ない', color: '#6b5f52', font: { size: 10 } },
+          grid: { color: '#ecdec9' },
+          ticks: { color: '#6b5f52' }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { color: '#233c52', font: { weight: '700' } }
+        }
+      }
+    }
+  });
+}
+
+function simMessage(grade){
+  var idx = SIM_INDEX[grade];
+  if (grade === 4) {
+    return '等級4（現行基準）を指数100とした場合の基準値です。ここから断熱等級を上げると、目安指数はどう変わるかを比べてみてください。';
+  }
+  var diff = 100 - idx;
+  return SIM_LABEL[grade] + 'を選んだ場合の目安指数は' + idx + '。等級4（指数100）と比べて、体感イメージとして' + diff + 'ポイントほど小さくなる計算です。あくまで公表資料の削減率をもとにした目安で、実際の金額を約束するものではありません。';
+}
+
+function updateSim(grade){
+  currentGrade = grade;
+  gradeBtns.forEach(function(btn){
+    btn.classList.toggle('active', Number(btn.getAttribute('data-grade')) === grade);
+  });
+  simBig.textContent = SIM_INDEX[grade];
+  simTxt.textContent = simMessage(grade);
+  if (simChartInstance) {
+    simChartInstance.data.datasets[0].backgroundColor = simColors(grade);
+    simChartInstance.update();
+  }
+}
+
+gradeBtns.forEach(function(btn){
+  btn.addEventListener('click', function(){
+    updateSim(Number(btn.getAttribute('data-grade')));
+  });
+});
+
+renderSimChart();
+updateSim(4);
+
+})();
+</script>
+
+</body>
+</html>
