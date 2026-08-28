@@ -2471,9 +2471,12 @@ function makeShare(toolId, days, addressee) {
    ============================================================ */
 var AUTH_KEY = 'officem.hokenHub.auth';
 var PASS_SALT = 'officem-hoken-hub-2026|';
-/* 受け付けるパスワードのソルト付きハッシュ（平文はこのファイルに書かない）。2通りを許可している */
-var PASS_HASHES = ['011b517160f7c9f0b9eb2007ad01cba186e7fd97f970fb12cdc299f5036f8292', '438c03df96ee445897fee60e6c52ff454d3976192f6c3c4826a75e35d8dec226'];
+/* 受け付けるパスワードのソルト付きハッシュ（平文はこのファイルに書かない）。3通りを許可している（うち1つは期限つき） */
+var PASS_HASHES = ['011b517160f7c9f0b9eb2007ad01cba186e7fd97f970fb12cdc299f5036f8292', '438c03df96ee445897fee60e6c52ff454d3976192f6c3c4826a75e35d8dec226', '77e3aac0b44fd812ecf35c4ce90c093fcb418d524dec3dd58b86b420dd86f065'];
 var AUTH_DAYS = 30;
+/* 期限つきパスワード（'1111'）：この日時を過ぎると、記憶済みでも・入力しても弾かれる。24時間だけ有効 */
+var TEMP_PASS_HASH = '77e3aac0b44fd812ecf35c4ce90c093fcb418d524dec3dd58b86b420dd86f065';
+var TEMP_PASS_EXPIRES = 1787991000000; /* 2026-08-29T08:10:00Z (2026-08-29 17:10 JST) */
 
 var sha256 = (function () {
   var K = [
@@ -2520,11 +2523,17 @@ var sha256 = (function () {
 function isAuthed() {
   try {
     var o = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null');
-    return !!(o && PASS_HASHES.indexOf(o.h) >= 0 && o.e > Date.now());
+    if (!(o && PASS_HASHES.indexOf(o.h) >= 0 && o.e > Date.now())) return false;
+    if (o.h === TEMP_PASS_HASH && Date.now() > TEMP_PASS_EXPIRES) return false;
+    return true;
   } catch (e) { return false; }
 }
 function rememberAuth(hash) {
-  try { localStorage.setItem(AUTH_KEY, JSON.stringify({ h: hash, e: Date.now() + AUTH_DAYS * 86400000 })); }
+  try {
+    var exp = Date.now() + AUTH_DAYS * 86400000;
+    if (hash === TEMP_PASS_HASH) exp = Math.min(exp, TEMP_PASS_EXPIRES);
+    localStorage.setItem(AUTH_KEY, JSON.stringify({ h: hash, e: exp }));
+  }
   catch (e) { /* 保存できなくても、その場では開ける */ }
 }
 function forgetAuth() { try { localStorage.removeItem(AUTH_KEY); } catch (e) {} }
@@ -3695,7 +3704,8 @@ function showLock() {
   document.getElementById('lockForm').onsubmit = function (e) {
     e.preventDefault();
     var hash = sha256(PASS_SALT + pass.value);
-    if (PASS_HASHES.indexOf(hash) >= 0) {
+    var ok = PASS_HASHES.indexOf(hash) >= 0 && !(hash === TEMP_PASS_HASH && Date.now() > TEMP_PASS_EXPIRES);
+    if (ok) {
       if (document.getElementById('lockKeep').checked) rememberAuth(hash);
       startAdmin();
     } else {
