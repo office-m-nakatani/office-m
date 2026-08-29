@@ -173,6 +173,11 @@ a{color:var(--navy-2);}
 .cat-card[draggable="true"]:active{cursor:grabbing;}
 .cat-card.dragging{opacity:.35;}
 .cat-card.drag-over{outline:3px dashed var(--coral);outline-offset:3px;}
+/* ツールカード（一覧・お気に入り）も同じ操作で並べ替えられる */
+.card[draggable="true"]{cursor:grab;}
+.card[draggable="true"]:active{cursor:grabbing;}
+.card.dragging{opacity:.35;}
+.card.drag-over{outline:3px dashed var(--coral);outline-offset:3px;}
 .cat-all{text-align:center;margin-top:var(--sp-5);}
 .cat-all button{background:none;border:none;cursor:pointer;color:var(--navy-2);font-size:var(--fs-sm);
   text-decoration:underline;padding:11px 16px;min-height:44px;}
@@ -2582,6 +2587,7 @@ var state = {
   links: [],                 /* 発行済み共有リンク */
   favs: [],                  /* お気に入りに入れたツールのid。押した順に並ぶ */
   catOrder: [],              /* 分野カードの並び順（ドラッグで入れ替えた結果）*/
+  toolOrder: {},             /* 分野ごとのツールカードの並び順（catId → idの配列）。お気に入りはfavsの並びそのものを使う */
   settings: { base: '', office: '株式会社Office-M', contact: 'y.nakatani@office-m-tax.com' }
 };
 
@@ -2594,6 +2600,7 @@ function load() {
     if (o.links) state.links = o.links;
     if (Object.prototype.toString.call(o.favs) === '[object Array]') state.favs = o.favs;
     if (Object.prototype.toString.call(o.catOrder) === '[object Array]') state.catOrder = o.catOrder;
+    if (Object.prototype.toString.call(o.toolOrder) === '[object Object]') state.toolOrder = o.toolOrder;
     if (o.settings) for (var k in o.settings) state.settings[k] = o.settings[k];
   } catch (e) { /* プライベートモード等で読めなくても動く */ }
 }
@@ -3623,6 +3630,17 @@ function orderedCats() {
 }
 var dragCatId = null;
 
+/* ツールカードの並び順。保存した順を先に、動かしていないものは元の順のまま後ろに続ける */
+function applyToolOrder(list, saved) {
+  if (!saved || !saved.length) return list;
+  var byId = {}; list.forEach(function (t) { byId[t.id] = t; });
+  var out = [], seen = {};
+  saved.forEach(function (id) { if (byId[id] && !seen[id]) { out.push(byId[id]); seen[id] = true; } });
+  list.forEach(function (t) { if (!seen[t.id]) { out.push(t); seen[t.id] = true; } });
+  return out;
+}
+var dragToolId = null;
+
 /* ------------------------------------------------------------
    キーワードでさがす
    ------------------------------------------------------------
@@ -3723,7 +3741,7 @@ function renderCats() {
     back.innerHTML = '<div class="back-bar">' +
       '<button class="back-btn" id="btnBackCat">' + ICO.back + '分野を選び直す</button>' +
       '<span class="now-cat"><span class="n-art">' + (TOOL_ART[artKey] || '') + '</span>' +
-      esc(label) + '（' + (curCat === 'all' ? TOOLS.length : catCount(curCat)) + '件）</span>' +
+      esc(label) + '（' + (curCat === 'all' ? TOOLS.length : catCount(curCat)) + '件・カードはつかんで動かすと並べ替えできます）</span>' +
       '</div>';
     var bb = document.getElementById('btnBackCat');
     if (bb) bb.onclick = function () { curCat = null; renderCats(); renderTools(); };
@@ -3760,6 +3778,8 @@ function renderTools() {
     list = list.map(function (t, i) { return { t: t, i: i, ready: toolReady(t) }; })
       .sort(function (a, b) { return (b.ready ? 1 : 0) - (a.ready ? 1 : 0) || a.i - b.i; })
       .map(function (o) { return o.t; });
+    /* この分野でドラッグ並べ替えをしたことがあれば、その並びを優先する */
+    list = applyToolOrder(list, state.toolOrder[curCat]);
   }
   if (curCat === 'fav' && !list.length) {
     host.innerHTML = '<div class="empty"><div class="e-art">' + (TOOL_ART.catfav || '') + '</div>' +
@@ -3769,8 +3789,8 @@ function renderTools() {
   host.innerHTML = list.map(function (t) {
     var ready = toolReady(t);
     var isFav = state.favs.indexOf(t.id) >= 0;
-    return '<div class="card c-' + t.cat + (ready ? '' : ' pending') + '" data-card="' + t.id + '" tabindex="0" role="button" ' +
-      'aria-label="' + esc(t.name) + (ready ? ' を開く' : '（準備中）') + '">' +
+    return '<div class="card c-' + t.cat + (ready ? '' : ' pending') + '" data-card="' + t.id + '" draggable="true" tabindex="0" role="button" ' +
+      'aria-label="' + esc(t.name) + (ready ? ' を開く' : '（準備中）') + '（つかんで動かすと並べ替えできます）">' +
       '<div class="card-art">' + (TOOL_ART[t.id] || '') + '</div>' +
       '<h3 title="' + esc(t.name) + '">' + esc(t.short) + '</h3>' +
       (t.owner ? '<div class="owner">' + esc(t.owner) + '</div>' : '') +
@@ -3934,6 +3954,51 @@ function bindAdmin() {
     state.catOrder = ord;
     save();
     renderCats();
+    toast('並び順を変更しました');
+  });
+
+  /* ツールカードのドラッグ入れ替え。分野ごとに保存し、お気に入り一覧では星の並びそのものを入れ替える */
+  var gridEl = document.getElementById('toolGrid');
+  gridEl.addEventListener('dragstart', function (e) {
+    var c = e.target.closest('.card[draggable="true"]');
+    if (!c) return;
+    dragToolId = c.dataset.card;
+    c.classList.add('dragging');
+    try { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', dragToolId); } catch (err) {}
+  });
+  gridEl.addEventListener('dragend', function (e) {
+    var c = e.target.closest('.card[draggable="true"]');
+    if (c) c.classList.remove('dragging');
+    [].forEach.call(gridEl.querySelectorAll('.drag-over'), function (n) { n.classList.remove('drag-over'); });
+    dragToolId = null;
+  });
+  gridEl.addEventListener('dragover', function (e) {
+    var c = e.target.closest('.card[draggable="true"]');
+    if (!c || !dragToolId || c.dataset.card === dragToolId) return;
+    e.preventDefault();
+    c.classList.add('drag-over');
+  });
+  gridEl.addEventListener('dragleave', function (e) {
+    var c = e.target.closest('.card[draggable="true"]');
+    if (c) c.classList.remove('drag-over');
+  });
+  gridEl.addEventListener('drop', function (e) {
+    var c = e.target.closest('.card[draggable="true"]');
+    if (!c || !dragToolId) return;
+    e.preventDefault();
+    c.classList.remove('drag-over');
+    var targetId = c.dataset.card;
+    if (targetId === dragToolId) return;
+    /* いま画面に見えている順をそのまま並び替えの土台にする */
+    var ord = [].map.call(gridEl.querySelectorAll('.card[data-card]'), function (n) { return n.dataset.card; });
+    var from = ord.indexOf(dragToolId), to = ord.indexOf(targetId);
+    if (from < 0 || to < 0) return;
+    ord.splice(from, 1);
+    ord.splice(to, 0, dragToolId);
+    if (curCat === 'fav') state.favs = ord;
+    else state.toolOrder[curCat] = ord;
+    save();
+    renderTools();
     toast('並び順を変更しました');
   });
 
