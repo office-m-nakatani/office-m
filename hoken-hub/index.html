@@ -162,11 +162,17 @@ a{color:var(--navy-2);}
 .cat-sumai{background:linear-gradient(160deg,#f2ece3 0%,#fff8f2 75%);border-color:#dcd0ba;}
 .cat-kurashi{background:linear-gradient(160deg,#f4f7e6 0%,#fff8f2 75%);border-color:#dde6b3;}
 .cat-ichijo{background:linear-gradient(160deg,#fef9e0 0%,#fff8f2 75%);border-color:#f0e3a0;}
+.cat-fav{background:linear-gradient(160deg,#fff4d6 0%,#fff8f2 75%);border-color:#f2dcae;}
 .cat-card .c-art{width:112px;height:112px;border-radius:50%;background:rgba(255,255,255,.85);
   display:flex;align-items:center;justify-content:center;flex:none;}
 .cat-card .c-art svg{width:70px;height:70px;}
 .cat-card h3{font-family:var(--mincho);font-size:var(--fs-xl);color:var(--navy);letter-spacing:.02em;font-weight:600;white-space:nowrap;}
 .cat-card .c-n{font-size:var(--fs-sm);color:var(--muted);}
+/* 分野カードの並べ替え（つかんで移動）。お気に入りカードはdraggableを持たないので対象外 */
+.cat-card[draggable="true"]{cursor:grab;}
+.cat-card[draggable="true"]:active{cursor:grabbing;}
+.cat-card.dragging{opacity:.35;}
+.cat-card.drag-over{outline:3px dashed var(--coral);outline-offset:3px;}
 .cat-all{text-align:center;margin-top:var(--sp-5);}
 .cat-all button{background:none;border:none;cursor:pointer;color:var(--navy-2);font-size:var(--fs-sm);
   text-decoration:underline;padding:11px 16px;min-height:44px;}
@@ -219,6 +225,10 @@ a{color:var(--navy-2);}
 .card.pending h3{color:var(--muted);}
 .card-pending{display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-sm);font-weight:700;color:var(--amber);}
 .card-pending svg{width:15px;height:15px;}
+.card-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:flex-end;}
+.fav-btn svg{width:14px;height:14px;}
+.fav-btn.on{background:var(--amber-bg);border-color:var(--amber-border);color:var(--amber);}
+.fav-btn.on svg{fill:#f7c34e;}
 .badge{display:inline-block;font-size:var(--fs-xs);font-weight:700;letter-spacing:.06em;border-radius:999px;padding:4px 11px;}
 .b-life{background:var(--coral-bg);color:var(--coral-text);}
 .b-sonpo{background:var(--sky-bg);color:var(--sky);}
@@ -2335,6 +2345,8 @@ var MAX_DAYS = 7;            /* 閲覧期限の上限。1週間を超えるリ�
 var state = {
   urls: {},                  /* toolId → 公開URL */
   links: [],                 /* 発行済み共有リンク */
+  favs: [],                  /* お気に入りに入れたツールのid。押した順に並ぶ */
+  catOrder: [],              /* 分野カードの並び順（ドラッグで入れ替えた結果）*/
   settings: { base: '', office: '株式会社Office-M', contact: 'y.nakatani@office-m-tax.com' }
 };
 
@@ -2345,6 +2357,8 @@ function load() {
     var o = JSON.parse(raw);
     if (o.urls) state.urls = o.urls;
     if (o.links) state.links = o.links;
+    if (Object.prototype.toString.call(o.favs) === '[object Array]') state.favs = o.favs;
+    if (Object.prototype.toString.call(o.catOrder) === '[object Array]') state.catOrder = o.catOrder;
     if (o.settings) for (var k in o.settings) state.settings[k] = o.settings[k];
   } catch (e) { /* プライベートモード等で読めなくても動く */ }
 }
@@ -2780,6 +2794,7 @@ var ICO = {
   trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/></svg>',
   close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg>',
   clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.2 2"/></svg>',
+  star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 2.6 5.6 6.1.8-4.5 4.3 1.1 6.1L12 16.9l-5.3 2.9 1.1-6.1-4.5-4.3 6.1-.8Z"/></svg>',
   heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5S3.5 15 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 5.8-8.5 11.3-8.5 11.3Z"/></svg>',
   shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg>',
   car: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5h15M5 16.5v2h3v-2M16 16.5v2h3v-2"/><path d="M3.6 13 5 8.6A2 2 0 0 1 6.9 7.2h10.2A2 2 0 0 1 19 8.6L20.4 13v3.5H3.6Z"/><path d="M6.8 14.6h.01M17.2 14.6h.01"/></svg>',
@@ -2820,6 +2835,7 @@ var TOOL_ART = {
   /* 6つの係数（社内ツール） */
   keisu: '<svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#e8f4fb"/><rect x="16" y="10" width="32" height="44" rx="6" fill="#fffdf8" stroke="#27587f" stroke-width="3"/><rect x="21" y="16" width="22" height="9" rx="2.5" fill="#e8f4fb"/><g fill="#27587f"><circle cx="25" cy="33" r="2.6"/><circle cx="32" cy="33" r="2.6"/><circle cx="39" cy="33" r="2.6"/><circle cx="25" cy="41" r="2.6"/><circle cx="32" cy="41" r="2.6"/></g><rect x="36" y="38" width="6" height="10" rx="2.5" fill="#f0846a"/><path d="M25 47h8" stroke="#27587f" stroke-width="3.4" stroke-linecap="round"/></svg>',
   /* catmoney はツールではなく「金融のあれこれ」の分野カード用（ライフプランの棒グラフと見分けがつくように硬貨で） */
+  catfav: '<svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#fdf3e2"/><path d="M32 47S13 35.5 13 22.8c0-6.2 4.9-10.6 10.7-10.6 3.3 0 6.4 1.6 7.8 4.2 1.4-2.6 4.5-4.2 7.8-4.2 5.8 0 10.7 4.4 10.7 10.6C51 35.5 32 47 32 47Z" fill="#f7c34e" stroke="#a8701a" stroke-width="2"/></svg>',
   catmoney: '<svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#fdf3e2"/><circle cx="19" cy="39" r="13" fill="#f7c34e" stroke="#e0a92f" stroke-width="2"/><circle cx="45" cy="39" r="13" fill="#f7c34e" stroke="#e0a92f" stroke-width="2"/><circle cx="32" cy="26" r="15.5" fill="#fbd97a" stroke="#e0a92f" stroke-width="2.4"/><path d="M25 19 32 26 39 19M32 26v8M25.5 28.5h13M25.5 32h13" fill="none" stroke="#8a6414" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   nisa: '<svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#fdf3e2"/><g fill="#f7c34e" stroke="#e0a92f" stroke-width="1.6"><ellipse cx="17" cy="48" rx="9" ry="3.4"/><ellipse cx="17" cy="43" rx="9" ry="3.4"/><ellipse cx="32" cy="48" rx="9" ry="3.4"/><ellipse cx="32" cy="43" rx="9" ry="3.4"/><ellipse cx="32" cy="38" rx="9" ry="3.4"/><ellipse cx="47" cy="48" rx="9" ry="3.4"/><ellipse cx="47" cy="43" rx="9" ry="3.4"/><ellipse cx="47" cy="38" rx="9" ry="3.4"/><ellipse cx="47" cy="33" rx="9" ry="3.4"/></g><path d="M13 31 26 23l9 4 14-13" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M41 14h8v8" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   ideco: '<svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#e8f6ef"/><path d="M24 27v-4.5a8 8 0 0 1 16 0V27" fill="none" stroke="#27587f" stroke-width="3.4" stroke-linecap="round"/><rect x="13" y="27" width="38" height="26" rx="6" fill="#2c7a4b"/><rect x="26" y="32" width="12" height="3.4" rx="1.7" fill="#fffdf8"/><circle cx="32" cy="44" r="6" fill="#f7c34e" stroke="#e0a92f" stroke-width="1.6"/><circle cx="49" cy="16" r="10" fill="#fffdf8" stroke="#27587f" stroke-width="2.6"/><path d="M49 10.5V16.6l4 2.6" fill="none" stroke="#27587f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -3303,7 +3319,27 @@ var CAT_NOTE = {
   ichijo: '住宅購入の重要ポイントを一冊に整理'
 };
 
-function catCount(id) { return TOOLS.filter(function (t) { return t.cat === id; }).length; }
+function catCount(id) { if (id === 'fav') return state.favs.length; return TOOLS.filter(function (t) { return t.cat === id; }).length; }
+
+/* お気に入り（星ボタンで追加・解除）。追加した順に並べる */
+function toggleFav(id) {
+  var i = state.favs.indexOf(id);
+  if (i >= 0) { state.favs.splice(i, 1); toast('お気に入りから外しました'); }
+  else { state.favs.push(id); toast('お気に入りに追加しました'); }
+  save(); renderCats(); renderTools();
+}
+
+/* 分野カードの並び順（ドラッグで入れ替えた結果を保存し、次回もその順で表示する） */
+function orderedCats() {
+  var all = CATS.filter(function (c) { return c.id !== 'all'; });
+  if (!state.catOrder.length) return all;
+  var byId = {}; all.forEach(function (c) { byId[c.id] = c; });
+  var out = [], seen = {};
+  state.catOrder.forEach(function (id) { if (byId[id] && !seen[id]) { out.push(byId[id]); seen[id] = true; } });
+  all.forEach(function (c) { if (!seen[c.id]) { out.push(c); seen[c.id] = true; } });
+  return out;
+}
+var dragCatId = null;
 
 /* ------------------------------------------------------------
    キーワードでさがす
@@ -3397,12 +3433,15 @@ function renderCats() {
   var back = document.getElementById('backBar');
   if (curCat) {
     var c = CATS.filter(function (x) { return x.id === curCat; })[0];
+    var isFavCat = curCat === 'fav';
+    var label = isFavCat ? 'お気に入り' : (c ? c.label : '');
+    var artKey = isFavCat ? 'catfav' : CAT_ART[curCat];
     head.innerHTML = '';
     pick.innerHTML = '';
     back.innerHTML = '<div class="back-bar">' +
       '<button class="back-btn" id="btnBackCat">' + ICO.back + '分野を選び直す</button>' +
-      '<span class="now-cat"><span class="n-art">' + (TOOL_ART[CAT_ART[curCat]] || '') + '</span>' +
-      (c ? esc(c.label) : '') + '（' + (curCat === 'all' ? TOOLS.length : catCount(curCat)) + '件）</span>' +
+      '<span class="now-cat"><span class="n-art">' + (TOOL_ART[artKey] || '') + '</span>' +
+      esc(label) + '（' + (curCat === 'all' ? TOOLS.length : catCount(curCat)) + '件）</span>' +
       '</div>';
     var bb = document.getElementById('btnBackCat');
     if (bb) bb.onclick = function () { curCat = null; renderCats(); renderTools(); };
@@ -3410,10 +3449,16 @@ function renderCats() {
   }
   head.innerHTML = '<h2>どの分野をお使いですか</h2>' +
     '<p>分野を選ぶと、その中のツールが並びます。カードをクリックすればそのまま開きます。' +
+    'カードはつかんで動かすと並べ替えられます。' +
     '分野が決まっていないときは、すぐ下の欄にお客様の困りごとを言葉で入れてください。</p>';
   back.innerHTML = '<div class="cat-all"><button data-cat="all">分野を分けずに全' + TOOLS.length + '件を見る</button></div>';
-  pick.innerHTML = CATS.filter(function (c) { return c.id !== 'all'; }).map(function (c) {
-    return '<div class="cat-card cat-' + c.id + '" data-cat="' + c.id + '" tabindex="0" role="button" aria-label="' + esc(c.label) + ' を選ぶ">' +
+  var favCard = '<div class="cat-card cat-fav" data-cat="fav" tabindex="0" role="button" aria-label="お気に入り を選ぶ">' +
+      '<span class="c-art">' + (TOOL_ART.catfav || '') + '</span>' +
+      '<h3>お気に入り</h3>' +
+      '<span class="c-n">' + (state.favs.length ? 'よく使う' + state.favs.length + '件' : 'まだありません。カードの☆から追加できます') + '</span>' +
+    '</div>';
+  pick.innerHTML = favCard + orderedCats().map(function (c) {
+    return '<div class="cat-card cat-' + c.id + '" data-cat="' + c.id + '" draggable="true" tabindex="0" role="button" aria-label="' + esc(c.label) + ' を選ぶ（つかんで動かすと並べ替えできます）">' +
       '<span class="c-art">' + (TOOL_ART[CAT_ART[c.id]] || '') + '</span>' +
       '<h3>' + esc(c.label) + '</h3>' +
       '<span class="c-n">' + esc(CAT_NOTE[c.id] || '') + '　' + catCount(c.id) + '件</span>' +
@@ -3424,13 +3469,24 @@ function renderCats() {
 function renderTools() {
   var host = document.getElementById('toolGrid');
   if (!curCat) { host.innerHTML = ''; return; }
-  var list = TOOLS.filter(function (t) { return curCat === 'all' || t.cat === curCat; });
-  /* 公開ずみを先に、準備中を最後に。同じ状態のなかでは TOOLS に書いた順のまま */
-  list = list.map(function (t, i) { return { t: t, i: i, ready: toolReady(t) }; })
-    .sort(function (a, b) { return (b.ready ? 1 : 0) - (a.ready ? 1 : 0) || a.i - b.i; })
-    .map(function (o) { return o.t; });
+  var list;
+  if (curCat === 'fav') {
+    list = state.favs.map(function (id) { return tool(id); }).filter(Boolean);
+  } else {
+    list = TOOLS.filter(function (t) { return curCat === 'all' || t.cat === curCat; });
+    /* 公開ずみを先に、準備中を最後に。同じ状態のなかでは TOOLS に書いた順のまま */
+    list = list.map(function (t, i) { return { t: t, i: i, ready: toolReady(t) }; })
+      .sort(function (a, b) { return (b.ready ? 1 : 0) - (a.ready ? 1 : 0) || a.i - b.i; })
+      .map(function (o) { return o.t; });
+  }
+  if (curCat === 'fav' && !list.length) {
+    host.innerHTML = '<div class="empty"><div class="e-art">' + (TOOL_ART.catfav || '') + '</div>' +
+      'まだお気に入りはありません。<br>ツールのカードにある「' + ICO.star + ' お気に入り」から追加してください。</div>';
+    return;
+  }
   host.innerHTML = list.map(function (t) {
     var ready = toolReady(t);
+    var isFav = state.favs.indexOf(t.id) >= 0;
     return '<div class="card c-' + t.cat + (ready ? '' : ' pending') + '" data-card="' + t.id + '" tabindex="0" role="button" ' +
       'aria-label="' + esc(t.name) + (ready ? ' を開く' : '（準備中）') + '">' +
       '<div class="card-art">' + (TOOL_ART[t.id] || '') + '</div>' +
@@ -3440,7 +3496,12 @@ function renderTools() {
       '<div class="card-foot">' +
         (ready ? '<span class="card-open">' + ICO.open + '開く</span>'
                : '<span class="card-pending">' + ICO.clock + '準備中</span>') +
-        '<button class="btn btn-ghost btn-sm" data-share="' + t.id + '">' + ICO.share + '共有リンク</button>' +
+        '<span class="card-actions">' +
+          '<button class="btn btn-ghost btn-sm fav-btn' + (isFav ? ' on' : '') + '" data-fav="' + t.id + '" ' +
+            'aria-pressed="' + (isFav ? 'true' : 'false') + '" aria-label="' + (isFav ? 'お気に入りから外す' : 'お気に入りに追加') + '">' +
+            ICO.star + (isFav ? '解除' : 'お気に入り') + '</button>' +
+          '<button class="btn btn-ghost btn-sm" data-share="' + t.id + '">' + ICO.share + '共有リンク</button>' +
+        '</span>' +
       '</div>' +
     '</div>';
   }).join('');
@@ -3551,8 +3612,51 @@ function bindAdmin() {
     if (k && e.target === k) { e.preventDefault(); curCat = k.dataset.cat; renderCats(); renderTools(); }
   });
 
+  /* 分野カードのドラッグ入れ替え（お気に入りカードは対象外＝draggable属性を持たない） */
+  var pickEl = document.getElementById('catPick');
+  pickEl.addEventListener('dragstart', function (e) {
+    var c = e.target.closest('.cat-card[draggable="true"]');
+    if (!c) return;
+    dragCatId = c.dataset.cat;
+    c.classList.add('dragging');
+    try { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', c.dataset.cat); } catch (err) {}
+  });
+  pickEl.addEventListener('dragend', function (e) {
+    var c = e.target.closest('.cat-card[draggable="true"]');
+    if (c) c.classList.remove('dragging');
+    [].forEach.call(pickEl.querySelectorAll('.drag-over'), function (n) { n.classList.remove('drag-over'); });
+    dragCatId = null;
+  });
+  pickEl.addEventListener('dragover', function (e) {
+    var c = e.target.closest('.cat-card[draggable="true"]');
+    if (!c || !dragCatId || c.dataset.cat === dragCatId) return;
+    e.preventDefault();
+    c.classList.add('drag-over');
+  });
+  pickEl.addEventListener('dragleave', function (e) {
+    var c = e.target.closest('.cat-card[draggable="true"]');
+    if (c) c.classList.remove('drag-over');
+  });
+  pickEl.addEventListener('drop', function (e) {
+    var c = e.target.closest('.cat-card[draggable="true"]');
+    if (!c || !dragCatId) return;
+    e.preventDefault();
+    c.classList.remove('drag-over');
+    var targetId = c.dataset.cat;
+    if (targetId === dragCatId) return;
+    var ord = orderedCats().map(function (x) { return x.id; });
+    var from = ord.indexOf(dragCatId), to = ord.indexOf(targetId);
+    if (from < 0 || to < 0) return;
+    ord.splice(from, 1);
+    ord.splice(to, 0, dragCatId);
+    state.catOrder = ord;
+    save();
+    renderCats();
+    toast('並び順を変更しました');
+  });
+
   document.getElementById('admin').addEventListener('click', function (e) {
-    var b = e.target.closest('[data-open],[data-share],[data-cat],[data-lcopy],[data-lmsg],[data-ldel]');
+    var b = e.target.closest('[data-open],[data-share],[data-cat],[data-lcopy],[data-lmsg],[data-ldel],[data-fav]');
     if (!b) {
       var c = e.target.closest('[data-card]');
       if (c) openTool(c.dataset.card);
@@ -3560,6 +3664,7 @@ function bindAdmin() {
     }
     if (b.dataset.open) openTool(b.dataset.open);
     else if (b.dataset.share) openShare(b.dataset.share);
+    else if (b.dataset.fav) toggleFav(b.dataset.fav);
     else if (b.dataset.cat) { curCat = b.dataset.cat; renderCats(); renderTools(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
     else if (b.dataset.lcopy) {
       var r1 = findLink(b.dataset.lcopy);
