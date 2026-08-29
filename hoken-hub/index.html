@@ -218,7 +218,7 @@ a{color:var(--navy-2);}
 .c-zei .card-art{background:var(--berry-bg);}
 .c-plan .card-art{background:var(--green-bg);}
 .card h3{font-family:var(--mincho);font-size:var(--fs-md);color:var(--navy);line-height:1.55;letter-spacing:.03em;font-weight:600;}
-.card .owner{font-size:var(--fs-xs);color:var(--muted);margin-top:4px;}
+.card .sub-title{font-size:var(--fs-xs);color:var(--muted);margin-top:3px;line-height:1.5;}
 .card .desc{font-size:var(--fs-sm);color:var(--muted);line-height:var(--lh-base);flex:1;margin:var(--sp-3) 0;text-align:left;}
 .card-foot{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-2);width:100%;
   padding-top:var(--sp-3);border-top:1px dashed var(--line);}
@@ -2602,11 +2602,42 @@ function load() {
     if (Object.prototype.toString.call(o.catOrder) === '[object Array]') state.catOrder = o.catOrder;
     if (Object.prototype.toString.call(o.toolOrder) === '[object Object]') state.toolOrder = o.toolOrder;
     if (o.settings) for (var k in o.settings) state.settings[k] = o.settings[k];
-  } catch (e) { /* プライベートモード等で読めなくても動く */ }
+  } catch (e) {
+    /* 保存データが壊れて読めないときも、上書きで消してしまわないよう元の文字列を避難させておく（プライベートモード等で読めない場合はそもそもraw自体がない） */
+    try {
+      var raw2 = localStorage.getItem(STORE_KEY);
+      if (raw2) localStorage.setItem(STORE_KEY + '.backup.' + Date.now(), raw2);
+    } catch (e2) { /* ここも失敗したら諦める */ }
+  }
 }
+/* trueにしてからsave()を呼ぶと、そのときだけ手元のお気に入りをそのまま書き込む
+   （toggleFav・お気に入りのドラッグ並べ替えの直前だけtrueにする） */
+var favsChangingNow = false;
 function save() {
+  if (!favsChangingNow) {
+    /* お気に入り以外を保存するときは、書き込む直前に端末の最新お気に入りへ
+       合わせ直す。URL登録・共有リンクの発行・設定の保存など「追加の編集」を
+       するたびに毎回save()が呼ばれるため、ここで一括して守らないと、
+       別タブ・別の操作で先に付けたお気に入りをこの保存で消してしまう */
+    syncFavsFromStorage();
+  }
+  favsChangingNow = false;
   try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
   catch (e) { toast('この端末では設定を保存できませんでした'); }
+}
+
+/* お気に入りは「複数タブを開いたまま」でも壊れないよう、保存する直前に
+   端末の最新データへ合わせ直してから書き込む（この端末の別タブ・別ウィンドウで
+   先に付けたお気に入りを、あとから保存した古いタブの内容で消してしまわないため）。
+   分野の並び・ツールの並びなど他の保存内容は、いま編集中の内容を優先する
+   （それらをここで合わせ直すと、逆にいま動かした並びが古い記憶で戻ってしまう）。 */
+function syncFavsFromStorage() {
+  try {
+    var raw = localStorage.getItem(STORE_KEY);
+    if (!raw) return;
+    var o = JSON.parse(raw);
+    if (Object.prototype.toString.call(o.favs) === '[object Array]') state.favs = o.favs;
+  } catch (e) { /* 読めなければ、いま手元にある内容のまま進める */ }
 }
 function tool(id) { for (var i = 0; i < TOOLS.length; i++) if (TOOLS[i].id === id) return TOOLS[i]; return null; }
 
@@ -3610,12 +3641,15 @@ var CAT_NOTE = {
 
 function catCount(id) { if (id === 'fav') return state.favs.length; return TOOLS.filter(function (t) { return t.cat === id; }).length; }
 
-/* お気に入り（星ボタンで追加・解除）。追加した順に並べる */
+/* お気に入り（星ボタンで追加・解除）。追加した順に並べる。
+   押す直前に端末の最新データへ合わせ直してから増減させるので、別タブで
+   先に付けたお気に入りを、このタブの古い記憶で消してしまうことがない */
 function toggleFav(id) {
+  syncFavsFromStorage();
   var i = state.favs.indexOf(id);
   if (i >= 0) { state.favs.splice(i, 1); toast('お気に入りから外しました'); }
   else { state.favs.push(id); toast('お気に入りに追加しました'); }
-  save(); renderCats(); renderTools();
+  favsChangingNow = true; save(); renderCats(); renderTools();
 }
 
 /* 分野カードの並び順（ドラッグで入れ替えた結果を保存し、次回もその順で表示する） */
@@ -3663,7 +3697,7 @@ function applyToolReorder(fromId, toId) {
   if (from < 0 || to < 0) return;
   ord.splice(from, 1);
   ord.splice(to, 0, fromId);
-  if (curCat === 'fav') state.favs = ord;
+  if (curCat === 'fav') { state.favs = ord; favsChangingNow = true; }
   else state.toolOrder[curCat] = ord;
   save();
   renderTools();
@@ -3895,8 +3929,8 @@ function renderTools() {
     return '<div class="card c-' + t.cat + (ready ? '' : ' pending') + '" data-card="' + t.id + '" draggable="true" tabindex="0" role="button" ' +
       'aria-label="' + esc(t.name) + (ready ? ' を開く' : '（準備中）') + '（つかんで動かす、スマホは長押ししてから動かすと並べ替えできます）">' +
       '<div class="card-art">' + (TOOL_ART[t.id] || '') + '</div>' +
-      '<h3 title="' + esc(t.name) + '">' + esc(t.short) + '</h3>' +
-      (t.owner ? '<div class="owner">' + esc(t.owner) + '</div>' : '') +
+      '<h3>' + esc(t.short) + '</h3>' +
+      '<div class="sub-title">' + esc(t.name) + '</div>' +
       '<p class="desc">' + esc(t.desc) + '</p>' +
       '<div class="card-foot">' +
         (ready ? '<span class="card-open">' + ICO.open + '開く</span>'
@@ -4251,6 +4285,17 @@ function showLock() {
   pass.oninput = function () { err.textContent = ''; };
   pass.focus();
 }
+
+/* この管理画面を複数タブ・複数ウィンドウで同時に開いていても、お気に入りや
+   並び順が食い違わないようにする。ブラウザは「他のタブがlocalStorageを
+   書き換えた」ことをstorageイベントで教えてくれるので、それを受けて
+   このタブの記憶も最新に合わせ直し、画面を描き直す。
+   （このタブ自身の書き込みではstorageイベントは発火しない＝他タブ専用） */
+window.addEventListener('storage', function (e) {
+  if (e.key !== STORE_KEY) return;
+  load();
+  if (!document.getElementById('admin').classList.contains('hide')) renderAll();
+});
 
 load();
 var hash = location.hash || '';
