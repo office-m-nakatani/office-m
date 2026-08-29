@@ -3641,6 +3641,109 @@ function applyToolOrder(list, saved) {
 }
 var dragToolId = null;
 
+/* 並べ替えの実処理（マウスのドラッグ＆ドロップ・スマホの長押しドラッグの両方から呼ぶ） */
+function applyCatReorder(fromId, toId) {
+  if (!fromId || !toId || fromId === toId) return;
+  var ord = orderedCats().map(function (x) { return x.id; });
+  var from = ord.indexOf(fromId), to = ord.indexOf(toId);
+  if (from < 0 || to < 0) return;
+  ord.splice(from, 1);
+  ord.splice(to, 0, fromId);
+  state.catOrder = ord;
+  save();
+  renderCats();
+  toast('並び順を変更しました');
+}
+function applyToolReorder(fromId, toId) {
+  if (!fromId || !toId || fromId === toId) return;
+  var gridEl = document.getElementById('toolGrid');
+  /* いま画面に見えている順をそのまま並び替えの土台にする */
+  var ord = [].map.call(gridEl.querySelectorAll('.card[data-card]'), function (n) { return n.dataset.card; });
+  var from = ord.indexOf(fromId), to = ord.indexOf(toId);
+  if (from < 0 || to < 0) return;
+  ord.splice(from, 1);
+  ord.splice(to, 0, fromId);
+  if (curCat === 'fav') state.favs = ord;
+  else state.toolOrder[curCat] = ord;
+  save();
+  renderTools();
+  toast('並び順を変更しました');
+}
+
+/* スマホ・タブレット向け：指で長押ししてからつかんで動かす並べ替え。
+   マウスのHTML5ドラッグ＆ドロップはタッチでは動かないため別実装にしている。
+   ・タップ（短時間・移動なし）はいつも通りカードを開く動作に流す
+   ・長押し（350ms）でつかんだ状態に入り、そのあとは指の下のカードへ入れ替え候補を表示
+   ・つかんだ状態に入ったあとの指の動きはページのスクロールを止める（preventDefault）
+   ・つかんだ状態に入ったまま指を離したときは、そのあとのタップ（＝カードを開く動作）を起こさない */
+function bindTouchReorder(containerEl, itemSelector, getId, applyFn) {
+  var st = { id: null, timer: null, startX: 0, startY: 0, dragging: false, el: null, y: 0, raf: 0 };
+  function clearOverMarks() {
+    [].forEach.call(containerEl.querySelectorAll('.drag-over'), function (n) { n.classList.remove('drag-over'); });
+  }
+  /* スマホではカード1枚が画面の大半を占めるので、移動先が画面の外にあることが多い。
+     つかんだまま指を画面の上端・下端に寄せると、その方向へ自動でスクロールして運べるようにする */
+  function autoScrollTick() {
+    if (!st.dragging) { st.raf = 0; return; }
+    var h = window.innerHeight, edge = 90, speed = 0;
+    if (st.y < edge) speed = -Math.ceil((edge - st.y) / 5);
+    else if (st.y > h - edge) speed = Math.ceil((st.y - (h - edge)) / 5);
+    if (speed) window.scrollBy(0, speed);
+    st.raf = requestAnimationFrame(autoScrollTick);
+  }
+  function startAutoScroll() { if (!st.raf) st.raf = requestAnimationFrame(autoScrollTick); }
+  function stopAutoScroll() { if (st.raf) { cancelAnimationFrame(st.raf); st.raf = 0; } }
+  function reset() {
+    if (st.timer) { clearTimeout(st.timer); st.timer = null; }
+    if (st.el) st.el.classList.remove('dragging');
+    clearOverMarks();
+    stopAutoScroll();
+    st.id = null; st.dragging = false; st.el = null;
+  }
+  containerEl.addEventListener('touchstart', function (e) {
+    var c = e.target.closest(itemSelector);
+    if (!c || e.touches.length !== 1) return;
+    reset();
+    var t = e.touches[0];
+    st.startX = t.clientX; st.startY = t.clientY;
+    st.el = c;
+    st.id = getId(c);
+    st.y = t.clientY;
+    st.timer = setTimeout(function () {
+      st.dragging = true;
+      c.classList.add('dragging');
+      startAutoScroll();
+      if (navigator.vibrate) { try { navigator.vibrate(15); } catch (err) {} }
+    }, 350);
+  }, { passive: true });
+  containerEl.addEventListener('touchmove', function (e) {
+    if (!st.id) return;
+    var t = e.touches[0];
+    if (!st.dragging) {
+      if (Math.abs(t.clientX - st.startX) > 10 || Math.abs(t.clientY - st.startY) > 10) reset();
+      return;
+    }
+    e.preventDefault();
+    st.y = t.clientY;
+    clearOverMarks();
+    var hit = document.elementFromPoint(t.clientX, t.clientY);
+    var over = hit && hit.closest ? hit.closest(itemSelector) : null;
+    if (over && containerEl.contains(over) && over !== st.el) over.classList.add('drag-over');
+  }, { passive: false });
+  containerEl.addEventListener('touchend', function (e) {
+    if (!st.id) return;
+    if (st.dragging) {
+      e.preventDefault(); /* つかんで動かした操作の直後に、タップとして開いてしまわないようにする */
+      var t = e.changedTouches[0];
+      var hit = document.elementFromPoint(t.clientX, t.clientY);
+      var over = hit && hit.closest ? hit.closest(itemSelector) : null;
+      if (over && containerEl.contains(over)) applyFn(st.id, getId(over));
+    }
+    reset();
+  });
+  containerEl.addEventListener('touchcancel', function () { reset(); });
+}
+
 /* ------------------------------------------------------------
    キーワードでさがす
    ------------------------------------------------------------
@@ -3741,7 +3844,7 @@ function renderCats() {
     back.innerHTML = '<div class="back-bar">' +
       '<button class="back-btn" id="btnBackCat">' + ICO.back + '分野を選び直す</button>' +
       '<span class="now-cat"><span class="n-art">' + (TOOL_ART[artKey] || '') + '</span>' +
-      esc(label) + '（' + (curCat === 'all' ? TOOLS.length : catCount(curCat)) + '件・カードはつかんで動かすと並べ替えできます）</span>' +
+      esc(label) + '（' + (curCat === 'all' ? TOOLS.length : catCount(curCat)) + '件・カードはつかんで動かす、スマホは長押ししてから動かすと並べ替えできます）</span>' +
       '</div>';
     var bb = document.getElementById('btnBackCat');
     if (bb) bb.onclick = function () { curCat = null; renderCats(); renderTools(); };
@@ -3749,7 +3852,7 @@ function renderCats() {
   }
   head.innerHTML = '<h2>どの分野をお使いですか</h2>' +
     '<p>分野を選ぶと、その中のツールが並びます。カードをクリックすればそのまま開きます。' +
-    'カードはつかんで動かすと並べ替えられます。' +
+    'カードはつかんで動かす（スマホは長押ししてから動かす）と並べ替えられます。' +
     '分野が決まっていないときは、すぐ下の欄にお客様の困りごとを言葉で入れてください。</p>';
   back.innerHTML = '<div class="cat-all"><button data-cat="all">分野を分けずに全' + TOOLS.length + '件を見る</button></div>';
   var favCard = '<div class="cat-card cat-fav" data-cat="fav" tabindex="0" role="button" aria-label="お気に入り を選ぶ">' +
@@ -3758,7 +3861,7 @@ function renderCats() {
       '<span class="c-n">' + (state.favs.length ? 'よく使う' + state.favs.length + '件' : 'まだありません。カードの☆から追加できます') + '</span>' +
     '</div>';
   pick.innerHTML = favCard + orderedCats().map(function (c) {
-    return '<div class="cat-card cat-' + c.id + '" data-cat="' + c.id + '" draggable="true" tabindex="0" role="button" aria-label="' + esc(c.label) + ' を選ぶ（つかんで動かすと並べ替えできます）">' +
+    return '<div class="cat-card cat-' + c.id + '" data-cat="' + c.id + '" draggable="true" tabindex="0" role="button" aria-label="' + esc(c.label) + ' を選ぶ（つかんで動かす、スマホは長押ししてから動かすと並べ替えできます）">' +
       '<span class="c-art">' + (TOOL_ART[CAT_ART[c.id]] || '') + '</span>' +
       '<h3>' + esc(c.label) + '</h3>' +
       '<span class="c-n">' + esc(CAT_NOTE[c.id] || '') + '　' + catCount(c.id) + '件</span>' +
@@ -3790,7 +3893,7 @@ function renderTools() {
     var ready = toolReady(t);
     var isFav = state.favs.indexOf(t.id) >= 0;
     return '<div class="card c-' + t.cat + (ready ? '' : ' pending') + '" data-card="' + t.id + '" draggable="true" tabindex="0" role="button" ' +
-      'aria-label="' + esc(t.name) + (ready ? ' を開く' : '（準備中）') + '（つかんで動かすと並べ替えできます）">' +
+      'aria-label="' + esc(t.name) + (ready ? ' を開く' : '（準備中）') + '（つかんで動かす、スマホは長押ししてから動かすと並べ替えできます）">' +
       '<div class="card-art">' + (TOOL_ART[t.id] || '') + '</div>' +
       '<h3 title="' + esc(t.name) + '">' + esc(t.short) + '</h3>' +
       (t.owner ? '<div class="owner">' + esc(t.owner) + '</div>' : '') +
@@ -3944,18 +4047,9 @@ function bindAdmin() {
     if (!c || !dragCatId) return;
     e.preventDefault();
     c.classList.remove('drag-over');
-    var targetId = c.dataset.cat;
-    if (targetId === dragCatId) return;
-    var ord = orderedCats().map(function (x) { return x.id; });
-    var from = ord.indexOf(dragCatId), to = ord.indexOf(targetId);
-    if (from < 0 || to < 0) return;
-    ord.splice(from, 1);
-    ord.splice(to, 0, dragCatId);
-    state.catOrder = ord;
-    save();
-    renderCats();
-    toast('並び順を変更しました');
+    applyCatReorder(dragCatId, c.dataset.cat);
   });
+  bindTouchReorder(pickEl, '.cat-card[draggable="true"]', function (c) { return c.dataset.cat; }, applyCatReorder);
 
   /* ツールカードのドラッグ入れ替え。分野ごとに保存し、お気に入り一覧では星の並びそのものを入れ替える */
   var gridEl = document.getElementById('toolGrid');
@@ -3987,20 +4081,9 @@ function bindAdmin() {
     if (!c || !dragToolId) return;
     e.preventDefault();
     c.classList.remove('drag-over');
-    var targetId = c.dataset.card;
-    if (targetId === dragToolId) return;
-    /* いま画面に見えている順をそのまま並び替えの土台にする */
-    var ord = [].map.call(gridEl.querySelectorAll('.card[data-card]'), function (n) { return n.dataset.card; });
-    var from = ord.indexOf(dragToolId), to = ord.indexOf(targetId);
-    if (from < 0 || to < 0) return;
-    ord.splice(from, 1);
-    ord.splice(to, 0, dragToolId);
-    if (curCat === 'fav') state.favs = ord;
-    else state.toolOrder[curCat] = ord;
-    save();
-    renderTools();
-    toast('並び順を変更しました');
+    applyToolReorder(dragToolId, c.dataset.card);
   });
+  bindTouchReorder(gridEl, '.card[draggable="true"]', function (c) { return c.dataset.card; }, applyToolReorder);
 
   document.getElementById('admin').addEventListener('click', function (e) {
     var b = e.target.closest('[data-open],[data-share],[data-cat],[data-lcopy],[data-lmsg],[data-ldel],[data-fav]');
