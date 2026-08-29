@@ -819,7 +819,7 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
     </div>
     <div class="hero-flex">
       <div class="hero-copy">
-        <h1>その保険、<br><span class="nowrap"><span class="accent">会社がもし倒れたら</span></span><span class="nowrap">どうなるか。</span></h1>
+        <h1>その保険、<br><span class="nowrap"><span class="accent">保険会社（メーカー）が</span></span><span class="nowrap">もし倒れたらどうなるか。</span></h1>
         <p class="lead">「保険会社が潰れたら、掛けてきたお金は全部なくなるんでしょう」——ご相談でよく聞くお言葉です。答えは、いいえ。日本には<strong>契約者を守るための制度</strong>が法律で用意されていて、国内で営業する保険会社は加入を義務づけられています。ただし「全額守られる」わけでもありません。守られるのは何なのか、割合はどう決まるのか、そして守られたあとに何が動くのか。ここを知らないまま、慌てて動いてしまう人がいます。○×クイズだけなら3分、ぜんぶ読むと10分ほど。<strong>このページでは、特定の保険会社の財務状況や格付けには一切触れません。制度のしくみだけをご説明します。</strong></p>
         <nav class="hero-nav" aria-label="ページ内メニュー">
           <a href="#sec1"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h9"/></svg>3つの線引き</a>
@@ -1247,15 +1247,15 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
           <option value="5">変額保険の特別勘定で運用している部分</option>
         </select>
       </div>
-      <div class="sim-ctrl">
-        <label for="simWho">契約者はどなたですか</label>
+      <div class="sim-ctrl" id="simWhoWrap">
+        <label for="simWho">契約者はどなたですか<small style="display:block;font-weight:500;color:var(--muted);font-size:.8rem;margin-top:2px;">自動車保険・火災保険などの場合のみ、結果に影響します</small></label>
         <select id="simWho"
                 style="width:100%;height:48px;border:2px solid #efe2d8;border-radius:12px;padding:0 12px;font-size:1.02rem;font-weight:700;color:#1b3f5e;background:#fffdf8;">
           <option value="0" selected>個人・小規模な法人・マンション管理組合</option>
           <option value="1">それ以外の法人（規模の大きい事業者）</option>
         </select>
       </div>
-      <div class="sim-ctrl">
+      <div class="sim-ctrl" id="simWhenWrap">
         <label for="simWhen">いつの話として考えますか</label>
         <select id="simWhen"
                 style="width:100%;height:48px;border:2px solid #efe2d8;border-radius:12px;padding:0 12px;font-size:1.02rem;font-weight:700;color:#1b3f5e;background:#fffdf8;">
@@ -1273,7 +1273,7 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
       <div class="timeline" aria-hidden="true">
         <div class="tl-track">
           <div class="tl-fill" id="tlFill" style="width:90%;"></div>
-          <div class="tl-goal" style="left:100%;">100%<br>（自賠責・地震はここ）</div>
+          <div class="tl-goal" style="right:0;left:auto;transform:none;">100%<br>（自賠責・地震はここ）</div>
         </div>
         <div class="tl-labels"><span>0%</span><span>50%</span><span>100%</span></div>
       </div>
@@ -2207,6 +2207,13 @@ function simUpdate(){
   var amt  = Math.round(+simAmt.value);
   if(isNaN(amt) || amt < 0) amt = 0;
   if(amt > 50000) amt = 50000;
+
+  /* 「契約者はどなたか」「いつの話か」は自動車保険・火災保険など（kind===2）
+     を選んだときしか結果に影響しない。他の契約種類では意味のない設問に
+     なってしまうため、必要なときだけ表示する */
+  var whoWhenNeeded = (kind === 2);
+  document.getElementById('simWhoWrap').style.display = whoWhenNeeded ? '' : 'none';
+  document.getElementById('simWhenWrap').style.display = whoWhenNeeded ? '' : 'none';
 
   document.getElementById('simAmtOut').textContent = amt.toLocaleString('ja-JP') + '万円';
 
