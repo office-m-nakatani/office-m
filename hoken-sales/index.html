@@ -13,6 +13,11 @@
   - 手数料率の初期値は公開情報からの「参考値」。実際の料率は保険会社・代理店委託契約ごとに
     異なる（非公開）ため、必ず「手数料・設定」タブで自社の料率に直して使うこと。
   - パスワードゲートは保険ツール管理画面.html と同じ方式（平文は書かない）。
+  - 2026-08 追加「支店内の確認」：サーバーを持たない方針は変えていない。記録が自動で
+    支店長へ送られることはなく、本人が「上長に確認してもらう」を押してリンク（#r=…）を
+    作り、いつも使うメール・チャットで自分で送る。支店長はそのリンクを開くと自分の端末の
+    「確認依頼」に取り込まれ、コメントを返信リンク（#c=…）で返す。リンクには顧客名と
+    内容メモが入るため、社外に誤送信しないこと（画面上にも注意書きを出している）。
   - デザインは2026-08に製品版として全面刷新：他ツールのパステル基調から独立した専用トークン。
     活動種別6色（AP青・FF橙・プレゼン水・クロージング菫・契約緑・定期訪問桃）と
     ファネルの青5段階は、dataviz規約のvalidate_palette.jsで色覚多様性・コントラスト検証済み。
@@ -533,6 +538,8 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3 2.8-4.5 5.5-4.5S13.9 16 14.5 19"/><circle cx="17" cy="9" r="2.4"/><path d="M15.6 14.7c2.6-.3 4.6 1 5.2 3.8"/></svg>顧客管理</button>
     <button class="tab" role="tab" id="tabBtnRate" data-tab="rate" aria-selected="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19 12a7 7 0 0 0-.2-1.6l2-1.5-2-3.4-2.3 1a7 7 0 0 0-2.7-1.6L13.5 2h-3l-.3 2.9a7 7 0 0 0-2.7 1.6l-2.3-1-2 3.4 2 1.5A7 7 0 0 0 5 12c0 .5.1 1.1.2 1.6l-2 1.5 2 3.4 2.3-1a7 7 0 0 0 2.7 1.6l.3 2.9h3l.3-2.9a7 7 0 0 0 2.7-1.6l2.3 1 2-3.4-2-1.5c.1-.5.2-1 .2-1.6Z"/></svg>手数料・設定</button>
+    <button class="tab hide" role="tab" id="tabBtnBox" data-tab="box" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 13h4l1.5 3h6l1.5-3h4"/><path d="M5 6.5h14l1.5 6.5v4a2 2 0 0 1-2 2H5.5a2 2 0 0 1-2-2v-4Z"/></svg>確認依頼<span id="boxBadge" class="hide"></span></button>
   </div>
 </nav>
 
@@ -905,6 +912,31 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
 
     <div class="sec">
       <div class="card">
+        <h3 style="color:var(--navy);font-size:var(--fs-md);margin-bottom:var(--sp-2);">所属と上長（支店内の確認に使います）</h3>
+        <p class="sec-note" style="margin-top:0;">このツールはサーバーを持たないため、記録が自動で支店長に送られることはありません。
+          活動記録の「上長に確認してもらう」ボタンで<b>確認用のリンク</b>を作り、いつもお使いのメールやチャットで送る方式です。
+          支店長はそのリンクを開くだけで、このツールの「確認依頼」に取り込まれます。</p>
+        <div class="frm" style="margin-top:var(--sp-3);">
+          <div class="fld"><label for="meName">自分の名前</label>
+            <input type="text" id="meName" placeholder="例：山田 太郎"></div>
+          <div class="fld"><label for="meBranch">支店・拠点名</label>
+            <input type="text" id="meBranch" placeholder="例：本店営業部"></div>
+          <div class="fld"><label for="meRole">この端末の使い方</label>
+            <select id="meRole">
+              <option value="member">メンバー（自分の活動を記録し、上長に確認してもらう）</option>
+              <option value="admin">管理者・支店長（メンバーから届いた確認依頼を見る）</option>
+            </select></div>
+          <div class="fld"><label for="meBossMail">上長のメールアドレス（任意）</label>
+            <input type="text" id="meBossMail" placeholder="例：branch-manager@example.co.jp" spellcheck="false">
+            <div class="hint">入れておくと「メールで送る」がワンタップになります</div></div>
+        </div>
+        <div class="frm-actions"><button class="btn btn-primary btn-sm" id="meSave">所属を保存する</button>
+          <span id="meMsg" class="sec-note" style="margin:0;align-self:center;"></span></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="card">
         <h3 style="color:var(--navy);font-size:var(--fs-md);margin-bottom:var(--sp-2);">データの管理</h3>
         <p class="sec-note" style="margin-top:0;">すべてこの端末のブラウザ内（localStorage）に保存されています。機種変更・ブラウザ変更の前に必ずJSONで書き出してください。</p>
         <div class="frm-actions" style="margin-top:0;">
@@ -925,9 +957,29 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
     </div>
   </section>
 
+  <!-- ===== 確認依頼（管理者・支店長が受け取った分） ===== -->
+  <section id="tab-box" role="tabpanel" class="hide">
+    <div class="sec-head">
+      <div>
+        <h2>確認依頼</h2>
+        <p class="sec-note">メンバーから届いたリンクを開くと、ここに取り込まれます。この端末の中だけに保存され、外部には送られません。</p>
+      </div>
+    </div>
+    <div class="sec">
+      <div class="card">
+        <h3 style="color:var(--navy);font-size:var(--fs-md);margin-bottom:var(--sp-2);">リンク・コードから取り込む</h3>
+        <p class="sec-note" style="margin-top:0;">メールやチャットで届いたリンクをそのまま貼り付けても取り込めます（リンクを開くのと同じです）。</p>
+        <textarea id="boxPaste" rows="2" placeholder="届いたリンクを貼り付け" style="width:100%;font-size:var(--fs-sm);"></textarea>
+        <div class="frm-actions"><button class="btn btn-primary btn-sm" id="boxTake">取り込む</button>
+          <span id="boxMsg" class="sec-note" style="margin:0;align-self:center;"></span></div>
+      </div>
+    </div>
+    <div class="sec"><div id="boxList"></div></div>
+  </section>
+
 </main>
 
-<footer>保険営業ダッシュボード｜データはこの端末のブラウザにのみ保存されます（外部送信なし）</footer>
+<footer>保険営業ダッシュボード｜データはこの端末のブラウザにのみ保存されます（確認依頼はご自分でリンクを送ったときだけ相手に渡ります）</footer>
 
 <!-- ================= お誕生日の登録 ================= -->
 <div class="ovl hide" id="bdOvl" role="dialog" aria-modal="true" aria-labelledby="bdTitle">
@@ -995,7 +1047,26 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
           <div class="hint">登録済みの名前ならカルテとつながります。未登録の名前もそのまま記録できます</div></div>
         <div class="fld"><label for="aePlace">場所（どこで）</label><input type="text" id="aePlace" placeholder="例：顧客宅、事務所"></div>
         <div class="fld full"><label for="aeWho">同席者・相手メモ</label><input type="text" id="aeWho" placeholder="例：奥様同席、社長と経理部長"></div>
-        <div class="fld full"><label for="aeMemo">内容メモ</label><textarea id="aeMemo" placeholder="話した内容・次のアクションなど"></textarea></div>
+        <div class="fld full"><label for="aeMemo">内容メモ</label><textarea id="aeMemo" placeholder="話した内容・次のアクションなど"></textarea>
+          <div class="frm-actions" style="margin-top:var(--sp-2);">
+            <button type="button" class="btn btn-ghost btn-sm" id="aeAsk">上長に確認してもらう</button>
+            <span id="aeAskState" class="sec-note" style="margin:0;align-self:center;"></span>
+          </div>
+          <div id="aeAskBox" class="callout info hide" style="margin-top:var(--sp-2);">
+            <p style="margin:0 0 var(--sp-2);">この内容を上長に送ります。下のどれかで送ってください（送る先は、いつもお使いのメール・チャットです）。</p>
+            <div class="frm-actions" style="margin-top:0;">
+              <button type="button" class="btn btn-primary btn-sm" id="aeAskMail">メールで送る</button>
+              <button type="button" class="btn btn-ghost btn-sm" id="aeAskCopy">リンクをコピー</button>
+            </div>
+            <textarea id="aeAskCode" rows="2" readonly style="width:100%;margin-top:var(--sp-2);font-size:var(--fs-xs);"></textarea>
+            <p class="sec-note" style="margin:var(--sp-1) 0 0;">上長がこのリンクを開くと、上長の画面の「確認依頼」に取り込まれます。
+              リンクには顧客名と内容メモが入ります。<b>社外の宛先に送らないでください。</b></p>
+          </div>
+        </div>
+        <div class="fld full hide" id="aeBossWrap">
+          <label>上長からのコメント</label>
+          <div class="callout ok" id="aeBossNote" style="margin:0;"></div>
+        </div>
       </div>
 
       <!-- 契約のときだけ開く（記録フォームと同じ項目） -->
@@ -1184,6 +1255,9 @@ function defaultState(){
     rates: JSON.parse(JSON.stringify(DEFAULT_RATES)),
     products: JSON.parse(JSON.stringify(DEFAULT_PRODUCTS)),
     master: { rev:1, updated:'', by:'' },
+    /* 支店内の確認に使う。サーバーは持たないので、リンク／コードを自分で送る方式 */
+    me: { name:'', branch:'', role:'member', bossMail:'' },
+    inbox: [],                                   /* 管理者が受け取った確認依頼 */
     set:{ singleAnpPct:10, goalCommM:0, goalApW:0 } };
 }
 function load(){
@@ -1196,6 +1270,8 @@ function load(){
     if (!o.rates || !o.rates.length) o.rates = d.rates;
     if (!o.products) o.products = d.products;            /* 旧バージョンのデータを開いたとき */
     o.master = Object.assign(d.master, o.master || {});
+    o.me = Object.assign(d.me, o.me || {});
+    o.inbox = o.inbox || [];
     o.contracts = o.contracts || [];
     o.activities = o.activities || [];
     return o;
@@ -1225,7 +1301,7 @@ function custExpComm(c){ return estInitComm(c.prodType, c.expAmt, c.expMode); }
 /* ============================================================
    3. タブ切り替え
    ============================================================ */
-var TABS = ['act','num','cust','rate'];
+var TABS = ['act','num','cust','rate','box'];
 function showTab(key){
   TABS.forEach(function(t){
     $('tab-' + t).classList.toggle('hide', t !== key);
@@ -1236,6 +1312,7 @@ function showTab(key){
   if (key === 'cust') renderCust();
   if (key === 'act') renderAct();
   if (key === 'rate') renderRate();
+  if (key === 'box') renderBox();
   window.scrollTo(0, 0);
 }
 document.querySelectorAll('.tab').forEach(function(btn){
@@ -1714,6 +1791,8 @@ function openActNew(dateStr){
   resetTimePair('ae');
   toggleAeTime();
   ['aePlace','aeWho','aeMemo','aeCompany','aeProduct','aeInsured','aeAmt','aePayNote','aeInit','aeRenew','aeYears'].forEach(function(id){ $(id).value = ''; });
+  $('aeAskBox').classList.add('hide');
+  renderAskState(null);
   $('aeMode').value = 'm';
   $('aePtype').value = state.rates[0].id;
   pickState.ae = { kind:null, pid:'', renews:null };
@@ -1746,6 +1825,8 @@ function openActEdit(id){
   $('aePlace').value = a.place || '';
   $('aeWho').value = a.who || '';
   $('aeMemo').value = a.memo || '';
+  $('aeAskBox').classList.add('hide');
+  renderAskState(a);
   toggleAeTime();
 
   var k = a.contractId ? contractById(a.contractId) : null;
@@ -2506,6 +2587,210 @@ $('pmShare').addEventListener('click', function(){
   } else { $('pmCode').value = link; pmSay('下の欄にリンクを出しました。コピーして送ってください。', true); }
   if (link.length > 6000) pmSay('商品が多いのでリンクが長くなりました。うまく送れないときはJSONファイルで配ってください。', false);
 });
+/* ============================================================
+   支店内の確認（メンバー → 上長 → メンバー）
+   ------------------------------------------------------------
+   このツールはサーバーを持たない（費用ゼロ・外部送信なしが前提）ので、
+   記録が自動で支店長に届くことはない。商品マスタの配布と同じ考え方で、
+   「本人がリンクを作って、いつも使っているメール・チャットで送る」方式にしている。
+     メンバー：活動記録の「上長に確認してもらう」→ #r=… のリンクを送る
+     上長　　：そのリンクを開く（または貼り付ける）→「確認依頼」に取り込まれる
+     上長　　：コメントを書いて「返信リンク」→ #c=… をメンバーに送り返す
+     メンバー：返信リンクを開く → その活動に上長コメントが入る
+   ============================================================ */
+function encodeShare(o){ return btoa(unescape(encodeURIComponent(JSON.stringify(o)))); }
+function decodeShare(s){ return JSON.parse(decodeURIComponent(escape(atob(String(s).trim())))); }
+function shareBaseUrl(){ return location.href.split('#')[0]; }
+function nowStamp(){
+  var d = new Date(), p = function(n){ return (n < 10 ? '0' : '') + n; };
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+}
+function typeLabel(k){
+  var t = ACT_TYPES.filter(function(x){ return x.k === k; })[0];
+  return t ? t.label : k;
+}
+/* いま活動シートに入っている内容から、上長に見てもらう1件分を作る */
+function askPayload(){
+  var who = $('aeCust').value.trim();
+  return { v:1, kind:'officem-hoken-sales-ask',
+    rid: (aeId || uid('r')) + '@' + Date.now(),
+    actId: aeId || '',
+    from: (state.me.name || '').trim(), branch: (state.me.branch || '').trim(),
+    sentAt: nowStamp(),
+    date: dpValue('aeDate') || todayStr(),
+    type: aeType || '', cust: who,
+    place: $('aePlace').value.trim(), with: $('aeWho').value.trim(),
+    memo: $('aeMemo').value.trim() };
+}
+function askMailBody(p){
+  return ['支店内の確認をお願いします。', '',
+    '担当：' + (p.from || '（名前未設定）') + (p.branch ? '（' + p.branch + '）' : ''),
+    '日付：' + p.date + (p.type ? '／' + typeLabel(p.type) : ''),
+    '顧客：' + (p.cust || '—'),
+    (p.place ? '場所：' + p.place : ''),
+    (p.with ? '同席者：' + p.with : ''),
+    '', '【内容メモ】', (p.memo || '（未記入）'), '',
+    '↓ 下のリンクを開くと、支店長のダッシュボードの「確認依頼」に取り込まれます',
+    shareBaseUrl() + '#r=' + encodeShare(p)].filter(function(s){ return s !== ''; }).join('\n');
+}
+function askSay(msg, ok){
+  var el = $('aeAskState');
+  el.style.color = ok ? 'var(--green)' : 'var(--red-text)';
+  el.textContent = msg;
+  setTimeout(function(){ el.textContent = ''; }, 6000);
+}
+$('aeAsk').addEventListener('click', function(){
+  if (!$('aeCust').value.trim() && !$('aeMemo').value.trim()) {
+    askSay('顧客か内容メモを入れてから押してください。', false); return;
+  }
+  var p = askPayload();
+  var link = shareBaseUrl() + '#r=' + encodeShare(p);
+  $('aeAskCode').value = link;
+  $('aeAskBox').classList.remove('hide');
+  if (link.length > 6000) askSay('内容が長いため、リンクが長くなりました。うまく送れないときはメール本文だけでも伝わります。', false);
+  /* 保存済みの記録なら「確認依頼済み」を残す（新規入力中は保存後に付きます） */
+  if (aeId) {
+    var a = state.activities.filter(function(x){ return x.id === aeId; })[0];
+    if (a) { a.askedAt = nowStamp(); save(); renderAskState(a); }
+  }
+});
+$('aeAskMail').addEventListener('click', function(){
+  var p = askPayload();
+  var to = (state.me.bossMail || '').trim();
+  var subj = '【確認のお願い】' + p.date + '　' + (p.cust || '') + (p.from ? '／' + p.from : '');
+  location.href = 'mailto:' + encodeURIComponent(to) +
+    '?subject=' + encodeURIComponent(subj) + '&body=' + encodeURIComponent(askMailBody(p));
+});
+$('aeAskCopy').addEventListener('click', function(){
+  var t = $('aeAskCode').value;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(t).then(function(){ askSay('リンクをコピーしました。上長に送ってください。', true); },
+      function(){ $('aeAskCode').select(); askSay('下の欄を選んでコピーしてください。', false); });
+  } else { $('aeAskCode').select(); askSay('下の欄を選んでコピーしてください。', false); }
+});
+/* 活動シートを開いたときの「確認依頼済み」「上長コメント」の出し分け */
+function renderAskState(a){
+  var st = $('aeAskState'), wrap = $('aeBossWrap'), note = $('aeBossNote');
+  st.style.color = 'var(--muted)';
+  st.textContent = a && a.askedAt ? '確認依頼済み（' + a.askedAt + '）' : '';
+  if (a && a.bossComment) {
+    wrap.classList.remove('hide');
+    note.textContent = a.bossComment + '　—— ' + (a.bossBy || '上長') + '（' + (a.checkedAt || '') + '）';
+  } else { wrap.classList.add('hide'); note.textContent = ''; }
+}
+
+/* ---- 上長側：受け取った確認依頼 ---- */
+function takeAsk(o, quiet){
+  if (!o || o.kind !== 'officem-hoken-sales-ask') return false;
+  var dup = state.inbox.filter(function(x){ return x.rid === o.rid; })[0];
+  if (dup) { if (!quiet) boxSay('この確認依頼は取り込み済みです。', false); return true; }
+  o.gotAt = nowStamp(); o.done = false;
+  state.inbox.unshift(o);
+  if (state.inbox.length > 500) state.inbox.length = 500;
+  save(); refreshBoxTab(); renderBox();
+  return true;
+}
+function boxSay(msg, ok){
+  var el = $('boxMsg');
+  el.style.color = ok ? 'var(--green)' : 'var(--red-text)';
+  el.textContent = msg;
+  setTimeout(function(){ el.textContent = ''; }, 6000);
+}
+/* 管理者に設定しているとき、または依頼が1件でもあるときだけタブを出す */
+function refreshBoxTab(){
+  var btn = $('tabBtnBox'), badge = $('boxBadge');
+  var undone = state.inbox.filter(function(x){ return !x.done; }).length;
+  var show = state.me.role === 'admin' || state.inbox.length > 0;
+  btn.classList.toggle('hide', !show);
+  badge.classList.toggle('hide', !undone);
+  badge.textContent = undone ? '（' + undone + '）' : '';
+}
+function renderBox(){
+  var host = $('boxList');
+  if (!state.inbox.length) {
+    host.innerHTML = '<div class="card"><p class="sec-note" style="margin:0;">まだ確認依頼はありません。' +
+      'メンバーが活動記録の「上長に確認してもらう」で作ったリンクを開くと、ここに並びます。</p></div>';
+    return;
+  }
+  host.innerHTML = state.inbox.map(function(r){
+    return '<div class="card" style="margin-bottom:var(--sp-3);">' +
+      '<div style="display:flex;justify-content:space-between;gap:var(--sp-2);flex-wrap:wrap;align-items:baseline;">' +
+        '<b style="color:var(--navy);">' + esc(r.from || '（名前未設定）') + (r.branch ? '（' + esc(r.branch) + '）' : '') + '</b>' +
+        '<span class="sec-note" style="margin:0;">' + esc(r.date || '') + (r.type ? '／' + esc(typeLabel(r.type)) : '') +
+        (r.done ? '　<b style="color:var(--green);">確認済み</b>' : '　<b style="color:var(--coral-text);">未確認</b>') + '</span>' +
+      '</div>' +
+      '<p class="sec-note" style="margin:var(--sp-1) 0 0;">顧客：' + esc(r.cust || '—') +
+        (r.place ? '／場所：' + esc(r.place) : '') + (r.with ? '／同席：' + esc(r.with) : '') + '</p>' +
+      '<p style="white-space:pre-wrap;margin:var(--sp-2) 0 0;">' + esc(r.memo || '（内容メモなし）') + '</p>' +
+      (r.comment ? '<div class="callout ok" style="margin:var(--sp-2) 0 0;">' + esc(r.comment) + '</div>' : '') +
+      '<div class="frm-actions">' +
+        '<button class="btn btn-primary btn-sm" data-boxreply="' + esc(r.rid) + '">確認してコメントを返す</button>' +
+        '<button class="btn btn-ghost btn-sm" data-boxdone="' + esc(r.rid) + '">' + (r.done ? '未確認に戻す' : '確認済みにする') + '</button>' +
+        '<button class="btn btn-ghost btn-sm" data-boxdel="' + esc(r.rid) + '">削除</button>' +
+      '</div></div>';
+  }).join('');
+}
+$('boxList').addEventListener('click', function(ev){
+  var b = ev.target.closest('[data-boxreply],[data-boxdone],[data-boxdel]');
+  if (!b) return;
+  var rid = b.getAttribute('data-boxreply') || b.getAttribute('data-boxdone') || b.getAttribute('data-boxdel');
+  var r = state.inbox.filter(function(x){ return x.rid === rid; })[0];
+  if (!r) return;
+  if (b.hasAttribute('data-boxdel')) {
+    if (!confirm('この確認依頼を削除しますか？')) return;
+    state.inbox = state.inbox.filter(function(x){ return x.rid !== rid; });
+  } else if (b.hasAttribute('data-boxdone')) {
+    r.done = !r.done;
+  } else {
+    var c = prompt('メンバーに返すコメント（そのまま本人の画面に表示されます）', r.comment || '確認しました。');
+    if (c === null) return;
+    r.comment = c.trim(); r.done = true;
+    var reply = { v:1, kind:'officem-hoken-sales-reply', actId: r.actId || '', rid: r.rid,
+      by: (state.me.name || '').trim() || '上長', at: nowStamp(), comment: r.comment };
+    var link = shareBaseUrl() + '#c=' + encodeShare(reply);
+    var done = function(){ boxSay('返信リンクをコピーしました。' + (r.from || 'メンバー') + 'さんに送ってください。', true); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(link).then(done, function(){ $('boxPaste').value = link; boxSay('上の欄に返信リンクを出しました。コピーして送ってください。', true); });
+    } else { $('boxPaste').value = link; boxSay('上の欄に返信リンクを出しました。コピーして送ってください。', true); }
+  }
+  save(); refreshBoxTab(); renderBox();
+});
+$('boxTake').addEventListener('click', function(){
+  var t = $('boxPaste').value.trim();
+  if (!t) { $('boxPaste').focus(); return; }
+  try {
+    if (t.indexOf('#r=') >= 0) { if (takeAsk(decodeShare(t.split('#r=')[1]))) { $('boxPaste').value = ''; boxSay('取り込みました。', true); } return; }
+    if (t.indexOf('#c=') >= 0) { takeReply(decodeShare(t.split('#c=')[1])); $('boxPaste').value = ''; return; }
+    if (takeAsk(decodeShare(t))) { $('boxPaste').value = ''; boxSay('取り込みました。', true); }
+  } catch (e) { boxSay('読み取れませんでした。届いたリンクをそのまま貼り付けてください。', false); }
+});
+/* ---- メンバー側：上長からの返信を受け取る ---- */
+function takeReply(o){
+  if (!o || o.kind !== 'officem-hoken-sales-reply') { alert('このリンクは上長からの返信ではありません。'); return false; }
+  var a = o.actId ? state.activities.filter(function(x){ return x.id === o.actId; })[0] : null;
+  if (!a) { alert('上長からのコメント（' + (o.by || '上長') + '）:\n\n' + o.comment + '\n\n※もとの活動記録がこの端末に見つからなかったため、記録には貼り付けていません。'); return false; }
+  a.bossComment = o.comment; a.bossBy = o.by || '上長'; a.checkedAt = o.at || nowStamp();
+  save(); afterActChange();
+  alert('上長からのコメントを取り込みました。\n\n' + o.comment + '\n—— ' + a.bossBy);
+  return true;
+}
+
+$('meSave').addEventListener('click', function(){
+  state.me.name = $('meName').value.trim();
+  state.me.branch = $('meBranch').value.trim();
+  state.me.role = $('meRole').value;
+  state.me.bossMail = $('meBossMail').value.trim();
+  save(); refreshBoxTab();
+  var m = $('meMsg'); m.style.color = 'var(--green)'; m.textContent = '保存しました。';
+  setTimeout(function(){ m.textContent = ''; }, 4000);
+});
+function renderMe(){
+  $('meName').value = state.me.name || '';
+  $('meBranch').value = state.me.branch || '';
+  $('meRole').value = state.me.role || 'member';
+  $('meBossMail').value = state.me.bossMail || '';
+}
+
 $('pmExport').addEventListener('click', function(){
   download('hoken-master-' + todayStr() + '.json', JSON.stringify(masterPayload(), null, 1), 'application/json');
 });
@@ -2977,6 +3262,8 @@ function startApp(){
   state = load();
   fillCustSelectors();
   renderPicker('ae');
+  renderMe();
+  refreshBoxTab();
   /* マスタ取り込み時は設定タブの表示を上書きしない */
   if (!takeSharedMaster()) showTab('act');   /* 開いたらすぐ今日の予定と記録が見える */
 }
@@ -2984,6 +3271,21 @@ function startApp(){
    取り込んで画面を切り替えたら true を返す */
 function takeSharedMaster(){
   var h = location.hash || '';
+  /* 上長へ送った確認依頼（#r=）／上長からの返信（#c=）も、同じ入口で受け取る */
+  if (h.indexOf('#r=') === 0) {
+    var rc = h.slice(3);
+    history.replaceState(null, '', location.href.split('#')[0]);
+    try { if (takeAsk(decodeShare(rc))) { showTab('box'); return true; } }
+    catch (e) { alert('確認依頼のリンクを読み取れませんでした。送り主にもう一度送ってもらってください。'); }
+    return false;
+  }
+  if (h.indexOf('#c=') === 0) {
+    var cc = h.slice(3);
+    history.replaceState(null, '', location.href.split('#')[0]);
+    try { takeReply(decodeShare(cc)); }
+    catch (e) { alert('返信のリンクを読み取れませんでした。上長にもう一度送ってもらってください。'); }
+    return false;
+  }
   if (h.indexOf('#m=') !== 0) return false;
   var code = h.slice(3);
   history.replaceState(null, '', location.href.split('#')[0]);   /* URLに残さない */
@@ -2993,6 +3295,13 @@ function takeSharedMaster(){
   } catch (e) { alert('リンクの商品マスタを読み取れませんでした。経営者にJSONファイルでの配布をお願いしてください。'); }
   return false;
 }
+/* すでにこの画面を開いたままリンクを押されたときは、ページが読み直されず
+   ハッシュだけが変わる。そのときも取り込めるようにしておく */
+window.addEventListener('hashchange', function(){
+  if (!state) return;
+  takeSharedMaster();
+});
+
 function showLock(){
   $('lock').classList.remove('hide');
   $('app').classList.add('hide');
