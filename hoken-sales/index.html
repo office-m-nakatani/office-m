@@ -133,6 +133,21 @@ a{color:var(--navy-2);}
   cursor:pointer;font-size:var(--fs-sm);font-weight:700;color:var(--muted);}
 .chip[aria-pressed="true"]{background:var(--navy-soft);border-color:var(--navy-2);color:var(--navy);}
 .badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:3px 11px;font-size:var(--fs-xs);font-weight:700;border:1px solid;}
+/* 未読件数バッジ（掲示板タブ・受信トレイ風）。既読が0件のときはJSでhideを付ける */
+.unread-pill{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;
+  margin-left:7px;border-radius:999px;background:var(--red-text);color:#fff;font-size:11px;font-weight:800;line-height:20px;}
+/* ---------- 掲示板：投稿の一覧行（未読はGmailの受信トレイのように太字＋色分け） ---------- */
+.board-row{display:block;width:100%;text-align:left;border:1.5px solid var(--line);border-radius:12px;background:var(--white);
+  padding:var(--sp-3) var(--sp-4);margin-bottom:var(--sp-2);cursor:pointer;font:inherit;color:inherit;}
+.board-row .br-top{display:flex;align-items:baseline;gap:var(--sp-2);flex-wrap:wrap;}
+.board-row .br-dot{width:9px;height:9px;border-radius:50%;background:var(--red-text);flex:none;display:none;}
+.board-row .br-title{color:var(--navy);}
+.board-row .br-meta{color:var(--muted);font-size:var(--fs-xs);margin-left:auto;}
+.board-row.unread{background:var(--navy-soft);border-color:var(--navy-2);}
+.board-row.unread .br-dot{display:inline-block;}
+.board-row.unread .br-title,.board-row.unread .br-from{font-weight:800;}
+.board-row .br-body{margin-top:var(--sp-2);font-size:var(--fs-sm);color:var(--text);white-space:pre-wrap;display:none;}
+.board-row.open .br-body{display:block;}
 /* 活動種別の6色（AP青・FF橙・プレゼン水・クロージング菫・契約緑・定期訪問桃。色覚検証済みセット） */
 .bg-AP{background:var(--tAPbg);border-color:var(--tAPbd);color:var(--tAPtx);}
 .bg-FF{background:var(--tFFbg);border-color:var(--tFFbd);color:var(--tFFtx);}
@@ -143,6 +158,15 @@ a{color:var(--navy-2);}
 .bg-lost{background:#eef0f3;border-color:#d9dee4;color:#5f6b78;}
 .bg-hold{background:#f2f0fa;border-color:#dcd6f0;color:#5b4a91;}
 .bg-bd{background:#fdf6e3;border-color:#ecd9a8;color:#7d5413;}   /* 誕生日 */
+/* サンプル表示専用（実際の記録では使わない種別）：MT=ミーティング、HD=休日出勤、DK=代休 */
+.bg-MT{background:#eef0f3;border-color:#c7ccd3;color:#445064;}
+.bg-HD{background:#e8f4fb;border-color:#a9cde6;color:#1c5cab;}
+.bg-DK{background:#f2f0fa;border-color:#dcd6f0;color:#5b4a91;}
+.cal-cell.sample-off{background:repeating-linear-gradient(135deg,var(--white),var(--white) 7px,#f3f1f8 7px,#f3f1f8 14px);}
+/* サンプル表示中は「＋」で実際の記録を作らせない・サンプル行は編集不可にする */
+.card.sampling .cal-add,.card.sampling #dayAdd{display:none;}
+.day-row.sample-row{cursor:default;}
+.day-row.sample-row .day-go{display:none;}
 
 /* ---------- 顧客一覧 ---------- */
 .toolrow{display:flex;gap:var(--sp-3);flex-wrap:wrap;align-items:center;margin-bottom:var(--sp-4);}
@@ -540,6 +564,8 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19 12a7 7 0 0 0-.2-1.6l2-1.5-2-3.4-2.3 1a7 7 0 0 0-2.7-1.6L13.5 2h-3l-.3 2.9a7 7 0 0 0-2.7 1.6l-2.3-1-2 3.4 2 1.5A7 7 0 0 0 5 12c0 .5.1 1.1.2 1.6l-2 1.5 2 3.4 2.3-1a7 7 0 0 0 2.7 1.6l.3 2.9h3l.3-2.9a7 7 0 0 0 2.7-1.6l2.3 1 2-3.4-2-1.5c.1-.5.2-1 .2-1.6Z"/></svg>手数料・設定</button>
     <button class="tab hide" role="tab" id="tabBtnBox" data-tab="box" aria-selected="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 13h4l1.5 3h6l1.5-3h4"/><path d="M5 6.5h14l1.5 6.5v4a2 2 0 0 1-2 2H5.5a2 2 0 0 1-2-2v-4Z"/></svg>確認依頼<span id="boxBadge" class="hide"></span></button>
+    <button class="tab" role="tab" id="tabBtnBoard" data-tab="board" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h5"/></svg>掲示板<span id="boardBadge" class="unread-pill hide"></span></button>
   </div>
 </nav>
 
@@ -706,13 +732,20 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
       <div class="sec-head">
         <span class="sh-art"><svg aria-hidden="true" viewBox="0 0 64 64"><rect x="12" y="10" width="40" height="46" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/><rect x="24" y="5" width="16" height="10" rx="4" fill="#27587f"/><path d="m19 26 4 4 7-8" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="34" y="25" width="12" height="3.5" rx="1.75" fill="#d9cfc4"/><path d="m19 40 4 4 7-8" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="34" y="39" width="12" height="3.5" rx="1.75" fill="#d9cfc4"/></svg></span>
         <div><h2>営業活動</h2><p>カレンダーで日付を選び、誰と・どこで・何をしたかを1分で記録</p></div>
+        <button class="btn btn-ghost btn-sm head-action" id="sampleBtn" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/><circle cx="9" cy="14.5" r="1.4" fill="currentColor" stroke="none"/><circle cx="13" cy="14.5" r="1.4" fill="currentColor" stroke="none"/><circle cx="17" cy="14.5" r="1.4" fill="currentColor" stroke="none"/></svg>
+          <span id="sampleBtnLabel">サンプルを表示</span></button>
         <button class="btn btn-ghost btn-sm head-action" id="bdBtn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21h16v-7H4v7Z"/><path d="M4 14c1.6 0 1.6-1.4 3.2-1.4S8.8 14 10.4 14s1.6-1.4 3.2-1.4S15.2 14 16.8 14s1.6-1.4 3.2-1.4"/><path d="M8 9V7M12 9V6M16 9V7"/></svg>
           お誕生日登録</button>
       </div>
 
+      <div class="callout info hide" id="sampleBanner">
+        <b>これはサンプル表示です。</b>保険営業の一般的な1か月（1日3訪問・月曜午前はミーティング・休日出勤とその代休を含む）を仮の名前で再現した架空のデータです。実際の記録には保存されません。「サンプルを表示」をもう一度押すと消えます。
+      </div>
+
       <!-- カレンダー：日付を選ぶと、その日の記録と入力フォームの日付が切り替わる -->
-      <div class="card">
+      <div class="card" id="calCard">
         <div class="cal-head">
           <span class="cal-title" id="calTitle"></span>
           <span class="sec-note" id="calWeekNote" style="margin:0;"></span>
@@ -730,6 +763,9 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
           <span class="badge bg-PZ">プレゼン</span><span class="badge bg-CL">クロージング</span>
           <span class="badge bg-KY">契約</span><span class="badge bg-TH">定期訪問</span>
           <span class="badge bg-bd">誕生日（顧客カルテの誕生日から表示）</span>
+          <span class="badge bg-MT hide" id="legendMT">ミーティング</span>
+          <span class="badge bg-HD hide" id="legendHD">休日出勤</span>
+          <span class="badge bg-DK hide" id="legendDK">代休</span>
         </div>
         <div class="day-panel" id="dayPanel"></div>
       </div>
@@ -912,10 +948,11 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
 
     <div class="sec">
       <div class="card">
-        <h3 style="color:var(--navy);font-size:var(--fs-md);margin-bottom:var(--sp-2);">所属と上長（支店内の確認に使います）</h3>
+        <h3 style="color:var(--navy);font-size:var(--fs-md);margin-bottom:var(--sp-2);">所属と上長（支店内の確認・掲示板に使います）</h3>
         <p class="sec-note" style="margin-top:0;">このツールはサーバーを持たないため、記録が自動で支店長に送られることはありません。
           活動記録の「上長に確認してもらう」ボタンで<b>確認用のリンク</b>を作り、いつもお使いのメールやチャットで送る方式です。
-          支店長はそのリンクを開くだけで、このツールの「確認依頼」に取り込まれます。</p>
+          支店長はそのリンクを開くだけで、このツールの「確認依頼」に取り込まれます。
+          ここで登録した<b>お名前</b>は「掲示板」タブへの投稿者名としても使われます。名前を登録した人だけが掲示板に書き込めます。</p>
         <div class="frm" style="margin-top:var(--sp-3);">
           <div class="fld"><label for="meName">自分の名前</label>
             <input type="text" id="meName" placeholder="例：山田 太郎"></div>
@@ -975,6 +1012,66 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
       </div>
     </div>
     <div class="sec"><div id="boxList"></div></div>
+  </section>
+
+  <!-- ===== 掲示板（社内の連絡・お知らせ） ===== -->
+  <!-- ⚠️ このツールはサーバーを持たない前提（費用ゼロ・外部送信なし）。掲示板も「上長への確認」と
+       同じくリンク方式：投稿者がリンクを作り、いつも使っているメール・グループチャット等で
+       社内の対象者に自分で送る。届いた人が開くと、この端末の掲示板に取り込まれる。
+       全員に自動で届く仕組みではないので、送り先を確認すること。社外のメーリングリストや
+       個人のSNS等、社内の人以外が見える経路には絶対に送らないこと（この注意書きは薄めない）。 -->
+  <section id="tab-board" role="tabpanel" class="hide">
+    <div class="sec-head">
+      <div>
+        <h2>掲示板</h2>
+        <p class="sec-note">名前を登録した人だけが投稿できます。投稿はリンクにして、社内のメール・グループチャットで自分で送ってください（自動では届きません）。</p>
+      </div>
+    </div>
+
+    <div class="callout warn">投稿リンクには件名・本文がそのまま入っています。<b>社内の対象者以外（社外のメール・個人のSNS等）には絶対に送らないでください。</b></div>
+
+    <div class="sec">
+      <div class="card" id="boardNewWrap">
+        <h3 style="color:var(--navy);font-size:var(--fs-md);margin-bottom:var(--sp-2);">新しい投稿を作る</h3>
+        <p class="sec-note" id="boardNeedName" style="margin-top:0;display:none;">投稿するには、先に「手数料・設定」タブで<b>お名前</b>を登録してください。<button type="button" class="btn btn-ghost btn-sm" id="boardGotoSettings" style="margin-left:8px;">設定タブを開く</button></p>
+        <div class="frm" id="boardNewForm">
+          <div class="fld full"><label for="boardTitle">件名</label>
+            <input type="text" id="boardTitle" maxlength="60" placeholder="例：来月の営業会議について"></div>
+          <div class="fld full"><label for="boardBody">本文</label>
+            <textarea id="boardBody" rows="4" maxlength="2000" placeholder="連絡したい内容を入力"></textarea></div>
+        </div>
+        <div class="frm-actions" id="boardPostActions">
+          <button class="btn btn-primary btn-sm" id="boardPost">投稿リンクを作る</button>
+          <span id="boardPostMsg" class="sec-note" style="margin:0;align-self:center;"></span>
+        </div>
+        <div class="fld hide" id="boardLinkWrap" style="margin-top:var(--sp-3);">
+          <label for="boardLinkCode">投稿リンク（コピーして社内に送ってください）</label>
+          <textarea class="pm-code" id="boardLinkCode" readonly rows="2"></textarea>
+          <div class="frm-actions" style="margin-top:var(--sp-2);">
+            <button class="btn btn-ghost btn-sm" id="boardLinkCopy">リンクをコピー</button>
+            <button class="btn btn-ghost btn-sm" id="boardLinkMail">メール下書きを開く</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="card">
+        <h3 style="color:var(--navy);font-size:var(--fs-md);margin-bottom:var(--sp-2);">リンク・コードから取り込む</h3>
+        <p class="sec-note" style="margin-top:0;">メールやチャットで届いた投稿リンクをそのまま貼り付けても取り込めます（リンクを開くのと同じです）。</p>
+        <textarea id="boardPaste" rows="2" placeholder="届いたリンクを貼り付け" style="width:100%;font-size:var(--fs-sm);"></textarea>
+        <div class="frm-actions"><button class="btn btn-primary btn-sm" id="boardTake">取り込む</button>
+          <span id="boardTakeMsg" class="sec-note" style="margin:0;align-self:center;"></span></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-head" style="margin-bottom:var(--sp-2);">
+        <div><h2 style="font-size:var(--fs-md);">届いた投稿</h2></div>
+        <button class="btn btn-ghost btn-sm" id="boardReadAll" style="margin-left:auto;">すべて既読にする</button>
+      </div>
+      <div id="boardList"></div>
+    </div>
   </section>
 
 </main>
@@ -1150,7 +1247,12 @@ var STAGES = [
 /* 活動の種類＝ステージ5つ＋定期訪問。定期訪問は契約までの段階ではない（＝見込みの絞り込みや
    確度設定には出さない）ので STAGES には入れず、記録するときの選択肢としてだけ足す */
 var ACT_TYPES = STAGES.concat([{ k:'TH', label:'定期訪問', full:'フォロー・アフター' }]);
-function stageLabel(k){ for (var i=0;i<ACT_TYPES.length;i++) if (ACT_TYPES[i].k===k) return ACT_TYPES[i].label; return k; }
+/* MT/HD/DKは「サンプルを表示」専用の種別（実際の記録では選べない）。ACT_TYPESには入れない */
+var SAMPLE_LABELS = { MT:'ミーティング', HD:'休日出勤', DK:'代休' };
+function stageLabel(k){
+  for (var i=0;i<ACT_TYPES.length;i++) if (ACT_TYPES[i].k===k) return ACT_TYPES[i].label;
+  return SAMPLE_LABELS[k] || k;
+}
 var MODES = { m:'月払', h:'半年払', y:'年払', s:'一時払' };
 
 /* ============================================================
@@ -1258,6 +1360,7 @@ function defaultState(){
     /* 支店内の確認に使う。サーバーは持たないので、リンク／コードを自分で送る方式 */
     me: { name:'', branch:'', role:'member', bossMail:'' },
     inbox: [],                                   /* 管理者が受け取った確認依頼 */
+    board: [],                                   /* 掲示板：リンクで受け取った投稿。read:false が未読 */
     set:{ singleAnpPct:10, goalCommM:0, goalApW:0 } };
 }
 function load(){
@@ -1272,6 +1375,7 @@ function load(){
     o.master = Object.assign(d.master, o.master || {});
     o.me = Object.assign(d.me, o.me || {});
     o.inbox = o.inbox || [];
+    o.board = o.board || [];
     o.contracts = o.contracts || [];
     o.activities = o.activities || [];
     return o;
@@ -1301,7 +1405,7 @@ function custExpComm(c){ return estInitComm(c.prodType, c.expAmt, c.expMode); }
 /* ============================================================
    3. タブ切り替え
    ============================================================ */
-var TABS = ['act','num','cust','rate','box'];
+var TABS = ['act','num','cust','rate','box','board'];
 function showTab(key){
   TABS.forEach(function(t){
     $('tab-' + t).classList.toggle('hide', t !== key);
@@ -1313,6 +1417,7 @@ function showTab(key){
   if (key === 'act') renderAct();
   if (key === 'rate') renderRate();
   if (key === 'box') renderBox();
+  if (key === 'board') renderBoard();
   window.scrollTo(0, 0);
 }
 document.querySelectorAll('.tab').forEach(function(btn){
@@ -1573,7 +1678,8 @@ function fmtJpDate(s){ var d = parseYmd(s); return (d.getMonth()+1) + '月' + d.
 function fmtBirth(s){ if (!s) return ''; var d = parseYmd(s); return d.getFullYear() + '年' + (d.getMonth()+1) + '月' + d.getDate() + '日'; }
 function timeLabel(a){ return a.start ? (a.start + (a.end ? '〜' + a.end : '')) : '終日'; }
 function actsOn(dateStr){
-  return state.activities.filter(function(a){ return a.date === dateStr; })
+  var src = sampleMode ? sampleActs : state.activities;
+  return src.filter(function(a){ return a.date === dateStr; })
     .sort(function(a, b){
       var x = a.start || '99:99', y = b.start || '99:99';
       return x < y ? -1 : x > y ? 1 : (a.id < b.id ? -1 : 1);
@@ -1600,17 +1706,121 @@ function birthNote(c){
 
 function contractById(id){ for (var i=0;i<state.contracts.length;i++) if (state.contracts[i].id === id) return state.contracts[i]; return null; }
 
+/* ============================================================
+   5c. サンプルを表示（保険営業の一般的な1か月を仮の名前で再現）
+   ------------------------------------------------------------
+   実際の記録（state.activities）には一切保存しない。表示中の月だけ
+   その場で作って見せる「見本」。トグルを押すたびに再生成する。
+     ・平日は1日3訪問×2時間、間に移動・休憩を挟む
+     ・月曜は9〜12時が出社ミーティング、午後だけ2訪問
+     ・土日は基本休みだが、月に1〜2回だけ休日出勤を入れ、
+       その代わりに別の平日を代休として空ける
+   ============================================================ */
+var sampleMode = false;
+var sampleActs = [];
+var sampleY = null, sampleM = null;
+var SAMPLE_NAMES = [
+  '佐藤様','鈴木様','高橋様','田中様','伊藤様','渡辺様','山本様','中村様',
+  '小林様','加藤様','吉田様','山田様','佐々木様','山口様','松本様','井上様',
+  '木村工務店様','中央運送様','みどり歯科様','スマイル美容室様','田村食品様'
+];
+var SAMPLE_TYPE_POOL = ['AP','AP','FF','FF','PZ','PZ','TH','TH','CL','KY'];   /* 出現しやすさの重み付け */
+function sampleName(){ return SAMPLE_NAMES[Math.floor(Math.random() * SAMPLE_NAMES.length)]; }
+function sampleType(){ return SAMPLE_TYPE_POOL[Math.floor(Math.random() * SAMPLE_TYPE_POOL.length)]; }
+function genSampleMonth(y, m){
+  var daysInMonth = new Date(y, m + 1, 0).getDate();
+  var weekendDays = [], weekdayDays = [];
+  for (var d = 1; d <= daysInMonth; d++) {
+    var dow = new Date(y, m, d).getDay();
+    (dow === 0 || dow === 6 ? weekendDays : weekdayDays).push(d);
+  }
+  /* 休日出勤：土日から最大2日（月に土日が少ない月は1日以下のこともある） */
+  var holidayWorkDays = shuffleCopy(weekendDays).slice(0, Math.min(2, weekendDays.length));
+  /* 代休：休日出勤と同じ日数だけ、月曜を除く平日から選ぶ（休日出勤の後の日を優先） */
+  var compCandidates = weekdayDays.filter(function(d2){ return new Date(y, m, d2).getDay() !== 1; });
+  var compOffDays = [];
+  holidayWorkDays.forEach(function(hw){
+    var after = compCandidates.filter(function(d2){ return d2 > hw && compOffDays.indexOf(d2) < 0; });
+    var pick = (after.length ? after : compCandidates.filter(function(d2){ return compOffDays.indexOf(d2) < 0; }))[0];
+    if (pick) compOffDays.push(pick);
+  });
+
+  var acts = [], seq = 0;
+  function pushVisit(dateStr, start, end){
+    seq++;
+    acts.push({ id: 'smp' + y + m + '-' + seq, date: dateStr, type: sampleType(),
+      guest: sampleName(), start: start, end: end, place: '', who: '', memo: '' });
+  }
+  for (var day = 1; day <= daysInMonth; day++) {
+    var dateStr = ymd(new Date(y, m, day));
+    var dow2 = new Date(y, m, day).getDay();
+    if (compOffDays.indexOf(day) >= 0) {
+      seq++;
+      acts.push({ id: 'smp' + y + m + '-' + seq, date: dateStr, type: 'DK', guest: '', start: '', end: '' });
+      continue;
+    }
+    var isWeekend = (dow2 === 0 || dow2 === 6);
+    var isHolidayWork = holidayWorkDays.indexOf(day) >= 0;
+    if (isWeekend && !isHolidayWork) continue;   /* ふつうの土日休み */
+    if (isHolidayWork) {
+      seq++;
+      acts.push({ id: 'smp' + y + m + '-' + seq, date: dateStr, type: 'HD', guest: '', start: '', end: '' });
+    }
+    if (dow2 === 1 && !isHolidayWork) {
+      /* 月曜：9-12時はミーティング、午後だけ2訪問 */
+      seq++;
+      acts.push({ id: 'smp' + y + m + '-' + seq, date: dateStr, type: 'MT', guest: '朝礼', start: '09:00', end: '12:00' });
+      pushVisit(dateStr, '13:30', '15:30');
+      pushVisit(dateStr, '16:00', '18:00');
+    } else {
+      /* ふつうの平日・休日出勤日：1日3訪問×2時間 */
+      pushVisit(dateStr, '09:30', '11:30');
+      pushVisit(dateStr, '13:00', '15:00');
+      pushVisit(dateStr, '15:30', '17:30');
+    }
+  }
+  return acts;
+}
+function shuffleCopy(arr){
+  var a2 = arr.slice();
+  for (var i = a2.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a2[i]; a2[i] = a2[j]; a2[j] = t;
+  }
+  return a2;
+}
+function ensureSample(){
+  if (sampleY === calY && sampleM === calM && sampleActs.length) return;
+  sampleY = calY; sampleM = calM;
+  sampleActs = genSampleMonth(calY, calM);
+}
+$('sampleBtn').addEventListener('click', function(){
+  sampleMode = !sampleMode;
+  $('sampleBtn').setAttribute('aria-pressed', sampleMode ? 'true' : 'false');
+  $('sampleBtnLabel').textContent = sampleMode ? 'サンプルを消す' : 'サンプルを表示';
+  $('sampleBanner').classList.toggle('hide', !sampleMode);
+  $('calCard').classList.toggle('sampling', sampleMode);
+  ['legendMT','legendHD','legendDK'].forEach(function(id){ $(id).classList.toggle('hide', !sampleMode); });
+  if (sampleMode) ensureSample();
+  renderCal();
+});
+
 function renderCal(){
   if (calY === null) { var t = new Date(); calY = t.getFullYear(); calM = t.getMonth(); }
   if (!selDate) selDate = todayStr();
+  if (sampleMode) ensureSample();
   $('calTitle').textContent = calY + '年 ' + (calM + 1) + '月';
-  /* 今週の動きをひと言（月曜はじまり） */
-  var wkMon = mondayOf(new Date()), wkSun = addDays(wkMon, 6);
-  var wc = typeCountsBetween(ymd(wkMon), ymd(wkSun));
-  var wkTotal = 0; ACT_TYPES.forEach(function(t2){ wkTotal += wc[t2.k]; });
-  $('calWeekNote').textContent = wkTotal
-    ? '今週：' + ACT_TYPES.map(function(t2){ return t2.label + ' ' + wc[t2.k]; }).join('・')
-    : '今週はまだ記録がありません';
+  /* 今週の動きをひと言（月曜はじまり）。サンプル表示中は実データと混ざらないよう専用の文言にする */
+  if (sampleMode) {
+    $('calWeekNote').textContent = 'サンプル表示中（実際の記録ではありません）';
+  } else {
+    var wkMon = mondayOf(new Date()), wkSun = addDays(wkMon, 6);
+    var wc = typeCountsBetween(ymd(wkMon), ymd(wkSun));
+    var wkTotal = 0; ACT_TYPES.forEach(function(t2){ wkTotal += wc[t2.k]; });
+    $('calWeekNote').textContent = wkTotal
+      ? '今週：' + ACT_TYPES.map(function(t2){ return t2.label + ' ' + wc[t2.k]; }).join('・')
+      : '今週はまだ記録がありません';
+  }
 
   var first = new Date(calY, calM, 1);
   var start = new Date(calY, calM, 1 - first.getDay());   /* 日曜はじまり */
@@ -1633,6 +1843,7 @@ function renderCal(){
     if (d.getDay() === 6) cls.push('sat');
     if (s === today) cls.push('today');
     if (s === selDate) cls.push('sel');
+    if (sampleMode && evs.some(function(a){ return a.type === 'DK'; })) cls.push('sample-off');
     var mdLabel = (d.getMonth()+1) + '月' + d.getDate() + '日';
     html += '<div class="' + cls.join(' ') + '" data-d="' + s + '">' +
       '<button type="button" class="cal-pick" data-d="' + s + '"' +
@@ -1698,16 +1909,22 @@ function renderDay(){
     if (a.place) meta.push('場所：' + a.place);
     if (a.who) meta.push('同席：' + a.who);
     var k = a.contractId ? contractById(a.contractId) : null;
-    return '<button type="button" class="day-row" data-e="' + esc(a.id) + '">' +
+    var tag = sampleMode ? 'div' : 'button';
+    return '<' + tag + (sampleMode ? '' : ' type="button"') + ' class="day-row' + (sampleMode ? ' sample-row' : '') +
+      '" data-e="' + esc(a.id) + '">' +
       '<span class="day-time">' + esc(timeLabel(a)) + '</span>' +
       '<span class="day-body"><span><span class="badge bg-' + a.type + '">' + esc(stageLabel(a.type)) + '</span> ' +
-      '<b>' + esc(actName(a)) + '</b></span>' +
+      (actName(a) ? '<b>' + esc(actName(a)) + '</b>' : '') + '</span>' +
       (meta.length ? '<span class="tl-meta">' + esc(meta.join('　')) + '</span>' : '') +
       (k ? '<span class="tl-meta" style="color:var(--green);font-weight:700;">' +
         esc([k.company, k.product].filter(Boolean).join(' ')) + '　初年度コミッション ' + esc(fmtYen(k.init)) + '</span>' : '') +
-      '</span><span class="day-go">編集</span></button>';
+      '</span><span class="day-go">編集</span></' + tag + '>';
   }).join('');
-  if (!evs.length && !bds.length) html += '<p class="day-none">この日の記録はまだありません。日付の「＋」か、右上の「この日に記録する」から追加できます。</p>';
+  if (!evs.length && !bds.length) {
+    html += sampleMode
+      ? '<p class="day-none">サンプルではこの日はお休みの想定です（土日）。</p>'
+      : '<p class="day-none">この日の記録はまだありません。日付の「＋」か、右上の「この日に記録する」から追加できます。</p>';
+  }
   $('dayPanel').innerHTML = html;
   $('dayAdd').addEventListener('click', function(){ openActNew(selDate); });
   $('dayPanel').querySelectorAll('[data-e]').forEach(function(b){
@@ -2780,7 +2997,7 @@ $('meSave').addEventListener('click', function(){
   state.me.branch = $('meBranch').value.trim();
   state.me.role = $('meRole').value;
   state.me.bossMail = $('meBossMail').value.trim();
-  save(); refreshBoxTab();
+  save(); refreshBoxTab(); refreshBoardTab();
   var m = $('meMsg'); m.style.color = 'var(--green)'; m.textContent = '保存しました。';
   setTimeout(function(){ m.textContent = ''; }, 4000);
 });
@@ -2811,6 +3028,129 @@ $('pmPaste').addEventListener('click', function(){
   var code = t.indexOf('#m=') >= 0 ? t.split('#m=')[1] : t;
   try { if (importMaster(decodeMaster(code))) $('pmCode').value = ''; }
   catch (e) { pmSay('コードを読み取れませんでした。配布されたリンクかコードをそのまま貼り付けてください。', false); }
+});
+
+/* ============================================================
+   5b. 掲示板
+   ------------------------------------------------------------
+   サーバーを持たない方針のまま、確認依頼・商品マスタ配布と同じ
+   「本人がリンクを作って自分で送る」方式にしている。
+     投稿者：名前を登録した状態で「投稿リンクを作る」→ #b=… のリンクをコピーし、
+             いつも使っているメール・グループチャットで社内の対象者に送る
+     受け取った人：リンクを開く（または貼り付ける）→「掲示板」に取り込まれる。
+             タブの数字は未読件数。開くと既読になる（Gmailの受信トレイと同じ考え方）。
+   全員に自動で届くわけではない点・社外に送らない注意は画面にも明記している。
+   ============================================================ */
+function boardPayload(){
+  return { v:1, kind:'officem-hoken-sales-board',
+    pid: uid('b') + '@' + Date.now(),
+    from: (state.me.name || '').trim(), branch: (state.me.branch || '').trim(),
+    postedAt: nowStamp(),
+    title: $('boardTitle').value.trim(), body: $('boardBody').value.trim() };
+}
+function boardPostSay(msg, ok){
+  var el = $('boardPostMsg');
+  el.style.color = ok ? 'var(--green)' : 'var(--red-text)';
+  el.textContent = msg;
+  setTimeout(function(){ el.textContent = ''; }, 6000);
+}
+function boardTakeSay(msg, ok){
+  var el = $('boardTakeMsg');
+  el.style.color = ok ? 'var(--green)' : 'var(--red-text)';
+  el.textContent = msg;
+  setTimeout(function(){ el.textContent = ''; }, 6000);
+}
+/* 名前が未登録の端末では投稿フォーム自体を出さない（＝アカウント登録した人限定の書き込み） */
+function refreshBoardGate(){
+  var has = !!(state.me.name || '').trim();
+  $('boardNeedName').style.display = has ? 'none' : '';
+  $('boardNewForm').classList.toggle('hide', !has);
+  $('boardPostActions').classList.toggle('hide', !has);
+}
+function refreshBoardTab(){
+  var badge = $('boardBadge');
+  var unread = state.board.filter(function(x){ return !x.read; }).length;
+  badge.classList.toggle('hide', !unread);
+  badge.textContent = unread > 99 ? '99+' : String(unread);
+  refreshBoardGate();
+}
+$('boardGotoSettings').addEventListener('click', function(){ showTab('rate'); $('meName').focus(); });
+$('boardPost').addEventListener('click', function(){
+  if (!(state.me.name || '').trim()) { boardPostSay('先に名前を登録してください。', false); return; }
+  if (!$('boardTitle').value.trim() && !$('boardBody').value.trim()) { boardPostSay('件名か本文を入れてから押してください。', false); return; }
+  var p = boardPayload();
+  /* 自分の投稿は自分の端末では既読として保存する（自分宛の未読にはしない） */
+  var mine = Object.assign({}, p, { gotAt: nowStamp(), read: true, readAt: nowStamp() });
+  var dup = state.board.filter(function(x){ return x.pid === mine.pid; })[0];
+  if (!dup) { state.board.unshift(mine); if (state.board.length > 500) state.board.length = 500; save(); refreshBoardTab(); renderBoard(); }
+  var link = shareBaseUrl() + '#b=' + encodeShare(p);
+  $('boardLinkCode').value = link;
+  $('boardLinkWrap').classList.remove('hide');
+  if (link.length > 6000) boardPostSay('内容が長いため、リンクが長くなりました。うまく送れないときは本文を短くしてください。', false);
+  else boardPostSay('リンクができました。下からコピーして送ってください。', true);
+});
+$('boardLinkCopy').addEventListener('click', function(){
+  var t = $('boardLinkCode').value;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(t).then(function(){ boardPostSay('リンクをコピーしました。社内に送ってください。', true); },
+      function(){ $('boardLinkCode').select(); boardPostSay('下の欄を選んでコピーしてください。', false); });
+  } else { $('boardLinkCode').select(); boardPostSay('下の欄を選んでコピーしてください。', false); }
+});
+$('boardLinkMail').addEventListener('click', function(){
+  var t = ($('boardTitle').value.trim() || '掲示板の投稿');
+  var body = ['社内掲示板に投稿しました。', '', '↓ 下のリンクを開くと、この掲示板に取り込まれます',
+    $('boardLinkCode').value].join('\n');
+  location.href = 'mailto:?subject=' + encodeURIComponent('【社内掲示板】' + t) + '&body=' + encodeURIComponent(body);
+});
+/* ---- 受け取った投稿の取り込み ---- */
+function takeBoardPost(o, quiet){
+  if (!o || o.kind !== 'officem-hoken-sales-board') { if (!quiet) boardTakeSay('このリンクは掲示板の投稿ではありません。', false); return false; }
+  var dup = state.board.filter(function(x){ return x.pid === o.pid; })[0];
+  if (dup) { if (!quiet) boardTakeSay('この投稿は取り込み済みです。', false); return true; }
+  o.gotAt = nowStamp(); o.read = false;
+  state.board.unshift(o);
+  if (state.board.length > 500) state.board.length = 500;
+  save(); refreshBoardTab(); renderBoard();
+  return true;
+}
+$('boardTake').addEventListener('click', function(){
+  var t = $('boardPaste').value.trim();
+  if (!t) { $('boardPaste').focus(); return; }
+  try {
+    var code = t.indexOf('#b=') >= 0 ? t.split('#b=')[1] : t;
+    if (takeBoardPost(decodeShare(code))) { $('boardPaste').value = ''; boardTakeSay('取り込みました。', true); }
+  } catch (e) { boardTakeSay('読み取れませんでした。届いたリンクをそのまま貼り付けてください。', false); }
+});
+$('boardReadAll').addEventListener('click', function(){
+  var changed = false;
+  state.board.forEach(function(r){ if (!r.read) { r.read = true; r.readAt = nowStamp(); changed = true; } });
+  if (changed) { save(); refreshBoardTab(); renderBoard(); }
+});
+function renderBoard(){
+  var host = $('boardList');
+  if (!state.board.length) {
+    host.innerHTML = '<div class="card"><p class="sec-note" style="margin:0;">まだ投稿はありません。届いたリンクを開くか、上の欄に貼り付けて取り込んでください。</p></div>';
+    return;
+  }
+  host.innerHTML = state.board.map(function(r){
+    return '<button type="button" class="board-row' + (r.read ? '' : ' unread') + '" data-bpid="' + esc(r.pid) + '" aria-expanded="false">' +
+      '<div class="br-top"><span class="br-dot" aria-hidden="true"></span>' +
+      '<b class="br-from">' + esc(r.from || '（名前未設定）') + (r.branch ? '（' + esc(r.branch) + '）' : '') + '</b>' +
+      '<span class="br-title">' + esc(r.title || '（件名なし）') + '</span>' +
+      '<span class="br-meta">' + esc(r.postedAt || '') + '</span></div>' +
+      '<div class="br-body">' + esc(r.body || '（本文なし）') + '</div>' +
+    '</button>';
+  }).join('');
+}
+$('boardList').addEventListener('click', function(ev){
+  var row = ev.target.closest('.board-row');
+  if (!row) return;
+  var pid = row.getAttribute('data-bpid');
+  var r = state.board.filter(function(x){ return x.pid === pid; })[0];
+  if (!r) return;
+  row.classList.toggle('open');
+  row.setAttribute('aria-expanded', row.classList.contains('open') ? 'true' : 'false');
+  if (!r.read) { r.read = true; r.readAt = nowStamp(); row.classList.remove('unread'); save(); refreshBoardTab(); }
 });
 
 /* ============================================================
@@ -3264,6 +3604,7 @@ function startApp(){
   renderPicker('ae');
   renderMe();
   refreshBoxTab();
+  refreshBoardTab();
   /* マスタ取り込み時は設定タブの表示を上書きしない */
   if (!takeSharedMaster()) showTab('act');   /* 開いたらすぐ今日の予定と記録が見える */
 }
@@ -3284,6 +3625,13 @@ function takeSharedMaster(){
     history.replaceState(null, '', location.href.split('#')[0]);
     try { takeReply(decodeShare(cc)); }
     catch (e) { alert('返信のリンクを読み取れませんでした。上長にもう一度送ってもらってください。'); }
+    return false;
+  }
+  if (h.indexOf('#b=') === 0) {
+    var bc = h.slice(3);
+    history.replaceState(null, '', location.href.split('#')[0]);
+    try { if (takeBoardPost(decodeShare(bc))) { showTab('board'); return true; } }
+    catch (e) { alert('掲示板のリンクを読み取れませんでした。投稿した人にもう一度送ってもらってください。'); }
     return false;
   }
   if (h.indexOf('#m=') !== 0) return false;
