@@ -259,6 +259,8 @@ a{color:var(--navy-2);}
 .cal-cell.today .cd{background:var(--navy);color:#fff;}
 .cal-ev{display:block;font-size:12.5px;line-height:1.5;font-weight:700;border:1px solid;border-left-width:3px;border-radius:5px;
   padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+/* お客様名の左に出す開始時刻（13:00など）。狭い画面では.cal-evごと点表示になるため自然に消える */
+.cal-ev .ev-t{font-style:normal;font-weight:600;font-size:11px;opacity:.75;margin-right:4px;font-variant-numeric:tabular-nums;}
 /* 左端の太線＝種別のマーク色（マスを一目で見分ける） */
 .cal-ev.bg-AP{border-left-color:var(--tAP);} .cal-ev.bg-FF{border-left-color:var(--tFF);}
 .cal-ev.bg-PZ{border-left-color:var(--tPZ);} .cal-ev.bg-CL{border-left-color:var(--tCL);}
@@ -1858,7 +1860,9 @@ function renderCal(){
         return '<span class="cal-ev bd">' + esc(o.c.name) + ' ' + o.age + '歳</span>';
       }).join('') +
       evs.slice(0, Math.max(cap - bds.length, 1)).map(function(a){
-        return '<span class="cal-ev bg-' + a.type + '">' + esc(actName(a)) + '</span>';
+        return '<span class="cal-ev bg-' + a.type + '">' +
+          (a.start ? '<i class="ev-t">' + esc(a.start) + '</i>' : '') +
+          esc(actName(a)) + '</span>';
       }).join('') +
       (function(){
         var shown = Math.min(bds.length, cap) + Math.min(evs.length, Math.max(cap - bds.length, 1));
