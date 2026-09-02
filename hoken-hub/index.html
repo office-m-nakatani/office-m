@@ -52,30 +52,25 @@ a{color:var(--navy-2);}
 .wrap{max-width:1120px;margin:0 auto;padding:0 16px;}
 .hide{display:none !important;}
 
-/* ---------- ヘッダー（各保険ツールと同じ、やわらかいグラデーション） ---------- */
-.topbar{background:linear-gradient(168deg,#fbe6e6 0%,#fdf1ea 46%,#ddf0fb 100%);
-  border-bottom:1px solid var(--line);position:fixed;top:0;left:0;right:0;z-index:40;
-  box-shadow:0 4px 14px rgba(130,100,80,.10);}
-  /* sticky ではなく fixed で固定（スクロール親の影響を受けない）。
-     will-change:transform/translateZ(0)/backface-visibility:hidden は一度試したが、
-     一部端末のGPU合成でスクロール中に文字が鏡文字状に崩れる描画バグを起こしたため外した。 */
-.topbar .wrap{display:flex;align-items:center;gap:var(--sp-4);min-height:74px;flex-wrap:wrap;padding:var(--sp-3) 16px;}
-/* 固定ヘッダーの高さぶん、本文側を押し下げる（JSで実測してこの変数に入れる） */
-#admin{padding-top:var(--topbar-h, 90px);}
-.tb-brand{display:flex;align-items:center;gap:var(--sp-3);color:var(--navy);}
-.tb-brand .tb-art{width:46px;height:46px;flex:none;}
-.tb-brand .tb-art svg{width:46px;height:46px;}
-.tb-brand b{display:block;font-family:system-ui,-apple-system,"Segoe UI","Hiragino Kaku Gothic ProN",sans-serif;
-  font-size:var(--fs-lg);letter-spacing:.04em;font-weight:800;line-height:1.35;}
-.tb-brand small{display:block;font-size:var(--fs-xs);color:var(--muted);letter-spacing:.02em;line-height:1.5;}
-.tb-actions{margin-left:auto;display:flex;gap:var(--sp-2);flex-wrap:wrap;}
+/* ---------- 画面上部の操作ボタン ----------
+   以前はここに「保険アプローチツール」のグラデーション帯を position:fixed で
+   常に貼り付けていたが、(1)画面の上90pxを占領して一覧が狭くなる
+   (2)一部端末（Windows/Edge）でスクロール中に帯が一緒に動いて見える
+   という2つの理由で帯ごと廃止した。名乗りはタブのタイトルとロック画面に
+   出ているので、ここには使い方・設定・ロックの3つだけを、
+   本文と一緒にスクロールして消える普通の行として置く。
+   再び固定ヘッダーを足さないこと（上記(2)の再発につながる） */
+#admin{padding-top:0;}
+.tb-actions{display:flex;justify-content:flex-end;align-items:center;
+  gap:var(--sp-2);flex-wrap:wrap;padding:var(--sp-3) 0 0;}
+.tb-actions #tbSub{margin-right:auto;font-size:var(--fs-xs);color:var(--muted);line-height:1.5;}
 .tb-btn{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.75);border:1px solid #e3d3c6;
   color:var(--navy);padding:9px 15px;border-radius:999px;cursor:pointer;font-size:var(--fs-sm);font-weight:700;transition:.15s;}
 .tb-btn:hover{background:#fff;border-color:#cfe0ec;}
 .tb-btn svg{width:16px;height:16px;}
 
 /* ---------- セクション見出し ---------- */
-.sec{margin-top:var(--sp-8);scroll-margin-top:90px;}
+.sec{margin-top:var(--sp-8);scroll-margin-top:12px;}
 .sec-head{margin-bottom:var(--sp-4);}
 .sec-head h2{font-family:var(--mincho);font-size:var(--fs-xl);color:var(--navy);letter-spacing:.06em;font-weight:600;
   display:inline-block;padding-bottom:5px;border-bottom:4px solid var(--coral);border-radius:2px;}
@@ -192,7 +187,7 @@ a{color:var(--navy-2);}
 /* 分野の中を見ているあいだは、この帯をヘッダーのすぐ下に貼り付けておく。
    下までスクロールしても「分野を選び直す」がいつでも押せる（いちばん上まで戻らなくてよい）。
    左右は .wrap の余白ぶん外へ広げて、カードが帯の脇をすり抜けて見えないようにする */
-#backBar.stuck{position:sticky;top:var(--topbar-h,90px);z-index:30;
+#backBar.stuck{position:sticky;top:0;z-index:30;
   background:var(--bg);margin:0 -16px;padding:10px 16px 0;
   box-shadow:0 10px 12px -10px rgba(130,100,80,.30);}
 #backBar.stuck .back-bar{margin-bottom:var(--sp-3);}
@@ -408,7 +403,7 @@ a{color:var(--navy-2);}
   padding:11px 22px;border-radius:999px;font-size:var(--fs-sm);box-shadow:0 8px 24px rgba(27,63,94,.3);opacity:0;
   transition:.25s;pointer-events:none;z-index:90;}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
-@media print{.topbar,.tb-actions,.card-actions,.p-actions{display:none;}}
+@media print{.tb-actions,.card-actions,.p-actions{display:none;}}
 
 /* キーボード操作でたどったときに、いまどこにいるかがはっきり分かるようにする。
    ブラウザ既定の1px枠は淡色の画面ではほぼ見えないため明示する（WCAG 2.2 SC 2.4.13 / 1.4.11） */
@@ -447,21 +442,15 @@ a{color:var(--navy-2);}
      社内用：管理画面
      ============================================================ -->
 <div id="admin" class="hide">
-  <header class="topbar">
-    <div class="wrap">
-      <div class="tb-brand">
-        <span class="tb-art"><svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#ffeee3"/><path d="M8 64c0-13 11-20 24-20s24 7 24 20H8Z" fill="#f0846a"/><rect x="27" y="39" width="10" height="11" rx="5" fill="#f7cdb4"/><path d="m25 45 7 9 7-9 3.4 1.8L32 61 21.6 46.8Z" fill="#fff"/><ellipse cx="32" cy="28" rx="16" ry="17" fill="#5c4030"/><ellipse cx="32" cy="30" rx="12.5" ry="13.5" fill="#f7cdb4"/><path d="M19.5 27c0-9 5.6-14.5 12.5-14.5S44.5 18 44.5 27c-1.6-3.6-4.2-5.7-7.2-6.6-2.6 2.4-7 3.8-10.9 3.2-1.4 1-2.4 2.1-2.9 3.4Z" fill="#5c4030"/><circle cx="27" cy="30" r="1.6" fill="#3d3028"/><circle cx="37" cy="30" r="1.6" fill="#3d3028"/><path d="M29.4 35.6c1.6 1.7 3.6 1.7 5.2 0" fill="none" stroke="#3d3028" stroke-width="1.6" stroke-linecap="round"/></svg></span>
-        <span><b>保険アプローチツール</b><small id="tbSub">生命保険・損害保険・金融の提案ツールをここから開く／共有する</small></span>
-      </div>
-      <div class="tb-actions">
-        <button class="tb-btn" id="btnHelp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/></svg>使い方</button>
-        <button class="tb-btn" id="btnSettings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 9 19.4a1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 4.6 9a1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1Z"/></svg>設定</button>
-        <button class="tb-btn" id="btnLock" title="この端末のパスワード記憶を消して、ロック画面に戻ります"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10.5" rx="2.5"/><path d="M8 10.5V7.4a4 4 0 0 1 8 0v3.1"/></svg>ロックする</button>
-      </div>
-    </div>
-  </header>
-
   <div class="wrap">
+    <!-- 使い方・設定・ロック。固定はせず、本文と一緒にスクロールして消える -->
+    <div class="tb-actions">
+      <small id="tbSub" class="hide"></small>
+      <button class="tb-btn" id="btnHelp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/></svg>使い方</button>
+      <button class="tb-btn" id="btnSettings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 9 19.4a1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 4.6 9a1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1Z"/></svg>設定</button>
+      <button class="tb-btn" id="btnLock" title="この端末のパスワード記憶を消して、ロック画面に戻ります"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10.5" rx="2.5"/><path d="M8 10.5V7.4a4 4 0 0 1 8 0v3.1"/></svg>ロックする</button>
+    </div>
+
     <div id="setupWarn"></div>
 
     <!-- ツール一覧 -->
@@ -4609,24 +4598,17 @@ function showFrame(url, expMs, office) {
 /* ============================================================
    9. 起動
    ============================================================ */
-/* ヘッダーは position:fixed で常に画面上部に固定（スクロールしても本文だけが動く）。
-   実際の高さは文字サイズや折り返しで変わるので、実測して本文側の余白に反映する */
-function fitTopbarSpacer() {
-  var bar = document.querySelector('.topbar');
-  if (!bar) return;
-  document.documentElement.style.setProperty('--topbar-h', bar.offsetHeight + 'px');
-}
-
 function startAdmin() {
   document.getElementById('lock').classList.add('hide');
   document.getElementById('admin').classList.remove('hide');
   if (location.protocol === 'file:') {
-    document.getElementById('tbSub').textContent = '手元のフォルダから開いています（ツールは同じフォルダのHTMLを開きます）';
+    /* 手元のフォルダから開いたときだけ、操作ボタンの行の左端に断り書きを出す */
+    var sub = document.getElementById('tbSub');
+    sub.textContent = '手元のフォルダから開いています（ツールは同じフォルダのHTMLを開きます）';
+    sub.classList.remove('hide');
   }
   renderAll();
   bindAdmin();
-  fitTopbarSpacer();
-  window.addEventListener('resize', fitTopbarSpacer);
 }
 
 function showLock() {
