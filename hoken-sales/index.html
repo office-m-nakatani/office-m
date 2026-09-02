@@ -1131,6 +1131,10 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
           <button class="type-btn" data-type="TH" aria-pressed="false">定期訪問<small>フォロー・アフター</small></button>
         </div>
       </div>
+      <div class="fld hide" id="aeDetailWrap" style="margin-bottom:var(--sp-3);">
+        <label id="aeDetailLabel">内容をもう少し詳しく（複数選べます）</label>
+        <div class="chips" id="aeDetailChips"></div>
+      </div>
       <div class="frm">
         <div class="fld"><label for="aeDate">日付</label>
           <div class="date-wrap"><input type="text" class="date-input" id="aeDate" readonly autocomplete="off" placeholder="押して日付を選ぶ"></div></div>
@@ -1343,6 +1347,41 @@ var KINDS = [
   { k:'other',   label:'その他' }
 ];
 function kindLabel(k){ for (var i=0;i<KINDS.length;i++) if (KINDS[i].k === k) return KINDS[i].label; return 'その他'; }
+
+/* 活動の種類ごとの「細分化タグ」（複数選択）。AP・FF・定期訪問は一つでは粒度が粗く、
+   何を話せた・どこまで聞けたかが記録に残らないため、種類ごとに違うタグ候補を出す。
+   AP＝商品ごと（KINDSをそのまま流用＝取り扱い商品の絞り込みと同じ分類で二重管理を避ける）に「さわりだけ」を足したもの。
+   FF＝ヒアリングがどこまで進んだか。TH＝定期訪問の目的。他の種類（プレゼン・クロージング・契約）はタグなし。 */
+var DETAIL_TAGS = {
+  AP: [{ k:'touch', label:'さわりだけ話した' }].concat(KINDS.map(function(o){ return { k:o.k, label:o.label }; })),
+  FF: [
+    { k:'family', label:'家族構成' },
+    { k:'income', label:'年収・世帯収入' },
+    { k:'asset',  label:'貯蓄・資産状況' },
+    { k:'existing', label:'既契約の内容（他社含む）' },
+    { k:'health', label:'健康状態・持病' },
+    { k:'goal',   label:'将来設計（教育資金・老後資金など）' },
+    { k:'risk',   label:'リスクへの考え方・優先順位' },
+    { k:'budget', label:'保険にかけられる予算感' }
+  ],
+  TH: [
+    { k:'chat',     label:'世間話・関係づくりのみ' },
+    { k:'hozen',    label:'契約内容の確認・保全手続き' },
+    { k:'minaoshi', label:'見直し・追加提案' },
+    { k:'anniv',    label:'誕生日・記念日訪問' },
+    { k:'claim',    label:'請求・クレーム対応' },
+    { k:'intro',    label:'紹介のお願い' }
+  ]
+};
+function detailTagLabel(type, key){
+  var list = DETAIL_TAGS[type] || [];
+  for (var i=0;i<list.length;i++) if (list[i].k === key) return list[i].label;
+  return key;
+}
+function detailTagsText(type, keys){
+  if (!keys || !keys.length) return '';
+  return keys.map(function(k){ return detailTagLabel(type, k); }).join('・');
+}
 
 /* 商品・手数料マスタの初期値
    【注意】実際の料率は保険会社・代理店委託契約ごとに異なり公開もされていない。
@@ -1627,10 +1666,12 @@ function actRowHtml(a){
   var meta = [];
   if (a.place) meta.push('場所：' + a.place);
   if (a.who) meta.push('同席：' + a.who);
+  var dtext = detailTagsText(a.type, a.detail);
   var k = a.contractId ? state.contracts.filter(function(x){ return x.id === a.contractId; })[0] : null;
   return '<div class="tl-row" data-act="' + esc(a.id) + '">' +
     '<span class="tl-date">' + esc(a.date) + (a.start ? '<br>' + esc(timeLabel(a)) : '') + '</span>' +
     '<span class="tl-body">' + typeBadge + ' <b>' + esc(actName(a)) + '</b>' +
+    (dtext ? '<div class="tl-meta" style="color:var(--navy-2);font-weight:700;">' + esc(dtext) + '</div>' : '') +
     (meta.length ? '<div class="tl-meta">' + esc(meta.join('　')) + '</div>' : '') +
     (a.memo ? '<div class="tl-meta">' + esc(a.memo) + '</div>' : '') +
     (k ? '<div class="tl-meta" style="color:var(--green);font-weight:700;">' +
@@ -1948,6 +1989,30 @@ window.addEventListener('resize', function(){
 
 /* ---------- 活動の編集シート ---------- */
 var aeId = null, aeType = null, aeNew = false;
+var aeDetailSel = [];   /* 選択中の細分化タグ（AP/FF/TH用。他の種類では常に空） */
+
+/* AP・FF・定期訪問だけ、種類に応じたタグ（複数選択）を出す。
+   種類を切り替えたら選択はリセットする（タグの候補自体が変わるため）。 */
+function renderAeDetail(t){
+  var tags = DETAIL_TAGS[t];
+  var wrap = $('aeDetailWrap');
+  if (!tags) { wrap.classList.add('hide'); $('aeDetailChips').innerHTML = ''; return; }
+  wrap.classList.remove('hide');
+  $('aeDetailLabel').textContent = t === 'AP' ? 'どの商品の話をした？（複数選べます）'
+    : t === 'FF' ? 'どこまでヒアリングできた？（複数選べます）'
+    : '訪問の目的は？（複数選べます）';
+  $('aeDetailChips').innerHTML = tags.map(function(o){
+    return '<button type="button" class="chip" data-dtag="' + esc(o.k) + '" aria-pressed="' + (aeDetailSel.indexOf(o.k) >= 0) + '">' + esc(o.label) + '</button>';
+  }).join('');
+}
+$('aeDetailChips').addEventListener('click', function(ev){
+  var b = ev.target.closest('[data-dtag]');
+  if (!b) return;
+  var k = b.getAttribute('data-dtag');
+  var i = aeDetailSel.indexOf(k);
+  if (i >= 0) aeDetailSel.splice(i, 1); else aeDetailSel.push(k);
+  b.setAttribute('aria-pressed', i < 0);
+});
 
 function setAeType(t){
   aeType = t;
@@ -1956,9 +2021,14 @@ function setAeType(t){
   });
   $('aeContract').classList.toggle('hide', t !== 'KY');
   if (t === 'KY') { updateAeAnp(); renderPicker('ae'); }
+  renderAeDetail(t);
 }
 document.querySelectorAll('#aeTypes .type-btn').forEach(function(b){
-  b.addEventListener('click', function(){ setAeType(b.getAttribute('data-type')); });
+  b.addEventListener('click', function(){
+    var t = b.getAttribute('data-type');
+    if (t !== aeType) aeDetailSel = [];   /* 種類を変えたら、前の種類のタグ選択は持ち越さない */
+    setAeType(t);
+  });
 });
 function updateAeAnp(){
   var amt = +$('aeAmt').value || 0;
@@ -2018,6 +2088,7 @@ function openActNew(dateStr){
   $('aePtype').value = state.rates[0].id;
   pickState.ae = { kind:null, pid:'', renews:null };
   $('aePickNote').classList.add('hide');
+  aeDetailSel = [];
   setAeType(null);
   renderPicker('ae');
   $('aeTitle').textContent = '活動を記録する';
@@ -2070,6 +2141,7 @@ function openActEdit(id){
     pnote.classList.remove('hide');
     pnote.innerHTML = '<b>' + esc(pp.company) + '　' + esc(pp.name) + '</b>　料率：初年度 ' + (+pp.init || 0) + '%／' + esc(renewsText(pp.renews));
   } else { pnote.classList.add('hide'); }
+  aeDetailSel = (a.detail || []).slice();
   setAeType(a.type);
   renderPicker('ae');
   $('aeWhen').textContent = fmtJpDate(a.date);
@@ -2126,6 +2198,7 @@ $('aeSave').addEventListener('click', function(){
   a.place = $('aePlace').value.trim();
   a.who = $('aeWho').value.trim();
   a.memo = $('aeMemo').value.trim();
+  a.detail = DETAIL_TAGS[aeType] ? aeDetailSel.slice() : [];
   save();
   selDate = date;
   closeActEdit();
@@ -2144,7 +2217,8 @@ function saveNewFromSheet(){
   if (st && en && en < st) { err.textContent = '終了時刻は開始時刻より後にしてください。'; return; }
 
   var act = { id: uid('a'), cid: cid, guest: who.guest, type: aeType, date: date, start: st, end: en,
-    place: $('aePlace').value.trim(), who: $('aeWho').value.trim(), memo: $('aeMemo').value.trim() };
+    place: $('aePlace').value.trim(), who: $('aeWho').value.trim(), memo: $('aeMemo').value.trim(),
+    detail: DETAIL_TAGS[aeType] ? aeDetailSel.slice() : [] };
   if (aeType === 'KY') {
     var amt = +$('aeAmt').value || 0;
     if (!amt) { err.textContent = '契約の保険料を入れてください。'; return; }
@@ -2841,6 +2915,7 @@ function askPayload(){
     date: dpValue('aeDate') || todayStr(),
     type: aeType || '', cust: who,
     place: $('aePlace').value.trim(), with: $('aeWho').value.trim(),
+    detail: DETAIL_TAGS[aeType] ? aeDetailSel.slice() : [],
     memo: $('aeMemo').value.trim() };
 }
 function askMailBody(p){
@@ -2848,6 +2923,7 @@ function askMailBody(p){
     '担当：' + (p.from || '（名前未設定）') + (p.branch ? '（' + p.branch + '）' : ''),
     '日付：' + p.date + (p.type ? '／' + typeLabel(p.type) : ''),
     '顧客：' + (p.cust || '—'),
+    (p.detail && p.detail.length ? '詳細：' + detailTagsText(p.type, p.detail) : ''),
     (p.place ? '場所：' + p.place : ''),
     (p.with ? '同席者：' + p.with : ''),
     '', '【内容メモ】', (p.memo || '（未記入）'), '',
@@ -2942,6 +3018,7 @@ function renderBox(){
       '</div>' +
       '<p class="sec-note" style="margin:var(--sp-1) 0 0;">顧客：' + esc(r.cust || '—') +
         (r.place ? '／場所：' + esc(r.place) : '') + (r.with ? '／同席：' + esc(r.with) : '') + '</p>' +
+      (r.detail && r.detail.length ? '<p class="sec-note" style="margin:var(--sp-1) 0 0;color:var(--navy-2);font-weight:700;">' + esc(detailTagsText(r.type, r.detail)) + '</p>' : '') +
       '<p style="white-space:pre-wrap;margin:var(--sp-2) 0 0;">' + esc(r.memo || '（内容メモなし）') + '</p>' +
       (r.comment ? '<div class="callout ok" style="margin:var(--sp-2) 0 0;">' + esc(r.comment) + '</div>' : '') +
       '<div class="frm-actions">' +
@@ -3504,9 +3581,9 @@ $('expCsv').addEventListener('click', function(){
   download('hoken-contracts-' + todayStr() + '.csv', csv, 'text/csv');
 });
 $('expActCsv').addEventListener('click', function(){
-  var head = ['日付','開始','終了','種別','顧客','場所','同席者','メモ'];
+  var head = ['日付','開始','終了','種別','詳細タグ','顧客','場所','同席者','メモ'];
   var rows = state.activities.slice().sort(function(a,b){ return a.date < b.date ? -1 : 1; }).map(function(a){
-    return [a.date, a.start || '', a.end || '', stageLabel(a.type), actName(a), a.place, a.who, a.memo];
+    return [a.date, a.start || '', a.end || '', stageLabel(a.type), detailTagsText(a.type, a.detail), actName(a), a.place, a.who, a.memo];
   });
   var csv = '﻿' + [head].concat(rows).map(function(r){ return r.map(csvCell).join(','); }).join('\r\n');
   download('hoken-activities-' + todayStr() + '.csv', csv, 'text/csv');
