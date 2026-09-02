@@ -2111,8 +2111,10 @@ function resolveWho(text){
   if (!hit) state.customers.forEach(function(c){ if (!hit && (c.name + '（' + (c.company || '') + '）') === t) hit = c; });
   return hit ? { cid: hit.id, guest: '' } : { cid: '', guest: t };
 }
-/* 一覧やカレンダーに出す名前 */
+/* 一覧やカレンダーに出す名前。MT/HD/DK（サンプル表示専用の休み・出勤系）は
+   顧客との紐づけがそもそもない種別なので、「（顧客未設定）」ではなく種類名を出す */
 function actName(a){
+  if (a.type === 'MT' || a.type === 'HD' || a.type === 'DK') return stageLabel(a.type);
   var c = custById(a.cid);
   return c ? c.name : (a.guest || '（顧客未設定）');
 }
