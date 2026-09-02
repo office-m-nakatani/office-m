@@ -4035,6 +4035,45 @@ function applyToolOrder(list, saved) {
 }
 var dragToolId = null;
 
+/* マウスでカードをつかんで動かすとき、ブラウザはページを自動でスクロールしてくれない。
+   そのため画面の外（上や下）にある移動先へは運べず、下の方のカードを先頭へ動かせなかった。
+   つかんでいるあいだ、カーソルを画面の上端・下端に近づけたらその方向へ自分でスクロールする。
+   カーソルがブラウザのタブの辺りまで出ても dragover が来なくなるだけで、
+   直前の位置を覚えているのでスクロールは続く（＝そのまま上まで運べる）。 */
+var dragScroll = { y: 0, on: false, raf: 0, t0: 0 };
+function dragScrollTick(ts) {
+  if (!dragScroll.on) { dragScroll.raf = 0; return; }
+  var h = window.innerHeight, edge = 120, speed = 0;
+  if (dragScroll.y < edge) speed = -(edge - dragScroll.y) / 3;
+  else if (dragScroll.y > h - edge) speed = (dragScroll.y - (h - edge)) / 3;
+  if (speed) {
+    if (!dragScroll.t0) dragScroll.t0 = ts;
+    /* 端に寄せ続けているあいだは、だんだん速くする。67件のような長い一覧でも、
+       いちばん下のカードを数秒で先頭まで運べる速さにしている */
+    var boost = Math.min(1 + (ts - dragScroll.t0) / 700, 4);
+    window.scrollBy(0, Math.round(speed * boost) || (speed > 0 ? 1 : -1));
+  } else {
+    dragScroll.t0 = 0;       /* 端から離したら助走はやり直し */
+  }
+  dragScroll.raf = requestAnimationFrame(dragScrollTick);
+}
+function startDragScroll(y) {
+  dragScroll.y = y;          /* つかんだ瞬間の位置。0のままだと即座に上へ走り出してしまう */
+  dragScroll.on = true; dragScroll.t0 = 0;
+  if (!dragScroll.raf) dragScroll.raf = requestAnimationFrame(dragScrollTick);
+}
+function stopDragScroll() {
+  dragScroll.on = false; dragScroll.t0 = 0;
+  if (dragScroll.raf) { cancelAnimationFrame(dragScroll.raf); dragScroll.raf = 0; }
+}
+/* ドラッグ中のカーソル位置は dragover でしか取れない。カード以外の上を通っているあいだも
+   拾いたいので document で受ける（並べ替え中だけ働く） */
+document.addEventListener('dragover', function (e) {
+  if (dragScroll.on) dragScroll.y = e.clientY;
+});
+document.addEventListener('drop', stopDragScroll);
+document.addEventListener('dragend', stopDragScroll);
+
 /* 並べ替えの実処理（マウスのドラッグ＆ドロップ・スマホの長押しドラッグの両方から呼ぶ） */
 function applyCatReorder(fromId, toId) {
   if (!fromId || !toId || fromId === toId) return;
@@ -4071,22 +4110,29 @@ function applyToolReorder(fromId, toId) {
    ・つかんだ状態に入ったあとの指の動きはページのスクロールを止める（preventDefault）
    ・つかんだ状態に入ったまま指を離したときは、そのあとのタップ（＝カードを開く動作）を起こさない */
 function bindTouchReorder(containerEl, itemSelector, getId, applyFn) {
-  var st = { id: null, timer: null, startX: 0, startY: 0, dragging: false, el: null, y: 0, raf: 0 };
+  var st = { id: null, timer: null, startX: 0, startY: 0, dragging: false, el: null, y: 0, raf: 0, t0: 0 };
   function clearOverMarks() {
     [].forEach.call(containerEl.querySelectorAll('.drag-over'), function (n) { n.classList.remove('drag-over'); });
   }
   /* スマホではカード1枚が画面の大半を占めるので、移動先が画面の外にあることが多い。
      つかんだまま指を画面の上端・下端に寄せると、その方向へ自動でスクロールして運べるようにする */
-  function autoScrollTick() {
+  function autoScrollTick(ts) {
     if (!st.dragging) { st.raf = 0; return; }
     var h = window.innerHeight, edge = 90, speed = 0;
-    if (st.y < edge) speed = -Math.ceil((edge - st.y) / 5);
-    else if (st.y > h - edge) speed = Math.ceil((st.y - (h - edge)) / 5);
-    if (speed) window.scrollBy(0, speed);
+    if (st.y < edge) speed = -(edge - st.y) / 4;
+    else if (st.y > h - edge) speed = (st.y - (h - edge)) / 4;
+    if (speed) {
+      /* マウスのときと同じく、端に寄せ続けているあいだはだんだん速くする */
+      if (!st.t0) st.t0 = ts;
+      var boost = Math.min(1 + (ts - st.t0) / 700, 4);
+      window.scrollBy(0, Math.round(speed * boost) || (speed > 0 ? 1 : -1));
+    } else {
+      st.t0 = 0;
+    }
     st.raf = requestAnimationFrame(autoScrollTick);
   }
-  function startAutoScroll() { if (!st.raf) st.raf = requestAnimationFrame(autoScrollTick); }
-  function stopAutoScroll() { if (st.raf) { cancelAnimationFrame(st.raf); st.raf = 0; } }
+  function startAutoScroll() { st.t0 = 0; if (!st.raf) st.raf = requestAnimationFrame(autoScrollTick); }
+  function stopAutoScroll() { st.t0 = 0; if (st.raf) { cancelAnimationFrame(st.raf); st.raf = 0; } }
   function reset() {
     if (st.timer) { clearTimeout(st.timer); st.timer = null; }
     if (st.el) st.el.classList.remove('dragging');
@@ -4428,12 +4474,14 @@ function bindAdmin() {
     if (!c) return;
     dragCatId = c.dataset.cat;
     c.classList.add('dragging');
+    startDragScroll(e.clientY);
     try { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', c.dataset.cat); } catch (err) {}
   });
   pickEl.addEventListener('dragend', function (e) {
     var c = e.target.closest('.cat-card[draggable="true"]');
     if (c) c.classList.remove('dragging');
     [].forEach.call(pickEl.querySelectorAll('.drag-over'), function (n) { n.classList.remove('drag-over'); });
+    stopDragScroll();
     dragCatId = null;
   });
   pickEl.addEventListener('dragover', function (e) {
@@ -4462,12 +4510,14 @@ function bindAdmin() {
     if (!c) return;
     dragToolId = c.dataset.card;
     c.classList.add('dragging');
+    startDragScroll(e.clientY);
     try { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', dragToolId); } catch (err) {}
   });
   gridEl.addEventListener('dragend', function (e) {
     var c = e.target.closest('.card[draggable="true"]');
     if (c) c.classList.remove('dragging');
     [].forEach.call(gridEl.querySelectorAll('.drag-over'), function (n) { n.classList.remove('drag-over'); });
+    stopDragScroll();
     dragToolId = null;
   });
   gridEl.addEventListener('dragover', function (e) {
