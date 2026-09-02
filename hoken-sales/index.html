@@ -322,6 +322,15 @@ a{color:var(--navy-2);}
 .tp-foot{display:flex;gap:var(--sp-2);margin-top:var(--sp-3);}
 .tp-foot .btn{flex:1;justify-content:center;}
 
+/* ---------- 顧客名の候補（未登録でもそのまま入力できる。あくまで候補で、選択を強制しない） ---------- */
+.cust-suggest{position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:70;background:var(--white);
+  border:1.5px solid var(--line);border-radius:12px;box-shadow:0 14px 34px rgba(60,40,30,.18);
+  max-height:220px;overflow-y:auto;padding:6px;}
+.cust-suggest button{display:block;width:100%;text-align:left;border:none;background:none;border-radius:8px;
+  padding:9px 10px;font-size:var(--fs-sm);color:var(--text);cursor:pointer;font-family:inherit;}
+.cust-suggest button:hover,.cust-suggest button:focus-visible{background:var(--navy-soft);color:var(--navy);}
+.cust-suggest button small{display:block;color:var(--muted);font-size:var(--fs-xs);font-weight:400;}
+
 /* ---------- 誕生日の選択（年・月を選んでから日を押す） ---------- */
 .date-wrap{position:relative;}
 .date-input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px;
@@ -1144,10 +1153,11 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
           <div class="time-wrap"><input type="text" class="time-input" id="aeEnd" inputmode="numeric" autocomplete="off" placeholder="例：12:00"></div>
           <div class="hint">開始の2時間後が自動で入ります</div></div>
         <div class="fld full"><label class="chk" id="aeAlldayLabel"><input type="checkbox" id="aeAllday"><span>終日にする（時刻を使わない）</span></label></div>
-        <div class="fld"><label for="aeCust">顧客（誰と）</label>
-          <input type="text" id="aeCust" list="custDatalist" autocomplete="off" placeholder="名前を入力または選択">
+        <div class="fld" style="position:relative;"><label for="aeCust">顧客（誰と）</label>
+          <input type="text" id="aeCust" autocomplete="off" placeholder="名前を入力してください（登録は不要です）">
+          <div class="cust-suggest hide" id="aeCustSuggest"></div>
           <datalist id="custDatalist"></datalist>
-          <div class="hint">登録済みの名前ならカルテとつながります。未登録の名前もそのまま記録できます</div></div>
+          <div class="hint"><strong>顧客登録をしていなくても、そのまま入力して記録できます。</strong>登録済みの名前を入力すると候補が出て、選ぶとカルテとつながります。</div></div>
         <div class="fld"><label for="aePlace">場所（どこで）</label><input type="text" id="aePlace" placeholder="例：顧客宅、事務所"></div>
         <div class="fld full"><label for="aeWho">同席者・相手メモ</label><input type="text" id="aeWho" placeholder="例：奥様同席、社長と経理部長"></div>
         <div class="fld full"><label for="aeMemo">内容メモ</label><textarea id="aeMemo" placeholder="話した内容・次のアクションなど"></textarea>
@@ -2057,6 +2067,41 @@ function fillAeSelectors(){
     return '<option value="' + esc(r.id) + '">' + esc(r.label) + '</option>';
   }).join('');
 }
+
+/* 顧客名の候補（自前実装）。ネイティブのdatalistは端末によって「一覧から選ばないと
+   進めない」ように見えてしまうことがあるため、あくまで候補を出すだけの一覧にし、
+   自由入力を絶対に妨げない作りにする。未登録の名前はそのまま入力すればよい。 */
+function hideCustSuggest(){ $('aeCustSuggest').classList.add('hide'); $('aeCustSuggest').innerHTML = ''; }
+function renderCustSuggest(){
+  var t = $('aeCust').value.trim();
+  var box = $('aeCustSuggest');
+  if (!t) { hideCustSuggest(); return; }
+  var hits = state.customers.filter(function(c){
+    return c.name.indexOf(t) >= 0 || (c.company || '').indexOf(t) >= 0;
+  }).slice(0, 6);
+  if (!hits.length) { hideCustSuggest(); return; }
+  box.innerHTML = hits.map(function(c){
+    return '<button type="button" data-custpick="' + esc(c.id) + '">' + esc(c.name) +
+      (c.company ? '<small>' + esc(c.company) + '</small>' : '') + '</button>';
+  }).join('');
+  box.classList.remove('hide');
+}
+$('aeCust').addEventListener('input', renderCustSuggest);
+$('aeCust').addEventListener('focus', renderCustSuggest);
+$('aeCustSuggest').addEventListener('mousedown', function(ev){
+  /* blurより先に発火させて、候補を選べるようにする */
+  var b = ev.target.closest('[data-custpick]');
+  if (!b) return;
+  var c = state.customers.filter(function(x){ return x.id === b.getAttribute('data-custpick'); })[0];
+  if (c) $('aeCust').value = c.name;
+  hideCustSuggest();
+});
+document.addEventListener('click', function(ev){
+  if (ev.target === $('aeCust') || $('aeCustSuggest').contains(ev.target)) return;
+  hideCustSuggest();
+});
+$('aeCust').addEventListener('keydown', function(ev){ if (ev.key === 'Escape') hideCustSuggest(); });
+
 /* 入力された名前を顧客カルテに突き合わせる。無ければ「その場かぎりの相手」として名前だけ持つ */
 function resolveWho(text){
   var t = String(text == null ? '' : text).trim();
@@ -2076,6 +2121,7 @@ function openActNew(dateStr){
   aeNew = true; aeId = null;
   fillAeSelectors();
   $('aeCust').value = '';
+  hideCustSuggest();
   setDpValue('aeDate', dateStr || selDate || todayStr());
   $('aeAllday').checked = false;     /* 既定は時刻を使う。空欄のままなら終日あつかい */
   $('aeStart').value = ''; $('aeEnd').value = '';
@@ -2106,6 +2152,7 @@ function openActEdit(id){
   var c = custById(a.cid);
   fillAeSelectors();
   $('aeCust').value = c ? c.name : (a.guest || '');
+  hideCustSuggest();
   $('aeTitle').textContent = '活動の編集';
   $('aeDel').classList.remove('hide');
 
@@ -2154,6 +2201,7 @@ function closeActEdit(){
   $('aeOvl').classList.add('hide');
   document.body.style.overflow = '';
   aeId = null; aeNew = false;
+  hideCustSuggest();
 }
 $('aeClose').addEventListener('click', closeActEdit);
 $('aeCancel').addEventListener('click', closeActEdit);
