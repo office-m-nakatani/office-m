@@ -1,0 +1,2208 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>保険 満期・年齢到達カレンダー｜保全と追加提案のきっかけ</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231c5cab'/%3E%3Cpath d='M10 5v5M22 5v5M6.5 13.5h19' stroke='%23fff' stroke-width='2.6' stroke-linecap='round'/%3E%3Crect x='6.5' y='8' width='19' height='18' rx='3' fill='none' stroke='%23fff' stroke-width='2.6'/%3E%3Cpath d='M11.5 19.5l3 3 6-6' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E">
+<!--
+  ⚠️ 社内利用専用ツール（お客様には配布しない・共有リンクの対象外）
+
+  ● 個人情報の取り扱い（このツールでいちばん大事なところ）
+    - お客様の氏名・フリガナ・生年月日・連絡メモ・ご契約の内容を入れる道具です。
+      入力したものは、この端末のブラウザ（localStorage）にだけ残ります。
+      サーバーへの送信は一切ありません（外部APIもバックエンドも持っていません）。
+    - 共有PC・貸出PC・お客様先の端末では使わないこと。使うなら自分専用の端末で、
+      画面ロックとディスク暗号化がかかっている前提で使うこと。
+    - 「データ・設定」タブから書き出すJSON／CSVには、氏名・生年月日がそのまま入ります。
+      デスクトップ・ダウンロードフォルダ・共有フォルダ・クラウドの同期フォルダに
+      置きっぱなしにしないこと。バックアップは会社の規程に沿った場所に保管し、
+      不要になったら消すこと。メール添付・チャット送信は原則しないこと。
+    - ブラウザのデータを消す／別の端末に変えると中身は消えます。JSON書き出しでバックアップを。
+    - 端末を離れるときは「ロックする」を押すこと（合言葉の記憶が消え、次はロック画面から）。
+
+  ● 声かけの文例について
+    - 文例には保険金額・保険料・返戻率などの数字を入れていません（お客様ごとに違い、
+      文面だけが独り歩きすると誤解を招くため）。金額の話は設計書・契約内容を見ながら
+      口頭で行うこと。文例はそのままではなく、必ず自分の言葉に直して使うこと。
+
+  ● 内容の限界
+    - 年齢の節目（20・60・65・70・75歳）の説明は「制度の仕組み」だけを書いています。
+      金額・料率・上限額・支給開始の細かい条件は年によって動くため、意図的に載せていません。
+      実際の数字は、その時点の公的資料と社内資料で必ず確認すること。
+    - 更新・満期・払込満了の扱いは保険会社・商品・約款ごとに違います。このツールが出すのは
+      「連絡するきっかけの日」であって、契約上の期日そのものの証明ではありません。
+      手続きの期限は必ず保険会社の案内・証券・約款で確かめること。
+    - このツールは通知を送りません（サーバーを持たないため）。自分で開いて確認する道具です。
+
+  ● 日付の扱い（うるう年・月末）
+    - 2月29日生まれの方は、うるう年でない年は2月28日に置き換えて出します。
+    - 「1か月前」「◯年後」は、その月に同じ日が無いときは、その月の末日に寄せます
+      （例：3月31日の1か月前 → 2月28日／うるう年は2月29日。12月31日の1年後 → 12月31日）。
+
+  ● まだ済んでいない確認事項
+    - 損害保険の更改案内の時期（満期の何か月前に動くか）は代理店・保険会社ごとの運用がある。
+      当ツールは満期日そのものと、個人年金だけ「3か月前」の準備を出している。
+      自社の運用に合わせて日数を変えたい場合は EV_* の生成部分を直すこと。
+    - 高齢者募集の社内ルール（複数人・複数回・親族同席など）は会社ごとに違うため、
+      年齢の節目の文例には織り込んでいない。運用に合わせて追記すること。
+
+  ● 実装メモ
+    - 1案件＝自己完結の単一HTML。CSS・JSともにインライン。外部ファイル・CDNは読まない。
+    - 見た目の土台は hoken-newtools-src/shell.css、パスワードゲートは同 shell-gate.js を
+      そのまま貼ったもの（AUTH_KEY だけこのツール専用。平文のパスワードは書かない）。
+    - カレンダーと顧客一覧の作りは 保険営業ダッシュボード（保険営業管理ツール.html）に
+      そろえてある。行き来しても迷わないよう、CSSのクラス名も同じにしている。
+-->
+<style>
+:root{
+  /* インク（旧 --navy 系。名前は互換のため維持） */
+  --navy:#16283c; --navy-2:#2e4763; --navy-soft:#eaf0f7;
+  --bg:#f3f5f8; --white:#fff; --text:#26313d; --muted:#5f6b78; --line:#e2e7ed;
+  --shadow:0 8px 24px rgba(23,42,64,.08); --shadow-sm:0 2px 8px rgba(23,42,64,.06);
+  /* 主ボタン＝ブランドブルー（旧coral名のまま値だけ差し替え。白文字コントラスト5.9:1） */
+  --coral:#2a78d6; --coral-btn:#1c5cab; --coral-btn-h:#164a8c;
+  --coral-text:#1c5cab; --coral-bg:#e8f1fb; --coral-border:#c4dcf5;
+  --green:#008300; --green-bg:#e7f4e7; --green-border:#bfe3bf;
+  --amber:#9a6a10; --amber-bg:#fbf3e0; --amber-border:#eeddb2;
+  --sky:#1c5cab; --sky-bg:#e8f1fb; --sky-border:#c4dcf5;
+  --berry:#b03569; --berry-bg:#fdedf4;
+  --teal:#b03569; --teal-bg:#fdedf4; --teal-border:#f6cade;   /* 旧teal＝定期訪問。現在は桃色系 */
+  --red-text:#c22f2f; --red-bg:#fbeaea;
+  --chart-1:#2a78d6;
+  /* 活動種別6色（マーク用）とバッジ文字色（白地4.5:1確保用） */
+  --tAP:#2a78d6; --tFF:#eb6834; --tPZ:#1baf7a; --tCL:#4a3aa7; --tKY:#008300; --tTH:#e87ba4;
+  --tAPtx:#1c5cab; --tFFtx:#ba4413; --tPZtx:#0d7a52; --tCLtx:#4a3aa7; --tKYtx:#006300; --tTHtx:#b03569;
+  --tAPbg:#e8f1fb; --tFFbg:#fdeee4; --tPZbg:#e2f6ee; --tCLbg:#edeafa; --tKYbg:#e7f4e7; --tTHbg:#fdedf4;
+  --tAPbd:#c4dcf5; --tFFbd:#f8d2bd; --tPZbd:#b8e8d5; --tCLbd:#d5cef2; --tKYbd:#bfe3bf; --tTHbd:#f6cade;
+  /* 見出しも本文と同じサンセリフ（旧minchoトークンは互換のため名前だけ残す） */
+  --mincho:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",YuGothic,Meiryo,"Noto Sans JP",sans-serif;
+  --fs-xs:.8125rem; --fs-sm:.9rem; --fs-base:1rem; --fs-md:1.125rem;
+  --fs-lg:1.3rem; --fs-xl:1.55rem; --fs-2xl:2rem;
+  --lh-tight:1.45; --lh-base:1.75;
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:20px; --sp-6:24px; --sp-8:32px;
+  --r:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;font-size:16px;}
+@media(min-width:640px){ html{font-size:16.5px;} }
+@media(min-width:1100px){ html{font-size:17px;} }
+body{
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",YuGothic,Meiryo,"Noto Sans JP",sans-serif;
+  color:var(--text); background:var(--bg);
+  font-size:var(--fs-base); line-height:var(--lh-base);
+  overflow-wrap:break-word; padding-bottom:70px;
+}
+svg{width:1.05em;height:1.05em;vertical-align:-.16em;flex:none;}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit;}
+a{color:var(--navy-2);}
+.wrap{max-width:1020px;margin:0 auto;padding:0 16px;}
+.hide{display:none !important;}
+:focus-visible{outline:3px solid var(--navy-2);outline-offset:2px;border-radius:5px;}
+
+/* ---------- ヘッダー ---------- */
+.topbar{background:var(--white);border-bottom:1px solid var(--line);}
+.topbar .wrap{display:flex;align-items:center;gap:var(--sp-4);min-height:64px;flex-wrap:wrap;padding:var(--sp-3) 16px;}
+.tb-brand{display:flex;align-items:center;gap:var(--sp-3);color:var(--navy);}
+.tb-brand .tb-art{width:40px;height:40px;flex:none;}
+.tb-brand .tb-art svg{width:40px;height:40px;}
+.tb-brand b{display:block;font-size:var(--fs-md);letter-spacing:.04em;font-weight:700;line-height:1.3;}
+.tb-brand small{display:block;font-size:var(--fs-xs);color:var(--muted);letter-spacing:.02em;line-height:1.5;}
+.tb-tag{margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-xs);font-weight:700;
+  letter-spacing:.03em;color:var(--muted);background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:6px 13px;}
+
+/* ---------- タブ ---------- */
+.tabs{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.95);backdrop-filter:blur(6px);
+  border-bottom:1px solid var(--line);}
+.tabs .wrap{display:flex;gap:var(--sp-2);padding:9px 16px;overflow-x:auto;}
+.tab{display:inline-flex;align-items:center;gap:8px;border:1px solid transparent;background:transparent;
+  border-radius:10px;padding:9px 16px;min-height:44px;cursor:pointer;font-weight:700;font-size:var(--fs-sm);
+  color:var(--muted);white-space:nowrap;transition:.15s;}
+.tab svg{width:18px;height:18px;}
+.tab[aria-selected="true"]{background:var(--navy);border-color:var(--navy);color:#fff;box-shadow:var(--shadow-sm);}
+.tab:not([aria-selected="true"]):hover{background:var(--navy-soft);color:var(--navy);}
+
+/* ---------- セクション ---------- */
+.sec{margin-top:var(--sp-6);}
+.sec-head{display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-4);}
+.sec-head .sh-art{display:none;}   /* 旧イラスト枠。製品版デザインでは使わない */
+.sec-head h2{font-size:var(--fs-lg);color:var(--navy);letter-spacing:.03em;font-weight:700;}
+.sec-head p{font-size:var(--fs-sm);color:var(--muted);margin-top:2px;}
+.sec-note{font-size:var(--fs-sm);color:var(--muted);max-width:46em;margin:var(--sp-2) 0 var(--sp-4);}
+
+/* ---------- カード・ボタン ---------- */
+.card{background:var(--white);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-sm);
+  padding:var(--sp-5);}
+.card h3{font-size:var(--fs-md);}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:10px;
+  padding:12px 22px;min-height:44px;cursor:pointer;font-size:var(--fs-base);font-weight:700;letter-spacing:.03em;transition:.15s;text-decoration:none;}
+.btn svg{width:17px;height:17px;}
+.btn-primary{background:var(--coral-btn);color:#fff;box-shadow:0 4px 12px rgba(28,92,171,.28);}
+.btn-primary:hover{background:var(--coral-btn-h);transform:translateY(-1px);}
+.btn-navy{background:var(--navy);color:#fff;}
+.btn-navy:hover{background:#16344e;}
+.btn-ghost{background:var(--white);border:1.5px solid var(--line);color:var(--navy);}
+.btn-ghost:hover{border-color:var(--navy-2);}
+.btn-sm{padding:8px 14px;min-height:36px;font-size:var(--fs-sm);}
+.btn-danger{background:var(--white);border:1.5px solid var(--coral-border);color:var(--red-text);}
+.btn-danger:hover{background:var(--red-bg);}
+
+/* ---------- フォーム ---------- */
+.frm{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:var(--sp-3) var(--sp-4);}
+.frm .full{grid-column:1 / -1;}
+.fld label{display:block;font-size:var(--fs-xs);font-weight:700;color:var(--navy);margin-bottom:4px;letter-spacing:.03em;}
+.fld input[type=text],.fld input[type=number],.fld input[type=date],.fld input[type=time],.fld input[type=password],.fld select,.fld textarea{
+  width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px;background:#fff;}
+.fld textarea{min-height:70px;resize:vertical;}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--navy-2);outline:none;box-shadow:0 0 0 3px var(--navy-soft);}
+.fld .hint{font-size:var(--fs-xs);color:var(--muted);margin-top:3px;}
+.frm-actions{display:flex;gap:var(--sp-3);flex-wrap:wrap;margin-top:var(--sp-4);}
+
+/* ---------- チップ・バッジ ---------- */
+.chips{display:flex;gap:var(--sp-2);flex-wrap:wrap;}
+.chip{border:1.5px solid var(--line);background:var(--white);border-radius:999px;padding:7px 14px;min-height:36px;
+  cursor:pointer;font-size:var(--fs-sm);font-weight:700;color:var(--muted);}
+.chip[aria-pressed="true"]{background:var(--navy-soft);border-color:var(--navy-2);color:var(--navy);}
+.badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:3px 11px;font-size:var(--fs-xs);font-weight:700;border:1px solid;}
+/* 未読件数バッジ（掲示板タブ・受信トレイ風）。既読が0件のときはJSでhideを付ける */
+.unread-pill{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;
+  margin-left:7px;border-radius:999px;background:var(--red-text);color:#fff;font-size:11px;font-weight:800;line-height:20px;}
+
+/* ---------- KPI・統計 ---------- */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:var(--sp-3);}
+.tile{background:var(--white);border:1px solid var(--line);border-radius:var(--r);padding:var(--sp-4) var(--sp-5);box-shadow:var(--shadow-sm);
+  display:flex;flex-direction:column;gap:3px;}
+.tile .t-label{font-size:var(--fs-xs);font-weight:700;color:var(--muted);letter-spacing:.04em;}
+.tile .t-value{font-size:var(--fs-2xl);font-weight:700;color:var(--navy);line-height:1.25;letter-spacing:-.01em;}
+.tile .t-value small{font-size:var(--fs-md);font-weight:700;}
+.tile .t-sub{font-size:var(--fs-xs);color:var(--muted);}
+.tile .t-delta{font-size:var(--fs-xs);font-weight:700;display:inline-flex;align-items:center;gap:4px;
+  align-self:flex-start;border-radius:999px;padding:2px 9px;}
+.tile .t-delta:empty{display:none;}
+.tile .t-delta.up{color:#006300;background:#e7f4e7;}       /* 前月比プラス */
+.tile .t-delta.down{color:#b32424;background:#fdecec;}     /* 前月比マイナス */
+.tile .t-delta.flat{color:var(--muted);background:#f0f2f5;}
+/* 値の色は全カード同じインク色（意味色はデルタチップだけが持つ） */
+
+
+/* ---------- 空状態 ---------- */
+.empty{text-align:center;padding:var(--sp-8) var(--sp-4);color:var(--muted);}
+.empty .em-art{width:84px;height:84px;margin:0 auto var(--sp-3);}
+.empty .em-art svg{width:84px;height:84px;}
+.empty b{display:block;color:var(--navy);font-size:var(--fs-md);margin-bottom:6px;}
+.empty p{font-size:var(--fs-sm);max-width:30em;margin:0 auto;}
+
+/* ---------- ロック画面 ---------- */
+#lock{max-width:420px;margin:9vh auto 0;padding:0 16px;}
+#lock .card{padding:var(--sp-8) var(--sp-6);text-align:center;}
+#lock .lk-art{width:72px;height:72px;margin:0 auto var(--sp-3);}
+#lock .lk-art svg{width:72px;height:72px;}
+#lock h1{font-family:var(--mincho);font-size:var(--fs-lg);color:var(--navy);margin-bottom:6px;}
+#lock p{font-size:var(--fs-sm);color:var(--muted);margin-bottom:var(--sp-4);}
+#lock input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;min-height:48px;text-align:center;letter-spacing:.15em;}
+#lock .err{color:var(--red-text);font-size:var(--fs-sm);font-weight:700;min-height:1.6em;margin-top:var(--sp-2);}
+
+footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-size:var(--fs-xs);color:var(--muted);border-top:1px solid var(--line);}
+
+/* ============================================================
+   ここから下は、このツールで足したぶん
+   （カレンダー・顧客一覧・シート・日付ピッカーは
+     保険営業ダッシュボードと同じクラス名・同じ見た目にそろえてある）
+   ============================================================ */
+
+/* ---------- 個人情報の注意 ---------- */
+.notice{border:1.5px solid var(--amber-border);background:var(--amber-bg);border-radius:var(--r);
+  padding:var(--sp-4) var(--sp-5);font-size:var(--fs-sm);color:#6b4a0c;display:flex;gap:var(--sp-3);align-items:flex-start;}
+.notice > svg{width:21px;height:21px;color:var(--amber);margin-top:4px;}
+.notice b{display:block;color:#7d5413;font-size:var(--fs-base);margin-bottom:3px;}
+.notice ul{margin:5px 0 0 1.15em;}
+.notice li{margin-top:2px;}
+.notice.slim{padding:var(--sp-3) var(--sp-4);font-size:var(--fs-xs);}
+
+/* ---------- きっかけ6種の色 ---------- */
+.ev-bd { --c:var(--tTH); --ct:var(--tTHtx); --cb:var(--tTHbg); --cd:var(--tTHbd); }
+.ev-ann{ --c:var(--tAP); --ct:var(--tAPtx); --cb:var(--tAPbg); --cd:var(--tAPbd); }
+.ev-pay{ --c:var(--tKY); --ct:var(--tKYtx); --cb:var(--tKYbg); --cd:var(--tKYbd); }
+.ev-mat{ --c:var(--tFF); --ct:var(--tFFtx); --cb:var(--tFFbg); --cd:var(--tFFbd); }
+.ev-pen{ --c:var(--tCL); --ct:var(--tCLtx); --cb:var(--tCLbg); --cd:var(--tCLbd); }
+.ev-age{ --c:#d9b14d;    --ct:#7d5413;      --cb:#fdf6e3;      --cd:#ecd9a8; }
+.badge.ev-bd,.badge.ev-ann,.badge.ev-pay,.badge.ev-mat,.badge.ev-pen,.badge.ev-age{
+  color:var(--ct);background:var(--cb);border-color:var(--cd);}
+.chip.ev-bd[aria-pressed="true"],.chip.ev-ann[aria-pressed="true"],.chip.ev-pay[aria-pressed="true"],
+.chip.ev-mat[aria-pressed="true"],.chip.ev-pen[aria-pressed="true"],.chip.ev-age[aria-pressed="true"]{
+  color:var(--ct);background:var(--cb);border-color:var(--c);}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--c,var(--muted));flex:none;}
+
+/* ---------- きっかけの一覧 ---------- */
+.ev-mon{font-size:var(--fs-sm);font-weight:700;color:var(--muted);letter-spacing:.05em;
+  margin:var(--sp-5) 0 var(--sp-2);padding-left:2px;}
+.ev-mon:first-child{margin-top:0;}
+.ev-list{display:grid;gap:var(--sp-2);}
+.ev-item{background:var(--white);border:1px solid var(--line);border-left:4px solid var(--c,var(--line));
+  border-radius:12px;padding:13px 15px;box-shadow:var(--shadow-sm);}
+.ev-item.is-done{background:#fafbfc;border-left-color:#c9d2dc;}
+.ev-item.is-done .ev-name,.ev-item.is-done .ev-title{color:var(--muted);}
+.ev-top{display:flex;gap:var(--sp-3);align-items:center;flex-wrap:wrap;}
+.ev-when{font-weight:700;color:var(--navy);font-size:var(--fs-sm);white-space:nowrap;font-variant-numeric:tabular-nums;}
+.ev-in{font-size:var(--fs-xs);color:var(--muted);font-weight:700;white-space:nowrap;}
+.ev-in.soon{color:var(--red-text);}
+.ev-name{font-weight:700;font-size:var(--fs-md);color:var(--navy);}
+.ev-name .ev-kana{font-weight:400;font-size:var(--fs-xs);color:var(--muted);margin-left:6px;}
+.ev-title{font-size:var(--fs-sm);margin-top:3px;}
+.ev-why{font-size:var(--fs-sm);color:var(--muted);margin-top:4px;}
+.ev-acts{display:flex;gap:var(--sp-2);flex-wrap:wrap;margin-top:var(--sp-3);align-items:center;}
+.ev-doneflag{font-size:var(--fs-xs);font-weight:700;color:var(--green);white-space:nowrap;}
+.script-box{margin-top:var(--sp-3);border:1px solid var(--line);background:#fbfcfe;border-radius:10px;
+  padding:12px 14px;font-size:var(--fs-sm);white-space:pre-wrap;line-height:1.9;}
+.script-foot{display:flex;gap:var(--sp-2);flex-wrap:wrap;align-items:center;margin-top:var(--sp-2);}
+.script-note{font-size:var(--fs-xs);color:var(--muted);}
+
+/* ---------- 顧客一覧（ダッシュボードと同じ） ---------- */
+.toolrow{display:flex;gap:var(--sp-3);flex-wrap:wrap;align-items:center;margin-bottom:var(--sp-4);}
+.search{position:relative;flex:1;min-width:200px;}
+.search input{width:100%;border:1.5px solid var(--line);border-radius:999px;padding:10px 16px 10px 42px;min-height:44px;background:#fff;}
+.search svg{position:absolute;left:15px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--muted);}
+.cust-list{display:grid;gap:var(--sp-3);}
+.cust-row{display:flex;align-items:center;gap:var(--sp-4);width:100%;text-align:left;background:var(--white);
+  border:1px solid var(--line);border-radius:14px;padding:14px 18px;cursor:pointer;box-shadow:var(--shadow-sm);transition:.15s;}
+.cust-row:hover{border-color:var(--navy-2);transform:translateY(-1px);}
+.cust-row .cr-main{flex:1;min-width:0;}
+.cust-row .cr-name{display:block;font-weight:700;color:var(--navy);font-size:var(--fs-md);}
+.cust-row .cr-sub{display:block;font-size:var(--fs-xs);color:var(--muted);margin-top:2px;}
+.cust-row .cr-right{margin-left:auto;text-align:right;flex:none;}
+.cust-row .cr-next{font-weight:700;color:var(--text);font-size:var(--fs-sm);white-space:nowrap;}
+.cust-row .cr-nextsub{font-size:var(--fs-xs);color:var(--muted);}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:var(--fs-sm);}
+.kv dt{color:var(--muted);white-space:nowrap;}
+.kv dd{font-weight:600;}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;
+  border:1.5px solid var(--line);background:var(--white);cursor:pointer;color:var(--muted);}
+.icon-btn:hover{border-color:var(--coral-border);color:var(--red-text);background:var(--red-bg);}
+.icon-btn svg{width:16px;height:16px;}
+.pol-list{display:grid;gap:var(--sp-2);margin-top:var(--sp-3);}
+.pol-row{border:1px solid var(--line);border-radius:12px;padding:11px 14px;background:var(--white);font-size:var(--fs-sm);}
+.pol-row .pr-top{display:flex;gap:var(--sp-2);align-items:center;flex-wrap:wrap;}
+.pol-row b{color:var(--navy);}
+.pol-row .pr-kv{font-size:var(--fs-xs);color:var(--muted);margin-top:3px;}
+
+/* ---------- カレンダー（月表示＋その日のきっかけ） ---------- */
+.cal-head{display:flex;align-items:center;gap:var(--sp-3);flex-wrap:wrap;margin-bottom:var(--sp-3);}
+.cal-title{font-family:var(--mincho);font-size:var(--fs-lg);font-weight:700;color:var(--navy);}
+.cal-nav{display:flex;gap:6px;margin-left:auto;align-items:center;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+.cal-dow{background:var(--navy-soft);text-align:center;font-size:var(--fs-sm);font-weight:700;color:var(--muted);padding:8px 0;}
+.cal-dow.sun{color:var(--red-text);} .cal-dow.sat{color:var(--sky);}
+.cal-cell{background:var(--white);min-height:124px;padding:5px 5px 7px;position:relative;
+  display:flex;flex-direction:column;gap:2px;}
+.cal-cell:hover{background:#f5f8fc;}
+.cal-pick{position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent;cursor:pointer;padding:0;}
+.cal-pick:focus-visible{outline:3px solid var(--sky);outline-offset:-3px;}
+.cal-cell > .cd,.cal-cell > .cal-ev,.cal-cell > .cal-more{position:relative;pointer-events:none;}
+.cal-cell.out{background:#f7f9fb;}
+.cal-cell.out .cd{color:#7c8794;}
+.cal-cell.sel{box-shadow:inset 0 0 0 2.5px var(--coral-btn);}
+.cal-cell .cd{align-self:flex-start;font-size:var(--fs-sm);font-weight:700;color:var(--text);
+  min-width:26px;padding:3px 7px;border-radius:8px;text-align:center;}
+.cal-cell.sun .cd{color:var(--red-text);} .cal-cell.sat .cd{color:var(--sky);}
+.cal-cell.today .cd{background:var(--navy);color:#fff;}
+.cal-ev{display:block;font-size:12.5px;line-height:1.5;font-weight:700;border:1px solid;border-left-width:3px;
+  border-radius:5px;padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  border-color:var(--cd,var(--line));background:var(--cb,var(--white));color:var(--ct,var(--text));border-left-color:var(--c,var(--muted));}
+.cal-ev.is-done{opacity:.5;}
+.cal-more{font-size:11px;color:var(--muted);padding-left:4px;}
+.cal-legend{display:flex;gap:var(--sp-2);flex-wrap:wrap;margin-top:var(--sp-3);}
+.cal-legend .badge{font-size:10px;padding:2px 9px;}
+.day-panel{margin-top:var(--sp-4);border-top:1px solid var(--line);padding-top:var(--sp-4);display:grid;gap:var(--sp-2);}
+.day-head{display:flex;align-items:center;gap:var(--sp-3);flex-wrap:wrap;}
+.day-head b{font-size:var(--fs-md);color:var(--navy);}
+.day-head .day-n{font-size:var(--fs-xs);color:var(--muted);font-weight:700;}
+.day-none{font-size:var(--fs-sm);color:var(--muted);}
+.head-action{margin-left:auto;white-space:nowrap;}
+
+/* ---------- 編集シート ---------- */
+.ovl{position:fixed;inset:0;background:rgba(27,63,94,.45);display:flex;align-items:center;justify-content:center;
+  padding:14px;z-index:80;}
+.sheet{background:var(--white);border-radius:18px;width:100%;max-width:640px;max-height:92vh;overflow:auto;
+  box-shadow:0 18px 50px rgba(60,40,30,.32);}
+.sheet.wide{max-width:900px;}
+.sheet-head{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line);
+  position:sticky;top:0;background:var(--white);z-index:1;}
+.sheet-head b{font-size:var(--fs-md);color:var(--navy);}
+.sheet-head .icon-btn{margin-left:auto;}
+.sheet-body{padding:var(--sp-4) var(--sp-5);}
+.sheet-foot{display:flex;gap:var(--sp-3);flex-wrap:wrap;padding:var(--sp-4) var(--sp-5);border-top:1px solid var(--line);}
+.sheet-foot .btn-del{margin-left:auto;color:var(--red-text);border-color:var(--coral-border);}
+.chk,.fld label.chk{display:inline-flex;align-items:center;gap:12px;font-size:var(--fs-base);font-weight:700;color:var(--text);
+  min-height:48px;cursor:pointer;border:1.5px solid var(--line);border-radius:12px;padding:8px 16px;background:#fbfcfe;
+  transition:.15s;}
+.chk:hover{border-color:var(--navy-2);}
+.chk input{width:24px;height:24px;flex:none;accent-color:var(--navy);cursor:pointer;}
+.chk.on,.fld label.chk.on{background:var(--navy-soft);border-color:var(--navy-2);color:var(--navy);}
+.pol-card{border:1.5px solid var(--line);border-radius:14px;padding:var(--sp-4);margin-top:var(--sp-3);background:#fbfcfe;}
+.pol-card .pc-head{display:flex;align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-3);}
+.pol-card .pc-head b{color:var(--navy);font-size:var(--fs-sm);}
+.pol-card .pc-head .icon-btn{margin-left:auto;}
+
+/* ---------- 日付の選択（年・月を選んでから日を押す） ---------- */
+.date-wrap{position:relative;}
+.date-input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px;
+  background:#fbfcfe;font-size:var(--fs-base);font-weight:700;color:var(--text);cursor:pointer;font-family:inherit;text-align:left;}
+.date-input:focus{border-color:var(--navy-2);outline:none;box-shadow:0 0 0 3px var(--navy-soft);}
+.dp{position:absolute;top:calc(100% + 6px);left:0;z-index:70;background:var(--white);border:1.5px solid var(--line);
+  border-radius:14px;box-shadow:0 14px 34px rgba(60,40,30,.22);padding:var(--sp-3);width:356px;
+  max-width:min(356px,calc(100vw - 64px));}
+.dp.right{left:auto;right:0;}
+.dp.up{top:auto;bottom:calc(100% + 6px);}
+.dp-head{display:flex;align-items:center;gap:6px;background:var(--navy-soft);border-radius:10px;padding:6px;}
+.dp-nav{flex:none;width:32px;height:32px;border-radius:8px;border:1.5px solid var(--line);background:var(--white);
+  color:var(--navy);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;}
+.dp-nav:hover{border-color:var(--navy-2);}
+.dp-nav svg{width:15px;height:15px;}
+.dp-sel{flex:1;min-width:0;min-height:32px;border:1.5px solid var(--line);border-radius:8px;background:var(--white);
+  font-family:inherit;font-size:var(--fs-sm);font-weight:700;color:var(--navy);padding:2px 6px;cursor:pointer;}
+.dp-sel.mo{flex:none;width:4.7em;}
+.dp-wd{display:grid;grid-template-columns:repeat(7,1fr);margin-top:var(--sp-3);}
+.dp-wd span{text-align:center;font-size:var(--fs-xs);font-weight:700;color:var(--muted);}
+.dp-wd .sun{color:var(--red-text);} .dp-wd .sat{color:var(--sky);}
+.dp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:4px;}
+.dp-d{min-height:34px;border:1.5px solid transparent;background:var(--white);border-radius:9px;cursor:pointer;
+  font-size:var(--fs-sm);font-weight:700;color:var(--navy);padding:0;font-family:inherit;}
+.dp-d.sun{color:var(--red-text);} .dp-d.sat{color:var(--sky);}
+.dp-d:hover{background:var(--navy-soft);}
+.dp-d[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff;}
+.dp-d.empty{visibility:hidden;}
+.dp-foot{display:flex;gap:var(--sp-2);margin-top:var(--sp-3);}
+.dp-foot .btn{flex:1;justify-content:center;}
+
+/* ---------- CSVの列の割り当て ---------- */
+.map-wrap{overflow-x:auto;}
+.map-table{width:100%;border-collapse:collapse;font-size:var(--fs-sm);min-width:620px;}
+.map-table th{background:var(--navy-soft);color:var(--navy);font-size:var(--fs-xs);text-align:left;padding:8px 10px;white-space:nowrap;}
+.map-table td{border-bottom:1px solid var(--line);padding:7px 9px;vertical-align:middle;}
+.map-table select{width:100%;min-width:170px;border:1.5px solid var(--line);border-radius:8px;padding:7px 9px;
+  min-height:40px;background:#fff;font-size:var(--fs-sm);}
+.map-table .mt-h{font-weight:700;color:var(--navy);max-width:14em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.map-table .mt-s{color:var(--muted);font-size:var(--fs-xs);max-width:14em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.csv-report{margin-top:var(--sp-3);font-size:var(--fs-sm);background:var(--navy-soft);border-radius:10px;padding:10px 14px;}
+
+@media(max-width:640px){
+  /* カレンダー：狭い画面では名前チップをやめ、種別色のドットに置き換える。
+     中身は日付をタップ→下の当日リストで見る */
+  .cal-cell{min-height:64px;padding:3px 2px 4px;}
+  .cal-cell .cd{font-size:12px;padding:1px 4px;min-width:20px;}
+  .cal-ev{width:9px;height:9px;border-radius:50%;padding:0;border:none;margin:2px 2px 0 0;
+    display:inline-block;vertical-align:middle;overflow:hidden;color:transparent;font-size:0;line-height:9px;
+    background:var(--c,var(--muted));}
+  .cal-more{font-size:9.5px;}
+  /* 見出しの右のボタンは、狭い画面では下に回して横いっぱいに */
+  .sec-head{flex-wrap:wrap;}
+  .head-action{margin-left:0;width:100%;justify-content:center;}
+  .ev-when{font-size:var(--fs-xs);}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= ロック ================= -->
+<div id="lock" class="hide">
+  <div class="card">
+    <div class="lk-art"><svg aria-hidden="true" viewBox="0 0 40 40"><rect width="40" height="40" rx="9" fill="#1c5cab"/><path d="M13 7v5M27 7v5M9 17h22" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/><rect x="9" y="11" width="22" height="21" rx="3.5" fill="none" stroke="#fff" stroke-width="2.8"/><path d="M15 24.5l3.2 3.2L25.5 21" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
+    <h1>保険 満期・年齢到達カレンダー</h1>
+    <p>社内利用専用です。パスワードを入力してください。</p>
+    <div class="fld"><input type="password" id="passInput" autocomplete="current-password" aria-label="パスワード"></div>
+    <div class="err" id="passErr" role="alert"></div>
+    <button class="btn btn-primary" id="passBtn" style="width:100%;">開く</button>
+  </div>
+</div>
+
+<!-- ================= 本体 ================= -->
+<div id="app" class="hide">
+<header class="topbar">
+  <div class="wrap">
+    <div class="tb-brand">
+      <span class="tb-art"><svg aria-hidden="true" viewBox="0 0 40 40"><rect width="40" height="40" rx="9" fill="#1c5cab"/><path d="M13 7v5M27 7v5M9 17h22" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/><rect x="9" y="11" width="22" height="21" rx="3.5" fill="none" stroke="#fff" stroke-width="2.8"/><path d="M15 24.5l3.2 3.2L25.5 21" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>
+      <span><b>保険 満期・年齢到達カレンダー</b><small>保全と追加提案のきっかけを、日付から拾い出す</small></span>
+    </div>
+    <span class="tb-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>データはこの端末のみ・外部送信なし</span>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="ページ切り替え">
+  <div class="wrap" role="tablist">
+    <button class="tab" role="tab" id="tabBtnSoon" data-tab="soon" aria-selected="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.2V12l3.2 2"/></svg>今後の予定</button>
+    <button class="tab" role="tab" id="tabBtnCal" data-tab="cal" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg>カレンダー</button>
+    <button class="tab" role="tab" id="tabBtnCust" data-tab="cust" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3 2.8-4.5 5.5-4.5S13.9 16 14.5 19"/><circle cx="17" cy="9" r="2.4"/><path d="M15.6 14.7c2.6-.3 4.6 1 5.2 3.8"/></svg>お客様</button>
+    <button class="tab" role="tab" id="tabBtnData" data-tab="data" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6.5" rx="7.5" ry="3"/><path d="M4.5 6.5v11c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3v-11M4.5 12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3"/></svg>データ・設定</button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <!-- ================= 今後の予定 ================= -->
+  <section id="tab-soon" role="tabpanel" aria-labelledby="tabBtnSoon">
+    <div class="sec">
+      <div class="sec-head">
+        <div><h2>今後の予定</h2><p>日付の近い順に、声をかけるきっかけを並べています</p></div>
+        <div class="head-action" style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-primary btn-sm" id="qaCust"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>お客様を追加</button>
+        </div>
+      </div>
+      <div class="tiles">
+        <div class="tile"><div class="t-label">この期間のきっかけ</div><div class="t-value" id="tileAll"></div><div class="t-sub" id="tileAllSub"></div></div>
+        <div class="tile"><div class="t-label">今週（7日以内）</div><div class="t-value" id="tileWeek"></div><div class="t-sub">先に手を付けるぶん</div></div>
+        <div class="tile"><div class="t-label">連絡済み</div><div class="t-value" id="tileDone"></div><div class="t-sub">印を付けたぶん（翌年はまた出ます）</div></div>
+        <div class="tile"><div class="t-label">登録しているお客様</div><div class="t-value" id="tileCust"></div><div class="t-sub" id="tileCustSub"></div></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="card">
+        <div style="display:flex;gap:var(--sp-3);flex-wrap:wrap;align-items:center;margin-bottom:var(--sp-3);">
+          <span style="font-size:var(--fs-xs);font-weight:700;color:var(--navy);">見る期間</span>
+          <div class="chips" id="horizonChips"></div>
+        </div>
+        <div style="display:flex;gap:var(--sp-3);flex-wrap:wrap;align-items:center;">
+          <span style="font-size:var(--fs-xs);font-weight:700;color:var(--navy);">きっかけの種類</span>
+          <div class="chips" id="typeChips"></div>
+        </div>
+        <div style="margin-top:var(--sp-3);display:flex;gap:var(--sp-3);flex-wrap:wrap;align-items:center;">
+          <label class="chk" id="hideDoneWrap"><input type="checkbox" id="hideDone"><span>連絡済みを隠す</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec" id="soonList"></div>
+  </section>
+
+  <!-- ================= カレンダー ================= -->
+  <section id="tab-cal" role="tabpanel" aria-labelledby="tabBtnCal" class="hide">
+    <div class="sec">
+      <div class="sec-head">
+        <div><h2>カレンダー</h2><p>月ごとに見る。日を押すと、その日のきっかけが下に出ます</p></div>
+      </div>
+      <div class="card" id="calCard">
+        <div class="cal-head">
+          <span class="cal-title" id="calTitle"></span>
+          <span class="cal-nav">
+            <button class="btn btn-ghost btn-sm" id="calPrev" aria-label="前の月"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>前の月</button>
+            <button class="btn btn-ghost btn-sm" id="calToday">今月</button>
+            <button class="btn btn-ghost btn-sm" id="calNext" aria-label="次の月">次の月<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+          </span>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+        <div class="cal-legend" id="calLegend"></div>
+        <div class="day-panel" id="dayPanel"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= お客様 ================= -->
+  <section id="tab-cust" role="tabpanel" aria-labelledby="tabBtnCust" class="hide">
+    <div class="sec" id="custListWrap">
+      <div class="sec-head">
+        <div><h2>お客様</h2><p>氏名・生年月日・ご契約を入れると、きっかけが自動で出ます</p></div>
+        <div class="head-action" style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-primary btn-sm" id="addCust"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>お客様を追加</button>
+          <button class="btn btn-ghost btn-sm" id="goCsv">CSVを取り込む</button>
+        </div>
+      </div>
+      <div class="notice slim" style="margin-bottom:var(--sp-4);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5 21 19.5H3Z"/><path d="M12 10v4M12 17h.01"/></svg>
+        <div><b>お客様の情報を入れる画面です</b>
+        氏名・生年月日はこの端末のブラウザにだけ残ります（外部送信はありません）。共有PC・貸出PCでは使わないでください。席を離れるときは「データ・設定」タブの「ロックする」を押してください。</div>
+      </div>
+      <div class="toolrow">
+        <div class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+          <input type="text" id="custSearch" placeholder="氏名・フリガナ・保険会社で探す" aria-label="お客様を探す">
+        </div>
+        <div class="chips" id="custSort"></div>
+      </div>
+      <div class="cust-list" id="custList"></div>
+    </div>
+
+    <div class="sec hide" id="custDetail"></div>
+  </section>
+
+  <!-- ================= データ・設定 ================= -->
+  <section id="tab-data" role="tabpanel" aria-labelledby="tabBtnData" class="hide">
+    <div class="sec">
+      <div class="sec-head"><div><h2>データ・設定</h2><p>バックアップ・CSV・端末のロック</p></div></div>
+      <div class="notice">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5 21 19.5H3Z"/><path d="M12 10v4M12 17h.01"/></svg>
+        <div><b>個人情報の取り扱い</b>
+          <ul>
+            <li>入力した氏名・生年月日・ご契約の内容は、<b>この端末のブラウザにだけ</b>残ります。サーバーへ送る仕組みはありません。</li>
+            <li><b>共有PC・貸出PC・お客様先の端末では使わないでください。</b>席を離れるときは下の「ロックする」を押してください。</li>
+            <li>書き出したJSON・CSVには、氏名と生年月日がそのまま入ります。<b>置き場所に注意してください。</b>デスクトップ・共有フォルダ・クラウドの同期フォルダに置いたままにせず、会社の規程に沿った場所に保管し、不要になったら消してください。メール添付・チャット送信は原則しないでください。</li>
+            <li>ブラウザのデータを消す・端末を替えると中身は消えます。定期的にJSONで書き出してください。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="card">
+        <h3 style="color:var(--navy);margin-bottom:var(--sp-2);">バックアップ（JSON）</h3>
+        <p class="sec-note">端末を替えるとき・ブラウザを入れ替えるときは、必ず先に書き出してください。読み込むと、いまのデータは置き換わります。</p>
+        <div class="frm-actions" style="margin-top:0;">
+          <button class="btn btn-ghost btn-sm" id="expJson"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M8 11l4 4 4-4M4.5 19.5h15"/></svg>JSONで書き出す</button>
+          <label class="btn btn-ghost btn-sm" style="cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M8 8l4-4 4 4M4.5 19.5h15"/></svg>JSONを読み込む<input type="file" id="impJson" accept=".json,application/json" style="display:none;"></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="card">
+        <h3 style="color:var(--navy);margin-bottom:var(--sp-2);">CSV</h3>
+        <p class="sec-note">他のシステムから出したCSVを取り込めます。列の名前がこのツールと違っていても、取り込む前に<b>「どの列が何か」を割り当てる画面</b>が出ます。文字コードはUTF-8とShift_JISのどちらでも読めます。</p>
+        <div class="frm-actions" style="margin-top:0;">
+          <label class="btn btn-primary btn-sm" style="cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M8 8l4-4 4 4M4.5 19.5h15"/></svg>CSVを取り込む<input type="file" id="impCsv" accept=".csv,.txt,text/csv" style="display:none;"></label>
+          <button class="btn btn-ghost btn-sm" id="expCsv">CSVで書き出す</button>
+          <button class="btn btn-ghost btn-sm" id="expCsvTpl">見本のCSVを作る</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="card">
+        <h3 style="color:var(--navy);margin-bottom:var(--sp-2);">この端末</h3>
+        <p class="sec-note">「ロックする」を押すと合言葉の記憶を消し、次に開くときロック画面から始まります（データは残ります）。</p>
+        <div class="frm-actions" style="margin-top:0;">
+          <button class="btn btn-navy btn-sm" id="lockBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>ロックする</button>
+          <button class="btn btn-ghost btn-sm" id="demoBtn">サンプル（架空）を入れて試す</button>
+          <button class="btn btn-danger btn-sm" id="wipeBtn">この端末のデータを全部消す</button>
+        </div>
+        <p class="sec-note" style="margin-bottom:0;">サンプルは架空の氏名・生年月日です。実際のお客様を入れる前に、動きを確かめるために使ってください。</p>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="card">
+        <h3 style="color:var(--navy);margin-bottom:var(--sp-2);">このツールが出す「きっかけ」</h3>
+        <div id="ruleBox"></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  社内利用専用｜株式会社Office-M<br>
+  データはこの端末のブラウザにのみ保存され、外部へ送信されません。年齢の節目の説明は制度の仕組みのみで、金額は載せていません。
+</footer>
+</div><!-- /#app -->
+
+<div id="sheetHost"></div>
+
+<script>
+/* ============================================================
+   0. パスワードゲート（hoken-newtools-src/shell-gate.js をそのまま）
+   AUTH_KEY だけこのツール専用。PASS_SALT・PASS_HASHES は他の社内ツールと同じ。
+   平文のパスワードはこのファイルに書かない。
+   ============================================================ */
+var AUTH_KEY = 'officem.hokenCalendar.auth';
+var PASS_SALT = 'officem-hoken-hub-2026|';
+var PASS_HASHES = ['011b517160f7c9f0b9eb2007ad01cba186e7fd97f970fb12cdc299f5036f8292', '438c03df96ee445897fee60e6c52ff454d3976192f6c3c4826a75e35d8dec226'];
+var AUTH_DAYS = 30;
+
+var sha256 = (function () {
+  var K = [
+    0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+    0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+    0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+    0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+    0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+    0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+    0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+    0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+  function rotr(x, n) { return (x >>> n) | (x << (32 - n)); }
+  return function (str) {
+    var bytes = new TextEncoder().encode(str), l = bytes.length;
+    var total = l + 1 + ((56 - (l + 1) % 64 + 64) % 64) + 8;
+    var m = new Uint8Array(total), dv = new DataView(m.buffer);
+    m.set(bytes); m[l] = 0x80;
+    dv.setUint32(total - 8, Math.floor(l * 8 / 4294967296));
+    dv.setUint32(total - 4, (l * 8) >>> 0);
+    var H = [0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+    var w = new Uint32Array(64), i, j;
+    for (i = 0; i < total; i += 64) {
+      for (j = 0; j < 16; j++) w[j] = dv.getUint32(i + j * 4);
+      for (j = 16; j < 64; j++) {
+        var s0 = rotr(w[j-15],7) ^ rotr(w[j-15],18) ^ (w[j-15] >>> 3);
+        var s1 = rotr(w[j-2],17) ^ rotr(w[j-2],19) ^ (w[j-2] >>> 10);
+        w[j] = (w[j-16] + s0 + w[j-7] + s1) >>> 0;
+      }
+      var a=H[0],b=H[1],c=H[2],d=H[3],e=H[4],f=H[5],g=H[6],h=H[7];
+      for (j = 0; j < 64; j++) {
+        var t1 = (h + (rotr(e,6)^rotr(e,11)^rotr(e,25)) + ((e&f)^((~e)&g)) + K[j] + w[j]) >>> 0;
+        var t2 = ((rotr(a,2)^rotr(a,13)^rotr(a,22)) + ((a&b)^(a&c)^(b&c))) >>> 0;
+        h=g; g=f; f=e; e=(d+t1)>>>0; d=c; c=b; b=a; a=(t1+t2)>>>0;
+      }
+      H[0]=(H[0]+a)>>>0;H[1]=(H[1]+b)>>>0;H[2]=(H[2]+c)>>>0;H[3]=(H[3]+d)>>>0;
+      H[4]=(H[4]+e)>>>0;H[5]=(H[5]+f)>>>0;H[6]=(H[6]+g)>>>0;H[7]=(H[7]+h)>>>0;
+    }
+    var out = '';
+    for (i = 0; i < 8; i++) out += ('00000000' + H[i].toString(16)).slice(-8);
+    return out;
+  };
+})();
+
+function isAuthed() {
+  try {
+    var o = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null');
+    return !!(o && PASS_HASHES.indexOf(o.h) >= 0 && o.e > Date.now());
+  } catch (e) { return false; }
+}
+function rememberAuth(hash) {
+  try { localStorage.setItem(AUTH_KEY, JSON.stringify({ h: hash, e: Date.now() + AUTH_DAYS * 86400000 })); }
+  catch (e) {}
+}
+function forgetAuth() { try { localStorage.removeItem(AUTH_KEY); } catch (e) {} }
+</script>
+<script>
+/* ============================================================
+   1. 小さな道具
+   ------------------------------------------------------------
+   日付は必ず 'YYYY-MM-DD' の文字列で持ち、計算のときだけ Date にする。
+   月をまたぐ計算（1か月前・n年後）は、その月に同じ日が無ければ末日に寄せる。
+   これをしないと 3/31 の1か月前や、2/29 生まれの翌年で日付が飛ぶ。
+   ============================================================ */
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function uid(p){ return p + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+var DOW = ['日','月','火','水','木','金','土'];
+
+function ymd(d){ return d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2) + '-' + ('0'+d.getDate()).slice(-2); }
+function parseYmd(s){ var p = String(s || '').split('-'); return new Date(+p[0], (+p[1] || 1) - 1, +p[2] || 1); }
+function todayStr(){ return ymd(new Date()); }
+/* 年・月（0起点・範囲外でも可）・日を渡すと、その月に無い日は末日に寄せた Date を返す */
+function mkDate(y, m, d){
+  var last = new Date(y, m + 1, 0).getDate();
+  return new Date(y, m, Math.min(Math.max(d, 1), last));
+}
+function ymdOf(y, m, d){ return ymd(mkDate(y, m, d)); }
+/* 「n か月後（マイナスなら前）」。日が無い月は末日に寄せる */
+function addMonths(s, n){
+  var d = parseYmd(s);
+  return ymdOf(d.getFullYear(), d.getMonth() + n, d.getDate());
+}
+/* 「n 年後」。2/29 → うるう年でない年は 2/28 */
+function addYears(s, n){
+  var d = parseYmd(s);
+  return ymdOf(d.getFullYear() + n, d.getMonth(), d.getDate());
+}
+function addDaysStr(s, n){
+  var d = parseYmd(s);
+  return ymd(new Date(d.getFullYear(), d.getMonth(), d.getDate() + n));
+}
+function diffDays(a, b){
+  var x = parseYmd(a), y = parseYmd(b);
+  return Math.round((Date.UTC(y.getFullYear(), y.getMonth(), y.getDate()) -
+                     Date.UTC(x.getFullYear(), x.getMonth(), x.getDate())) / 86400000);
+}
+function isYmd(s){ return /^\d{4}-\d{2}-\d{2}$/.test(String(s || '')); }
+function fmtMd(s){ var d = parseYmd(s); return (d.getMonth()+1) + '月' + d.getDate() + '日（' + DOW[d.getDay()] + '）'; }
+function fmtYmdJp(s){ if (!s) return ''; var d = parseYmd(s); return d.getFullYear() + '年' + (d.getMonth()+1) + '月' + d.getDate() + '日'; }
+/* 年の途中で改元した年は、その年の大半を占める元号で出す（1989→平成元・2019→令和元） */
+function wareki(y){
+  if (y >= 2019) return '令和' + eraNo(y - 2018);
+  if (y >= 1989) return '平成' + eraNo(y - 1988);
+  if (y >= 1927) return '昭和' + eraNo(y - 1925);
+  if (y >= 1913) return '大正' + eraNo(y - 1911);
+  return '明治' + eraNo(y - 1867);
+}
+function eraNo(n){ return n === 1 ? '元' : String(n); }
+/* その日に何歳か（誕生日が来ていなければ1つ引く） */
+function ageOn(birth, dateStr){
+  if (!isYmd(birth) || !isYmd(dateStr)) return null;
+  var b = parseYmd(birth), d = parseYmd(dateStr);
+  var a = d.getFullYear() - b.getFullYear();
+  var bd = ymdOf(d.getFullYear(), b.getMonth(), b.getDate());   /* 今年の誕生日（末日寄せ） */
+  if (dateStr < bd) a--;
+  return a;
+}
+
+/* ============================================================
+   2. 保存（この端末のブラウザにだけ置く。外部送信はしない）
+   ============================================================ */
+var LS_KEY = 'officem.hokenCalendar.v1';
+var state = null;
+
+function defaultState(){
+  return {
+    v: 1,
+    customers: [],       /* { id, name, kana, birth, contact, memo } */
+    policies: [],        /* { id, cid, kind, kindText, company, product, start, maturity, payEnd, renew, renewY, annAge, memo } */
+    done: {},            /* きっかけのid → { d:対応した日, m:メモ }。idに年が入るので翌年はまた出る */
+    settings: { horizon: 90, hideDone: false, types: {} }
+  };
+}
+function load(){
+  var o = null;
+  try { o = JSON.parse(localStorage.getItem(LS_KEY) || 'null'); } catch (e) { o = null; }
+  var st = defaultState();
+  if (o && typeof o === 'object') {
+    if (Array.isArray(o.customers)) st.customers = o.customers;
+    if (Array.isArray(o.policies)) st.policies = o.policies;
+    if (o.done && typeof o.done === 'object') st.done = o.done;
+    if (o.settings && typeof o.settings === 'object') {
+      if (o.settings.horizon) st.settings.horizon = o.settings.horizon;
+      st.settings.hideDone = !!o.settings.hideDone;
+      if (o.settings.types && typeof o.settings.types === 'object') st.settings.types = o.settings.types;
+    }
+  }
+  EV_ORDER.forEach(function(k){ if (typeof st.settings.types[k] !== 'boolean') st.settings.types[k] = true; });
+  return st;
+}
+function save(){ try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {} }
+function custById(id){ for (var i=0;i<state.customers.length;i++) if (state.customers[i].id === id) return state.customers[i]; return null; }
+function polsOf(cid){ return state.policies.filter(function(p){ return p.cid === cid; }); }
+
+/* ============================================================
+   3. 保険の種類
+   ============================================================ */
+var KINDS = [
+  { k:'teiki',   label:'定期保険（更新あり）', grp:'life',  renewY:10 },
+  { k:'shushin', label:'終身保険',            grp:'life',  renewY:0 },
+  { k:'yoro',    label:'養老保険・学資保険',   grp:'life',  renewY:0 },
+  { k:'iryo',    label:'医療保険・がん保険',   grp:'life',  renewY:10 },
+  { k:'shunyu',  label:'収入保障保険',        grp:'life',  renewY:0 },
+  { k:'nenkin',  label:'個人年金保険',        grp:'nenkin',renewY:0 },
+  { k:'jido',    label:'自動車保険',          grp:'sonpo', renewY:1 },
+  { k:'kasai',   label:'火災保険',            grp:'sonpo', renewY:1 },
+  { k:'sonpo',   label:'その他の損害保険',     grp:'sonpo', renewY:1 },
+  { k:'other',   label:'その他',              grp:'other', renewY:0 }
+];
+function kindDef(k){ for (var i=0;i<KINDS.length;i++) if (KINDS[i].k === k) return KINDS[i]; return KINDS[KINDS.length-1]; }
+function kindLabel(p){
+  var d = kindDef(p.kind);
+  if (p.kindText) return d.k === 'other' ? p.kindText : (d.label + '（' + p.kindText + '）');
+  return d.label;
+}
+function polTitle(p){
+  var s = [];
+  if (p.company) s.push(p.company);
+  if (p.product) s.push(p.product);
+  return s.length ? s.join('　') : kindLabel(p);
+}
+
+/* ============================================================
+   4. きっかけの自動生成（6種類）
+   ------------------------------------------------------------
+   ① 誕生日の前月     … 年齢が上がる前に見直す
+   ② 契約応当日・更新月 … 更新のある契約は「更新」として強く出す
+   ③ 払込満了
+   ④ 満期・更改       … 損害保険は毎年（更新の周期ぶん）くり返す
+   ⑤ 個人年金の受取開始 … 3か月前（準備）と当日
+   ⑥ 年齢の節目（20・60・65・70・75歳）… 仕組みだけを説明し、金額は書かない
+   ============================================================ */
+var EV_ORDER = ['bd','ann','mat','pay','pen','age'];
+var EV_DEFS = {
+  bd:  { label:'誕生日の前月', cls:'ev-bd'  },
+  ann: { label:'契約応当日・更新', cls:'ev-ann' },
+  mat: { label:'満期・更改',   cls:'ev-mat' },
+  pay: { label:'払込満了',     cls:'ev-pay' },
+  pen: { label:'年金の受取開始', cls:'ev-pen' },
+  age: { label:'年齢の節目',   cls:'ev-age' }
+};
+var MILESTONES = [20, 60, 65, 70, 75];
+/* 節目の意味は「制度の仕組み」だけ。金額・料率・上限額は年で動くので書かない。 */
+var MILESTONE_WHY = {
+  20: '公的年金の被保険者になる年齢です。学生や収入が少ない時期の納め方（納付の猶予・特例）の相談が出やすく、社会保険の話から入りやすい時期です。就業不能や医療の備えをはじめて考える入口にもなります。',
+  60: '多くの保険で、払込満了や更新の区切りが置かれる年齢です。定年・再雇用で収入の形が変わる方が多く、保障を続けるか・受け取り方をどうするかを整理する時期にあたります。',
+  65: '公的年金を受け取りはじめる基準の年齢です。介護保険では第1号被保険者になり、保険料の納め方と使い方の仕組みが変わります。医療と介護の備えを組み直しやすい時期です。',
+  70: '公的医療保険の自己負担の区分が変わる年齢です（割合は所得によって変わります）。年金の繰下げを続けるかどうかの判断も重なります。',
+  75: '後期高齢者医療制度の対象になる年齢です。健康状態によっては新しく入り直すことが難しくなるため、いまの保障を続ける前提での確認が中心になります。'
+};
+var MILESTONE_SAY = {
+  20: '公的な年金や健康保険の仕組みが変わる区切りの年です。ご本人が知っておくと役に立つ手続きの話を、10分ほどでご案内できます。',
+  60: '働き方と収入の形が変わる方が多い年です。いまのご契約がこの先どうなるのか、区切りとして一度ご説明させてください。',
+  65: '公的年金や介護保険の仕組みが変わる区切りの年です。手続きの流れと、いまのご契約の位置づけを整理してご説明します。',
+  70: '公的医療の自己負担の区分が変わる年です。いまの備えでよいか、続けるか、区切りとして見ておきませんか。',
+  75: '医療の制度が切り替わる年です。いまのご契約を続ける前提で、内容の確認だけご一緒にさせてください。'
+};
+
+/* 期間 [from, to]（どちらも 'YYYY-MM-DD'・両端を含む）に入るきっかけを全部返す */
+function genEvents(from, to){
+  var out = [];
+  var y0 = parseYmd(from).getFullYear() - 1;
+  var y1 = parseYmd(to).getFullYear() + 1;
+  var Y;
+
+  function push(ev){
+    if (ev.date < from || ev.date > to) return;
+    ev.id = ev.type + '|' + (ev.pid || ev.cid) + '|' + ev.date + (ev.sub ? '|' + ev.sub : '');
+    var dn = state.done[ev.id];
+    ev.done = dn ? (dn.d || true) : null;
+    out.push(ev);
+  }
+
+  state.customers.forEach(function(c){
+    if (!isYmd(c.birth)) return;
+    var b = parseYmd(c.birth);
+    for (Y = y0; Y <= y1; Y++) {
+      var age = Y - b.getFullYear();
+      if (age < 1) continue;
+      var bday = ymdOf(Y, b.getMonth(), b.getDate());      /* その年の誕生日（2/29→平年は2/28） */
+      /* ① 誕生日の前月 */
+      var isMile = MILESTONES.indexOf(age) >= 0;
+      push({
+        type:'bd', date: addMonths(bday, -1), cid: c.id, cust: c,
+        title: '来月 ' + fmtYmdJp(bday).replace(/^\d+年/, '') + ' が誕生日（' + age + '歳）',
+        why: '年齢が変わる前に、いまの保障とご家族の状況がずれていないかを確かめる区切りです。誕生日を過ぎると、入り直すときの条件が変わることがあります。' +
+             (isMile ? '　この年は節目の年齢（' + age + '歳）にあたります。' : ''),
+        age: age, bday: bday
+      });
+      /* ⑥ 年齢の節目 */
+      if (isMile) {
+        push({
+          type:'age', date: bday, cid: c.id, cust: c, age: age,
+          title: age + '歳になります',
+          why: MILESTONE_WHY[age]
+        });
+      }
+    }
+  });
+
+  state.policies.forEach(function(p){
+    var c = custById(p.cid);
+    if (!c) return;
+    var renewY = (p.renew && p.renewY > 0) ? Math.round(p.renewY) : 0;
+    var matDates = {};
+
+    /* ④ 満期・更改（更新の周期があるぶんだけくり返す） */
+    if (isYmd(p.maturity)) {
+      var m0 = parseYmd(p.maturity);
+      var occ = [];
+      if (renewY) {
+        for (Y = y0; Y <= y1; Y++) {
+          var n2 = Y - m0.getFullYear();
+          if (n2 < 0 || n2 % renewY !== 0) continue;
+          occ.push({ date: ymdOf(Y, m0.getMonth(), m0.getDate()), nth: n2 });
+        }
+      } else {
+        occ.push({ date: p.maturity, nth: 0 });
+      }
+      occ.forEach(function(o){
+        matDates[o.date] = 1;
+        var son = kindDef(p.kind).grp === 'sonpo';
+        push({
+          type:'mat', date:o.date, cid:c.id, pid:p.id, cust:c, pol:p,
+          title: polTitle(p) + '　' + (son ? '満期・更改' : '満期') + '（' + fmtYmdJp(o.date) + '）',
+          why: son
+            ? '更改の手続きが要ります。補償の中身が、いまの暮らし（車の使い方・住まい・ご家族の構成）に合っているかを確かめる機会です。手続きが遅れると補償の空く期間ができることがあります。'
+            : '満期を迎えます。受け取りの手続きと、そのあとの保障をどうするかのご相談が要ります。手続きの期限は保険会社の案内と約款で必ず確かめてください。'
+        });
+      });
+    }
+
+    /* ② 契約応当日・更新月（満期と同じ日になるものは満期側にまとめる） */
+    if (isYmd(p.start)) {
+      var s = parseYmd(p.start);
+      for (Y = y0; Y <= y1; Y++) {
+        var n = Y - s.getFullYear();
+        if (n < 1) continue;
+        var dt = ymdOf(Y, s.getMonth(), s.getDate());
+        if (matDates[dt]) continue;
+        var upd = renewY && (n % renewY === 0);
+        push({
+          type:'ann', date:dt, cid:c.id, pid:p.id, cust:c, pol:p, upd:!!upd, nth:n,
+          title: polTitle(p) + '　' + (upd ? '更新の時期（ご契約から' + n + '年）' : '契約応当日（ご契約から' + n + '年）'),
+          why: upd
+            ? '更新のある契約は、更新のたびに保障の期間と条件が変わります。定期の保障は更新のときに負担が変わることが一般的なので、続けるか組み替えるかを話す機会になります。'
+            : '契約応当日です。この1年でご家族・お仕事・住まいに変わったことがないかを確かめる区切りになります。'
+        });
+      }
+    }
+
+    /* ③ 払込満了 */
+    if (isYmd(p.payEnd)) {
+      push({
+        type:'pay', date:p.payEnd, cid:c.id, pid:p.id, cust:c, pol:p,
+        title: polTitle(p) + '　払込満了（' + fmtYmdJp(p.payEnd) + '）',
+        why: '払い込みが終わると、そのあとの保障の続き方や、契約に貯まっている部分の扱いをご説明する機会になります。連絡がつきやすく、次のご相談にもつながりやすい時期です。'
+      });
+    }
+
+    /* ⑤ 個人年金の受取開始（生年月日＋受取開始年齢から出す） */
+    if (p.annAge > 0 && isYmd(c.birth)) {
+      var b2 = parseYmd(c.birth);
+      var startDate = ymdOf(b2.getFullYear() + Math.round(p.annAge), b2.getMonth(), b2.getDate());
+      push({
+        type:'pen', date: addMonths(startDate, -3), sub:'pre', cid:c.id, pid:p.id, cust:c, pol:p,
+        title: polTitle(p) + '　年金の受取開始まで3か月（開始 ' + fmtYmdJp(startDate) + '）',
+        why: '受け取りの手続きは前もっての案内が要ります。受け取り方の選び方と、必要な書類の確認をしておく時期です。'
+      });
+      push({
+        type:'pen', date: startDate, cid:c.id, pid:p.id, cust:c, pol:p,
+        title: polTitle(p) + '　年金の受取開始（' + Math.round(p.annAge) + '歳）',
+        why: '受け取りが始まります。手続きに漏れがないか、次の年の案内はどう届くかを確かめる機会です。'
+      });
+    }
+  });
+
+  out.sort(function(a, b){
+    if (a.date !== b.date) return a.date < b.date ? -1 : 1;
+    var ia = EV_ORDER.indexOf(a.type), ib = EV_ORDER.indexOf(b.type);
+    if (ia !== ib) return ia - ib;
+    var na = (a.cust && a.cust.name) || '', nb = (b.cust && b.cust.name) || '';
+    return na < nb ? -1 : na > nb ? 1 : (a.id < b.id ? -1 : 1);
+  });
+  return out;
+}
+
+/* ------------------------------------------------------------
+   声かけの文例
+   ・保険金額・保険料・返戻率などの数字は入れない（お客様ごとに違うため）
+   ・そのまま送らず、必ず自分の言葉に直して使うことを画面にも書く
+   ------------------------------------------------------------ */
+function scriptFor(ev){
+  var name = (ev.cust && ev.cust.name) || 'お客様';
+  var head = name + ' 様\n\nいつもお世話になっております。\n';
+  var tail = '\n\nご都合のよい日を、来週と再来週で2つほど教えていただけますでしょうか。\n30分ほどで終わります。よろしくお願いいたします。';
+  var body = '';
+  if (ev.type === 'bd') {
+    body = '来月 ' + fmtYmdJp(ev.bday).replace(/^\d+年/, '') + ' がお誕生日ですね。少し早いですが、おめでとうございます。\n' +
+           '区切りのタイミングですので、いまのご契約の内容と、ご家族やお仕事の状況にずれがないか、\n一度ご一緒に確認させていただけませんか。';
+  } else if (ev.type === 'ann' && ev.upd) {
+    body = 'ご契約の更新の時期が近づいてまいりました。\n' +
+           '更新したあとの保障の内容と期間についてご説明したうえで、このまま続けるか、\nいまの状況に合わせて組み替えるかをご相談させてください。';
+  } else if (ev.type === 'ann') {
+    body = 'ご契約から ' + ev.nth + ' 年になります。\n' +
+           'この1年で、ご家族・お仕事・お住まいに変わったことはございませんでしたか。\n変化があると、いまのご契約の合い方も変わってきます。一度お話をうかがえませんか。';
+  } else if (ev.type === 'mat') {
+    body = 'ご契約が ' + fmtYmdJp(ev.date) + ' に満期を迎えます。\n' +
+           'お手続きのご案内と、いまのご状況に合っているかの確認を兼ねて、\n一度お時間をいただけませんでしょうか。';
+  } else if (ev.type === 'pay') {
+    body = 'ご契約の保険料のお払い込みが ' + fmtYmdJp(ev.date) + ' で満了になります。\n' +
+           'お払い込みが終わったあと、保障がどうなるのか・どんな選び方があるのかを\nご説明する機会をいただけませんでしょうか。';
+  } else if (ev.type === 'pen' && ev.sub === 'pre') {
+    body = '年金のお受け取りの開始が近づいてまいりました。\n' +
+           'お手続きの流れと、お受け取り方の選び方についてご案内させてください。\n必要な書類も一緒に確認いたします。';
+  } else if (ev.type === 'pen') {
+    body = '年金のお受け取りが始まる時期になりました。\n' +
+           'お手続きに漏れがないか、また今後のご案内の届き方について、確認させてください。';
+  } else if (ev.type === 'age') {
+    body = 'もうすぐ ' + ev.age + ' 歳の区切りをお迎えになりますね。\n' + MILESTONE_SAY[ev.age];
+  }
+  return head + body + tail;
+}
+</script>
+<script>
+/* ============================================================
+   5. タブ切り替え
+   ============================================================ */
+var TABS = ['soon','cal','cust','data'];
+function showTab(key){
+  TABS.forEach(function(t){
+    $('tab-' + t).classList.toggle('hide', t !== key);
+    var btn = document.querySelector('.tab[data-tab="' + t + '"]');
+    if (btn) btn.setAttribute('aria-selected', t === key ? 'true' : 'false');
+  });
+  if (key === 'soon') renderSoon();
+  if (key === 'cal') renderCal();
+  if (key === 'cust') renderCust();
+  if (key === 'data') renderRules();
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll('.tab').forEach(function(btn){
+  btn.addEventListener('click', function(){ showTab(btn.getAttribute('data-tab')); });
+});
+
+/* ============================================================
+   6. 共通の部品
+   ============================================================ */
+function evBadge(ev){
+  var d = EV_DEFS[ev.type];
+  var label = d.label;
+  if (ev.type === 'ann') label = ev.upd ? '更新の時期' : '契約応当日';
+  if (ev.type === 'pen') label = ev.sub === 'pre' ? '年金開始の3か月前' : '年金の受取開始';
+  return '<span class="badge ' + d.cls + '"><span class="dot"></span>' + esc(label) + '</span>';
+}
+function copyText(t, btn){
+  var old = btn.getAttribute('data-label') || btn.textContent;
+  function ok(){
+    btn.textContent = 'コピーしました';
+    setTimeout(function(){ btn.textContent = old; }, 1800);
+  }
+  function fallback(){
+    var ta = document.createElement('textarea');
+    ta.value = t; ta.style.position = 'fixed'; ta.style.top = '-1000px';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); ok(); }
+    catch (e) { alert('コピーできませんでした。文例を選んでコピーしてください。'); }
+    ta.parentNode.removeChild(ta);
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(t).then(ok, fallback);
+  } else fallback();
+}
+/* きっかけ1件のカード（今後の予定・カレンダーの当日・顧客詳細で共用） */
+function evCardHtml(ev, opt){
+  opt = opt || {};
+  var c = ev.cust || {};
+  var days = diffDays(todayStr(), ev.date);
+  var inLabel = days === 0 ? '今日' : days > 0 ? 'あと' + days + '日' : (-days) + '日前';
+  var d = EV_DEFS[ev.type];
+  return '<div class="ev-item ' + d.cls + (ev.done ? ' is-done' : '') + '" data-ev="' + esc(ev.id) + '">' +
+    '<div class="ev-top">' +
+      '<span class="ev-when">' + esc(fmtMd(ev.date)) + '</span>' +
+      '<span class="ev-in' + (days >= 0 && days <= 7 ? ' soon' : '') + '">' + esc(inLabel) + '</span>' +
+      evBadge(ev) +
+      (ev.done ? '<span class="ev-doneflag">連絡済み' + (typeof ev.done === 'string' ? '（' + esc(fmtYmdJp(ev.done)) + '）' : '') + '</span>' : '') +
+    '</div>' +
+    (opt.hideName ? '' : '<div class="ev-name" style="margin-top:5px;">' + esc(c.name || '') +
+      (c.kana ? '<span class="ev-kana">' + esc(c.kana) + '</span>' : '') +
+      (c.birth ? '<span class="ev-kana">' + esc(fmtYmdJp(c.birth)) + '生（' + ageOn(c.birth, ev.date) + '歳）</span>' : '') + '</div>') +
+    '<div class="ev-title">' + esc(ev.title) + '</div>' +
+    '<div class="ev-why">' + esc(ev.why) + '</div>' +
+    '<div class="ev-acts">' +
+      '<button class="btn btn-ghost btn-sm" data-say="' + esc(ev.id) + '">声かけの文例</button>' +
+      '<button class="btn ' + (ev.done ? 'btn-ghost' : 'btn-primary') + ' btn-sm" data-done="' + esc(ev.id) + '">' +
+        (ev.done ? '連絡済みを取り消す' : '連絡済みにする') + '</button>' +
+      (opt.hideName ? '' : '<button class="btn btn-ghost btn-sm" data-open="' + esc(c.id || '') + '">お客様を開く</button>') +
+    '</div>' +
+    '<div class="say hide" data-sayfor="' + esc(ev.id) + '"></div>' +
+  '</div>';
+}
+/* 文例の開閉・連絡済み・お客様を開く、をまとめて結ぶ */
+function bindEvCards(host, evs, after){
+  var byId = {};
+  evs.forEach(function(e){ byId[e.id] = e; });
+  host.querySelectorAll('[data-say]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var ev = byId[b.getAttribute('data-say')];
+      if (!ev) return;
+      var box = host.querySelector('[data-sayfor="' + cssEsc(ev.id) + '"]');
+      if (!box) return;
+      if (!box.classList.contains('hide')) { box.classList.add('hide'); b.textContent = '声かけの文例'; return; }
+      var text = scriptFor(ev);
+      box.innerHTML = '<div class="script-box">' + esc(text) + '</div>' +
+        '<div class="script-foot">' +
+          '<button class="btn btn-ghost btn-sm" data-copy="1" data-label="文をコピー">文をコピー</button>' +
+          '<span class="script-note">金額・保険料は入れていません。そのまま送らず、自分の言葉に直して使ってください。</span>' +
+        '</div>';
+      box.classList.remove('hide');
+      b.textContent = '文例を閉じる';
+      box.querySelector('[data-copy]').addEventListener('click', function(){ copyText(text, this); });
+    });
+  });
+  host.querySelectorAll('[data-done]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var id = b.getAttribute('data-done');
+      if (state.done[id]) delete state.done[id];
+      else state.done[id] = { d: todayStr() };
+      save(); after();
+    });
+  });
+  host.querySelectorAll('[data-open]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var cid = b.getAttribute('data-open');
+      if (!cid) return;
+      showTab('cust'); openCustDetail(cid);
+    });
+  });
+}
+function cssEsc(s){ return String(s).replace(/["\\]/g, '\\$&'); }
+
+/* ============================================================
+   7. 今後の予定
+   ============================================================ */
+var HORIZONS = [30, 60, 90, 180, 365];
+function renderSoon(){
+  /* 期間チップ */
+  $('horizonChips').innerHTML = HORIZONS.map(function(h){
+    return '<button class="chip" data-h="' + h + '" aria-pressed="' + (state.settings.horizon === h) + '">' +
+      (h === 365 ? '1年' : h + '日') + '</button>';
+  }).join('');
+  $('horizonChips').querySelectorAll('.chip').forEach(function(ch){
+    ch.addEventListener('click', function(){
+      state.settings.horizon = +ch.getAttribute('data-h'); save(); renderSoon();
+    });
+  });
+  /* 種類チップ */
+  $('typeChips').innerHTML = EV_ORDER.map(function(k){
+    return '<button class="chip ' + EV_DEFS[k].cls + '" data-t="' + k + '" aria-pressed="' + !!state.settings.types[k] + '">' +
+      '<span class="dot" style="margin-right:5px;"></span>' + esc(EV_DEFS[k].label) + '</button>';
+  }).join('');
+  $('typeChips').querySelectorAll('.chip').forEach(function(ch){
+    ch.addEventListener('click', function(){
+      var k = ch.getAttribute('data-t');
+      state.settings.types[k] = !state.settings.types[k]; save(); renderSoon();
+    });
+  });
+  $('hideDone').checked = !!state.settings.hideDone;
+  $('hideDoneWrap').classList.toggle('on', !!state.settings.hideDone);
+
+  var from = todayStr(), to = addDaysStr(from, state.settings.horizon);
+  var all = genEvents(from, to);
+  var shown = all.filter(function(e){ return state.settings.types[e.type]; })
+                 .filter(function(e){ return state.settings.hideDone ? !e.done : true; });
+
+  $('tileAll').textContent = all.length + '件';
+  $('tileAllSub').textContent = fmtYmdJp(from) + ' 〜 ' + fmtYmdJp(to);
+  $('tileWeek').textContent = all.filter(function(e){ return diffDays(from, e.date) <= 7; }).length + '件';
+  $('tileDone').textContent = all.filter(function(e){ return !!e.done; }).length + '件';
+  $('tileCust').textContent = state.customers.length + '人';
+  var noBirth = state.customers.filter(function(c){ return !isYmd(c.birth); }).length;
+  $('tileCustSub').textContent = 'ご契約 ' + state.policies.length + '件' +
+    (noBirth ? '／生年月日なし ' + noBirth + '人' : '');
+
+  var host = $('soonList');
+  if (!state.customers.length) {
+    host.innerHTML = emptyHtml('お客様がまだ登録されていません',
+      'お客様と、ご契約の日付（契約日・満期日・払込満了日など）を入れると、声をかけるきっかけがここに日付順で並びます。CSVからまとめて取り込むこともできます。',
+      '<button class="btn btn-primary" id="emAdd">お客様を追加</button>' +
+      '<button class="btn btn-ghost" id="emDemo">サンプル（架空）で試す</button>');
+    $('emAdd').addEventListener('click', function(){ showTab('cust'); openCustSheet(null); });
+    $('emDemo').addEventListener('click', function(){ loadDemo(); });
+    return;
+  }
+  if (!shown.length) {
+    host.innerHTML = emptyHtml('この期間のきっかけはありません',
+      '期間を延ばすか、きっかけの種類の絞り込みを外してみてください。' +
+      (state.settings.hideDone ? '「連絡済みを隠す」が入っています。' : ''), '');
+    return;
+  }
+  /* 月ごとに見出しを挟んで組み立てる */
+  var html = '', curMon = null, open = false;
+  shown.forEach(function(ev){
+    var m = ev.date.slice(0, 7);
+    if (m !== curMon) {
+      if (open) html += '</div>';
+      curMon = m;
+      html += '<div class="ev-mon">' + (+m.slice(0,4)) + '年' + (+m.slice(5,7)) + '月</div><div class="ev-list">';
+      open = true;
+    }
+    html += evCardHtml(ev);
+  });
+  if (open) html += '</div>';
+  host.innerHTML = html;
+  bindEvCards(host, shown, renderSoon);
+}
+$('hideDone').addEventListener('change', function(){
+  state.settings.hideDone = this.checked; save(); renderSoon();
+});
+$('qaCust').addEventListener('click', function(){ showTab('cust'); openCustSheet(null); });
+
+function emptyHtml(title, body, actions){
+  return '<div class="card"><div class="empty">' +
+    '<div class="em-art"><svg viewBox="0 0 84 84" fill="none" stroke="#9fb0c2" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<rect x="12" y="18" width="60" height="52" rx="7"/><path d="M26 10v14M58 10v14M12 34h60"/><path d="M32 52l7 7 14-14"/></svg></div>' +
+    '<b>' + esc(title) + '</b><p>' + esc(body) + '</p>' +
+    (actions ? '<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:18px;">' + actions + '</div>' : '') +
+    '</div></div>';
+}
+
+/* ============================================================
+   8. カレンダー（月表示＋その日のきっかけ）
+   ------------------------------------------------------------
+   作りは保険営業ダッシュボードと同じ。日付を押すと下に当日の一覧が出る。
+   ============================================================ */
+var calY = null, calM = null, selDate = null;
+
+function renderCal(){
+  if (calY === null) { var t = new Date(); calY = t.getFullYear(); calM = t.getMonth(); }
+  if (!selDate) selDate = todayStr();
+  $('calTitle').textContent = calY + '年 ' + (calM + 1) + '月';
+
+  var first = new Date(calY, calM, 1);
+  var start = new Date(calY, calM, 1 - first.getDay());          /* 日曜はじまり */
+  var daysInMonth = new Date(calY, calM + 1, 0).getDate();
+  var cellCount = Math.ceil((first.getDay() + daysInMonth) / 7) * 7;
+  var last = new Date(start.getFullYear(), start.getMonth(), start.getDate() + cellCount - 1);
+  var evs = genEvents(ymd(start), ymd(last)).filter(function(e){ return state.settings.types[e.type]; });
+  var byDate = {};
+  evs.forEach(function(e){ (byDate[e.date] = byDate[e.date] || []).push(e); });
+
+  var today = todayStr();
+  var cap = window.innerWidth <= 640 ? 4 : 4;
+  var html = DOW.map(function(d, i){
+    return '<div class="cal-dow' + (i === 0 ? ' sun' : i === 6 ? ' sat' : '') + '">' + d + '</div>';
+  }).join('');
+
+  for (var i = 0; i < cellCount; i++) {
+    var d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+    var s = ymd(d);
+    var list = byDate[s] || [];
+    var cls = ['cal-cell'];
+    if (d.getMonth() !== calM) cls.push('out');
+    if (d.getDay() === 0) cls.push('sun');
+    if (d.getDay() === 6) cls.push('sat');
+    if (s === today) cls.push('today');
+    if (s === selDate) cls.push('sel');
+    var mdLabel = (d.getMonth()+1) + '月' + d.getDate() + '日';
+    html += '<div class="' + cls.join(' ') + '" data-d="' + s + '">' +
+      '<button type="button" class="cal-pick" data-d="' + s + '"' +
+      (s === selDate ? ' aria-current="date"' : '') +
+      ' aria-label="' + esc(mdLabel + (list.length ? '　きっかけ' + list.length + '件' : '　きっかけなし')) + '"></button>' +
+      '<span class="cd">' + d.getDate() + '</span>' +
+      list.slice(0, cap).map(function(e){
+        return '<span class="cal-ev ' + EV_DEFS[e.type].cls + (e.done ? ' is-done' : '') + '">' +
+          esc(((e.cust && e.cust.name) || '') + '　' + shortLabel(e)) + '</span>';
+      }).join('') +
+      (list.length > cap ? '<span class="cal-more">ほか' + (list.length - cap) + '件</span>' : '') +
+      '</div>';
+  }
+  $('calGrid').innerHTML = html;
+  $('calGrid').querySelectorAll('.cal-pick').forEach(function(b){
+    b.addEventListener('click', function(){ selectDate(b.getAttribute('data-d')); });
+  });
+
+  $('calLegend').innerHTML = EV_ORDER.map(function(k){
+    return '<button class="chip ' + EV_DEFS[k].cls + '" data-t="' + k + '" aria-pressed="' + !!state.settings.types[k] +
+      '" style="font-size:var(--fs-xs);min-height:32px;padding:4px 12px;">' +
+      '<span class="dot" style="margin-right:5px;"></span>' + esc(EV_DEFS[k].label) + '</button>';
+  }).join('');
+  $('calLegend').querySelectorAll('.chip').forEach(function(ch){
+    ch.addEventListener('click', function(){
+      var k = ch.getAttribute('data-t');
+      state.settings.types[k] = !state.settings.types[k]; save(); renderCal();
+    });
+  });
+  renderDay(byDate[selDate] || []);
+}
+function shortLabel(e){
+  if (e.type === 'bd') return '誕生日前月';
+  if (e.type === 'ann') return e.upd ? '更新' : '応当日';
+  if (e.type === 'mat') return '満期';
+  if (e.type === 'pay') return '払込満了';
+  if (e.type === 'pen') return e.sub === 'pre' ? '年金3か月前' : '年金開始';
+  return e.age + '歳';
+}
+function selectDate(s){
+  selDate = s;
+  var d = parseYmd(s);
+  calY = d.getFullYear(); calM = d.getMonth();
+  renderCal();
+}
+function renderDay(list){
+  var host = $('dayPanel');
+  var html = '<div class="day-head"><b>' + esc(fmtYmdJp(selDate)) + '（' + DOW[parseYmd(selDate).getDay()] + '）</b>' +
+    '<span class="day-n">' + (list.length ? 'きっかけ' + list.length + '件' : 'きっかけなし') + '</span></div>';
+  if (!list.length) {
+    html += '<div class="day-none">この日のきっかけはありません。ほかの日を押してみてください。</div>';
+    host.innerHTML = html;
+    return;
+  }
+  html += '<div class="ev-list">' + list.map(function(e){ return evCardHtml(e); }).join('') + '</div>';
+  host.innerHTML = html;
+  bindEvCards(host, list, renderCal);
+}
+$('calPrev').addEventListener('click', function(){
+  calM--; if (calM < 0) { calM = 11; calY--; } renderCal();
+});
+$('calNext').addEventListener('click', function(){
+  calM++; if (calM > 11) { calM = 0; calY++; } renderCal();
+});
+$('calToday').addEventListener('click', function(){ selectDate(todayStr()); });
+</script>
+<script>
+/* ============================================================
+   9. お客様（一覧・詳細）
+   ============================================================ */
+var custSort = 'next';
+/* 1年ぶんのきっかけを一度だけ作り、お客様ごとに「いちばん近い1件」に畳む
+   （お客様の人数ぶん genEvents を呼ぶと、件数が増えたときに重くなるため） */
+function nextEventMap(){
+  var from = todayStr();
+  var m = {};
+  genEvents(from, addDaysStr(from, 400)).forEach(function(e){
+    if (!m[e.cid]) m[e.cid] = e;
+  });
+  return m;
+}
+function renderCust(){
+  $('custDetail').classList.add('hide');
+  $('custListWrap').classList.remove('hide');
+
+  $('custSort').innerHTML = [
+    { k:'next', label:'次のきっかけが近い順' },
+    { k:'kana', label:'フリガナ順' },
+    { k:'age',  label:'年齢が高い順' }
+  ].map(function(o){
+    return '<button class="chip" data-s="' + o.k + '" aria-pressed="' + (custSort === o.k) + '">' + esc(o.label) + '</button>';
+  }).join('');
+  $('custSort').querySelectorAll('.chip').forEach(function(ch){
+    ch.addEventListener('click', function(){ custSort = ch.getAttribute('data-s'); renderCust(); });
+  });
+
+  var q = ($('custSearch').value || '').trim();
+  var nextMap = nextEventMap();
+  var list = state.customers.filter(function(c){
+    if (!q) return true;
+    var hay = c.name + ' ' + (c.kana || '') + ' ' + (c.memo || '') + ' ' +
+      polsOf(c.id).map(function(p){ return (p.company || '') + ' ' + (p.product || '') + ' ' + kindLabel(p); }).join(' ');
+    return hay.indexOf(q) >= 0;
+  }).map(function(c){
+    return { c: c, next: nextMap[c.id] || null };
+  });
+  if (custSort === 'kana') {
+    list.sort(function(a, b){ return (a.c.kana || a.c.name).localeCompare(b.c.kana || b.c.name, 'ja'); });
+  } else if (custSort === 'age') {
+    list.sort(function(a, b){ return (a.c.birth || '9999') < (b.c.birth || '9999') ? -1 : 1; });
+  } else {
+    list.sort(function(a, b){
+      var x = a.next ? a.next.date : '9999-99-99', y = b.next ? b.next.date : '9999-99-99';
+      return x < y ? -1 : x > y ? 1 : 0;
+    });
+  }
+
+  var host = $('custList');
+  if (!state.customers.length) {
+    host.innerHTML = emptyHtml('お客様がまだ登録されていません',
+      '手で1人ずつ足すか、他のシステムから出したCSVを取り込んでください。列の名前が違っても、取り込む前に割り当てる画面が出ます。',
+      '<button class="btn btn-primary" id="emAdd2">お客様を追加</button>' +
+      '<button class="btn btn-ghost" id="emCsv2">CSVを取り込む</button>');
+    $('emAdd2').addEventListener('click', function(){ openCustSheet(null); });
+    $('emCsv2').addEventListener('click', function(){ $('impCsv').click(); });
+    return;
+  }
+  if (!list.length) { host.innerHTML = '<div class="card"><div class="empty"><b>見つかりませんでした</b><p>別の言葉で探してみてください。</p></div></div>'; return; }
+
+  host.innerHTML = list.map(function(o){
+    var c = o.c, pols = polsOf(c.id);
+    var age = isYmd(c.birth) ? ageOn(c.birth, todayStr()) : null;
+    var sub = [];
+    if (isYmd(c.birth)) sub.push(fmtYmdJp(c.birth) + '生（' + age + '歳）');
+    else sub.push('生年月日なし');
+    sub.push('ご契約 ' + pols.length + '件');
+    return '<button class="cust-row" data-c="' + esc(c.id) + '">' +
+      '<span class="cr-main"><span class="cr-name">' + esc(c.name) +
+        (c.kana ? '<span class="ev-kana">' + esc(c.kana) + '</span>' : '') + '</span>' +
+      '<span class="cr-sub">' + esc(sub.join('　')) + '</span></span>' +
+      '<span class="cr-right">' +
+        (o.next
+          ? '<span class="cr-next">' + esc(fmtMd(o.next.date)) + '</span><span class="cr-nextsub">' + esc(shortLabel(o.next)) + '（あと' + diffDays(todayStr(), o.next.date) + '日）</span>'
+          : '<span class="cr-nextsub">1年以内のきっかけなし</span>') +
+      '</span></button>';
+  }).join('');
+  host.querySelectorAll('.cust-row').forEach(function(b){
+    b.addEventListener('click', function(){ openCustDetail(b.getAttribute('data-c')); });
+  });
+}
+$('custSearch').addEventListener('input', renderCust);
+$('addCust').addEventListener('click', function(){ openCustSheet(null); });
+$('goCsv').addEventListener('click', function(){ $('impCsv').click(); });
+
+function openCustDetail(cid){
+  var c = custById(cid);
+  if (!c) { renderCust(); return; }
+  $('custListWrap').classList.add('hide');
+  var host = $('custDetail');
+  host.classList.remove('hide');
+
+  var pols = polsOf(cid);
+  var age = isYmd(c.birth) ? ageOn(c.birth, todayStr()) : null;
+  var from = todayStr();
+  var evs = genEvents(from, addDaysStr(from, 730)).filter(function(e){ return e.cid === cid; }).slice(0, 12);
+
+  var html = '<div class="sec-head">' +
+    '<button class="btn btn-ghost btn-sm" id="cdBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>一覧へ戻る</button>' +
+    '<div style="flex:1;"></div>' +
+    '<button class="btn btn-primary btn-sm" id="cdEdit">編集する</button></div>';
+
+  html += '<div class="card"><h3 style="color:var(--navy);">' + esc(c.name) +
+    (c.kana ? ' <span class="ev-kana">' + esc(c.kana) + '</span>' : '') + '</h3>' +
+    '<dl class="kv" style="margin-top:var(--sp-3);">' +
+      '<dt>生年月日</dt><dd>' + (isYmd(c.birth) ? esc(fmtYmdJp(c.birth)) + '（' + age + '歳）' : '<span style="color:var(--red-text);">未入力：誕生日・年齢の節目・年金開始のきっかけが出ません</span>') + '</dd>' +
+      (c.contact ? '<dt>連絡メモ</dt><dd>' + esc(c.contact) + '</dd>' : '') +
+      (c.memo ? '<dt>メモ</dt><dd>' + esc(c.memo) + '</dd>' : '') +
+    '</dl></div>';
+
+  html += '<div class="sec"><div class="sec-head"><div><h2>ご契約（' + pols.length + '件）</h2></div></div>';
+  if (!pols.length) {
+    html += '<div class="card"><p class="sec-note" style="margin:0;">ご契約がまだ登録されていません。「編集する」から追加すると、満期・払込満了・更新のきっかけが出るようになります。</p></div>';
+  } else {
+    html += '<div class="pol-list">' + pols.map(function(p){
+      var kv = [];
+      if (isYmd(p.start)) kv.push('契約日 ' + fmtYmdJp(p.start));
+      if (isYmd(p.maturity)) kv.push('満期・更新日 ' + fmtYmdJp(p.maturity));
+      if (isYmd(p.payEnd)) kv.push('払込満了 ' + fmtYmdJp(p.payEnd));
+      if (p.renew) kv.push('更新あり' + (p.renewY > 0 ? '（' + p.renewY + '年ごと）' : ''));
+      if (p.annAge > 0) kv.push('年金開始 ' + p.annAge + '歳');
+      if (p.memo) kv.push(p.memo);
+      return '<div class="pol-row"><div class="pr-top"><b>' + esc(polTitle(p)) + '</b>' +
+        '<span class="badge" style="color:var(--muted);border-color:var(--line);background:var(--bg);">' + esc(kindLabel(p)) + '</span></div>' +
+        '<div class="pr-kv">' + esc(kv.join('　／　')) + '</div></div>';
+    }).join('') + '</div>';
+  }
+  html += '</div>';
+
+  html += '<div class="sec"><div class="sec-head"><div><h2>この方のきっかけ（2年先まで）</h2>' +
+    '<p>近い順に最大12件</p></div></div>';
+  if (!evs.length) {
+    html += '<div class="card"><p class="sec-note" style="margin:0;">2年以内のきっかけはありません。生年月日やご契約の日付が入っているか確かめてください。</p></div>';
+  } else {
+    html += '<div class="ev-list">' + evs.map(function(e){ return evCardHtml(e, { hideName: true }); }).join('') + '</div>';
+  }
+  html += '</div>';
+
+  host.innerHTML = html;
+  $('cdBack').addEventListener('click', function(){ renderCust(); });
+  $('cdEdit').addEventListener('click', function(){ openCustSheet(cid); });
+  bindEvCards(host, evs, function(){ openCustDetail(cid); });
+  window.scrollTo(0, 0);
+}
+
+/* ============================================================
+   10. お客様の追加・編集シート
+   ============================================================ */
+var editCid = null, editPols = [];
+
+function openCustSheet(cid){
+  editCid = cid;
+  var c = cid ? custById(cid) : null;
+  editPols = cid ? polsOf(cid).map(function(p){ return JSON.parse(JSON.stringify(p)); }) : [];
+  var host = $('sheetHost');
+  host.innerHTML =
+    '<div class="ovl" id="custOvl"><div class="sheet"><div class="sheet-head">' +
+      '<b>' + (c ? 'お客様の編集' : 'お客様の追加') + '</b>' +
+      '<button class="icon-btn" id="csClose" aria-label="閉じる"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
+    '</div><div class="sheet-body">' +
+      '<div class="notice slim" style="margin-bottom:var(--sp-4);">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5 21 19.5H3Z"/><path d="M12 10v4M12 17h.01"/></svg>' +
+        '<div>入力した内容はこの端末にだけ残ります（外部送信なし）。連絡メモに書いた電話番号・メールも同じ扱いです。共有PCでは使わないでください。</div>' +
+      '</div>' +
+      '<div class="frm">' +
+        '<div class="fld"><label for="cfName">氏名（必須）</label><input type="text" id="cfName" value="' + esc(c ? c.name : '') + '" placeholder="佐藤 健一"></div>' +
+        '<div class="fld"><label for="cfKana">フリガナ</label><input type="text" id="cfKana" value="' + esc(c ? (c.kana || '') : '') + '" placeholder="サトウ ケンイチ"></div>' +
+        '<div class="fld"><label for="cfBirth">生年月日</label><div class="date-wrap">' +
+          '<input type="text" class="date-input" id="cfBirth" readonly data-maxy="' + (new Date().getFullYear()) + '" placeholder="選ぶ"></div>' +
+          '<div class="hint">誕生日の前月・年齢の節目・年金開始の計算に使います</div></div>' +
+        '<div class="fld"><label for="cfContact">連絡メモ</label><input type="text" id="cfContact" value="' + esc(c ? (c.contact || '') : '') + '" placeholder="携帯・連絡のつく時間など"></div>' +
+        '<div class="fld full"><label for="cfMemo">メモ</label><textarea id="cfMemo" placeholder="ご家族・お仕事・関心ごとなど">' + esc(c ? (c.memo || '') : '') + '</textarea></div>' +
+      '</div>' +
+      '<div style="display:flex;align-items:center;gap:var(--sp-3);margin-top:var(--sp-6);">' +
+        '<h3 style="color:var(--navy);font-size:var(--fs-md);">ご契約</h3>' +
+        '<button class="btn btn-ghost btn-sm" id="csAddPol" style="margin-left:auto;">契約を追加</button></div>' +
+      '<div id="polHost"></div>' +
+    '</div><div class="sheet-foot">' +
+      '<button class="btn btn-primary" id="csSave">保存する</button>' +
+      '<button class="btn btn-ghost" id="csCancel">やめる</button>' +
+      (c ? '<button class="btn btn-ghost btn-del" id="csDel">このお客様を削除</button>' : '') +
+    '</div></div></div>';
+
+  if (c && isYmd(c.birth)) dpSet($('cfBirth'), c.birth);
+  renderPolCards();
+
+  $('csClose').addEventListener('click', closeCustSheet);
+  $('csCancel').addEventListener('click', closeCustSheet);
+  $('custOvl').addEventListener('click', function(ev){ if (ev.target === $('custOvl')) closeCustSheet(); });
+  $('csAddPol').addEventListener('click', function(){
+    readPolCards();
+    editPols.push({ id: uid('p'), cid: cid || '', kind:'teiki', kindText:'', company:'', product:'',
+      start:'', maturity:'', payEnd:'', renew:false, renewY:10, annAge:0, memo:'' });
+    renderPolCards();
+  });
+  $('csSave').addEventListener('click', saveCustSheet);
+  if (c) $('csDel').addEventListener('click', function(){
+    if (!confirm('「' + c.name + '」さんと、ひもづくご契約をすべて削除します。よろしいですか？')) return;
+    state.customers = state.customers.filter(function(x){ return x.id !== cid; });
+    state.policies = state.policies.filter(function(x){ return x.cid !== cid; });
+    save(); closeCustSheet(); renderCust();
+  });
+  $('cfName').focus();
+}
+function closeCustSheet(){ closeDp(); $('sheetHost').innerHTML = ''; editCid = null; editPols = []; }
+
+function renderPolCards(){
+  var host = $('polHost');
+  if (!editPols.length) {
+    host.innerHTML = '<p class="sec-note" style="margin:var(--sp-2) 0 0;">ご契約を入れると、満期・更改／払込満了／契約応当日・更新／年金の受取開始のきっかけが出ます。</p>';
+    return;
+  }
+  host.innerHTML = editPols.map(function(p, i){
+    return '<div class="pol-card" data-i="' + i + '">' +
+      '<div class="pc-head"><b>ご契約 ' + (i + 1) + '</b>' +
+        '<button class="icon-btn" data-poldel="' + i + '" aria-label="このご契約を削除"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7h14M10 7V5h4v2M8 7l1 12h6l1-12"/></svg></button></div>' +
+      '<div class="frm">' +
+        '<div class="fld"><label>保険の種類</label><select data-f="kind">' +
+          KINDS.map(function(k){ return '<option value="' + k.k + '"' + (p.kind === k.k ? ' selected' : '') + '>' + esc(k.label) + '</option>'; }).join('') +
+        '</select></div>' +
+        '<div class="fld"><label>種類の補足（自由記入）</label><input type="text" data-f="kindText" value="' + esc(p.kindText || '') + '" placeholder="就業不能・傷害　など"></div>' +
+        '<div class="fld"><label>保険会社</label><input type="text" data-f="company" value="' + esc(p.company || '') + '" placeholder="自由記入"></div>' +
+        '<div class="fld"><label>商品名</label><input type="text" data-f="product" value="' + esc(p.product || '') + '" placeholder="自由記入"></div>' +
+        '<div class="fld"><label>契約日</label><div class="date-wrap"><input type="text" class="date-input" data-f="start" readonly placeholder="選ぶ"></div>' +
+          '<div class="hint">毎年の契約応当日のもとになります</div></div>' +
+        '<div class="fld"><label>満期日・更新日</label><div class="date-wrap"><input type="text" class="date-input" data-f="maturity" readonly placeholder="選ぶ"></div>' +
+          '<div class="hint">損保の更改もここ</div></div>' +
+        '<div class="fld"><label>払込満了日</label><div class="date-wrap"><input type="text" class="date-input" data-f="payEnd" readonly placeholder="選ぶ"></div></div>' +
+        '<div class="fld"><label class="chk' + (p.renew ? ' on' : '') + '"><input type="checkbox" data-f="renew"' + (p.renew ? ' checked' : '') + '><span>更新・更改がある</span></label></div>' +
+        '<div class="fld"><label>更新の周期（年）</label><input type="number" data-f="renewY" min="1" max="50" step="1" value="' + (p.renewY > 0 ? p.renewY : '') + '" placeholder="10">' +
+          '<div class="hint">自動車・火災は1、定期は10 が目安</div></div>' +
+        '<div class="fld"><label>年金の受取開始年齢</label><input type="number" data-f="annAge" min="40" max="90" step="1" value="' + (p.annAge > 0 ? p.annAge : '') + '" placeholder="65">' +
+          '<div class="hint">個人年金のときだけ。生年月日から開始日を出します</div></div>' +
+        '<div class="fld full"><label>ご契約のメモ</label><input type="text" data-f="memo" value="' + esc(p.memo || '') + '"></div>' +
+      '</div></div>';
+  }).join('');
+  /* 日付欄に値を戻す */
+  host.querySelectorAll('.pol-card').forEach(function(card){
+    var i = +card.getAttribute('data-i');
+    ['start','maturity','payEnd'].forEach(function(f){
+      var el = card.querySelector('[data-f="' + f + '"]');
+      if (el && isYmd(editPols[i][f])) dpSet(el, editPols[i][f]);
+    });
+    card.querySelector('[data-f="kind"]').addEventListener('change', function(){
+      var def = kindDef(this.value);
+      var ry = card.querySelector('[data-f="renewY"]');
+      var ck = card.querySelector('[data-f="renew"]');
+      if (!ry.value && def.renewY) { ry.value = def.renewY; ck.checked = true; ck.parentNode.classList.add('on'); }
+    });
+    card.querySelector('[data-f="renew"]').addEventListener('change', function(){
+      this.parentNode.classList.toggle('on', this.checked);
+      var ry = card.querySelector('[data-f="renewY"]');
+      if (this.checked && !ry.value) ry.value = kindDef(card.querySelector('[data-f="kind"]').value).renewY || 10;
+    });
+  });
+  host.querySelectorAll('[data-poldel]').forEach(function(b){
+    b.addEventListener('click', function(){
+      readPolCards();
+      editPols.splice(+b.getAttribute('data-poldel'), 1);
+      renderPolCards();
+    });
+  });
+}
+function readPolCards(){
+  $('polHost').querySelectorAll('.pol-card').forEach(function(card){
+    var i = +card.getAttribute('data-i');
+    var p = editPols[i];
+    if (!p) return;
+    p.kind = card.querySelector('[data-f="kind"]').value;
+    p.kindText = card.querySelector('[data-f="kindText"]').value.trim();
+    p.company = card.querySelector('[data-f="company"]').value.trim();
+    p.product = card.querySelector('[data-f="product"]').value.trim();
+    ['start','maturity','payEnd'].forEach(function(f){
+      p[f] = card.querySelector('[data-f="' + f + '"]').getAttribute('data-ymd') || '';
+    });
+    p.renew = card.querySelector('[data-f="renew"]').checked;
+    p.renewY = Math.max(0, Math.round(+card.querySelector('[data-f="renewY"]').value || 0));
+    p.annAge = Math.max(0, Math.round(+card.querySelector('[data-f="annAge"]').value || 0));
+    p.memo = card.querySelector('[data-f="memo"]').value.trim();
+  });
+}
+function saveCustSheet(){
+  var name = $('cfName').value.trim();
+  if (!name) { alert('氏名を入れてください。'); $('cfName').focus(); return; }
+  readPolCards();
+  var cid = editCid;
+  if (cid) {
+    var c = custById(cid);
+    c.name = name;
+    c.kana = $('cfKana').value.trim();
+    c.birth = $('cfBirth').getAttribute('data-ymd') || '';
+    c.contact = $('cfContact').value.trim();
+    c.memo = $('cfMemo').value.trim();
+  } else {
+    cid = uid('c');
+    state.customers.push({
+      id: cid, name: name, kana: $('cfKana').value.trim(),
+      birth: $('cfBirth').getAttribute('data-ymd') || '',
+      contact: $('cfContact').value.trim(), memo: $('cfMemo').value.trim()
+    });
+  }
+  var keep = {};
+  editPols.forEach(function(p){ p.cid = cid; keep[p.id] = 1; });
+  state.policies = state.policies.filter(function(p){ return p.cid !== cid || keep[p.id]; })
+    .map(function(p){
+      if (p.cid !== cid) return p;
+      for (var i = 0; i < editPols.length; i++) if (editPols[i].id === p.id) return editPols[i];
+      return p;
+    });
+  editPols.forEach(function(p){
+    if (!state.policies.some(function(x){ return x.id === p.id; })) state.policies.push(p);
+  });
+  save();
+  closeCustSheet();
+  openCustDetail(cid);
+}
+
+/* ============================================================
+   11. 日付の選択（年・月を選んでから日を押す）
+   ------------------------------------------------------------
+   生まれ年は type="date" だと打ちにくいので、和暦つきの年の一覧から選ぶ形。
+   値は data-ymd に YYYY-MM-DD で持ち、見た目は「1993年6月3日」。
+   ============================================================ */
+var DP_MIN_YEAR = 1912;
+var dpEl = null, dpView = null;
+function dpSet(el, s){
+  if (s) { el.setAttribute('data-ymd', s); el.value = fmtYmdJp(s); }
+  else { el.removeAttribute('data-ymd'); el.value = ''; }
+}
+function dpMaxYear(el){ return +(el.getAttribute('data-maxy') || (new Date().getFullYear() + 60)); }
+function closeDp(){
+  var el = document.querySelector('.dp');
+  if (el) el.parentNode.removeChild(el);
+  dpEl = null; dpView = null;
+}
+function openDp(el){
+  if (dpEl === el) return;
+  closeDp();
+  dpEl = el;
+  var cur = el.getAttribute('data-ymd') || '';
+  var now = new Date();
+  if (cur) { var d = parseYmd(cur); dpView = { y: d.getFullYear(), m: d.getMonth() }; }
+  else if (el.id === 'cfBirth') dpView = { y: now.getFullYear() - 40, m: 0 };
+  else dpView = { y: now.getFullYear(), m: now.getMonth() };
+  var pop = document.createElement('div');
+  pop.className = 'dp';
+  el.parentNode.appendChild(pop);
+  renderDp();
+  var host = pop.closest('.sheet') || pop.closest('.card') || document.body;
+  var limit = Math.min(window.innerWidth - 8, host.getBoundingClientRect().right - 8);
+  if (pop.getBoundingClientRect().right > limit) pop.classList.add('right');
+  var box = pop.getBoundingClientRect();
+  if (box.bottom > window.innerHeight - 8 && el.getBoundingClientRect().top > box.height + 16) pop.classList.add('up');
+  if (pop.scrollIntoView) pop.scrollIntoView({ block: 'nearest' });
+
+  pop.addEventListener('change', function(ev){
+    var what = ev.target.getAttribute && ev.target.getAttribute('data-dp');
+    if (what === 'year') dpView.y = +ev.target.value;
+    else if (what === 'month') dpView.m = +ev.target.value;
+    else return;
+    renderDp();
+  });
+  pop.addEventListener('click', function(ev){
+    var btn = ev.target.closest ? ev.target.closest('button') : null;
+    if (!btn) return;
+    var day = btn.getAttribute('data-d');
+    if (day) { dpSet(dpEl, ymdOf(dpView.y, dpView.m, +day)); closeDp(); return; }
+    var what = btn.getAttribute('data-dp');
+    if (what === 'prev' || what === 'next') {
+      dpView.m += (what === 'next' ? 1 : -1);
+      if (dpView.m > 11) { dpView.m = 0; dpView.y++; }
+      if (dpView.m < 0) { dpView.m = 11; dpView.y--; }
+      dpView.y = Math.max(DP_MIN_YEAR, Math.min(dpMaxYear(dpEl), dpView.y));
+      renderDp();
+    } else if (what === 'clear') { dpSet(dpEl, ''); closeDp(); }
+    else if (what === 'close') { closeDp(); }
+  });
+}
+function renderDp(){
+  var pop = document.querySelector('.dp');
+  if (!pop || !dpEl) return;
+  var cur = dpEl.getAttribute('data-ymd') || '', sel = cur ? parseYmd(cur) : null;
+  var y = dpView.y, m = dpView.m, maxY = dpMaxYear(dpEl);
+  var years = '', yy;
+  for (yy = maxY; yy >= DP_MIN_YEAR; yy--) {
+    years += '<option value="' + yy + '"' + (yy === y ? ' selected' : '') + '>' + yy + '年（' + wareki(yy) + '）</option>';
+  }
+  var months = '', mm;
+  for (mm = 0; mm < 12; mm++) {
+    months += '<option value="' + mm + '"' + (mm === m ? ' selected' : '') + '>' + (mm + 1) + '月</option>';
+  }
+  var cells = '', i;
+  for (i = 0; i < new Date(y, m, 1).getDay(); i++) cells += '<span class="dp-d empty"></span>';
+  var last = new Date(y, m + 1, 0).getDate();
+  for (var dd = 1; dd <= last; dd++) {
+    var w = new Date(y, m, dd).getDay();
+    var on = !!sel && sel.getFullYear() === y && sel.getMonth() === m && sel.getDate() === dd;
+    cells += '<button type="button" class="dp-d' + (w === 0 ? ' sun' : w === 6 ? ' sat' : '') + '" data-d="' + dd + '"' +
+      ' aria-pressed="' + (on ? 'true' : 'false') + '">' + dd + '</button>';
+  }
+  pop.innerHTML =
+    '<div class="dp-head">' +
+      '<button type="button" class="dp-nav" data-dp="prev" aria-label="前の月">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>' +
+      '<select class="dp-sel" data-dp="year" aria-label="年を選ぶ">' + years + '</select>' +
+      '<select class="dp-sel mo" data-dp="month" aria-label="月を選ぶ">' + months + '</select>' +
+      '<button type="button" class="dp-nav" data-dp="next" aria-label="次の月">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>' +
+    '</div>' +
+    '<div class="dp-wd"><span class="sun">日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span class="sat">土</span></div>' +
+    '<div class="dp-grid">' + cells + '</div>' +
+    '<div class="dp-foot"><button type="button" class="btn btn-ghost btn-sm" data-dp="clear">空にする</button>' +
+    '<button type="button" class="btn btn-ghost btn-sm" data-dp="close">閉じる</button></div>';
+}
+document.addEventListener('click', function(ev){
+  var t = ev.target;
+  if (t.classList && t.classList.contains('date-input')) { openDp(t); return; }
+  if (!dpEl) return;
+  if (t.closest && t.closest('.dp')) return;
+  closeDp();
+});
+document.addEventListener('keydown', function(ev){
+  if (ev.key === 'Escape' && dpEl) { closeDp(); return; }
+  /* キーボードだけでも開けるようにする（読み取り専用の入力欄なので Enter / Space で開く） */
+  var t = ev.target;
+  if ((ev.key === 'Enter' || ev.key === ' ') && t.classList && t.classList.contains('date-input')) {
+    ev.preventDefault(); openDp(t);
+  }
+});
+</script>
+<script>
+/* ============================================================
+   12. CSVの取り込み（列の名前が違っても割り当てられる）
+   ------------------------------------------------------------
+   ・区切りはカンマとタブを自動で見分ける
+   ・文字コードは UTF-8 で読んで、文字化けしたら Shift_JIS で読み直す
+   ・日付は 2026/4/1・2026-04-01・20260401・2026年4月1日・昭和40年5月3日・S40.5.3 を読む
+   ・その月に無い日（2月30日など）は末日に寄せて取り込み、件数を報告する
+   ============================================================ */
+function parseCsv(text){
+  text = String(text || '').replace(/^﻿/, '');
+  var head = text.split(/\r?\n/)[0] || '';
+  var delim = (head.split('\t').length > head.split(',').length) ? '\t' : ',';
+  var rows = [], row = [], cur = '', i = 0, q = false;
+  while (i < text.length) {
+    var ch = text.charAt(i);
+    if (q) {
+      if (ch === '"') {
+        if (text.charAt(i + 1) === '"') { cur += '"'; i += 2; continue; }
+        q = false; i++; continue;
+      }
+      cur += ch; i++; continue;
+    }
+    if (ch === '"') { q = true; i++; continue; }
+    if (ch === delim) { row.push(cur); cur = ''; i++; continue; }
+    if (ch === '\r') { i++; continue; }
+    if (ch === '\n') { row.push(cur); rows.push(row); row = []; cur = ''; i++; continue; }
+    cur += ch; i++;
+  }
+  if (cur !== '' || row.length) { row.push(cur); rows.push(row); }
+  return rows.filter(function(r){ return r.some(function(c){ return String(c).trim() !== ''; }); })
+             .map(function(r){ return r.map(function(c){ return String(c).trim(); }); });
+}
+var ERA = { '明治':1867, '大正':1911, '昭和':1925, '平成':1988, '令和':2018,
+            'M':1867, 'T':1911, 'S':1925, 'H':1988, 'R':2018 };
+/* 読めたら {ymd:'YYYY-MM-DD', fixed:true/false}、読めなければ null */
+function parseAnyDate(raw){
+  var s = String(raw == null ? '' : raw).trim();
+  if (!s) return null;
+  s = s.replace(/[０-９]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); })
+       .replace(/\s+/g, '');
+  var y = null, m = null, d = null, mm;
+  mm = s.match(/^(明治|大正|昭和|平成|令和|[MTSHRmtshr])[\.\s]?(\d{1,2})[年\.\/\-](\d{1,2})[月\.\/\-](\d{1,2})日?$/);
+  if (mm) {
+    var base = ERA[mm[1]] || ERA[mm[1].toUpperCase()];
+    if (base == null) return null;
+    y = base + (+mm[2]); m = +mm[3]; d = +mm[4];
+  }
+  if (y === null) {
+    mm = s.match(/^(\d{4})[^\d]+(\d{1,2})[^\d]+(\d{1,2})[^\d]?$/);
+    if (mm) { y = +mm[1]; m = +mm[2]; d = +mm[3]; }
+  }
+  if (y === null) {
+    mm = s.match(/^(\d{4})(\d{2})(\d{2})$/);
+    if (mm) { y = +mm[1]; m = +mm[2]; d = +mm[3]; }
+  }
+  if (y === null) {
+    /* 年月だけ（2026/04）は1日として取り込む */
+    mm = s.match(/^(\d{4})[^\d]+(\d{1,2})[^\d]?$/);
+    if (mm) { y = +mm[1]; m = +mm[2]; d = 1; }
+  }
+  if (y === null || m < 1 || m > 12 || d < 1) return null;
+  if (y < 1900 || y > 2200) return null;
+  var last = new Date(y, m, 0).getDate();
+  var fixed = d > last;                       /* 2月30日などは末日に寄せる */
+  return { ymd: ymdOf(y, m - 1, d), fixed: fixed };
+}
+function parseBool(v){
+  var s = String(v == null ? '' : v).trim();
+  if (!s) return null;
+  if (/^(1|true|yes|y|有|有り|あり|する|要|○|◯|●|更新あり|自動更新)$/i.test(s)) return true;
+  if (/^(0|false|no|n|無|無し|なし|しない|不要|×|✕|-|更新なし)$/i.test(s)) return false;
+  return null;
+}
+function guessKind(v){
+  var s = String(v == null ? '' : v);
+  if (!s) return null;
+  if (/自動車|自賠|車両/.test(s)) return 'jido';
+  if (/火災|地震|住宅|すまい/.test(s)) return 'kasai';
+  if (/個人年金|年金/.test(s)) return 'nenkin';
+  if (/医療|がん|ガン|癌|three|三大/.test(s)) return 'iryo';
+  if (/収入保障|就業不能/.test(s)) return 'shunyu';
+  if (/養老|学資|こども|子ども/.test(s)) return 'yoro';
+  if (/終身/.test(s)) return 'shushin';
+  if (/定期/.test(s)) return 'teiki';
+  if (/傷害|賠償|旅行|ペット|損保|損害/.test(s)) return 'sonpo';
+  return null;
+}
+var MAP_FIELDS = [
+  { k:'',        label:'（取り込まない）' },
+  { k:'name',    label:'お客様：氏名（必須）' },
+  { k:'kana',    label:'お客様：フリガナ' },
+  { k:'birth',   label:'お客様：生年月日' },
+  { k:'contact', label:'お客様：連絡メモ' },
+  { k:'cmemo',   label:'お客様：メモ' },
+  { k:'kind',    label:'ご契約：保険の種類' },
+  { k:'company', label:'ご契約：保険会社' },
+  { k:'product', label:'ご契約：商品名' },
+  { k:'start',   label:'ご契約：契約日' },
+  { k:'maturity',label:'ご契約：満期日・更新日' },
+  { k:'payEnd',  label:'ご契約：払込満了日' },
+  { k:'renew',   label:'ご契約：更新の有無' },
+  { k:'renewY',  label:'ご契約：更新の周期（年）' },
+  { k:'annAge',  label:'ご契約：年金の受取開始年齢' },
+  { k:'pmemo',   label:'ご契約：メモ' }
+];
+/* 見出しからの当てずっぽう（一致しなければ「取り込まない」のまま） */
+var MAP_HINTS = [
+  ['name',    /氏名|名前|お客様名|顧客名|契約者名|契約者|被保険者名|name/i],
+  ['kana',    /フリガナ|ふりがな|カナ|かな|kana/i],
+  ['birth',   /生年月日|誕生日|生年|birth/i],
+  ['contact', /電話|連絡先|携帯|ﾃﾚﾎﾝ|tel|mail|メール|連絡/i],
+  ['kind',    /種類|種目|保険種|商品種|区分|type/i],
+  ['company', /保険会社|引受|会社名|会社|company/i],
+  ['product', /商品名|商品|プラン|product/i],
+  ['start',   /契約日|始期|責任開始|開始日|加入日|start/i],
+  ['maturity',/満期|終期|更新日|更改|満了日?$|expire/i],
+  ['payEnd',  /払込満了|払済|払込終了|払込期間満了|払込.*満了/i],
+  ['renew',   /更新の有無|自動更新|更新有無|更新$|更改の有無/i],
+  ['renewY',  /更新周期|更新年数|更新サイクル|保険期間|更新.*年/i],
+  ['annAge',  /年金.*年齢|受取開始|支払開始|年金開始/i],
+  ['pmemo',   /備考|メモ|note|remark/i],
+  ['cmemo',   /顧客メモ|お客様メモ/i]
+];
+function guessField(header, used){
+  var h = String(header || '');
+  for (var i = 0; i < MAP_HINTS.length; i++) {
+    var k = MAP_HINTS[i][0];
+    if (used[k]) continue;
+    if (MAP_HINTS[i][1].test(h)) return k;
+  }
+  return '';
+}
+
+var csvRows = null, csvMap = [], csvHasHeader = true, csvMerge = true;
+
+$('impCsv').addEventListener('change', function(){
+  var f = this.files && this.files[0];
+  this.value = '';
+  if (!f) return;
+  readTextSmart(f, function(text){
+    var rows = parseCsv(text);
+    if (!rows.length) { alert('中身のあるCSVを選んでください。'); return; }
+    csvRows = rows;
+    csvHasHeader = true;
+    var used = {};
+    csvMap = rows[0].map(function(h){
+      var g = guessField(h, used);
+      if (g) used[g] = 1;
+      return g;
+    });
+    openCsvSheet();
+  });
+});
+/* UTF-8で読んで文字化けしたら Shift_JIS で読み直す */
+function readTextSmart(file, cb){
+  var r1 = new FileReader();
+  r1.onload = function(){
+    var t = String(r1.result || '');
+    if (t.indexOf('�') < 0) { cb(t); return; }
+    var r2 = new FileReader();
+    r2.onload = function(){ cb(String(r2.result || '')); };
+    r2.onerror = function(){ cb(t); };
+    try { r2.readAsText(file, 'Shift_JIS'); } catch (e) { cb(t); }
+  };
+  r1.onerror = function(){ alert('ファイルを読めませんでした。'); };
+  r1.readAsText(file, 'UTF-8');
+}
+
+function openCsvSheet(){
+  var host = $('sheetHost');
+  host.innerHTML =
+    '<div class="ovl" id="csvOvl"><div class="sheet wide"><div class="sheet-head">' +
+      '<b>CSVの取り込み：列の割り当て</b>' +
+      '<button class="icon-btn" id="cvClose" aria-label="閉じる"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
+    '</div><div class="sheet-body">' +
+      '<p class="sec-note">ファイルの列が、このツールのどの項目にあたるかを選んでください。見出しから当てずっぽうで入れてありますので、違うところだけ直せば大丈夫です。<b>「お客様：氏名」だけは必ず割り当ててください。</b></p>' +
+      '<div class="notice slim" style="margin-bottom:var(--sp-4);">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5 21 19.5H3Z"/><path d="M12 10v4M12 17h.01"/></svg>' +
+        '<div>取り込んだ内容はこの端末にだけ入ります。取り込みに使ったCSVは、置き場所に注意して、不要になったら消してください。</div>' +
+      '</div>' +
+      '<div style="display:flex;gap:var(--sp-3);flex-wrap:wrap;margin-bottom:var(--sp-4);">' +
+        '<label class="chk' + (csvHasHeader ? ' on' : '') + '" id="cvHeadWrap"><input type="checkbox" id="cvHead"' + (csvHasHeader ? ' checked' : '') + '><span>1行目は見出し</span></label>' +
+        '<label class="chk' + (csvMerge ? ' on' : '') + '" id="cvMergeWrap"><input type="checkbox" id="cvMerge"' + (csvMerge ? ' checked' : '') + '><span>氏名と生年月日が同じ人はまとめる</span></label>' +
+      '</div>' +
+      '<div class="map-wrap"><table class="map-table" id="cvTable"></table></div>' +
+      '<div id="cvReport"></div>' +
+    '</div><div class="sheet-foot">' +
+      '<button class="btn btn-primary" id="cvGo">取り込む</button>' +
+      '<button class="btn btn-ghost" id="cvCancel">やめる</button>' +
+    '</div></div></div>';
+  renderCsvTable();
+  $('cvClose').addEventListener('click', closeCsvSheet);
+  $('cvCancel').addEventListener('click', closeCsvSheet);
+  $('csvOvl').addEventListener('click', function(ev){ if (ev.target === $('csvOvl')) closeCsvSheet(); });
+  $('cvHead').addEventListener('change', function(){
+    csvHasHeader = this.checked;
+    $('cvHeadWrap').classList.toggle('on', this.checked);
+    renderCsvTable();
+  });
+  $('cvMerge').addEventListener('change', function(){
+    csvMerge = this.checked;
+    $('cvMergeWrap').classList.toggle('on', this.checked);
+  });
+  $('cvGo').addEventListener('click', applyCsv);
+}
+function closeCsvSheet(){ $('sheetHost').innerHTML = ''; csvRows = null; }
+function renderCsvTable(){
+  var cols = csvRows[0].length;
+  var sampleRow = csvHasHeader ? (csvRows[1] || []) : csvRows[0];
+  var html = '<tr><th>列</th><th>ファイルの見出し</th><th>最初のデータ</th><th>取り込む項目</th></tr>';
+  for (var i = 0; i < cols; i++) {
+    html += '<tr><td>' + (i + 1) + '</td>' +
+      '<td class="mt-h">' + esc(csvHasHeader ? (csvRows[0][i] || '') : '（見出しなし）') + '</td>' +
+      '<td class="mt-s">' + esc(sampleRow[i] || '') + '</td>' +
+      '<td><select data-col="' + i + '">' + MAP_FIELDS.map(function(f){
+        return '<option value="' + f.k + '"' + (csvMap[i] === f.k ? ' selected' : '') + '>' + esc(f.label) + '</option>';
+      }).join('') + '</select></td></tr>';
+  }
+  $('cvTable').innerHTML = html;
+  $('cvTable').querySelectorAll('select').forEach(function(sel){
+    sel.addEventListener('change', function(){ csvMap[+sel.getAttribute('data-col')] = sel.value; });
+  });
+}
+function applyCsv(){
+  if (csvMap.indexOf('name') < 0) { alert('「お客様：氏名」を割り当ててください。'); return; }
+  var rows = csvHasHeader ? csvRows.slice(1) : csvRows.slice(0);
+  var addedC = 0, mergedC = 0, addedP = 0, badDate = 0, fixedDate = 0, skipped = 0;
+  rows.forEach(function(r){
+    var v = {};
+    csvMap.forEach(function(f, i){ if (f) v[f] = (r[i] || '').trim(); });
+    var name = (v.name || '').trim();
+    if (!name) { skipped++; return; }
+    function date(key){
+      if (!v[key]) return '';
+      var o = parseAnyDate(v[key]);
+      if (!o) { badDate++; return ''; }
+      if (o.fixed) fixedDate++;
+      return o.ymd;
+    }
+    var birth = date('birth');
+    var c = null;
+    if (csvMerge) {
+      c = state.customers.filter(function(x){
+        return x.name === name && ((x.birth || '') === (birth || '') || !birth || !x.birth);
+      })[0] || null;
+    }
+    if (c) {
+      mergedC++;
+      if (birth && !c.birth) c.birth = birth;
+      if (v.kana && !c.kana) c.kana = v.kana;
+      if (v.contact && !c.contact) c.contact = v.contact;
+      if (v.cmemo) c.memo = c.memo ? (c.memo + '／' + v.cmemo) : v.cmemo;
+    } else {
+      c = { id: uid('c'), name: name, kana: v.kana || '', birth: birth,
+            contact: v.contact || '', memo: v.cmemo || '' };
+      state.customers.push(c);
+      addedC++;
+    }
+    var start = date('start'), maturity = date('maturity'), payEnd = date('payEnd');
+    var hasPol = start || maturity || payEnd || v.kind || v.company || v.product || v.annAge;
+    if (!hasPol) return;
+    var kind = guessKind(v.kind) || guessKind(v.product) || 'other';
+    var renew = parseBool(v.renew);
+    var renewY = Math.max(0, Math.round(+String(v.renewY || '').replace(/[^\d.]/g, '') || 0));
+    if (renew === null) renew = renewY > 0 ? true : (kindDef(kind).renewY > 0 && kindDef(kind).grp === 'sonpo');
+    if (renew && !renewY) renewY = kindDef(kind).renewY || 10;
+    state.policies.push({
+      id: uid('p'), cid: c.id, kind: kind,
+      kindText: (guessKind(v.kind) ? '' : (v.kind || '')),
+      company: v.company || '', product: v.product || '',
+      start: start, maturity: maturity, payEnd: payEnd,
+      renew: !!renew, renewY: renew ? renewY : 0,
+      annAge: Math.max(0, Math.round(+String(v.annAge || '').replace(/[^\d.]/g, '') || 0)),
+      memo: v.pmemo || ''
+    });
+    addedP++;
+  });
+  save();
+  var msg = ['お客様を ' + addedC + '人 追加' + (mergedC ? '／' + mergedC + '人にまとめました' : ''),
+             'ご契約を ' + addedP + '件 追加'];
+  if (badDate) msg.push('読めなかった日付 ' + badDate + '件（空のままにしました）');
+  if (fixedDate) msg.push('その月に無い日を末日に寄せた ' + fixedDate + '件');
+  if (skipped) msg.push('氏名が空で飛ばした行 ' + skipped + '件');
+  $('cvReport').innerHTML = '<div class="csv-report">' + esc(msg.join('　／　')) +
+    '<br>取り込みが終わりました。この画面を閉じると一覧に反映されます。</div>';
+  $('cvGo').disabled = true;
+  $('cvCancel').textContent = '閉じる';
+  $('cvCancel').className = 'btn btn-primary';
+  $('cvCancel').addEventListener('click', function(){ showTab('cust'); });
+}
+
+/* ============================================================
+   13. 書き出し（JSON・CSV）
+   ------------------------------------------------------------
+   ⚠️ 書き出したファイルには氏名・生年月日がそのまま入る。置き場所に注意。
+   ============================================================ */
+function download(name, text, type){
+  var blob = new Blob([text], { type: type || 'application/octet-stream' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+function csvCell(v){ v = String(v == null ? '' : v); return '"' + v.replace(/"/g, '""') + '"'; }
+var CSV_HEAD = ['氏名','フリガナ','生年月日','連絡メモ','お客様メモ','保険の種類','保険会社','商品名',
+                '契約日','満期日','払込満了日','更新の有無','更新の周期（年）','年金の受取開始年齢','ご契約メモ'];
+$('expJson').addEventListener('click', function(){
+  if (!confirm('氏名・生年月日を含むファイルを書き出します。置き場所に注意してください。よろしいですか？')) return;
+  download('hoken-calendar-backup-' + todayStr() + '.json', JSON.stringify(state, null, 1), 'application/json');
+});
+$('impJson').addEventListener('change', function(){
+  var f = this.files && this.files[0];
+  this.value = '';
+  if (!f) return;
+  var reader = new FileReader();
+  reader.onload = function(){
+    try {
+      var o = JSON.parse(reader.result);
+      if (!o || !Array.isArray(o.customers)) throw new Error('bad');
+      if (!confirm('いまのデータをこのバックアップで置き換えますか？（お客様' + o.customers.length + '人・ご契約' + ((o.policies || []).length) + '件）')) return;
+      localStorage.setItem(LS_KEY, JSON.stringify(o));
+      state = load();
+      showTab('soon');
+      alert('読み込みました。');
+    } catch (e) { alert('読み込めませんでした。このツールで書き出したJSONを選んでください。'); }
+  };
+  reader.readAsText(f);
+});
+$('expCsv').addEventListener('click', function(){
+  if (!confirm('氏名・生年月日を含むファイルを書き出します。置き場所に注意してください。よろしいですか？')) return;
+  var rows = [];
+  state.customers.forEach(function(c){
+    var pols = polsOf(c.id);
+    if (!pols.length) {
+      rows.push([c.name, c.kana, c.birth, c.contact, c.memo, '', '', '', '', '', '', '', '', '', '']);
+      return;
+    }
+    pols.forEach(function(p){
+      rows.push([c.name, c.kana, c.birth, c.contact, c.memo, kindLabel(p), p.company, p.product,
+        p.start, p.maturity, p.payEnd, p.renew ? 'あり' : 'なし', p.renewY || '', p.annAge || '', p.memo]);
+    });
+  });
+  var csv = '﻿' + [CSV_HEAD].concat(rows).map(function(r){ return r.map(csvCell).join(','); }).join('\r\n');
+  download('hoken-calendar-' + todayStr() + '.csv', csv, 'text/csv');
+});
+$('expCsvTpl').addEventListener('click', function(){
+  var rows = [
+    ['見本 太郎','ミホン タロウ','1975-04-12','携帯（平日夜）','紹介元：既契約者','定期保険','（保険会社名）','（商品名）','2016-04-12','2026-04-12','2040-04-12','あり','10','','見本の行です。消して使ってください'],
+    ['見本 花子','ミホン ハナコ','1990/11/2','','','自動車保険','（保険会社名）','（商品名）','2025/11/15','2026/11/15','','あり','1','','']
+  ];
+  var csv = '﻿' + [CSV_HEAD].concat(rows).map(function(r){ return r.map(csvCell).join(','); }).join('\r\n');
+  download('hoken-calendar-template.csv', csv, 'text/csv');
+});
+
+/* ============================================================
+   14. 端末の操作・サンプル・きっかけの説明
+   ============================================================ */
+$('lockBtn').addEventListener('click', function(){ forgetAuth(); location.reload(); });
+$('wipeBtn').addEventListener('click', function(){
+  if (!confirm('お客様・ご契約・連絡済みの記録をすべて削除します。よろしいですか？')) return;
+  if (!confirm('本当に削除しますか？ この操作は元に戻せません（JSONで書き出していない場合は、先に書き出してください）。')) return;
+  localStorage.removeItem(LS_KEY);
+  state = defaultState(); save();
+  showTab('soon');
+});
+$('demoBtn').addEventListener('click', function(){ loadDemo(); });
+
+/* サンプルはすべて架空。動きを確かめるためのもの。
+   うるう年生まれ（2/29）・12月31日契約・1月31日満期・3月31日誕生日など、
+   端の日付をわざと入れてある。 */
+function loadDemo(){
+  if (state.customers.length && !confirm('いま入っているお客様に、架空のサンプルを足します。よろしいですか？')) return;
+  var Y = new Date().getFullYear();
+  var demo = [
+    { name:'見本 健一', kana:'ミホン ケンイチ', birth:'1961-10-05', contact:'携帯（平日夜）', memo:'サンプル（架空）',
+      pols:[{ kind:'teiki', company:'サンプル生命', product:'定期保険（見本）', start:'2016-10-05', maturity:'2026-10-05', renew:true, renewY:10 }] },
+    { name:'見本 美咲', kana:'ミホン ミサキ', birth:'1988-11-02', memo:'サンプル（架空）',
+      pols:[{ kind:'iryo', company:'サンプル生命', product:'医療保険（見本）', start:'2019-11-02', payEnd:'2048-11-02' }] },
+    { name:'見本 誠', kana:'ミホン マコト', birth:'1956-09-30', memo:'サンプル（架空）',
+      pols:[{ kind:'shushin', company:'サンプル生命', product:'終身保険（見本）', start:'2001-12-31', payEnd:(Y) + '-12-01' }] },
+    { name:'見本 由美', kana:'ミホン ユミ', birth:'1974-12-20', memo:'サンプル（架空）',
+      pols:[{ kind:'kasai', company:'サンプル損保', product:'火災保険（見本）', start:'2021-01-31', maturity:(Y) + '-10-01', renew:true, renewY:1 }] },
+    { name:'見本 直子', kana:'ミホン ナオコ', birth:'2000-02-29', memo:'サンプル（架空）うるう年生まれ',
+      pols:[{ kind:'jido', company:'サンプル損保', product:'自動車保険（見本）', start:'2020-12-31', maturity:(Y) + '-12-31', renew:true, renewY:1 }] },
+    { name:'見本 隆史', kana:'ミホン タカシ', birth:'1966-08-31', memo:'サンプル（架空）',
+      pols:[{ kind:'nenkin', company:'サンプル生命', product:'個人年金（見本）', start:'2006-08-31', annAge:65, payEnd:'2031-08-31' },
+            { kind:'jido', company:'サンプル損保', product:'自動車保険（見本）', start:'2015-11-15', maturity:(Y) + '-11-15', renew:true, renewY:1 }] },
+    { name:'見本 恵子', kana:'ミホン ケイコ', birth:'1979-03-31', memo:'サンプル（架空）3月31日生まれ',
+      pols:[{ kind:'shunyu', company:'サンプル生命', product:'収入保障（見本）', start:'2018-03-31', payEnd:'2044-03-31' }] },
+    { name:'見本 太一', kana:'ミホン タイチ', birth:(Y - 20) + '-11-20', memo:'サンプル（架空）20歳の節目',
+      pols:[] },
+    { name:'見本 さくら', kana:'ミホン サクラ', birth:(Y - 75) + '-11-30', memo:'サンプル（架空）75歳の節目',
+      pols:[{ kind:'yoro', company:'サンプル生命', product:'養老保険（見本）', start:'2011-11-30', maturity:(Y + 1) + '-11-30' }] }
+  ];
+  demo.forEach(function(o){
+    var cid = uid('c');
+    state.customers.push({ id:cid, name:o.name, kana:o.kana, birth:o.birth, contact:o.contact || '', memo:o.memo });
+    (o.pols || []).forEach(function(p){
+      state.policies.push({
+        id: uid('p'), cid: cid, kind: p.kind, kindText: '', company: p.company || '', product: p.product || '',
+        start: p.start || '', maturity: p.maturity || '', payEnd: p.payEnd || '',
+        renew: !!p.renew, renewY: p.renewY || 0, annAge: p.annAge || 0, memo: ''
+      });
+    });
+  });
+  save();
+  showTab('soon');
+}
+
+function renderRules(){
+  var rows = [
+    ['誕生日の前月', '生年月日', '毎年の誕生日の1か月前。その月に同じ日が無ければ末日（3月31日生まれ → 2月28日／うるう年は2月29日）。'],
+    ['契約応当日・更新', '契約日（＋更新の周期）', '毎年の契約応当日。更新の周期にあたる年は「更新の時期」として出します。満期日と同じ日になる年は、満期のほうにまとめます。'],
+    ['満期・更改', '満期日・更新日', '更新ありなら周期ぶんくり返します（自動車・火災は1年ごとが目安）。更新なしなら1回だけ。'],
+    ['払込満了', '払込満了日', 'その日に1回だけ。'],
+    ['年金の受取開始', '生年月日＋受取開始年齢', '受取開始日の3か月前（準備）と、開始日そのもの。'],
+    ['年齢の節目', '生年月日', '20・60・65・70・75歳になる誕生日。<b>制度の仕組みだけを書き、金額は載せていません。</b>']
+  ];
+  $('ruleBox').innerHTML =
+    '<div class="map-wrap"><table class="map-table" style="min-width:560px;">' +
+    '<tr><th>きっかけ</th><th>使う項目</th><th>出しかた</th></tr>' +
+    rows.map(function(r){
+      return '<tr><td style="white-space:nowrap;font-weight:700;color:var(--navy);">' + esc(r[0]) + '</td>' +
+        '<td style="white-space:nowrap;color:var(--muted);">' + esc(r[1]) + '</td><td>' + r[2] + '</td></tr>';
+    }).join('') + '</table></div>' +
+    '<p class="sec-note" style="margin-bottom:0;">「連絡済み」の印は、その年のきっかけごとに残ります。翌年の同じきっかけは、また新しく出ます。<br>' +
+    '2月29日生まれの方は、うるう年でない年は2月28日として扱います。<br>' +
+    'このツールは通知を出しません（サーバーを持たないため）。朝いちばんに開いて確かめる使い方を想定しています。<br>' +
+    '手続きの期限そのものは、保険会社の案内・証券・約款で必ず確かめてください。</p>';
+}
+
+/* ============================================================
+   15. 起動
+   ============================================================ */
+function startApp(){
+  $('lock').classList.add('hide');
+  $('app').classList.remove('hide');
+  state = load();
+  showTab('soon');
+}
+function showLock(){
+  $('lock').classList.remove('hide');
+  $('app').classList.add('hide');
+  function tryPass(){
+    var hash = sha256(PASS_SALT + $('passInput').value);
+    if (PASS_HASHES.indexOf(hash) >= 0) { rememberAuth(hash); startApp(); }
+    else { $('passErr').textContent = 'パスワードが違います。'; $('passInput').select(); }
+  }
+  $('passBtn').addEventListener('click', tryPass);
+  $('passInput').addEventListener('keydown', function(ev){ if (ev.key === 'Enter') tryPass(); });
+  $('passInput').focus();
+}
+if (isAuthed()) startApp(); else showLock();
+
+/* 動作検証用の入口（画面には出ない・外部送信はしない）。
+   うるう年・月末の日付ずれを自動で確かめるために使う。 */
+window.__calTest = {
+  ymdOf: ymdOf, addMonths: addMonths, addYears: addYears, diffDays: diffDays,
+  parseAnyDate: parseAnyDate, ageOn: ageOn, genEvents: function(a, b){ return genEvents(a, b); },
+  getState: function(){ return state; }, setState: function(o){ state = o; save(); },
+  parseCsv: parseCsv
+};
+</script>
+</body>
+</html>

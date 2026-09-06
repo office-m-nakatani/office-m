@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>保険支払事例トレーニング｜支払いが分かれる場面を覚える</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231c5cab'/%3E%3Cpath d='M16 6l8 3v6c0 5-3.4 8.6-8 11-4.6-2.4-8-6-8-11V9l8-3Z' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linejoin='round'/%3E%3Cpath d='M12.4 16.2l2.6 2.6 4.8-5' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<!--
+  ⚠️ 社内利用専用ツール（お客様には配らない・共有リンクの対象外）
+
+  ■ これは何か
+  募集人が「それは出ますよ」と言い過ぎる事故を防ぐための、支払い判断の練習台です。
+  支払いが「分かれる」場面だけを68件集めてあります。正解を覚えるためではなく、
+  即答してはいけない場面を体で覚えるためのものです。
+
+  ■ 保存先と外部送信
+  正誤・弱点・連続日数は、この端末のブラウザ（localStorage: officem.hokenShiharai.v1）
+  にだけ残ります。サーバー送信は一切ありません。端末を変えると消えるので、
+  「記録・データ」タブのJSON書き出しでバックアップを取ってください。
+  共有PCでは使わないこと（ロック解除の記憶が30日残ります）。
+
+  ■ 内容の限界（ここが最重要）
+  - 約款は保険会社・商品・発売年ごとに違います。ここに書いた取り扱いは
+    「一般的にはこう」という説明で、個別の契約の結論ではありません。
+    全ケースの解説の末尾に、その趣旨の一文を必ず表示しています
+    （定数 DISCLAIM を expHtml() が毎回出す。出題でも一覧でも同じ）。
+    この一文を消したり、条件付きで出さないようにしたりしないこと。
+  - 特定の保険会社名・商品名は書いていません。今後も書かないこと。
+  - 期間や日数（脳卒中の後遺症60日、がんの待ち期間90日など）は、
+    必ず「〜としている商品が多い」と添えてあります。断定形に直さないこと。
+  - 法令の条文番号は書いていません（改正で動くため）。仕組みと要件で説明しています。
+  - 税金の取り扱いには踏み込んでいません（リビングニーズの残額の扱いのみ、
+    仕組みとして触れています）。税務の判断は税理士に確認してください。
+
+  ■ まだ済んでいない確認事項
+  - 募集文書審査は未了。社内利用専用のため対外配布はしないこと。
+  - 自社が扱う商品の約款と突き合わせた「うちの商品ではこう」の注記は入れていない。
+    必要なら、各ケースに自社注記を足すのではなく、別途一覧表を作ること
+    （このHTMLに商品名が入ると社外流出時のリスクが上がるため）。
+  - 制度改正・約款改定の見直し目安：年1回（毎年4月ごろ）。
+    特に「入院の定義」「手術の定義」「三大疾病の所定の状態」「先進医療」は動きやすい。
+
+  ■ パスワードゲート
+  保険ツール管理画面.html と同じ方式・同じ合言葉（平文はどこにも書かない）。
+  AUTH_KEY だけこのツール専用（officem.hokenShiharai.auth）。
+-->
+<style>
+:root{
+  /* インク（旧 --navy 系。名前は互換のため維持） */
+  --navy:#16283c; --navy-2:#2e4763; --navy-soft:#eaf0f7;
+  --bg:#f3f5f8; --white:#fff; --text:#26313d; --muted:#5f6b78; --line:#e2e7ed;
+  --shadow:0 8px 24px rgba(23,42,64,.08); --shadow-sm:0 2px 8px rgba(23,42,64,.06);
+  /* 主ボタン＝ブランドブルー（旧coral名のまま値だけ差し替え。白文字コントラスト5.9:1） */
+  --coral:#2a78d6; --coral-btn:#1c5cab; --coral-btn-h:#164a8c;
+  --coral-text:#1c5cab; --coral-bg:#e8f1fb; --coral-border:#c4dcf5;
+  --green:#008300; --green-bg:#e7f4e7; --green-border:#bfe3bf;
+  --amber:#9a6a10; --amber-bg:#fbf3e0; --amber-border:#eeddb2;
+  --sky:#1c5cab; --sky-bg:#e8f1fb; --sky-border:#c4dcf5;
+  --berry:#b03569; --berry-bg:#fdedf4;
+  --teal:#b03569; --teal-bg:#fdedf4; --teal-border:#f6cade;   /* 旧teal＝定期訪問。現在は桃色系 */
+  --red-text:#c22f2f; --red-bg:#fbeaea;
+  --chart-1:#2a78d6;
+  /* 活動種別6色（マーク用）とバッジ文字色（白地4.5:1確保用） */
+  --tAP:#2a78d6; --tFF:#eb6834; --tPZ:#1baf7a; --tCL:#4a3aa7; --tKY:#008300; --tTH:#e87ba4;
+  --tAPtx:#1c5cab; --tFFtx:#ba4413; --tPZtx:#0d7a52; --tCLtx:#4a3aa7; --tKYtx:#006300; --tTHtx:#b03569;
+  --tAPbg:#e8f1fb; --tFFbg:#fdeee4; --tPZbg:#e2f6ee; --tCLbg:#edeafa; --tKYbg:#e7f4e7; --tTHbg:#fdedf4;
+  --tAPbd:#c4dcf5; --tFFbd:#f8d2bd; --tPZbd:#b8e8d5; --tCLbd:#d5cef2; --tKYbd:#bfe3bf; --tTHbd:#f6cade;
+  /* 見出しも本文と同じサンセリフ（旧minchoトークンは互換のため名前だけ残す） */
+  --mincho:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",YuGothic,Meiryo,"Noto Sans JP",sans-serif;
+  --fs-xs:.8125rem; --fs-sm:.9rem; --fs-base:1rem; --fs-md:1.125rem;
+  --fs-lg:1.3rem; --fs-xl:1.55rem; --fs-2xl:2rem;
+  --lh-tight:1.45; --lh-base:1.75;
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:20px; --sp-6:24px; --sp-8:32px;
+  --r:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;font-size:16px;}
+@media(min-width:640px){ html{font-size:16.5px;} }
+@media(min-width:1100px){ html{font-size:17px;} }
+body{
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",YuGothic,Meiryo,"Noto Sans JP",sans-serif;
+  color:var(--text); background:var(--bg);
+  font-size:var(--fs-base); line-height:var(--lh-base);
+  overflow-wrap:break-word; padding-bottom:70px;
+}
+svg{width:1.05em;height:1.05em;vertical-align:-.16em;flex:none;}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit;}
+a{color:var(--navy-2);}
+.wrap{max-width:1020px;margin:0 auto;padding:0 16px;}
+.hide{display:none !important;}
+:focus-visible{outline:3px solid var(--navy-2);outline-offset:2px;border-radius:5px;}
+
+/* ---------- ヘッダー ---------- */
+.topbar{background:var(--white);border-bottom:1px solid var(--line);}
+.topbar .wrap{display:flex;align-items:center;gap:var(--sp-4);min-height:64px;flex-wrap:wrap;padding:var(--sp-3) 16px;}
+.tb-brand{display:flex;align-items:center;gap:var(--sp-3);color:var(--navy);}
+.tb-brand .tb-art{width:40px;height:40px;flex:none;}
+.tb-brand .tb-art svg{width:40px;height:40px;}
+.tb-brand b{display:block;font-size:var(--fs-md);letter-spacing:.04em;font-weight:700;line-height:1.3;}
+.tb-brand small{display:block;font-size:var(--fs-xs);color:var(--muted);letter-spacing:.02em;line-height:1.5;}
+.tb-tag{margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-xs);font-weight:700;
+  letter-spacing:.03em;color:var(--muted);background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:6px 13px;}
+
+/* ---------- タブ ---------- */
+.tabs{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.95);backdrop-filter:blur(6px);
+  border-bottom:1px solid var(--line);}
+.tabs .wrap{display:flex;gap:var(--sp-2);padding:9px 16px;overflow-x:auto;}
+.tab{display:inline-flex;align-items:center;gap:8px;border:1px solid transparent;background:transparent;
+  border-radius:10px;padding:9px 16px;min-height:44px;cursor:pointer;font-weight:700;font-size:var(--fs-sm);
+  color:var(--muted);white-space:nowrap;transition:.15s;}
+.tab svg{width:18px;height:18px;}
+.tab[aria-selected="true"]{background:var(--navy);border-color:var(--navy);color:#fff;box-shadow:var(--shadow-sm);}
+.tab:not([aria-selected="true"]):hover{background:var(--navy-soft);color:var(--navy);}
+
+/* ---------- セクション ---------- */
+.sec{margin-top:var(--sp-6);}
+.sec-head{display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-4);}
+.sec-head .sh-art{display:none;}   /* 旧イラスト枠。製品版デザインでは使わない */
+.sec-head h2{font-size:var(--fs-lg);color:var(--navy);letter-spacing:.03em;font-weight:700;}
+.sec-head p{font-size:var(--fs-sm);color:var(--muted);margin-top:2px;}
+.sec-note{font-size:var(--fs-sm);color:var(--muted);max-width:46em;margin:var(--sp-2) 0 var(--sp-4);}
+
+/* ---------- カード・ボタン ---------- */
+.card{background:var(--white);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-sm);
+  padding:var(--sp-5);}
+.card h3{font-size:var(--fs-md);}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:10px;
+  padding:12px 22px;min-height:44px;cursor:pointer;font-size:var(--fs-base);font-weight:700;letter-spacing:.03em;transition:.15s;text-decoration:none;}
+.btn svg{width:17px;height:17px;}
+.btn-primary{background:var(--coral-btn);color:#fff;box-shadow:0 4px 12px rgba(28,92,171,.28);}
+.btn-primary:hover{background:var(--coral-btn-h);transform:translateY(-1px);}
+.btn-navy{background:var(--navy);color:#fff;}
+.btn-navy:hover{background:#16344e;}
+.btn-ghost{background:var(--white);border:1.5px solid var(--line);color:var(--navy);}
+.btn-ghost:hover{border-color:var(--navy-2);}
+.btn-sm{padding:8px 14px;min-height:36px;font-size:var(--fs-sm);}
+.btn-danger{background:var(--white);border:1.5px solid var(--coral-border);color:var(--red-text);}
+.btn-danger:hover{background:var(--red-bg);}
+
+/* ---------- フォーム ---------- */
+.frm{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:var(--sp-3) var(--sp-4);}
+.frm .full{grid-column:1 / -1;}
+.fld label{display:block;font-size:var(--fs-xs);font-weight:700;color:var(--navy);margin-bottom:4px;letter-spacing:.03em;}
+.fld input[type=text],.fld input[type=number],.fld input[type=date],.fld input[type=time],.fld input[type=password],.fld select,.fld textarea{
+  width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px;background:#fff;}
+.fld textarea{min-height:70px;resize:vertical;}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--navy-2);outline:none;box-shadow:0 0 0 3px var(--navy-soft);}
+.fld .hint{font-size:var(--fs-xs);color:var(--muted);margin-top:3px;}
+.frm-actions{display:flex;gap:var(--sp-3);flex-wrap:wrap;margin-top:var(--sp-4);}
+
+/* ---------- チップ・バッジ ---------- */
+.chips{display:flex;gap:var(--sp-2);flex-wrap:wrap;}
+.chip{border:1.5px solid var(--line);background:var(--white);border-radius:999px;padding:7px 14px;min-height:36px;
+  cursor:pointer;font-size:var(--fs-sm);font-weight:700;color:var(--muted);}
+.chip[aria-pressed="true"]{background:var(--navy-soft);border-color:var(--navy-2);color:var(--navy);}
+.badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:3px 11px;font-size:var(--fs-xs);font-weight:700;border:1px solid;}
+/* 未読件数バッジ（掲示板タブ・受信トレイ風）。既読が0件のときはJSでhideを付ける */
+.unread-pill{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;
+  margin-left:7px;border-radius:999px;background:var(--red-text);color:#fff;font-size:11px;font-weight:800;line-height:20px;}
+
+/* ---------- KPI・統計 ---------- */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:var(--sp-3);}
+.tile{background:var(--white);border:1px solid var(--line);border-radius:var(--r);padding:var(--sp-4) var(--sp-5);box-shadow:var(--shadow-sm);
+  display:flex;flex-direction:column;gap:3px;}
+.tile .t-label{font-size:var(--fs-xs);font-weight:700;color:var(--muted);letter-spacing:.04em;}
+.tile .t-value{font-size:var(--fs-2xl);font-weight:700;color:var(--navy);line-height:1.25;letter-spacing:-.01em;}
+.tile .t-value small{font-size:var(--fs-md);font-weight:700;}
+.tile .t-sub{font-size:var(--fs-xs);color:var(--muted);}
+.tile .t-delta{font-size:var(--fs-xs);font-weight:700;display:inline-flex;align-items:center;gap:4px;
+  align-self:flex-start;border-radius:999px;padding:2px 9px;}
+.tile .t-delta:empty{display:none;}
+.tile .t-delta.up{color:#006300;background:#e7f4e7;}       /* 前月比プラス */
+.tile .t-delta.down{color:#b32424;background:#fdecec;}     /* 前月比マイナス */
+.tile .t-delta.flat{color:var(--muted);background:#f0f2f5;}
+/* 値の色は全カード同じインク色（意味色はデルタチップだけが持つ） */
+
+
+/* ---------- 空状態 ---------- */
+.empty{text-align:center;padding:var(--sp-8) var(--sp-4);color:var(--muted);}
+.empty .em-art{width:84px;height:84px;margin:0 auto var(--sp-3);}
+.empty .em-art svg{width:84px;height:84px;}
+.empty b{display:block;color:var(--navy);font-size:var(--fs-md);margin-bottom:6px;}
+.empty p{font-size:var(--fs-sm);max-width:30em;margin:0 auto;}
+
+/* ---------- ロック画面 ---------- */
+#lock{max-width:420px;margin:9vh auto 0;padding:0 16px;}
+#lock .card{padding:var(--sp-8) var(--sp-6);text-align:center;}
+#lock .lk-art{width:72px;height:72px;margin:0 auto var(--sp-3);}
+#lock .lk-art svg{width:72px;height:72px;}
+#lock h1{font-family:var(--mincho);font-size:var(--fs-lg);color:var(--navy);margin-bottom:6px;}
+#lock p{font-size:var(--fs-sm);color:var(--muted);margin-bottom:var(--sp-4);}
+#lock input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;min-height:48px;text-align:center;letter-spacing:.15em;}
+#lock .err{color:var(--red-text);font-size:var(--fs-sm);font-weight:700;min-height:1.6em;margin-top:var(--sp-2);}
+
+footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-size:var(--fs-xs);color:var(--muted);border-top:1px solid var(--line);}
+@media(max-width:640px){
+  .funnel{column-gap:8px;}
+  .fn-label{font-size:var(--fs-xs);}
+  .fn-val{font-size:11.5px;}
+  .fn-val b{font-size:var(--fs-sm);}
+  .bars{height:120px;gap:2px;}
+  .bar{min-width:24px;}
+  .bar-x{gap:2px;}
+  .bar-x span:nth-child(even){visibility:hidden;}
+  /* カレンダー：狭い画面では名前チップをやめ、種別色のドットに置き換える。
+     中身は日付をタップ→下の当日リストで見る（追加もそこの「この日に記録する」から） */
+  .cal-cell{min-height:64px;padding:3px 2px 4px;}
+  .cal-cell .cd{font-size:12px;padding:1px 4px;min-width:20px;}
+  .cal-ev{width:9px;height:9px;border-radius:50%;padding:0;border:none;margin:2px 2px 0 0;
+    display:inline-block;vertical-align:middle;overflow:hidden;color:transparent;font-size:0;line-height:9px;}
+  .cal-ev.bg-AP{background:var(--tAP);} .cal-ev.bg-FF{background:var(--tFF);}
+  .cal-ev.bg-PZ{background:var(--tPZ);} .cal-ev.bg-CL{background:var(--tCL);}
+  .cal-ev.bg-KY{background:var(--tKY);} .cal-ev.bg-TH{background:var(--tTH);}
+  .cal-ev.bd{background:#d9b14d;}
+  .cal-more{font-size:9.5px;}
+  .cal-add{display:none;}
+  .day-row{padding:10px 12px;}
+  .day-row .day-time{min-width:4.6em;}
+  .pick{grid-template-columns:1fr;}
+  /* 見出しの右のボタンは、狭い画面では下に回して横いっぱいに */
+  .sec-head{flex-wrap:wrap;}
+  .head-action{margin-left:0;width:100%;justify-content:center;}
+}
+
+/* ============================================================
+   ここから下は、このツール（保険支払事例トレーニング）だけの追記
+   ============================================================ */
+.notice{display:flex;gap:10px;align-items:flex-start;background:var(--amber-bg);border:1px solid var(--amber-border);
+  color:var(--amber);border-radius:12px;padding:12px 15px;font-size:var(--fs-sm);line-height:1.7;}
+.notice svg{width:19px;height:19px;margin-top:4px;}
+.notice b{color:var(--amber);}
+
+/* 出題カード */
+.q-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:var(--sp-3);}
+.q-count{font-size:var(--fs-xs);font-weight:700;color:var(--muted);letter-spacing:.04em;}
+.cbadge{display:inline-flex;align-items:center;border-radius:999px;padding:3px 12px;font-size:var(--fs-xs);
+  font-weight:700;background:var(--navy-soft);color:var(--navy);border:1px solid var(--coral-border);}
+.pbar{height:7px;background:var(--line);border-radius:999px;overflow:hidden;margin-bottom:var(--sp-4);}
+.pbar i{display:block;height:100%;background:var(--coral-btn);border-radius:999px;transition:width .2s;}
+.scene{background:var(--navy-soft);border-left:4px solid var(--navy-2);border-radius:0 12px 12px 0;
+  padding:15px 17px;font-size:var(--fs-md);line-height:1.85;color:var(--navy);}
+.q-ask{margin-top:var(--sp-4);font-size:var(--fs-sm);font-weight:700;color:var(--muted);}
+
+.ansbtns{display:grid;gap:10px;margin-top:var(--sp-3);}
+.ansbtn{display:flex;align-items:flex-start;gap:11px;text-align:left;width:100%;border:1.5px solid var(--line);
+  background:var(--white);border-radius:12px;padding:13px 16px;min-height:56px;cursor:pointer;
+  font-weight:700;font-size:var(--fs-base);line-height:1.6;transition:.15s;}
+.ansbtn .mk{width:26px;height:26px;flex:none;border-radius:50%;border:2px solid var(--line);
+  display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--muted);margin-top:1px;}
+.ansbtn .ab-t{display:block;}
+.ansbtn small{display:block;font-weight:400;font-size:var(--fs-xs);color:var(--muted);line-height:1.6;margin-top:2px;}
+.ansbtn:not(:disabled):hover{border-color:var(--navy-2);background:var(--navy-soft);}
+.ansbtn:disabled{cursor:default;opacity:1;}
+.ansbtn.is-right{background:var(--green-bg);border-color:var(--green-border);}
+.ansbtn.is-right .mk{border-color:var(--green);color:var(--green);background:#fff;}
+.ansbtn.is-right .ab-t{color:var(--green);}
+.ansbtn.is-miss{background:var(--red-bg);border-color:#eec4c4;}
+.ansbtn.is-miss .mk{border-color:var(--red-text);color:var(--red-text);background:#fff;}
+.ansbtn.is-miss .ab-t{color:var(--red-text);}
+.ansbtn.is-dim{opacity:.55;}
+
+/* 解説 */
+.exp{margin-top:var(--sp-5);border-top:1px dashed var(--line);padding-top:var(--sp-5);}
+.verdict{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:5px 14px;
+  font-size:var(--fs-sm);font-weight:800;border:1px solid;margin-bottom:var(--sp-3);}
+.verdict.ok{background:var(--green-bg);border-color:var(--green-border);color:var(--green);}
+.verdict.no{background:var(--red-bg);border-color:#eec4c4;color:var(--red-text);}
+.exp h4{font-size:var(--fs-sm);color:var(--navy);letter-spacing:.04em;margin-bottom:5px;}
+.exp .why{font-size:var(--fs-sm);line-height:1.9;}
+.pointbox{margin-top:var(--sp-4);background:var(--sky-bg);border:1px solid var(--sky-border);border-radius:12px;padding:13px 15px;}
+.pointbox .lb{display:flex;align-items:center;gap:7px;font-size:var(--fs-xs);font-weight:800;color:var(--sky);letter-spacing:.05em;margin-bottom:4px;}
+.pointbox p{font-size:var(--fs-base);font-weight:700;color:var(--navy);line-height:1.7;}
+.ngbox{margin-top:var(--sp-3);background:var(--red-bg);border:1.5px solid #eec4c4;border-radius:12px;padding:13px 15px;}
+.ngbox .lb{display:flex;align-items:center;gap:7px;font-size:var(--fs-xs);font-weight:800;color:var(--red-text);letter-spacing:.05em;margin-bottom:4px;}
+.ngbox p{font-size:var(--fs-sm);font-weight:700;color:var(--red-text);line-height:1.7;}
+.disclaim{margin-top:var(--sp-3);background:var(--bg);border:1px dashed var(--line);border-radius:12px;
+  padding:11px 14px;font-size:var(--fs-xs);color:var(--muted);line-height:1.7;}
+.exp-act{display:flex;gap:10px;flex-wrap:wrap;margin-top:var(--sp-5);}
+
+/* 分野の正答率 */
+.catlist{display:grid;gap:9px;}
+.catrow{display:flex;align-items:center;gap:12px;background:var(--white);border:1px solid var(--line);
+  border-radius:12px;padding:11px 14px;width:100%;text-align:left;cursor:pointer;transition:.15s;min-height:56px;}
+.catrow:hover{border-color:var(--navy-2);background:var(--navy-soft);}
+.catrow .cr-name{font-weight:700;font-size:var(--fs-sm);color:var(--navy);flex:1;min-width:0;}
+.catrow .cr-meter{width:96px;flex:none;}
+.catrow .cr-num{font-size:var(--fs-xs);color:var(--muted);font-weight:700;min-width:6.6em;text-align:right;flex:none;}
+.meter{height:7px;background:var(--line);border-radius:999px;overflow:hidden;}
+.meter i{display:block;height:100%;border-radius:999px;background:var(--coral-btn);}
+.meter i.lo{background:#c22f2f;} .meter i.mid{background:#9a6a10;} .meter i.hi{background:#008300;}
+
+/* 一覧で読む */
+.srch{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:var(--sp-3);}
+.srch input{flex:1;min-width:200px;border:1.5px solid var(--line);border-radius:10px;padding:10px 13px;min-height:44px;background:#fff;}
+.srch input:focus{border-color:var(--navy-2);outline:none;box-shadow:0 0 0 3px var(--navy-soft);}
+.acc{border:1px solid var(--line);border-radius:12px;background:var(--white);margin-bottom:9px;overflow:hidden;box-shadow:var(--shadow-sm);}
+.acc>.acc-h{display:flex;gap:11px;align-items:flex-start;width:100%;text-align:left;background:none;border:none;
+  padding:13px 15px;cursor:pointer;min-height:56px;}
+.acc>.acc-h:hover{background:var(--navy-soft);}
+.acc .acc-h .ah-body{flex:1;min-width:0;}
+.acc .acc-h .ah-cat{font-size:var(--fs-xs);font-weight:700;color:var(--coral-text);letter-spacing:.04em;}
+.acc .acc-h .ah-txt{font-size:var(--fs-sm);line-height:1.7;color:var(--text);}
+.acc .acc-h .ah-mk{flex:none;color:var(--muted);margin-top:4px;}
+.acc .acc-b{padding:0 15px 15px;}
+.ansline{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:4px 13px;font-size:var(--fs-xs);
+  font-weight:800;border:1px solid;margin-bottom:var(--sp-3);}
+.a-in{background:var(--green-bg);border-color:var(--green-border);color:var(--green);}
+.a-out{background:var(--red-bg);border-color:#eec4c4;color:var(--red-text);}
+.a-dep{background:var(--amber-bg);border-color:var(--amber-border);color:var(--amber);}
+
+/* 集計テーブル */
+.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+table.t{border-collapse:collapse;width:100%;min-width:520px;font-size:var(--fs-sm);}
+table.t th,table.t td{border-bottom:1px solid var(--line);padding:9px 11px;text-align:left;white-space:nowrap;}
+table.t th{background:var(--bg);color:var(--navy);font-size:var(--fs-xs);letter-spacing:.04em;}
+table.t td.num{text-align:right;font-variant-numeric:tabular-nums;}
+
+.legend{display:grid;gap:7px;margin-top:var(--sp-3);font-size:var(--fs-xs);color:var(--muted);}
+.legend div{display:flex;gap:8px;align-items:flex-start;}
+.legend b{flex:none;min-width:8.2em;color:var(--navy);}
+.rowbtns{display:flex;gap:10px;flex-wrap:wrap;}
+@media(max-width:640px){
+  /* 「今日の10問」の数字タイルは、狭い画面では3つ横並びの小さい形に。
+     縦に積むと問題文が画面の下に押し出されてしまうため */
+  .tiles.compact{grid-template-columns:repeat(3,1fr);gap:8px;}
+  .tiles.compact .tile{padding:11px 10px;gap:1px;}
+  .tiles.compact .t-label{font-size:11px;letter-spacing:0;}
+  .tiles.compact .t-value{font-size:var(--fs-lg);}
+  .tiles.compact .t-value small{font-size:var(--fs-sm);}
+  .tiles.compact .t-sub{font-size:10.5px;line-height:1.5;}
+  .catrow{flex-wrap:wrap;}
+  .catrow .cr-name{flex:1 1 100%;}
+  .catrow .cr-meter{flex:1;width:auto;}
+  .scene{font-size:var(--fs-base);}
+  .legend b{min-width:100%;}
+  .legend div{flex-wrap:wrap;}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= ロック ================= -->
+<div id="lock" class="hide">
+  <div class="card">
+    <div class="lk-art"><svg aria-hidden="true" viewBox="0 0 40 40"><rect width="40" height="40" rx="9" fill="#1c5cab"/><path d="M20 8l10 3.6v7.2c0 6.2-4.2 10.7-10 13.2-5.8-2.5-10-7-10-13.2v-7.2L20 8Z" fill="none" stroke="#fff" stroke-width="2.6" stroke-linejoin="round"/><path d="M15.6 20.4l3.1 3.1 5.7-6" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <h1>保険支払事例トレーニング</h1>
+    <p>社内利用専用です。パスワードを入力してください。</p>
+    <div class="fld"><input type="password" id="passInput" autocomplete="current-password" aria-label="パスワード"></div>
+    <div class="err" id="passErr" role="alert"></div>
+    <button class="btn btn-primary" id="passBtn" style="width:100%;">開く</button>
+  </div>
+</div>
+
+<!-- ================= 本体 ================= -->
+<div id="app" class="hide">
+<header class="topbar">
+  <div class="wrap">
+    <div class="tb-brand">
+      <span class="tb-art"><svg aria-hidden="true" viewBox="0 0 40 40"><rect width="40" height="40" rx="9" fill="#1c5cab"/><path d="M20 8l10 3.6v7.2c0 6.2-4.2 10.7-10 13.2-5.8-2.5-10-7-10-13.2v-7.2L20 8Z" fill="none" stroke="#fff" stroke-width="2.6" stroke-linejoin="round"/><path d="M15.6 20.4l3.1 3.1 5.7-6" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <span><b>保険支払事例トレーニング</b><small>「それは出ますよ」と言い過ぎないための練習台</small></span>
+    </div>
+    <span class="tb-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>データはこの端末のみ・外部送信なし</span>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="ページ切り替え">
+  <div class="wrap" role="tablist">
+    <button class="tab" role="tab" data-tab="daily" aria-selected="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17M8.6 14.6l2.2 2.2 4.6-4.6"/></svg>今日の10問</button>
+    <button class="tab" role="tab" data-tab="cat" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="7" height="7" rx="1.8"/><rect x="13.5" y="4" width="7" height="7" rx="1.8"/><rect x="3.5" y="14" width="7" height="7" rx="1.8"/><rect x="13.5" y="14" width="7" height="7" rx="1.8"/></svg>分野別</button>
+    <button class="tab" role="tab" data-tab="weak" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5 3 19.5h18L12 4.5Z"/><path d="M12 10v4.2M12 17.2v.1"/></svg>まちがえた問題<span id="weakBadge" class="unread-pill hide"></span></button>
+    <button class="tab" role="tab" data-tab="list" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5h9M4 12h16M4 18.5h12"/><circle cx="17.5" cy="6" r="3"/><path d="m20 8.4 1.6 1.6"/></svg>一覧で読む</button>
+    <button class="tab" role="tab" data-tab="rec" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg>記録・データ</button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <!-- ================= 今日の10問 ================= -->
+  <section id="tab-daily" role="tabpanel" aria-label="今日の10問">
+    <div class="sec">
+      <div class="sec-head">
+        <div><h2>今日の10問</h2><p>支払いが分かれる場面を、ランダムに10問</p></div>
+      </div>
+      <div class="notice" style="margin-bottom:16px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4.5 3 19.5h18L12 4.5Z"/><path d="M12 10v4.2M12 17.2v.1"/></svg>
+        <div><b>正解を当てる練習ではありません。</b>「その場で言い切ってはいけない場面」を見分ける練習です。判断するのは保険会社で、募集人の仕事は請求できる形を整えることです。</div>
+      </div>
+      <div class="tiles compact" style="margin-bottom:16px;">
+        <div class="tile"><div class="t-label">連続日数</div><div class="t-value" id="tlRun"></div><div class="t-sub" id="tlRunSub"></div></div>
+        <div class="tile"><div class="t-label">いまの連続正解</div><div class="t-value" id="tlStreak"></div><div class="t-sub" id="tlStreakSub"></div></div>
+        <div class="tile"><div class="t-label">これまでの正答率</div><div class="t-value" id="tlAcc"></div><div class="t-sub" id="tlAccSub"></div></div>
+      </div>
+      <div id="dailyHost"></div>
+    </div>
+  </section>
+
+  <!-- ================= 分野別 ================= -->
+  <section id="tab-cat" role="tabpanel" aria-label="分野別" class="hide">
+    <div class="sec">
+      <div class="sec-head">
+        <div><h2>分野別</h2><p>分野を選んで解く。正答率の低い分野から潰す</p></div>
+      </div>
+      <div id="catPick">
+        <p class="sec-note">数字は「これまでの正答率／解いた回数」です。回数は解き直すたびに増えます。</p>
+        <div class="catlist" id="catList"></div>
+      </div>
+      <div id="catHost"></div>
+    </div>
+  </section>
+
+  <!-- ================= まちがえた問題 ================= -->
+  <section id="tab-weak" role="tabpanel" aria-label="まちがえた問題" class="hide">
+    <div class="sec">
+      <div class="sec-head">
+        <div><h2>まちがえた問題</h2><p>最後の解答が不正解だったものだけを解き直す</p></div>
+      </div>
+      <div id="weakHost"></div>
+    </div>
+  </section>
+
+  <!-- ================= 一覧で読む ================= -->
+  <section id="tab-list" role="tabpanel" aria-label="一覧で読む" class="hide">
+    <div class="sec">
+      <div class="sec-head">
+        <div><h2>一覧で読む</h2><p>全ケースを読み物として。面談前の下読みに</p></div>
+      </div>
+      <div class="srch">
+        <input type="search" id="listQ" placeholder="言葉で探す（例：告知・上皮内・地震・日帰り）" aria-label="ケースを検索">
+        <button class="btn btn-ghost btn-sm" id="listOpenAll">すべて開く</button>
+        <button class="btn btn-ghost btn-sm" id="listCloseAll">すべて閉じる</button>
+      </div>
+      <div class="chips" id="listChips" style="margin-bottom:14px;"></div>
+      <p class="sec-note" id="listCount"></p>
+      <div id="listHost"></div>
+    </div>
+  </section>
+
+  <!-- ================= 記録・データ ================= -->
+  <section id="tab-rec" role="tabpanel" aria-label="記録・データ" class="hide">
+    <div class="sec">
+      <div class="sec-head">
+        <div><h2>記録</h2><p>正誤・弱点・連続日数はこの端末にだけ残ります</p></div>
+      </div>
+      <div class="tiles">
+        <div class="tile"><div class="t-label">解いた回数</div><div class="t-value" id="rcTotal"></div><div class="t-sub" id="rcTotalSub"></div></div>
+        <div class="tile"><div class="t-label">正答率</div><div class="t-value" id="rcAcc"></div><div class="t-sub" id="rcAccSub"></div></div>
+        <div class="tile"><div class="t-label">まちがえたまま</div><div class="t-value" id="rcWeak"></div><div class="t-sub">最後の解答が不正解のケース</div></div>
+        <div class="tile"><div class="t-label">連続日数</div><div class="t-value" id="rcRun"></div><div class="t-sub" id="rcRunSub"></div></div>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <h3 style="color:var(--navy);margin-bottom:12px;">分野ごとの成績</h3>
+        <div class="tblwrap">
+          <table class="t" id="recTable">
+            <thead><tr><th>分野</th><th>ケース数</th><th>解いた</th><th>正解</th><th>正答率</th><th>未着手</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-head">
+        <div><h2>データ</h2><p>端末を変えると消えます。バックアップを取ってください</p></div>
+      </div>
+      <div class="card">
+        <div class="notice" style="margin-bottom:16px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+          <div>記録はこの端末のブラウザにだけ保存され、外部へ送信されることはありません。共有パソコンでは使わないでください。書き出したJSONの置き場所にも注意してください。</div>
+        </div>
+        <div class="rowbtns">
+          <button class="btn btn-primary btn-sm" id="expBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M8 11l4 4 4-4M4 20h16"/></svg>記録を書き出す（JSON）</button>
+          <label class="btn btn-ghost btn-sm" style="cursor:pointer;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V8M8 12l4-4 4 4M4 20h16"/></svg>記録を読み込む
+            <input type="file" id="impBtn" accept="application/json,.json" style="display:none;">
+          </label>
+          <button class="btn btn-ghost btn-sm" id="lockBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>ロックする</button>
+          <button class="btn btn-danger btn-sm" id="wipeBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6.5 7l1 12.5h9L18 7"/></svg>記録を消す</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-head">
+        <div><h2>このツールの限界</h2><p>使う前に、ここを読んでください</p></div>
+      </div>
+      <div class="card">
+        <div class="legend" style="font-size:var(--fs-sm);line-height:1.85;">
+          <div><b>約款が優先します</b><span>ここでの説明は一般的な取り扱いです。実際の可否は、保険会社・商品・発売年ごとに違う約款と、お客様の契約内容（特約・支払限度・免責の定め）で決まります。</span></div>
+          <div><b>判断するのは会社</b><span>支払いの可否を判断するのは保険会社です。募集人が「出ます」「出ません」と結論を出すことはできません。まず請求してもらい、会社の判断を仰いでください。</span></div>
+          <div><b>会社名・商品名は書きません</b><span>特定の会社・商品の取り扱いに触れると、社外に出たときの影響が大きいためです。自社商品との突き合わせは別の資料で行ってください。</span></div>
+          <div><b>期間や日数は目安</b><span>待ち期間・免責期間・所定の状態の日数などは商品ごとに違います。本文でも「〜としている商品が多い」と書いています。断定して伝えないでください。</span></div>
+          <div><b>見直しの目安</b><span>年1回（毎年4月ごろ）。入院・手術の定義、三大疾病の所定の状態、先進医療は動きやすい分野です。</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+<footer>保険支払事例トレーニング｜社内利用専用｜記録はこの端末のブラウザにのみ保存されます（外部送信なし）<br>ここでの説明は一般的な取り扱いです。実際は約款とお客様の契約内容で確かめてください。</footer>
+</div>
+
+<script>
+/* ============================================================
+   0. パスワードゲート（社内ツール共通・平文は書かない）
+   ============================================================ */
+var AUTH_KEY = 'officem.hokenShiharai.auth';
+var PASS_SALT = 'officem-hoken-hub-2026|';
+var PASS_HASHES = ['011b517160f7c9f0b9eb2007ad01cba186e7fd97f970fb12cdc299f5036f8292', '438c03df96ee445897fee60e6c52ff454d3976192f6c3c4826a75e35d8dec226'];
+var AUTH_DAYS = 30;
+
+var sha256 = (function () {
+  var K = [
+    0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+    0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+    0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+    0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+    0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+    0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+    0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+    0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+  function rotr(x, n) { return (x >>> n) | (x << (32 - n)); }
+  return function (str) {
+    var bytes = new TextEncoder().encode(str), l = bytes.length;
+    var total = l + 1 + ((56 - (l + 1) % 64 + 64) % 64) + 8;
+    var m = new Uint8Array(total), dv = new DataView(m.buffer);
+    m.set(bytes); m[l] = 0x80;
+    dv.setUint32(total - 8, Math.floor(l * 8 / 4294967296));
+    dv.setUint32(total - 4, (l * 8) >>> 0);
+    var H = [0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+    var w = new Uint32Array(64), i, j;
+    for (i = 0; i < total; i += 64) {
+      for (j = 0; j < 16; j++) w[j] = dv.getUint32(i + j * 4);
+      for (j = 16; j < 64; j++) {
+        var s0 = rotr(w[j-15],7) ^ rotr(w[j-15],18) ^ (w[j-15] >>> 3);
+        var s1 = rotr(w[j-2],17) ^ rotr(w[j-2],19) ^ (w[j-2] >>> 10);
+        w[j] = (w[j-16] + s0 + w[j-7] + s1) >>> 0;
+      }
+      var a=H[0],b=H[1],c=H[2],d=H[3],e=H[4],f=H[5],g=H[6],h=H[7];
+      for (j = 0; j < 64; j++) {
+        var t1 = (h + (rotr(e,6)^rotr(e,11)^rotr(e,25)) + ((e&f)^((~e)&g)) + K[j] + w[j]) >>> 0;
+        var t2 = ((rotr(a,2)^rotr(a,13)^rotr(a,22)) + ((a&b)^(a&c)^(b&c))) >>> 0;
+        h=g; g=f; f=e; e=(d+t1)>>>0; d=c; c=b; b=a; a=(t1+t2)>>>0;
+      }
+      H[0]=(H[0]+a)>>>0;H[1]=(H[1]+b)>>>0;H[2]=(H[2]+c)>>>0;H[3]=(H[3]+d)>>>0;
+      H[4]=(H[4]+e)>>>0;H[5]=(H[5]+f)>>>0;H[6]=(H[6]+g)>>>0;H[7]=(H[7]+h)>>>0;
+    }
+    var out = '';
+    for (i = 0; i < 8; i++) out += ('00000000' + H[i].toString(16)).slice(-8);
+    return out;
+  };
+})();
+
+function isAuthed() {
+  try {
+    var o = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null');
+    return !!(o && PASS_HASHES.indexOf(o.h) >= 0 && o.e > Date.now());
+  } catch (e) { return false; }
+}
+function rememberAuth(hash) {
+  try { localStorage.setItem(AUTH_KEY, JSON.stringify({ h: hash, e: Date.now() + AUTH_DAYS * 86400000 })); }
+  catch (e) {}
+}
+function forgetAuth() { try { localStorage.removeItem(AUTH_KEY); } catch (e) {} }
+
+/* ============================================================
+   1. 分野と答えの種類
+   ============================================================ */
+var CATS = [
+  { k:'start',   label:'責任開始期' },
+  { k:'kokuchi', label:'告知義務違反と因果関係' },
+  { k:'kyousa',  label:'不告知教唆' },
+  { k:'menseki', label:'免責（自殺・戦争・重大な過失）' },
+  { k:'nyuin',   label:'入院の定義' },
+  { k:'shujutsu',label:'手術の定義' },
+  { k:'gan',     label:'がん・上皮内新生物' },
+  { k:'sandai',  label:'三大疾病の所定の状態' },
+  { k:'kodo',    label:'高度障害' },
+  { k:'menjo',   label:'保険料の払込免除' },
+  { k:'shikkou', label:'失効と復活' },
+  { k:'seikyu',  label:'請求と時効' },
+  { k:'uketori', label:'受取人・代理請求' },
+  { k:'senshin', label:'先進医療' },
+  { k:'tsuin',   label:'通院給付' },
+  { k:'sonpo',   label:'損害保険の免責' }
+];
+var ANS = {
+  'in':  { label:'出る',            desc:'一般的な約款なら、まず支払われます' },
+  'out': { label:'出ないことがある', desc:'一般には支払われない側に転びやすい場面です' },
+  'dep': { label:'条件しだい',       desc:'商品・特約・契約内容で結論が分かれます' }
+};
+var ANS_ORDER = ['in','out','dep'];
+
+/* 全ケースの解説に必ず添える一文（消さないこと。⚠️コメント参照） */
+var DISCLAIM = 'ここまでは一般的な取り扱いの説明です。実際に支払われるかどうかは、保険会社・商品ごとに違う約款と、お客様の契約内容（特約・支払限度・免責の定め）で決まります。必ず約款とご契約内容で確かめ、判断は保険会社に仰いでください。';
+
+/* ============================================================
+   2. ケース（68件）
+   ------------------------------------------------------------
+   ・特定の保険会社名・商品名は書かない
+   ・期間や日数を書くときは「〜としている商品が多い」を添える
+   ・条文番号は書かない（改正で動くため。仕組みと要件で説明する）
+   ============================================================ */
+var CASES = [
+/* ---------- 責任開始期 ---------- */
+{ id:'sh001', cat:'start',
+  scene:'申込書と告知書は3日に提出したが、初回保険料の口座振替は27日の予定だった。20日に急な腹痛で入院した。',
+  ans:'out',
+  why:'生命保険の保障が始まるのは、申込み・告知（診査が必要な契約は診査）・第1回保険料（充当金）の払込の3つがそろったときとするのが一般的です。この例では払込がまだで、3つ目がそろっていません。証券に書かれた契約日ではなく、この「そろったとき」が責任開始期です。会社によっては口座振替日を待たずにカードや振込で先に払える扱いもあるので、申込みのときに「いつから保障が始まるのか」を必ず口に出して確認しておきます。',
+  point:'見るのは契約日ではなく、責任開始期です。',
+  ng:'「申込書を出せばその日から保障です」とは言わない。' },
+
+{ id:'sh002', cat:'start',
+  scene:'診査扱いの契約。申込書も第1回保険料も済んでいるが、医師の診査日はまだ先。その間に交通事故でケガをして入院した。',
+  ans:'out',
+  why:'診査を必要とする契約では、診査が終わってはじめて3つがそろいます。申込みと払込が済んでいても、診査が残っていれば保障はまだ始まっていない扱いが一般的です。診査日が先になるときは、その空白期間があることをお客様に伝えておかないと、事故が起きたときに「聞いていない」となります。急ぐ事情があるなら、告知だけで加入できる商品に切り替える、診査日を前倒しする、といった相談を先にします。',
+  point:'診査扱いは、診査が終わるまで空白があります。その空白を先に伝える。',
+  ng:'「あとは診査だけなので、もう保障は始まっています」とは言わない。' },
+
+{ id:'sh003', cat:'start',
+  scene:'事務の都合で契約日を翌月1日にそろえる申込みをした。責任開始の3つは今月中にそろっている。契約日より前に入院した。',
+  ans:'in',
+  why:'契約日は、保険料の計算の起算、契約年齢の基準、更新や満期の数え方に使う日で、保障の始まりとは別物です。会社の事務上、契約日を翌月1日などにそろえることがありますが、その場合でも保障は3つがそろった責任開始期から始まる取扱いが一般的です。つまり契約日前でも保障はあります。逆に、責任開始期が来ていないのに契約日が先に来ることはありません。',
+  point:'契約日と責任開始期は別の日。保障の話をするときは責任開始期で話す。',
+  ng:'「契約日が来月なので、それまでは何も出ません」とは言い切らない。' },
+
+{ id:'sh004', cat:'start',
+  scene:'すでに加入中の医療保険に、がん特約を中途付加した。付加の1か月後にがんと診断確定された。',
+  ans:'out',
+  why:'中途付加した特約は、その特約について改めて告知（必要なら診査）と会社の承諾が必要で、責任開始も付加した時点から始まります。主契約の責任開始まで遡ることはありません。さらに、がんのように待ち期間（責任開始から90日または3か月としている商品が多い）を置く保障は、その期間も付加日から数え直しになるのが一般的です。「もう入っているから大丈夫」は通じない場面です。',
+  point:'あとから足した特約は、足した日から数え直しです。',
+  ng:'「前から入っているので、特約もその日から有効です」とは言わない。' },
+
+{ id:'sh005', cat:'start',
+  scene:'既契約を転換して新しい契約にした。転換の2か月後にがんと診断確定された。',
+  ans:'out',
+  why:'転換は、既契約の権利を新しい契約の一部に充てる仕組みで、法律上は新しい契約を結ぶことになります。そのため告知や診査が改めて必要で、責任開始も転換の日からです。がんの待ち期間、自殺免責の期間、告知義務違反による解除の期間も、転換日から数え直すのが一般的です。転換をすすめるときは、保険料や保障内容の比較だけでなく、この「数え直し」を必ず説明します。',
+  point:'転換は「続き」ではなく「入り直し」に近い。数え直しになる項目を先に説明する。',
+  ng:'「中身が変わるだけなので、保障は途切れません」とは言わない。' },
+
+/* ---------- 告知義務違反と因果関係 ---------- */
+{ id:'sh006', cat:'kokuchi',
+  scene:'3年前から高血圧で通院していたが告知しなかった。加入から2年半後に脳梗塞で入院し、告知していなかったことが分かった。',
+  ans:'dep',
+  why:'告知義務違反による解除ができるのは、責任開始日から2年以内としている商品が多く、2年を過ぎると原則として解除できません。ただし、2年以内に解除の原因となる事実によって支払事由が生じていたときは、2年を過ぎても解除できるという定めを置いている商品が多く、単純に「2年たてば安全」ではありません。さらに、悪質な場合は詐欺による取消しの対象になることもあります。',
+  point:'「2年たてば時効」ではありません。期間の話は約款で確かめる。',
+  ng:'「2年たてば何を隠していても大丈夫です」とは言わない。' },
+
+{ id:'sh007', cat:'kokuchi',
+  scene:'持病の腰痛を告知していなかった。加入から1年後、交通事故のケガで入院。会社は告知義務違反として契約を解除した。',
+  ans:'in',
+  why:'告知義務違反で解除された場合でも、解除の原因となった事実と、実際に起きた支払事由との間に因果関係がなければ、その支払事由については保険金・給付金を支払うのが原則です。腰痛の不告知と交通事故のケガに因果関係がなければ、この入院は支払われます。ただし契約は解除され、将来の保障はなくなります。因果関係があるかどうかを判断するのは会社なので、募集人が先に結論を出さないことが大事です。',
+  point:'解除イコール一円も出ない、ではありません。因果関係を見ます。',
+  ng:'「告知漏れが見つかったら全部パーです」と決めつけない。' },
+
+{ id:'sh008', cat:'kokuchi',
+  scene:'健康診断で「要再検査」と言われたが、忙しくて受けていない。お客様から「受けていないのだから書かなくていいですよね」と聞かれた。',
+  ans:'out',
+  why:'告知は「聞かれたことに、事実をありのまま答える」ものです。告知書には、過去の一定期間内に健康診断や人間ドックで指摘を受けたことがあるかを尋ねる質問が置かれているのが一般的で、要再検査・要精密検査の指摘はこれに当たります。受けていないことは、書かなくてよい理由になりません。書いたうえで引き受けてもらえたという事実が、あとから支払いの場面でお客様を守ります。',
+  point:'迷ったら書く。書いて引き受けてもらった事実が、あとで効きます。',
+  ng:'「再検査に行っていないなら、書かなくて大丈夫です」とは言わない。' },
+
+{ id:'sh009', cat:'kokuchi',
+  scene:'告知書の欄が足りず、お客様が口頭で「以前この薬を飲んでいた」と募集人に伝えた。募集人はメモしたが会社には伝えなかった。',
+  ans:'out',
+  why:'生命保険の募集人には、告知を受け取る権限（告知受領権）がないのが一般的です。口頭で募集人に話しても告知したことにはならず、書面など会社所定の方法で会社に伝わってはじめて告知になります。欄が足りないときは、別紙や所定の追加告知の方法を会社に確認して、必ず書面に残します。ここを飛ばすと、あとで告知義務違反を疑われるのはお客様です。',
+  point:'話した、ではなく、書いた、で残します。',
+  ng:'「私が聞いておきますので、書かなくていいですよ」とは絶対に言わない。' },
+
+{ id:'sh010', cat:'kokuchi',
+  scene:'加入のために、持病を隠すだけでなく別人に診査を受けさせていたことが、8年後の請求で判明した。',
+  ans:'out',
+  why:'告知義務違反による解除には期間の区切りがありますが、詐欺による取消しはそれとは別で、期間の制限がなく、払い込んだ保険料も返さない取扱いが一般的です。何年たったから安全、という発想が通じない領域があるということです。本人が書き、本人が診査を受ける。この当たり前を崩す提案は、契約もお客様も守れません。',
+  point:'期間の話が通じない領域があります。悪質な例は年数では消えません。',
+  ng:'「昔のことなので、もう調べられません」とは言わない。' },
+
+/* ---------- 不告知教唆 ---------- */
+{ id:'sh011', cat:'kyousa',
+  scene:'募集人が「その通院は書かなくていい」と言い、お客様はそのとおり書かずに加入した。3年後、支払いの調査で経緯が分かった。',
+  ans:'dep',
+  why:'募集人が告知を妨げたり、告知しないことを勧めたりした場合、会社は告知義務違反による解除ができないのが原則です。ただし、その働きかけがなくてもお客様が告知しなかったと認められるときは解除できるとされており、必ず契約が守られるわけではありません。そして募集人本人は、業法上の禁止行為として行政処分や登録取消しの対象になります。お客様のためのつもりが、お客様の契約を不安定にし、自分の仕事も失う行為です。',
+  point:'「書かなくていい」は、お客様を守るどころか、契約と自分の登録を危うくします。',
+  ng:'「これは書かなくても分かりませんよ」は、どんな場面でも言わない。' },
+
+{ id:'sh012', cat:'kyousa',
+  scene:'お客様が「これを書くと入れないんでしょう。書かないでおきます」と言った。募集人は否定も訂正もせず、そのまま申込みを進めた。',
+  ans:'dep',
+  why:'黙ってそのまま進めることも、告知を妨げた、または不告知を勧めたと評価されるおそれがあります。募集人の役割は、その場で「それは書いてください」と伝え、書いたうえでどんな引受けの可能性があるか（条件付きの引受け、部位不担保、別の商品）を一緒に探すことです。書けないまま申込みを進めるくらいなら、その日は申込みをしないほうが、結果としてお客様を守ります。',
+  point:'その場で訂正する。訂正できないなら、その日は申し込まない。',
+  ng:'お客様の不告知を黙って見過ごさない。黙認も同じ扱いになりえます。' },
+
+{ id:'sh013', cat:'kyousa',
+  scene:'高齢のお客様が字を書くのが難しく、同席していた家族が告知書を代わりに記入した。',
+  ans:'dep',
+  why:'告知は被保険者本人が行うのが原則です。代筆は、会社が定める要件（本人の意思確認、立会人、所定の書面など）を満たしたときに限って認められるのが一般的で、要件を外れた代筆は、内容に誤りがあったときに告知義務違反を問われる原因になります。手が不自由などの事情があるときは、その場の判断で進めず、会社の手続きを確認してから行います。',
+  point:'告知書はご本人の字で。代筆が必要なら、会社の手続きに従います。',
+  ng:'「私が代わりに書いておきますね」とは言わない。' },
+
+/* ---------- 免責 ---------- */
+{ id:'sh014', cat:'menseki',
+  scene:'責任開始から2年半後に、被保険者が自ら命を絶った。',
+  ans:'dep',
+  why:'自殺による死亡は、責任開始から一定の期間内であれば保険金を支払わないと定めるのが一般的で、この期間を3年としている商品が多く見られます。ただし1年、2年としている商品もあり、発売年によっても違います。2年半という時点は、商品によって免責の内か外かが分かれる位置です。証券と約款で期間を確かめずに答えないでください。',
+  point:'免責の期間は商品ごとに違います。証券と約款で確かめる。',
+  ng:'「自殺は1年たてば出ます」と、聞きかじった年数で一般化しない。' },
+
+{ id:'sh015', cat:'menseki',
+  scene:'自殺免責の期間はとうに過ぎている契約。ただし2年前に保険金額を増額していた。増額後に被保険者が自ら命を絶った。',
+  ans:'dep',
+  why:'免責期間を過ぎていれば支払われるのが一般的ですが、増額した部分、復活した契約、転換した契約については、その日から期間を数え直す定めを置いている商品が多くあります。この例では、もとの保険金額の部分は支払われ、増額部分だけが免責になる、という結論もありえます。契約の履歴（増額・復活・転換）を見ずに答えないでください。',
+  point:'増額・復活・転換をした部分は、数え直しになることがあります。',
+  ng:'「もう何年もたっているので全額出ます」と、履歴を見ずに言わない。' },
+
+{ id:'sh016', cat:'menseki',
+  scene:'死亡保険金の受取人が3人いる契約で、そのうち1人が被保険者を故意に死亡させた。',
+  ans:'dep',
+  why:'保険金受取人の故意によって支払事由が生じた場合は免責とするのが一般的です。ただし受取人が複数いるときは、その行為をした受取人の受取分についてだけ支払わず、ほかの受取人の分は支払う取扱いが一般的です。免責は「その契約が全部だめになる」ではなく「誰の故意か」「誰の分か」で結論が変わります。契約者の故意、被保険者の故意（自殺免責）も、それぞれ別に定めがあります。',
+  point:'免責は「誰の故意か」で結論が変わります。全部だめ、とは限りません。',
+  ng:'「事件性があるので保険は一切出ません」と即断しない。' },
+
+{ id:'sh017', cat:'menseki',
+  scene:'戦争その他の変乱によって被保険者が死亡した。',
+  ans:'dep',
+  why:'戦争その他の変乱による死亡は免責と定めるのが一般的ですが、その事変によって死亡した被保険者の数が保険の計算の基礎に影響を及ぼさないと会社が認めたときは、全額または削減して支払うという定めを置いている商品が多くあります。つまり「一切出ない」と言い切る定めではありません。地震・噴火・津波による死亡についても、同じような削減支払いの定めを置いていることがあります。',
+  point:'「戦争は一切出ません」ではなく、削減して支払う定めがあるのが一般的です。',
+  ng:'約款を見ずに「災害免責なので出ません」と答えない。' },
+
+{ id:'sh018', cat:'menseki',
+  scene:'無免許運転中の単独事故で被保険者が死亡した。死亡保険金と、付加していた災害割増特約の請求。',
+  ans:'dep',
+  why:'主契約の死亡保険金は、免責事由を限定して定めているのが一般的で、無免許運転はそこに含まれていないことが多く、支払われることがあります。一方、災害割増特約や傷害特約は、無免許運転中・酒気帯び運転中の事故、被保険者の犯罪行為などを免責としているのが一般的です。同じ事故でも、主契約と特約で結論が分かれます。重大な過失をどう扱うかも、主契約と災害系の特約で違います。',
+  point:'主契約と特約で結論が分かれます。証券の特約欄まで見て話す。',
+  ng:'「無免許なので一切出ません」と即断しない。' },
+
+/* ---------- 入院の定義 ---------- */
+{ id:'sh019', cat:'nyuin',
+  scene:'朝に入院して、その日の夕方に退院した（入院日と退院日が同じ）。',
+  ans:'dep',
+  why:'近年の医療保険は、日帰り入院を1日目から支払う商品が多くなっていますが、古い商品には「1泊2日以上」「継続5日以上」といった支払いの条件が残っています。また、日帰りかどうかの判断に、診療報酬上の入院基本料の支払いがあることを要件にしている商品が多く、外来扱いの処置は入院になりません。お客様の契約がいつ加入したどの商品かを見ないと答えられません。',
+  point:'「今は1日目から出ます」は、お客様の契約には当てはまらないことがあります。',
+  ng:'「日帰りでも出ますよ」と、契約内容を見ずに言わない。' },
+
+{ id:'sh020', cat:'nyuin',
+  scene:'医師の指示で自宅療養をした。ベッドが空いておらず、入院はできなかった。',
+  ans:'out',
+  why:'約款でいう入院は、治療が必要で、かつ自宅などでの治療が困難なため、病院・診療所に入り、常に医師の管理下で治療に専念することを指すのが一般的です。自宅での療養は、医師の指示であっても原則として入院に当たりません。感染症が広がった時期に、臨時の特別な取扱いが行われた例はありますが、あくまでその時々の特例で、常に使えるものではありません。',
+  point:'入院とは「場所と管理」の話です。自宅療養は原則として対象外。',
+  ng:'「先生の指示なら入院と同じ扱いです」とは言わない。' },
+
+{ id:'sh021', cat:'nyuin',
+  scene:'人間ドックのために1泊した。特に治療は行っていない。',
+  ans:'out',
+  why:'治療を目的としない入院は、対象外とするのが一般的です。人間ドック、健康診断、検査だけの入院はここに当たります。ただし、検査の結果その場で治療が必要と診断され、引き続き治療のために入院した場合は、治療のための入院として扱われることがあります。線引きは会社が判断するので、募集人は「治療だったかどうか」を確かめて、診断書に書いてもらう内容を整える側に回ります。',
+  point:'分かれ目は「治療のためだったか」。カルテと診断書の書かれ方で決まります。',
+  ng:'「入院した日数の分は出ます」と、目的を確かめずに言わない。' },
+
+{ id:'sh022', cat:'nyuin',
+  scene:'美容目的の手術のために入院した。',
+  ans:'out',
+  why:'治療を目的としない入院は対象外とするのが一般的で、美容整形のための入院はここに当たります。ただし、事故によるケガの治療として行う形成手術や、病気の治療として必要な再建手術は、治療目的と認められて対象になることがあります。「美容だから一律に対象外」ではなく、目的が治療かどうかで見ます。',
+  point:'見るのは施術の名前ではなく、治療のためだったかどうかです。',
+  ng:'「整形は全部対象外です」と一律に決めつけない。' },
+
+{ id:'sh023', cat:'nyuin',
+  scene:'同じ病気で入院し、40日で退院。その2か月後に同じ病気が悪化して再び30日入院した。1入院の支払限度は60日型。',
+  ans:'out',
+  why:'同じ原因による入院は、退院日の翌日から一定期間内（180日としている商品が多い）に再入院した場合、前回と合わせて1回の入院とみなし、支払限度日数を通算する定めが一般的です。この例では合計70日となり、60日型なら限度を超えた分は支払われません。転院した場合も、治療が続いていれば1回の入院として扱われることが多いです。「限度60日」は入院1回あたりの日数で、何度でも60日出る意味ではありません。',
+  point:'限度日数は1入院あたり。同じ病気の再入院は通算されることがあります。',
+  ng:'「60日型だから毎回60日まで出ます」とは言わない。' },
+
+{ id:'sh024', cat:'nyuin',
+  scene:'精神疾患で長期入院になった。加入している医療保険の1入院限度は60日型。',
+  ans:'dep',
+  why:'医療保険は、病気の種類を問わず1入院あたりの支払限度日数を定めているのが一般的で、長期入院になりやすい病気ほど限度を超えやすくなります。商品によっては特定の疾病について限度を延長する特約や、通算限度の定めがあります。長期化しやすいリスクをどう備えるかは、限度日数の選び方と就業不能の保障で考える話で、「入院したら日数分出る」ではありません。',
+  point:'長期入院ほど限度に当たります。限度日数の説明を飛ばさない。',
+  ng:'「入院した日数分ずっと出ます」とは言わない。' },
+
+/* ---------- 手術の定義 ---------- */
+{ id:'sh025', cat:'shujutsu',
+  scene:'大腸の内視鏡検査でポリープを切除した。',
+  ans:'dep',
+  why:'手術給付金の対象の決め方には、公的医療保険の手術料の算定対象になる手術に連動させる型と、約款に手術の一覧（88種類などと定めたもの。数も中身も商品ごとに違います）を持つ型があります。連動型なら対象になることが多く、一覧型では対象外のことがあります。同じ処置でも、お客様が加入している商品の型で結論が変わります。まず証券と約款で、どちらの型かを確かめてください。',
+  point:'同じ手術でも、契約している商品の型で結論が変わります。',
+  ng:'「内視鏡でも手術給付は出ます」と、商品の型を見ずに言わない。' },
+
+{ id:'sh026', cat:'shujutsu',
+  scene:'転んで切った傷を縫ってもらった（創傷処理）。手術給付金を請求したい。',
+  ans:'out',
+  why:'公的医療保険連動型でも、対象から除く手術を約款で定めているのが一般的で、創傷処理、抜歯、切開排膿、皮膚の切開など、比較的軽い処置が除かれていることが多くあります。「保険証を使った処置だから手術給付が出る」わけではありません。除外の一覧は商品ごとに違うので、請求の前に約款で確かめます。',
+  point:'連動型でも除かれる手術があります。連動イコール全部対象ではありません。',
+  ng:'「診療報酬で手術になっているから必ず出ます」とは言わない。' },
+
+{ id:'sh027', cat:'shujutsu',
+  scene:'がんの治療で放射線治療を受けた。手術給付金を請求したい。',
+  ans:'dep',
+  why:'放射線治療は、手術給付金とは別に放射線治療給付金として定めている商品が多くあります。一方で、手術の一覧に放射線治療を含めている商品もあります。どの給付で請求するかは商品によって違い、支払いの回数（60日に1回を限度としている商品が多い）にも定めがあります。名前が違うだけで請求できるものを取りこぼさないよう、証券の給付の一覧を見てから案内します。',
+  point:'給付の名前が商品ごとに違います。取りこぼさないよう一覧で確認する。',
+  ng:'「放射線は手術ではないので出ません」と即断しない。' },
+
+{ id:'sh028', cat:'shujutsu',
+  scene:'入院せずに、外来で日帰りの手術を受けた。',
+  ans:'dep',
+  why:'近年の医療保険は、入院を伴わない手術も対象にしている商品が多く、その場合は入院中の手術より給付倍率を低く定めているのが一般的です。ただし古い商品には、入院中の手術に限る、外来手術は対象外、といった定めが残っています。ここも加入時期で結論が分かれる典型です。',
+  point:'外来手術を含むかどうかは、加入時期で分かれます。',
+  ng:'「日帰り手術でも必ず出ます」と、加入時期を見ずに言わない。' },
+
+/* ---------- がん・上皮内新生物 ---------- */
+{ id:'sh029', cat:'gan',
+  scene:'がん保険に加入し、責任開始から1か月後にがんと診断確定された。',
+  ans:'out',
+  why:'がん保険やがん特約は、責任開始から待ち期間（90日または3か月としている商品が多い）を置き、その期間内にがんと診断確定された場合は契約が無効となり、払い込んだ保険料を返す取扱いが一般的です。医療保険のように「加入日の翌日から」ではありません。加入をすすめるときに、この待ち期間を必ず伝えておかないと、いちばん不安な時期に説明していなかったことになります。',
+  point:'がんの保障は「加入日の翌日から」ではありません。待ち期間を先に伝える。',
+  ng:'「明日から、がんになっても大丈夫です」とは言わない。' },
+
+{ id:'sh030', cat:'gan',
+  scene:'子宮頸部の上皮内新生物（上皮内がん）と診断された。がん診断給付金を請求したい。',
+  ans:'dep',
+  why:'多くの商品が、悪性新生物と上皮内新生物を区別しています。上皮内新生物は給付を少額（悪性新生物の一部）にする商品、対象外にする商品があり、近年は同額で支払う商品も増えています。どれに当たるかは加入時期と商品で分かれます。診断書の病理の記載で区分が決まるため、募集人が病名だけを聞いて結論を出すことはできません。',
+  point:'「がんと診断されたら◯◯万円」と言い切らない。上皮内かどうかで変わります。',
+  ng:'「がんならどんながんでも同額です」とは言わない。' },
+
+{ id:'sh031', cat:'gan',
+  scene:'健康診断で「がんの疑いが強い」と言われた。まだ確定診断は出ていないが、診断給付金を請求したい。',
+  ans:'out',
+  why:'がん診断給付金は「医師によってがんと診断確定されたとき」に支払うもので、病理組織学的な所見（生検など）によることを要件にしている商品が多くあります。疑いの段階、画像所見だけの段階では支払われないのが一般的です。ただし、病理検査ができない事情があるときの取扱いを別に定めている商品もあります。お客様には、確定診断が出た時点で診断書を取っていただくよう案内します。',
+  point:'必要なのは「疑い」ではなく「診断確定」。何をもって確定とするかは約款で決まります。',
+  ng:'「疑いが出た時点で請求できます」とは言わない。' },
+
+{ id:'sh032', cat:'gan',
+  scene:'6年前にがんの診断給付金を受け取った。今回、別の部位に新たながんが見つかった。もう一度受け取れるか。',
+  ans:'dep',
+  why:'診断給付金は、1回限りの商品と、一定期間（2年に1回を限度としている商品が多い）ごとに何度でも支払う商品があります。複数回型でも、前回の支払いから期間が空いていること、その時点で入院や治療が行われていることを要件にしている商品があります。再発・転移を含むかどうかの定めも商品ごとに違います。',
+  point:'2回目が出るかは商品しだい。1回限りの契約は少なくありません。',
+  ng:'「がんは何回でも出ます」と一般化しない。' },
+
+/* ---------- 三大疾病の所定の状態 ---------- */
+{ id:'sh033', cat:'sandai',
+  scene:'脳梗塞で入院し、軽い麻痺が残ったが、30日ほどでほぼ回復して職場に戻った。三大疾病保険金を請求したい。',
+  ans:'out',
+  why:'三大疾病保障の脳卒中は、発病して他覚的な神経学的後遺症が60日以上継続したと医師に診断されたこと、という要件を置いている商品が多くあります。回復が早いと、病名が脳梗塞でも要件を満たしません。近年は、入院したこと、所定の手術を受けたこと、といった要件に変えた商品も増えています。お客様の契約がどちらの型かで結論が変わります。',
+  point:'三大疾病は「病名」ではなく「所定の状態」で決まります。',
+  ng:'「脳梗塞になったら一時金が出ます」とは言わない。' },
+
+{ id:'sh034', cat:'sandai',
+  scene:'一過性脳虚血発作（TIA）と診断された。三大疾病保険金を請求したい。',
+  ans:'out',
+  why:'約款でいう脳卒中は、くも膜下出血・脳内出血・脳梗塞を指すのが一般的で、一過性脳虚血発作は含まれないことがほとんどです。症状が同じように見えても、診断名と約款の定義が一致しないと支払いにはなりません。ここは「怖い思いをしたのに出ない」という不満が出やすい場面なので、加入時に対象となる病名を具体的に伝えておきます。',
+  point:'対象は病名で限定されています。加入時に「入らないもの」も伝える。',
+  ng:'「脳の病気なら出ます」と、ざっくり説明しない。' },
+
+{ id:'sh035', cat:'sandai',
+  scene:'狭心症でカテーテル治療（ステント留置）を受けた。三大疾病保険金を請求したい。',
+  ans:'out',
+  why:'約款でいう急性心筋梗塞に、狭心症は含まれないのが一般的です。ただし、対象を心疾患まで広げた商品や、入院・所定の手術を要件にした商品では、支払いの対象になることがあります。同じ「心臓の治療」でも、契約している商品の定義しだいです。',
+  point:'狭心症は急性心筋梗塞と別物として扱われるのが一般的です。',
+  ng:'「心臓の手術をしたので出ます」と、病名を確かめずに言わない。' },
+
+{ id:'sh036', cat:'sandai',
+  scene:'急性心筋梗塞で入院・治療し、労働の制限は40日で解除された。三大疾病保険金を請求したい。',
+  ans:'out',
+  why:'急性心筋梗塞について、発病して労働の制限を必要とする状態が60日以上継続したと医師に診断されたこと、という要件を置いている商品が多くあります。40日で制限が解除されると、この要件を満たしません。治療が成功して早く戻れたのに給付が出ない、という納得しづらい結果になりやすい場面です。加入時に、この要件の意味を数字だけでなく説明しておきます。',
+  point:'早く治ると要件を満たさないことがあります。ここは加入時に必ず伝える。',
+  ng:'「心筋梗塞なら一時金が出ます」とは言わない。' },
+
+{ id:'sh037', cat:'sandai',
+  scene:'三大疾病保険金を受け取った。その後の保障はどうなるかとお客様に聞かれた。',
+  ans:'dep',
+  why:'三大疾病保険金を支払うと契約が消滅する型（死亡保険金と重複して受け取れない）と、一時金を支払っても契約が続く型があります。前者では、受け取ったあとの死亡保障はなくなります。払込免除の特約が付いているか、以後の保険料をどうするかも商品で違います。受け取ったあとに何が残るのかを、請求の前に確かめてから伝えます。',
+  point:'出たあとに保障が残るかどうかを、必ず確かめてから話す。',
+  ng:'「一時金をもらっても保障はそのまま続きます」と、型を確かめずに言わない。' },
+
+/* ---------- 高度障害 ---------- */
+{ id:'sh038', cat:'kodo',
+  scene:'病気で障害年金1級に認定された。高度障害保険金を請求したい。',
+  ans:'out',
+  why:'公的年金の障害等級と、生命保険の約款が定める高度障害状態は、まったく別の基準です。障害年金1級であっても、約款の高度障害状態に当てはまるとは限りません。約款は、両眼の視力を全く永久に失ったもの、言語またはそしゃくの機能を全く永久に失ったもの、といった形で状態を限定して並べています。等級の話と約款の話を混ぜないでください。',
+  point:'障害年金の等級と、約款の高度障害は別の物差しです。',
+  ng:'「障害年金1級なら高度障害です」とは言わない。' },
+
+{ id:'sh039', cat:'kodo',
+  scene:'認知症が進み、常時介護が必要になった。高度障害保険金を請求したい。',
+  ans:'out',
+  why:'高度障害状態は約款に限定して並べられており、中枢神経系や精神に著しい障害を残し、終身常に介護を要するもの、といった重い要件が置かれています。介護が必要になったというだけでは当てはまらないことが多く、「終身」「常に」の要件が特に重くなります。介護の備えは、高度障害保険金ではなく介護の保障で考える話です。',
+  point:'介護が必要イコール高度障害、ではありません。備える保障が違います。',
+  ng:'「寝たきりになれば保険金が出ます」とは言わない。' },
+
+{ id:'sh040', cat:'kodo',
+  scene:'高度障害保険金を受け取った。その2年後に被保険者が死亡し、遺族が死亡保険金を請求した。',
+  ans:'out',
+  why:'高度障害保険金を支払うと契約は消滅し、その後に死亡しても死亡保険金は支払われないのが一般的です。高度障害保険金は、死亡保険金を生前に前倒しで受け取るものと考えると分かりやすくなります。受け取るときに、契約が終わることと、以後の保障がなくなることを必ず説明します。',
+  point:'高度障害保険金は死亡保険金の前払い。受け取ると契約は終わります。',
+  ng:'「高度障害の分を受け取っても、死亡保障は残ります」とは言わない。' },
+
+/* ---------- 保険料の払込免除 ---------- */
+{ id:'sh041', cat:'menjo',
+  scene:'病気が原因で身体に障害が残った。保険料の払込免除を受けたい。',
+  ans:'dep',
+  why:'払込免除の対象を、不慮の事故による所定の身体障害状態に限っている商品が多く、病気による障害は対象外のことがあります。一方、三大疾病や所定の要介護状態で免除になる特約を付けている契約もあります。免除の要件は、給付金の支払要件とも別に定められています。証券の特約欄と約款の免除の条項を見てから答えてください。',
+  point:'免除の対象は商品ごとに違います。給付が出る＝免除される、ではありません。',
+  ng:'「大きな病気をすれば保険料は免除になります」と一般化しない。' },
+
+{ id:'sh042', cat:'menjo',
+  scene:'払込免除の要件に当てはまり、以後の保険料が免除された。保障はどうなるかとお客様に聞かれた。',
+  ans:'in',
+  why:'払込免除になったあとも、契約はそのまま続き、保障も予定どおり続くのが一般的です。保険料を払い込んだものとして扱われるので、解約返戻金や配当の計算も続きます。ただし、免除の対象になる特約とならない特約が分かれていることがあり、一部の特約だけ払込が続く例もあります。どこまでが免除されるのかを、書面で確かめてお客様に伝えます。',
+  point:'免除は「保障が止まる」ではありません。ただし免除の範囲は確かめる。',
+  ng:'「保険料を払わなくなるので保障も薄くなります」とは言わない。' },
+
+{ id:'sh043', cat:'menjo',
+  scene:'三大疾病払込免除特約が付いている契約で、上皮内新生物と診断された。保険料は免除されるか。',
+  ans:'out',
+  why:'払込免除の要件は、給付金の支払要件と同じとは限りません。三大疾病の払込免除では、上皮内新生物を対象外としている商品が多く見られます。がんの診断給付金は出るのに払込免除は受けられない、という組み合わせが起こりえます。「三大疾病」という同じ言葉でも、給付と免除で中身が違うことを前提に確かめてください。',
+  point:'給付が出ることと、保険料が免除されることは別の判断です。',
+  ng:'「がんと診断されたので保険料はもう払わなくていいです」と即断しない。' },
+
+/* ---------- 失効と復活 ---------- */
+{ id:'sh044', cat:'shikkou',
+  scene:'保険料の払込みを忘れていたが、猶予期間の中だった。その期間中に入院した。',
+  ans:'in',
+  why:'保険料の払込みには猶予期間があり、月払は翌月末まで、年払・半年払は翌々月の契約応当日までとしている商品が多く見られます。猶予期間中は契約が有効なので、その間の支払事由は支払われるのが一般的です。ただし、支払うときに未払いの保険料を差し引く取扱いが一般的です。猶予期間を過ぎると失効するので、期限を早めに知らせるのが保全の仕事です。',
+  point:'猶予期間の中なら契約は生きています。ただし未払分は差し引かれます。',
+  ng:'「引き落としができていないので保障はありません」と即断しない。' },
+
+{ id:'sh045', cat:'shikkou',
+  scene:'保険料の未払いで契約が失効していることに気づかないまま、入院した。',
+  ans:'out',
+  why:'失効している間に生じた支払事由は、支払われないのが一般的です。ここは復活の手続きをしても遡りません。解約返戻金がある契約では自動振替貸付で失効を防げることがあり、その仕組みを使えるかどうかで結果が大きく変わります。口座の変更や引き落とし不能の連絡は、保全の中でいちばん優先度の高い仕事です。',
+  point:'失効中の事故は戻せません。引き落とし不能の連絡は最優先で動く。',
+  ng:'「あとから払えば、その間の分もさかのぼって出ます」とは言わない。' },
+
+{ id:'sh046', cat:'shikkou',
+  scene:'失効した契約を復活させた。その2か月後にがんと診断確定され、また別の契約では復活の1年後に自殺があった。',
+  ans:'out',
+  why:'復活は、告知（必要なら診査）と延滞している保険料の払込みを経て、会社が承諾したときに効力を持ちます。このとき、がんの待ち期間や自殺免責の期間を復活の日から数え直す定めを置いている商品が多くあります。契約自体は同じでも、期間の起算だけがやり直しになるということです。復活をすすめるときは、この点を必ず伝えます。',
+  point:'復活は「元どおり」ではなく「もう一度始まる」に近い。期間が数え直しになります。',
+  ng:'「復活すれば前のまま、何もかも元どおりです」とは言わない。' },
+
+{ id:'sh047', cat:'shikkou',
+  scene:'保険料が引き落とせない月があったが、解約返戻金があったため自動振替貸付で立て替えられていた。その月に入院した。',
+  ans:'in',
+  why:'自動振替貸付は、解約返戻金の範囲内で会社が保険料を立て替える仕組みで、これが働いていれば契約は失効せず、保障も続きます。ただし立て替えた分には所定の利息がつき、返さないまま積み重なると解約返戻金が減り、いずれ立て替えられなくなって失効します。「失効していないから大丈夫」で終わらせず、貸付の残高を伝えて精算をすすめるところまでが保全です。',
+  point:'自動振替貸付は失効を防ぎますが、利息がついて返戻金を減らします。',
+  ng:'「立て替えてもらえるので、払わなくても平気です」とは言わない。' },
+
+/* ---------- 請求と時効 ---------- */
+{ id:'sh048', cat:'seikyu',
+  scene:'3年ほど前の入院を、いまになって請求したいとお客様から相談があった。',
+  ans:'dep',
+  why:'保険金や給付金を請求する権利には時効があり、法律では3年とされています。約款も同じにしているものが多く見られます。ただし、時効が過ぎているように見えても、事情によって会社が受け付けることがありますし、時効の起算をいつと見るかで結論が変わることもあります。募集人が自分で線を引かず、まず会社に照会してください。',
+  point:'「もう無理です」と自分で判断して閉じない。まず会社に照会する。',
+  ng:'募集人の独断で「時効なので出ません」と伝えない。' },
+
+{ id:'sh049', cat:'seikyu',
+  scene:'入院日数が短く、給付金より診断書の費用のほうが高くつきそうだとお客様が言っている。',
+  ans:'dep',
+  why:'会社によっては、少額の給付について、診断書ではなく領収書の写しなど簡易な書類で請求できる取扱いを用意していることがあります。また、複数の契約をまとめて請求すれば診断書を使い回せることもあります。募集人が「損だから請求しないほうがいい」と決めるのではなく、簡易な方法があるかを会社に確認して、選べる形にしてお客様に返すのが仕事です。',
+  point:'請求するかを決めるのはお客様。募集人は選択肢を揃える側です。',
+  ng:'「元が取れないので請求しなくていいですよ」とは言わない。' },
+
+{ id:'sh050', cat:'seikyu',
+  scene:'お客様から「この入院は対象になりますか」と電話があり、募集人がその場で「それは対象外です」と答えた。',
+  ans:'dep',
+  why:'支払いの可否を判断するのは保険会社です。募集人がその場で対象外と決めて請求させないことは、苦情や紛争のいちばん多い型のひとつで、あとから対象だったと分かると信用を失います。分からないときは「会社に確認します」と答え、まず請求できる形（診断書の取得、必要書類の案内）を整えます。約款は複数の給付が重なって支払われることもあり、募集人の記憶だけでは判断できません。',
+  point:'判断するのは会社。募集人は「請求できる形」を整える人です。',
+  ng:'「それは対象外なので、請求しなくていいですよ」とは言わない。' },
+
+/* ---------- 受取人・代理請求 ---------- */
+{ id:'sh051', cat:'uketori',
+  scene:'死亡保険金の受取人を妻にしていたが、妻が先に亡くなった。受取人の変更をしないまま被保険者が死亡した。',
+  ans:'in',
+  why:'受取人が先に亡くなり、変更をしないまま支払事由が生じたときは、その受取人の相続人が受取人になるとされています。相続人が複数いる場合は、法定相続分ではなく人数で均等に分ける取扱いが一般的です。保険金は支払われますが、受け取る人と分け方が、お客様の意図とずれることがよくあります。受取人が亡くなったら、まず変更の手続きです。',
+  point:'受取人が亡くなったら、すぐ変更の手続きを。放っておくと分け方がずれます。',
+  ng:'「受取人が亡くなっても、遺産分割で決めればいい」とは言わない。' },
+
+{ id:'sh052', cat:'uketori',
+  scene:'被保険者が遺言で保険金受取人を長男に変更していた。会社にはまだ知らせておらず、会社は元の受取人（次男）に支払った。',
+  ans:'dep',
+  why:'遺言による受取人の変更は法律上できますが、相続人から会社に通知しないと、会社に対して主張できないとされています。会社が通知を受ける前に元の受取人に支払っていれば、その支払いは有効とされるのが一般的です。「遺言に書いたから大丈夫」で終わらせず、亡くなったあとに相続人が会社へ通知するところまでが手続きです。生前に変更手続きをしておくほうが確実です。',
+  point:'遺言で変えたら、会社への通知まで。生前の変更手続きがいちばん確実です。',
+  ng:'「遺言に書いてあれば、それだけで受取人は変わります」とは言わない。' },
+
+{ id:'sh053', cat:'uketori',
+  scene:'被保険者が意識不明で、自分では給付金を請求できない。家族が代わりに請求したい。',
+  ans:'dep',
+  why:'給付金の受取人が被保険者本人である場合、本人が請求できない事情があるときのために、指定代理請求人をあらかじめ登録しておく仕組みがあります。登録があれば代理で請求できますが、登録がないと手続きに時間がかかり、場合によっては家庭裁判所の手続きが必要になります。特に、がん診断給付金や特定疾病保険金、リビングニーズ特約のような生前給付は、この登録が効いてきます。',
+  point:'元気なうちに、代わりに請求できる人を決めておく。保全訪問で必ず聞く項目です。',
+  ng:'「家族ならいつでも代わりに請求できます」とは言わない。' },
+
+{ id:'sh054', cat:'uketori',
+  scene:'離婚して10年たつが、死亡保険金の受取人が元配偶者のままだった。被保険者が死亡した。',
+  ans:'in',
+  why:'保険会社は、契約に記載された受取人に支払います。離婚しても受取人は自動では変わりません。この例では元配偶者に支払われることになり、いまの家族には渡りません。保険金額を見直すより先に、名義（契約者・被保険者・受取人）の確認です。離婚、再婚、出生、養子縁組があったときは、その都度たしかめます。',
+  point:'離婚・再婚・出生。名義の見直しは、保険金額の見直しより先です。',
+  ng:'「離婚したので受取人は当然に変わっています」とは言わない。' },
+
+{ id:'sh055', cat:'uketori',
+  scene:'医師から余命が短いと告げられた。リビングニーズ特約を使いたいと相談があった。',
+  ans:'dep',
+  why:'リビングニーズ特約は、余命6か月以内と判断されたときに、死亡保険金の一部を生前に受け取れるもので、特約保険料は不要としているのが一般的です。受け取れる額には上限（3,000万円としている商品が多い）があり、受け取った分は死亡保険金から差し引かれます。受け取ったお金を使い切らずに亡くなると、残りは相続財産として扱われ、死亡保険金の非課税の枠は使えません。指定代理請求人が請求できる取扱いが一般的です。',
+  point:'使い道まで一緒に考える特約です。「非課税だからお得」で終わらせない。',
+  ng:'「税金がかからないので、とりあえず先に受け取りましょう」とは言わない。' },
+
+/* ---------- 先進医療 ---------- */
+{ id:'sh056', cat:'senshin',
+  scene:'加入時は先進医療だった治療を受けたが、そのときには公的医療保険の対象になっていた。先進医療給付金を請求したい。',
+  ans:'out',
+  why:'先進医療給付金は、療養を受けた時点で厚生労働大臣が定める先進医療に当たることを要件にしているのが一般的です。公的医療保険の対象になった治療は先進医療から外れるため、この給付は出ません。ただし、そのときは公的医療保険と高額療養費が使えるので、自己負担そのものは軽くなります。逆に、加入時になかった治療があとから先進医療になれば対象になります。',
+  point:'先進医療は「そのときのリスト」で決まります。中身は年ごとに入れ替わります。',
+  ng:'「この治療は先進医療なので、いつでも出ます」とは言わない。' },
+
+{ id:'sh057', cat:'senshin',
+  scene:'先進医療にあたる治療を、届出のない医療機関で受けた。',
+  ans:'out',
+  why:'先進医療給付金は、その先進医療を実施するものとして届出・承認を受けた医療機関で受けることを要件にしているのが一般的です。同じ技術でも、受けた場所によって対象になりません。お客様が受診先を選ぶ段階で、そこが実施医療機関かを確かめられるよう案内しておくのが、この特約を活かす使い方です。',
+  point:'先進医療は「どこで受けたか」も要件です。受ける前の確認が効きます。',
+  ng:'「先進医療の技術なら、どこで受けても出ます」とは言わない。' },
+
+{ id:'sh058', cat:'senshin',
+  scene:'先進医療を受けるために遠方の病院へ通い、宿泊費と交通費がかさんだ。あわせて請求したい。',
+  ans:'dep',
+  why:'先進医療給付金は、技術料（公的医療保険が使えず全額自己負担になる部分）を対象にするのが一般的で、交通費や宿泊費はそのままでは対象になりません。ただし、先進医療給付金の一定割合を一時金として支払う特約や、療養にかかる費用の支援として別建ての給付を用意している商品もあります。証券に何が付いているかで結論が変わります。',
+  point:'出るのは技術料が中心。交通費・宿泊費は別建ての特約しだいです。',
+  ng:'「かかった費用は全部出ます」とは言わない。' },
+
+/* ---------- 通院給付 ---------- */
+{ id:'sh059', cat:'tsuin',
+  scene:'入院はしていないが、病気の治療で数か月通院した。医療保険の通院特約を請求したい。',
+  ans:'out',
+  why:'医療保険の通院特約は、入院の前後の通院に限って支払う商品が多く、入院を伴わない通院は対象外とするのが一般的です。通院すれば出ると思われがちで、実際に不満が出やすい特約です。近年は、がんの治療のための通院を入院と関係なく支払う特約もあります。何を対象にした通院特約かを、加入時に具体的に伝えてください。',
+  point:'通院特約の多くは「入院とセット」です。通院だけでは出ないのが一般的。',
+  ng:'「通院しただけでも毎回出ます」とは言わない。' },
+
+{ id:'sh060', cat:'tsuin',
+  scene:'退院してから半年後に、同じ病気で通院した。通院給付金を請求したい。',
+  ans:'out',
+  why:'入院前後の通院を対象とする特約は、退院日の翌日から何日以内、という期間の定めを置いているのが一般的で、120日、180日としている商品が多く見られます。半年後の通院はこの期間を外れることが多くなります。あわせて、支払う日数にも限度（1回の入院につき30日を限度としている商品が多い）が置かれています。',
+  point:'通院給付には「退院からいつまで」と「何日まで」の二つの枠があります。',
+  ng:'「退院後の通院はずっと出ます」とは言わない。' },
+
+{ id:'sh061', cat:'tsuin',
+  scene:'自転車で転んでケガをし、入院はせずに整形外科へ通院した。傷害保険と、医療保険の通院特約の両方を持っている。',
+  ans:'dep',
+  why:'傷害保険や傷害特約は、急激・偶然・外来の事故によるケガを対象とし、入院を伴わない通院にも支払う設計のものがあります。一方、医療保険の通院特約は入院とセットのことが多く、同じ通院でも結論が分かれます。持っている契約を並べて、どれで請求できるかを整理するのが募集人の仕事です。日常のケガでは、自動車保険や火災保険に付けた傷害の特約、自転車保険が使えることもあります。',
+  point:'同じ通院でも、どの契約で請求するかで結論が変わります。まず契約を並べる。',
+  ng:'「ケガの通院は保険では出ません」と、契約を並べずに言わない。' },
+
+/* ---------- 損害保険の免責 ---------- */
+{ id:'sh062', cat:'sonpo',
+  scene:'地震で自宅の建物が傾いた。火災保険には入っているが、地震保険は付けていない。',
+  ans:'out',
+  why:'地震・噴火、またはこれらによる津波を原因とする損害は、火災保険では免責とするのが一般的です。備えるには地震保険を付ける必要があります。地震保険は火災保険とセットでしか加入できず、保険金額も火災保険の一定の範囲内に限られます。「火災保険に入っているから家は大丈夫」という思い込みは、いまも非常に多く残っています。',
+  point:'火災保険と地震保険は別物です。証券で地震保険の有無を確かめる。',
+  ng:'「火災保険があるので、家の損害はひととおり出ます」とは言わない。' },
+
+{ id:'sh063', cat:'sonpo',
+  scene:'地震で倒れた家具から出火し、自宅が全焼した。火災保険を請求したい。',
+  ans:'out',
+  why:'火事であっても、地震を原因とする火災は火災保険では免責とするのが一般的です。地震保険に加入していれば、地震保険から支払われます。また、地震による火災について、保険金額の一定割合を地震火災費用保険金として支払う定めを置いている火災保険もありますが、割合は契約によって違い、損害の全額をまかなうものではありません。',
+  point:'火事でも、原因が地震なら火災保険では出ないのが一般的です。',
+  ng:'「燃えたのだから火災保険で出ます」とは言わない。' },
+
+{ id:'sh064', cat:'sonpo',
+  scene:'台風による大雨で床上浸水した。保険料を抑えるため、水災の補償を外していた。',
+  ans:'out',
+  why:'火災保険は、補償する事故を選んで組み立てるのが一般的で、水災（台風・豪雨による洪水、土砂崩れなど）を外すこともできます。外していれば、床上浸水の損害は支払われません。水災には、床上浸水または地盤面から一定の高さを超える浸水、といった支払いの条件が置かれていることもあります。ハザードマップと立地を見ないまま、保険料だけで補償を外さないことです。',
+  point:'火災保険は「選んで外せる」保険です。外した補償を証券で確かめる。',
+  ng:'「火災保険に入っているから水害も大丈夫です」とは言わない。' },
+
+{ id:'sh065', cat:'sonpo',
+  scene:'マンションの給湯配管が破損して水があふれ、自室の床と階下の部屋が濡れた。',
+  ans:'dep',
+  why:'給排水設備の事故による水濡れの損害は、火災保険の補償の対象にできるのが一般的です。ただし、原因となった配管そのものの修理費用は対象外とするのが一般的で、経年劣化による損害も対象外です。階下への損害は、個人賠償責任の特約が付いていれば、そこから相手方への賠償として支払われます。ひとつの事故で使う補償が分かれるので、証券を並べて整理します。',
+  point:'濡れた損害と、配管そのものの修理は別扱いです。階下は個人賠償で見ます。',
+  ng:'「水漏れなら全部まとめて出ます」とは言わない。' },
+
+{ id:'sh066', cat:'sonpo',
+  scene:'脇見運転で電柱に衝突し、自分の車が大破した。車両保険はいわゆるエコノミー型（車対車＋A）で加入していた。',
+  ans:'out',
+  why:'車両保険には、単独事故や当て逃げも補償する一般型と、補償する事故を限った型（車対車＋Aなどと呼ばれるもの）があります。後者では、相手のいない単独事故は対象外とされているのが一般的です。保険料の差はここから来ています。加入時に「どちらの型か」を伝えていないと、事故のあとで必ずもめます。免責金額（自己負担額）の設定も同時に確かめます。',
+  point:'車両保険は型で結論が変わります。単独事故が入るかを加入時に伝える。',
+  ng:'「車両保険を付けているので、自分の車はどんな事故でも直せます」とは言わない。' },
+
+{ id:'sh067', cat:'sonpo',
+  scene:'飲酒運転で事故を起こし、相手にケガをさせ、自分の車も壊した。自分自身もケガをした。',
+  ans:'dep',
+  why:'対人賠償・対物賠償は、被害者を守るための保険であるため、飲酒運転であっても免責としない取扱いが一般的です。一方、自分の車の損害（車両保険）や、自分自身のケガ（人身傷害・搭乗者傷害）については免責とするのが一般的です。同じ事故でも、誰のための補償かによって結論が分かれます。もちろん、これは飲酒運転を軽く見てよいという話ではありません。',
+  point:'「飲酒だから一切出ない」ではありません。誰のための補償かで分かれます。',
+  ng:'「飲酒運転なので、相手にも何も払えません」とは言わない。' },
+
+{ id:'sh068', cat:'sonpo',
+  scene:'地震で自宅の壁にひびが入った。地震保険に加入しており、修理見積りは200万円だった。見積りどおり支払われるか。',
+  ans:'out',
+  why:'地震保険は、実際の修理費用をそのまま払う仕組みではなく、損害の程度を全損・大半損・小半損・一部損の区分で判定し、区分ごとに決まった割合の保険金を支払う仕組みです。そのため、修理費用と受け取る保険金は一致しません。生活の再建を支えるための保険であって、建物を元どおりにするための保険ではない、という前提を加入時に伝えておきます。',
+  point:'地震保険は損害の区分で払います。修理見積りとは一致しません。',
+  ng:'「かかった修理費用が地震保険から出ます」とは言わない。' }
+];
+</script>
+
+<script>
+/* ============================================================
+   3. 小道具
+   ============================================================ */
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+  return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+}); }
+function pad2(n){ return (n < 10 ? '0' : '') + n; }
+function ymd(d){ return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+function todayStr(){ return ymd(new Date()); }
+function daysAgoStr(n){ var d = new Date(); d.setDate(d.getDate() - n); return ymd(d); }
+function shuffle(a){
+  for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
+  return a;
+}
+function pct(o, n){ return n > 0 ? Math.round(o * 100 / n) : 0; }
+function catLabel(k){ for (var i = 0; i < CATS.length; i++) if (CATS[i].k === k) return CATS[i].label; return k; }
+var CASE_BY_ID = {};
+CASES.forEach(function(c){ CASE_BY_ID[c.id] = c; });
+function caseById(id){ return CASE_BY_ID[id]; }
+
+var IC = {
+  bulb:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 18h5M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.5.4.8 1 .9 1.6h5.2c.1-.6.4-1.2.9-1.6A6 6 0 0 0 12 3Z"/></svg>',
+  ban:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="m6.4 6.4 11.2 11.2"/></svg>',
+  book:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2 2 0 0 1 6 3.5h13v15H6a2 2 0 0 0-2 2Z"/><path d="M4 18.5V5.5"/></svg>',
+  ok:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
+  no:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>',
+  down:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>'
+};
+
+/* ============================================================
+   4. 記録（この端末のブラウザにだけ残す）
+   ============================================================ */
+var LS_KEY = 'officem.hokenShiharai.v1';
+var state = null;
+
+function defaultState(){
+  return {
+    v: 1,
+    rec: {},                              /* id -> {o:正解数, x:不正解数, l:'o'|'x', d:'YYYY-MM-DD'} */
+    streak: { cur: 0, best: 0 },          /* 連続正解 */
+    day: { last: '', run: 0, best: 0 },   /* 連続日数 */
+    tot: { o: 0, x: 0 },
+    lastDaily: null                       /* 直近の「今日の10問」の結果 */
+  };
+}
+function load(){
+  var st = defaultState();
+  try {
+    var o = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
+    if (o && typeof o === 'object') {
+      if (o.rec && typeof o.rec === 'object') st.rec = o.rec;
+      if (o.streak) { st.streak.cur = +o.streak.cur || 0; st.streak.best = +o.streak.best || 0; }
+      if (o.day) { st.day.last = o.day.last || ''; st.day.run = +o.day.run || 0; st.day.best = +o.day.best || 0; }
+      if (o.tot) { st.tot.o = +o.tot.o || 0; st.tot.x = +o.tot.x || 0; }
+      if (o.lastDaily) st.lastDaily = o.lastDaily;
+    }
+  } catch (e) {}
+  return st;
+}
+function save(){ try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {} }
+
+function bumpDay(){
+  var t = todayStr(), d = state.day;
+  if (d.last === t) return;
+  d.run = (d.last === daysAgoStr(1)) ? d.run + 1 : 1;
+  d.last = t;
+  if (d.run > d.best) d.best = d.run;
+}
+function markAnswer(id, ok){
+  var r = state.rec[id] || { o:0, x:0, l:'', d:'' };
+  if (ok) { r.o++; r.l = 'o'; state.tot.o++; } else { r.x++; r.l = 'x'; state.tot.x++; }
+  r.d = todayStr();
+  state.rec[id] = r;
+  if (ok) { state.streak.cur++; if (state.streak.cur > state.streak.best) state.streak.best = state.streak.cur; }
+  else { state.streak.cur = 0; }
+  bumpDay();
+  save();
+}
+function weakIds(){
+  return CASES.filter(function(c){ var r = state.rec[c.id]; return r && r.l === 'x'; }).map(function(c){ return c.id; });
+}
+function catStat(k){
+  var all = CASES.filter(function(c){ return c.cat === k; });
+  var o = 0, x = 0, seen = 0;
+  all.forEach(function(c){ var r = state.rec[c.id]; if (r) { o += r.o; x += r.x; if (r.o + r.x > 0) seen++; } });
+  return { total: all.length, o:o, x:x, n:o + x, seen:seen, rate: pct(o, o + x) };
+}
+
+/* ============================================================
+   5. タブ
+   ============================================================ */
+var TABS = ['daily','cat','weak','list','rec'];
+function showTab(key){
+  TABS.forEach(function(t){
+    var sec = $('tab-' + t);
+    if (sec) sec.classList.toggle('hide', t !== key);
+    var btn = document.querySelector('.tab[data-tab="' + t + '"]');
+    if (btn) btn.setAttribute('aria-selected', t === key ? 'true' : 'false');
+  });
+  if (key === 'daily') { renderTiles(); renderQuiz('daily'); }
+  if (key === 'cat')   { renderCatList(); renderQuiz('cat'); }
+  if (key === 'weak')  renderQuiz('weak');
+  if (key === 'list')  renderList();
+  if (key === 'rec')   renderRec();
+  window.scrollTo(0, 0);
+}
+
+/* ============================================================
+   6. 出題（今日の10問・分野別・まちがえた問題で共通）
+   ============================================================ */
+var SES = { daily:null, cat:null, weak:null };
+var HOST = { daily:'dailyHost', cat:'catHost', weak:'weakHost' };
+var catPicked = null;
+
+function priority(c){
+  var r = state.rec[c.id];
+  if (!r) return 1;              /* まだ解いていない */
+  if (r.l === 'x') return 0;     /* まちがえたまま */
+  return 2;                      /* 正解済み */
+}
+function pickDaily(n){
+  var a = shuffle(CASES.slice());
+  a.sort(function(p, q){ return priority(p) - priority(q); });
+  return shuffle(a.slice(0, n).map(function(c){ return c.id; }));
+}
+function startSession(mode, ids, title){
+  if (!ids.length) return;
+  SES[mode] = { mode:mode, ids:ids, i:0, chosen:null, right:0, wrongIds:[], title:title || '' };
+  renderQuiz(mode);
+}
+
+function ansPill(a){
+  var cls = a === 'in' ? 'a-in' : (a === 'out' ? 'a-out' : 'a-dep');
+  return '<span class="ansline ' + cls + '">' + esc(ANS[a].label) + '</span>';
+}
+/* 解説（出題でも一覧でも同じものを使う）。DISCLAIM は必ず末尾に出す */
+function expHtml(c){
+  return '<h4>なぜそうなるか</h4><p class="why">' + esc(c.why) + '</p>' +
+    '<div class="pointbox"><div class="lb">' + IC.bulb + '面談で言える一言</div><p>' + esc(c.point) + '</p></div>' +
+    '<div class="ngbox"><div class="lb">' + IC.ban + '言ってはいけない</div><p>' + esc(c.ng) + '</p></div>' +
+    '<div class="disclaim">' + esc(DISCLAIM) + '</div>';
+}
+
+function renderQuiz(mode){
+  var host = $(HOST[mode]);
+  if (!host) return;
+  var s = SES[mode];
+
+  /* --- 分野別は、出題中だけ分野の一覧を隠す --- */
+  if (mode === 'cat') $('catPick').classList.toggle('hide', !!s);
+
+  if (!s) { host.innerHTML = startScreen(mode); return; }
+  if (s.i >= s.ids.length) { host.innerHTML = resultScreen(mode, s); return; }
+
+  var c = caseById(s.ids[s.i]);
+  var done = s.chosen != null;
+  var h = '<div class="card">';
+  h += '<div class="q-top"><span class="q-count">' + (s.i + 1) + ' / ' + s.ids.length + '問目</span>' +
+       '<span class="cbadge">' + esc(catLabel(c.cat)) + '</span></div>';
+  h += '<div class="pbar"><i style="width:' + Math.round((s.i) * 100 / s.ids.length) + '%"></i></div>';
+  h += '<div class="scene">' + esc(c.scene) + '</div>';
+  h += '<p class="q-ask">この請求、支払われますか。</p>';
+  h += '<div class="ansbtns">';
+  ANS_ORDER.forEach(function(k){
+    var cls = 'ansbtn';
+    if (done) {
+      if (k === c.ans) cls += ' is-right';
+      else if (k === s.chosen) cls += ' is-miss';
+      else cls += ' is-dim';
+    }
+    var mk = done ? (k === c.ans ? IC.ok : (k === s.chosen ? IC.no : '')) : '';
+    h += '<button class="' + cls + '" data-act="ans" data-mode="' + mode + '" data-v="' + k + '"' + (done ? ' disabled' : '') + '>' +
+         '<span class="mk">' + (mk || '') + '</span>' +
+         '<span class="ab-t">' + esc(ANS[k].label) + '<small>' + esc(ANS[k].desc) + '</small></span></button>';
+  });
+  h += '</div>';
+
+  if (done) {
+    var ok = s.chosen === c.ans;
+    h += '<div class="exp">';
+    h += '<span class="verdict ' + (ok ? 'ok' : 'no') + '">' + (ok ? IC.ok + '正解' : IC.no + 'おしい。正しくは「' + esc(ANS[c.ans].label) + '」') + '</span>';
+    h += expHtml(c);
+    h += '<div class="exp-act"><button class="btn btn-primary" data-act="next" data-mode="' + mode + '">' +
+         (s.i + 1 >= s.ids.length ? '結果を見る' : '次の問題へ') + '</button>' +
+         '<button class="btn btn-ghost" data-act="quit" data-mode="' + mode + '">やめる</button></div>';
+    h += '</div>';
+  }
+  h += '</div>';
+  host.innerHTML = h;
+}
+
+function startScreen(mode){
+  if (mode === 'daily') {
+    var last = state.lastDaily;
+    var h = '<div class="card" style="text-align:center;">';
+    h += '<p style="font-size:var(--fs-sm);color:var(--muted);margin-bottom:14px;">全' + CASES.length + '件から10問。まちがえたまま・まだ解いていないケースが先に出ます。</p>';
+    if (last) h += '<p style="font-size:var(--fs-sm);color:var(--muted);margin-bottom:14px;">前回（' + esc(last.d) + '）は10問中' + last.r + '問正解でした。</p>';
+    h += '<button class="btn btn-primary" data-act="start" data-mode="daily">今日の10問をはじめる</button>';
+    h += '</div>';
+    return h;
+  }
+  if (mode === 'weak') {
+    var ids = weakIds();
+    if (!ids.length) {
+      return '<div class="card"><div class="empty">' +
+        '<div class="em-art"><svg aria-hidden="true" viewBox="0 0 84 84"><circle cx="42" cy="42" r="30" fill="none" stroke="#c4dcf5" stroke-width="5"/><path d="M30 43.5l8.5 8.5L55 33" fill="none" stroke="#1c5cab" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
+        '<b>まちがえたまま残っているケースはありません</b>' +
+        '<p>「今日の10問」や「分野別」で解くと、まちがえたケースがここに集まります。正解し直すとここから外れます。</p></div></div>';
+    }
+    return '<div class="card" style="text-align:center;">' +
+      '<p style="font-size:var(--fs-sm);color:var(--muted);margin-bottom:14px;">最後の解答が不正解のまま残っているケースが<b style="color:var(--red-text);">' + ids.length + '件</b>あります。正解し直すと、この一覧から外れます。</p>' +
+      '<button class="btn btn-primary" data-act="start" data-mode="weak">まちがえた問題を解き直す</button></div>';
+  }
+  return '';   /* 分野別は分野の一覧（#catPick）が入口 */
+}
+
+function resultScreen(mode, s){
+  var n = s.ids.length, r = s.right;
+  /* この回でまちがえた分野を集計 */
+  var byCat = {};
+  s.wrongIds.forEach(function(id){ var c = caseById(id); byCat[c.cat] = (byCat[c.cat] || 0) + 1; });
+  var weakCats = Object.keys(byCat).sort(function(a, b){ return byCat[b] - byCat[a]; });
+
+  var h = '<div class="card">';
+  h += '<h3 style="color:var(--navy);margin-bottom:6px;">' + (s.title ? esc(s.title) + '　' : '') + n + '問中 ' + r + '問正解</h3>';
+  h += '<div class="pbar" style="margin-top:10px;"><i style="width:' + pct(r, n) + '%"></i></div>';
+  if (weakCats.length) {
+    h += '<p style="font-size:var(--fs-sm);color:var(--muted);margin-bottom:6px;">この回でつまずいた分野</p><div class="chips" style="margin-bottom:14px;">';
+    weakCats.forEach(function(k){ h += '<span class="chip" aria-pressed="true">' + esc(catLabel(k)) + '（' + byCat[k] + '）</span>'; });
+    h += '</div>';
+  } else {
+    h += '<p style="font-size:var(--fs-sm);color:var(--green);font-weight:700;margin-bottom:14px;">全問正解です。それでも面談では「約款と契約内容で確かめます」を添えてください。</p>';
+  }
+  h += '<div class="notice" style="margin-bottom:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.8v.1"/></svg><div>' + esc(DISCLAIM) + '</div></div>';
+  h += '<div class="exp-act">';
+  h += '<button class="btn btn-primary" data-act="again" data-mode="' + mode + '">もう一度</button>';
+  if (mode !== 'weak') h += '<button class="btn btn-ghost" data-act="goweak">まちがえた問題へ</button>';
+  if (mode === 'cat') h += '<button class="btn btn-ghost" data-act="quit" data-mode="cat">分野を選び直す</button>';
+  h += '</div></div>';
+  return h;
+}
+
+/* ---- クリックの受け口（委任） ---- */
+document.addEventListener('click', function(ev){
+  var el = ev.target.closest ? ev.target.closest('[data-act]') : null;
+  if (!el) return;
+  var act = el.getAttribute('data-act');
+  var mode = el.getAttribute('data-mode');
+
+  if (act === 'start') {
+    if (mode === 'daily') startSession('daily', pickDaily(10), '今日の10問');
+    if (mode === 'weak') startSession('weak', shuffle(weakIds()), 'まちがえた問題');
+    return;
+  }
+  if (act === 'startcat') {
+    catPicked = el.getAttribute('data-cat');
+    var ids = CASES.filter(function(c){ return c.cat === catPicked; }).map(function(c){ return c.id; });
+    startSession('cat', shuffle(ids), catLabel(catPicked));
+    return;
+  }
+  if (act === 'ans') {
+    var s = SES[mode];
+    if (!s || s.chosen != null) return;
+    var c = caseById(s.ids[s.i]);
+    s.chosen = el.getAttribute('data-v');
+    var ok = s.chosen === c.ans;
+    if (ok) s.right++; else s.wrongIds.push(c.id);
+    markAnswer(c.id, ok);
+    renderQuiz(mode);
+    renderTiles();
+    renderWeakBadge();
+    return;
+  }
+  if (act === 'next') {
+    var s2 = SES[mode];
+    if (!s2) return;
+    s2.i++; s2.chosen = null;
+    if (s2.i >= s2.ids.length && mode === 'daily') {
+      state.lastDaily = { d: todayStr(), r: s2.right, n: s2.ids.length };
+      save();
+    }
+    renderQuiz(mode);
+    window.scrollTo(0, 0);
+    return;
+  }
+  if (act === 'quit') { SES[mode] = null; if (mode === 'cat') renderCatList(); renderQuiz(mode); return; }
+  if (act === 'again') {
+    if (mode === 'daily') startSession('daily', pickDaily(10), '今日の10問');
+    if (mode === 'weak') { var w = weakIds(); if (w.length) startSession('weak', shuffle(w), 'まちがえた問題'); else { SES.weak = null; renderQuiz('weak'); } }
+    if (mode === 'cat' && catPicked) {
+      var ids2 = CASES.filter(function(c){ return c.cat === catPicked; }).map(function(c){ return c.id; });
+      startSession('cat', shuffle(ids2), catLabel(catPicked));
+    }
+    window.scrollTo(0, 0);
+    return;
+  }
+  if (act === 'goweak') { SES.weak = null; showTab('weak'); return; }
+  if (act === 'acc') {
+    var body = document.getElementById('accb-' + el.getAttribute('data-id'));
+    if (body) {
+      var open = body.classList.toggle('hide');
+      el.setAttribute('aria-expanded', open ? 'false' : 'true');
+    }
+    return;
+  }
+});
+
+/* ============================================================
+   7. 数字タイル
+   ============================================================ */
+function renderTiles(){
+  var t = state.tot, n = t.o + t.x;
+  $('tlRun').innerHTML = state.day.run + '<small>日</small>';
+  $('tlRunSub').textContent = '最長 ' + state.day.best + '日';
+  $('tlStreak').innerHTML = state.streak.cur + '<small>問</small>';
+  $('tlStreakSub').textContent = '最高 ' + state.streak.best + '問';
+  $('tlAcc').innerHTML = pct(t.o, n) + '<small>％</small>';
+  $('tlAccSub').textContent = n + '回中 ' + t.o + '回正解';
+}
+function renderWeakBadge(){
+  var b = $('weakBadge'), n = weakIds().length;
+  b.textContent = n;
+  b.classList.toggle('hide', n === 0);
+}
+
+/* ============================================================
+   8. 分野別
+   ============================================================ */
+function renderCatList(){
+  var host = $('catList');
+  host.innerHTML = CATS.map(function(c){
+    var st = catStat(c.k);
+    var cls = st.n === 0 ? '' : (st.rate >= 80 ? 'hi' : (st.rate >= 50 ? 'mid' : 'lo'));
+    var w = st.n === 0 ? 0 : st.rate;
+    return '<button class="catrow" data-act="startcat" data-cat="' + c.k + '">' +
+      '<span class="cr-name">' + esc(c.label) + '<span style="font-weight:400;color:var(--muted);">（' + st.total + '件）</span></span>' +
+      '<span class="cr-meter"><span class="meter"><i class="' + cls + '" style="width:' + w + '%"></i></span></span>' +
+      '<span class="cr-num">' + (st.n === 0 ? '未着手' : st.rate + '％／' + st.n + '回') + '</span>' +
+      '</button>';
+  }).join('');
+}
+
+/* ============================================================
+   9. 一覧で読む
+   ============================================================ */
+var listCat = 'all';
+function renderListChips(){
+  var defs = [{ k:'all', label:'すべて' }].concat(CATS);
+  $('listChips').innerHTML = defs.map(function(d){
+    return '<button class="chip" data-lcat="' + d.k + '" aria-pressed="' + (listCat === d.k ? 'true' : 'false') + '">' + esc(d.label) + '</button>';
+  }).join('');
+}
+function renderList(){
+  renderListChips();
+  var q = ($('listQ').value || '').trim().toLowerCase();
+  var rows = CASES.filter(function(c){
+    if (listCat !== 'all' && c.cat !== listCat) return false;
+    if (!q) return true;
+    var hay = (c.scene + c.why + c.point + c.ng + catLabel(c.cat) + ANS[c.ans].label).toLowerCase();
+    return hay.indexOf(q) >= 0;
+  });
+  $('listCount').textContent = '全' + CASES.length + '件のうち ' + rows.length + '件を表示しています。カードを押すと解説が開きます。';
+  if (!rows.length) {
+    $('listHost').innerHTML = '<div class="card"><div class="empty"><b>あてはまるケースがありません</b><p>言葉を短くするか、分野の絞り込みを「すべて」に戻してみてください。</p></div></div>';
+    return;
+  }
+  $('listHost').innerHTML = rows.map(function(c){
+    return '<div class="acc">' +
+      '<button class="acc-h" data-act="acc" data-id="' + c.id + '" aria-expanded="false" aria-controls="accb-' + c.id + '">' +
+        '<span class="ah-mk">' + IC.down + '</span>' +
+        '<span class="ah-body"><span class="ah-cat">' + esc(catLabel(c.cat)) + '</span>' +
+        '<span class="ah-txt">' + esc(c.scene) + '</span></span>' +
+      '</button>' +
+      '<div class="acc-b hide" id="accb-' + c.id + '">' + ansPill(c.ans) + expHtml(c) + '</div>' +
+      '</div>';
+  }).join('');
+}
+function setAllAcc(open){
+  Array.prototype.forEach.call(document.querySelectorAll('#listHost .acc-b'), function(b){ b.classList.toggle('hide', !open); });
+  Array.prototype.forEach.call(document.querySelectorAll('#listHost .acc-h'), function(b){ b.setAttribute('aria-expanded', open ? 'true' : 'false'); });
+}
+
+/* ============================================================
+   10. 記録
+   ============================================================ */
+function renderRec(){
+  var t = state.tot, n = t.o + t.x;
+  $('rcTotal').innerHTML = n + '<small>回</small>';
+  var seen = CASES.filter(function(c){ return state.rec[c.id]; }).length;
+  $('rcTotalSub').textContent = '全' + CASES.length + '件のうち ' + seen + '件に着手';
+  $('rcAcc').innerHTML = pct(t.o, n) + '<small>％</small>';
+  $('rcAccSub').textContent = '正解 ' + t.o + '回／不正解 ' + t.x + '回';
+  $('rcWeak').innerHTML = weakIds().length + '<small>件</small>';
+  $('rcRun').innerHTML = state.day.run + '<small>日</small>';
+  $('rcRunSub').textContent = '最長 ' + state.day.best + '日／連続正解の最高 ' + state.streak.best + '問';
+
+  var tb = $('recTable').querySelector('tbody');
+  tb.innerHTML = CATS.map(function(c){
+    var s = catStat(c.k);
+    return '<tr><td>' + esc(c.label) + '</td>' +
+      '<td class="num">' + s.total + '</td>' +
+      '<td class="num">' + s.n + '</td>' +
+      '<td class="num">' + s.o + '</td>' +
+      '<td class="num">' + (s.n === 0 ? '—' : s.rate + '％') + '</td>' +
+      '<td class="num">' + (s.total - s.seen) + '</td></tr>';
+  }).join('');
+  renderWeakBadge();
+}
+
+/* ---- 書き出し・読み込み ---- */
+function download(name, text, type){
+  var blob = new Blob([text], { type: type || 'application/octet-stream' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+
+/* ============================================================
+   11. 起動
+   ============================================================ */
+function startApp(){
+  $('lock').classList.add('hide');
+  $('app').classList.remove('hide');
+  state = load();
+
+  $('listQ').addEventListener('input', renderList);
+  $('listOpenAll').addEventListener('click', function(){ setAllAcc(true); });
+  $('listCloseAll').addEventListener('click', function(){ setAllAcc(false); });
+  $('listChips').addEventListener('click', function(ev){
+    var b = ev.target.closest ? ev.target.closest('[data-lcat]') : null;
+    if (!b) return;
+    listCat = b.getAttribute('data-lcat');
+    renderList();
+  });
+
+  $('expBtn').addEventListener('click', function(){
+    download('hoken-shiharai-kiroku-' + todayStr() + '.json', JSON.stringify(state, null, 1), 'application/json');
+  });
+  $('impBtn').addEventListener('change', function(){
+    var f = this.files && this.files[0];
+    if (!f) { return; }
+    var reader = new FileReader();
+    reader.onload = function(){
+      try {
+        var o = JSON.parse(reader.result);
+        if (!o || typeof o !== 'object' || !o.rec) throw new Error('bad');
+        var cnt = Object.keys(o.rec).length;
+        if (!confirm('いまの記録を、読み込んだ記録で置き換えます。（' + cnt + '件のケースの記録）よろしいですか。')) return;
+        localStorage.setItem(LS_KEY, JSON.stringify(o));
+        state = load();
+        SES.daily = SES.cat = SES.weak = null;
+        showTab('rec');
+        alert('読み込みました。');
+      } catch (e) { alert('読み込めませんでした。このツールで書き出したJSONファイルを選んでください。'); }
+    };
+    reader.readAsText(f);
+    this.value = '';
+  });
+  $('lockBtn').addEventListener('click', function(){ forgetAuth(); location.reload(); });
+  $('wipeBtn').addEventListener('click', function(){
+    if (!confirm('正誤・弱点・連続日数の記録をすべて消します。よろしいですか。')) return;
+    if (!confirm('本当に消しますか。元に戻せません（先にJSONの書き出しをおすすめします）。')) return;
+    localStorage.removeItem(LS_KEY);
+    state = defaultState(); save();
+    SES.daily = SES.cat = SES.weak = null;
+    catPicked = null;
+    showTab('rec');
+  });
+
+  document.querySelectorAll('.tab').forEach(function(btn){
+    btn.addEventListener('click', function(){ showTab(btn.getAttribute('data-tab')); });
+  });
+
+  renderWeakBadge();
+  showTab('daily');
+}
+
+function showLock(){
+  $('lock').classList.remove('hide');
+  $('app').classList.add('hide');
+  function tryPass(){
+    var hash = sha256(PASS_SALT + $('passInput').value);
+    if (PASS_HASHES.indexOf(hash) >= 0) { rememberAuth(hash); startApp(); }
+    else { $('passErr').textContent = 'パスワードが違います。'; $('passInput').select(); }
+  }
+  $('passBtn').addEventListener('click', tryPass);
+  $('passInput').addEventListener('keydown', function(ev){ if (ev.key === 'Enter') tryPass(); });
+  $('passInput').focus();
+}
+
+if (isAuthed()) startApp(); else showLock();
+</script>
+</body>
+</html>
