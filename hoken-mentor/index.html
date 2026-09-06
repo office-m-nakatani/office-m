@@ -218,6 +218,8 @@ body.vc-dock-on .chat-fab{ display:none !important; }
 .vc-edit-row .btn{ min-height:44px; }
 #mentor-modal .modal{ width:min(1000px,96vw); height:min(92vh, 900px); }
 #mentor-modal .modal-body{ display:flex; flex-direction:column; gap:10px; padding:14px 18px 16px; }
+#mentor-modal .modal-body > *{ flex:0 0 auto; }
+#mentor-modal .modal-body > .mt-log{ flex:1 1 0; }
 .mt-top{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
 .mt-top select{ min-height:40px; padding:6px 10px; border:1.5px solid var(--line); border-radius:10px; font-family:inherit; font-size:.86rem; background:#fff; }
 .mt-badge{ display:inline-flex; align-items:center; gap:6px; padding:5px 10px; border-radius:999px; background:#1f3328; color:#fff; font-size:.72rem; font-weight:800; }
@@ -1293,7 +1295,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       const head = mtT('kirikuchi_head', tone); if(head) h += '<span class="mt-note">' + mtFill(esc(head), P) + '</span>';
       h += '<ul class="mt-kk">' + list.map(function(k){
         return '<li>「' + esc(k.hero || k.name) + '」<span class="mt-src">' + esc(k.catLabel || '') + '｜' + esc(k.short)
-          + (k.url ? '　<a href="' + esc(k.url) + '" target="_blank" rel="noopener">お客様に見せるページ</a>' : '') + '</span></li>';
+          + (k.url ? '　<a href="' + esc(k.url) + '" target="_blank" rel="noopener">自分で学べるページ</a>' : '') + '</span></li>';
       }).join('') + '</ul>';
       return h;
     }
@@ -1412,7 +1414,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
     function mtFPRef(k){
       if(mtFPGroup(k) === 'zei'){
         // 税理士の目：お客様に見せる公開ページ（トピックに ref があれば）。無ければ管理画面の一覧
-        if(k.ref && k.ref.url && MT_OK_HREF.test(k.ref.url)) return '<span class="mt-note mt-fpref">お客様に見せるページ：<a href="' + esc(k.ref.url) + '" target="_blank" rel="noopener">' + esc(k.ref.short || 'ページを開く') + '</a>（文言は言い換えず、ページを共有する）</span>';
+        if(k.ref && k.ref.url && MT_OK_HREF.test(k.ref.url)) return '<span class="mt-note mt-fpref">自分で学べるページ：<a href="' + esc(k.ref.url) + '" target="_blank" rel="noopener">' + esc(k.ref.short || 'ページを開く') + '</a>（まず自分が読む。お客様に見せるときは文言を言い換えない）</span>';
         const z = MT_FP_TEXTS.book_link_zei; if(!z || !MT_OK_HREF.test(z)) return '';
         return '<span class="mt-note mt-fpref">確かめる：<a href="' + esc(z) + '" target="_blank" rel="noopener">税金・相続・法人のページ一覧（管理画面）</a></span>';
       }
@@ -1814,13 +1816,27 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       { q:'今日の一言', i:'fa-sun' }, { q:'週の振り返り', i:'fa-calendar-check' }
     ];
     const mtLog = $('mt-log');
+    /* 返事は長い。下端に合わせると「見立て」が画面の外に出て、途中から読むことになる。
+       新しい返事は、その頭が見える位置まで動かす（ユーザー指摘・スマホ）。 */
+    function mtScrollTop(el){
+      if(!mtLog || !el) return;
+      const top = el.getBoundingClientRect().top - mtLog.getBoundingClientRect().top + mtLog.scrollTop;
+      mtLog.scrollTop = Math.max(0, top - 6);
+    }
+    function mtScrollLast(){
+      if(!mtLog) return;
+      const bots = mtLog.querySelectorAll('.chat-msg.bot');
+      if(bots.length) mtScrollTop(bots[bots.length - 1]);
+      else mtLog.scrollTop = mtLog.scrollHeight;
+    }
     function mtAdd(who, html, save){
       if(!mtLog) return;
       const d = document.createElement('div'); d.className = 'chat-msg ' + who;
       d.innerHTML = (who === 'bot' ? mtAvaHTML() : '') + '<div class="chat-bubble' + (who === 'bot' ? ' mt-bub' : '') + '">' + html + '</div>';
       mtLog.appendChild(d);
-      mtLog.scrollTop = mtLog.scrollHeight;
       if(save !== false){
+        // 自分が書いたものは下端まで（送ったことが見える）、上長の返事はその頭まで動かす
+        if(who === 'bot') mtScrollTop(d); else mtLog.scrollTop = mtLog.scrollHeight;
         const L = MT.log[MT.active] = MT.log[MT.active] || [];
         L.push({ w:who, h:html, t:Date.now() }); if(L.length > 100) L.splice(0, L.length - 100);
         mtSave();
@@ -1838,6 +1854,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
         return;
       }
       L.forEach(function(m){ if(!m || typeof m !== 'object') return; mtAdd(m.w === 'user' ? 'user' : 'bot', mtSanitize(m.h), false); });
+      mtScrollLast();   // 開き直したときも、最後の返事の頭から読める位置にする
     }
     function mtSend(q){
       q = (q || '').trim(); if(!q) return;
