@@ -222,7 +222,14 @@ body.vc-dock-on .chat-fab{ display:none !important; }
 .mt-top select{ min-height:40px; padding:6px 10px; border:1.5px solid var(--line); border-radius:10px; font-family:inherit; font-size:.86rem; background:#fff; }
 .mt-badge{ display:inline-flex; align-items:center; gap:6px; padding:5px 10px; border-radius:999px; background:#1f3328; color:#fff; font-size:.72rem; font-weight:800; }
 .mt-log{ flex:1 1 auto; min-height:220px; max-height:none; overflow-y:auto; padding:6px 2px; display:flex; flex-direction:column; gap:10px; }
-.mt-ava{ background:linear-gradient(135deg,#2f4a3a,#1f3328); }
+.mt-ava{ width:38px; height:38px; border-radius:12px; background:#eef4f0; border:1.5px solid #d9e3dc; overflow:hidden; padding:0; }
+.mt-ava svg{ width:100%; height:100%; display:block; }
+.mt-face{ display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px; flex:0 0 auto;
+      border-radius:50%; overflow:hidden; background:#eef4f0; border:1.5px solid #d9e3dc; }
+.mt-face svg{ width:100%; height:100%; display:block; }
+.mt-who{ display:flex; flex-direction:column; line-height:1.35; min-width:0; }
+.mt-who b{ font-size:.86rem; color:#1f3328; }
+.mt-who span{ font-size:.7rem; color:var(--ink-soft); }
 .chat-msg.bot .chat-bubble.mt-bub{ background:#f6f8f6; border-color:#d9e3dc; }
 .mt-bub .mt-h{ display:block; margin:8px 0 3px; font-size:.74rem; font-weight:800; color:#1f3328; letter-spacing:.02em; }
 .mt-bub .mt-h:first-child{ margin-top:0; }
@@ -314,184 +321,204 @@ body.vc-dock-on .chat-fab{ display:none !important; }
    単独ページの見た目（ここから下はこのページだけのもの）
    ------------------------------------------------------------
    上で読み込んだのはライフプランツールのCSS（中身の作りをそのまま使うため）。
-   ここでその色・書体・角の丸みを、保険ツール（hoken-hub）側の顔に着せ替えている。
+   ここでその色・書体・角の丸み・余白を、保険ツール管理画面（hoken-hub）の顔に着せ替えている。
    ★ライフプランと同じ見た目に戻さないこと（別のツールだと分かるようにするため）。
+   ★2026-09-06 追記：ユーザー指示「保険ツール管理画面のような見た目に統一」「チャットの見える枠を大きく」。
+     管理画面に合わせて丸み（ボタンは999px・カードは18〜22px）・明朝の見出し・生成りの地にした。
+     会話の枠を広げるため、帯の一行・パネル内の注意書き・きっかけボタンの3行目以降は畳んである。
+     ここを増やすと、また会話が狭くなる。足すときは同じだけどこかを削ること。
    ============================================================ */
 
-/* --- 色と書体を、保険ツール側のものに差し替える --------------- */
+/* --- 色と書体を、保険ツール管理画面と同じものにする ------------- */
 :root{
-  --bg:          #fff8f2;   /* 保険ツール共通の生成りの地 */
+  --bg:          #fff8f2;   /* 管理画面と同じ生成りの地 */
   --bg-soft:     #fdf7f0;
   --card:        #ffffff;
-  --ink:         #33404d;   /* 紺みの墨 */
+  --ink:         #33404d;
   --ink-soft:    #5c6874;
   --line:        #efe2d8;
 
-  --blue:        #27587f;   /* 保険ツールの紺 */
+  --blue:        #27587f;   /* 管理画面の紺 */
   --blue-deep:   #1b3f5e;
   --blue-pale:   #eaf1f7;
   --blue-pale2:  #cfe0ee;
 
-  --yellow:      #f7c34e;   /* 琥珀（差し色） */
+  --yellow:      #f7c34e;   /* 琥珀（社内ツールの色） */
   --yellow-soft: #f9d47f;
   --yellow-pale: #fdf3e2;
-  --amber:       #966417;   /* 琥珀の文字色（白地でも読める濃さ） */
+  --amber:       #966417;
   --amber-line:  #f2dcae;
 
   --good:        #2c7a4b;  --good-pale:#e8f6ef;
   --warn:        #966417;  --warn-pale:#fdf3e2;
   --bad:         #c2453f;  --bad-pale: #fdeee9;
 
-  --radius:      14px;
-  --radius-sm:   10px;
-  --shadow:      0 6px 20px rgba(130,100,80,.10);
+  --radius:      20px;
+  --radius-sm:   14px;
+  --shadow:      0 6px 20px rgba(130,100,80,.09);
   --shadow-soft: 0 3px 10px rgba(130,100,80,.07);
+  --mincho:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho",YuMincho,"游明朝体","MS PMincho",serif;
 }
 html{ -webkit-text-size-adjust:100%; font-size:16px; }
 @media(min-width:640px){ html{ font-size:16.5px; } }
 @media(min-width:1100px){ html{ font-size:17px; } }
 body{
-  /* ライフプランは Noto Sans JP。こちらは保険ツールと同じ端末標準のゴシックにして、
-     開いた瞬間に「別のツール」と分かるようにしている */
+  /* 管理画面と同じ端末標準のゴシック（ライフプランは Noto Sans JP。ここで顔が変わる） */
   font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",YuGothic,Meiryo,"Noto Sans JP",sans-serif;
   background:var(--bg); color:var(--ink); line-height:1.75;
 }
 .wrap{ max-width:1180px; margin:0 auto; padding:0 16px; }
 
-/* --- 上の帯（名乗り） ---------------------------------------- */
-header.mt-head{
-  background:linear-gradient(100deg,#1b3f5e 0%,#27587f 100%);
-  border-bottom:3px solid var(--yellow);
-  position:sticky; top:0; z-index:50;
+/* --- 上の帯：管理画面の社内ツールのカード（琥珀）と同じ顔にする --- */
+header.mt-head{ background:var(--bg); border-bottom:1px solid var(--line); }
+.mt-head .wrap{ display:flex; align-items:center; gap:14px; padding-top:10px; padding-bottom:10px; flex-wrap:wrap; }
+.mt-head .mt-head-art{
+  width:54px; height:54px; flex:0 0 auto; border-radius:50%; overflow:hidden;
+  background:#fff; border:2px solid var(--amber-line); display:flex; align-items:center; justify-content:center;
 }
-.mt-head .wrap{ display:flex; align-items:center; gap:12px; min-height:58px; padding-top:8px; padding-bottom:8px; flex-wrap:wrap; }
-.mt-head .mt-logo{
-  display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px;
-  border-radius:9px; background:var(--yellow); color:#4a3608; flex:0 0 auto; font-size:1rem;
+.mt-head .mt-head-art svg{ width:100%; height:100%; display:block; }
+.mt-head .mt-head-body{ min-width:0; }
+.mt-head h1{
+  font-family:var(--mincho); font-size:1.3rem; font-weight:800; color:var(--blue-deep);
+  letter-spacing:.05em; margin:0; display:flex; align-items:center; gap:9px; flex-wrap:wrap;
 }
-.mt-head h1{ font-size:1.06rem; font-weight:800; letter-spacing:.03em; margin:0; color:#fff; display:flex; align-items:center; gap:9px; }
-.mt-head .mt-sub{ display:block; font-size:.72rem; color:#cfe0ee; font-weight:600; letter-spacing:.02em; }
-.mt-head .mt-badge{ background:rgba(255,255,255,.16); color:#fff; border:1px solid rgba(255,255,255,.4); }
+.mt-head .mt-badge{ background:var(--yellow-pale); color:var(--amber); border:1px solid var(--amber-line); font-family:inherit; }
+.mt-head .mt-sub{ display:block; font-size:.8rem; color:var(--ink-soft); font-weight:600; }
 .mt-head .mt-links{ margin-left:auto; display:flex; gap:8px; flex-wrap:wrap; }
 .mt-head .mt-links a{
-  display:inline-flex; align-items:center; gap:6px; min-height:38px; padding:6px 13px;
-  border:1.5px solid rgba(255,255,255,.5); border-radius:9px; background:transparent;
-  color:#fff; font-size:.78rem; font-weight:700; text-decoration:none;
+  display:inline-flex; align-items:center; gap:7px; min-height:40px; padding:8px 18px;
+  border:1px solid var(--blue-pale2); border-radius:999px; background:#fff;
+  color:var(--blue-deep); font-size:.84rem; font-weight:700; text-decoration:none;
 }
-.mt-head .mt-links a:hover{ background:rgba(255,255,255,.14); }
+.mt-head .mt-links a:hover{ background:var(--blue-pale); }
 
-/* --- 帯の下の一行（このページで何ができるか） ------------------ */
-.mt-strip{ background:var(--yellow-pale); border-bottom:1px solid var(--amber-line); }
-.mt-strip .wrap{ display:flex; flex-wrap:wrap; gap:6px 20px; padding-top:7px; padding-bottom:7px; }
-.mt-strip span{ display:inline-flex; align-items:center; gap:6px; font-size:.76rem; font-weight:700; color:#6b4a12; }
-.mt-strip i{ color:var(--amber); }
-
-/* --- 相談の画面（モーダルの外枠を、1枚の板に戻す） -------------- */
-main.mt-main{ padding:14px 0 16px; }
+/* --- 相談の画面（モーダルの外枠を、管理画面と同じカードに戻す） --- */
+main.mt-main{ padding:12px 0 14px; }
 #mentor-modal{ position:static; inset:auto; display:block; background:none; padding:0; z-index:auto; }
 #mentor-modal .modal{
-  width:100%; max-width:1180px; height:calc(100dvh - 152px); min-height:520px; max-height:none;
-  margin:0 auto; border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow);
+  /* ★会話の枠。上の帯と下の注意書きのぶんだけ引いて、残りを全部会話に使う */
+  width:100%; max-width:1180px; height:calc(100dvh - 104px); min-height:540px; max-height:none;
+  margin:0 auto; border:1px solid var(--line); border-radius:20px; box-shadow:var(--shadow);
 }
-/* 名乗りはページ上部の帯に出しているので、パネル側の題名は二重になる。畳む */
-#mentor-modal .modal-head{ display:none; }
-#mentor-modal .modal-body{ padding:14px 16px 16px; gap:9px; }
+#mentor-modal .modal-head{ display:none; }            /* 名乗りは上の帯に出している */
+/* ★flex:1 が無いと、板だけ大きくて会話の枠が min-height（220px）のまま縮む。会話を板いっぱいに広げる */
+#mentor-modal .modal-body{ padding:12px 16px 14px; gap:8px; flex:1 1 auto; min-height:0; }
+/* パネルの中の注意書きは、下の注意書きと同じ内容。会話を広く取るため畳む（下には出ている） */
+#mentor-modal .modal-body > .mt-note{ display:none; }
 
-/* --- 操作の行（上長・段階・道具） ------------------------------ */
-#mentor-modal .mt-top{ background:var(--blue-pale); border:1px solid #dbe7f1; border-radius:10px; padding:7px 10px; }
-#mentor-modal .mt-top select{ border-radius:8px; border-color:#cfdce7; }
+/* --- 操作の行（顔・上長・道具） ------------------------------- */
+#mentor-modal .mt-top{ background:var(--blue-pale); border:1px solid #dbe7f1; border-radius:16px; padding:6px 12px; gap:9px; }
+#mentor-modal .mt-top select{ border-radius:999px; border-color:#cfdce7; min-height:36px; font-size:.82rem; }
+#mentor-modal .mt-face{ border-color:var(--amber-line); background:#fff; }
+#mentor-modal .mt-who b{ color:var(--blue-deep); font-family:var(--mincho); letter-spacing:.04em; }
 #mentor-modal .mt-stagebar{ background:var(--yellow-pale); border-color:var(--amber-line); }
-#mentor-modal .mt-stage-badge{ background:#fff; border:1px solid var(--amber-line); color:var(--amber); border-radius:8px; }
-#mentor-modal .mt-badge{ background:var(--blue-deep); border-radius:8px; }
+#mentor-modal .mt-stage-badge{ background:#fff; border:1px solid var(--amber-line); color:var(--amber); }
+#mentor-modal .mt-badge{ background:var(--blue-deep); }
 
-/* --- ボタン（丸ピル → 角の立った四角） ------------------------- */
-#mentor-modal .btn{ border-radius:9px; }
-#mentor-modal .btn-primary{ background:var(--blue-deep); color:#fff; box-shadow:none; }
+/* --- ボタン（管理画面と同じ丸ピル） --------------------------- */
+#mentor-modal .btn{ border-radius:999px; letter-spacing:.03em; }
+#mentor-modal .btn-primary{ background:var(--blue-deep); color:#fff; box-shadow:0 4px 12px rgba(27,63,94,.22); }
 #mentor-modal .btn-primary:hover{ background:var(--blue); }
-#mentor-modal .btn-ghost{ background:#fff; color:var(--blue-deep); border:1.5px solid var(--blue-pale2); }
+#mentor-modal .btn-ghost{ background:#fff; color:var(--blue-deep); border:1px solid var(--blue-pale2); }
 #mentor-modal .btn-ghost:hover{ background:var(--blue-pale); }
 
 /* --- 会話の板 ------------------------------------------------- */
-#mentor-modal .mt-log{ background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px; }
-#mentor-modal .chat-ava{ border-radius:9px; }              /* 丸 → 角丸の四角 */
-#mentor-modal .mt-ava{ background:linear-gradient(135deg,#27587f,#1b3f5e); }
-#mentor-modal .chat-msg.user .chat-ava{ background:linear-gradient(135deg,#c9862a,#966417); }
-#mentor-modal .chat-bubble{ font-size:.87rem; }
+#mentor-modal .mt-log{ background:#fff; border:1px solid var(--line); border-radius:18px; padding:14px 16px; box-shadow:var(--shadow-soft) inset; }
+#mentor-modal .mt-ava{ border-radius:50%; border-color:var(--amber-line); background:#fff; }
+#mentor-modal .chat-msg.user .chat-ava{ background:linear-gradient(135deg,#c9862a,#966417); border-radius:50%; }
+#mentor-modal .chat-bubble{ font-size:.87rem; border-radius:16px; }
 #mentor-modal .chat-msg.bot .chat-bubble.mt-bub{
-  background:#fdfbf8; border:1px solid var(--line); border-left:4px solid var(--blue-deep);
-  border-radius:4px 12px 12px 4px;
+  background:#fdfbf8; border:1px solid var(--line); border-radius:4px 16px 16px 16px;
 }
-#mentor-modal .chat-msg.user .chat-bubble{ background:var(--blue-deep); color:#fff; border-radius:12px 4px 12px 12px; }
+#mentor-modal .chat-msg.user .chat-bubble{ background:var(--blue-deep); color:#fff; border-radius:16px 4px 16px 16px; }
 #mentor-modal .chat-msg.bot .chat-bubble b{ color:var(--blue-deep); }
-#mentor-modal .mt-bub .mt-h{ color:var(--blue-deep); border-left:3px solid var(--yellow); padding-left:7px; }
+#mentor-modal .mt-bub .mt-h{ color:var(--blue-deep); font-family:var(--mincho); font-size:.8rem; letter-spacing:.05em; border-left:3px solid var(--yellow); padding-left:8px; }
 #mentor-modal .mt-bub th{ background:var(--blue-pale); }
 #mentor-modal .mt-bub th, #mentor-modal .mt-bub td{ border-color:#e6ddd3; }
-#mentor-modal .mt-bub .mt-tot li{ border-left-color:#ddd2c6; background:#fff; border-radius:0 8px 8px 0; }
+#mentor-modal .mt-bub .mt-tot li{ border-left-color:#ddd2c6; background:#fff; border-radius:0 12px 12px 0; }
 #mentor-modal .mt-bub .mt-tot li b{ color:var(--blue-deep); }
 #mentor-modal .mt-bub .mt-tot li.mt-step-key{ border-left-color:var(--yellow); background:var(--yellow-pale); }
 #mentor-modal .mt-bub .mt-below{ color:var(--blue-deep); }
 #mentor-modal .mt-bub .mt-kk a, #mentor-modal .mt-bub .mt-fp a, #mentor-modal .mt-bub .mt-fpref a{ color:var(--blue-deep); }
 
 /* FP1級・税理士の目（琥珀の枠） */
-#mentor-modal .mt-bub .mt-fp li.mt-fpt{ border-left-color:var(--amber); background:var(--yellow-pale); border-radius:0 8px 8px 0; }
+#mentor-modal .mt-bub .mt-fp li.mt-fpt{ border-left-color:var(--amber); background:var(--yellow-pale); border-radius:0 12px 12px 0; }
 #mentor-modal .mt-bub .mt-fpt > b, #mentor-modal .mt-bub .mt-fpk{ color:#6b4a12; }
 
 /* 問い返し（4択＋その他） */
-#mentor-modal .mt-bub .mt-ask{ border:1.5px solid var(--blue-deep); border-radius:10px; background:var(--blue-pale); }
-#mentor-modal .mt-bub .mt-ask > b{ color:var(--blue-deep); }
-#mentor-modal .mt-bub .mt-opt{ background:#fff; border:1.5px solid var(--blue-pale2); border-radius:8px; color:var(--ink); }
+#mentor-modal .mt-bub .mt-ask{ border:1px solid var(--blue-pale2); border-radius:16px; background:var(--blue-pale); }
+#mentor-modal .mt-bub .mt-ask > b{ color:var(--blue-deep); font-family:var(--mincho); letter-spacing:.04em; }
+#mentor-modal .mt-bub .mt-opt{ background:#fff; border:1px solid var(--blue-pale2); border-radius:999px; color:var(--ink); padding:9px 14px; }
 #mentor-modal .mt-bub .mt-opt:hover{ border-color:var(--blue-deep); background:#f5f9fc; }
-#mentor-modal .mt-bub .mt-opt .mt-opt-n{ background:var(--blue-deep); border-radius:5px; }
+#mentor-modal .mt-bub .mt-opt .mt-opt-n{ background:var(--blue-deep); border-radius:50%; }
 #mentor-modal .mt-bub .mt-opt .mt-opt-d{ color:var(--ink-soft); }
 #mentor-modal .mt-bub .mt-opt.mt-opt-other .mt-opt-n{ background:var(--ink-soft); }
 #mentor-modal .mt-bub .mt-ask.mt-ask-done .mt-opt.mt-opt-picked{ border-color:var(--blue-deep); background:#eef4f9; }
 
-/* --- 相談のきっかけ（ボタンの並び） ---------------------------- */
-#mentor-modal .mt-quick{ position:relative; padding-top:21px; border-top:1px dashed var(--line); }
+/* --- 相談のきっかけ（管理画面の「◯◯する」の小見出しと同じ顔） --- */
+#mentor-modal .mt-quick{ position:relative; padding-top:20px; }
 #mentor-modal .mt-quick::before{
-  content:'相談のきっかけ（押すとそのまま聞けます）';
-  position:absolute; top:3px; left:0; font-size:.7rem; font-weight:700; color:var(--ink-soft);
+  content:'相談のきっかけ'; position:absolute; top:0; left:0;
+  font-size:.74rem; font-weight:700; color:var(--blue-deep); letter-spacing:.06em;
 }
-#mentor-modal .mt-quick .chat-chip{ border:1px solid var(--amber-line); background:var(--yellow-pale); color:#6b4a12; border-radius:8px; }
+#mentor-modal .mt-quick .chat-chip{ border:1px solid var(--amber-line); background:var(--yellow-pale); color:#6b4a12; border-radius:999px; padding:7px 13px; }
 #mentor-modal .mt-quick .chat-chip:hover{ background:#fbe9c9; }
+/* きっかけは22個ある。ぜんぶ出すと会話の枠が3行ぶん狭くなるので、2行で畳んでおく */
+@media (min-width:641px){
+  #mentor-modal .mt-quick{ max-height:92px; overflow:hidden; }
+  #mentor-modal .mt-quick.mt-quick-open{ max-height:none; }
+}
+.mt-quick-more{
+  align-self:flex-start; margin:-2px 0 0; padding:4px 12px; min-height:28px;
+  border:1px dashed var(--blue-pale2); border-radius:999px; background:#fff;
+  color:var(--blue-deep); font-family:inherit; font-size:.74rem; font-weight:700; cursor:pointer;
+}
+.mt-quick-more:hover{ background:var(--blue-pale); }
 
 /* --- 道具の引き出し（人物設定・今月の数字・自分で点検） --------- */
-#mentor-modal .mt-panel{ border-radius:10px; border-color:var(--line); border-left:4px solid var(--blue-deep); background:#fff; }
-#mentor-modal .mt-panel h4{ color:var(--blue-deep); }
-#mentor-modal .mt-grid input, #mentor-modal .mt-grid select, #mentor-modal .mt-grid textarea{ border-radius:8px; }
+#mentor-modal .mt-panel{ border-radius:18px; border:1px solid var(--line); background:#fff; box-shadow:var(--shadow-soft); }
+#mentor-modal .mt-panel h4{ color:var(--blue-deep); font-family:var(--mincho); font-size:.92rem; letter-spacing:.04em; }
+#mentor-modal .mt-grid input, #mentor-modal .mt-grid select, #mentor-modal .mt-grid textarea{ border-radius:12px; }
+#mentor-modal .mt-checks label{ white-space:nowrap; }   /* 「数字」が縦に割れて読めなくなるのを防ぐ */
+#mentor-modal .mt-checks input{ flex:0 0 auto; }
 #mentor-modal .mt-grid input:focus, #mentor-modal .mt-grid select:focus, #mentor-modal .mt-grid textarea:focus{
   outline:none; border-color:var(--blue); box-shadow:0 0 0 3px rgba(39,88,127,.15);
 }
 
 /* --- 書くところ ----------------------------------------------- */
-#mentor-modal .mt-input textarea{ border-radius:10px; }
+#mentor-modal .mt-input textarea{ border-radius:16px; }
 #mentor-modal .mt-input textarea:focus{ border-color:var(--blue-deep); box-shadow:0 0 0 3px rgba(27,63,94,.16); }
+#mentor-modal .mt-input .btn{ border-radius:50%; width:46px; height:46px; padding:0; flex:0 0 auto; }
 
 /* --- 下の注意書き --------------------------------------------- */
-.mt-foot{ padding:12px 0 22px; font-size:.74rem; color:var(--ink-soft); line-height:1.8; }
-.mt-foot p + p{ margin-top:3px; }
+.mt-foot{ padding:10px 0 20px; font-size:.74rem; color:var(--ink-soft); line-height:1.8; }
+.mt-foot p + p{ margin-top:2px; }
 
 @media (max-width:640px){
-  /* 相談の画面を1画面でも広く見せたいので、帯は1行ずつに畳む */
-  .mt-head .wrap{ min-height:50px; gap:9px; flex-wrap:nowrap; }
-  .mt-head h1{ font-size:.98rem; }
-  .mt-head .mt-sub{ display:none; }                 /* 名乗りの2行目は畳む（1行に収める） */
-  .mt-head .mt-links a{ padding:6px 10px; font-size:.74rem; white-space:nowrap; }
-  .mt-strip .wrap{ flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; gap:16px; }
-  .mt-strip span{ font-size:.72rem; white-space:nowrap; }
-  main.mt-main{ padding:8px 0 12px; }
+  .mt-head .wrap{ gap:10px; padding-top:8px; padding-bottom:8px; }
+  .mt-head .mt-head-art{ width:44px; height:44px; }
+  .mt-head h1{ font-size:1.08rem; }
+  .mt-head .mt-sub{ display:none; }                  /* 1行に収めて、会話の枠を広く取る */
+  .mt-head .mt-links a{ padding:7px 13px; font-size:.78rem; white-space:nowrap; }
+  main.mt-main{ padding:8px 0 10px; }
   .wrap{ padding:0 10px; }
-  #mentor-modal .modal{ height:calc(100dvh - 112px); min-height:440px; border-radius:12px; }
-  #mentor-modal .modal-body{ padding:12px 12px 14px; }
-  #mentor-modal .mt-log{ padding:10px; }
-  /* 横に流れる並びなので、見出しは重なる。畳む */
-  #mentor-modal .mt-quick{ padding-top:6px; }
-  #mentor-modal .mt-quick::before{ display:none; }
+  #mentor-modal .modal{ height:calc(100dvh - 86px); min-height:440px; border-radius:16px; }
+  #mentor-modal .modal-body{ padding:10px 11px 12px; }
+  /* スマホは操作の行が3段に折り返して、会話の枠を200px近く食う。1行にして横に流す */
+  #mentor-modal .mt-top{ flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; padding:6px 9px; }
+  #mentor-modal .mt-top > *{ flex:0 0 auto; }
+  #mentor-modal .mt-top select{ max-width:46vw; }
+  #mentor-modal .mt-who{ max-width:26vw; }
+  #mentor-modal .mt-who b, #mentor-modal .mt-who span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block; }
+  #mentor-modal .mt-log{ padding:11px 12px; }
+  #mentor-modal .mt-quick{ padding-top:4px; }
+  #mentor-modal .mt-quick::before{ display:none; }    /* 横に流れる並びなので見出しは重なる */
+  .mt-quick-more{ display:none; }
 }
 @media print{
-  header.mt-head, .mt-strip, .mt-quick, .mt-input, .mt-foot{ display:none !important; }
+  header.mt-head, .mt-quick, .mt-quick-more, .mt-input, .mt-foot{ display:none !important; }
   #mentor-modal .modal{ height:auto; min-height:0; box-shadow:none; border:none; }
-  .mt-log{ max-height:none !important; overflow:visible !important; border:none !important; }
+  .mt-log{ max-height:none !important; overflow:visible !important; border:none !important; box-shadow:none !important; }
 }
 </style>
 </head>
@@ -499,25 +526,17 @@ main.mt-main{ padding:14px 0 16px; }
 
 <header class="mt-head">
   <div class="wrap">
-    <span class="mt-logo"><i class="fa-solid fa-user-tie"></i></span>
-    <span>
+    <!-- 上長のイラスト。読み込み後に mtFaceSVG で描く（人物設定のタイプで顔が変わる） -->
+    <span class="mt-head-art" id="mt-head-art" aria-hidden="true"></span>
+    <span class="mt-head-body">
       <h1>AI上長 <span class="mt-badge"><i class="fa-solid fa-lock"></i> 社内用</span></h1>
-      <span class="mt-sub">株式会社Office-M ／ 保険ツール（社内）</span>
+      <span class="mt-sub" id="mt-head-sub">数字・断り文句・提案を、FP1級と税理士の目で見る</span>
     </span>
     <span class="mt-links">
       <a href="https://office-m-nakatani.github.io/office-m/hoken-hub/"><i class="fa-solid fa-table-cells-large"></i> ツール一覧</a>
     </span>
   </div>
 </header>
-
-<div class="mt-strip">
-  <div class="wrap">
-    <span><i class="fa-solid fa-calculator"></i> 今月の数字を逆算する</span>
-    <span><i class="fa-solid fa-comments"></i> 断り文句の返し方を見る</span>
-    <span><i class="fa-solid fa-scale-balanced"></i> 提案をFP1級・税理士の目で点検する</span>
-    <span><i class="fa-solid fa-list-check"></i> 自分で点検して段階を知る</span>
-  </div>
-</div>
 
 <main class="mt-main">
   <div class="wrap">
@@ -528,8 +547,10 @@ main.mt-main{ padding:14px 0 16px; }
       </div>
       <div class="modal-body">
         <div class="mt-top">
-          <label for="mt-persona" style="font-size:.78rem; color:var(--ink-soft);">上長</label>
-          <select id="mt-persona"></select>
+          <!-- 誰に相談しているのかが見えるように、顔（イラスト）と名乗りを置く。絵は mtFaceSVG が描く -->
+          <span class="mt-face" id="mt-face" aria-hidden="true"></span>
+          <span class="mt-who"><b id="mt-who-name">師匠</b><span id="mt-who-sub">上長</span></span>
+          <select id="mt-persona" aria-label="上長を切り替える"></select>
           <button type="button" class="btn btn-ghost btn-sm" id="mt-set-btn" aria-expanded="false"><i class="fa-solid fa-sliders"></i> 人物設定</button>
           <button type="button" class="btn btn-ghost btn-sm" id="mt-kpi-btn" aria-expanded="false"><i class="fa-solid fa-chart-simple"></i> 今月の数字</button>
           <button type="button" class="btn btn-ghost btn-sm" id="mt-self-btn" aria-expanded="false"><i class="fa-solid fa-list-check"></i> 自分で点検</button>
@@ -621,8 +642,8 @@ main.mt-main{ padding:14px 0 16px; }
   </div>
   </div>
   <div class="wrap mt-foot">
-    <p>※ このページは社内の相談用です。お客様に配布しないでください。外部のAIには接続していません（費用ゼロ・入力内容は外に出ません）。人物設定と会話はこの端末のブラウザにだけ残ります（共有PCでは使わないこと）。</p>
-    <p>※ 個別の税額計算・申告書の作成・税務相談は税理士の業務です。このページが返すのは、提案の前に確かめることと、税理士に渡す材料までです。</p>
+    <p>※ 社内の相談用です。お客様に配布しないでください。外部のAIには接続していません（費用ゼロ・入力内容は外に出ません）。人物設定と会話はこの端末のブラウザにだけ残ります（共有PCでは使わないこと）。</p>
+    <p>※ 個別の税額計算・申告書の作成・税務相談は税理士の業務です。このページが返すのは、提案の前に確かめることと、税理士に渡す材料までです。返答は教材・公開ページに明記のある範囲で、金額の断定はしません。</p>
     <p>※ このページだけで完結します（ライフプランツールを開く必要はありません）。ライフプラン（一条版）の中にある「AI上長」とは、見た目は違いますが同じ中身・同じ保存先です。どちらで話しても同じ上長・同じ会話が続きます。</p>
   </div>
 </main>
@@ -958,11 +979,73 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       });
       return out;
     }
+    /* 判定語の重み：長い語ほど確かな手がかり。「今月」「数字が」のような短い語ひとつで
+       「この話や」と決めつけると、まったく違う型の返事になる（ユーザー指摘）。
+       そこで語の長さで重みを変え、点が足りないときは断定せず、最後に問い返す。 */
+    function mtKwScore(t, kws){
+      let s = 0;
+      (kws || []).forEach(function(k){
+        if(!k) return;
+        const w = mtNorm(k);
+        if(!w || t.indexOf(w) < 0) return;
+        s += (w.length >= 4 ? 1.6 : (w.length >= 3 ? 1.2 : 0.8));
+      });
+      return s;
+    }
+    const MT_SURE = 1.6;   /* これ未満は「たぶん」。答えは出すが、最後に「ちがっていたら」を付ける */
     function mtScoreIntents(t){
-      return MT_INTENTS.map(function(it){ return { it:it, s:mtHasKw(t, it.kw) }; })
+      const flat = String(t).replace(/[。、\s]/g, '');
+      return MT_INTENTS.map(function(it){
+        let s = mtKwScore(t, it.kw);
+        // 相談ボタン・選び直しから来た「型そのもの」の言葉は、迷わずその型で答える
+        if(mtNorm(it.name).replace(/[。、\s]/g, '') === flat) s += 5;
+        return { it:it, s:s }; })
         .filter(function(x){ return x.s > 0; })
         .sort(function(a, b){ return b.s - a.s; })
-        .slice(0, 2).map(function(x){ return x.it; });
+        .slice(0, 2).map(function(x){ x.it._s = x.s; return x.it; });
+    }
+    /* 話が絞れないときに出す4択。相談文の手がかりで、聞く方向を変える（いつも同じ4つを出さない） */
+    function mtPickOpts(t, intents){
+      const O = {
+        short:   { k:'short',    t:'今月の数字が足りない',        d:'目標・今の件数・残り日数から逆算する',        q:'今月の数字が足りない' },
+        referral:{ k:'referral', t:'紹介が出ない・見込みが切れた', d:'頼む相手・頼み方・タイミング',              q:'紹介が出ない' },
+        rejected:{ k:'rejected', t:'お客様に断られた・止まった',   d:'4段の返し方と、次の一手',                    q:'断られた・キャンセルされた' },
+        staff:   { k:'staff',    t:'部下・チームのこと',          d:'1on1・動かない・辞めそう・数字の詰め方',      q:'部下が動かない' },
+        talk:    { k:'talk',     t:'商談の進め方・話し方',        d:'入り方・聞く順番・クロージング',              q:'商談の入り方を教えて' },
+        know:    { k:'know',     t:'相続・法人・税金・不動産の中身', d:'FP1級と税理士の目で確かめるところ',        q:'提案を点検' },
+        self:    { k:'self',     t:'自分が続かない・しんどい',      d:'段階・習慣・時間の使い方',                    q:'モチベーションが続かない' },
+        price:   { k:'price',    t:'単価・提案の中身',            d:'必要保障額・見直し・比べ方',                  q:'単価が上がらない' }
+      };
+      const out = [];
+      const push = function(k){ const o = O[k]; if(o && out.indexOf(o) < 0) out.push(o); };
+      if(/部下|メンバー|新人|若手|後輩|チーム|支店|採用|1on1|マネジ|育成/.test(t)){ push('staff'); }
+      if(/相続|贈与|法人|税|不動産|退職金|事業承継|年金|実家|空き家|決算/.test(t)) push('know');
+      if(/断ら|考えます|保留|検討|返事|音信|キャンセル|解約|見送/.test(t)) push('rejected');
+      if(/紹介|見込み|人脈|新規|開拓|販路|名簿|アポが/.test(t)) push('referral');
+      if(/数字|目標|件数|達成|ノルマ|営業日|ペース|未達|足りな/.test(t)) push('short');
+      if(/単価|保険料|値段|安い|高い|提案|設計|見直し/.test(t)) push('price');
+      if(/商談|面談|話し方|聞き方|クロージング|アポ|初回/.test(t)) push('talk');
+      if(/しんどい|つらい|続かな|やる気|不安|自信|眠れ|疲れ|逃げ/.test(t)) push('self');
+      (intents || []).forEach(function(i){ push(i.key); });
+      ['short','referral','rejected','staff'].forEach(push);   /* 足りない分は定番で埋める */
+      return out.slice(0, 4);
+    }
+    /* 組み立てに失敗しても「分からない」で終わらせない。近い4択を出して、そこから続ける */
+    function mtOops(P){
+      const tone = mtTone(P);
+      return mtFill(mtPick(MT_OPENERS[tone] || MT_OPENERS.shisho), P)
+        + (tone === 'zsedai' ? 'すみません、いまの書き方だとうまく組み立てられませんでした。近いものを押してもらえれば、そこから具体的に返します。'
+                             : '今の書き方では組み立てられん。近いのを押せ。そこから話す。')
+        + mtAskHTML(tone === 'zsedai' ? 'いちばん近いのはどれですか' : '近いのはどれや', mtPickOpts('', []),
+            { kind:'pick', title:'話を絞る', head:'pick_head' });
+    }
+    /* 直前の相談。「それでもダメだった」「他には？」のような一言を、前の話の続きとして受け取る */
+    let mtLast = { text:'', name:'', at:0 };
+    let mtLastActs = [];   /* 前回渡した「今日やること」。続きの相談で同じ手を繰り返さないため */
+    function mtIsFollow(q){
+      const t = mtNorm(q).replace(/\s/g, '');
+      if(!t || t.length > 24) return false;
+      return /^(それ|そこ|そう|でも|けど|だけど|やっぱ|やはり|やってみ|やった|試し|ダメ|だめ|無理|できな|できませ|うん|はい|他に|ほかに|もっと|続き|次は|どうやって|どうすれ|なんで|なぜ|具体的)/.test(t);
     }
     /* 知識の検索：師匠の判断軸・本の原則・勉強会の教え を1つの箱にして点数をつける。
        ctx（会社の重み）で勉強会の教えの点数を増減する。 */
@@ -1082,6 +1165,58 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
 
     /* ---------- 3倍化：お客様の断り文句（TOTならこう返す）・切り口・自分に聞く・繰り返し・段階・点検 ---------- */
     function mtTone(P){ return (P && P.style === 'zsedai') ? 'zsedai' : 'shisho'; }
+
+    /* ---------- 上長の顔（イラスト） ----------
+       「本当に話している相手」に見えた方が、人間の上長に聞けない話を出しやすい、というユーザー指摘で追加。
+       タイプで描き分ける（体育会系＝角刈り・太い眉・への字／褒め伸ばし＝やわらかい髪・眼鏡・笑顔）。
+       絵文字は使わない（全案件共通の原則）。インラインSVGなので外部への読み込みも無い。
+       ★保存する会話の本文には入れない（mtSanitize がSVGを落とすため）。顔は吹き出しの外＝アイコンだけに出す。 */
+    function mtFaceSVG(tone){
+      const z = (tone === 'zsedai');
+      const head = z
+        ? '<path d="M19.4 26.4c0-9.6 5.6-15 12.6-15s12.6 5.4 12.6 15c-.2-3.8-1.6-6-3.6-7-4.4 2.8-11.4 3.4-16.2 1.2-2.2 1.4-3.6 3.4-3.4 5.8Z" fill="#4a3a2c"/>'
+        : '<path d="M19 25.6c0-9.6 5.8-15.2 13-15.2s13 5.6 13 15.2c-1.9-4.4-4.6-7-8-8.1-3.4 2.4-8.6 3.4-13.3 2.4-1.8 1.4-3.1 3.4-3.7 5.7Z" fill="#3d3028"/>';
+      const brow = z
+        ? '<path d="M23.6 24.8c1.8-1 4.6-1 6.2 0" fill="none" stroke="#4a3a2c" stroke-width="1.8" stroke-linecap="round"/>'
+          + '<path d="M34.2 24.8c1.6-1 4.4-1 6.2 0" fill="none" stroke="#4a3a2c" stroke-width="1.8" stroke-linecap="round"/>'
+        : '<path d="M24.4 24.4c1.8-1.4 4.8-1.4 6.4 0" fill="none" stroke="#3d3028" stroke-width="2.6" stroke-linecap="round"/>'
+          + '<path d="M33.2 24.4c1.6-1.4 4.6-1.4 6.4 0" fill="none" stroke="#3d3028" stroke-width="2.6" stroke-linecap="round"/>';
+      const eyes = '<circle cx="27.2" cy="29.8" r="1.9" fill="#3d3028"/><circle cx="36.8" cy="29.8" r="1.9" fill="#3d3028"/>';
+      const glass = z
+        ? '<rect x="22.6" y="26.4" width="9.2" height="6.8" rx="3.2" fill="none" stroke="#3d3028" stroke-width="1.5"/>'
+          + '<rect x="32.2" y="26.4" width="9.2" height="6.8" rx="3.2" fill="none" stroke="#3d3028" stroke-width="1.5"/>'
+          + '<path d="M31.8 29.4h.4M22.6 29.2l-3.2-.6M41.4 29.2l3.2-.6" fill="none" stroke="#3d3028" stroke-width="1.5" stroke-linecap="round"/>'
+        : '';
+      const mouth = z
+        ? '<path d="M28.4 36.2q3.6 3.2 7.2 0" fill="none" stroke="#a46a52" stroke-width="1.9" stroke-linecap="round"/>'
+        : '<path d="M28.4 37.2q3.6-2.4 7.2 0" fill="none" stroke="#a46a52" stroke-width="1.9" stroke-linecap="round"/>';
+      return '<svg viewBox="0 0 64 64" role="img" aria-label="上長のイラスト">'
+        + '<rect width="64" height="64" fill="' + (z ? '#fdf3e2' : '#eaf1f7') + '"/>'
+        + '<path d="M4 64c0-12 12-18 28-18s28 6 28 18H4Z" fill="' + (z ? '#3f6480' : '#1b3f5e') + '"/>'   /* 肩（スーツ） */
+        + '<path d="M23 47 32 61l9-14-9-4-9 4Z" fill="#fffdf8"/>'                                          /* シャツの襟 */
+        + '<path d="m32 49.4 3.2 2.6-2 11h-2.4l-2-11Z" fill="' + (z ? '#5aa8cf' : '#bf4123') + '"/>'       /* ネクタイ */
+        + '<ellipse cx="32" cy="27" rx="12.8" ry="14.2" fill="' + (z ? '#f9d6bd' : '#f7cdb4') + '"/>'      /* 顔 */
+        + '<circle cx="18.9" cy="28.6" r="2.5" fill="' + (z ? '#f2c6a8' : '#f0bda2') + '"/>'
+        + '<circle cx="45.1" cy="28.6" r="2.5" fill="' + (z ? '#f2c6a8' : '#f0bda2') + '"/>'
+        + head + brow + eyes + glass + mouth
+        + '</svg>';
+    }
+    /* 返事の横に出すアイコン（吹き出しの外側なので、保存・復元しても消えない） */
+    function mtAvaHTML(){
+      let tone = 'shisho';
+      try{ tone = mtTone(mtP()); }catch(e){}
+      return '<span class="chat-ava mt-ava">' + mtFaceSVG(tone) + '</span>';
+    }
+    /* 上の行の顔と名乗り。上長を切り替えたら描き直す */
+    function mtRenderFace(){
+      const el = $('mt-face'); if(!el) return;
+      const P = mtP() || {};
+      el.innerHTML = mtFaceSVG(mtTone(P));
+      const n = $('mt-who-name'), s = $('mt-who-sub');
+      if(n) n.textContent = P.name || '師匠';
+      const co = String(P.company || '').replace(/[（(][^）)]*[）)]/g, '').trim();
+      if(s) s.textContent = co + (co ? '／' : '') + (P.style === 'zsedai' ? '褒め伸ばし' : '体育会系');
+    }
     function mtStage(){ return MT_STAGES.filter(function(s){ return s.id === MT.stage; })[0] || MT_STAGES[0]; }
     /* 定型文（MT_TEXTS）を口調別に1つ。配列なら使い回しを避けて選ぶ */
     function mtT(key, tone){
@@ -1420,7 +1555,9 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       }
       const idx = parseInt(v, 10);
       card.classList.add('mt-ask-done'); btn.classList.add('mt-opt-picked');
-      if(!live){ mtPend = null; mtSend(label.replace(/（.*）$/, '')); return; }
+      // 前の問いのボタンを後から押したときは、その文をそのまま相談として送る
+      //（括弧まで落とすと「自分のこと」だけになって、また絞れなくなる）
+      if(!live){ mtPend = null; mtSend(label); return; }
       const pend = mtPend; mtPend = null;
       mtAdd('user', esc('→ ' + label));
       mtReply(function(P){ return mtContinue(pend, idx, null, P); });
@@ -1464,9 +1601,9 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
     function mtReply(build){
       const P = mtP();
       const typing = document.createElement('div'); typing.className = 'chat-msg bot';
-      typing.innerHTML = '<span class="chat-ava mt-ava"><i class="fa-solid fa-user-tie"></i></span><div class="chat-bubble mt-bub"><span class="typing"><span></span><span></span><span></span></span></div>';
+      typing.innerHTML = mtAvaHTML() + '<div class="chat-bubble mt-bub"><span class="typing"><span></span><span></span><span></span></span></div>';
       if(mtLog){ mtLog.appendChild(typing); mtLog.scrollTop = mtLog.scrollHeight; }
-      let html; try{ html = build(P); }catch(e){ html = '今は答えを組み立てられんかった。言い方を変えてもう一回。'; mtPend = null; }
+      let html; try{ html = build(P); }catch(e){ mtPend = null; html = mtOops(P); }
       setTimeout(function(){ typing.remove(); mtAdd('bot', html); }, 500 + Math.floor(Math.random() * 700));
     }
 
@@ -1478,11 +1615,17 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       if(l){ mtLastLines.push(l); if(mtLastLines.length > 12) mtLastLines.shift(); }
       return l;
     }
-    function mtAnswer(q, P){
+    function mtAnswer(q, P, o){
+      o = o || {};
       const t = mtNorm(q);
       const tone = (P.style === 'zsedai') ? 'zsedai' : 'shisho';
       const reacts = mtDetectReact(t, P);
       const intents = mtScoreIntents(t);
+      // 点が足りない・2位と僅差のときは断定しない（外したまま話を進めない）
+      const s0 = (intents[0] && intents[0]._s) || 0, s1 = (intents[1] && intents[1]._s) || 0;
+      // 「しんどい」のような短い一言は、語がひとつ当たっただけで型を決めない（外すと別の話の返事になる）
+      const vagueMsg = t.replace(/\s/g, '').length <= 10;
+      const sure = s0 >= MT_SURE && (s0 - s1) >= 0.4 && !(vagueMsg && s0 < 3);
       const ko = mtFindKotowari(t);   // お客様の断り文句（TOTならこう返す）
       const know = mtKnowledge(t, intents, P, reacts);
       mtPend = null;                  // 新しい相談が来たら、前の問い返しは流す
@@ -1499,15 +1642,23 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       // 呼びかけ＋反応
       const opener = reacts.length ? mtFill(mtFreshLine(reacts[0].open[tone] || reacts[0].open.shisho), P) : mtFill(mtPick(MT_OPENERS[tone] || MT_OPENERS.shisho), P);
       h += opener;
+      if(o.follow) h += '<span class="mt-note">' + esc(tone === 'zsedai'
+        ? 'さきほどの「' + o.follow + '」の続きとして見ますね。同じやり方をもう一度渡しても進まないので、変えるところを出します。'
+        : 'さっきの「' + o.follow + '」の続きやな。同じ手をもう一回渡してもしゃあない。変えるとこを出す。') + '</span>';
       if(reacts.length > 1) h += ' ' + mtFill(mtFreshLine(reacts[1].open[tone] || reacts[1].open.shisho), P);
       if(tone === 'zsedai') h += '<span class="mt-h">まず良いところ</span>' + esc(mtPraise(t, hasNum, intents, reacts));
 
       // 見立て
-      const main = intents[0] || null;
+      // 「しんどい」だけのような気持ちの一言は、型を決めつけない。反応を返してから、先に聞く
+      const emo = vagueMsg && s0 < 3 && reacts.length > 0 && !/[0-9０-９]/.test(t);
+      const main = emo ? null : (intents[0] || null);
       h += '<span class="mt-h">見立て</span>';
       const isReport = reacts.some(function(r){ return r.key === 'report'; });
       if(main){
-        h += (tone === 'zsedai' ? '整理すると「<b>' + esc(main.name) + '</b>」の話ですね。' : '話は「<b>' + esc(main.name) + '</b>」やな。');
+        h += sure
+          ? (tone === 'zsedai' ? '整理すると「<b>' + esc(main.name) + '</b>」の話ですね。' : '話は「<b>' + esc(main.name) + '</b>」やな。')
+          : (tone === 'zsedai' ? 'たぶん「<b>' + esc(main.name) + '</b>」に近い話ですね。ちがっていたら、いちばん下から選び直せます。'
+                               : 'たぶん「<b>' + esc(main.name) + '</b>」の話やな。ちがうなら、いちばん下から選び直せ。');
         if(main.view) h += ' ' + esc(main.view);
         else if(know[0]) h += ' ' + esc(mtShort(know[0].gist, 90));
       } else if(ko){
@@ -1522,14 +1673,13 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       } else if(reacts.length){
         h += (tone === 'zsedai' ? 'まず気持ちの方に返しました。ここからは行動の話にしますね。' : 'それは中身の相談やない。まず反応を返した。ここから先は行動の話をする。');
       } else {
-        // どの型にも当たらないときは、4択＋その他で問い返す（診断してから処方）
-        h += (tone === 'zsedai' ? 'どのテーマか絞れなかったので、近いものを選んでください。' : 'どの話か絞れんかった。近いのを選べ。');
-        h += mtAskHTML('いちばん近いのはどれか', [
-          { t:'今月の数字が足りない', d:'目標・今の件数・残り日数から逆算する', q:'今月の数字が足りない' },
-          { t:'紹介が出ない', d:'頼む相手・頼み方・タイミング', q:'紹介が出ない' },
-          { t:'お客様に断られた・止まった', d:'TOTならこう返す（4段）と次の一手', q:'断られた・キャンセルされた' },
-          { t:'部下・チームのこと', d:'1on1・動かない・辞めそう・数字の詰め方', q:'部下が動かない' }
-        ], { kind:'pick', title:'問い返し', head:'pick_head' });
+        // どの型にも当たらないときでも「分からない」では終わらせない。
+        // 相談文の手がかりで4択を作り直して、そこから続ける（診断してから処方）
+        const vague = t.replace(/\s/g, '').length <= 8;
+        h += (tone === 'zsedai'
+          ? (vague ? 'もう少しだけ場面を教えてください。' : 'こちらの型と重なる言葉が無かったので、近いところから入りますね。')
+          : (vague ? '一言だけでは的が絞れん。場面を足せ。' : 'まだ的が絞れとらん。だいたいこの中のどれかや。'));
+        if(vague) h += '<span class="mt-note">' + esc('先に3つ：誰の話か（お客様／部下／自分）・いつまでか・何が起きたか。') + '</span>';
       }
 
       // 数字
@@ -1552,7 +1702,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       if(ko) h += mtKotowariHTML(ko, P);
       // この切り口から伝えてみる（顧客向けの話題があるとき。自分の管理の相談には出さない）
       if(!(main && main.role === 'self')){
-        const kk = mtFindKirikuchi(t, MT.recentKk);
+        const kk = mtFindKirikuchi(t, MT.recentKk).slice(0, sure ? 3 : 2);
         if(kk.length){ h += mtKirikuchiHTML(kk, P); MT.recentKk = kk.map(function(k){ return k.id; }).concat(MT.recentKk).slice(0, 12); }
       }
       // FP1級の目で見る（知識の論点が相談に入っているとき）
@@ -1585,7 +1735,15 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       know.forEach(function(k){ const a = useMgmt ? (k.mgmt || k.sales) : k.sales; if(a) acts.push(a); });
       if(reacts.some(function(r){ return r.key === 'health'; })) acts.unshift('今日は睡眠を先に確保し、明日の朝に筋トレか30分歩く');
       if(reacts.some(function(r){ return r.key === 'time' || r.key === 'promise'; })) acts.unshift('相手に今日中に連絡を入れ、事実と次の行動だけを伝える（言い訳は書かない）');
-      acts = acts.filter(function(a, i){ return a && acts.indexOf(a) === i; }).slice(0, 3);
+      acts = acts.filter(function(a, i){ return a && acts.indexOf(a) === i; });
+      // 続きの相談では、前に渡した行動をうしろに回して、まだ渡していない手を先に出す
+      if(o.follow && mtLastActs.length){
+        acts = acts.filter(function(a){ return mtLastActs.indexOf(a) < 0; }).concat(acts.filter(function(a){ return mtLastActs.indexOf(a) >= 0; }));
+      }
+      acts = acts.slice(0, 3);
+      mtLastActs = acts.slice(0);
+      if(!acts.length) acts = ['止まっている案件を3件だけ書き出し、止まった理由を1行ずつ書く（連絡待ち・提案待ち・意思決定待ち）',
+                               '既契約のお客様2人に、今日中に近況伺いの連絡を入れる（売り込みはしない）'];
       if(acts.length){
         h += '<span class="mt-h">今日やること</span><ul>' + acts.map(function(a){ return '<li>' + esc(a) + '</li>'; }).join('') + '</ul>';
       }
@@ -1601,8 +1759,24 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
 
       // 問い返し（4択＋その他）：1級の論点があれば、その状況を1問で切り分ける。選ぶと枝ごとの要点を返す
       if(fp[0] && fp[0].q && fp[0].opts && fp[0].opts.length >= 2 && !mtPend){
-        h += mtAskHTML(fp[0].q, fp[0].opts.map(function(o){ return { t:o.t }; }), { kind:'ask', key:fp[0].key, check:(useMgmt ? { mgmt:true } : null), title:'答えを絞る（' + mtFPEye(fp[0]) + '）', head:'ask_head' });
+        h += mtAskHTML(fp[0].q, fp[0].opts.map(function(x){ return { t:x.t }; }), { kind:'ask', key:fp[0].key, check:(useMgmt ? { mgmt:true } : null), title:'答えを絞る（' + mtFPEye(fp[0]) + '）', head:'ask_head' });
       }
+      // 型に当たらなかったとき（気持ちだけの一言も含む）は、最後に必ず1問返す。
+      // ここで黙ると「分からない」で終わってしまう（報告への返しだけは、問い返さずに受け取る）
+      if(!main && !ko && !fp.length && !isReport && !mtPend){
+        h += mtAskHTML(tone === 'zsedai' ? 'いちばん近いのはどれですか' : '近いのはどれや', mtPickOpts(t, intents),
+          { kind:'pick', title:'話を絞る', head:'pick_head' });
+      }
+      // 「たぶん」で答えたときは、最後に別の型を出して選び直せるようにする（外したまま進めない）
+      if(main && !sure && !mtPend){
+        const alt = mtPickOpts(t, intents).filter(function(x){ return x.k !== main.key; }).slice(0, 4);
+        if(alt.length >= 2){
+          h += mtAskHTML(tone === 'zsedai' ? '話がずれていたら、近いものを押してください' : '話がずれとったら、近いのを押せ',
+            alt, { kind:'pick', title:'ちがっていたら', head:'pick_head' });
+        }
+      }
+      // 続きの一言（「それでもダメだった」など）を、この話の続きとして受け取れるように覚えておく
+      mtLast = { text:String(q).slice(0, 160), name:(main ? main.name : (ko ? '「' + ko.said + '」への返し' : (fp[0] ? fp[0].name : ''))), at:Date.now() };
       return h;
     }
 
@@ -1643,7 +1817,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
     function mtAdd(who, html, save){
       if(!mtLog) return;
       const d = document.createElement('div'); d.className = 'chat-msg ' + who;
-      d.innerHTML = (who === 'bot' ? '<span class="chat-ava mt-ava"><i class="fa-solid fa-user-tie"></i></span>' : '') + '<div class="chat-bubble' + (who === 'bot' ? ' mt-bub' : '') + '">' + html + '</div>';
+      d.innerHTML = (who === 'bot' ? mtAvaHTML() : '') + '<div class="chat-bubble' + (who === 'bot' ? ' mt-bub' : '') + '">' + html + '</div>';
       mtLog.appendChild(d);
       mtLog.scrollTop = mtLog.scrollHeight;
       if(save !== false){
@@ -1671,7 +1845,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       mtAdd('user', esc(q));
       if($('mt-text')) $('mt-text').value = '';
       const typing = document.createElement('div'); typing.className = 'chat-msg bot';
-      typing.innerHTML = '<span class="chat-ava mt-ava"><i class="fa-solid fa-user-tie"></i></span><div class="chat-bubble mt-bub"><span class="typing"><span></span><span></span><span></span></span></div>';
+      typing.innerHTML = mtAvaHTML() + '<div class="chat-bubble mt-bub"><span class="typing"><span></span><span></span><span></span></span></div>';
       mtLog.appendChild(typing); mtLog.scrollTop = mtLog.scrollHeight;
       let html;
       const raw = q.trim();
@@ -1705,8 +1879,14 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
           const pnl = $('mt-self'); if(pnl){ pnl.hidden = false; const btn = $('mt-self-btn'); if(btn) btn.setAttribute('aria-expanded', 'true'); pnl.scrollIntoView({ block:'nearest' }); }
           html = mtFill(mtPick(MT_OPENERS[mtTone(P)]), P) + '上の「自分で点検」の10問に、はい／いいえで答えて「点検する」を押す。感想は要らん、事実だけ。';
         }
-        else html = mtAnswer(q, P);
-      }catch(e){ html = '今は答えを組み立てられんかった。言い方を変えてもう一回。'; mtPend = null; }
+        else {
+          // 「それでもダメだった」「他には？」のような続きの一言は、前の相談にくっつけて見る
+          // （毎回ゼロから当て直すと、まったく違う型の返事になる）
+          let qq = q, fol = '';
+          if(mtIsFollow(q) && mtLast.text && (Date.now() - mtLast.at) < 30 * 60 * 1000){ fol = mtLast.name || ''; qq = mtLast.text + ' ' + q; }
+          html = mtAnswer(qq, P, { follow:fol });
+        }
+      }catch(e){ mtPend = null; html = mtOops(P); }
       setTimeout(function(){ typing.remove(); mtAdd('bot', html); }, 500 + Math.floor(Math.random() * 700));
     }
     function mtRenderPersonaSelect(){
@@ -1748,7 +1928,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
     }
     function mtOpen(){
       MT = mtLoad();
-      mtRenderPersonaSelect(); mtFillSettings(); mtFillKpi(); mtRenderLog();
+      mtRenderPersonaSelect(); mtRenderFace(); mtFillSettings(); mtFillKpi(); mtRenderLog();
       mtRenderStage(); mtStageBadge();
       const sq = $('mt-self-qs'); if(sq && !sq.innerHTML) sq.innerHTML = mtSelfPanelHTML();
       const qk = $('mt-quick');
@@ -1770,18 +1950,18 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       if($('mt-quick')) $('mt-quick').addEventListener('click', function(e){ const b = e.target.closest('[data-mtq]'); if(b) mtSend(b.dataset.mtq); });
       /* FP1級の目：問い返しの選択肢（4択＋その他） */
       if(mtLog) mtLog.addEventListener('click', function(e){ const b = e.target.closest('[data-mtopt]'); if(b && mtLog.contains(b)) mtChoose(b); });
-      if($('mt-persona')) $('mt-persona').addEventListener('change', function(){ MT.active = $('mt-persona').value; mtPend = null; mtSave(); mtFillSettings(); mtFillKpi(); mtRenderLog(); });
+      if($('mt-persona')) $('mt-persona').addEventListener('change', function(){ MT.active = $('mt-persona').value; mtPend = null; mtSave(); mtRenderFace(); mtFillSettings(); mtFillKpi(); mtRenderLog(); });
       const tog = function(btnId, panelId){
         const b = $(btnId), p = $(panelId); if(!b || !p) return;
         b.addEventListener('click', function(){ p.hidden = !p.hidden; b.setAttribute('aria-expanded', p.hidden ? 'false' : 'true'); if(!p.hidden) p.scrollIntoView({ block:'nearest' }); });
       };
       tog('mt-set-btn', 'mt-settings'); tog('mt-kpi-btn', 'mt-kpi');
-      if($('mts-save')) $('mts-save').addEventListener('click', function(){ mtReadSettings(); mtAdd('bot', mtFill(mtP().style === 'zsedai' ? '設定、覚えました。{call}、次からこの感じで話しますね。' : '設定を覚えた。{call}、次からこの口で話す。', mtP()), false); });
+      if($('mts-save')) $('mts-save').addEventListener('click', function(){ mtReadSettings(); mtRenderFace(); mtAdd('bot', mtFill(mtP().style === 'zsedai' ? '設定、覚えました。{call}、次からこの感じで話しますね。' : '設定を覚えた。{call}、次からこの口で話す。', mtP()), false); });
       if($('mts-new')) $('mts-new').addEventListener('click', function(){
         const name = prompt('会社名・場面（例：一条工務店 高松展示場）'); if(!name) return;
         const id = 'c' + Date.now().toString(36);
         MT.personas[id] = Object.assign({}, JSON.parse(JSON.stringify(mtP())), { id:id, company:name.trim() });
-        MT.active = id; mtSave(); mtRenderPersonaSelect(); mtFillSettings(); mtFillKpi(); mtRenderLog();
+        MT.active = id; mtSave(); mtRenderPersonaSelect(); mtRenderFace(); mtFillSettings(); mtFillKpi(); mtRenderLog();
       });
       if($('mts-del')) $('mts-del').addEventListener('click', function(){
         if(MT.active === 'default') return;
@@ -1789,7 +1969,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
         MT.deleted = Array.isArray(MT.deleted) ? MT.deleted : [];
         if(MT.deleted.indexOf(MT.active) < 0) MT.deleted.push(MT.active);   // 既定の上長も、消したら復活させない
         delete MT.personas[MT.active]; delete MT.kpi[MT.active]; delete MT.log[MT.active];
-        MT.active = 'default'; mtSave(); mtRenderPersonaSelect(); mtFillSettings(); mtFillKpi(); mtRenderLog();
+        MT.active = 'default'; mtSave(); mtRenderPersonaSelect(); mtRenderFace(); mtFillSettings(); mtFillKpi(); mtRenderLog();
       });
       if($('mt-clear')) $('mt-clear').addEventListener('click', function(){
         if(!confirm('この上長との会話を消します。人物設定と数字は残ります。')) return;
@@ -1852,6 +2032,37 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
 
 /* 単独ページなので、読み込んだ時点で開いた状態にする（モーダルの開閉は無い） */
 try{ mtOpen(); }catch(e){ if(window.console) console.error('[AI上長]', e); }
+
+/* 上の帯にも上長の顔と名前を出す（誰に相談しているのかが分かるように）。
+   顔の絵は ichijo.html 側の mtFaceSVG が正本。ここでは呼ぶだけ。 */
+(function(){
+  const draw = function(){
+    try{
+      const P = mtP() || {};
+      const art = $('mt-head-art'); if(art) art.innerHTML = mtFaceSVG(mtTone(P));
+      const sub = $('mt-head-sub');
+      const co = String(P.company || '').replace(/[（(][^）)]*[）)]/g, '').trim() || '社内';
+      if(sub) sub.textContent = (P.name || '師匠') + '（' + co + '）に相談する　数字・断り文句・提案を、FP1級と税理士の目で見る';
+    }catch(e){}
+  };
+  draw();
+  const sel = $('mt-persona'); if(sel) sel.addEventListener('change', draw);
+  const save = $('mts-save'); if(save) save.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+
+/* 相談のきっかけは22個ある。会話の枠を広く取るため2行で畳み、押したら全部出す */
+(function(){
+  const qk = $('mt-quick'); if(!qk || !qk.parentNode) return;
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'mt-quick-more'; b.setAttribute('aria-expanded', 'false');
+  b.textContent = 'ほかの相談も見る';
+  qk.parentNode.insertBefore(b, qk.nextSibling);
+  b.addEventListener('click', function(){
+    const open = qk.classList.toggle('mt-quick-open');
+    b.setAttribute('aria-expanded', open ? 'true' : 'false');
+    b.textContent = open ? '相談のきっかけを畳む' : 'ほかの相談も見る';
+  });
+})();
 </script>
 </body>
 </html>
