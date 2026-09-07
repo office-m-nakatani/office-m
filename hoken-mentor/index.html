@@ -264,6 +264,25 @@ body.vc-dock-on .chat-fab{ display:none !important; }
 .mt-kpi-out{ margin-top:8px; font-size:.82rem; line-height:1.6; }
 .mt-note{ font-size:.72rem; color:var(--ink-soft); line-height:1.6; }
 .mt-input{ display:flex; gap:8px; }
+.mt-m-open{ display:none; }
+.mt-hand{ display:none; transform-box:fill-box; transform-origin:bottom center; }
+.mt-mood-talk .mt-m-open, .mt-mood-kick .mt-m-open{ display:block; transform-box:fill-box; transform-origin:center; }
+.mt-mood-talk .mt-m-closed, .mt-mood-kick .mt-m-closed{ opacity:.12; }
+.mt-mood-talk .mt-hand-point, .mt-mood-kick .mt-hand-point{ display:block; }
+.mt-mood-praise .mt-hand-thumb{ display:block; }
+.mt-mood-listen .mt-hand-think{ display:block; }
+@media (prefers-reduced-motion: no-preference){
+.mt-mood-talk .mt-m-open{ animation:mtMouth .26s infinite alternate; }
+.mt-mood-kick .mt-m-open{ animation:mtMouth .17s infinite alternate; }
+.mt-mood-talk .mt-hand, .mt-mood-kick .mt-hand{ animation:mtHand .5s ease-in-out infinite alternate; }
+.mt-mood-praise .mt-hand{ animation:mtHand .9s ease-in-out infinite alternate; }
+.mt-mood-listen svg{ animation:mtNod 2s ease-in-out infinite; }
+.mt-face svg .mt-lid, .mt-head-art svg .mt-lid{ animation:mtBlink 6s infinite; }
+}
+@keyframes mtMouth{ from{ transform:scaleY(.18); } to{ transform:scaleY(1); } }
+@keyframes mtHand{ from{ transform:translateY(0) rotate(0deg); } to{ transform:translateY(-1.4px) rotate(-7deg); } }
+@keyframes mtNod{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(1.4px); } }
+@keyframes mtBlink{ 0%,93%,100%{ transform:scaleY(0); } 96%{ transform:scaleY(1); } }
 .mt-micbtn.mt-on, #mt-say.mt-on{ background:#1f3328; color:#fff; border-color:#1f3328; }
 .mt-micbtn.mt-on{ animation:mtPulse 1.3s infinite; }
 @keyframes mtPulse{ 0%,100%{ box-shadow:0 0 0 0 rgba(31,51,40,.45); } 50%{ box-shadow:0 0 0 7px rgba(31,51,40,0); } }
@@ -398,6 +417,10 @@ header.mt-head{ background:var(--bg); border-bottom:1px solid var(--line); }
   background:#fff; border:2px solid var(--amber-line); display:flex; align-items:center; justify-content:center;
 }
 .mt-head .mt-head-art svg{ width:100%; height:100%; display:block; }
+/* 話している・聞いているあいだは、絵を大きくして口や手の動きが見えるようにする */
+.mt-head .mt-head-art{ transition:width .25s, height .25s, border-color .25s; }
+.mt-head .mt-head-art.mt-mood-talk, .mt-head .mt-head-art.mt-mood-listen,
+.mt-head .mt-head-art.mt-mood-kick, .mt-head .mt-head-art.mt-mood-praise{ width:76px; height:76px; border-color:var(--amber); }
 .mt-head .mt-head-body{ min-width:0; }
 .mt-head h1{
   font-family:var(--mincho); font-size:1.3rem; font-weight:800; color:var(--blue-deep);
@@ -1215,13 +1238,21 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
        タイプで描き分ける（体育会系＝角刈り・太い眉・への字／褒め伸ばし＝やわらかい髪・眼鏡・笑顔）。
        絵文字は使わない（全案件共通の原則）。インラインSVGなので外部への読み込みも無い。
        ★保存する会話の本文には入れない（mtSanitize がSVGを落とすため）。顔は吹き出しの外＝アイコンだけに出す。 */
-    function mtFaceSVG(tone){
+    function mtFaceSVG(tone, mood){
       const z = (tone === 'zsedai');
+      mood = mood || 'idle';
       /* 色。師匠は紺の背広＋えんじのネクタイ、褒め伸ばしは明るい紺＋水色 */
       const skin = z ? '#f7d3b2' : '#eec49c', shade = z ? '#e9bd97' : '#dfae83';
       const hair = z ? '#3a2f28' : '#1f1a1b';
       const suit = z ? '#3f6480' : '#252c38', tie = z ? '#5aa8cf' : '#8e2733';
+      const sleeve = z ? '#4c7899' : '#333f50';   /* 腕は背広より少し明るくして重ならないようにする */
       const bg   = z ? '#f6ead7' : '#ece3d6';
+      /* 眉の高さ：聞いているときは上げる、喝のときは内側をさらに下げる */
+      const bTop = (mood === 'kick') ? 22.2 : (mood === 'listen' ? 21.9 : 22.7);
+      const bIn  = (mood === 'kick') ? 26.2 : 25.4;
+      const bDot = (mood === 'kick') ? 22.3 : (mood === 'listen' ? 22 : 22.8);
+      const zTop = (mood === 'listen') ? 23.4 : 24.4;
+      const lid = ' style="transform:scaleY(0);transform-box:fill-box;transform-origin:center top"';
       return '<svg viewBox="0 0 64 64" role="img" aria-label="上長のイラスト">'
         + '<rect width="64" height="64" fill="' + bg + '"/>'
         + '<path d="M27.4 36h9.2v11h-9.2Z" fill="' + shade + '"/>'                                       /* 首 */
@@ -1244,21 +1275,21 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
               + '<path d="M19.4 24.4c.6-2.6 1.5-4.8 2.7-6.4.9 2.4 1.3 5 1.1 7.6-1.4.2-2.7 0-3.8-1.2Z" fill="' + hair + '"/>'
               + '<path d="M44.6 24.4c-.6-2.6-1.5-4.8-2.7-6.4-.9 2.4-1.3 5-1.1 7.6 1.4.2 2.7 0 3.8-1.2Z" fill="' + hair + '"/>'
               + '<path d="M25.4 19.8c4-1.1 9.2-1.1 13.2 0M26.6 22.4c3.6-.9 7.2-.9 10.8 0" fill="none" stroke="' + shade + '" stroke-width="1" stroke-linecap="round" opacity=".85"/>')
-        /* 眉。師匠は太く、内側が下がる＝怒り */
+        /* 眉。師匠は太く内側が下がる。★つながり眉に見えないよう内側は 30.0／34.0 で止め、端は切り落とす */
         + (z
-            /* 褒め伸ばし：細くて上に弧を描く眉（やわらかい） */
-            ? '<path d="M23.4 24.4c1.9-1.6 4.3-1.6 6 0" fill="none" stroke="' + hair + '" stroke-width="1.7" stroke-linecap="round"/>'
-              + '<path d="M40.6 24.4c-1.9-1.6-4.3-1.6-6 0" fill="none" stroke="' + hair + '" stroke-width="1.7" stroke-linecap="round"/>'
-            /* 師匠：太くて内側が下がる眉。★つながり眉に見えないよう内側は 30.0／34.0 で止め、
-               端は切り落とす（丸い端にすると伸びて真ん中でくっつく）。外側だけ丸で足す */
-            : '<path d="M22.8 22.7C25.5 22.8 28 23.8 30 25.4" fill="none" stroke="' + hair + '" stroke-width="3.2" stroke-linecap="butt"/>'
-              + '<path d="M41.2 22.7C38.5 22.8 36 23.8 34 25.4" fill="none" stroke="' + hair + '" stroke-width="3.2" stroke-linecap="butt"/>'
-              + '<circle cx="22.9" cy="22.8" r="1.6" fill="' + hair + '"/><circle cx="41.1" cy="22.8" r="1.6" fill="' + hair + '"/>')
+            ? '<path d="M23.4 ' + zTop + 'c1.9-1.6 4.3-1.6 6 0" fill="none" stroke="' + hair + '" stroke-width="1.7" stroke-linecap="round"/>'
+              + '<path d="M40.6 ' + zTop + 'c-1.9-1.6-4.3-1.6-6 0" fill="none" stroke="' + hair + '" stroke-width="1.7" stroke-linecap="round"/>'
+            : '<path d="M22.8 ' + bTop + 'C25.5 22.8 28 23.8 30 ' + bIn + '" fill="none" stroke="' + hair + '" stroke-width="3.2" stroke-linecap="butt"/>'
+              + '<path d="M41.2 ' + bTop + 'C38.5 22.8 36 23.8 34 ' + bIn + '" fill="none" stroke="' + hair + '" stroke-width="3.2" stroke-linecap="butt"/>'
+              + '<circle cx="22.9" cy="' + bDot + '" r="1.6" fill="' + hair + '"/><circle cx="41.1" cy="' + bDot + '" r="1.6" fill="' + hair + '"/>')
         + '<ellipse cx="26.9" cy="29.6" rx="3.1" ry="2.45" fill="#fffdfa"/>'
         + '<ellipse cx="37.1" cy="29.6" rx="3.1" ry="2.45" fill="#fffdfa"/>'
         + '<circle cx="' + (z ? 27.1 : 27.5) + '" cy="29.7" r="1.8" fill="#1f1a1b"/>'                    /* 師匠は少し内側を見る＝にらむ */
         + '<circle cx="' + (z ? 36.9 : 36.5) + '" cy="29.7" r="1.8" fill="#1f1a1b"/>'
         + (z ? '<circle cx="26.4" cy="28.9" r=".62" fill="#fff"/><circle cx="36.2" cy="28.9" r=".62" fill="#fff"/>' : '')  /* 目の光 */
+        /* まぶた。既定は閉じた高さ0（CSSが無くても目を隠さないよう、inlineでも指定しておく） */
+        + '<ellipse class="mt-lid" cx="26.9" cy="27.15" rx="3.2" ry="2.6" fill="' + skin + '"' + lid + '/>'
+        + '<ellipse class="mt-lid" cx="37.1" cy="27.15" rx="3.2" ry="2.6" fill="' + skin + '"' + lid + '/>'
         + (z ? '<rect x="22.4" y="26.6" width="9.2" height="6.4" rx="3" fill="none" stroke="#3a2f28" stroke-width="1.4"/>'
              + '<rect x="32.4" y="26.6" width="9.2" height="6.4" rx="3" fill="none" stroke="#3a2f28" stroke-width="1.4"/>'
              + '<path d="M31.6 29.4h.8M22.4 29.2l-3-.6M41.6 29.2l3-.6" fill="none" stroke="#3a2f28" stroke-width="1.4" stroke-linecap="round"/>' : '')
@@ -1266,13 +1297,34 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
         + (z
             /* 褒め伸ばし：頬の赤み＋開いた笑顔（線1本の口では表情が出ない） */
             ? '<circle cx="23.2" cy="34" r="2.5" fill="#f3a79c" opacity=".5"/><circle cx="40.8" cy="34" r="2.5" fill="#f3a79c" opacity=".5"/>'
-              + '<path d="M27.6 36.4c1.1 2.9 2.6 4.3 4.4 4.3s3.3-1.4 4.4-4.3c-2.9 1-5.9 1-8.8 0Z" fill="#a4544a"/>'
-              + '<path d="M28.9 37c2 .5 4.2.5 6.2 0-1 .8-2 1.2-3.1 1.2s-2.1-.4-3.1-1.2Z" fill="#fdf1ec"/>'
-            : /* 口ひげ（鼻の下いっぱいに広い）＋への字の口＋顎の髭 */
-              '<path d="M24.2 36.9c1.9-2.7 4.7-4 7.8-4s5.9 1.3 7.8 4c-1.9.7-3.5.3-4.9-.8-.9.8-1.9 1.2-2.9 1.2s-2-.4-2.9-1.2c-1.4 1.1-3 1.5-4.9.8Z" fill="' + hair + '"/>'
-              + '<path d="M28.4 39.2q3.6-1.7 7.2 0" fill="none" stroke="#8f5c46" stroke-width="1.6" stroke-linecap="round"/>'
+              + '<g class="mt-m-closed"><path d="M27.6 36.4c1.1 2.9 2.6 4.3 4.4 4.3s3.3-1.4 4.4-4.3c-2.9 1-5.9 1-8.8 0Z" fill="#a4544a"/>'
+              + '<path d="M28.9 37c2 .5 4.2.5 6.2 0-1 .8-2 1.2-3.1 1.2s-2.1-.4-3.1-1.2Z" fill="#fdf1ec"/></g>'
+            /* 師匠：口ひげ（鼻の下いっぱい）＋への字の口＋顎の髭 */
+            : '<path d="M24.2 36.9c1.9-2.7 4.7-4 7.8-4s5.9 1.3 7.8 4c-1.9.7-3.5.3-4.9-.8-.9.8-1.9 1.2-2.9 1.2s-2-.4-2.9-1.2c-1.4 1.1-3 1.5-4.9.8Z" fill="' + hair + '"/>'
+              + '<g class="mt-m-closed"><path d="M28.4 39.2q3.6-1.7 7.2 0" fill="none" stroke="#8f5c46" stroke-width="1.6" stroke-linecap="round"/></g>'
               + '<ellipse cx="32" cy="41.4" rx="2.7" ry="2.1" fill="' + hair + '"/>')
+        /* 話しているときの口（いちばん上に描く。CSSで開け閉めする） */
+        + '<ellipse class="mt-m-open" cx="32" cy="' + (z ? 38.4 : 39.3) + '" rx="' + (z ? 3.1 : 2.6) + '" ry="' + (z ? 2.5 : 2.1) + '" fill="#7c3b31"/>'
+        /* 手。話す・喝＝指を立てる、褒める＝親指、聞く＝顎に手（CSSで出し分ける） */
+        + '<g class="mt-hand mt-hand-point"><path d="M43.6 64c-1-6.6 1-12 6-15.6l6.6 5.2c-3.2 3-4.6 6.4-4.4 10.4Z" fill="' + sleeve + '"/>'
+          + '<circle cx="52.6" cy="47.4" r="5" fill="' + skin + '"/><rect x="51" y="37.6" width="3.1" height="9" rx="1.55" fill="' + skin + '"/>'
+          + '<path d="M50.4 46.2c1.5-.6 3-.6 4.4 0" fill="none" stroke="' + shade + '" stroke-width=".9" stroke-linecap="round"/></g>'
+        + '<g class="mt-hand mt-hand-thumb"><path d="M43.6 64c-1-6.2.2-10.8 4.4-14l6.6 4.8c-2.8 2.4-4 5.2-3.8 9.2Z" fill="' + sleeve + '"/>'
+          + '<circle cx="52" cy="49.6" r="5.2" fill="' + skin + '"/><rect x="50.4" y="40.8" width="3.2" height="8" rx="1.6" fill="' + skin + '" transform="rotate(-16 52 44.8)"/>'
+          + '<path d="M49.6 50.4c1.8-.7 3.6-.7 5.2 0" fill="none" stroke="' + shade + '" stroke-width=".9" stroke-linecap="round"/></g>'
+        + '<g class="mt-hand mt-hand-think"><path d="M45 64c-1.6-7 0-12.4 4.4-16l-9.6-2.6c-3.6 3.6-5 9.4-4.4 18.6Z" fill="' + sleeve + '"/>'
+          + '<ellipse cx="36.8" cy="44.6" rx="5" ry="3.6" fill="' + skin + '" transform="rotate(-20 36.8 44.6)"/>'
+          + '<path d="M33.6 43.2c1.6-.7 3.4-.6 5 .3" fill="none" stroke="' + shade + '" stroke-width=".9" stroke-linecap="round"/></g>'
         + '</svg>';
+    }
+    /* いまの表情。話す・聞く・喝・褒めるで、顔と手が変わる */
+    let mtMood = 'idle', mtMoodTmr = 0;
+    function mtMoodBase(){ return (typeof MTV !== 'undefined' && MTV.speaking) ? 'talk' : ((typeof MTV !== 'undefined' && MTV.listening) ? 'listen' : 'idle'); }
+    function mtMoodSet(m){ if(mtMood === m) return; mtMood = m; mtRenderFace(); }
+    function mtMoodFlash(m, ms){
+      mtMoodSet(m);
+      clearTimeout(mtMoodTmr);
+      mtMoodTmr = setTimeout(function(){ mtMoodSet(mtMoodBase()); }, ms || 2000);
     }
     /* 返事の横に出すアイコン（吹き出しの外側なので、保存・復元しても消えない） */
     function mtAvaHTML(){
@@ -1282,9 +1334,14 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
     }
     /* 上の行の顔と名乗り。上長を切り替えたら描き直す */
     function mtRenderFace(){
-      const el = $('mt-face'); if(!el) return;
+      const el = $('mt-face');
       const P = mtP() || {};
-      el.innerHTML = mtFaceSVG(mtTone(P));
+      const svg = mtFaceSVG(mtTone(P), mtMood);
+      const art = $('mt-head-art');   /* 単独ページの帯にも同じ絵と表情を出す */
+      if(art){ art.className = 'mt-head-art mt-mood-' + mtMood; art.innerHTML = svg; }
+      if(!el) return;
+      el.className = 'mt-face mt-mood-' + mtMood;
+      el.innerHTML = svg;
       const n = $('mt-who-name'), s = $('mt-who-sub');
       if(n) n.textContent = P.name || '師匠';
       const co = String(P.company || '').replace(/[（(][^）)]*[）)]/g, '').trim();
@@ -1441,7 +1498,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
             }
           };
           r.onend = function(){
-            MTV.listening = false; mtVoicePaint();
+            MTV.listening = false; mtVoicePaint(); mtMoodSet(mtMoodBase());
             const q = (MTV.pending || '').trim(); MTV.pending = '';
             if(q){ mtSend(q); return; }                                   /* 話した内容をそのまま送る */
             if(MTV.hands && !MTV.speaking) setTimeout(function(){ if(MTV.hands && !MTV.speaking) mtListenStart(); }, 500);
@@ -1451,7 +1508,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
         if(mtSpeakOK()) MTV.say = true;      /* 声で話すときは、返事も読み上げる（お互いの会話にする） */
         MTV.pending = '';
         mtVoiceNote();
-        MTV.rec.start(); MTV.listening = true; mtVoicePaint();
+        MTV.rec.start(); MTV.listening = true; mtVoicePaint(); mtMoodSet('listen');
       }catch(e){ MTV.listening = false; mtVoicePaint(); }
     }
     function mtListenStop(byUser){
@@ -1459,7 +1516,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       try{ if(MTV.rec) MTV.rec.abort(); }catch(e){}
       MTV.listening = false; MTV.pending = '';
       if(byUser){ try{ window.speechSynthesis.cancel(); }catch(e){} MTV.speaking = false; }
-      mtVoicePaint();
+      mtVoicePaint(); mtMoodSet(mtMoodBase());
     }
     /* 返事のHTMLから、読み上げる短い文を作る（あいさつ＋見立て＋今日やること1つ） */
     function mtSpeakText(html){
@@ -1496,13 +1553,20 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
         const u = new SpeechSynthesisUtterance(text);
         const P = mtP() || {};
         u.lang = 'ja-JP'; u.rate = 1.05; u.pitch = (mtTone(P) === 'zsedai') ? 1.1 : 0.8;
-        u.onstart = function(){ MTV.speaking = true; };
+        u.onstart = function(){ MTV.speaking = true; mtMoodSet('talk'); };
         u.onend = u.onerror = function(){
-          MTV.speaking = false;
+          MTV.speaking = false; mtMoodSet(mtMoodBase());
           if(MTV.hands && !MTV.listening) setTimeout(function(){ if(MTV.hands && !MTV.listening) mtListenStart(); }, 350);
         };
         window.speechSynthesis.speak(u);
       }catch(e){ MTV.speaking = false; }
+    }
+    /* 返事の中身で表情を決める。声を使っていないときも、返事のあいだは口が動く */
+    function mtMoodOnBot(html){
+      const t = String(html || '');
+      if(t.indexOf('結局なに') >= 0){ mtMoodFlash('kick', 4500); return; }
+      if(t.indexOf('まず良いところ') >= 0){ mtMoodFlash('praise', 3000); return; }
+      if(!MTV.speaking) mtMoodFlash('talk', 1500);
     }
     /* 上長の返事が出たとき：自分の声を拾わないよう一度マイクを止めてから読み上げる */
     function mtVoiceOnBot(html){
@@ -2133,7 +2197,10 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
         const L = MT.log[MT.active] = MT.log[MT.active] || [];
         L.push({ w:who, h:html, t:Date.now() }); if(L.length > 100) L.splice(0, L.length - 100);
         mtSave();
-        if(who === 'bot') mtVoiceOnBot(html);   /* 声で会話しているときは、返事を読み上げる */
+        if(who === 'bot'){
+          mtVoiceOnBot(html);   /* 声で会話しているときは、返事を読み上げる */
+          mtMoodOnBot(html);    /* 返事の中身で表情と手を変える（喝・褒める・話す） */
+        }
       }
     }
     function mtRenderLog(){
@@ -2352,7 +2419,7 @@ try{ mtOpen(); }catch(e){ if(window.console) console.error('[AI上長]', e); }
   const draw = function(){
     try{
       const P = mtP() || {};
-      const art = $('mt-head-art'); if(art) art.innerHTML = mtFaceSVG(mtTone(P));
+      /* 帯の絵は ichijo 側の mtRenderFace が表情つきで描く。ここでは触らない */
       const sub = $('mt-head-sub');
       const co = String(P.company || '').replace(/[（(][^）)]*[）)]/g, '').trim() || '社内';
       if(sub) sub.textContent = (P.name || '師匠') + '（' + co + '）に相談する　数字・断り文句・提案を、FP1級と税理士の目で見る';
