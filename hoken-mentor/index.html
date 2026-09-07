@@ -260,6 +260,7 @@ body.vc-dock-on .chat-fab{ display:none !important; }
 .mt-grid textarea{ min-height:64px; resize:vertical; }
 .mt-grid .mt-span{ grid-column:1 / -1; }
 .mt-checks{ display:flex; flex-wrap:wrap; gap:6px 14px; font-size:.8rem; }
+.mt-checks input[type="checkbox"]{ width:17px; height:17px; min-height:0; flex:0 0 auto; margin:0; }
 .mt-checks label{ display:inline-flex; align-items:center; gap:5px; min-height:32px; }
 .mt-kpi-out{ margin-top:8px; font-size:.82rem; line-height:1.6; }
 .mt-note{ font-size:.72rem; color:var(--ink-soft); line-height:1.6; }
@@ -634,7 +635,7 @@ main.mt-main{ padding:12px 0 14px; }
             <div><label>会社・場面</label><input type="text" id="mts-company" placeholder="例：一条工務店" autocomplete="off"></div>
             <div><label>名前（画面上の呼び名）</label><input type="text" id="mts-name" placeholder="例：師匠" autocomplete="off"></div>
             <div><label>あなたの呼ばれ方</label><input type="text" id="mts-call" placeholder="例：せんぱい" autocomplete="off"></div>
-            <div><label>タイプ（知識と数字の見方は共通。口調と反応だけ変わります）</label>
+            <div><label>タイプ（口調と反応だけ変わります）</label>
               <select id="mts-tone">
                 <option value="shisho">師匠（体育会系・保守的・弱音には少し不機嫌）</option>
                 <option value="zsedai">褒め伸ばし（Z世代上長・まず良いところから）</option>
@@ -647,8 +648,9 @@ main.mt-main{ padding:12px 0 14px; }
                 <label><input type="checkbox" id="mts-s-health" checked> 健康</label>
                 <label><input type="checkbox" id="mts-s-weak" checked> 弱音には少し不機嫌</label>
               </div></div>
+            <!-- 本はここでは選ばせない（ユーザー指示 2026-09-07）。全部読んでいる前提で、一覧だけ出す -->
             <div class="mt-span"><label>読み込んでいる本（考え方の土台）</label>
-              <div class="mt-checks" id="mts-books"></div></div>
+              <p class="mt-note" id="mts-books"></p></div>
             <div class="mt-span"><label>趣味・嗜好・大事にしていること（1行1つ）</label>
               <textarea id="mts-likes" placeholder="例：筋トレ／健康管理／正統派・シンプル／歩く"></textarea></div>
             <div class="mt-span"><label>この上長の考え方・口ぐせ（1行1つ。相談への返事に混ざります）</label>
@@ -2281,9 +2283,8 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       set('mts-company', P.company); set('mts-name', P.name); set('mts-call', P.call); set('mts-tone', P.style || 'shisho');
       ['num','time','promise','health','weak'].forEach(function(k){ const el = $('mts-s-' + k); if(el) el.checked = !!(P.strict && P.strict[k]); });
       const bx = $('mts-books');
-      if(bx) bx.innerHTML = Object.keys(MT_BOOK_LABELS).map(function(k){
-        return '<label><input type="checkbox" data-mtbook="' + k + '"' + ((P.books || []).indexOf(k) >= 0 ? ' checked' : '') + '> ' + esc(MT_BOOK_LABELS[k]) + '</label>';
-      }).join('');
+      if(bx) bx.textContent = Object.keys(MT_BOOK_LABELS).map(function(k){ return MT_BOOK_LABELS[k]; }).join('／')
+        + '　これらの考え方を土台にして返します（この画面では選べません）。';
       set('mts-likes', (P.likes || []).join('\n')); set('mts-lines', (P.lines || []).join('\n'));
       const del = $('mts-del'); if(del) del.disabled = (MT.active === 'default');
     }
@@ -2292,7 +2293,8 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       const g = function(id){ return (($(id) && $(id).value) || '').trim(); };
       P.company = g('mts-company') || P.company; P.name = g('mts-name') || '師匠'; P.call = g('mts-call') || 'せんぱい'; P.style = g('mts-tone') || 'shisho';
       P.strict = {}; ['num','time','promise','health','weak'].forEach(function(k){ P.strict[k] = !!($('mts-s-' + k) && $('mts-s-' + k).checked); });
-      P.books = [].slice.call(document.querySelectorAll('[data-mtbook]')).filter(function(c){ return c.checked; }).map(function(c){ return c.dataset.mtbook; });
+      // 本は画面で選ばせないので、保存のときも触らない（空にすると知識が使われなくなる）
+      if(!Array.isArray(P.books) || !P.books.length) P.books = Object.keys(MT_BOOK_LABELS);
       P.likes = g('mts-likes').split('\n').map(function(x){ return x.trim(); }).filter(Boolean);
       P.lines = g('mts-lines').split('\n').map(function(x){ return x.trim(); }).filter(Boolean);
       mtSave(); mtRenderPersonaSelect();
