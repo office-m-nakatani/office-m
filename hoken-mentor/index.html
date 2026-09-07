@@ -1706,7 +1706,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       const a = (steps || []).map(function(x){ return (x && typeof x === 'object') ? x : { t:x }; })
                              .filter(function(x){ return x.t; });
       if(a.length < 2) return '';
-      return '<span class="mt-fig"><span class="mt-fig-cap">' + esc(cap) + '</span>'
+      return '<span class="mt-fig">' + (cap ? '<span class="mt-fig-cap">' + esc(cap) + '</span>' : '')
         + '<span class="mt-fig-row mt-fig-arrow">'
         + a.map(function(x, i){
             return '<span class="mt-fig-box' + ((keyIdx || []).indexOf(i) >= 0 ? ' mt-fig-key' : '') + '">'
@@ -1718,7 +1718,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
     function mtFigCols(cap, items, max){
       const a = (items || []).filter(function(x){ return x && x.b; });
       if(a.length < 2) return '';
-      return '<span class="mt-fig"><span class="mt-fig-cap">' + esc(cap) + '</span><span class="mt-fig-row">'
+      return '<span class="mt-fig">' + (cap ? '<span class="mt-fig-cap">' + esc(cap) + '</span>' : '') + '<span class="mt-fig-row">'
         + a.map(function(x){
             return '<span class="mt-fig-box' + (x.key ? ' mt-fig-key' : '') + '"><b>' + esc(mtClip(x.b, 20)) + '</b>'
               + esc(mtClip(x.t, max || 26)) + '</span>';
@@ -1989,16 +1989,17 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
     function mtTatoeHTML(x, tone){
       const lead = (tone === 'zsedai') ? '例え話をひとつ。' : '例えるぞ。';
       const ask  = (tone === 'zsedai') ? 'なぜだと思いますか？' : '何でだと思う？';
+      /* ★2026-09-08：本文から「だから何が言えるか」を外し、図の「仕事でいうと」に集約した
+         （同じ文が本文と図に二度出ていて、そのぶん長かった）。図の字数を34→52に広げてある */
       return '<span class="mt-h">例えると</span>'
         + '<span class="mt-tatoe">' + esc(lead) + esc(x.q)
         + '<span class="mt-tatoe-q">' + esc(ask) + '</span>'
-        + '<span class="mt-tatoe-a">' + esc(x.a) + '</span>'
-        + esc(x.so) + '</span>'
+        + '<span class="mt-tatoe-a">' + esc(x.a) + '</span></span>'
         /* 例えを図でも見せる（2026-09-07・ユーザー指示「文字だけではなく視覚的に」）。
            見えていること→ほんとうの理由→仕事でいうと、の3枚 */
         /* ★役割名を付けること。本文と同じ文が番号だけで並ぶと、図が何を見せているのか分からない
              （2026-09-07・ユーザー指摘「例え話の筋の枠が分かりにくい」） */
-        + mtFigFlow('この例えの筋', [{ b:'見えていること', t:x.q }, { b:'ほんとうの理由', t:x.a }, { b:'仕事でいうと', t:x.so }], [1], 34);
+        + mtFigFlow('この例えの筋', [{ b:'見えていること', t:x.q }, { b:'ほんとうの理由', t:x.a }, { b:'仕事でいうと', t:x.so }], [2], 52);
     }
     /* いまの表情。話す・聞く・喝・褒める・少し怒る、で顔と手が変わる */
     let mtMood = 'idle', mtMoodTmr = 0;
@@ -2088,7 +2089,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       const tone = mtTone(P), st = mtStage();
       const openTo = (tone === 'shisho') ? 4 : st.open;
       let h = '<span class="mt-h">イケてる営業マンならこう返す（「' + esc(k.said) + '」）</span>';
-      const head = mtT('kotowari_head', tone); if(head) h += '<span class="mt-note">' + mtFill(esc(head), P) + '</span>';
+      /* ★2026-09-08：前置きの案内文はやめた（4段の中身が本体で、そこまで読ませたい） */
       const step = function(i){
         const kv = MT_STEP_LABELS[i], txt = k.talk && k.talk[kv[0]]; if(!txt) return '';
         return '<li class="mt-step' + ((i === 1 || i === 2) ? ' mt-step-key' : '') + '"><b>' + (i + 1) + '　' + esc(kv[1]) + '</b>' + esc(txt) + '</li>';
@@ -2398,14 +2399,13 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
     function mtPsyHTML(list, P, useMgmt){
       const tone = mtTone(P);
       let h = '<span class="mt-h">こう話を進めてみては（心理の型）</span>';
-      h += '<span class="mt-note">' + esc(tone === 'zsedai'
-        ? '本で読んだ原則を、面談の運びに落としたものです。台本ではないので、言葉はご自分のものに置き換えてください。'
-        : '本の原則を面談の運びに落としたもんだ。台本ではない。言葉は自分のに置き換えろ。') + '</span>';
+      /* ★2026-09-08：段の見出しだけの図と、同じ段の箇条書きが二度出ていた。図に本文ごと入れて一つにした
+         （ユーザー指示「話を少しコンパクトに、図を入れて視覚的に」）。台本の断り書きも短くした */
+      h += '<span class="mt-note">' + esc(tone === 'zsedai' ? '台本ではありません。言葉はご自分のものに。' : '台本ではない。言葉は自分のに置き換えろ。') + '</span>';
       h += '<ul class="mt-psy">';
       list.forEach(function(k){
-        h += '<li class="mt-psyt"><b>' + esc(k.name) + '<span class="mt-src">' + esc(k.sub) + '｜' + esc(k.when) + '</span></b>' + esc(k.gist);
-        h += mtFigFlow('話の運び', (k.talk || []).map(function(x){ return x.s; }));
-        h += '<ol class="mt-psysteps">' + (k.talk || []).map(function(x){ return '<li><b>' + esc(x.s) + '</b>' + esc(x.t) + '</li>'; }).join('') + '</ol>';
+        h += '<li class="mt-psyt"><b>' + esc(k.name) + '<span class="mt-src">' + esc(k.sub) + '｜' + esc(k.when) + '</span></b>' + esc(mtShort(k.gist, 74));
+        h += mtFigFlow('話の運び', (k.talk || []).map(function(x){ return { b:x.s, t:x.t }; }), [1], 38);
         if(k.ng) h += '<span class="mt-fpng"><b>やってはいけない使い方</b>' + esc(k.ng) + '</span>';
         if(useMgmt && k.mgmt) h += '<span class="mt-psyk">上長として：' + esc(k.mgmt) + '</span>';
         h += '<span class="mt-src">— ' + esc(k.src) + '</span></li>';
@@ -2453,9 +2453,10 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       const anyFresh = MT_SELF_ANY.filter(function(q){ return rec.indexOf(sKey(q)) < 0; });
       qs.push(mtPick(anyFresh.length ? anyFresh : MT_SELF_ANY));
       MT.recentSelf = qs.map(sKey).concat(rec).slice(0, 14);
+      /* ★2026-09-08：箇条書きから図に変え、案内文はやめた（横に3枚並ぶので、縦の長さが3分の1になる） */
       let h = '<span class="mt-h">自分に聞く3つ</span>';
-      const head = mtT('self_head', tone); if(head) h += '<span class="mt-note">' + mtFill(esc(head), P) + '</span>';
-      return h + '<ul class="mt-selfq">' + qs.slice(0, 3).map(function(q){ return '<li>' + esc(q) + '</li>'; }).join('') + '</ul>';
+      const three = qs.slice(0, 3);
+      return h + mtFigCols('', three.map(function(q, i){ return { b:['一つ目', '二つ目', '三つ目'][i], t:q }; }), 46);
     }
     /* 相談の型の履歴。同じ型が30日で何回目かを返す */
     function mtNoteHist(key){
@@ -2560,20 +2561,21 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       const tone = mtTone(P), z = (tone === 'zsedai'), href = mtNetaHref(x);
       let h = '<span class="mt-h">' + (full ? '今日の＋1（お客様に持っていく話）' : '＋1：この話を持っていけ') + '</span>'
         + (full ? (z ? '今日はこれを一つだけ持っていってみませんか。売り込みではなく、渡して帰る話です。'
-                     : '今日はこれを一つ持っていけ。売りに行くんじゃない。渡して帰るだけだ。')
-                : (z ? 'ついでに、この話を一つ持っていくと効きます。' : 'ついでにこれを持っていけ。'))
+                     : '今日はこれを一つ持っていけ。売りに行くんじゃない。渡して帰るだけだ。') + '<br>' : '')
         + '<b>' + esc(x.catLabel) + '：' + esc(x.title) + '</b>';
-      if(full) h += mtFigFlow('この話の運び', [{ b:'まず聞く', t:x.ask },
-                                               { b:'渡す一つ', t:x.line },
-                                               { b:'引く', t:'決めるのは相手。今日は提案しない' }], [1], 30);
-      h += '<span class="mt-h">最初の一言</span>「' + esc(x.ask) + '」';
-      const es = x.essence || [];
-      h += '<span class="mt-h">伝える中身</span><ul>'
-         + (full ? es : es.slice(0, 2)).map(function(l){ return '<li>' + esc(l) + '</li>'; }).join('') + '</ul>';
-      h += '<span class="mt-h">残る一言</span><span class="mt-quote">' + esc(x.line) + '</span>';
-      /* ★ここが本体。ネタそのものより、なぜ差になるかを渡すほうが効く */
-      h += '<span class="mt-h">ここが、ほかの保険営業との差</span>' + esc(x.brand);
-      h += '<span class="mt-h">やってはいけない</span>' + esc(x.ng);
+      /* ★2026-09-08：返事に添える短い形は、図1枚に集約した（以前は見出し8本・350字あって長かった）。
+         聞く→渡す→差になるところ、の3枚。中身は「今日の＋1」から全部見られる */
+      h += mtFigFlow(full ? 'この話の運び' : '', [{ b:'まず聞く', t:x.ask },
+                                                  { b:'渡す一言', t:x.line },
+                                                  { b:'差になるのは', t:x.brand }], [2], full ? 34 : 48);
+      if(full){
+        const es = x.essence || [];
+        h += '<span class="mt-h">伝える中身</span><ul>'
+           + es.map(function(l){ return '<li>' + esc(l) + '</li>'; }).join('') + '</ul>';
+        /* ★ここが本体。ネタそのものより、なぜ差になるかを渡すほうが効く */
+        h += '<span class="mt-h">ここが、ほかの保険営業との差</span>' + esc(x.brand);
+      }
+      h += '<span class="mt-h">やってはいけない</span>' + esc(full ? x.ng : mtClip(x.ng, 54));
       if(href) h += '<span class="mt-h">自分で学べるページ</span><a href="' + esc(href) + '" target="_blank" rel="noopener">'
                   + esc(x.title) + '</a>';
       if(full){
@@ -2734,9 +2736,12 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
     }
     /* トピック1本ぶんの欄。full なら確かめること・言ってはいけない・線引きまで、そうでなければ要点と確かめること2つ */
     function mtFPTopicHTML(k, P, useMgmt, full){
-      let h = '<li class="mt-fpt"><b>' + esc(k.name) + '<span class="mt-src">' + esc(mtFPArea(k.area).name) + '</span></b>' + esc(k.gist || '');
-      const chk = (k.check || []).slice(0, full ? 4 : 2);
-      if(chk.length) h += '<span class="mt-fpk">提案の前に確かめること</span><ul class="mt-fpchk">' + chk.map(function(c){ return '<li>' + esc(c) + '</li>'; }).join('') + '</ul>';
+      /* ★2026-09-08：要旨を短くし、「確かめること」を箇条書きから図に変えた
+         （ユーザー指示「話を少しコンパクトに、図を入れて視覚的に」）。1件で714字あった */
+      let h = '<li class="mt-fpt"><b>' + esc(k.name) + '<span class="mt-src">' + esc(mtFPArea(k.area).name) + '</span></b>' + esc(mtClip(k.gist || '', 96));
+      const chk = (k.check || []).slice(0, 3);
+      if(chk.length) h += '<span class="mt-fpk">提案の前に確かめること</span>'
+        + mtFigCols('', chk.map(function(c, i){ return { b:['①', '②', '③'][i], t:c }; }), 44);
       if(full && k.ng) h += '<span class="mt-fpng"><b>お客様に言ってはいけない言い方</b>' + esc(k.ng) + '</span>';
       if(full && k.line) h += '<span class="mt-note">線引き：' + esc(k.line) + '</span>';
       const act = useMgmt ? (k.mgmt || k.sales) : k.sales;
@@ -2749,12 +2754,14 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       const tone = mtTone(P);
       const eyes = mtFPEyes(list);
       let h = '<span class="mt-h">' + esc(eyes) + 'で見る</span>';
-      const head = mtFPT(eyes === '税理士の目' ? 'zei_head' : (eyes === 'FP1級の目' ? 'fp_head' : 'mix_head'), tone); if(head) h += '<span class="mt-note">' + mtFill(esc(head), P) + '</span>';
+      /* ★2026-09-08：前置きの案内文はやめた（下の「提案までの順番」の図が同じことを見せている） */
       // 提案までの順番を図で置く（2026-09-07・ユーザー指示「視覚的に」）
       {
         const k0 = list[0], chk = (k0.check || [])[0];
-        h += mtFigFlow('提案までの順番', ['聴く：' + k0.name, '確かめる：' + (chk || '事実と時期'),
-                                          '線を引く：' + (k0.line || '判断は税理士・専門家へ')], [1], 30);
+        /* ★役割名は枠の見出しに置く（本文に「聴く：」と書くと、番号のラベルと二重になる） */
+        h += mtFigFlow('提案までの順番', [{ b:'聴く', t:k0.name },
+                                          { b:'確かめる', t:chk || '事実と時期' },
+                                          { b:'線を引く', t:k0.line || '判断は税理士・専門家へ' }], [1], 34);
       }
       h += '<ul class="mt-fp">' + list.map(function(k){ return mtFPTopicHTML(k, P, useMgmt, list.length === 1); }).join('') + '</ul>';
       // 教材リンクは群ごとに1つ（FP1級の教材／お客様に見せるページ）
@@ -3041,7 +3048,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
                                : mtFreshLine(['たぶん「' + nm + '」の話だな。ちがうなら、いちばん下から選び直せ。',
                                               '「' + nm + '」あたりだろう。ちがうなら下から選び直せ。']));
         if(main.view) h += ' ' + esc(main.view);
-        else if(know[0]) h += ' ' + esc(mtShort(know[0].gist, 90));
+        else if(know[0]) h += ' ' + esc(mtShort(know[0].gist, 56));   /* 2026-09-08：コンパクトに（90→56） */
       } else if(ko){
         h += (tone === 'zsedai' ? 'お客様の「<b>' + esc(ko.said) + '</b>」への返し方の話ですね。押し返す型ではなく、逃げ道を渡して引く型で見ます。'
                                 : '客の「<b>' + esc(ko.said) + '</b>」への返し方だな。押し返すな。逃げ道を渡して、こっちから引く。');
@@ -3097,33 +3104,41 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
                     '{call}、数字が無い。今月の目標と現在の件数、残りの営業日。この3つが無いと話ができん。']), P);
       }
 
-      // TOTならこう返す（お客様の断り文句が相談に入っているとき）
-      if(ko) h += mtKotowariHTML(ko, P);
-      // この切り口から伝えてみる（顧客向けの話題があるとき。自分の管理の相談には出さない）
-      if(!kick && !(main && main.role === 'self')){
-        const kk = mtFindKirikuchi(t, MT.recentKk).slice(0, sure ? 3 : 2);
-        if(kk.length){ h += mtKirikuchiHTML(kk, P); MT.recentKk = kk.map(function(k){ return k.id; }).concat(MT.recentKk).slice(0, 24); }
-      }
-      /* 今日の＋1（お客様に持っていく情報提供のネタ）。相談に当たったときだけ短い形で添える。
-         ★毎回出すと返事が長くなるので、当たったときだけ。日替わりの1本は「今日の＋1」から出す
-         （2026-09-08・ユーザー指示） */
-      /* ★「取り崩しが怖いと言われた」のように、お客様の話なのに型が「自分の管理」に当たることがある。
-         お客様の話だと分かる言い方が入っていれば、＋1 は出す（2026-09-08） */
+      /* ---------- 添えものは1回に2つまで（2026-09-08・ユーザー指示「話を少しコンパクトに」） ----------
+         断り文句の返し・FP1級の目・＋1・心理の型・切り口・心を動かす型を全部並べると、
+         返事が2,500〜2,700字になって読まれない。効く順に2つだけ出す。
+         ★この上限を外すと、また全部並んで長くなる。足したいときは、どれかを落とすこと */
       const custTalk = /お客様|お客さん|客に|客が|言われた|聞かれた|相談され|担当先|見込み客/.test(t);
-      if(!kick && (custTalk || !(main && main.role === 'self'))){
-        const nt = mtNetaFind(t);
-        if(nt){ h += mtNetaHTML(nt, P, false); mtNetaRemember(nt); }
+      const notSelf = !(main && main.role === 'self');
+      let slots = kick ? 0 : 2;
+      const put = function(html){ if(slots <= 0 || !html) return false; h += html; slots -= 1; return true; };
+      // 1) お客様の断り文句への返し（これが来たら最優先。数える対象に入れる）
+      if(ko) put(mtKotowariHTML(ko, P));
+      // 2) FP1級・税理士の目（知識の論点が入っているとき）
+      if(fp.length) put(mtFPHTML(fp, P, useMgmt));
+      /* 3) 今日の＋1（お客様に持っていく情報提供のネタ）。相談に当たったときだけ短い形で添える。
+            ★「取り崩しが怖いと言われた」のように、お客様の話なのに型が「自分の管理」に当たることがある。
+              お客様の話だと分かる言い方が入っていれば出す（2026-09-08） */
+      if(custTalk || notSelf){
+        const nt = (slots > 0) ? mtNetaFind(t) : null;
+        if(nt && put(mtNetaHTML(nt, P, false))) mtNetaRemember(nt);
       }
-      // FP1級の目で見る（知識の論点が相談に入っているとき）
-      if(!kick && fp.length) h += mtFPHTML(fp, P, useMgmt);
-      // こう話を進めてみては（心理の型）。話し方・断り・紹介・単価の相談に1つだけ添える
-      if(!kick && !(main && main.role === 'self')){
+      // 4) こう話を進めてみては（心理の型）
+      if(notSelf && slots > 0){
         const psy = mtFindPsy(t, intents, 1);
-        if(psy.length){ psyLast = psy[0]; h += mtPsyHTML(psy, P, useMgmt); MT.recentPsy = psy.map(function(k){ return k.key; }).concat(MT.recentPsy).slice(0, 14); }
+        if(psy.length){ psyLast = psy[0]; if(put(mtPsyHTML(psy, P, useMgmt))) MT.recentPsy = psy.map(function(k){ return k.key; }).concat(MT.recentPsy).slice(0, 14); }
       }
-      /* 心を動かす型（TOTのトーク×本の学び）。お客様か部下の心を動かす場面にだけ出す（2026-09-07・ユーザー指示） */
-      if(!kick && !(main && main.role === 'self')) h += mtMoveHeartHTML(t, know, P, useMgmt, !!ko);
+      // 5) この切り口から伝えてみる（顧客向けの話題があるとき）
+      if(notSelf && slots > 0){
+        const kk = mtFindKirikuchi(t, MT.recentKk).slice(0, 2);
+        if(kk.length && put(mtKirikuchiHTML(kk, P))) MT.recentKk = kk.map(function(k){ return k.id; }).concat(MT.recentKk).slice(0, 24);
+      }
+      // 6) 心を動かす型（イケてる営業マン流×本の学び）
+      if(notSelf && slots > 0) put(mtMoveHeartHTML(t, know, P, useMgmt, !!ko));
 
+      /* ★2026-09-08：添えものが2つ出た重い返事では、考え方と今日やることを1つずつ減らす。
+         軽い相談は今までどおりの厚みで返し、厚い相談だけ短くする（ユーザー指示「少しコンパクトに」） */
+      const heavy = (slots === 0);
       // 考え方
       if(!kick && (know.length || (main && main.think))){
         h += '<span class="mt-h">考え方</span>';
@@ -3138,9 +3153,11 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
            2026-09-07・ユーザー指示「毎回違う回答になるように」） */
         const own = (main && main.think) ? '<li>' + esc(main.think) + '<span class="mt-src">— 師匠の型</span></li>' : '';
         if(own && nth < 2) h += own;
-        know.slice(0, 2).forEach(function(k){
-          const line = mtFreshLine(k.lines);
-          h += '<li><b>' + esc(k.name) + '</b>：' + esc(mtShort(k.gist, 110)) + (line ? '<br>「' + esc(line) + '」' : '') + '<span class="mt-src">— ' + esc(k.src) + '</span></li>';
+        /* 2026-09-08：コンパクトに。要旨は110→72字、口に出す一行は1本目だけにする
+           （2本とも付けると、考え方だけで300字を超える） */
+        know.slice(0, heavy ? 1 : 2).forEach(function(k, i){
+          const line = (i === 0) ? mtFreshLine(k.lines) : '';
+          h += '<li><b>' + esc(k.name) + '</b>：' + esc(mtShort(k.gist, 62)) + (line ? '<br>「' + esc(line) + '」' : '') + '<span class="mt-src">— ' + esc(k.src) + '</span></li>';
         });
         if(own && nth >= 2) h += own;
         h += '</ul>';
@@ -3174,7 +3191,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       const recA = MT.recentActs || [];
       if(recA.length) acts = acts.filter(function(a){ return recA.indexOf(aKey(a)) < 0; })
                                  .concat(acts.filter(function(a){ return recA.indexOf(aKey(a)) >= 0; }));
-      acts = acts.slice(0, kick ? 1 : 3);   /* 尻を叩くときは1つだけ渡す */
+      acts = acts.slice(0, kick ? 1 : (heavy ? 2 : 3));   /* 尻を叩くときは1つだけ。厚い返事は2つ */
       mtLastActs = acts.slice(0);
       MT.recentActs = acts.map(aKey).concat(recA).slice(0, 12);
       if(!acts.length) acts = ['止まっている案件を3件だけ書き出し、止まった理由を1行ずつ書く（連絡待ち・提案待ち・意思決定待ち）',
@@ -3619,17 +3636,17 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
         ? (z ? '決めるのは本人です。渡したら、期限まで口を出さずに見ます。' : '決めるのは本人だ。渡したら期限まで口を出すな。')
         : (z ? '受けてから引きます。決めるのはお客様で、断られても土俵には残っています。' : '受けてから引け。決めるのは客だ。断られても土俵には残っている。');
       let h = '<span class="mt-h">' + esc(who + 'の心を動かす（イケてる営業マン流×本の学び）') + '</span>';
-      h += mtFigFlow('置く→聞く→引く', [{ b:'置く（本の学び）', t:mtClip(bk.name, 18) },
-                                          { b:'聞く（イケてる営業マン流）', t:mtClip(tot.name, 18) },
-                                          { b:'引く', t:'受けてから引く。決めるのは相手' }], [1], 22);
-      h += '<ol class="mt-three">'
-        + '<li><b>置く（本の学び）</b>' + esc(mtClip(step1, 150)) + '<span class="mt-src">— ' + esc(mtSrcWith(bk._src, bk.name)) + '</span></li>'
-        + '<li><b>聞く（イケてる営業マン流）</b>' + esc(mtClip(step2, 150)) + '<span class="mt-src">— ' + esc(mtSrcWith('イケてる営業マン流の判断軸', tot.name)) + '</span></li>'
-        + '<li><b>引く</b>' + esc(step3) + '</li></ol>';
+      /* ★2026-09-08：図が原則名だけ、その下の3段が本文、と二度出ていた。図に本文を入れて一つにし、
+         出どころは下に1行でまとめた（ユーザー指示「話を少しコンパクトに」） */
+      h += mtFigFlow('置く→聞く→引く', [{ b:'置く（本の学び）', t:mtClip(step1, 54) },
+                                          { b:'聞く（イケてる営業マン流）', t:mtClip(step2, 54) },
+                                          { b:'引く', t:step3 }], [2], 54);
+      h += '<span class="mt-src">— ' + esc(mtSrcWith(bk._src, bk.name)) + '／' + esc(mtSrcWith('イケてる営業マン流の判断軸', tot.name)) + '</span>';
       const line = (tot.lines && tot.lines.length) ? mtFreshLine(tot.lines) : '';
       if(line) h += '<span class="mt-quote">' + esc(line) + '</span>';
-      h += '<span class="mt-note">' + esc(z ? '不安で押す・急がせる・言質を取る方向には使いません。心が動くのは、相手が自分で決めたときです。'
-                                           : '不安で押すな。急がせるな。言質を取るな。心が動くのは、相手が自分で決めたときだけだ。') + '</span>';
+      /* ★この一行は線引きなので残すこと。短くはしたが、消さない */
+      h += '<span class="mt-note">' + esc(z ? '不安で押さない・急がせない・言質を取らない。決めるのは相手です。'
+                                           : '不安で押すな。急がせるな。言質を取るな。決めるのは相手だ。') + '</span>';
       return h;
     }
     const MT_QUICK = [
