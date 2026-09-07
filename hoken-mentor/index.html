@@ -232,7 +232,7 @@ body.vc-dock-on .chat-fab{ display:none !important; }
     #mentor-modal .modal-body > .mt-stagewrap{ flex:1 1 0; }
 .mt-stagewrap{ display:flex; gap:14px; min-height:300px; align-items:stretch; }
 .mt-stagewrap > .mt-log{ flex:1 1 auto; min-width:0; min-height:0; }
-.mt-side{ flex:0 0 186px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px;
+.mt-side{ flex:0 0 186px; order:-1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px;
       padding:14px 10px 16px; border:1.5px solid var(--line); border-radius:14px; background:#f4f8f5;
       align-self:stretch; overflow:hidden; }
 .mt-side-art{ width:140px; height:140px; flex:0 0 auto; border-radius:50%; overflow:hidden; background:#eef4f0;
@@ -246,6 +246,7 @@ body.vc-dock-on .chat-fab{ display:none !important; }
 .mt-side-art.mt-mood-listen{ border-color:#7fa8c0; box-shadow:0 0 0 4px rgba(127,168,192,.2); }
 .mt-side-art.mt-mood-kick{ border-color:#d8a13a; box-shadow:0 0 0 5px rgba(216,161,58,.24); }
 .mt-side-art.mt-mood-praise{ border-color:#7fc0a3; box-shadow:0 0 0 5px rgba(127,192,163,.24); }
+.mt-side-art.mt-mood-mad{ border-color:#b5382c; box-shadow:0 0 0 5px rgba(181,56,44,.2); }
 @media (max-width:960px){
 .mt-side{ display:none; }
 }
@@ -269,6 +270,11 @@ body.vc-dock-on .chat-fab{ display:none !important; }
 .mt-bub .mt-src{ display:block; margin-top:6px; font-size:.7rem; color:var(--ink-soft); }
 .mt-bub .mt-quote{ display:block; margin:6px 0 0; padding:7px 11px; border-left:3px solid #3f9d7a;
       background:#f2f9f5; border-radius:0 10px 10px 0; font-weight:700; color:#1f3328; }
+.mt-bub .mt-tatoe{ display:block; margin:2px 0 0; padding:9px 12px; border-left:3px solid #c98b2e;
+      background:#fdf6e8; border-radius:0 10px 10px 0; line-height:1.85; }
+.mt-bub .mt-tatoe-q{ display:block; margin-top:5px; font-weight:800; color:#8a5c10; }
+.mt-bub .mt-tatoe-a{ display:block; margin:4px 0 5px; font-family:var(--mincho, inherit); font-size:1.02em;
+      font-weight:800; color:#1f3328; letter-spacing:.04em; }
 .mt-bub table{ border-collapse:collapse; margin:4px 0; font-size:.8rem; }
 .mt-bub th, .mt-bub td{ border:1px solid #d9e3dc; padding:4px 8px; text-align:left; }
 .mt-bub th{ background:#eaf1ec; font-weight:700; }
@@ -289,15 +295,19 @@ body.vc-dock-on .chat-fab{ display:none !important; }
 .mt-input{ display:flex; gap:8px; }
 .mt-m-open{ display:none; }
 .mt-hand{ display:none; transform-box:fill-box; transform-origin:bottom center; }
-.mt-mood-talk .mt-m-open, .mt-mood-kick .mt-m-open{ display:block; transform-box:fill-box; transform-origin:center; }
-.mt-mood-talk .mt-m-closed, .mt-mood-kick .mt-m-closed{ opacity:.12; }
-.mt-mood-talk .mt-hand-point, .mt-mood-kick .mt-hand-point{ display:block; }
+.mt-anger{ display:none; }
+.mt-mood-mad .mt-anger{ display:block; }
+.mt-mood-talk .mt-m-open, .mt-mood-kick .mt-m-open, .mt-mood-mad .mt-m-open{ display:block; transform-box:fill-box; transform-origin:center; }
+.mt-mood-talk .mt-m-closed, .mt-mood-kick .mt-m-closed, .mt-mood-mad .mt-m-closed{ opacity:.12; }
+.mt-mood-talk .mt-hand-point, .mt-mood-kick .mt-hand-point, .mt-mood-mad .mt-hand-point{ display:block; }
 .mt-mood-praise .mt-hand-thumb{ display:block; }
 .mt-mood-listen .mt-hand-think{ display:block; }
 @media (prefers-reduced-motion: no-preference){
 .mt-mood-talk .mt-m-open{ animation:mtMouth .26s infinite alternate; }
 .mt-mood-kick .mt-m-open{ animation:mtMouth .17s infinite alternate; }
-.mt-mood-talk .mt-hand, .mt-mood-kick .mt-hand{ animation:mtHand .5s ease-in-out infinite alternate; }
+.mt-mood-mad .mt-m-open{ animation:mtMouth .3s infinite alternate; }
+.mt-mood-mad .mt-anger{ animation:mtAnger .7s ease-in-out infinite alternate; transform-box:fill-box; transform-origin:center; }
+.mt-mood-talk .mt-hand, .mt-mood-kick .mt-hand, .mt-mood-mad .mt-hand{ animation:mtHand .5s ease-in-out infinite alternate; }
 .mt-mood-praise .mt-hand{ animation:mtHand .9s ease-in-out infinite alternate; }
 .mt-mood-listen svg{ animation:mtNod 2s ease-in-out infinite; }
 .mt-face svg .mt-lid, .mt-head-art svg .mt-lid, .mt-side-art svg .mt-lid{ animation:mtBlink 6s infinite; }
@@ -306,6 +316,7 @@ body.vc-dock-on .chat-fab{ display:none !important; }
 @keyframes mtHand{ from{ transform:translateY(0) rotate(0deg); } to{ transform:translateY(-1.4px) rotate(-7deg); } }
 @keyframes mtNod{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(1.4px); } }
 @keyframes mtBlink{ 0%,93%,100%{ transform:scaleY(0); } 96%{ transform:scaleY(1); } }
+@keyframes mtAnger{ from{ transform:scale(.86); opacity:.7; } to{ transform:scale(1.08); opacity:1; } }
 .mt-micbtn.mt-on, #mt-say.mt-on{ background:#1f3328; color:#fff; border-color:#1f3328; }
 .mt-micbtn.mt-on{ animation:mtPulse 1.3s infinite; }
 @keyframes mtPulse{ 0%,100%{ box-shadow:0 0 0 0 rgba(31,51,40,.45); } 50%{ box-shadow:0 0 0 7px rgba(31,51,40,0); } }
@@ -586,6 +597,8 @@ main.mt-main{ padding:12px 0 14px; }
 #mentor-modal .mt-side-art.mt-mood-listen{ border-color:#9fb8c9; box-shadow:0 0 0 4px rgba(159,184,201,.28); }
 #mentor-modal .mt-side-art.mt-mood-kick{ border-color:#d89a2e; box-shadow:0 0 0 5px rgba(216,154,46,.24); }
 #mentor-modal .mt-side-art.mt-mood-praise{ border-color:#7fb3d6; box-shadow:0 0 0 5px rgba(127,179,214,.26); }
+/* 少し怒っている（気合いの入っていない相談への返事）。喝より落ち着いた赤にする */
+#mentor-modal .mt-side-art.mt-mood-mad{ border-color:#b5382c; box-shadow:0 0 0 5px rgba(181,56,44,.2); }
 #mentor-modal .mt-side-name{ font-family:var(--mincho); font-size:1.04rem; color:var(--blue-deep); letter-spacing:.05em; }
 #mentor-modal .mt-side-mood{ border-color:var(--amber-line); background:#fff; color:var(--blue-deep); }
 @media (max-width:960px){ #mentor-modal .mt-side{ display:none; } }
@@ -1074,6 +1087,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       o.self = Array.isArray(o.self) ? o.self : [];
       o.recentKk = Array.isArray(o.recentKk) ? o.recentKk : [];
       o.recentPsy = Array.isArray(o.recentPsy) ? o.recentPsy : [];
+      o.recentTa = Array.isArray(o.recentTa) ? o.recentTa : [];   // 直近に出したたとえ話（続けて同じものを出さない）
       /* 一条工務店編の上長は廃止（2026-09-07・ユーザー指示）。すでに作られている端末からも一度だけ消す。
          deleted に入れておかないと、上の MT_COMPANY_PRESETS のループで作り直されることはないが、
          別の版を開いたときに復活しないよう念のため残す。自分で作り直した上長（別id）はそのまま */
@@ -1345,10 +1359,12 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       const suit = z ? '#3f6480' : '#252c38', tie = z ? '#5aa8cf' : '#8e2733';
       const sleeve = z ? '#4c7899' : '#333f50';   /* 腕は背広より少し明るくして重ならないようにする */
       const bg   = z ? '#f6ead7' : '#ece3d6';
-      /* 眉の高さ：聞いているときは上げる、喝のときは内側をさらに下げる */
-      const bTop = (mood === 'kick') ? 22.2 : (mood === 'listen' ? 21.9 : 22.7);
-      const bIn  = (mood === 'kick') ? 26.2 : 25.4;
-      const bDot = (mood === 'kick') ? 22.3 : (mood === 'listen' ? 22 : 22.8);
+      /* 眉の高さ：聞いているときは上げる、喝のときは内側をさらに下げる。
+         mad＝「少し怒っている」は、喝ほどではないが内側を下げる（弱音・言い訳・数字なしのときに出す） */
+      const mad = (mood === 'mad');
+      const bTop = (mood === 'kick') ? 22.2 : (mad ? 22.4 : (mood === 'listen' ? 21.9 : 22.7));
+      const bIn  = (mood === 'kick') ? 26.2 : (mad ? 25.9 : 25.4);
+      const bDot = (mood === 'kick') ? 22.3 : (mad ? 22.5 : (mood === 'listen' ? 22 : 22.8));
       const zTop = (mood === 'listen') ? 23.4 : 24.4;
       const lid = ' style="transform:scaleY(0);transform-box:fill-box;transform-origin:center top"';
       return '<svg viewBox="0 0 64 64" role="img" aria-label="上長のイラスト">'
@@ -1375,8 +1391,12 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
               + '<path d="M25.4 19.8c4-1.1 9.2-1.1 13.2 0M26.6 22.4c3.6-.9 7.2-.9 10.8 0" fill="none" stroke="' + shade + '" stroke-width="1" stroke-linecap="round" opacity=".85"/>')
         /* 眉。師匠は太く内側が下がる。★つながり眉に見えないよう内側は 30.0／34.0 で止め、端は切り落とす */
         + (z
-            ? '<path d="M23.4 ' + zTop + 'c1.9-1.6 4.3-1.6 6 0" fill="none" stroke="' + hair + '" stroke-width="1.7" stroke-linecap="round"/>'
-              + '<path d="M40.6 ' + zTop + 'c-1.9-1.6-4.3-1.6-6 0" fill="none" stroke="' + hair + '" stroke-width="1.7" stroke-linecap="round"/>'
+            /* 褒め伸ばしは怒らせない。mad のときは「困り眉（ハの字）」にして、やわらかいまま気にしている顔にする */
+            ? (mad
+               ? '<path d="M23.4 23.4c1.9 1.5 4.3 1.5 6 .3" fill="none" stroke="' + hair + '" stroke-width="1.7" stroke-linecap="round"/>'
+                 + '<path d="M40.6 23.4c-1.9 1.5-4.3 1.5-6 .3" fill="none" stroke="' + hair + '" stroke-width="1.7" stroke-linecap="round"/>'
+               : '<path d="M23.4 ' + zTop + 'c1.9-1.6 4.3-1.6 6 0" fill="none" stroke="' + hair + '" stroke-width="1.7" stroke-linecap="round"/>'
+                 + '<path d="M40.6 ' + zTop + 'c-1.9-1.6-4.3-1.6-6 0" fill="none" stroke="' + hair + '" stroke-width="1.7" stroke-linecap="round"/>')
             : '<path d="M22.8 ' + bTop + 'C25.5 22.8 28 23.8 30 ' + bIn + '" fill="none" stroke="' + hair + '" stroke-width="3.2" stroke-linecap="butt"/>'
               + '<path d="M41.2 ' + bTop + 'C38.5 22.8 36 23.8 34 ' + bIn + '" fill="none" stroke="' + hair + '" stroke-width="3.2" stroke-linecap="butt"/>'
               + '<circle cx="22.9" cy="' + bDot + '" r="1.6" fill="' + hair + '"/><circle cx="41.1" cy="' + bDot + '" r="1.6" fill="' + hair + '"/>')
@@ -1399,7 +1419,8 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
               + '<path d="M28.9 37c2 .5 4.2.5 6.2 0-1 .8-2 1.2-3.1 1.2s-2.1-.4-3.1-1.2Z" fill="#fdf1ec"/></g>'
             /* 師匠：口ひげ（鼻の下いっぱい）＋への字の口＋顎の髭 */
             : '<path d="M24.2 36.9c1.9-2.7 4.7-4 7.8-4s5.9 1.3 7.8 4c-1.9.7-3.5.3-4.9-.8-.9.8-1.9 1.2-2.9 1.2s-2-.4-2.9-1.2c-1.4 1.1-3 1.5-4.9.8Z" fill="' + hair + '"/>'
-              + '<g class="mt-m-closed"><path d="M28.4 39.2q3.6-1.7 7.2 0" fill="none" stroke="#8f5c46" stroke-width="1.6" stroke-linecap="round"/></g>'
+              + '<g class="mt-m-closed"><path d="' + (mad ? 'M28.2 39.6q3.8-2.4 7.6 0' : 'M28.4 39.2q3.6-1.7 7.2 0')
+              + '" fill="none" stroke="#8f5c46" stroke-width="1.6" stroke-linecap="round"/></g>'
               + '<ellipse cx="32" cy="41.4" rx="2.7" ry="2.1" fill="' + hair + '"/>')
         /* 話しているときの口（いちばん上に描く。CSSで開け閉めする） */
         + '<ellipse class="mt-m-open" cx="32" cy="' + (z ? 38.4 : 39.3) + '" rx="' + (z ? 3.1 : 2.6) + '" ry="' + (z ? 2.5 : 2.1) + '" fill="#7c3b31"/>'
@@ -1413,10 +1434,46 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
         + '<g class="mt-hand mt-hand-think"><path d="M45 64c-1.6-7 0-12.4 4.4-16l-9.6-2.6c-3.6 3.6-5 9.4-4.4 18.6Z" fill="' + sleeve + '"/>'
           + '<ellipse cx="36.8" cy="44.6" rx="5" ry="3.6" fill="' + skin + '" transform="rotate(-20 36.8 44.6)"/>'
           + '<path d="M33.6 43.2c1.6-.7 3.4-.6 5 .3" fill="none" stroke="' + shade + '" stroke-width=".9" stroke-linecap="round"/></g>'
+        /* こめかみの怒りマーク（少し怒っているとき＝mad だけCSSで出す）。絵文字は使わずSVGで描く。
+           38pxの小さい絵でも「怒っている」と分かる目印になる */
+        + '<g class="mt-anger" aria-hidden="true"><path d="M15.6 15.2h1.5v1.5h1.5v1.5h-1.5v1.5h-1.5v-1.5h-1.5v-1.5h1.5Z" fill="'
+          + (z ? '#c9705f' : '#b5382c') + '"/>'
+          + '<path d="M19.6 19.6h1.1v1.1h1.1v1.1h-1.1v1.1h-1.1v-1.1h-1.1v-1.1h1.1Z" fill="' + (z ? '#c9705f' : '#b5382c') + '" opacity=".8"/></g>'
         + '</svg>';
     }
-    /* いまの表情。話す・聞く・喝・褒めるで、顔と手が変わる */
+    /* たとえ話＋問いかけ（ユーザー指示・2026-09-07）。説明で終わらせず、身近なたとえで一度聞いてから答える。
+       材料の正本は hoken-newtools-src/mentor-tatoe/tatoe.json、流し込みは apply_mentor_tatoe.py。
+       key は知識の key（MT_AXES／MT_TOT／MT_MGMT／MT_BOOKS の原則）。この行は書き換えられるので触らない。 */
+    const MT_TATOE = [{"key":"referral_support","q":"同じ野球でも、夏の甲子園には何万人も集まる。草野球の試合には、身内しか来ない。","a":"本気度。","so":"本気で取りにいっている人間は、見ているだけの人まで動かす。紹介も同じで、応援したいと思われた人のところに人が集まる。「紹介してください」の回数ではなく、本気が伝わっているかで決まる。"},{"key":"defense","q":"腹がへって仕方ないとき、初めての店より、どこにでもあるチェーンのカレー屋に入ってしまうことがある。","a":"どこの店舗も味が同じだから。","so":"外れを引かないと分かっているから、安心して入れる。人も同じで、いつ誰に対しても同じ対応をする人だから、安心して任せられる。ディフェンス力とは、その「いつも同じ」のこと。"},{"key":"tot_person_not_product","q":"同じメーカーの同じ車を、隣の店で買っても、性能は1ミリも変わらない。それでも人は店を選ぶ。","a":"誰から買うか、を選んでいる。","so":"商品で差がつかない世界では、選ばれる理由は保険の外側にある。だから磨くのは商品知識の量ではなく、返事の速さ・約束・覚えていること。"},{"key":"speed_response","q":"頼んだ料理が10分で出る店と、40分かかる店。味が同じなら、次はどちらに行くか。","a":"早いほう。","so":"中身の前に、速さで信用される。答えが出ていなくても「受け取りました、いつまでに返します」だけ先に返す。それだけで、次も聞いてみようと思われる。"},{"key":"diagnose_then_prescribe","q":"病院に行って、症状も聞かれないうちに薬を出されたら、その薬を飲むか。","a":"飲まない。","so":"処方の前に診断がいる。保険も同じで、家族の近況とここ数年で変わったことを聴かないうちに出した提案は、どれだけ正しくても飲んでもらえない。"},{"key":"no_generalities","q":"天気予報で「明日は雨が降るかもしれません」とだけ言われても、傘を持って出るかどうかは決まらない。","a":"自分の話になっていないから。","so":"一般論は、聞いた瞬間に他人事になる。「日本人の2人に1人が」ではなく「お子さんが大学を出るまであと何年ですか」から入る。"},{"key":"no_fear_selling","q":"「このままだと家が燃えますよ」と言ってくる火災保険の営業から、家族の保険を買うか。","a":"買わない。","so":"不安で押した契約は、その場は動いても後から恨みが残る。保険は暗い話ではなく、家族が続けたい暮らしの話として出す。"},{"key":"price_is_result","q":"体重を減らしたい人が、毎日体重計に乗る回数を増やしても、体重は減らない。","a":"動かせるのは、食べる量と運動のほう。","so":"単価は結果の数字で、直接は動かせない。動かせるのは面談数と、診断の質。そこを動かせば、単価は後からついてくる。"},{"key":"goal_setting","q":"行き先を決めずにタクシーに乗ったら、運転手は困る。","a":"どこへ向かえばいいか分からないから。","so":"目標は気合いを入れる旗ではなく、行き先を示す物差し。絶対値で置くから、あと何件足りないかが毎週わかる。"},{"key":"task_not_motivation","q":"歯を磨くとき、毎朝「よし磨くぞ」と気合いを入れている人はいない。","a":"習慣になっているから。","so":"続いているものは、やる気で回っていない。前日連絡もお礼も、決めなくても手が動く形にすれば続く。"},{"key":"marketing_over_sales","q":"行列のできる店は、店員が外に出て「食べていってください」と声をかけていない。","a":"先に、行きたい理由ができているから。","so":"売り込みが要らない状態を先に作る。勉強会・診断ツール・レポートのような、自分の型をひとつ持つ。"},{"key":"wealthy_seasoning","q":"高級な鮨屋のカウンターで、大将が一方的に食材の産地を語り続けたら、居心地はどうか。","a":"疲れる。","so":"富裕層に効くのは知識の量ではなく、こちらが聴き切って整理してくれる時間。増える話より、手間が減る仕組みの話。"},{"key":"structure_not_person","q":"水が漏れているとき、床を拭き続けても、水はなくならない。","a":"蛇口を締めていないから。","so":"人を責めても数字は動かない。動かすのは入り方（構造）のほう。断られる場面が同じなら、直すのは気合いではなく順番。"},{"key":"never_keep_losing","q":"同じ場所で2回転ぶ人と、1回転んでその石をどけた人。次の1年で差がつくのはどちらか。","a":"石をどけたほう。","so":"勝ち続けなくていい。同じ負け方を2回しなければ、それだけで積み上がる。断られた理由を1行書いて、次の商談の前に読む。"},{"key":"self_brand","q":"同じ道具を使っても、大工によって仕上がりが違う。","a":"道具ではなく、使う人の腕で決まるから。","so":"商品は道具で、誰でも同じものを持てる。差がつくのは、立場をはっきりさせて飾らずに立っているかどうか。"},{"key":"roots_trunk","q":"台風のあと、折れている木と折れていない木がある。地上から見える幹の太さは、たいして変わらない。","a":"根の張り方が違う。","so":"見えている話術より、見えない生きざまのほうが持ちこたえる。数字が苦しいときに出るのは、根のほう。"},{"key":"raise_environment","q":"同じ苗を、日当たりの悪い場所と良い場所に植えると、育ち方が変わる。","a":"置かれた環境が違うから。","so":"人を変えようとする前に、環境を上げる。誰と会うか、どこで学ぶか、何を見ているか。環境が上がれば、人は勝手に上がる。"},{"key":"tot_draw_lose_win","q":"野球で、その回に点が入らなくても負けではない。負けるのは、試合が終わったとき。","a":"土俵に残っているかどうか。","so":"断られた＝引き分け。連絡が取れなくなった＝負け。数か月後に向こうから声がかかる＝勝ち。今日の1件で勝ち負けを決めない。"},{"key":"tot_uke","q":"人は、話を最後まで聞いてもらえないと、同じことを何度も言い直す。","a":"分かってもらえていない、と感じているから。","so":"まず、相手の言い分の筋が通っているところを名指しで認める。「そうですよね」で流すと、認めたことにならない。"},{"key":"tot_nige","q":"非常口のない部屋に入れられると、人は落ち着いて座っていられない。","a":"出られないと分かっているから。","so":"断ってよい、とこちらから言うと、はじめて中身の話ができる。逃げ道は、譲歩ではなく話を進める道具。"},{"key":"tot_hiku","q":"引き潮のあと、砂浜には貝が残る。押している間は、何も見えない。","a":"引いたから、見えるようになった。","so":"追わないと宣言して、こちらから場を閉じる。相手に断らせない。引いた人にだけ、あとで本当のことを話してくれる。"},{"key":"tot_oku","q":"旅館を出るとき、渡された地元の地図が、次に来る理由になることがある。","a":"買わなくても役に立つものだから。","so":"押し付けない置き土産をひとつ残す。見る順番、確かめ方、答えなくてよい問い。売り物でないものほど残る。"},{"key":"tot_fast_reply","q":"宅配便の「本日中にお届けします」という通知。中身が変わるわけではないのに、安心する。","a":"いつ届くか分かるから。","so":"答えが出ていなくても、受け取ったことだけ先に返す。人が不安になるのは、中身ではなく、いつ返ってくるか分からないとき。"},{"key":"tot_non_insurance_talk","q":"顔を出すたびに何かを売ってくる人と、たまに役立つ話だけ置いていく人。呼ばれるのはどちらか。","a":"何も売らないほう。","so":"保険の話をした回数ではなく、保険以外の話を持っていった回数が、次の面談を作る。補助金、値上げ、採用、相場。"},{"key":"tot_refer_first","q":"年賀状を1枚も出していない人の家に、年賀状は届かない。","a":"先に出していないから。","so":"紹介はもらうものではなく、先に渡すもの。お願いする前に、自分が何人つないだかを数える。"},{"key":"tot_no_mistakes","q":"10年通った店で、一度だけ髪に虫が入った料理が出たら、その店の記憶はどうなるか。","a":"その一度だけが残る。","so":"名前の漢字、生年月日、金額、日付。1回間違えると、それまでの10回が消える。送る前に、固有名詞と数字だけ声に出して読む。"},{"key":"tot_small_promises","q":"「今度ごはん行こう」と言われて、本当に日程が来たことは何回あるか。","a":"ほとんどない。","so":"大きな約束は誰でもする。信用になるのは「明日、電話します」を守った回数のほう。守れない約束は、その場で断ったほうが減点にならない。"},{"key":"tot_remember","q":"行きつけの店で、頼む前に「いつものでいいですか」と言われると、なぜか嬉しい。","a":"覚えていてくれたから。","so":"前に聞いたお子さんの受験、手術の日、繁忙期。こちらから触れるだけで、他の誰とも違う相手になる。帰り道に3行書き残す。"},{"key":"tot_no_sell_day","q":"毎回お金を借りに来る友人からの電話は、そのうち出なくなる。","a":"用件が読めてしまうから。","so":"会うたびに保険の話をする人は、そのうち呼ばれなくなる。3回に1回は、何も持っていかない。"},{"key":"tot_quick_exit","q":"しつこい客引きのいる通りでは、店の中を見る前に足が速くなる。","a":"捕まりたくないから。","so":"押されないと分かっている相手にだけ、人は本当のことを話す。断りやすい人が、いちばん相談されやすい人。"},{"key":"tot_take_home","q":"大きな買い物を、その場の勢いで決めた人ほど、翌週に返品を考える。","a":"家で冷静になったから。","so":"持ち帰りは邪魔をしない。家族に相談して決めた契約だけが、10年続く。「持ち帰っていただくのが前提です」と先に言う。"},{"key":"koudou_two_minds","q":"スーパーの試食で買った菓子が、家の棚で開けられないまま残っていることがある。","a":"その場と、家とで、決め方が違うから。","so":"面談は直感（速い頭）で決まり、続けるかどうかは家で計算する頭（遅い頭）が決める。だから、遅い頭のための紙を1枚置いて帰る。"},{"key":"koudou_sunk_cost","q":"つまらない映画でも、料金を払っていると最後まで座ってしまう。","a":"払った分を惜しんでいる。","so":"追いかけた時間が惜しくて切れないのは、こちらの都合。案件を切る判断は、通った回数ではなく、次に何が起きたら進むかで決める。"},{"key":"koudou_choice_overload","q":"メニューが200種類ある定食屋で、結局いつも同じものを頼む。決められない日は、店を出ることもある。","a":"選ぶのが面倒になった。","so":"提案は3つまで。それ以上あるなら、先に条件を聞いてこちらで削る。削るのは手抜きではなく、相手のための設計。"},{"key":"koudou_present_bias","q":"健康にいいと分かっていても、目の前のケーキは食べてしまう。","a":"今の楽しみのほうが大きく見えるから。","so":"30年後の受取額より、今月いくら減るかのほうが重い。だから将来の話から入らず、今の家計から出せる額を先に置いて積み上げる。"},{"key":"koudou_default","q":"携帯の初期設定を、隅から隅まで変えている人は少ない。","a":"決まっているまま使うほうが楽だから。","so":"毎回決めさせる形にした時点で、続かないことがほぼ決まる。続けてほしいことは、決めなくても続く形にしておく。"},{"key":"koudou_mental_accounting","q":"同じ1万円でも、給料から出すのと、パチンコで勝った分から出すのとでは、使いやすさが違う。","a":"頭の中で財布を分けている。","so":"ひとつの残高を見ながら線を引くのは無理。使う・備える・残すを口座や契約で分けて、目で見えるようにする。"},{"key":"koudou_kitkat","q":"板チョコに割れる線が入っているから、一片だけ食べて残しておける。","a":"分けてあるから。","so":"1本にまとめた契約は、苦しくなったとき「全部やめる」しか選べない。役割ごとに分けておけば、1本だけ動かして残りは守れる。"},{"key":"koudou_negativity","q":"旅行の思い出を話すとき、良かった食事より、遅れた電車の話のほうが長くなる。","a":"悪いことのほうが強く残るから。","so":"10回の丁寧より、1回の返事の遅れが残る。だから攻めより先に守り。守りは、誰でも同点以上にできる。"},{"key":"koudou_opportunity_cost","q":"レジの列に並んでいるとき、隣の列が早く進むと損した気になる。実際に失っているのは、待っている時間そのもの。","a":"その間にできたことが見えていない。","so":"決まらない1件に月3回行けば、その月に会えなかった人が必ずいる。粘りの本当の値段は、会わなかった人の数。"},{"key":"mgt_1on1_order","q":"医者が問診の前に「で、どう思う？」と聞いてきたら、答えようがない。","a":"事実がまだ出ていないから。","so":"1on1は、数字→行動→障害の順。気持ちから入ると、事実が出てこないまま時間が終わる。"},{"key":"mgt_scold_action_praise_fact","q":"野球の監督が「気持ちが足りない」とだけ言っても、打率は上がらない。","a":"直す場所が分からないから。","so":"叱るのは行動、認めるのは事実。「頑張れ」ではなく「前日連絡が3件抜けている」と言う。"},{"key":"mgt_report_go_get","q":"魚は、待っていても網に飛び込んではこない。","a":"こちらから取りに行くもの。","so":"報連相は上がってくるのを待たない。上司が取りに行く。上がってこないのは、部下の性格ではなく仕組みの問題。"},{"key":"mgt_first90_behavior","q":"自動車教習所で、最初の3か月に速さを競わせる教官はいない。","a":"先に型を覚えさせるから。","so":"新人の最初の90日は、成果ではなく行動の型で見る。数字で追うのは、型が揃ってから。"},{"key":"mgt_praise_public_scold_private","q":"みんなの前で恥をかかされた記憶は、何年も残る。","a":"内容ではなく、人前だったことが残るから。","so":"褒めるのは公開、叱るのは個別。順番を逆にすると、直すべき中身が本人に届かない。"}]; /* __MT_TATOE__ */
+    const MT_TATOE_MAP = {};
+    MT_TATOE.forEach(function(x){ MT_TATOE_MAP[x.key] = x; });
+    /* 1回の返事に1本だけ。同じたとえが続かないよう、直近に出したものは避ける */
+    function mtFindTatoe(know){
+      for(let i = 0; i < know.length; i++){
+        const x = MT_TATOE_MAP[know[i].key];
+        if(x && (MT.recentTa || []).indexOf(x.key) < 0) return x;
+      }
+      for(let i = 0; i < know.length; i++){ const x = MT_TATOE_MAP[know[i].key]; if(x) return x; }
+      return null;
+    }
+    function mtTatoeHTML(x, tone){
+      const lead = (tone === 'zsedai') ? 'たとえ話をひとつ。' : 'たとえるぞ。';
+      const ask  = (tone === 'zsedai') ? 'なぜだと思いますか？' : '何でだと思う？';
+      return '<span class="mt-h">たとえると</span>'
+        + '<span class="mt-tatoe">' + esc(lead) + esc(x.q)
+        + '<span class="mt-tatoe-q">' + esc(ask) + '</span>'
+        + '<span class="mt-tatoe-a">' + esc(x.a) + '</span>'
+        + esc(x.so) + '</span>';
+    }
+    /* いまの表情。話す・聞く・喝・褒める・少し怒る、で顔と手が変わる */
     let mtMood = 'idle', mtMoodTmr = 0;
+    /* 少し怒る顔を出す相談（反応ルールの key）。
+         weak＝弱音／promise＝約束を破った／time＝遅刻／health＝体の管理／technique＝小手先を欲しがる／
+         nonum＝「なんとなく」で数字がない／onetime＝「頑張ります」「意識します」の中身のない返事。
+       断られた・数字が足りないのような「起きたこと」の相談では怒らない（怒ると相談しにくくなる）。
+       遠慮して頼めない（cool）も怒らない——言い出せた側を責めることになる。 */
+    const MT_MAD_KEYS = ['weak', 'promise', 'time', 'health', 'technique', 'nonum', 'onetime'];
+    let mtLastMad = false;
     function mtMoodBase(){ return (typeof MTV !== 'undefined' && MTV.speaking) ? 'talk' : ((typeof MTV !== 'undefined' && MTV.listening) ? 'listen' : 'idle'); }
     function mtMoodSet(m){ if(mtMood === m) return; mtMood = m; mtRenderFace(); }
     function mtMoodFlash(m, ms){
@@ -1432,8 +1489,8 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
     }
     /* いまの様子を言葉にする（横の顔の下に出す）。口調で言い方を変える */
     const MT_MOOD_WORD = {
-      shisho: { idle:'聞いてやる。話せ', talk:'話しとる', listen:'聞いとる', kick:'喝を入れとる', praise:'認めとる' },
-      zsedai: { idle:'いつでもどうぞ', talk:'話しています', listen:'聞いています', kick:'ここは締めます', praise:'いいですね！' }
+      shisho: { idle:'聞いてやる。話せ', talk:'話しとる', listen:'聞いとる', kick:'喝を入れとる', praise:'認めとる', mad:'ちょっと怒っとる' },
+      zsedai: { idle:'いつでもどうぞ', talk:'話しています', listen:'聞いています', kick:'ここは締めます', praise:'いいですね！', mad:'そこは気になります' }
     };
     /* 上の行の顔と名乗り。上長を切り替えたら描き直す。
        ★顔は3か所（上の行・単独ページの帯・会話の横）。増やしたらここに足すこと */
@@ -1675,6 +1732,17 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       };
       const kick = pick('結局なに'); if(kick) parts.push(kick);
       const mitate = pick('見立て'); if(mitate) parts.push(mitate);
+      /* たとえ話は、声で聞くときこそ効く（たとえ→問いかけ→答え）。長いので本文（so）までは読まない */
+      const ta = d.querySelector('.mt-tatoe');
+      if(ta){
+        const q = ta.querySelector('.mt-tatoe-q'), a = ta.querySelector('.mt-tatoe-a');
+        let body = '';
+        [].slice.call(ta.childNodes).some(function(n){
+          if(n.nodeType === 1 && n.classList && n.classList.contains('mt-tatoe-q')) return true;
+          body += (n.textContent || ''); return false;
+        });
+        parts.push((body + ' ' + (q ? q.textContent : '') + '　' + (a ? a.textContent : '')).replace(/\s+/g, ' ').trim());
+      }
       /* 今日やることは、いちばん上の1つだけ読む（3つ全部読むと長い） */
       const act = (function(){
         const hs = d.querySelectorAll('.mt-h');
@@ -1731,7 +1799,9 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
     /* 返事の中身で表情を決める。声を使っていないときも、返事のあいだは口が動く */
     function mtMoodOnBot(html){
       const t = String(html || '');
-      if(t.indexOf('結局なに') >= 0){ mtMoodFlash('kick', 4500); return; }
+      if(t.indexOf('結局なに') >= 0){ mtLastMad = false; mtMoodFlash('kick', 4500); return; }
+      /* 気合いの入っていない相談には、少し怒った顔で返す。喝（結局なに）の次に強い */
+      if(mtLastMad){ mtLastMad = false; mtMoodFlash('mad', 4500); return; }
       if(t.indexOf('まず良いところ') >= 0){ mtMoodFlash('praise', 3000); return; }
       if(!MTV.speaking) mtMoodFlash('talk', 1500);
     }
@@ -2171,6 +2241,10 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       const t = mtNorm(q);
       const tone = (P.style === 'zsedai') ? 'zsedai' : 'shisho';
       const reacts = mtDetectReact(t, P);
+      /* 気合いの入っていない相談（弱音・言い訳・約束を破った・遅刻・体の管理・小手先を欲しがる・
+         数字を出さない）が来たら、返事のあいだ少し怒った顔にする（ユーザー指示・2026-09-07）。
+         判定は反応ルールを流用しているので、ルールを足したらここも見直すこと */
+      mtLastMad = reacts.some(function(r){ return MT_MAD_KEYS.indexOf(r.key) >= 0; });
       const intents = mtScoreIntents(t);
       // 点が足りない・2位と僅差のときは断定しない（外したまま話を進めない）
       const s0 = (intents[0] && intents[0]._s) || 0, s1 = (intents[1] && intents[1]._s) || 0;
@@ -2245,6 +2319,16 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
           ? (vague ? 'もう少しだけ場面を教えてください。' : 'こちらの型と重なる言葉が無かったので、近いところから入りますね。')
           : (vague ? '一言だけでは的が絞れん。場面を足せ。' : 'まだ的が絞れとらん。だいたいこの中のどれかや。'));
         if(vague) h += '<span class="mt-note">' + esc('先に3つ：誰の話か（お客様／部下／自分）・いつまでか・何が起きたか。') + '</span>';
+      }
+
+      // たとえ話＋問いかけ。説明で終わらせず、身近なたとえで一度聞いてから答える（1回の返事に1本だけ）。
+      // ★見立ての直後に置くこと。下に置くと、長い返事では画面の外になって読まれない
+      if(!kick){
+        const ta = mtFindTatoe(know);
+        if(ta){
+          h += mtTatoeHTML(ta, tone);
+          MT.recentTa = [ta.key].concat(MT.recentTa || []).slice(0, 6);
+        }
       }
 
       // 数字
