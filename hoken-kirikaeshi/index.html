@@ -61,8 +61,8 @@
 
   【保存先・外部送信】
   お気に入りとロープレの記録は、この端末のブラウザ（localStorage）にだけ残る。
-  サーバーへの送信は一切ない。共有PCでは使わないこと。端末やブラウザを変えると
-  消えるので、「データ」タブのJSON書き出しでバックアップを取ること。
+  サーバーへの送信は一切ない。共有PCでは使わないこと。端末やブラウザを変えると消える。
+  ★書き出し・読み込みの「データ」タブは 2026-09-08 のユーザー指示で廃止した（持ち出す手段は無い）。
 
   【内容の限界（ここを読まずに使わないこと）】
   - 「言ってはいけない返し」に挙げたのは、保険業法・監督指針で問題になりやすい
@@ -301,9 +301,6 @@ table.tbl th{background:var(--navy-soft);color:var(--navy);font-weight:700;white
   margin-left:6px;border-radius:999px;background:var(--coral-bg);color:var(--coral-text);
   font-size:11px;font-weight:800;line-height:20px;}
 
-/* 数字タイル（データタブ） */
-.tile .t-value small{font-size:var(--fs-md);font-weight:600;}
-
 /* 空状態 */
 .empty .em-art{width:84px;height:84px;margin:0 auto var(--sp-3);}
 .empty .em-art svg{width:84px;height:84px;}
@@ -492,10 +489,6 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
 .ngt-item .ngt-text{font-size:var(--fs-sm);font-weight:700;color:#7a2a26;margin-top:3px;line-height:1.7;}
 .ngt-item .ngt-why{font-size:var(--fs-xs);color:#7a2a26;margin-top:5px;}
 
-/* ---------- データ ---------- */
-.data-row{display:flex;gap:var(--sp-3);flex-wrap:wrap;align-items:center;}
-.file-btn{position:relative;overflow:hidden;}
-.file-btn input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -523,8 +516,6 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3.8 2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.5 10l5.9-.9Z"/></svg>お気に入り<span id="favBadge" class="unread-pill hide"></span></button>
     <button class="tab" role="tab" data-tab="ng" aria-selected="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4.2 21 19.5H3Z"/><path d="M12 10v4M12 17h.01"/></svg>言ってはいけない返し</button>
-    <button class="tab" role="tab" data-tab="data" aria-selected="false">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="6" rx="7.5" ry="3"/><path d="M4.5 6v12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3V6"/><path d="M4.5 12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3"/></svg>データ</button>
   </div>
 </nav>
 
@@ -974,6 +965,13 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
         なお募集のルールは<strong>所属する保険会社と自代理店の社内規程が優先</strong>します。
       </div>
 
+      <div class="card" style="margin-top:var(--sp-4);">
+        <h3>使うときの前提</h3>
+        <p class="sec-note" style="margin-top:6px;">
+          ここに載せた切り返しは、いずれも<strong>相手の言い分をいったん受けてから</strong>の形にしてあります。押し切る話法や、情に訴えて即決を迫る話法は載せていません。実際の面談では、所属会社の指導と自代理店の社内規程が優先します。<br>
+          保険料・給付額・利率などの具体的な数値は、商品ごとに違うため書いていません。数字を出すときは、必ず会社の審査を通った資料で確認してください。
+        </p>
+      </div>
       <div class="frm-actions" style="margin-top:var(--sp-5);">
         <button class="btn btn-primary btn-sm" type="button" data-tabgo="find">お断り文句から探す</button>
         <button class="btn btn-ghost btn-sm" type="button" data-tabgo="rp">ロープレで試す</button>
@@ -1070,43 +1068,6 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
     </div>
   </section>
 
-  <!-- ================= データ ================= -->
-  <section id="tab-data" role="tabpanel" aria-label="データ" class="hide">
-    <div class="sec">
-      <div class="sec-head">
-        <div><h2>データ</h2><p>収録数の確認と、この端末に残っている記録の書き出し・読み込み</p></div>
-      </div>
-
-      <div class="tiles" style="margin-bottom:var(--sp-4);">
-        <div class="tile"><div class="t-label">収録パターン</div><div class="t-value" id="statTotal">-</div><div class="t-sub">9分野・全パターンに「言ってはいけない返し」つき</div></div>
-        <div class="tile"><div class="t-label">お気に入り</div><div class="t-value" id="statFav">-</div><div class="t-sub">星をつけたお断り文句</div></div>
-        <div class="tile"><div class="t-label">ロープレの記録</div><div class="t-value" id="statLog">-</div><div class="t-sub">保存した自分の返し</div></div>
-      </div>
-
-      <div class="card">
-        <h3>書き出し・読み込み</h3>
-        <p class="sec-note" style="margin-top:6px;">お気に入りとロープレの記録は、この端末のブラウザ（localStorage）にだけ保存されています。外部への送信はありません。<strong>端末やブラウザを変えると消えます。</strong>機種変更の前に必ずJSONで書き出してください。書き出したファイルには自分が書いた返しの文章が入るので、置き場所に注意してください。</p>
-        <div class="data-row">
-          <button class="btn btn-primary btn-sm" id="expJson" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="m7.5 10.5 4.5 4.5 4.5-4.5"/><path d="M4.5 19h15"/></svg>JSONで書き出す</button>
-          <span class="btn btn-ghost btn-sm file-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V8"/><path d="m7.5 12.5 4.5-4.5 4.5 4.5"/><path d="M4.5 19h15"/></svg>JSONを読み込む
-            <input type="file" id="impJson" accept="application/json,.json" aria-label="JSONを読み込む">
-          </span>
-          <button class="btn btn-danger btn-sm" id="wipeBtn" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14"/><path d="M9 7V5h6v2"/><path d="M6.5 7 7.5 20h9l1-13"/></svg>この端末の記録を消す</button>
-        </div>
-      </div>
-
-      <div class="card" style="margin-top:var(--sp-4);">
-        <h3>使うときの前提</h3>
-        <p class="sec-note" style="margin-top:6px;">
-          ここに載せた切り返しは、いずれも<strong>相手の言い分をいったん受けてから</strong>の形にしてあります。押し切る話法や、情に訴えて即決を迫る話法は載せていません。実際の面談では、所属会社の指導と自代理店の社内規程が優先します。<br>
-          保険料・給付額・利率などの具体的な数値は、商品ごとに違うため書いていません。数字を出すときは、必ず会社の審査を通った資料で確認してください。
-        </p>
-      </div>
-    </div>
-  </section>
 
 </main>
 
@@ -1933,7 +1894,7 @@ function save(){ try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } ca
 /* ============================================================
    5. タブ切り替え
    ============================================================ */
-var TABS = ['kata','find','rp','fav','ng','data'];
+var TABS = ['kata','find','rp','fav','ng'];
 function showTab(key, keepScroll){
   TABS.forEach(function(t){
     $('tab-' + t).classList.toggle('hide', t !== key);
@@ -1944,7 +1905,6 @@ function showTab(key, keepScroll){
   if (key === 'rp')   { renderRp(); renderRpLog(); }
   if (key === 'fav')  renderFav();
   if (key === 'ng')   renderNg();
-  if (key === 'data') renderData();
   if (!keepScroll) window.scrollTo(0, 0);
 }
 
@@ -2205,23 +2165,9 @@ function renderNg(){
   $('ngList').innerHTML = h;
 }
 
-/* ============================================================
-   11. データ（書き出し・読み込み）
-   ============================================================ */
-function renderData(){
-  $('statTotal').innerHTML = DATA.length + '<small> 件</small>';
-  $('statFav').innerHTML = state.favs.length + '<small> 件</small>';
-  $('statLog').innerHTML = state.log.length + '<small> 件</small>';
-}
-
-function download(name, text, type){
-  var blob = new Blob([text], { type: type || 'application/octet-stream' });
-  var a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = name;
-  document.body.appendChild(a); a.click();
-  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
-}
+/* ★「データ」タブは廃止した（2026-09-08・ユーザー指示「データは削除」）。
+   収録数の表示も、JSONの書き出し・読み込み・端末の記録の消去も無い。
+   お気に入りとロープレの記録は端末のブラウザにだけ残り、持ち出す手段は持たない。 */
 
 /* ============================================================
    12. 画面の配線
@@ -2273,7 +2219,7 @@ $('rpLogList').addEventListener('click', function(ev){
   var at = +b.getAttribute('data-dellog');
   if (!confirm('この記録を消しますか。元に戻せません。')) return;
   state.log = state.log.filter(function(e){ return e.at !== at; });
-  save(); renderRpLog(); renderData();
+  save(); renderRpLog();
 });
 
 $('ngList').addEventListener('click', function(ev){
@@ -2286,37 +2232,6 @@ $('ngList').addEventListener('click', function(ev){
   showTab('find', true);
   var el = $('card-' + id);
   if (el) el.scrollIntoView({ block: 'center' });
-});
-
-$('expJson').addEventListener('click', function(){
-  download('hoken-kirikaeshi-backup-' + todayStr() + '.json', JSON.stringify(state, null, 1), 'application/json');
-});
-$('impJson').addEventListener('change', function(){
-  var f = this.files && this.files[0];
-  var self = this;
-  if (!f) return;
-  var reader = new FileReader();
-  reader.onload = function(){
-    try {
-      var o = JSON.parse(reader.result);
-      if (!o || !Array.isArray(o.favs) || !Array.isArray(o.log)) throw new Error('bad');
-      if (!confirm('この端末の記録を、読み込んだバックアップで置き換えますか。（お気に入り' + o.favs.length + '件・ロープレの記録' + o.log.length + '件）')) return;
-      localStorage.setItem(LS_KEY, JSON.stringify(o));
-      state = load();
-      refreshFavBadge();
-      showTab('data');
-      alert('読み込みました。');
-    } catch (e) { alert('読み込めませんでした。このツールで書き出したJSONファイルを選んでください。'); }
-  };
-  reader.readAsText(f);
-  self.value = '';
-});
-$('wipeBtn').addEventListener('click', function(){
-  if (!confirm('この端末に残っているお気に入りとロープレの記録を、すべて消します。元に戻せません。先にJSONで書き出しましたか。')) return;
-  try { localStorage.removeItem(LS_KEY); } catch (e) {}
-  state = load();
-  refreshFavBadge();
-  showTab('data');
 });
 
 /* ============================================================

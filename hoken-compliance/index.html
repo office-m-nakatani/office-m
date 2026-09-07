@@ -12,7 +12,8 @@
   【保存先】
   - 解答の正誤・弱点・受検日・監査チェックの状態は、この端末のブラウザ（localStorage）に
     のみ保存される。サーバーへの送信は一切ない。共有PC・貸出端末では使わないこと。
-  - 端末を変えると全部消える。「記録・データ」タブのJSON書き出しでバックアップを取ること。
+  - 端末を変えると全部消える。★書き出し・読み込み（JSON／CSV）と記録の消去は
+    2026-09-08 のユーザー指示で廃止した。持ち出す手段は持たない。
 
   【内容の限界（ここを読まずに使わせない）】
   - 本ツールは法令・監督指針の一般的な考え方を、代理店の実務手順に落として整理したもの。
@@ -261,9 +262,6 @@ table.tbl th{background:var(--navy-soft);color:var(--navy);font-weight:700;white
 .q-meta{display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap;margin-bottom:var(--sp-3);}
 .q-cat{background:var(--sky-bg);border:1px solid var(--sky-border);color:var(--sky);
   border-radius:999px;padding:3px 12px;font-size:var(--fs-xs);font-weight:700;letter-spacing:.04em;}
-.q-no{font-size:var(--fs-xs);font-weight:700;color:var(--muted);letter-spacing:.06em;}
-.q-type{font-size:var(--fs-xs);font-weight:700;color:var(--muted);background:var(--white);
-  border:1px solid var(--line);border-radius:999px;padding:3px 11px;}
 /* 出題文は明朝。読み物として落ち着いて読ませる */
 .q-text{font-family:var(--mincho);font-size:var(--fs-lg);font-weight:600;color:var(--navy);
   letter-spacing:.04em;line-height:var(--lh-prose);margin-bottom:var(--sp-5);max-width:40em;}
@@ -410,7 +408,7 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
     <button class="tab" role="tab" data-tab="audit" aria-selected="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.5h6M8 4.5H6.5a1.5 1.5 0 0 0-1.5 1.5v13a1.5 1.5 0 0 0 1.5 1.5h11a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H16"/><rect x="9" y="2.8" width="6" height="3.4" rx="1.1"/><path d="M8.6 12.2l1.9 1.9 4-4.2M8.6 17.2h6.8"/></svg>監査の想定問答</button>
     <button class="tab" role="tab" data-tab="log" aria-selected="false">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg>記録・データ</button>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg>記録</button>
   </div>
 </nav>
 
@@ -451,10 +449,10 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
           <span class="prog-txt" id="progTxt"></span>
         </div>
         <div class="card">
+          <!-- ★問題番号（CP008）と出題形式（○×／三択）のバッジは出さない。
+               形式は選択肢を見れば分かるし、番号は受検者には意味がない（2026-09-08・ユーザー指示） -->
           <div class="q-meta">
             <span class="q-cat" id="qCat"></span>
-            <span class="q-no" id="qNo"></span>
-            <span class="q-type" id="qType"></span>
           </div>
           <div class="q-text" id="qText"></div>
           <div class="opts" id="qOpts"></div>
@@ -502,11 +500,11 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
     </div>
   </section>
 
-  <!-- ================= 記録・データ ================= -->
+  <!-- ================= 記録 ================= -->
   <section id="tab-log" role="tabpanel" class="hide">
     <div class="sec">
       <div class="sec-head">
-        <div><h2>記録・データ</h2><p>受検日・正答率・弱点と、バックアップ</p></div>
+        <div><h2>記録</h2><p>受検日・正答率・弱点</p></div>
       </div>
       <div class="tiles" style="margin-bottom:20px;">
         <div class="tile"><div class="t-label">解いた問題（のべ）</div><div class="t-value" id="logTotal">0<small> 問</small></div><div class="t-sub" id="logTotalSub"></div></div>
@@ -527,18 +525,6 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
         <p class="mini" id="sessEmpty" style="margin-top:10px;">まだ記録がありません。</p>
       </div>
 
-      <div class="card">
-        <h3 style="color:var(--navy);margin-bottom:4px;">データの持ち出し・取り込み</h3>
-        <p class="mini" style="margin-bottom:12px;">記録はこの端末のブラウザにだけ保存されます。端末を変えるとき・ブラウザのデータを消すときは、先にJSONを書き出してください。書き出したファイルの置き場所にも注意してください（社内の共有フォルダの権限を確認すること）。</p>
-        <div class="rowbtns">
-          <button class="btn btn-primary btn-sm" id="expJson"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M8 11.5l4 4 4-4M4.5 19.5h15"/></svg>JSONを書き出す</button>
-          <label class="btn btn-ghost btn-sm" style="cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15.5V4.5M8 8.5l4-4 4 4M4.5 19.5h15"/></svg>JSONを読み込む<input type="file" id="impJson" accept="application/json,.json" class="hide"></label>
-          <button class="btn btn-ghost btn-sm" id="expCsv">CSVで書き出す（監査チェック）</button>
-        </div>
-        <div class="rowbtns" style="margin-top:14px;">
-          <button class="btn btn-danger btn-sm" id="wipeBtn">この端末の記録をすべて消す</button>
-        </div>
-      </div>
     </div>
   </section>
 
@@ -1285,8 +1271,6 @@ function renderQ(){
   $('progFill').style.width = Math.round(run.i / run.list.length * 100) + '%';
   $('progTxt').textContent = (run.i + 1) + ' / ' + run.list.length + '問（正答 ' + run.ok + '）';
   $('qCat').textContent = catName(q.cat);
-  $('qNo').textContent = q.id.toUpperCase();
-  $('qType').textContent = q.t === 'ox' ? '○×' : '三択';
   $('qText').textContent = q.q;
   $('qResult').classList.add('hide');
   $('qResult').innerHTML = '';
@@ -1412,7 +1396,7 @@ function finishRun(){
   html += '<div class="tiles" style="margin-bottom:16px;">';
   html += '<div class="tile"><div class="t-label">正答</div><div class="t-value">' + ok + '<small> / ' + total + '問</small></div></div>';
   html += '<div class="tile"><div class="t-label">正答率</div><div class="t-value">' + rate + '<small>%</small></div><div class="t-sub">' + (rate >= 90 ? '監査で聞かれても答えられる水準です' : rate >= 70 ? 'あと少し。弱い分野を解き直してください' : '分野別でもう一度やり直してください') + '</div></div>';
-  html += '<div class="tile"><div class="t-label">受検日</div><div class="t-value" style="font-size:1.3rem;">' + todayStr() + '</div><div class="t-sub">記録・データタブに残ります</div></div>';
+  html += '<div class="tile"><div class="t-label">受検日</div><div class="t-value" style="font-size:1.3rem;">' + todayStr() + '</div><div class="t-sub">記録タブに残ります</div></div>';
   html += '</div>';
 
   html += '<h4 style="font-size:.9rem;color:var(--navy);margin-bottom:8px;">分野ごとの正答</h4>';
@@ -1621,7 +1605,7 @@ $('audOpenAll').addEventListener('click', function(){ AUDITS.forEach(function(a)
 $('audCloseAll').addEventListener('click', function(){ audOpen = {}; renderAudit(); });
 
 /* ============================================================
-   10. 記録・データ
+   10. 記録
    ============================================================ */
 function renderLog(){
   var ok = 0, n = 0, seen = 0;
@@ -1672,56 +1656,9 @@ function renderLog(){
 }
 
 /* ---- 書き出し・読み込み ---- */
-function download(name, text, type){
-  var blob = new Blob([text], { type: type || 'application/octet-stream' });
-  var a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = name;
-  document.body.appendChild(a); a.click();
-  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
-}
-function csvCell(v){ v = String(v == null ? '' : v); return '"' + v.replace(/"/g, '""') + '"'; }
-
-$('expJson').addEventListener('click', function(){
-  download('hoken-compliance-backup-' + todayStr() + '.json', JSON.stringify(state, null, 1), 'application/json');
-});
-$('impJson').addEventListener('change', function(){
-  var f = this.files && this.files[0];
-  if (!f) { return; }
-  var reader = new FileReader();
-  reader.onload = function(){
-    try {
-      var o = JSON.parse(reader.result);
-      if (!o || typeof o !== 'object' || !o.stats) throw new Error('bad');
-      if (!confirm('現在の記録をこのバックアップで置き換えますか？（受検 ' + ((o.sessions||[]).length) + '回分）')) return;
-      localStorage.setItem(LS_KEY, JSON.stringify(o));
-      state = load();
-      showTab('log');
-      alert('読み込みました。');
-    } catch (e) { alert('読み込めませんでした。このツールで書き出したJSONファイルを選んでください。'); }
-  };
-  reader.readAsText(f);
-  this.value = '';
-});
-$('expCsv').addEventListener('click', function(){
-  var rows = [['監査の質問（分野）','監査の質問','用意しておく証拠','状態','自代理店のメモ'].map(csvCell).join(',')];
-  AUDITS.forEach(function(a){
-    a.ev.forEach(function(txt, i){
-      var v = state.audit[evId(a, i)];
-      rows.push([a.cat, a.q, txt, v === 'ok' ? '用意できている' : v === 'no' ? 'まだ' : '未確認', state.auditMemo[a.id] || ''].map(csvCell).join(','));
-    });
-  });
-  download('hoken-compliance-audit-' + todayStr() + '.csv', '\ufeff' + rows.join('\r\n'), 'text/csv');
-});
-
-$('wipeBtn').addEventListener('click', function(){
-  if (!confirm('この端末に残っている記録（正誤・弱点・受検日・監査チェック）をすべて消します。よろしいですか？')) return;
-  if (!confirm('本当に消しますか？ 元に戻せません。バックアップが必要な場合は、先にJSONを書き出してください。')) return;
-  localStorage.removeItem(LS_KEY);
-  state = defaultState(); save();
-  audOpen = {};
-  showTab('knock');
-});
+/* ★JSONの書き出し・読み込み、CSV、端末の記録の消去は廃止した（2026-09-08・ユーザー指示
+   「データの持ち出しや、書き出しのところ全てを削除」）。記録は端末のブラウザにだけ残り、
+   持ち出す手段は持たない。 */
 
 /* ============================================================
    11. 起動
