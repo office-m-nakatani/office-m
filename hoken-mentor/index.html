@@ -290,6 +290,13 @@ body.vc-dock-on .chat-fab{ display:none !important; }
 .mt-input textarea{ flex:1; min-height:44px; max-height:120px; padding:10px 12px; border:1.5px solid var(--line); border-radius:10px; font-family:inherit; font-size:.95rem; resize:vertical; }
 .mt-input textarea:focus{ outline:none; border-color:#1f3328; box-shadow:0 0 0 3px rgba(31,51,40,.15); }
 .mt-stagebar{ font-size:.82rem; }
+#mentor-modal .mt-bar{ position:sticky; top:0; z-index:3; background:var(--bg-soft); }
+#mentor-modal .mt-bar .mt-bar-r{ margin-left:auto; display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.mt-tools{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:8px 10px; border:1px solid var(--line); border-radius:12px; background:#fff; }
+.mt-tools[hidden]{ display:none; }
+.mt-tools select{ min-height:38px; padding:6px 10px; border:1.5px solid var(--line); border-radius:10px; font-family:inherit; font-size:.84rem; background:#fff; }
+.mt-tools .mt-stagebox{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+#mentor-modal .mt-panel{ max-height:46vh; overflow:auto; }
 .mt-stage-badge{ display:inline-flex; align-items:center; padding:4px 10px; border-radius:999px; background:#eaf1ec; color:#1f3328; font-size:.72rem; font-weight:700; }
 .mt-bub .mt-tot{ list-style:none; margin:4px 0 0; padding:0; display:flex; flex-direction:column; gap:6px; }
 .mt-bub .mt-tot li{ margin:0; padding:7px 10px; border-left:3px solid #c9d8ce; background:#fff; border-radius:0 10px 10px 0; }
@@ -456,6 +463,10 @@ main.mt-main{ padding:12px 0 14px; }
 #mentor-modal .mt-top select{ border-radius:999px; border-color:#cfdce7; min-height:36px; font-size:.82rem; }
 #mentor-modal .mt-face{ border-color:var(--amber-line); background:#fff; }
 #mentor-modal .mt-who b{ color:var(--blue-deep); font-family:var(--mincho); letter-spacing:.04em; }
+#mentor-modal .mt-bar{ background:#fff; }                       /* 貼り付く行。下の会話が透けないように */
+#mentor-modal .mt-tools{ border-radius:16px; border-color:var(--line); box-shadow:var(--shadow-soft); }
+#mentor-modal .mt-tools select{ border-radius:999px; border-color:#cfdce7; }
+#mentor-modal .mt-stagebox{ background:var(--yellow-pale); border:1px solid var(--amber-line); border-radius:999px; padding:4px 10px; }
 #mentor-modal .mt-stagebar{ background:var(--yellow-pale); border-color:var(--amber-line); }
 #mentor-modal .mt-stage-badge{ background:#fff; border:1px solid var(--amber-line); color:var(--amber); }
 #mentor-modal .mt-badge{ background:var(--blue-deep); }
@@ -516,7 +527,7 @@ main.mt-main{ padding:12px 0 14px; }
 #mentor-modal .mt-quick .chat-chip:hover{ background:#fbe9c9; }
 /* きっかけは22個ある。ぜんぶ出すと会話の枠が3行ぶん狭くなるので、2行で畳んでおく */
 @media (min-width:641px){
-  #mentor-modal .mt-quick{ max-height:92px; overflow:hidden; }
+  #mentor-modal .mt-quick{ max-height:46px; overflow:hidden; }   /* 1行だけ。残りは「ほかの相談も見る」で開く */
   #mentor-modal .mt-quick.mt-quick-open{ max-height:none; }
 }
 .mt-quick-more{
@@ -597,23 +608,30 @@ main.mt-main{ padding:12px 0 14px; }
         <h3><i class="fa-solid fa-user-tie"></i> AI上長 <span class="mt-badge"><i class="fa-solid fa-lock"></i> 社内用</span></h3>
       </div>
       <div class="modal-body">
-        <div class="mt-top">
-          <!-- 誰に相談しているのかが見えるように、顔（イラスト）と名乗りを置く。絵は mtFaceSVG が描く -->
+        <!-- ★上の行は「顔・名前・声・設定」だけ（2026-09-07 ユーザー指示）。
+             上長の切り替え・道具・段階は「設定」を押したときだけ出す。会話の枠を画面いっぱいに使うため。
+             この行は position:sticky なので、下をスクロールしても顔はいつも見えている。 -->
+        <div class="mt-top mt-bar">
           <span class="mt-face" id="mt-face" aria-hidden="true"></span>
           <span class="mt-who"><b id="mt-who-name">師匠</b><span id="mt-who-sub">上長</span></span>
+          <span class="mt-bar-r">
+            <button type="button" class="btn btn-ghost btn-sm" id="mt-play"><i class="fa-solid fa-play"></i> 再生</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="mt-say" aria-pressed="false"><i class="fa-solid fa-volume-high"></i> 自動で読み上げ</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="mt-more" aria-expanded="false"><i class="fa-solid fa-gear"></i> 設定</button>
+          </span>
+        </div>
+        <!-- 設定（押したときだけ出る）。上長の切り替え・道具・段階はここに入れた -->
+        <div class="mt-tools" id="mt-tools" hidden>
           <select id="mt-persona" aria-label="上長を切り替える"></select>
           <button type="button" class="btn btn-ghost btn-sm" id="mt-set-btn" aria-expanded="false"><i class="fa-solid fa-sliders"></i> 人物設定</button>
           <button type="button" class="btn btn-ghost btn-sm" id="mt-kpi-btn" aria-expanded="false"><i class="fa-solid fa-chart-simple"></i> 今月の数字</button>
           <button type="button" class="btn btn-ghost btn-sm" id="mt-self-btn" aria-expanded="false"><i class="fa-solid fa-list-check"></i> 自分で点検</button>
-          <button type="button" class="btn btn-ghost btn-sm" id="mt-say" aria-pressed="false"><i class="fa-solid fa-volume-high"></i> 読み上げ</button>
           <button type="button" class="btn btn-ghost btn-sm" id="mt-clear"><i class="fa-solid fa-eraser"></i> 会話を消す</button>
-        </div>
-        <!-- 段階トーク（2026-09-06）：MDRT→COT→TOT。どこまでやるかで段になる。師匠はTOTが基本。
-             段階と点検の履歴は端末の localStorage のみ（人物設定と同じ箱）。 -->
-        <div class="mt-top mt-stagebar">
-          <label for="mt-stage" style="font-size:.78rem; color:var(--ink-soft);">あなたの段階</label>
-          <select id="mt-stage" aria-label="あなたの段階（開くトークの段が変わります）"></select>
-          <span class="mt-stage-badge" id="mt-stage-badge">自立の段階：まだ点検していない</span>
+          <span class="mt-stagebox">
+            <label for="mt-stage" style="font-size:.78rem; color:var(--ink-soft);">あなたの段階</label>
+            <select id="mt-stage" aria-label="あなたの段階（開くトークの段が変わります）"></select>
+            <span class="mt-stage-badge" id="mt-stage-badge">自立の段階：まだ点検していない</span>
+          </span>
         </div>
 
         <!-- 自分で点検（週次10問）。上長がいなくても自分で気づくための道具 -->
@@ -1456,6 +1474,19 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
     const MTV = { rec:null, listening:false, hands:false, say:false, speaking:false, pending:'', told:false };
     function mtVoiceOK(){ return !!(window.SpeechRecognition || window.webkitSpeechRecognition); }
     function mtSpeakOK(){ return !!(window.speechSynthesis && window.SpeechSynthesisUtterance); }
+    /* 読み上げの声。日本語の男性の声を選ぶ（端末によって名前が違うので、代表的なものを並べて探す）。
+       男性が無ければ日本語の声を低めのピッチで読ませる。声の一覧は遅れて届くので voiceschanged でも拾い直す */
+    let mtVoiceObj = null, mtVoiceMale = false;
+    function mtPickVoice(){
+      if(!mtSpeakOK()) return null;
+      let vs = [];
+      try{ vs = window.speechSynthesis.getVoices() || []; }catch(e){ vs = []; }
+      const ja = vs.filter(function(v){ return /^ja/i.test(v.lang || '') || /japan/i.test(v.lang || ''); });
+      if(!ja.length) return null;
+      const male = ja.filter(function(v){ return /otoya|ichiro|keita|daichi|naoki|takumi|hattori|male|男/i.test(v.name || ''); })[0];
+      mtVoiceMale = !!male;
+      return male || ja[0];
+    }
     function mtVoicePaint(){
       const B = $('mt-mic'), S = $('mt-say');
       if(B){
@@ -1465,6 +1496,12 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
         B.setAttribute('aria-label', MTV.listening ? '声の受け取りを止める' : '声で相談する');
       }
       if(S){ S.classList.toggle('mt-on', MTV.say); S.setAttribute('aria-pressed', MTV.say ? 'true' : 'false'); }
+      const PL = $('mt-play');
+      if(PL){
+        PL.innerHTML = '<i class="fa-solid ' + (MTV.speaking ? 'fa-stop' : 'fa-play') + '"></i> ' + (MTV.speaking ? '停止' : '再生');
+        PL.classList.toggle('mt-on', MTV.speaking);
+        PL.setAttribute('aria-label', MTV.speaking ? '読み上げを止める' : '最後の返事を読み上げる');
+      }
     }
     /* 声を使うときの注意は、使い始めに1回だけ出す */
     function mtVoiceNote(){
@@ -1517,7 +1554,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       if(byUser) MTV.hands = false;
       try{ if(MTV.rec) MTV.rec.abort(); }catch(e){}
       MTV.listening = false; MTV.pending = '';
-      if(byUser){ try{ window.speechSynthesis.cancel(); }catch(e){} MTV.speaking = false; }
+      if(byUser) mtSpeakStop();
       mtVoicePaint(); mtMoodSet(mtMoodBase());
     }
     /* 返事のHTMLから、読み上げる短い文を作る（あいさつ＋見立て＋今日やること1つ） */
@@ -1542,8 +1579,19 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       };
       const kick = pick('結局なに'); if(kick) parts.push(kick);
       const mitate = pick('見立て'); if(mitate) parts.push(mitate);
-      const act = pick('今日やること');
-      if(act) parts.push('今日やること。' + (act.split('。')[0] || act) + '。');
+      /* 今日やることは、いちばん上の1つだけ読む（3つ全部読むと長い） */
+      const act = (function(){
+        const hs = d.querySelectorAll('.mt-h');
+        for(let i = 0; i < hs.length; i++){
+          if((hs[i].textContent || '').indexOf('今日やること') < 0) continue;
+          let n = hs[i].nextElementSibling;
+          while(n && n.tagName !== 'UL' && !(n.classList && n.classList.contains('mt-h'))) n = n.nextElementSibling;
+          const li = (n && n.tagName === 'UL') ? n.querySelector('li') : null;
+          return li ? (li.textContent || '').replace(/\s+/g, ' ').trim() : '';
+        }
+        return '';
+      })();
+      if(act) parts.push('今日やること。' + act + '。');
       let t = parts.join(' ').replace(/\s+/g, ' ').trim();
       if(t.length > 220) t = t.slice(0, 220) + '。続きは画面に出とる。';
       return t;
@@ -1554,14 +1602,35 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
         window.speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(text);
         const P = mtP() || {};
-        u.lang = 'ja-JP'; u.rate = 1.05; u.pitch = (mtTone(P) === 'zsedai') ? 1.1 : 0.8;
-        u.onstart = function(){ MTV.speaking = true; mtMoodSet('talk'); };
+        if(!mtVoiceObj) mtVoiceObj = mtPickVoice();
+        /* 声の指定は端末によっては弾かれる。失敗しても読み上げ自体は続ける */
+        if(mtVoiceObj){ try{ u.voice = mtVoiceObj; }catch(e){ mtVoiceObj = null; } }
+        u.lang = 'ja-JP';
+        u.rate = 1.3;                                  /* ユーザー指示：1.3倍 */
+        /* 男性の声が見つかったときは、そのままの高さが自然。見つからないときだけ低くして男性に寄せる */
+        u.pitch = mtVoiceMale ? ((mtTone(P) === 'zsedai') ? 1.05 : 0.95) : ((mtTone(P) === 'zsedai') ? 0.9 : 0.75);
+        u.onstart = function(){ MTV.speaking = true; mtMoodSet('talk'); mtVoicePaint(); };
         u.onend = u.onerror = function(){
-          MTV.speaking = false; mtMoodSet(mtMoodBase());
+          MTV.speaking = false; mtMoodSet(mtMoodBase()); mtVoicePaint();
           if(MTV.hands && !MTV.listening) setTimeout(function(){ if(MTV.hands && !MTV.listening) mtListenStart(); }, 350);
         };
         window.speechSynthesis.speak(u);
       }catch(e){ MTV.speaking = false; }
+    }
+    /* 読み上げを途中で止める（停止ボタン・マイクを止めたとき） */
+    function mtSpeakStop(){
+      try{ window.speechSynthesis.cancel(); }catch(e){}
+      MTV.speaking = false; mtVoicePaint(); mtMoodSet(mtMoodBase());
+    }
+    /* いちばん新しい上長の返事を、もう一度読み上げる */
+    function mtPlayLast(){
+      if(!mtSpeakOK() || !mtLog) return;
+      const bots = mtLog.querySelectorAll('.chat-msg.bot .mt-bub');
+      const last = bots.length ? bots[bots.length - 1] : null;
+      if(!last) return;
+      MTV.say = true;                  /* 再生を押したときは読み上げる */
+      mtSpeak(mtSpeakText(last.innerHTML));
+      mtVoicePaint();
     }
     /* 返事の中身で表情を決める。声を使っていないときも、返事のあいだは口が動く */
     function mtMoodOnBot(html){
@@ -1577,13 +1646,19 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       mtSpeak(mtSpeakText(html));
     }
     function mtVoiceInit(){
-      const B = $('mt-mic'), S = $('mt-say');
+      const B = $('mt-mic'), S = $('mt-say'), PL = $('mt-play');
       if(B && !mtVoiceOK()) B.hidden = true;
       if(S && !mtSpeakOK()) S.hidden = true;
+      if(PL && !mtSpeakOK()) PL.hidden = true;
+      if(PL) PL.addEventListener('click', function(){ MTV.speaking ? mtSpeakStop() : mtPlayLast(); });
+      if(mtSpeakOK()){
+        mtVoiceObj = mtPickVoice();
+        try{ window.speechSynthesis.onvoiceschanged = function(){ mtVoiceObj = mtPickVoice(); }; }catch(e){}
+      }
       if(B) B.addEventListener('click', function(){ MTV.listening ? mtListenStop(true) : mtListenStart(); });
       if(S) S.addEventListener('click', function(){
         MTV.say = !MTV.say;
-        if(!MTV.say){ try{ window.speechSynthesis.cancel(); }catch(e){} MTV.speaking = false; }
+        if(!MTV.say) mtSpeakStop();
         else mtVoiceNote();
         mtVoicePaint();
       });
@@ -2336,7 +2411,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
         const b = $(btnId), p = $(panelId); if(!b || !p) return;
         b.addEventListener('click', function(){ p.hidden = !p.hidden; b.setAttribute('aria-expanded', p.hidden ? 'false' : 'true'); if(!p.hidden) p.scrollIntoView({ block:'nearest' }); });
       };
-      tog('mt-set-btn', 'mt-settings'); tog('mt-kpi-btn', 'mt-kpi');
+      tog('mt-set-btn', 'mt-settings'); tog('mt-kpi-btn', 'mt-kpi'); tog('mt-more', 'mt-tools');
       mtVoiceInit();
       if($('mts-save')) $('mts-save').addEventListener('click', function(){ mtReadSettings(); mtRenderFace(); mtAdd('bot', mtFill(mtP().style === 'zsedai' ? '設定、覚えました。{call}、次からこの感じで話しますね。' : '設定を覚えた。{call}、次からこの口で話す。', mtP()), false); });
       if($('mts-new')) $('mts-new').addEventListener('click', function(){
