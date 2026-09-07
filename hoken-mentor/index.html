@@ -50,6 +50,8 @@
 
   【立場（外すと作り直し）】
   - ルールベース。外部AIには接続していない（費用ゼロ・入力内容は外に出ない）
+  - ★声で話す機能だけは例外。文字起こし・読み上げはブラウザ（端末）の機能で、ブラウザによっては
+    音声が提供元へ送られることがある。有料APIは使っていない。画面と注意書きに必ず明記すること
   - 個別の税額計算・申告書の作成・税務相談は税理士の業務。担当者にさせる書き方をしない。
     各論点の「線引き」は、税理士に何を渡すかまでを書く方針
   - お客様向けの断定・煽り・締切で動かす言い方は載せない（社内用でも、そのままコピーされうる）
@@ -262,6 +264,9 @@ body.vc-dock-on .chat-fab{ display:none !important; }
 .mt-kpi-out{ margin-top:8px; font-size:.82rem; line-height:1.6; }
 .mt-note{ font-size:.72rem; color:var(--ink-soft); line-height:1.6; }
 .mt-input{ display:flex; gap:8px; }
+.mt-micbtn.mt-on, #mt-say.mt-on{ background:#1f3328; color:#fff; border-color:#1f3328; }
+.mt-micbtn.mt-on{ animation:mtPulse 1.3s infinite; }
+@keyframes mtPulse{ 0%,100%{ box-shadow:0 0 0 0 rgba(31,51,40,.45); } 50%{ box-shadow:0 0 0 7px rgba(31,51,40,0); } }
 .mt-input textarea{ flex:1; min-height:44px; max-height:120px; padding:10px 12px; border:1.5px solid var(--line); border-radius:10px; font-family:inherit; font-size:.95rem; resize:vertical; }
 .mt-input textarea:focus{ outline:none; border-color:#1f3328; box-shadow:0 0 0 3px rgba(31,51,40,.15); }
 .mt-stagebar{ font-size:.82rem; }
@@ -576,6 +581,7 @@ main.mt-main{ padding:12px 0 14px; }
           <button type="button" class="btn btn-ghost btn-sm" id="mt-set-btn" aria-expanded="false"><i class="fa-solid fa-sliders"></i> 人物設定</button>
           <button type="button" class="btn btn-ghost btn-sm" id="mt-kpi-btn" aria-expanded="false"><i class="fa-solid fa-chart-simple"></i> 今月の数字</button>
           <button type="button" class="btn btn-ghost btn-sm" id="mt-self-btn" aria-expanded="false"><i class="fa-solid fa-list-check"></i> 自分で点検</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="mt-say" aria-pressed="false"><i class="fa-solid fa-volume-high"></i> 読み上げ</button>
           <button type="button" class="btn btn-ghost btn-sm" id="mt-clear"><i class="fa-solid fa-eraser"></i> 会話を消す</button>
         </div>
         <!-- 段階トーク（2026-09-06）：MDRT→COT→TOT。どこまでやるかで段になる。師匠はTOTが基本。
@@ -656,15 +662,17 @@ main.mt-main{ padding:12px 0 14px; }
         <div class="mt-quick" id="mt-quick"></div>
         <div class="mt-input">
           <textarea id="mt-text" rows="1" placeholder="相談を書く（例：今月あと3件足りない。紹介が出ない。）"></textarea>
+          <button class="btn btn-ghost btn-sm mt-micbtn" id="mt-mic" type="button" aria-pressed="false" aria-label="声で相談する（もう一度押すと止まる）"><i class="fa-solid fa-microphone"></i></button>
           <button class="btn btn-primary btn-sm" id="mt-send" type="button" aria-label="送る"><i class="fa-solid fa-paper-plane"></i></button>
         </div>
-        <p class="mt-note">※ 外部のAIには接続していません（費用ゼロ・入力内容は外に出ません）。返答は師匠の判断軸と、読み込んだ本の原則、FP1級の教材（資格試験対策ツールと同じ本文）、税理士分野の公開ページ（税金・法人・相続・不動産）をもとに<b>この画面の中で組み立てたもの</b>です。税額・給付額の断定はしません（数値は教材・ページに明記のあるものだけ）。個別の税務判断は税理士へ。お客様向けの文言はここから直接コピーしないでください（社内の相談用です）。</p>
+        <p class="mt-note">※ 外部のAIには接続していません（費用ゼロ・入力内容は外に出ません）。返答は師匠の判断軸と、読み込んだ本の原則、FP1級の教材（資格試験対策ツールと同じ本文）、税理士分野の公開ページ（税金・法人・相続・不動産）をもとに<b>この画面の中で組み立てたもの</b>です。税額・給付額の断定はしません（数値は教材・ページに明記のあるものだけ）。個別の税務判断は税理士へ。お客様向けの文言はここから直接コピーしないでください（社内の相談用です）。<b>声で話すときだけ注意：</b>文字起こしと読み上げはブラウザ（端末）の機能を使うため、<b>音声が提供元へ送られることがあります</b>。お客様の氏名・病歴・金額は声に出さないでください。</p>
       </div>
     </div>
   </div>
   </div>
   <div class="wrap mt-foot">
     <p>※ 社内の相談用です。お客様に配布しないでください。外部のAIには接続していません（費用ゼロ・入力内容は外に出ません）。人物設定と会話はこの端末のブラウザにだけ残ります（共有PCでは使わないこと）。</p>
+    <p>※ <b>声で話す機能について。</b>マイクの文字起こしと読み上げは、ブラウザ（端末）の機能を使っています。ブラウザによっては<b>音声が提供元のサーバーへ送られることがあります</b>。お客様の氏名・病歴・契約金額は声に出さないでください。文字で相談する場合は、これまでどおり何も外に出ません。</p>
     <p>※ 個別の税額計算・申告書の作成・税務相談は税理士の業務です。このページが返すのは、提案の前に確かめることと、税理士に渡す材料までです。返答は教材・公開ページに明記のある範囲で、金額の断定はしません。</p>
     <p>※ このページだけで完結します（ライフプランツールを開く必要はありません）。ライフプラン（一条版）の中にある「AI上長」とは、見た目は違いますが同じ中身・同じ保存先です。どちらで話しても同じ上長・同じ会話が続きます。</p>
   </div>
@@ -1362,6 +1370,160 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       }).join('') + '</ul>';
       return h;
     }
+    /* ---------- 3分ルール（結局なに？） ----------
+       同じ話が3分以上・3回以上続いたら、いったん切って結論を出させる（ユーザー指示：
+       「話が長くなりすぎると、結局なに？のような感じでお尻を叩いてください」）。
+       このときは切り口・知識・心理の型を出さず、返事を短くする。長い説明はいま要らない。 */
+    let mtThread = { key:'', start:0, at:0, turns:0 };
+    function mtKickHTML(P, mins){
+      const tone = mtTone(P);
+      let h = '<span class="mt-h">結局なに？</span>';
+      h += (tone === 'zsedai'
+        ? '同じところを' + mins + '分ほど回っています。一度止めましょう。<b>15秒で言うと、結局なにを、どうしたいですか。</b>'
+        : 'もうええ。' + mins + '分、同じとこ回っとる。<b>結局なに？ 15秒で言え。</b>');
+      h += '<ul class="mt-three"><li>誰の話か（お客様・部下・自分）</li><li>いつまでに、どうしたいか</li><li>今日いちばん先にやる1つ</li></ul>';
+      h += '<span class="mt-note">' + esc(tone === 'zsedai'
+        ? 'この3つが言えたら、そこから具体的に返します。まだ決まっていないなら「決まっていない」で構いません。'
+        : 'この3つが言えたら続きを出す。決まっとらんなら「決まっとらん」でええ。そこから詰める。') + '</span>';
+      return h;
+    }
+
+    /* ---------- 声で話す（ブラウザの音声認識と読み上げ） ----------
+       ★音声認識は「ブラウザ（端末）の機能」を使う。Chrome などでは、話した音声が提供元のサーバーへ
+         送られることがある。このツール自体は何も外に送らないが、声を使うときだけは事情が違う。
+         お客様の名前・病歴・金額のような個人情報は声に出さないこと（画面にも注意書きを出す）。
+       ★有料APIは使わない（費用ゼロの原則）。使えないブラウザではボタンを隠す。
+       ★読み上げは全文ではなく「見立て」と「今日やること」だけ。全部読むと会話にならない。 */
+    const MTV = { rec:null, listening:false, hands:false, say:false, speaking:false, pending:'', told:false };
+    function mtVoiceOK(){ return !!(window.SpeechRecognition || window.webkitSpeechRecognition); }
+    function mtSpeakOK(){ return !!(window.speechSynthesis && window.SpeechSynthesisUtterance); }
+    function mtVoicePaint(){
+      const B = $('mt-mic'), S = $('mt-say');
+      if(B){
+        B.classList.toggle('mt-on', MTV.listening);
+        B.setAttribute('aria-pressed', MTV.listening ? 'true' : 'false');
+        B.innerHTML = '<i class="fa-solid ' + (MTV.listening ? 'fa-stop' : 'fa-microphone') + '"></i>';
+        B.setAttribute('aria-label', MTV.listening ? '声の受け取りを止める' : '声で相談する');
+      }
+      if(S){ S.classList.toggle('mt-on', MTV.say); S.setAttribute('aria-pressed', MTV.say ? 'true' : 'false'); }
+    }
+    /* 声を使うときの注意は、使い始めに1回だけ出す */
+    function mtVoiceNote(){
+      if(MTV.told) return;
+      MTV.told = true;
+      const P = mtP() || {};
+      mtAdd('bot', mtSanitize('<span class="mt-h">声で話す</span>' + esc(mtTone(P) === 'zsedai'
+        ? 'マイクの許可が要ります。話し終えるとそのまま送られ、返事は読み上げます。文字起こしはブラウザの機能を使うので、音声が提供元へ送られることがあります。お客様の氏名・病歴・金額は声に出さないでください。'
+        : 'マイクの許可が要る。話し終えたらそのまま送る。返事は読み上げる。文字起こしはブラウザの機能や。音声が提供元に送られることがある。客の名前・病歴・金額は声に出すな。')), false);
+    }
+    function mtListenStart(){
+      if(!mtVoiceOK()) return;
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      try{
+        if(!MTV.rec){
+          const r = MTV.rec = new SR();
+          r.lang = 'ja-JP'; r.interimResults = true; r.continuous = false; r.maxAlternatives = 1;
+          r.onresult = function(e){
+            let fin = '', mid = '';
+            for(let i = e.resultIndex; i < e.results.length; i++){
+              const t = e.results[i][0].transcript || '';
+              if(e.results[i].isFinal) fin += t; else mid += t;
+            }
+            const box = $('mt-text');
+            if(box) box.value = ((MTV.pending || '') + fin + mid).trim();
+            if(fin.trim()) MTV.pending = ((MTV.pending || '') + fin).trim();
+          };
+          r.onerror = function(e){
+            MTV.listening = false; mtVoicePaint();
+            if(e && (e.error === 'not-allowed' || e.error === 'service-not-allowed')){
+              MTV.hands = false;
+              mtAdd('bot', mtSanitize('<span class="mt-h">声が使えない</span>' + esc('ブラウザがマイクを許可していない。設定でこのページのマイクを許可してから、もう一度マイクのボタンを押せ。')), false);
+            }
+          };
+          r.onend = function(){
+            MTV.listening = false; mtVoicePaint();
+            const q = (MTV.pending || '').trim(); MTV.pending = '';
+            if(q){ mtSend(q); return; }                                   /* 話した内容をそのまま送る */
+            if(MTV.hands && !MTV.speaking) setTimeout(function(){ if(MTV.hands && !MTV.speaking) mtListenStart(); }, 500);
+          };
+        }
+        MTV.hands = true;
+        if(mtSpeakOK()) MTV.say = true;      /* 声で話すときは、返事も読み上げる（お互いの会話にする） */
+        MTV.pending = '';
+        mtVoiceNote();
+        MTV.rec.start(); MTV.listening = true; mtVoicePaint();
+      }catch(e){ MTV.listening = false; mtVoicePaint(); }
+    }
+    function mtListenStop(byUser){
+      if(byUser) MTV.hands = false;
+      try{ if(MTV.rec) MTV.rec.abort(); }catch(e){}
+      MTV.listening = false; MTV.pending = '';
+      if(byUser){ try{ window.speechSynthesis.cancel(); }catch(e){} MTV.speaking = false; }
+      mtVoicePaint();
+    }
+    /* 返事のHTMLから、読み上げる短い文を作る（あいさつ＋見立て＋今日やること1つ） */
+    function mtSpeakText(html){
+      const d = document.createElement('div'); d.innerHTML = html;
+      const parts = [];
+      let head = '';
+      [].slice.call(d.childNodes).some(function(n){
+        if(n.nodeType === 1 && n.classList && n.classList.contains('mt-h')) return true;
+        head += (n.textContent || ''); return false;
+      });
+      if(head.trim()) parts.push(head.trim());
+      const pick = function(label){
+        const hs = d.querySelectorAll('.mt-h');
+        for(let i = 0; i < hs.length; i++){
+          if((hs[i].textContent || '').indexOf(label) < 0) continue;
+          let t = '', n = hs[i].nextSibling;
+          while(n && !(n.nodeType === 1 && n.classList && n.classList.contains('mt-h'))){ t += (n.textContent || ' ') + ' '; n = n.nextSibling; }
+          return t.replace(/\s+/g, ' ').trim();
+        }
+        return '';
+      };
+      const kick = pick('結局なに'); if(kick) parts.push(kick);
+      const mitate = pick('見立て'); if(mitate) parts.push(mitate);
+      const act = pick('今日やること');
+      if(act) parts.push('今日やること。' + (act.split('。')[0] || act) + '。');
+      let t = parts.join(' ').replace(/\s+/g, ' ').trim();
+      if(t.length > 220) t = t.slice(0, 220) + '。続きは画面に出とる。';
+      return t;
+    }
+    function mtSpeak(text){
+      if(!text || !mtSpeakOK() || !MTV.say) return;
+      try{
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        const P = mtP() || {};
+        u.lang = 'ja-JP'; u.rate = 1.05; u.pitch = (mtTone(P) === 'zsedai') ? 1.1 : 0.8;
+        u.onstart = function(){ MTV.speaking = true; };
+        u.onend = u.onerror = function(){
+          MTV.speaking = false;
+          if(MTV.hands && !MTV.listening) setTimeout(function(){ if(MTV.hands && !MTV.listening) mtListenStart(); }, 350);
+        };
+        window.speechSynthesis.speak(u);
+      }catch(e){ MTV.speaking = false; }
+    }
+    /* 上長の返事が出たとき：自分の声を拾わないよう一度マイクを止めてから読み上げる */
+    function mtVoiceOnBot(html){
+      if(!MTV.say) return;
+      if(MTV.listening) mtListenStop(false);
+      mtSpeak(mtSpeakText(html));
+    }
+    function mtVoiceInit(){
+      const B = $('mt-mic'), S = $('mt-say');
+      if(B && !mtVoiceOK()) B.hidden = true;
+      if(S && !mtSpeakOK()) S.hidden = true;
+      if(B) B.addEventListener('click', function(){ MTV.listening ? mtListenStop(true) : mtListenStart(); });
+      if(S) S.addEventListener('click', function(){
+        MTV.say = !MTV.say;
+        if(!MTV.say){ try{ window.speechSynthesis.cancel(); }catch(e){} MTV.speaking = false; }
+        else mtVoiceNote();
+        mtVoicePaint();
+      });
+      mtVoicePaint();
+    }
+
     /* ---------- 心理の型（こう話を進めてみては） ----------
        読んだ本の原則・行動経済学・面談技法を、面談の運び（3〜5段）に落としたもの。材料は
        hoken-newtools-src/mentor-psy/psy.json（正本）で、apply_mentor_psy.py が流し込む。
@@ -1755,6 +1917,11 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       // 呼びかけ＋反応
       const opener = reacts.length ? mtFill(mtFreshLine(reacts[0].open[tone] || reacts[0].open.shisho), P) : mtFill(mtPick(MT_OPENERS[tone] || MT_OPENERS.shisho), P);
       h += opener;
+      if(String(q).replace(/\s/g, '').length >= 220){
+        h += '<span class="mt-note">' + esc(tone === 'zsedai'
+          ? '長いので、要点を3行にすると答えやすいです（①事実 ②困っていること ③聞きたいこと）。'
+          : '長い。要点は3行や。①事実 ②困っとること ③聞きたいこと。') + '</span>';
+      }
       if(o.follow) h += '<span class="mt-note">' + esc(tone === 'zsedai'
         ? 'さきほどの「' + o.follow + '」の続きとして見ますね。同じやり方をもう一度渡しても進まないので、変えるところを出します。'
         : 'さっきの「' + o.follow + '」の続きやな。同じ手をもう一回渡してもしゃあない。変えるとこを出す。') + '</span>';
@@ -1765,6 +1932,15 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       // 「しんどい」だけのような気持ちの一言は、型を決めつけない。反応を返してから、先に聞く
       const emo = vagueMsg && s0 < 3 && reacts.length > 0 && !/[0-9０-９]/.test(t);
       const main = emo ? null : (intents[0] || null);
+      // 同じ話が3分以上・3回以上続いたら、ここで切って「結局なに？」と聞く
+      const nowT = Date.now();
+      const tkey = main ? main.key : (ko ? 'ko_' + ko.id : (fp[0] ? 'fp_' + fp[0].area : 'none'));
+      if(mtThread.key === tkey && (nowT - mtThread.at) < 20 * 60000) mtThread.turns += 1;
+      else mtThread = { key:tkey, start:nowT, at:nowT, turns:1 };
+      mtThread.at = nowT;
+      const mins = Math.floor((nowT - mtThread.start) / 60000);
+      const kick = (mins >= 3 && mtThread.turns >= 3);
+      if(kick){ h += mtKickHTML(P, mins); mtThread = { key:tkey, start:nowT, at:nowT, turns:1 }; }
       h += '<span class="mt-h">見立て</span>';
       const isReport = reacts.some(function(r){ return r.key === 'report'; });
       if(main){
@@ -1814,20 +1990,20 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       // TOTならこう返す（お客様の断り文句が相談に入っているとき）
       if(ko) h += mtKotowariHTML(ko, P);
       // この切り口から伝えてみる（顧客向けの話題があるとき。自分の管理の相談には出さない）
-      if(!(main && main.role === 'self')){
+      if(!kick && !(main && main.role === 'self')){
         const kk = mtFindKirikuchi(t, MT.recentKk).slice(0, sure ? 3 : 2);
         if(kk.length){ h += mtKirikuchiHTML(kk, P); MT.recentKk = kk.map(function(k){ return k.id; }).concat(MT.recentKk).slice(0, 12); }
       }
       // FP1級の目で見る（知識の論点が相談に入っているとき）
-      if(fp.length) h += mtFPHTML(fp, P, useMgmt);
+      if(!kick && fp.length) h += mtFPHTML(fp, P, useMgmt);
       // こう話を進めてみては（心理の型）。話し方・断り・紹介・単価の相談に1つだけ添える
-      if(!(main && main.role === 'self')){
+      if(!kick && !(main && main.role === 'self')){
         const psy = mtFindPsy(t, intents, 1);
         if(psy.length){ h += mtPsyHTML(psy, P, useMgmt); MT.recentPsy = psy.map(function(k){ return k.key; }).concat(MT.recentPsy).slice(0, 8); }
       }
 
       // 考え方
-      if(know.length || (main && main.think)){
+      if(!kick && (know.length || (main && main.think))){
         h += '<span class="mt-h">考え方</span><ul>';
         if(main && main.think) h += '<li>' + esc(main.think) + '<span class="mt-src">— 師匠の型</span></li>';
         know.slice(0, 2).forEach(function(k){
@@ -1841,7 +2017,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       const fb = (!main && ko) ? (MT_INTENTS.filter(function(i){ return i.key === 'rejected'; })[0] || null) : null;
 
       // 自分に聞く3つ（上長がいなくても、これを自分に聞け）
-      h += mtSelfHTML(main || fb, P);
+      if(!kick) h += mtSelfHTML(main || fb, P);
 
       // 今日やること
       let acts = [];
@@ -1858,7 +2034,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       if(o.follow && mtLastActs.length){
         acts = acts.filter(function(a){ return mtLastActs.indexOf(a) < 0; }).concat(acts.filter(function(a){ return mtLastActs.indexOf(a) >= 0; }));
       }
-      acts = acts.slice(0, 3);
+      acts = acts.slice(0, kick ? 1 : 3);   /* 尻を叩くときは1つだけ渡す */
       mtLastActs = acts.slice(0);
       if(!acts.length) acts = ['止まっている案件を3件だけ書き出し、止まった理由を1行ずつ書く（連絡待ち・提案待ち・意思決定待ち）',
                                '既契約のお客様2人に、今日中に近況伺いの連絡を入れる（売り込みはしない）'];
@@ -1957,6 +2133,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
         const L = MT.log[MT.active] = MT.log[MT.active] || [];
         L.push({ w:who, h:html, t:Date.now() }); if(L.length > 100) L.splice(0, L.length - 100);
         mtSave();
+        if(who === 'bot') mtVoiceOnBot(html);   /* 声で会話しているときは、返事を読み上げる */
       }
     }
     function mtRenderLog(){
@@ -2091,6 +2268,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
         b.addEventListener('click', function(){ p.hidden = !p.hidden; b.setAttribute('aria-expanded', p.hidden ? 'false' : 'true'); if(!p.hidden) p.scrollIntoView({ block:'nearest' }); });
       };
       tog('mt-set-btn', 'mt-settings'); tog('mt-kpi-btn', 'mt-kpi');
+      mtVoiceInit();
       if($('mts-save')) $('mts-save').addEventListener('click', function(){ mtReadSettings(); mtRenderFace(); mtAdd('bot', mtFill(mtP().style === 'zsedai' ? '設定、覚えました。{call}、次からこの感じで話しますね。' : '設定を覚えた。{call}、次からこの口で話す。', mtP()), false); });
       if($('mts-new')) $('mts-new').addEventListener('click', function(){
         const name = prompt('会社名・場面（例：一条工務店 高松展示場）'); if(!name) return;
