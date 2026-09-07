@@ -191,6 +191,11 @@ a{color:var(--navy-2);}
 .card[draggable="true"]:active{cursor:grabbing;}
 .card.dragging{opacity:.35;}
 .card.drag-over{outline:3px dashed var(--coral);outline-offset:3px;}
+/* 社内ツールのバナーも、分野カード・ツールカードと同じように動かせる */
+.training-banner[draggable="true"]{cursor:grab;}
+.training-banner[draggable="true"]:active{cursor:grabbing;}
+.training-banner.dragging{opacity:.35;}
+.training-banner.drag-over{outline:3px dashed var(--coral);outline-offset:3px;}
 .cat-all{text-align:center;margin-top:var(--sp-5);}
 .cat-all button{background:none;border:none;cursor:pointer;color:var(--navy-2);font-size:var(--fs-sm);
   text-decoration:underline;padding:11px 16px;min-height:44px;}
@@ -2737,6 +2742,7 @@ var state = {
   favs: [],                  /* お気に入りに入れたツールのid。押した順に並ぶ */
   catOrder: [],              /* 分野カードの並び順（ドラッグで入れ替えた結果）*/
   toolOrder: {},             /* 分野ごとのツールカードの並び順（catId → idの配列）。お気に入りはfavsの並びそのものを使う */
+  inhOrder: {},              /* 社内ツールの並び順（見出しごと。「学ぶ・鍛える」「数字と顧客を管理する」→ keyの配列）*/
   settings: { base: '', office: '株式会社Office-M', contact: 'y.nakatani@office-m-tax.com' }
 };
 
@@ -2750,6 +2756,7 @@ function load() {
     if (Object.prototype.toString.call(o.favs) === '[object Array]') state.favs = o.favs;
     if (Object.prototype.toString.call(o.catOrder) === '[object Array]') state.catOrder = o.catOrder;
     if (Object.prototype.toString.call(o.toolOrder) === '[object Object]') state.toolOrder = o.toolOrder;
+    if (Object.prototype.toString.call(o.inhOrder) === '[object Object]') state.inhOrder = o.inhOrder;
     if (o.settings) for (var k in o.settings) state.settings[k] = o.settings[k];
   } catch (e) {
     /* 保存データが壊れて読めないときも、上書きで消してしまわないよう元の文字列を避難させておく（プライベートモード等で読めない場合はそもそもraw自体がない） */
@@ -4130,6 +4137,7 @@ function applyToolOrder(list, saved) {
   return out;
 }
 var dragToolId = null;
+var dragInhKey = null;   /* 社内ツールのバナーをつかんでいるあいだのkey */
 
 /* マウスでカードをつかんで動かすとき、ブラウザはページを自動でスクロールしてくれない。
    そのため画面の外（上や下）にある移動先へは運べず、下の方のカードを先頭へ動かせなかった。
@@ -4196,6 +4204,62 @@ function applyToolReorder(fromId, toId) {
   else state.toolOrder[curCat] = ord;
   save();
   renderTools();
+  toast('並び順を変更しました');
+}
+
+/* ---------- 社内ツールのバナーの並べ替え ----------
+   分野カード・ツールカードと同じ操作（マウスのドラッグ／スマホは長押ししてから動かす）。
+   並べ替えは見出しのまとまりの中だけで閉じている（「学ぶ・鍛える」と「数字と顧客を管理する」は混ざらない）。 */
+function inhListEl() { return document.querySelector('.inhouse-list'); }
+function inhGroupKey(el) {
+  var n = el;
+  while (n) {
+    n = n.previousElementSibling;
+    if (n && n.classList && n.classList.contains('inhouse-group')) return (n.textContent || '').trim();
+  }
+  return '';
+}
+function inhItems(groupKey) {
+  var out = [], list = inhListEl();
+  if (!list) return out;
+  [].forEach.call(list.children, function (n) {
+    if (n.classList && n.classList.contains('training-banner') && inhGroupKey(n) === groupKey) out.push(n);
+  });
+  return out;
+}
+/* 保存してある並び順を画面に反映する（読み込み時と、動かしたあと） */
+function applyInhouseOrder() {
+  var list = inhListEl();
+  if (!list || !state.inhOrder) return;
+  Object.keys(state.inhOrder).forEach(function (g) {
+    var ord = state.inhOrder[g];
+    if (Object.prototype.toString.call(ord) !== '[object Array]' || !ord.length) return;
+    var items = inhItems(g);
+    if (items.length < 2) return;
+    var anchor = items[items.length - 1].nextSibling;   /* このまとまりの終わりの位置 */
+    var byKey = {};
+    items.forEach(function (n) { byKey[n.dataset.inh] = n; });
+    ord.forEach(function (k) { if (byKey[k]) { list.insertBefore(byKey[k], anchor); delete byKey[k]; } });
+    items.forEach(function (n) { if (byKey[n.dataset.inh]) list.insertBefore(n, anchor); });   /* 記憶に無いものは後ろへ */
+  });
+}
+function applyInhouseReorder(fromKey, toKey) {
+  if (!fromKey || !toKey || fromKey === toKey) return;
+  var list = inhListEl();
+  if (!list) return;
+  var a = list.querySelector('[data-inh="' + fromKey + '"]'), b = list.querySelector('[data-inh="' + toKey + '"]');
+  if (!a || !b) return;
+  var g = inhGroupKey(a);
+  if (g !== inhGroupKey(b)) { toast('同じまとまりの中だけで動かせます'); return; }
+  var ord = inhItems(g).map(function (n) { return n.dataset.inh; });
+  var from = ord.indexOf(fromKey), to = ord.indexOf(toKey);
+  if (from < 0 || to < 0) return;
+  ord.splice(from, 1);
+  ord.splice(to, 0, fromKey);
+  state.inhOrder = state.inhOrder || {};
+  state.inhOrder[g] = ord;
+  save();
+  applyInhouseOrder();
   toast('並び順を変更しました');
 }
 
@@ -4539,6 +4603,51 @@ function bindAdmin() {
     var b = INHOUSE_BANNER[key];
     bindInhouse(b, b.replace(/Banner$/, 'Go'), key);
   });
+
+  /* 社内ツールのバナーを、ドラッグ（スマホは長押し）で並べ替えられるようにする */
+  var inhEl = inhListEl();
+  if (inhEl) {
+    [].forEach.call(inhEl.querySelectorAll('.training-banner'), function (n) {
+      var key = String(n.id || '').replace(/Banner$/, '');
+      if (!key) return;
+      n.dataset.inh = key;
+      n.setAttribute('draggable', 'true');
+    });
+    applyInhouseOrder();
+    inhEl.addEventListener('dragstart', function (e) {
+      var c = e.target.closest('.training-banner[draggable="true"]');
+      if (!c) return;
+      dragInhKey = c.dataset.inh;
+      c.classList.add('dragging');
+      startDragScroll(e.clientY);
+      try { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', dragInhKey); } catch (err) {}
+    });
+    inhEl.addEventListener('dragend', function (e) {
+      var c = e.target.closest('.training-banner[draggable="true"]');
+      if (c) c.classList.remove('dragging');
+      [].forEach.call(inhEl.querySelectorAll('.drag-over'), function (n) { n.classList.remove('drag-over'); });
+      stopDragScroll();
+      dragInhKey = null;
+    });
+    inhEl.addEventListener('dragover', function (e) {
+      var c = e.target.closest('.training-banner[draggable="true"]');
+      if (!c || !dragInhKey || c.dataset.inh === dragInhKey) return;
+      e.preventDefault();
+      c.classList.add('drag-over');
+    });
+    inhEl.addEventListener('dragleave', function (e) {
+      var c = e.target.closest('.training-banner[draggable="true"]');
+      if (c) c.classList.remove('drag-over');
+    });
+    inhEl.addEventListener('drop', function (e) {
+      var c = e.target.closest('.training-banner[draggable="true"]');
+      if (!c || !dragInhKey) return;
+      e.preventDefault();
+      c.classList.remove('drag-over');
+      applyInhouseReorder(dragInhKey, c.dataset.inh);
+    });
+    bindTouchReorder(inhEl, '.training-banner[draggable="true"]', function (c) { return c.dataset.inh; }, applyInhouseReorder);
+  }
 
   /* キーワードでさがす。言葉を入れているあいだは分野カードを引っ込めて、結果だけを出す */
   renderSearchTags();
