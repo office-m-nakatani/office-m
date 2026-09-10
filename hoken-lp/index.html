@@ -72,7 +72,7 @@
        koushin … 更改の書類やパソコンに向かっている場面（横長 16:10）
        senpai  … 後輩と並んで座っている／教えている場面（横長 16:10）
        mendan  … お客様と面談している場面（横長 16:10）
-       band    … 「愛媛・砥部町から」の帯（横長 16:7）。空のあいだは濃い地色の帯として出る
+       band    … 「現場のFPから」の帯（横長 16:7）。空のあいだは濃い地色の帯として出る
        desk2   … 費用の手前に敷く帯（横長 16:6。打ち合わせ・オンライン面談の机）
        office  … 事務所の様子（縦長 3:4。空ならこの枠ごと出ません。
                  ★人物の写真は入れない方針。入れるなら事務所・デスクの風景で）
@@ -218,10 +218,39 @@ header{
 .hd-cta:hover{background:var(--accent2)}
 @media(max-width:560px){ .hd-cta{font-size:12px; padding:10px 14px} }
 
-/* ---------- ヒーロー ---------- */
-.hero{padding:clamp(56px,9vw,104px) 0 0; overflow:hidden}
-.hero-grid{display:grid; grid-template-columns:1fr .92fr; gap:clamp(32px,5vw,64px); align-items:center}
-@media(max-width:940px){ .hero-grid{grid-template-columns:1fr; gap:38px} }
+/* ---------- ヒーロー ----------
+   ★2026-09-10 ユーザー指示「入口のところを華やかにしてください」。
+     ・淡い光（電気ブルー＋琥珀）と細かいドットを地に敷く。**濃い面は作らない**
+     ・右は画面を3枚重ねる（後ろ2枚を少し傾けて、手前1枚を大きく）
+     ・肩の見出しはバッジ型、数字の帯は白いカード4枚
+   ★白基調は崩さないこと（この案件の地色は白と薄灰だけ） */
+.hero{position:relative; padding:clamp(56px,9vw,104px) 0 0; overflow:hidden}
+/* 淡い光。★opacity を上げて濃い面にしないこと */
+.hero::before{
+  content:''; position:absolute; left:-12%; right:-12%; top:-26%; height:132%; pointer-events:none;
+  background:
+    radial-gradient(700px 480px at 78% 20%, rgba(11,92,255,.11), transparent 62%),
+    radial-gradient(560px 440px at 10% 6%,  rgba(255,176,32,.11), transparent 62%),
+    radial-gradient(520px 380px at 46% 96%, rgba(11,92,255,.06), transparent 64%);
+}
+/* 細かいドット。下へ向かって消える */
+.hero::after{
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background-image:radial-gradient(rgba(15,17,21,.055) 1px, transparent 1px);
+  background-size:22px 22px;
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.35) 46%,transparent 76%);
+  mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.35) 46%,transparent 76%);
+}
+.hero .wrap{position:relative; z-index:1}
+.hero-grid{display:grid; grid-template-columns:1fr .96fr; gap:clamp(32px,5vw,60px); align-items:center}
+@media(max-width:940px){ .hero-grid{grid-template-columns:1fr; gap:42px} }
+/* 肩の見出しはバッジ型（ここだけ .kicker を上書きする） */
+.hero .kicker{
+  display:inline-flex; align-items:center; gap:9px; margin-bottom:24px;
+  background:var(--accentSoft); border:1px solid rgba(11,92,255,.20); border-radius:999px;
+  padding:8px 17px; letter-spacing:.08em;
+}
+.hero .kicker::before{content:''; width:7px; height:7px; border-radius:50%; background:var(--accent)}
 .hero h1{
   font-weight:900; margin:0; font-size:clamp(31px,6.4vw,62px); line-height:1.34; letter-spacing:-.02em;
 }
@@ -233,22 +262,48 @@ header{
 .hero-sub{margin:26px 0 0; font-size:clamp(14.5px,2.5vw,17px); color:var(--ink2); max-width:520px}
 .hero-actions{display:flex; flex-wrap:wrap; gap:12px; margin-top:34px}
 .hero-note{display:block; margin-top:14px; font-size:13px; color:var(--ink3)}
-.hero-shot{
-  position:relative; border-radius:10px; overflow:hidden;
-  box-shadow:0 30px 70px -20px rgba(15,17,21,.28), 0 0 0 1px var(--line);
-}
-.hero-shot img{width:100%; height:auto}
 
-/* 数字の帯 */
-.numbar{border-top:1px solid var(--line); margin-top:clamp(50px,7vw,88px)}
-/* ★4つ（9／295／6,045／約300世帯）。項目数で割り切れる列数を明示すること */
-.numgrid{display:grid; grid-template-columns:repeat(4,1fr)}
-@media(max-width:860px){ .numgrid{grid-template-columns:repeat(2,1fr)}
-  .numgrid > div:nth-child(odd){border-left:0}
-  .numgrid > div:nth-child(n+3){border-top:1px solid var(--line)} }
-.numgrid > div{padding:clamp(26px,3.6vw,40px) 8px; text-align:center; border-left:1px solid var(--line)}
-.numgrid > div:first-child{border-left:0}
-.numgrid b{display:block; font-family:var(--n); font-weight:700; font-size:clamp(29px,5.4vw,50px); line-height:1; letter-spacing:-.02em}
+/* ★画面を3枚重ねる。傾きは中の箱に、ふわっと出る（.rvi）は外の箱に付けること
+   （.rvi.in は transform:none なので、同じ要素に rotate を書くと消える） */
+.hero-art{position:relative; aspect-ratio:4/3.05}
+.hero-art .ha{position:absolute; border-radius:10px; overflow:hidden; background:#fff}
+.hero-art .ha img{display:block; width:100%; height:100%; object-fit:cover; object-position:top center}
+.ha-b1{left:0; top:1%; width:57%; aspect-ratio:16/11; transform:rotate(-3.2deg);
+  box-shadow:0 16px 36px -14px rgba(15,17,21,.30), 0 0 0 1px var(--line)}
+.ha-b2{right:0; bottom:0; width:53%; aspect-ratio:16/11; transform:rotate(2.6deg);
+  box-shadow:0 16px 36px -14px rgba(15,17,21,.30), 0 0 0 1px var(--line)}
+.ha-main{left:7%; right:7%; top:15%; aspect-ratio:16/10.2; z-index:2;
+  box-shadow:0 34px 70px -22px rgba(15,17,21,.34), 0 0 0 1px var(--line)}
+/* 浮くチップ（数字だけ拾わせる） */
+.ha-chip{
+  position:absolute; z-index:3; display:inline-flex; align-items:baseline; gap:7px;
+  background:#fff; border:1px solid var(--line); border-radius:999px;
+  padding:9px 16px; font-size:12.5px; color:var(--ink2); white-space:nowrap;
+  box-shadow:0 12px 28px -10px rgba(15,17,21,.28);
+}
+.ha-chip b{font-family:var(--n); font-weight:700; font-size:17px; color:var(--accent); letter-spacing:-.01em}
+.ha-c1{left:-2%; top:37%}
+.ha-c2{right:-2%; bottom:19%}
+@media(max-width:620px){
+  /* スマホは重ねをやめて1枚に（重ねると小さくなって何も読めない） */
+  .hero-art{aspect-ratio:16/10.2}
+  .ha-b1,.ha-b2{display:none}
+  .ha-main{left:0; right:0; top:0}
+  .ha-c1{left:0; top:auto; bottom:-16px}
+  .ha-c2{display:none}
+}
+
+/* 数字の帯（★白いカード4枚。項目数で割り切れる列数を明示すること） */
+.numbar{margin-top:clamp(54px,7vw,92px)}
+.numgrid{display:grid; grid-template-columns:repeat(4,1fr); gap:clamp(10px,1.4vw,18px)}
+@media(max-width:860px){ .numgrid{grid-template-columns:repeat(2,1fr)} }
+.numgrid > div{
+  padding:clamp(24px,3.2vw,36px) 10px; text-align:center;
+  background:#fff; border:1px solid var(--line); border-radius:12px;
+  box-shadow:0 10px 26px -14px rgba(15,17,21,.24);
+}
+.numgrid b{display:block; font-family:var(--n); font-weight:700; font-size:clamp(29px,5.4vw,50px);
+  line-height:1; letter-spacing:-.02em; color:var(--accent)}
 .numgrid span{display:block; font-size:12.5px; color:var(--ink3); margin-top:10px; letter-spacing:.06em}
 
 /* ---------- お困りごと ---------- */
@@ -551,8 +606,14 @@ footer{border-top:1px solid var(--line); padding:38px 0; font-size:13px; color:v
         </div>
         <span class="hero-note rv" style="--d:.32s">画面共有でお見せするだけです。売り込みはしません。</span>
       </div>
-      <div class="hero-shot rvi" style="--d:.2s">
-        <img src="hoken-lp-photos/app-mentor.jpg" alt="AI師匠の画面。相談を打つと見立てと今日やることが返ってくる" fetchpriority="high">
+      <!-- ★2026-09-10：入口を華やかに。1枚だった画面を3枚の重ねにした。
+           傾きは .ha 側、ふわっと出るのは外の .hero-art（.rvi）に付けてある -->
+      <div class="hero-art rvi" style="--d:.2s">
+        <div class="ha ha-b1"><img src="hoken-lp-photos/app-cf.jpg" alt="ライフプランの年齢別キャッシュフロー表"></div>
+        <div class="ha ha-b2"><img src="hoken-lp-photos/app-cards.jpg" alt="学習資料の一覧。分野から選べる"></div>
+        <div class="ha ha-main"><img src="hoken-lp-photos/app-mentor.jpg" alt="AI師匠の画面。相談を打つと見立てと今日やることが返ってくる" fetchpriority="high"></div>
+        <span class="ha-chip ha-c1"><b>13</b>冊・239の原則</span>
+        <span class="ha-chip ha-c2"><b>295</b>本以上・11分野</span>
       </div>
     </div>
 
@@ -568,7 +629,7 @@ footer{border-top:1px solid var(--line); padding:38px 0; font-size:13px; color:v
 </section>
 
 <!-- 写真の帯①（現場のデスク）。PHOTOS の desk に入れると出る -->
-<figure class="pstrip" data-ph="desk"><img alt="事務所のデスク" loading="lazy"><figcaption>愛媛・砥部町の事務所にて。</figcaption></figure>
+<figure class="pstrip" data-ph="desk"><img alt="事務所のデスク" loading="lazy"><figcaption>事務所での打ち合わせ。</figcaption></figure>
 
 <!-- ==================== 中身をのぞく（★ヒーローの次） ====================
      ★2026-09-10 ユーザー指示
@@ -843,7 +904,7 @@ footer{border-top:1px solid var(--line); padding:38px 0; font-size:13px; color:v
   <img alt="事務所での打ち合わせ" loading="lazy">
   <div class="bov">
     <div class="btx">
-      <b class="rv">愛媛・砥部町から、<br>代理店さまへ。</b>
+      <b class="rv">現場のFPから、<br>代理店さまへ。</b>
       <p class="rv" style="--d:.1s">会計・記帳代行を母体にした会社が、ファイナンシャルプランナーの目で中身を組み立てています。だから家計・決算書・資金繰り・相続まで、お客様の隣にある話につながります。</p>
     </div>
   </div>
@@ -1257,7 +1318,7 @@ var PHOTOS = {
   koushin: '',   // 更改の書類やパソコンに向かっている場面（横長 16:10）
   senpai:  '',   // 後輩と並んで座っている／教えている場面（横長 16:10）
   mendan:  '',   // お客様と面談している場面（横長 16:10）
-  band:    '',   // 「愛媛・砥部町から」の帯（横長 16:7）
+  band:    '',   // 「現場のFPから」の帯（横長 16:7）
   desk2:   '',   // 費用の手前に敷く帯（横長 16:6。打ち合わせ・オンライン面談の机）
   office:  ''    // 事務所の様子（縦長 3:4。空ならこの枠は出ません）
 };
