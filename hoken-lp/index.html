@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>更改で手いっぱい。それでも、育てたい。｜代理店向け FP・実務ツール一式｜株式会社Office-M</title>
+<meta name="description" content="損保の更改で後輩育成に手が回らない。お金の相談まで踏み込めない。そんな代理店さまへ、家計・税金・相続・社会保障を整理するFPの道具を。社内で使う9本と、代理店の学習資料295本。まずは30分、リモートで。">
+<meta name="robots" content="noindex">
+<meta property="og:title" content="更改で手いっぱい。それでも、育てたい。｜株式会社Office-M">
+<meta property="og:description" content="家計・税金・相続まで。社内ツール9本＋代理店の学習資料295本。まずは30分、リモートで。">
+<meta property="og:type" content="website">
+<!--
+  ============================================================================
+  保険ツール一式の紹介LP（損害保険代理店向け）／モダン版・写真とスクロール演出
+
+  ■ 方針（2026-09-08 ユーザー指示）
+     「イラストではなく写真にして、モダンなLPにしてください。文字や写真がふわっと
+      出てくるように。現状あるツールの雰囲気とは全く別のもので作成してください。」
+
+     → ① **イラストは1枚も使っていない。** 出ているのは全部、実写と実画面
+        ② **既存ツールと色も書体も別物にした**（下の表）
+        ③ スクロールで**ふわっと出る**（IntersectionObserver ＋ opacity / translateY）
+
+  ■ ★既存のものと、わざと変えているところ（戻さないこと）
+     |            | 保険ツール管理画面ほか | 30秒動画   | このLP（モダン版） |
+     |------------|------------------------|------------|--------------------|
+     | 地色       | 生成り #fff8f2         | 紺 #1b3f5e | **白 #fff ＋ 薄灰 #f6f7f9** |
+     | アクセント | 琥珀 #f7c34e           | 琥珀       | **電気ブルー #0b5cff** |
+     | 見出し書体 | 明朝 Noto Serif JP     | 明朝       | **角ゴシック Zen Kaku Gothic New** |
+     | 数字・英字 | —                      | —          | **Outfit** |
+     | 形         | 丸い（角丸18〜24px）   | 丸い       | **角ばった（角丸4〜10px）・細い罫線** |
+
+  ■ 写真について
+     ・**★町の写真（砥部町役場・街並み・松山城）は全部やめた**（2026-09-09 ユーザー指示
+       「写真で砥部町役場が映っているが、おしゃれなデスクの写真やオフィスの写真に
+       その他も差し替えてください」）。`hoken-lp-photos/town-01〜06.jpg` は削除済み。
+       **★町の写真に戻さないこと。**
+     ・**製品の画面（app-mentor / app-shikaku / app-hub / app-talk）も実写**。
+       Playwright で 1360×900・2倍で撮ったもの。撮り直しは scratchpad の `lpshots.js`
+     ・**人物・現場の写真はまだ無い**（この環境から写真素材に到達できない。unsplash・
+       pexels・picsum・wikimedia・pixabay すべて egress proxy が 403 CONNECT で拒否）。
+       下の PHOTOS に入れれば、その場所が写真に変わる。**入っていない枠は表示されない**ので、
+       空のままでもページは崩れない（空の箱が出ない作りにしてある）。
+
+  ■ ★★写真を足すとき★★
+     ページ末尾の <script> の PHOTOS に、ファイル名を書くだけです。
+         var PHOTOS = { koushin:'hoken-lp-photos/koushin.jpg', ... };
+     ▼ ほしい写真（あるものだけで大丈夫）
+       koushin … 更改の書類やパソコンに向かっている場面（横長 16:10）
+       senpai  … 後輩と並んで座っている／教えている場面（横長 16:10）
+       mendan  … お客様と面談している場面（横長 16:10）
+       office  … 事務所の様子（縦長 3:4。空ならこの枠ごと出ません。
+                 ★人物の写真は入れない方針。入れるなら事務所・デスクの風景で）
+       band    … 帯に敷く写真（横長 16:7 くらい。おしゃれなデスク・オフィス）。
+                 空のあいだは濃い地色の帯として出る
+     ▼ ★人物写真の条件（ユーザー指示 2026-09-08）
+       ・日本人 ・スーツ（ジャケット＋襟シャツ＋ネクタイ）できちっとした身なり
+       ・引き締まった体型。**太った人・だらしない着こなしは使わない**
+       ・裾出し／ネクタイ緩め／腕まくり といった崩れた格好も避ける
+
+  ■ ★会社の名乗り（2026-09-08 ユーザー指示。勝手に戻さないこと）
+     ・代表者　　　　　　　＝ **高橋 秀和**
+     ・FP事業部 執行役員　＝ **中谷 陽介**
+     ★★会社概要に代表者の写真は**置かない**（2026-09-08 ユーザー指示「高橋の写真は削除して」）。
+       町の写真（松山城）も 2026-09-09 に外したので、いまは**枠ごと出していない**。
+       **人物の写真に戻さないこと。** 事務所・デスクの写真を入れたくなったら、
+       PHOTOS の `office` に入れれば、そこに出る。
+
+  ■ ★AI師匠は「オーダーメード」を打ち出す（2026-09-08 ユーザー指示）
+     「このような人をイメージしたい、という要望も承っています。考え方・人間性のご要望にも
+      お応えします。厳しめ、Z世代モード、褒め伸ばしモードの作成も可能。その代理店に合った
+      ものをオーダーメードし、マネジメントのお力になれたら」
+     → 解決の2番目に専用の節を置いてある。**この節を消さないこと**
+
+  ■ ★資格の書き方（2026-09-08 ユーザー指示）
+     FP技能検定は **3級・2級・1級それぞれに学習ツール**。さらに
+     **生命保険大学課程・損保大学課程** まで用意している、と書く。
+
+  ■ 費用（2026-09-08 ユーザー指示）
+     6人以上 月110,000円（税込）／5人以下 月55,000円（税込）
+     指示の原文は「月110000万円」だったが、110,000万円＝11億円になるため 110,000円 の
+     書き間違いと判断した（5人以下55,000円のちょうど2倍で整合する）。
+     ★違っていたらここと料金表の2か所を直すこと
+
+  ■ お困りごとの言葉は、ユーザーの原文をそのまま使う（言い換えないこと）
+     ・損保の更改で後輩育成に手が回らない
+     ・生命保険も取り扱いしたいが、自分自身もマネジメント方法も分からない
+     ・損保の更改の時に生保のことを聞かれても自信を持って話せない
+     ・だから当たり障りのない保険料でしか提案できず、単価が上がらない
+
+  ■ ★FPツール色で書く（ユーザー指示 2026-09-08）
+     「生命保険ツールを全面に押しすぎると、保険の募集文章のように言われる可能性があるので
+      FPツール色を出してください」
+     → **特定の保険会社・商品を扱う道具としては書かない。** 家計・税金・相続・公的保障・
+       資産形成を整理する **ファイナンシャル・プランニングの道具** として書く。
+       保険は「扱う分野のひとつ」の位置に置く。
+     → FAQ の1問目を **「これは、保険の募集資料ですか。」→「いいえ」** にしてある。
+       **この問答を消さないこと**（募集文書と受け取られないための明示）。
+     → 見出し・本文で「生保」「生命保険」を主語にしない。資格は **FP技能検定を先に**書く。
+     → 分野の一覧（生命保険67…）は実データなので件数は触らない。見出しのほうを
+       「家計・税金・相続まで」にして、保険が主題に見えないようにしてある。
+
+  ■ 守っている線（薄めないこと）
+     - 断定的な有利不利の比較を書かない（保険業法300条1項）
+     - **保険商品の販売・募集を行うものではない**旨を、FAQと注意事項の2か所に明記
+     - 成約率・売上・単価の数値を約束しない
+     - 不安で押す・急がせる・言質を取る型にしない
+     - 当社は税理士法人ではない。個別具体的な税務相談は税理士の独占業務である旨を必ず併記
+     - 絵文字は使わない。バックエンドを持たない（申し込みは mailto だけ）
+     - 数字は実データ：社内ツール9本／お客様用295本（11分野）／13試験6,045問／
+       本13冊239の原則／例え話1,352本／断り文句58通り
+  ============================================================================
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0f1115; --ink2:#4b555f; --ink3:#7b858e;
+  --paper:#ffffff; --soft:#f6f7f9; --soft2:#eef0f3;
+  --line:#e4e7ea; --line2:#d3d8dd;
+  --accent:#0b5cff; --accent2:#0847c9; --accentSoft:#eaf0ff;
+  --g:'Zen Kaku Gothic New',system-ui,-apple-system,sans-serif;
+  --n:'Outfit','Zen Kaku Gothic New',sans-serif;
+  --wrap:1180px;
+  --e:cubic-bezier(.16,1,.3,1);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; -webkit-text-size-adjust:100%}
+body{
+  margin:0; font-family:var(--g); color:var(--ink); background:var(--paper);
+  line-height:1.9; font-size:16px; -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  letter-spacing:.01em;
+}
+img{max-width:100%; display:block}
+a{color:inherit}
+.wrap{width:min(100% - 40px, var(--wrap)); margin-inline:auto}
+.sec{padding:clamp(72px,10vw,132px) 0}
+.soft{background:var(--soft)}
+
+/* ---------- ★ふわっと出る（スクロール連動）---------- */
+.rv{opacity:0; transform:translateY(28px); transition:opacity .95s var(--e), transform .95s var(--e); transition-delay:var(--d,0s)}
+.rv.in{opacity:1; transform:none}
+.rvi{opacity:0; transform:scale(1.05); transition:opacity 1.2s var(--e), transform 1.4s var(--e); transition-delay:var(--d,0s)}
+.rvi.in{opacity:1; transform:none}
+@media(prefers-reduced-motion:reduce){
+  .rv,.rvi{opacity:1 !important; transform:none !important; transition:none !important}
+}
+
+/* ---------- 文字まわり ---------- */
+.kicker{
+  /* ★2026-09-08：英語の見出し（Problem / Solution …）を日本語に直した（ユーザー指示
+     「日本語に全て修正してください」）。英字用の Outfit・広い字間・大文字化はやめて、
+     日本語で組む。★英語に戻さないこと */
+  font-family:var(--g); font-weight:700; font-size:12.5px; letter-spacing:.14em;
+  color:var(--accent); display:block; margin-bottom:16px;
+}
+h2.st{
+  font-weight:900; font-size:clamp(27px,4.6vw,46px); line-height:1.42;
+  margin:0 0 18px; letter-spacing:-.01em;
+}
+h2.st em{font-style:normal; color:var(--accent)}
+.lead{color:var(--ink2); font-size:clamp(14.5px,2.3vw,16.5px); margin:0; max-width:680px}
+.sec-head{margin-bottom:clamp(40px,6vw,70px)}
+.sec-head.c{text-align:center}
+.sec-head.c .lead{margin-inline:auto}
+
+/* ---------- ボタン ---------- */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:10px;
+  font-family:var(--g); font-weight:700; font-size:clamp(15px,2.6vw,16.5px); line-height:1.5;
+  padding:17px 30px; border-radius:6px; text-decoration:none; border:1.5px solid transparent;
+  transition:transform .25s var(--e), background .2s, box-shadow .25s var(--e);
+}
+.btn-main{background:var(--accent); color:#fff; box-shadow:0 6px 22px rgba(11,92,255,.24)}
+.btn-main:hover{background:var(--accent2); transform:translateY(-2px); box-shadow:0 12px 30px rgba(11,92,255,.32)}
+.btn-line{background:transparent; color:var(--ink); border-color:var(--line2)}
+.btn-line:hover{border-color:var(--ink); transform:translateY(-2px)}
+.btn-w{background:#fff; color:var(--accent)}
+.btn-w:hover{transform:translateY(-2px)}
+
+/* ---------- ヘッダー ---------- */
+header{
+  position:sticky; top:0; z-index:60; background:rgba(255,255,255,.86);
+  backdrop-filter:saturate(180%) blur(14px); border-bottom:1px solid var(--line);
+}
+.hd{display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 0}
+.hd-name{font-weight:900; font-size:clamp(14px,2.8vw,16px); letter-spacing:.02em}
+.hd-name small{display:block; font-family:var(--n); font-weight:300; font-size:10.5px; letter-spacing:.16em; color:var(--ink3); text-transform:uppercase}
+.hd-cta{
+  background:var(--accent); color:#fff; text-decoration:none; font-weight:700; font-size:13.5px;
+  padding:11px 20px; border-radius:5px; white-space:nowrap; transition:background .2s;
+}
+.hd-cta:hover{background:var(--accent2)}
+@media(max-width:560px){ .hd-cta{font-size:12px; padding:10px 14px} }
+
+/* ---------- ヒーロー ---------- */
+.hero{padding:clamp(56px,9vw,104px) 0 0; overflow:hidden}
+.hero-grid{display:grid; grid-template-columns:1fr .92fr; gap:clamp(32px,5vw,64px); align-items:center}
+@media(max-width:940px){ .hero-grid{grid-template-columns:1fr; gap:38px} }
+.hero h1{
+  font-weight:900; margin:0; font-size:clamp(31px,6.4vw,62px); line-height:1.34; letter-spacing:-.02em;
+}
+.hero h1 .u{position:relative; display:inline-block; color:var(--accent)}
+.hero h1 .u::after{
+  content:''; position:absolute; left:0; right:0; bottom:.06em; height:.1em;
+  background:var(--accent); opacity:.18; border-radius:2px;
+}
+.hero-sub{margin:26px 0 0; font-size:clamp(14.5px,2.5vw,17px); color:var(--ink2); max-width:520px}
+.hero-actions{display:flex; flex-wrap:wrap; gap:12px; margin-top:34px}
+.hero-note{display:block; margin-top:14px; font-size:13px; color:var(--ink3)}
+.hero-shot{
+  position:relative; border-radius:10px; overflow:hidden;
+  box-shadow:0 30px 70px -20px rgba(15,17,21,.28), 0 0 0 1px var(--line);
+}
+.hero-shot img{width:100%; height:auto}
+
+/* 数字の帯 */
+.numbar{border-top:1px solid var(--line); margin-top:clamp(50px,7vw,88px)}
+/* ★4つ（9／295／6,045／約300世帯）。項目数で割り切れる列数を明示すること */
+.numgrid{display:grid; grid-template-columns:repeat(4,1fr)}
+@media(max-width:860px){ .numgrid{grid-template-columns:repeat(2,1fr)}
+  .numgrid > div:nth-child(odd){border-left:0}
+  .numgrid > div:nth-child(n+3){border-top:1px solid var(--line)} }
+.numgrid > div{padding:clamp(26px,3.6vw,40px) 8px; text-align:center; border-left:1px solid var(--line)}
+.numgrid > div:first-child{border-left:0}
+.numgrid b{display:block; font-family:var(--n); font-weight:700; font-size:clamp(29px,5.4vw,50px); line-height:1; letter-spacing:-.02em}
+.numgrid span{display:block; font-size:12.5px; color:var(--ink3); margin-top:10px; letter-spacing:.06em}
+
+/* ---------- お困りごと ---------- */
+.pains{border-top:1px solid var(--line)}
+.pain{
+  display:grid; grid-template-columns:88px 1fr 1fr; gap:clamp(18px,3vw,44px);
+  padding:clamp(30px,4.4vw,52px) 0; border-bottom:1px solid var(--line); align-items:start;
+}
+@media(max-width:820px){ .pain{grid-template-columns:54px 1fr; gap:18px} .pain .pph{grid-column:1/-1} }
+.pain .pno{font-family:var(--n); font-weight:300; font-size:clamp(28px,5vw,48px); color:var(--line2); line-height:1; letter-spacing:-.02em}
+.pain h3{font-weight:900; font-size:clamp(19px,3.2vw,27px); margin:0 0 12px; line-height:1.55; letter-spacing:-.01em}
+.pain p{margin:0; color:var(--ink2); font-size:14.5px}
+/* ★写真が指定されていない枠は出さない（空の箱を作らない） */
+.pain .pph{border-radius:8px; overflow:hidden; box-shadow:0 0 0 1px var(--line); display:none}
+.pain .pph.on{display:block}
+.pain .pph img{width:100%; aspect-ratio:16/10; object-fit:cover}
+.pain-out{
+  margin-top:clamp(40px,5vw,64px); text-align:center; padding:clamp(34px,5vw,58px) 22px;
+  background:var(--ink); color:#fff; border-radius:10px;
+}
+.pain-out b{display:block; font-weight:900; font-size:clamp(19px,3.6vw,34px); line-height:1.55; letter-spacing:-.01em}
+.pain-out span{display:block; margin-top:16px; color:#a8b1ba; font-size:clamp(14px,2.4vw,17px)}
+
+/* ---------- 転換 ---------- */
+.turn{text-align:center}
+.turn .tt{margin:0; font-weight:900; font-size:clamp(24px,5.2vw,50px); line-height:1.5; letter-spacing:-.02em}
+.turn .tt em{font-style:normal; color:var(--accent)}
+.turn .ts{margin:26px auto 0; font-weight:400; font-size:clamp(14.5px,2.4vw,17px); color:var(--ink2); letter-spacing:0; max-width:640px}
+
+/* ---------- 解決 ---------- */
+.sol{display:grid; grid-template-columns:1fr 1.06fr; gap:clamp(28px,5vw,68px); align-items:center; padding:clamp(46px,6vw,86px) 0; border-bottom:1px solid var(--line)}
+.sol:last-child{border-bottom:0}
+.sol.rev .solshot{order:2}
+@media(max-width:900px){ .sol{grid-template-columns:1fr; gap:26px} .sol.rev .solshot{order:0} }
+.solshot{border-radius:10px; overflow:hidden; box-shadow:0 24px 56px -18px rgba(15,17,21,.26), 0 0 0 1px var(--line)}
+.soltag{
+  display:inline-block; font-family:var(--g); font-weight:700; font-size:12px; letter-spacing:.1em;
+  color:var(--accent); background:var(--accentSoft); padding:6px 13px; border-radius:4px;
+}
+/* ★実画面のギャラリー（6枚）。2列→1列。説明はスクリーンショットの下に小さく */
+.shots{display:grid; grid-template-columns:repeat(2,1fr); gap:clamp(18px,2.6vw,30px); margin-top:clamp(40px,5vw,64px)}
+@media(max-width:760px){ .shots{grid-template-columns:1fr} }
+.shot{margin:0}
+.shot img{width:100%; border-radius:8px; border:1px solid var(--line); box-shadow:0 10px 34px rgba(15,17,21,.09)}
+.shot figcaption{margin-top:10px; font-size:13px; color:var(--ink2); line-height:1.75}
+.sol h3{font-weight:900; font-size:clamp(21px,3.8vw,34px); margin:18px 0 14px; line-height:1.48; letter-spacing:-.015em}
+.sol p{margin:0 0 20px; color:var(--ink2); font-size:15px}
+.chips{display:flex; flex-wrap:wrap; gap:8px}
+.chip{border:1px solid var(--line2); border-radius:4px; padding:7px 13px; font-size:13px; color:var(--ink2)}
+.chip b{font-family:var(--n); font-weight:700; color:var(--ink)}
+
+/* ---------- 理由 ---------- */
+/* ★6項目。auto-fit だと最後の行に空きマスが出るので列数を明示する */
+.reasons{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:10px; overflow:hidden}
+@media(max-width:1000px){ .reasons{grid-template-columns:repeat(2,1fr)} }
+@media(max-width:640px){ .reasons{grid-template-columns:1fr} }
+.reason{background:var(--paper); padding:clamp(26px,3.4vw,38px) clamp(22px,2.8vw,32px)}
+.reason .rn{font-family:var(--n); font-weight:500; font-size:12px; letter-spacing:.2em; color:var(--accent)}
+.reason h3{font-weight:900; font-size:17.5px; margin:14px 0 10px; line-height:1.55}
+.reason p{margin:0; color:var(--ink2); font-size:14px}
+.reason .rt{display:inline-block; margin-top:14px; font-size:12.5px; color:var(--ink3); border-top:1px solid var(--line); padding-top:12px}
+
+/* ---------- 一覧 ---------- */
+.tlist{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:0 clamp(24px,4vw,56px)}
+.titem{display:flex; gap:16px; padding:20px 0; border-bottom:1px solid var(--line); align-items:baseline}
+.titem .tn{font-family:var(--n); font-weight:500; font-size:12px; color:var(--accent); flex:0 0 26px}
+.titem b{font-weight:700; font-size:15.5px; display:block; margin-bottom:3px}
+.titem span{color:var(--ink2); font-size:13.5px}
+
+/* ★12項目。6列→3行、4列→3行、3列→4行。どれも割り切れるので空きマスが出ない */
+.fgrid{display:grid; grid-template-columns:repeat(6,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:10px; overflow:hidden}
+@media(max-width:900px){ .fgrid{grid-template-columns:repeat(4,1fr)} }
+@media(max-width:560px){ .fgrid{grid-template-columns:repeat(3,1fr)} }
+.fitem{background:var(--paper); padding:22px 10px; text-align:center}
+.fitem b{display:block; font-size:13.5px; font-weight:700}
+.fitem i{display:block; font-style:normal; font-family:var(--n); font-weight:700; font-size:26px; color:var(--accent); margin-top:4px; letter-spacing:-.02em}
+.fitem.all{background:var(--ink)}
+.fitem.all b,.fitem.all i{color:#fff}
+
+/* ---------- 帯（写真が入るところ） ----------
+   ★町の写真（砥部町役場・街並み）は外した（2026-09-09 ユーザー指示
+     「砥部町役場が映っている。おしゃれなデスクの写真やオフィスの写真に差し替えて」）。
+     PHOTOS の band にファイル名を入れると、ここが写真になる。
+     入れないあいだは濃い地色の帯として出る（空の箱にはしない）。★町の写真に戻さないこと */
+.band{position:relative; overflow:hidden;
+      background:linear-gradient(100deg,#11151b 0%,#1b2532 58%,#22364a 100%)}
+.band > img{display:none; width:100%; height:clamp(300px,44vw,520px); object-fit:cover}
+.band.on > img{display:block}
+.band .bov{
+  position:relative; display:flex; align-items:center;
+  padding:clamp(46px,7vw,84px) 0;
+}
+.band.on .bov{
+  position:absolute; inset:0; padding:0;
+  background:linear-gradient(90deg, rgba(15,17,21,.74) 0%, rgba(15,17,21,.46) 55%, rgba(15,17,21,.16) 100%);
+}
+.band .btx{color:#fff; width:min(100% - 40px, var(--wrap)); margin-inline:auto}
+.band .btx b{display:block; font-weight:900; font-size:clamp(22px,4.4vw,42px); line-height:1.5; letter-spacing:-.015em}
+.band .btx p{margin:16px 0 0; color:#dfe4e9; font-size:clamp(13.5px,2.3vw,16px); max-width:520px}
+
+/* ---------- 流れ ---------- */
+.steps{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:clamp(20px,3vw,32px)}
+.step{border-top:2px solid var(--ink); padding-top:22px}
+.step .sn{font-family:var(--n); font-weight:700; font-size:12px; letter-spacing:.2em; color:var(--accent)}
+.step h3{font-weight:900; font-size:18.5px; margin:12px 0 10px}
+.step p{margin:0; color:var(--ink2); font-size:14.5px}
+.step .sd{display:block; margin-top:12px; font-size:12.5px; color:var(--ink3)}
+
+/* ---------- 費用 ---------- */
+.plans{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:clamp(18px,2.6vw,26px); max-width:860px; margin:0 auto}
+.plan{border:1px solid var(--line); border-radius:10px; padding:clamp(28px,3.6vw,40px) clamp(22px,2.8vw,30px); background:var(--paper)}
+.plan.pick{border-color:var(--ink); box-shadow:0 20px 50px -22px rgba(15,17,21,.3); position:relative}
+.plan.pick::before{
+  content:'5名以下'; position:absolute; top:-11px; left:clamp(22px,2.8vw,30px);
+  background:var(--accent); color:#fff; font-family:var(--n); font-weight:700; font-size:11px;
+  letter-spacing:.16em; padding:4px 12px; border-radius:4px;
+}
+.plan .pn{font-weight:900; font-size:18px}
+.plan .pw{font-size:13px; color:var(--ink3); margin:2px 0 20px}
+.plan .pp{font-family:var(--n); font-weight:700; letter-spacing:-.03em; line-height:1}
+.plan .pp .y{font-size:clamp(38px,7vw,52px)}
+.plan .pp .u{font-family:var(--g); font-size:16px; font-weight:500; margin-left:5px; letter-spacing:0}
+.plan .px{font-size:12px; color:var(--ink3); margin-top:8px}
+.plan ul{list-style:none; margin:22px 0 0; padding:0}
+.plan li{position:relative; padding:9px 0 9px 24px; font-size:14px; color:var(--ink2); border-top:1px solid var(--line)}
+.plan li:first-child{border-top:0}
+.plan li::before{content:''; position:absolute; left:2px; top:18px; width:11px; height:6px; border-left:2px solid var(--accent); border-bottom:2px solid var(--accent); transform:rotate(-45deg)}
+.pnote{max-width:860px; margin:24px auto 0; font-size:13.5px; color:var(--ink2)}
+
+/* ---------- オーダーメードと20社限定（2026-09-09 ユーザー指示） ----------
+   「AI師匠や勉強コンテンツも御社用にカスタマイズを売りに。20企業限定で、
+    ご好評につき残る枠は残りわずか」。
+   ★★2026-09-10：**「ご好評につき、残る枠はわずかです。」の一文は本文から削除した。**
+     契約の実数が 0社 で、事実と違うため（景品表示法の有利誤認にあたるおそれ）。
+     「20社限定」だけを残してある。**契約が6社を超えるまで書き戻さないこと。**
+   ★残数は末尾の CAPACITY で設定する。**実際の空き枠に合わせること** */
+.limit{border:1px solid var(--line2); border-radius:10px; background:var(--paper);
+  max-width:860px; margin:26px auto 0; padding:clamp(22px,3vw,30px) clamp(20px,3vw,32px);
+  display:grid; grid-template-columns:auto 1fr; gap:clamp(18px,3vw,30px); align-items:center}
+@media(max-width:640px){ .limit{grid-template-columns:1fr; text-align:center} }
+.limit .ring{position:relative; width:132px; height:132px; margin-inline:auto}
+.limit .ring svg{display:block; transform:rotate(-90deg)}
+.limit .ring i{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center;
+  justify-content:center; font-style:normal; line-height:1.15}
+.limit .ring i b{font-family:var(--n); font-size:34px; font-weight:700; color:var(--accent)}
+.limit .ring i span{font-size:11.5px; color:var(--ink3); letter-spacing:.06em}
+.limit h3{font-family:var(--g); font-weight:900; font-size:clamp(17px,2.6vw,22px); line-height:1.5}
+.limit p{margin-top:10px; font-size:14.5px; color:var(--ink2); line-height:1.9}
+.limit .lchips{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; justify-content:flex-start}
+@media(max-width:640px){ .limit .lchips{justify-content:center} }
+.limit .lchip{border:1px solid var(--accent); color:var(--accent); background:var(--accentSoft);
+  border-radius:4px; padding:6px 12px; font-size:12.5px; font-weight:700}
+.pnote ul{margin:8px 0 0; padding-left:18px}
+.pnote li{margin:4px 0}
+
+/* ---------- FAQ ---------- */
+.faq{max-width:820px; margin:0 auto; border-top:1px solid var(--line)}
+.faq details{border-bottom:1px solid var(--line)}
+.faq summary{cursor:pointer; list-style:none; padding:22px 46px 22px 0; position:relative; font-weight:700; font-size:16px; line-height:1.7}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:''; position:absolute; right:8px; top:31px; width:13px; height:1.5px; background:var(--ink)}
+.faq summary::before{content:''; position:absolute; right:13.7px; top:25.2px; width:1.5px; height:13px; background:var(--ink); transition:transform .3s var(--e)}
+.faq details[open] summary::before{transform:scaleY(0)}
+.faq .fa{padding:0 0 24px; color:var(--ink2); font-size:14.5px}
+
+/* ---------- 会社 ---------- */
+.cgrid{display:grid; grid-template-columns:.8fr 1.2fr; gap:clamp(26px,4vw,52px); align-items:start}
+@media(max-width:820px){ .cgrid{grid-template-columns:1fr} }
+.cphoto{display:none; border-radius:10px; overflow:hidden; box-shadow:0 0 0 1px var(--line)}
+.cphoto.on{display:block}
+/* 写真が無いあいだは表を1列で広く使う */
+.cgrid:not(:has(.cphoto.on)){grid-template-columns:1fr}
+.cphoto img{width:100%; aspect-ratio:3/4; object-fit:cover}
+.ctable{width:100%; border-collapse:collapse; border-top:1px solid var(--line)}
+.ctable th,.ctable td{padding:17px 0; text-align:left; border-bottom:1px solid var(--line); font-size:14.5px; vertical-align:top}
+.ctable th{width:140px; font-weight:700; color:var(--ink); white-space:nowrap; padding-right:16px}
+.ctable td{color:var(--ink2)}
+@media(max-width:600px){
+  .ctable th,.ctable td{display:block; width:100%; border-bottom:0; padding:0}
+  .ctable th{padding-top:16px}
+  .ctable td{padding-bottom:16px; border-bottom:1px solid var(--line)}
+}
+.disc{margin-top:clamp(36px,5vw,56px); border:1px solid var(--line); border-radius:10px; padding:24px 26px; font-size:12.5px; color:var(--ink2); line-height:1.95}
+.disc h3{font-size:14px; margin:0 0 10px; font-weight:700; color:var(--ink)}
+.disc ul{margin:0; padding-left:18px}
+.disc li{margin:5px 0}
+
+/* ---------- 最後のCTA ---------- */
+.final{background:var(--accent); color:#fff; text-align:center}
+.final h2{font-weight:900; font-size:clamp(26px,5.4vw,52px); line-height:1.42; margin:0 0 20px; letter-spacing:-.02em}
+.final .fs{margin:0 auto 34px; color:#d6e2ff; font-size:clamp(14.5px,2.4vw,17px); max-width:560px}
+.final .fn{margin:20px 0 0; font-size:13px; color:#bcd0ff}
+
+footer{border-top:1px solid var(--line); padding:38px 0; font-size:13px; color:var(--ink3)}
+.fbar{display:flex; flex-wrap:wrap; gap:14px; justify-content:space-between; align-items:baseline}
+.fbar b{font-weight:900; color:var(--ink); font-size:15px}
+
+.sticky{
+  position:fixed; left:0; right:0; bottom:0; z-index:70; display:none;
+  background:rgba(255,255,255,.95); backdrop-filter:blur(10px);
+  padding:10px 16px calc(10px + env(safe-area-inset-bottom)); border-top:1px solid var(--line);
+}
+.sticky a{display:block; text-align:center; background:var(--accent); color:#fff; font-weight:700; font-size:15.5px; padding:15px; border-radius:6px; text-decoration:none}
+@media(max-width:820px){ .sticky{display:block} body{padding-bottom:82px} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap hd">
+    <div class="hd-name">株式会社 Office-M<small>家計とお金の相談に、そのまま使える道具一式</small></div>
+    <a class="hd-cta" href="#contact">リモートで相談する</a>
+  </div>
+</header>
+
+<!-- ==================== ヒーロー ==================== -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <span class="kicker rv">代理店さま向け　FP・実務ツール一式</span>
+        <h1 class="rv" style="--d:.08s">更改で、<br>手いっぱい。<br>それでも<span class="u">育てたい</span>。</h1>
+        <p class="hero-sub rv" style="--d:.18s">
+          損保の更改に追われて、後輩育成まで手が回らない。お金の相談まで受けたいけれど、教え方が分からない。<br>
+          家計・税金・相続・社会保障を整理する道具を、まるごとお渡しします。
+        </p>
+        <div class="hero-actions rv" style="--d:.26s">
+          <a class="btn btn-main" href="#contact">まずは30分、リモートで</a>
+          <a class="btn btn-line" href="#price">費用を見る</a>
+        </div>
+        <span class="hero-note rv" style="--d:.32s">画面共有でお見せするだけです。売り込みはしません。</span>
+      </div>
+      <div class="hero-shot rvi" style="--d:.2s">
+        <img src="hoken-lp-photos/app-mentor.jpg" alt="AI師匠の画面。相談を打つと見立てと今日やることが返ってくる" fetchpriority="high">
+      </div>
+    </div>
+
+    <div class="numbar">
+      <div class="numgrid">
+        <div class="rv"><b>9</b><span>社内で使うツール</span></div>
+        <div class="rv" style="--d:.1s"><b>295</b><span>学習資料 11分野</span></div>
+        <div class="rv" style="--d:.2s"><b>6,045</b><span>FP・実務資格の想定問題</span></div>
+        <div class="rv" style="--d:.3s"><b>約300</b><span>ライフプランを作った世帯</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== お困りごと ==================== -->
+<section class="sec" id="pain">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker rv">お困りごと</span>
+      <h2 class="st rv" style="--d:.06s">毎日が更改で終わって、<br>気づけば一年。</h2>
+      <p class="lead rv" style="--d:.12s">損害保険を主戦場にしてきた代理店さまから、いちばんよく聞くお話です。</p>
+    </div>
+
+    <div class="pains">
+      <div class="pain">
+        <div class="pno rv">01</div>
+        <div class="rv" style="--d:.06s">
+          <h3>損保の更改で、<br>後輩育成に手が回らない。</h3>
+          <p>自分の担当も回しながら、隣で新人も見る。どちらも中途半端になるのが、いちばん気がかりです。</p>
+        </div>
+        <div class="pph rvi" style="--d:.12s" data-ph="koushin"><img alt="更改の書類に向かっている場面"></div>
+      </div>
+
+      <div class="pain">
+        <div class="pno rv">02</div>
+        <div class="rv" style="--d:.06s">
+          <h3>お金の相談まで、<br>踏み込みたい。でも教え方が。</h3>
+          <p>取扱いの幅を広げたい気持ちはある。けれど自分自身、家計や税金を体系立てて学ぶ機会がなかったし、マネジメントの型も習っていない。</p>
+        </div>
+        <div class="pph rvi" style="--d:.12s" data-ph="senpai"><img alt="後輩に教えている場面"></div>
+      </div>
+
+      <div class="pain">
+        <div class="pno rv">03</div>
+        <div class="rv" style="--d:.06s">
+          <h3>更改の席で聞かれても、<br>自信を持って話せない。</h3>
+          <p>せっかくお客様のほうからお金の話を振ってくれたのに、踏み込めない。あとで「もったいなかったな」と思う。</p>
+        </div>
+        <div class="pph rvi" style="--d:.12s" data-ph="mendan"><img alt="お客様と面談している場面"></div>
+      </div>
+    </div>
+
+    <div class="pain-out rv">
+      <b>だから、当たり障りのない保険料でしか提案できず、<br>単価が上がらない。</b>
+      <span>——どうしたらいいだろう。</span>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 転換 ==================== -->
+<section class="sec soft turn">
+  <div class="wrap">
+    <span class="kicker rv">考え方</span>
+    <p class="tt rv" style="--d:.06s">教える時間がないなら、<br><em>教える役を、道具に持たせる。</em></p>
+    <p class="ts rv" style="--d:.14s">
+      人を増やさなくても、新人が独りで学べる仕組みがあれば、更改の手は止めなくて済みます。
+      お客様に生保の話を振られたときの言葉も、画面の中に置いておけます。
+    </p>
+  </div>
+</section>
+
+<!-- ==================== 解決 ==================== -->
+<section class="sec" id="solution">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker rv">解決のかたち</span>
+      <h2 class="st rv" style="--d:.06s">3つのお困りごとに、<br><em>そのまま効きます</em>。</h2>
+    </div>
+
+    <div class="sol">
+      <div class="solshot rvi"><img src="hoken-lp-photos/app-mentor.jpg" alt="AI師匠の画面" loading="lazy"></div>
+      <div>
+        <span class="soltag rv">お困りごと 1・2 に</span>
+        <h3 class="rv" style="--d:.06s">新人の隣に、<br>24時間の「AI師匠」。</h3>
+        <p class="rv" style="--d:.1s">相談を打つと、見立て・考え方・今日やることが返ってきます。「お客様の家計を、どこから整理すればいいか」——そんな相談にも、FP1級と税理士の目で、その場で。あなたが更改を回している間も、新人は独りで学べます。</p>
+        <div class="chips rv" style="--d:.14s">
+          <span class="chip">本 <b>13</b>冊・<b>239</b>の原則</span>
+          <span class="chip">例え話 <b>1,352</b>本</span>
+          <span class="chip">FP1級・税理士の目で点検</span>
+          <span class="chip">師匠はオーダーメード</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sol rev">
+      <div class="solshot rvi"><img src="hoken-lp-photos/app-talk.jpg" alt="師匠の口調を選べる画面" loading="lazy"></div>
+      <div>
+        <span class="soltag rv">オーダーメード</span>
+        <h3 class="rv" style="--d:.06s">師匠は、<br>オーダーメードできます。</h3>
+        <p class="rv" style="--d:.1s">「こういう人をイメージしたい」というご要望も承っています。考え方や人間性のご要望にも、お応えします。厳しめ・Z世代モード・褒め伸ばしモードの作り分けも可能です。その代理店さまに合ったものをお作りして、マネジメントのお力になれたらと思います。</p>
+        <div class="chips rv" style="--d:.14s">
+          <span class="chip">厳しめ</span>
+          <span class="chip">Z世代モード</span>
+          <span class="chip">褒め伸ばしモード</span>
+          <span class="chip">考え方・人間性のご要望も</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sol rev">
+      <div class="solshot rvi"><img src="hoken-lp-photos/app-shikaku.jpg" alt="資格試験トレーニングの画面" loading="lazy"></div>
+      <div>
+        <span class="soltag rv">お困りごと 2 に</span>
+        <h3 class="rv" style="--d:.06s">資格は、<br>地図のとおりに進むだけ。</h3>
+        <p class="rv" style="--d:.1s">FP技能検定は<b>3級・2級・1級それぞれに学習ツール</b>を用意しています。さらに<b>生命保険大学課程・損保大学課程</b>まで。あわせて13試験を、受ける順番と要件つきで並べてあるので、「何から勉強すればいいですか」に毎回答えなくてよくなります。</p>
+        <div class="chips rv" style="--d:.14s">
+          <span class="chip">FP <b>3</b>級・<b>2</b>級・<b>1</b>級</span>
+          <span class="chip">生保大学課程・損保大学課程</span>
+          <span class="chip"><b>13</b>試験・<b>6,045</b>問</span>
+          <span class="chip">テキストも同梱／過去問の転載なし</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sol">
+      <div class="solshot rvi"><img src="hoken-lp-photos/app-hub.jpg" alt="ツール管理画面。分野ごとに選んで読める" loading="lazy"></div>
+      <div>
+        <span class="soltag rv">お困りごと 3 に</span>
+        <h3 class="rv" style="--d:.06s">更改の席で聞かれる話を、<br>先に読んでおく。</h3>
+        <!-- ★2026-09-09 ユーザー指示「お客様に渡すことはしたくないです。代理店での学習資料に
+             したいと思っています」。お客様に配る前提の書き方（渡せる・お渡し）に戻さないこと -->
+        <p class="rv" style="--d:.1s">家計・税金・相続・公的保障・資産形成まで、11分野295本。医療保険・終身保険・相続・年金——更改の席で聞かれる話を、募集人がひととおり読んで自分の言葉にしておけます。ひとつの画面から分野で選んで、読みたいところだけ。</p>
+        <div class="chips rv" style="--d:.14s">
+          <span class="chip"><b>11</b>分野・<b>295</b>本</span>
+          <span class="chip">分野を選んで読める</span>
+          <span class="chip">税金・相続・年金・NISA</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ★ライフプランツール（2026-09-09 ユーザー指示「約300世帯の実績をもとにした
+         ライフプランツールもあります。これも入れてください」）。この節を消さないこと -->
+    <div class="sol rev">
+      <div class="solshot rvi"><img src="hoken-lp-photos/app-cf.jpg" alt="ライフプランのキャッシュフロー表。年齢とライフイベントが並んでいる" loading="lazy"></div>
+      <div>
+        <span class="soltag rv">FPの提案の視点から</span>
+        <h3 class="rv" style="--d:.06s">約300世帯の実績から<br>生まれた、ライフプラン。</h3>
+        <p class="rv" style="--d:.1s">実際に<b>約300世帯</b>のライフプランを作ってきた経験をもとにした道具です。家計・住まい・教育・老後・保障・相続までを1枚の表にして、お客様の前で、その場で数字を動かせます。「いくら要りますか」ではなく「このままだと、どうなるか」から話が始まります。</p>
+        <div class="chips rv" style="--d:.14s">
+          <span class="chip">約<b>300</b>世帯の実績から</span>
+          <span class="chip">現状プランと将来プランを並べる</span>
+          <span class="chip">年齢別キャッシュフロー表</span>
+          <span class="chip">その場で数字を動かせる</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ★AI診断（2026-09-09 ユーザー指示「AI診断で客観的な視点でもお話ができます」） -->
+    <div class="sol">
+      <div class="solshot rvi"><img src="hoken-lp-photos/app-shindan.jpg" alt="AI診断の画面。10の分野を安心できるポイントと気をつけたいポイントで示す" loading="lazy"></div>
+      <div>
+        <span class="soltag rv">客観的な視点で</span>
+        <h3 class="rv" style="--d:.06s">担当者の主観ではなく、<br>数字から見た第三者の目で。</h3>
+        <p class="rv" style="--d:.1s">老後資金・教育資金・万が一の備え・資産運用・住まいとローン・家計収支・税金・相続・介護——<b>10の分野</b>を、<b>安心できるポイントと、気をつけたいポイントの両方</b>で示します。良いところも一緒に出るので、不安をあおる話になりません。お客様と画面を並べて、そのまま読めます。</p>
+        <div class="chips rv" style="--d:.14s">
+          <span class="chip"><b>10</b>分野の診断</span>
+          <span class="chip">安心できる点も必ず出す</span>
+          <span class="chip">お客様と一緒に読める</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 帯（写真が入るところ） ==================== -->
+<!-- ★町の写真は外した。PHOTOS の band に事務所・デスクの写真を入れると、ここが写真になる -->
+<section class="band" data-ph="band">
+  <img alt="事務所での打ち合わせ" loading="lazy">
+  <div class="bov">
+    <div class="btx">
+      <b class="rv">愛媛・砥部町から、<br>代理店さまへ。</b>
+      <p class="rv" style="--d:.1s">会計・記帳代行を母体にした会社が、FP1級と税務の目で中身を組み立てています。だから家計・決算書・資金繰り・相続まで、お客様の隣にある話につながります。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 選ばれる理由 ==================== -->
+<section class="sec" id="why">
+  <div class="wrap">
+    <div class="sec-head c">
+      <span class="kicker rv">選ばれている理由</span>
+      <h2 class="st rv" style="--d:.06s">保険会社でも、<br>システム会社でもありません。</h2>
+    </div>
+
+    <div class="reasons">
+      <div class="reason rv"><span class="rn">01</span><h3>現場のFPが作っている</h3><p>会計・記帳代行を母体にした会社が、FP1級と税務の目で中身を組み立てています。<b>約300世帯</b>のライフプランを実際に作ってきた提案の視点が、そのまま道具になっています。</p><span class="rt">約300世帯の実績／法人・経営43本・税金32本</span></div>
+      <div class="reason rv" style="--d:.06s"><span class="rn">02</span><h3>師匠は、あつらえます</h3><p>夜でも土日でも同じ水準で返るうえに、口調も考え方もその代理店さまに合わせてお作りします。厳しめ・Z世代・褒め伸ばしの作り分けもできます。</p><span class="rt">本13冊・239の原則／オーダーメード</span></div>
+      <div class="reason rv" style="--d:.12s"><span class="rn">03</span><h3>FPも、実務資格も</h3><p>FP技能検定1〜3級に加えて、生保・損保の実務資格（基礎単位・商品単位・更新・大学課程）まで同じ画面に。学ぶ順番も示します。</p><span class="rt">13試験・6,045問</span></div>
+      <div class="reason rv"><span class="rn">04</span><h3>学ぶ材料が、社内にそろう</h3><p>家計・税金・相続・公的保障・資産形成まで11分野。医療保険も終身保険も、独学でなく読みものとして置いてあります。朝礼の前に1本、移動の合間に1本、という使い方をされています。</p><span class="rt">11分野・295本</span></div>
+      <div class="reason rv" style="--d:.06s"><span class="rn">05</span><h3>募集品質も、置いてあります</h3><p>意向把握・比較推奨・情報提供義務・高齢者募集など、実務ルール100問と監査の想定問答つき。速さと引き換えに手順を飛ばさない作りです。</p><span class="rt">コンプライアンス100本ノック</span></div>
+      <div class="reason rv" style="--d:.12s"><span class="rn">06</span><h3>端末の中だけで動きます</h3><p>相談の内容も、入力したお客様の情報も、その端末に残るだけ。外部のサーバーへ送っていません。インストールも要らず、ブラウザで開くだけです。</p><span class="rt">導入は、リンクを配るだけ</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 中身 ==================== -->
+<section class="sec soft" id="tools">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker rv">中身のご紹介</span>
+      <h2 class="st rv" style="--d:.06s">社内で使う、9本。</h2>
+      <p class="lead rv" style="--d:.12s">育てる・鍛える・回す。新人だけでなく、育てる側の手がここで空きます。</p>
+    </div>
+
+    <div class="tlist">
+      <div class="titem rv"><span class="tn">01</span><div><b>AI師匠</b><span>数字・販路・部下の悩みをぶつける相談相手。</span></div></div>
+      <div class="titem rv" style="--d:.04s"><span class="tn">02</span><div><b>資格試験トレーニング</b><span>13試験6,045問。合格までの順番を地図で。</span></div></div>
+      <div class="titem rv" style="--d:.08s"><span class="tn">03</span><div><b>社員教育ツール</b><span>理解度テスト・朝礼の1問・NGトーク添削。</span></div></div>
+      <div class="titem rv" style="--d:.12s"><span class="tn">04</span><div><b>支払事例トレーニング</b><span>支払いが分かれる場面68件を3択で。</span></div></div>
+      <div class="titem rv" style="--d:.16s"><span class="tn">05</span><div><b>切り返し辞典</b><span>断り文句58パターンの、4段の返し方。</span></div></div>
+      <div class="titem rv" style="--d:.2s"><span class="tn">06</span><div><b>コンプライアンス100本ノック</b><span>実務ルール100問と監査の想定問答。</span></div></div>
+      <div class="titem rv" style="--d:.24s"><span class="tn">07</span><div><b>営業ダッシュボード</b><span>見込みの積み上げ・顧客カルテ・面談記録。</span></div></div>
+      <div class="titem rv" style="--d:.28s"><span class="tn">08</span><div><b>目標逆算プランナー</b><span>目標から面談数・接触件数まで逆算。</span></div></div>
+      <div class="titem rv" style="--d:.32s"><span class="tn">09</span><div><b>満期・年齢到達カレンダー</b><span>満期・更新・払込満了・年齢の節目を自動で。</span></div></div>
+    </div>
+
+    <!-- ★実際の画面6枚（2026-09-08 ユーザー指示「この写真をLPや動画に入れてください」）。
+         撮り直しは scratchpad の shots6.js。英字ラベルを日本語に直したあとの画面を撮ってある -->
+    <div class="shots">
+      <figure class="shot rvi"><img src="hoken-lp-photos/app-mentor.jpg" alt="AI師匠の画面。相談を打つと、見立て・例え話・図が返ってくる" loading="lazy">
+        <figcaption>AI師匠 ── 相談を打つと、見立てと今日やることが返ってきます</figcaption></figure>
+      <figure class="shot rvi" style="--d:.06s"><img src="hoken-lp-photos/app-shikaku.jpg" alt="資格試験トレーニングの画面。合格までの道順がステップで並んでいる" loading="lazy">
+        <figcaption>資格試験トレーニング ── 合格までの道順が、ステップで見えます</figcaption></figure>
+      <figure class="shot rvi" style="--d:.04s"><img src="hoken-lp-photos/app-kirikaeshi.jpg" alt="切り返し辞典の画面。断られてよい、という立場に立つ" loading="lazy">
+        <figcaption>切り返し辞典 ── 断り文句58パターンに、4段の返し方</figcaption></figure>
+      <figure class="shot rvi" style="--d:.1s"><img src="hoken-lp-photos/app-calendar.jpg" alt="営業ダッシュボードのカレンダー。誰と何をしたかが色で分かる" loading="lazy">
+        <figcaption>営業ダッシュボード ── 誰と何をしたかが、色で残ります</figcaption></figure>
+      <figure class="shot rvi" style="--d:.08s"><img src="hoken-lp-photos/app-hub.jpg" alt="ツール管理画面。分野ごとに選んでリンクで渡せる" loading="lazy">
+        <figcaption>ツール管理画面 ── 分野を選んで、読みたいものを開くだけ</figcaption></figure>
+      <figure class="shot rvi" style="--d:.12s"><img src="hoken-lp-photos/app-cards.jpg" alt="代理店の学習資料の一覧" loading="lazy">
+        <figcaption>学習資料の読みもの ── 1本ずつ、分野から選べます</figcaption></figure>
+      <figure class="shot rvi" style="--d:.14s"><img src="hoken-lp-photos/app-cf.jpg" alt="ライフプランの年齢別キャッシュフロー表" loading="lazy">
+        <figcaption>ライフプラン ── 約300世帯の実績から。年齢別のキャッシュフロー表まで</figcaption></figure>
+      <figure class="shot rvi" style="--d:.16s"><img src="hoken-lp-photos/app-shindan.jpg" alt="AI診断の画面" loading="lazy">
+        <figcaption>AI診断 ── 10分野を、安心できる点と気をつけたい点の両方で</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== お客様用295本 ==================== -->
+<section class="sec" id="catalog">
+  <div class="wrap">
+    <div class="sec-head c">
+      <span class="kicker rv">代理店さまの学習資料</span>
+      <h2 class="st rv" style="--d:.06s">家計・税金・相続まで、<em>295本</em>。</h2>
+      <p class="lead rv" style="--d:.12s">ひとつの画面から分野で選んで、読みたいところだけ。特定の保険会社・商品を扱うものではなく、制度の仕組みを整理するための読みものです。募集人の学習用としてお使いください。</p>
+    </div>
+
+    <div class="fgrid rv">
+      <div class="fitem"><b>生命保険</b><i>67</i></div>
+      <div class="fitem"><b>法人・経営</b><i>43</i></div>
+      <div class="fitem"><b>損害保険</b><i>37</i></div>
+      <div class="fitem"><b>税金</b><i>32</i></div>
+      <div class="fitem"><b>金融・資産形成</b><i>28</i></div>
+      <div class="fitem"><b>くらしとお金</b><i>25</i></div>
+      <div class="fitem"><b>公的保障</b><i>20</i></div>
+      <div class="fitem"><b>一条工務店</b><i>17</i></div>
+      <div class="fitem"><b>相続・終活</b><i>16</i></div>
+      <div class="fitem"><b>住まい・くるま</b><i>16</i></div>
+      <div class="fitem"><b>ライフプラン</b><i>6</i></div>
+      <div class="fitem all"><b>11分野あわせて</b><i>295</i></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== はじめかた ==================== -->
+<section class="sec soft" id="flow">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker rv">はじめかた</span>
+      <h2 class="st rv" style="--d:.06s">まず、のぞいてみてください。</h2>
+      <p class="lead rv" style="--d:.12s">面談の場で契約を迫ることはありません。合わないと思われたら、そこで終わりで大丈夫です。</p>
+    </div>
+
+    <div class="steps">
+      <div class="step rv">
+        <span class="sn">ステップ 1</span>
+        <h3>リモートで30分</h3>
+        <p>画面共有で、社内の9本とお客様用の295本を実際に動かしてお見せします。気になったところは、その場で聞いてください。</p>
+        <span class="sd">お申し込みから数日以内</span>
+      </div>
+      <div class="step rv" style="--d:.08s">
+        <span class="sn">ステップ 2</span>
+        <h3>社内で見てみる</h3>
+        <p>面談で使った資料をお送りします。支店長さま・後継者さまと見ていただいて構いません。急かしません。</p>
+        <span class="sd">ご都合にあわせて</span>
+      </div>
+      <div class="step rv" style="--d:.16s">
+        <span class="sn">ステップ 3</span>
+        <h3>使いはじめる</h3>
+        <p>ブラウザで開くだけ。インストールもサーバーの用意も要りません。使い方の説明もリモートで行います。</p>
+        <span class="sd">お申し込みの当月から</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 御社用のカスタマイズ ====================
+     ★2026-09-09 ユーザー指示「お客様ごとにカスタマイズができます。AI師匠や、
+       勉強コンテンツの内容に関しても御社用にカスタマイズを売りにしてください。
+       そのため20企業限定でのもの」。★この節を消さないこと -->
+<section class="sec" id="custom">
+  <div class="wrap">
+    <div class="sec-head c">
+      <span class="kicker rv">御社用に、おつくりします</span>
+      <h2 class="st rv" style="--d:.06s">同じものを、<br>お配りしているわけでは<br>ありません。</h2>
+      <p class="lead rv" style="--d:.12s">代理店さまごとに、扱う商品も、育てたい人も、社風も違います。
+        <b>AI師匠も、学習の中身も、御社用に組み直します。</b>だから、同時にお受けできる数に限りがあります。</p>
+    </div>
+
+    <div class="reasons">
+      <div class="reason rv"><span class="rn">A</span><h3>AI師匠を、御社の上長に</h3>
+        <p>口調・考え方・人物像をご要望に合わせます。厳しめ／Z世代／褒め伸ばし。
+          「こういう人をイメージしたい」からお作りします。御社の方針・行動指針・朝礼で言っている言葉も入れられます。</p>
+        <span class="rt">人物設定・口調・判断軸</span></div>
+      <div class="reason rv" style="--d:.06s"><span class="rn">B</span><h3>学習の中身を、御社の扱いに</h3>
+        <p>取扱商品・主戦場・新人の育ち方に合わせて、読む順番と分野の重みを組み替えます。
+          社内の勉強会資料やロープレの型を、学習資料に足すこともできます。</p>
+        <span class="rt">順番・分野の重み・自社の教材</span></div>
+      <div class="reason rv" style="--d:.12s"><span class="rn">C</span><h3>数字と運用を、御社の型に</h3>
+        <p>営業ダッシュボードの活動の種類、目標逆算の歩留まり、満期カレンダーの見せ方まで。
+          いま使っている呼び方のまま使えるように直します。</p>
+        <span class="rt">活動の種類・歩留まり・呼び名</span></div>
+    </div>
+
+    <div class="limit rv" style="--d:.1s" data-limit>
+      <div class="ring">
+        <svg width="132" height="132" viewBox="0 0 132 132" aria-hidden="true">
+          <circle cx="66" cy="66" r="58" fill="none" stroke="#e4e7ea" stroke-width="10"></circle>
+          <circle cx="66" cy="66" r="58" fill="none" stroke="#0b5cff" stroke-width="10"
+                  stroke-linecap="round" data-ring stroke-dasharray="364" stroke-dashoffset="364"></circle>
+        </svg>
+        <i><b data-left>20</b><span data-leftlabel>社限定</span></i>
+      </div>
+      <div>
+        <h3 data-ltitle>20社限定でお受けしています。</h3>
+        <p data-ltext>ひとつずつ組み直してお渡しするため、同時にお受けできるのは20社までとしています。
+          <b>まずは30分、リモートで画面をお見せするだけ</b>でも構いません。
+          その場で決めていただく必要はありません。</p>
+        <div class="lchips">
+          <span class="lchip">AI師匠のオーダーメード</span>
+          <span class="lchip">学習の中身の組み替え</span>
+          <span class="lchip">運用の呼び名まで合わせる</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 費用 ==================== -->
+<section class="sec" id="price">
+  <div class="wrap">
+    <div class="sec-head c">
+      <span class="kicker rv">ご費用</span>
+      <h2 class="st rv" style="--d:.06s">代理店さま単位の、月額です。</h2>
+      <p class="lead rv" style="--d:.12s">何人で使っても、追加料金はいただきません。</p>
+    </div>
+
+    <div class="plans">
+      <div class="plan pick rv">
+        <div class="pn">スモール</div>
+        <p class="pw">募集人 5名以下の代理店さま</p>
+        <div class="pp"><span class="y">55,000</span><span class="u">円／月</span></div>
+        <div class="px">税込</div>
+        <ul>
+          <li>社内ツール 9本すべて</li>
+          <li>学習資料 295本すべて（11分野）</li>
+          <li>人数ぶんの追加料金なし</li>
+          <li>使い方の説明（リモート）</li>
+          <li>内容の更新・追加も込み</li>
+          <li><b>AI師匠・学習の中身の御社用カスタマイズ</b></li>
+        </ul>
+      </div>
+      <div class="plan rv" style="--d:.08s">
+        <div class="pn">スタンダード</div>
+        <p class="pw">募集人 6名以上の代理店さま</p>
+        <div class="pp"><span class="y">110,000</span><span class="u">円／月</span></div>
+        <div class="px">税込</div>
+        <ul>
+          <li>社内ツール 9本すべて</li>
+          <li>学習資料 295本すべて（11分野）</li>
+          <li>人数ぶんの追加料金なし</li>
+          <li>使い方の説明（リモート）</li>
+          <li>内容の更新・追加も込み</li>
+          <li><b>AI師匠・学習の中身の御社用カスタマイズ</b></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="pnote rv">
+      <b>費用についての補足</b>
+      <ul>
+        <li>表示はすべて税込です。募集人の人数は、お申し込み時点の在籍でご申告ください。</li>
+        <li>ブラウザだけで動くので、サーバーの用意や機器の購入は要りません。</li>
+        <li>制度改正への対応やツールの追加は、費用に含まれます。</li>
+        <li>お支払い方法・契約期間などの細かい条件は、面談のときにご説明します。</li>
+        <li><b>御社用に組み直してお渡しするため、同時にお受けするのは20社までとしています。</b></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FAQ ==================== -->
+<section class="sec soft" id="faq">
+  <div class="wrap">
+    <div class="sec-head c">
+      <span class="kicker rv">よくいただくご質問</span>
+      <h2 class="st rv" style="--d:.06s">気になるところ、先にどうぞ。</h2>
+    </div>
+
+    <div class="faq rv">
+      <details open>
+        <summary>これは、保険の募集資料ですか。</summary>
+        <div class="fa"><b>いいえ。保険商品の販売・募集を行うものではありません。</b>特定の保険会社・商品を扱うものでもありません。家計・税金・相続・公的保障・資産形成といったお金の全体像を整理するための、ファイナンシャル・プランニングの道具です。商品間の有利不利を断定的に示す内容も含めていません（保険業法第300条第1項）。</div>
+      </details>
+      <details>
+        <summary>お金の相談をほとんどしてこなかった代理店でも使えますか。</summary>
+        <div class="fa">はい、むしろそこを想定して作っています。資格試験トレーニングがFP技能検定を「何をどの順に受けるか」で示し、AI師匠が「お客様の家計をどこから整理するか」に答えます。いま扱っている損害保険の実務資格も同じ画面に入っているので、いまの仕事の延長で広げられます。</div>
+      </details>
+      <details>
+        <summary>更改で手いっぱいなのですが、導入に時間はかかりますか。</summary>
+        <div class="fa">ブラウザで開くだけなので、設定作業はありません。使い方の説明もリモートで30分ほどです。新人の方には、まずAI師匠と資格試験トレーニングのリンクをお渡しいただければ、あとは独りで進められます。</div>
+      </details>
+      <details>
+        <summary>マネジメントのやり方が分からないのですが、そこも助けてもらえますか。</summary>
+        <div class="fa">AI師匠には管理職向けの相談も入っています。1on1の台本・チームの点検・指示の言い換え・朝礼の一言など、「今日、部下に何をどう言うか」を返します。数字の追い方や時間の使い方についても相談できます。</div>
+      </details>
+      <details>
+        <summary>295本は、お客様にお渡しするものですか。</summary>
+        <div class="fa"><b>いいえ。代理店さまの学習資料としてお使いいただく前提です。</b>社内の9本とあわせて、募集人の方が読んで学ぶためのものとしてご提供しています。お客様への提示・配布はご遠慮ください。なお、お客様への説明にそのまま使える言い回しも入っていますので、読んだうえでご自身の言葉に置き換えてお使いください。</div>
+      </details>
+      <details>
+        <summary>税金の話も入っていますが、税務相談はできますか。</summary>
+        <div class="fa">ツールに入っているのは、制度の仕組みや考え方を整理するための一般的な内容です。<b>当社は税理士法人ではありません。</b>税務代理・税務書類の作成・個別具体的な税務相談など税理士にしか行えない業務については、提携する税理士をご紹介して対応します。</div>
+      </details>
+      <details>
+        <summary>解約したいときはどうすればいいですか。</summary>
+        <div class="fa">お申し出いただければ手続きします。長期の縛りを設ける売り方はしていません。条件は面談のときに書面でご説明します。</div>
+      </details>
+      <details>
+        <summary>面談では、その場で決めないといけませんか。</summary>
+        <div class="fa">いいえ。まず中を見ていただくための時間です。持ち帰って社内でご検討いただいて構いませんし、合わないと思われたらそこで終わりで結構です。</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 会社概要 ==================== -->
+<section class="sec" id="company">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker rv">会社概要</span>
+      <h2 class="st rv" style="--d:.06s">作っているのは、<br>こんな会社です。</h2>
+    </div>
+
+    <div class="cgrid">
+      <div class="cphoto rvi" data-ph="office">
+        <!-- ★人物の写真は置かない（ユーザー指示）。町の写真も外した（2026-09-09）。
+             PHOTOS の office に事務所の写真を入れると、ここに出る。入れないあいだは枠ごと出ない -->
+        <img alt="事務所の様子" loading="lazy">
+      </div>
+      <div class="rv" style="--d:.08s">
+        <table class="ctable">
+          <tr><th>商号</th><td>株式会社 Office-M</td></tr>
+          <tr><th>代表者</th><td>高橋 秀和</td></tr>
+          <tr><th>FP事業部 執行役員</th><td>中谷 陽介</td></tr>
+          <tr><th>所在地</th><td>愛媛県伊予郡砥部町宮内592番地1</td></tr>
+          <tr><th>連絡先</th><td><a href="mailto:y.nakatani@office-m-tax.com">y.nakatani@office-m-tax.com</a></td></tr>
+          <tr><th>事業内容</th><td>会計・記帳代行業務を母体とする、ライフプランニング（人生設計・資金計画）の相談支援／保険代理店向け 教育・提案支援ツールの提供</td></tr>
+          <tr><th>税務のご相談</th><td>当社は税理士法人ではありません。税務代理・税務書類の作成・個別具体的な税務相談など税理士にしか行えない業務は、提携する税理士をご紹介し対応します。</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="disc rv">
+      <h3>ご利用にあたっての注意事項</h3>
+      <ul>
+        <li>本ツール群は保険商品の販売・募集を行うものではありません。特定の保険会社・商品を推奨するものでもありません。</li>
+        <li>商品間の有利不利を断定的に示す内容は含めていません（保険業法第300条第1項）。</li>
+        <li>お客様向けツールの試算は、制度の仕組みを理解していただくための概算です。実際の給付・税額・保険料は、契約内容と個別の事情によって異なります。</li>
+        <li>社内ツール（AI師匠・資格試験トレーニングなど9本）は代理店の研修用です。お客様への提示はご遠慮ください。</li>
+        <li>資格試験トレーニングの問題は出題範囲にもとづく想定問題です。過去問の転載は行っていません。試験の区分・受験要件は年度で変わりますので、お申し込み前に必ず各団体の案内でご確認ください。</li>
+        <li>「AI師匠」は、あらかじめ用意した知識にもとづいて動く社内向けの相談ツールです。外部のAIサービスへは接続していません。</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 最後のCTA ==================== -->
+<section class="sec final" id="contact">
+  <div class="wrap">
+    <h2 class="rv">まずは30分、<br>のぞいてみませんか。</h2>
+    <p class="fs rv" style="--d:.08s">画面共有で、9本と295本を実際に動かしてお見せします。その場で決めていただく必要はありません。</p>
+    <a class="btn btn-w rv" style="--d:.14s" id="mailBtn" href="#">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+      メールで申し込む
+    </a>
+    <p class="fn rv" style="--d:.2s">ボタンを押すと、宛先と文面が入った状態でメールソフトが開きます。<br>送信前に、代理店名とご希望の日時をご記入ください。</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap fbar">
+    <div><b>株式会社 Office-M</b>　愛媛県伊予郡砥部町宮内592番地1</div>
+    <div>© Office-M. 掲載の社内ツールは代理店の研修用です。</div>
+  </div>
+</footer>
+
+<div class="sticky"><a href="#contact">まずは30分、リモートで</a></div>
+
+<script>
+/* =========================================================================
+   ★写真を足すところ。写真を hoken-lp-photos/ に置いて、ファイル名を書くだけ。
+   空（''）の枠は、そもそも表示されません（空の箱が出ないようにしてある）。
+   ========================================================================= */
+/* =========================================================================
+   ★20社限定の枠（2026-09-09 ユーザー指示）
+   total … 受けられる上限（20社）
+   left  … いま残っている枠。**実際の空き枠に合わせて直すこと。**
+           実数と違う数字を出すと景品表示法の有利誤認になります。
+
+   ★★2026-09-10：契約の実数は 0社。だから left は null のままにしてある。
+     null のときは「20社限定」とだけ出す（残数も「残りわずか」も出さない）。
+     **契約が入ったら、そのつど実数を入れること：**
+       0社    → null（20社限定だけ）
+       1〜5社 → left に実数（「残り15社」のように出る）
+       6社〜  → 実数を出したうえで「ご好評につき」が使えるようになる
+       20社   → left:0（満枠。「現在は満枠です」に差し替える）
+     **★「残りわずか」を実績のないうちに出さないこと**（景品表示法の有利誤認）。
+   ========================================================================= */
+var CAPACITY = { total: 20, left: null };
+
+var PHOTOS = {
+  koushin: '',   // 更改の書類やパソコンに向かっている場面（横長 16:10）
+  senpai:  '',   // 後輩と並んで座っている／教えている場面（横長 16:10）
+  mendan:  '',   // お客様と面談している場面（横長 16:10）
+  office:  '',   // 事務所の様子（縦長 3:4。空ならこの枠は出ません）
+  band:    ''    // 帯に敷く写真（横長 16:7 くらい。おしゃれなデスク・オフィス）
+};
+
+(function () {
+  /* ★20社限定の帯。left が数のときは「残り◯社」、**null のときは「20社限定」だけ**
+     （「残りわずか」は出さない。契約0社のうちは事実と違うため） */
+  (function () {
+    var box = document.querySelector('[data-limit]');
+    if (!box) return;
+    var total = CAPACITY.total, left = CAPACITY.left;
+    var num = box.querySelector('[data-left]');
+    var lab = box.querySelector('[data-leftlabel]');
+    var ttl = box.querySelector('[data-ltitle]');
+    var txt = box.querySelector('[data-ltext]');
+    var ring = box.querySelector('[data-ring]');
+    var C = 364;                         /* 2πr（r=58）の切り上げ */
+    if (typeof left === 'number' && left >= 0 && left <= total) {
+      num.textContent = String(left);
+      lab.textContent = '社ぶん 空き';
+      ttl.textContent = total + '社限定。残りは' + left + '社です。';
+      txt.innerHTML = 'ひとつずつ組み直してお渡しするため、同時にお受けできるのは' + total +
+        '社までとしています。いま空いているのは<b>' + left + '社ぶん</b>です。' +
+        '<b>まずは30分、リモートで画面をお見せするだけ</b>でも構いません。その場で決めていただく必要はありません。';
+      ring.setAttribute('stroke-dashoffset', String(Math.round(C * (1 - (total - left) / total))));
+    } else {
+      num.textContent = String(total);
+      lab.textContent = '社限定';
+      ring.setAttribute('stroke-dashoffset', '0');
+    }
+  })();
+
+  /* 写真の差し込み */
+  Object.keys(PHOTOS).forEach(function (k) {
+    var src = (PHOTOS[k] || '').trim();
+    if (!src) return;
+    document.querySelectorAll('[data-ph="' + k + '"]').forEach(function (el) {
+      var img = el.querySelector('img');
+      if (img) img.setAttribute('src', src);
+      el.classList.add('on');
+    });
+  });
+
+  /* ★ふわっと出す。一度出たら戻さない */
+  var els = document.querySelectorAll('.rv, .rvi');
+  if (!('IntersectionObserver' in window)) {
+    els.forEach(function (el) { el.classList.add('in'); });
+  } else {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { rootMargin: '0px 0px -10% 0px', threshold: .1 });
+    els.forEach(function (el) { io.observe(el); });
+  }
+  /* ★保険：速くスクロールすると IntersectionObserver が拾い損ねて、出ないまま残る要素が出る
+     （実測で 93 個中 56 個が出ないままだった）。スクロールのたびに通過ぶんを必ず出す。
+     この保険を外さないこと */
+  var sweep = function () {
+    var vh = window.innerHeight;
+    for (var i = 0; i < els.length; i++) {
+      var el = els[i];
+      if (el.classList.contains('in')) continue;
+      if (el.getBoundingClientRect().top < vh * .94) el.classList.add('in');
+    }
+  };
+  window.addEventListener('scroll', sweep, { passive: true });
+  window.addEventListener('resize', sweep);
+  requestAnimationFrame(sweep);
+
+  /* 申し込みは mailto だけ（バックエンドを持たない＝費用ゼロの原則） */
+  var to = 'y.nakatani@office-m-tax.com';
+  var subject = '【リモート面談のお申し込み】代理店向け FP・実務ツール一式';
+  var body = [
+    '株式会社Office-M ご担当者さま',
+    '',
+    '代理店向けのFP・実務ツール一式について、リモート面談を希望します。',
+    '',
+    '― ご記入ください ―',
+    '代理店名：',
+    'お名前：',
+    'お電話：',
+    '募集人の人数：（5名以下 ／ 6名以上）',
+    'ご希望の日時（第1希望）：',
+    'ご希望の日時（第2希望）：',
+    '聞いておきたいこと：',
+    '',
+    '――――――――――',
+    'このメールは案内ページの申し込みボタンから作成されました。'
+  ].join('\n');
+  var b = document.getElementById('mailBtn');
+  if (b) b.setAttribute('href', 'mailto:' + to + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body));
+})();
+</script>
+</body>
+</html>
