@@ -42,17 +42,41 @@
        下の PHOTOS に入れれば、その場所が写真に変わる。**入っていない枠は表示されない**ので、
        空のままでもページは崩れない（空の箱が出ない作りにしてある）。
 
+  ■ ★★2026-09-10：中身を前半に出し、写真の枠を7つに増やした★★
+     ユーザー指示（同じ日に4件）
+       ①「中身の写真や動画を最初の方に配置してください」
+       ②「写真に文章を添えて、こんなことありませんか？のような感じで投げかけて」
+       ③「推したいのは、生命保険などの基本分野や考え方、中身としては逆転劇場。
+          ライフプランツールの中身はかなりやりこんでいるのでここも案内を。あと、AI師匠。
+          中がどんな返答なのかも見せて。他のツールは少しだけ触れる程度で大丈夫」
+       ④「LPには写真を多く。現場でのデスクなどの写真のフリー素材を引用しおしゃれに」
+     → ヒーローの直後に **#peek「こんなこと、ありませんか。」** を新設した。
+       大きく4つ（①基本分野と考え方 ②逆転劇場 ③ライフプランの中身 ④AI師匠の返答）＋
+       小さく4枚（資格・切り返し・ダッシュボード・管理画面）。
+       **もとは #tools の下にあったギャラリー（.shots）を、この節に作り替えて前へ移した。**
+       ★後ろに戻さないこと。★4つの重みづけを平らにしないこと。
+     → 画面は実物。撮り直しは scratchpad の `shots9.js`
+       （ポート 8899=smile24-demo／8905=lifeplan／8907=office-m）。
+       app-kihon／app-kihon2／app-geki／app-seikatsu／app-unyou／app-reply が今回の新規。
+     → ★④の「フリー素材のデスク写真」は**入れられていない**。2026-09-10 に11ホストを
+       再確認したが、unsplash・pexels・pixabay・picsum・wikimedia・pakutaso・burst・
+       flickr・openverse すべて egress proxy が拒否（curl でも 000）。
+       raw.githubusercontent.com だけ 200 だが権利が確認できないので使わない。
+       **枠だけ7つ用意してある。ファイルをもらったら PHOTOS に書けば入る。**
+
   ■ ★★写真を足すとき★★
      ページ末尾の <script> の PHOTOS に、ファイル名を書くだけです。
-         var PHOTOS = { koushin:'hoken-lp-photos/koushin.jpg', ... };
+         var PHOTOS = { desk:'hoken-lp-photos/desk-01.jpg', ... };
      ▼ ほしい写真（あるものだけで大丈夫）
+       desk    … ヒーローの下に敷く帯（横長 16:6。おしゃれなデスク・事務所の全景）
        koushin … 更改の書類やパソコンに向かっている場面（横長 16:10）
        senpai  … 後輩と並んで座っている／教えている場面（横長 16:10）
        mendan  … お客様と面談している場面（横長 16:10）
+       band    … 「愛媛・砥部町から」の帯（横長 16:7）。空のあいだは濃い地色の帯として出る
+       desk2   … 費用の手前に敷く帯（横長 16:6。打ち合わせ・オンライン面談の机）
        office  … 事務所の様子（縦長 3:4。空ならこの枠ごと出ません。
                  ★人物の写真は入れない方針。入れるなら事務所・デスクの風景で）
-       band    … 帯に敷く写真（横長 16:7 くらい。おしゃれなデスク・オフィス）。
-                 空のあいだは濃い地色の帯として出る
+     ▼ desk / desk2 は **写真だけの帯（figure.pstrip）**。空のあいだは帯ごと出ない
      ▼ ★人物写真の条件（ユーザー指示 2026-09-08）
        ・日本人 ・スーツ（ジャケット＋襟シャツ＋ネクタイ）できちっとした身なり
        ・引き締まった体型。**太った人・だらしない着こなしは使わない**
@@ -265,11 +289,57 @@ header{
   color:var(--accent); background:var(--accentSoft); padding:6px 13px; border-radius:4px;
 }
 /* ★実画面のギャラリー（6枚）。2列→1列。説明はスクリーンショットの下に小さく */
-.shots{display:grid; grid-template-columns:repeat(2,1fr); gap:clamp(18px,2.6vw,30px); margin-top:clamp(40px,5vw,64px)}
-@media(max-width:760px){ .shots{grid-template-columns:1fr} }
-.shot{margin:0}
-.shot img{width:100%; border-radius:8px; border:1px solid var(--line); box-shadow:0 10px 34px rgba(15,17,21,.09)}
-.shot figcaption{margin-top:10px; font-size:13px; color:var(--ink2); line-height:1.75}
+/* ---------- ★写真だけの帯（#pstrip）----------
+   2026-09-10 ユーザー指示「LPには写真を多く。現場でのデスクなどの写真を入れて」。
+   ★この実行環境からフリー素材は1枚も取れない（proxy が 403 CONNECT で拒否。
+     unsplash / pexels / pixabay / picsum / wikimedia / pakutaso / burst / flickr /
+     openverse すべて 2026-09-10 に再確認）。そこで**枠だけ**用意してある。
+   下の PHOTOS にファイル名を書けば、その帯がそのまま写真になる。
+   **入っていないあいだは帯ごと出ない**（空の箱を見せない） */
+.pstrip{display:none; padding:0}
+.pstrip.on{display:block}
+.pstrip img{width:100%; height:clamp(240px,34vw,460px); object-fit:cover}
+.pstrip figcaption{
+  width:min(100% - 40px, var(--wrap)); margin:14px auto 0;
+  font-size:12.5px; color:var(--ink3); letter-spacing:.02em;
+}
+
+/* ---------- ★中身をのぞく（#peek）----------
+   2026-09-10 ユーザー指示「中身の写真を最初の方に配置」「写真に文章を添えて、
+   こんなことありませんか？のような感じで投げかけて」「推したいのは 生命保険などの
+   基本分野と考え方／逆転劇場／ライフプランの中身／AI師匠の返答。他は少しだけ」。
+   ★この節をページの後ろに戻さないこと。問いかけ（h3）と画面（figure）は
+     1対1で対応しているので、片方だけ差し替えないこと */
+.peek{background:linear-gradient(180deg,#fff 0%,var(--soft) 14%,var(--soft) 86%,#fff 100%)}
+.pklist{display:grid; gap:clamp(58px,7.5vw,104px)}
+.pk{display:grid; grid-template-columns:.9fr 1.1fr; gap:clamp(24px,3.6vw,56px); align-items:center}
+.pk:nth-child(even) .pk-im{order:-1}
+@media(max-width:880px){ .pk{grid-template-columns:1fr; gap:22px} .pk:nth-child(even) .pk-im{order:0} }
+.pk-n{font-family:var(--n); font-weight:700; font-size:13px; letter-spacing:.16em; color:var(--accent); display:block; margin-bottom:14px}
+/* ★見出しは <br> で行を決めている。1行が入れ物に収まる大きさにすること
+     （31px だと『——そう言われて、詰まったことは。』が2行に割れた） */
+.pk h3{font-weight:900; font-size:clamp(18px,2.2vw,27px); line-height:1.55; margin:0 0 15px; letter-spacing:-.012em}
+.pk p{margin:0 0 18px; color:var(--ink2); font-size:15px}
+.pk .pk-t{display:inline-block; border:1px solid var(--line2); background:#fff; border-radius:999px; padding:6px 15px; font-size:12.5px; color:var(--ink2)}
+.pk-im{margin:0}
+.pk-im>img{width:100%; border-radius:10px; border:1px solid var(--line); box-shadow:0 20px 52px rgba(15,17,21,.13)}
+.pk-im figcaption{margin-top:11px; font-size:12.5px; color:var(--ink3); line-height:1.75}
+.pk-sub{display:grid; grid-auto-flow:column; grid-auto-columns:1fr; gap:10px; margin-top:10px}
+/* ★添えの画面は高さをそろえる（元の縦横比のままだと、となりと段差が出る） */
+.pk-sub img{width:100%; aspect-ratio:16/11; object-fit:cover; object-position:top center;
+  border-radius:6px; border:1px solid var(--line); box-shadow:0 8px 22px rgba(15,17,21,.08)}
+@media(max-width:600px){ .pk-sub{grid-auto-flow:row} }
+.pkmore{margin-top:clamp(56px,7vw,92px); text-align:center}
+.pkmore b{display:block; font-weight:900; font-size:clamp(17px,2.6vw,22px); margin-bottom:8px}
+.pkmore span{color:var(--ink2); font-size:14px}
+.pkmini{display:grid; grid-template-columns:repeat(4,1fr); gap:clamp(13px,1.8vw,22px); margin-top:clamp(24px,3vw,38px)}
+@media(max-width:880px){ .pkmini{grid-template-columns:repeat(2,1fr)} }
+.pkmini figure{margin:0}
+/* ★4枚とも同じ高さにする（そろえないと説明の行がばらつく） */
+.pkmini img{width:100%; aspect-ratio:16/11; object-fit:cover; object-position:top center;
+  border-radius:8px; border:1px solid var(--line); box-shadow:0 10px 26px rgba(15,17,21,.09)}
+.pkmini figcaption{margin-top:9px; font-size:12px; color:var(--ink2); line-height:1.7}
+.pkmini figcaption b{display:block; font-weight:700; color:var(--ink); font-size:12.5px}
 .sol h3{font-weight:900; font-size:clamp(21px,3.8vw,34px); margin:18px 0 14px; line-height:1.48; letter-spacing:-.015em}
 .sol p{margin:0 0 20px; color:var(--ink2); font-size:15px}
 .chips{display:flex; flex-wrap:wrap; gap:8px}
@@ -473,6 +543,116 @@ footer{border-top:1px solid var(--line); padding:38px 0; font-size:13px; color:v
   </div>
 </section>
 
+<!-- 写真の帯①（現場のデスク）。PHOTOS の desk に入れると出る -->
+<figure class="pstrip" data-ph="desk"><img alt="事務所のデスク" loading="lazy"><figcaption>愛媛・砥部町の事務所にて。</figcaption></figure>
+
+<!-- ==================== 中身をのぞく（★ヒーローの次） ====================
+     ★2026-09-10 ユーザー指示
+       「中身の写真や動画を最初の方に配置してください」
+       「写真に文章を添えて、こんなことありませんか？のような感じで投げかけてください」
+       「推したいのは、生命保険などの基本分野や考え方、中身としては逆転劇場。
+         ライフプランツールの中身はかなりやりこんでいるので、ここも中身の案内を。
+         あと、AI師匠。中がどんな返答なのかも見せてください。
+         他のツールに関しては少しだけ触れる程度で大丈夫です」
+     → 大きく4つ（①基本分野と考え方 ②逆転劇場 ③ライフプランの中身 ④AI師匠の返答）、
+       残りは小さく4枚。**この重みづけを平らにしないこと。**
+     → 問いかけ（h3）と画面（figure）は1対1。片方だけ差し替えると対応が崩れる。
+     → 画面は実物。撮り直しは scratchpad の shots9.js（ポート 8899／8905／8907）
+-->
+<section class="sec peek" id="peek">
+  <div class="wrap">
+    <div class="sec-head c">
+      <span class="kicker rv">中身を、先にお見せします</span>
+      <h2 class="st rv" style="--d:.06s">こんなこと、<br>ありませんか。</h2>
+      <p class="lead rv" style="--d:.12s">代理店さまからよくうかがう場面を、4つだけ。となりに並べたのが、実際の画面です。</p>
+    </div>
+
+    <div class="pklist">
+
+      <!-- ① 生命保険などの基本分野・考え方 -->
+      <div class="pk">
+        <div class="pk-tx">
+          <span class="pk-n rv">01</span>
+          <h3 class="rv" style="--d:.04s">「掛け捨ては、もったいないよね」<br>——そう言われて、詰まったことは。</h3>
+          <p class="rv" style="--d:.08s">損得の話に見えて、じつは線を3本引けば済む話です。生命保険・医療・年金・相続・税金まで<b>11分野295本以上</b>の読みものを、まず自分が読む材料として置いています。読んだうえで、自分の言葉に置き換えてお客様にお話しいただく形です。</p>
+          <span class="pk-t rv" style="--d:.12s">代理店さまの学習資料　11分野・295本以上</span>
+        </div>
+        <figure class="pk-im rvi" style="--d:.06s">
+          <img src="hoken-lp-photos/app-kihon.jpg" alt="定期と終身の考え方のページ。家が燃えなかった年を損したとは言いません" loading="lazy">
+          <div class="pk-sub">
+            <img src="hoken-lp-photos/app-kihon2.jpg" alt="どちらが得か、ではなく。線は3本あります" loading="lazy">
+            <img src="hoken-lp-photos/app-cards.jpg" alt="学習資料の一覧。分野から選べる" loading="lazy">
+          </div>
+          <figcaption>ことばの種明かしから入り、線を3本引いて考え方を渡します。分野からも1本ずつ選べます。</figcaption>
+        </figure>
+      </div>
+
+      <!-- ② 逆転劇場 -->
+      <div class="pk">
+        <div class="pk-tx">
+          <span class="pk-n rv">02</span>
+          <h3 class="rv" style="--d:.04s">「もう解約するしかない」<br>——本当に、そうでしたか。</h3>
+          <p class="rv" style="--d:.08s">続けるとやめるのあいだには、いくつも段があります。しかもそのほとんどが、<b>申し出て初めて使えるもの</b>。営業もお客様も知らなかった手を、第一話から順に置いた節です。更改の席でお渡しできる有益な情報が、そのまま手元に増えます。</p>
+          <span class="pk-t rv" style="--d:.12s">逆転劇場　学習資料のほぼ全ページに収録</span>
+        </div>
+        <figure class="pk-im rvi" style="--d:.06s">
+          <img src="hoken-lp-photos/app-geki.jpg" alt="逆転劇場〜知っていたから、選べた〜。契約内容のお知らせ・払済保険への変更・減額など" loading="lazy">
+          <figcaption>逆転劇場 ── 助かった話だけを集めた節です。不安で押す作りにはしていません。</figcaption>
+        </figure>
+      </div>
+
+      <!-- ③ ライフプランツールの中身 -->
+      <div class="pk">
+        <div class="pk-tx">
+          <span class="pk-n rv">03</span>
+          <h3 class="rv" style="--d:.04s">「で、うちはいくら必要ですか」<br>——その場で、絵にできますか。</h3>
+          <p class="rv" style="--d:.08s">食費も、ガソリン代も、お小遣いも、1項目ずつ。NISA・iDeCo・公的年金は、利回りと積立から。<b>約300世帯</b>のライフプランを実際に作ってきた入力項目が、そのまま入っています。入れ終わると、30年ぶんの収入・支出・貯蓄の推移が1枚の表になります。</p>
+          <span class="pk-t rv" style="--d:.12s">約300世帯の実績　AI診断は10分野</span>
+        </div>
+        <figure class="pk-im rvi" style="--d:.06s">
+          <img src="hoken-lp-photos/app-seikatsu.jpg" alt="ライフプランの生活費入力。食費・外食費・日用品・電気・ガス・水道・携帯代まで1項目ずつ" loading="lazy">
+          <div class="pk-sub">
+            <img src="hoken-lp-photos/app-unyou.jpg" alt="貯蓄運用と公的年金の入力。NISA・iDeCoを利回りと積立で" loading="lazy">
+            <img src="hoken-lp-photos/app-cf.jpg" alt="年齢別のキャッシュフロー表" loading="lazy">
+            <img src="hoken-lp-photos/app-shindan.jpg" alt="AI診断。安心できる点と気をつけたい点の両方を出す" loading="lazy">
+          </div>
+          <figcaption>入力 → 30年の表 → AI診断まで。担当者の主観ではなく、数字から見た第三者の目でお話しできます。</figcaption>
+        </figure>
+      </div>
+
+      <!-- ④ AI師匠の返答 -->
+      <div class="pk">
+        <div class="pk-tx">
+          <span class="pk-n rv">04</span>
+          <h3 class="rv" style="--d:.04s">夜10時、部下から相談が来た。<br>——聞ける人が、社内にいますか。</h3>
+          <p class="rv" style="--d:.08s">打てば返ります。見立て → 例え話 → 置く・聞く・引く、まで。本13冊<b>239の原則</b>と<b>1,228本の例え話</b>から選んで返します。厳しめにも、褒め伸ばしにも。口調も判断軸も、御社の運営方針に合わせてお作りします。</p>
+          <span class="pk-t rv" style="--d:.12s">本13冊・239の原則　口調は御社用に</span>
+        </div>
+        <figure class="pk-im rvi" style="--d:.06s">
+          <img src="hoken-lp-photos/app-reply.jpg" alt="AI師匠の返答。見立て・例え話・置く聞く引くの図まで返ってくる" loading="lazy">
+          <figcaption>これが実際の返事です。図まで付けて返すので、そのまま部下に見せられます。</figcaption>
+        </figure>
+      </div>
+
+    </div>
+
+    <div class="pkmore rv">
+      <b>ほかにも、こんな道具があります。</b>
+      <span>資格・断り文句・数字・満期まで。くわしくは、この下の「中身のご紹介」で。</span>
+    </div>
+    <div class="pkmini">
+      <figure class="rvi"><img src="hoken-lp-photos/app-shikaku.jpg" alt="資格試験トレーニングの道すじ" loading="lazy">
+        <figcaption><b>資格試験トレーニング</b>13試験6,000問以上。順番を地図で。</figcaption></figure>
+      <figure class="rvi" style="--d:.05s"><img src="hoken-lp-photos/app-kirikaeshi.jpg" alt="切り返し辞典" loading="lazy">
+        <figcaption><b>切り返し辞典</b>断り文句58通りに、4段の返し方。</figcaption></figure>
+      <figure class="rvi" style="--d:.1s"><img src="hoken-lp-photos/app-calendar.jpg" alt="営業ダッシュボードのカレンダー" loading="lazy">
+        <figcaption><b>営業ダッシュボード</b>誰と何をしたかが、色で残ります。</figcaption></figure>
+      <figure class="rvi" style="--d:.15s"><img src="hoken-lp-photos/app-hub.jpg" alt="ツール管理画面" loading="lazy">
+        <figcaption><b>ツール管理画面</b>分野を選んで、開くだけ。</figcaption></figure>
+    </div>
+  </div>
+</section>
+
 <!-- ==================== お困りごと ==================== -->
 <section class="sec" id="pain">
   <div class="wrap">
@@ -640,7 +820,7 @@ footer{border-top:1px solid var(--line); padding:38px 0; font-size:13px; color:v
   <div class="bov">
     <div class="btx">
       <b class="rv">愛媛・砥部町から、<br>代理店さまへ。</b>
-      <p class="rv" style="--d:.1s">会計・記帳代行を母体にした会社が、FP1級と税務の目で中身を組み立てています。だから家計・決算書・資金繰り・相続まで、お客様の隣にある話につながります。</p>
+      <p class="rv" style="--d:.1s">会計・記帳代行を母体にした会社が、ファイナンシャルプランナーの目で中身を組み立てています。だから家計・決算書・資金繰り・相続まで、お客様の隣にある話につながります。</p>
     </div>
   </div>
 </section>
@@ -654,7 +834,7 @@ footer{border-top:1px solid var(--line); padding:38px 0; font-size:13px; color:v
     </div>
 
     <div class="reasons">
-      <div class="reason rv"><span class="rn">01</span><h3>現場のFPが作っている</h3><p>会計・記帳代行を母体にした会社が、FP1級と税務の目で中身を組み立てています。<b>約300世帯</b>のライフプランを実際に作ってきた提案の視点が、そのまま道具になっています。</p><span class="rt">約300世帯の実績／法人・経営43本・税金32本</span></div>
+      <div class="reason rv"><span class="rn">01</span><h3>現場のFPが作っている</h3><p>会計・記帳代行を母体にした会社が、ファイナンシャルプランナーの目で中身を組み立てています。<b>約300世帯</b>のライフプランを実際に作ってきた提案の視点が、そのまま道具になっています。</p><span class="rt">約300世帯の実績／法人・経営43本・税金32本</span></div>
       <div class="reason rv" style="--d:.06s"><span class="rn">02</span><h3>師匠は、あつらえます</h3><p>夜でも土日でも同じ水準で返るうえに、口調も考え方もその代理店さまに合わせてお作りします。厳しめ・Z世代・褒め伸ばしの作り分けもできます。</p><span class="rt">本13冊・239の原則／オーダーメード</span></div>
       <div class="reason rv" style="--d:.12s"><span class="rn">03</span><h3>FPも、実務資格も</h3><p>FP技能検定1〜3級に加えて、生保・損保の実務資格（基礎単位・商品単位・更新・大学課程）まで同じ画面に。学ぶ順番も示します。</p><span class="rt">13試験・6,045問</span></div>
       <div class="reason rv"><span class="rn">04</span><h3>学ぶ材料が、社内にそろう</h3><p>家計・税金・相続・公的保障・資産形成まで11分野。医療保険も終身保険も、独学でなく読みものとして置いてあります。朝礼の前に1本、移動の合間に1本、という使い方をされています。</p><span class="rt">11分野・295本</span></div>
@@ -685,26 +865,6 @@ footer{border-top:1px solid var(--line); padding:38px 0; font-size:13px; color:v
       <div class="titem rv" style="--d:.32s"><span class="tn">09</span><div><b>満期・年齢到達カレンダー</b><span>満期・更新・払込満了・年齢の節目を自動で。</span></div></div>
     </div>
 
-    <!-- ★実際の画面6枚（2026-09-08 ユーザー指示「この写真をLPや動画に入れてください」）。
-         撮り直しは scratchpad の shots6.js。英字ラベルを日本語に直したあとの画面を撮ってある -->
-    <div class="shots">
-      <figure class="shot rvi"><img src="hoken-lp-photos/app-mentor.jpg" alt="AI師匠の画面。相談を打つと、見立て・例え話・図が返ってくる" loading="lazy">
-        <figcaption>AI師匠 ── 相談を打つと、見立てと今日やることが返ってきます</figcaption></figure>
-      <figure class="shot rvi" style="--d:.06s"><img src="hoken-lp-photos/app-shikaku.jpg" alt="資格試験トレーニングの画面。合格までの道順がステップで並んでいる" loading="lazy">
-        <figcaption>資格試験トレーニング ── 合格までの道順が、ステップで見えます</figcaption></figure>
-      <figure class="shot rvi" style="--d:.04s"><img src="hoken-lp-photos/app-kirikaeshi.jpg" alt="切り返し辞典の画面。断られてよい、という立場に立つ" loading="lazy">
-        <figcaption>切り返し辞典 ── 断り文句58パターンに、4段の返し方</figcaption></figure>
-      <figure class="shot rvi" style="--d:.1s"><img src="hoken-lp-photos/app-calendar.jpg" alt="営業ダッシュボードのカレンダー。誰と何をしたかが色で分かる" loading="lazy">
-        <figcaption>営業ダッシュボード ── 誰と何をしたかが、色で残ります</figcaption></figure>
-      <figure class="shot rvi" style="--d:.08s"><img src="hoken-lp-photos/app-hub.jpg" alt="ツール管理画面。分野ごとに選んでリンクで渡せる" loading="lazy">
-        <figcaption>ツール管理画面 ── 分野を選んで、読みたいものを開くだけ</figcaption></figure>
-      <figure class="shot rvi" style="--d:.12s"><img src="hoken-lp-photos/app-cards.jpg" alt="代理店の学習資料の一覧" loading="lazy">
-        <figcaption>学習資料の読みもの ── 1本ずつ、分野から選べます</figcaption></figure>
-      <figure class="shot rvi" style="--d:.14s"><img src="hoken-lp-photos/app-cf.jpg" alt="ライフプランの年齢別キャッシュフロー表" loading="lazy">
-        <figcaption>ライフプラン ── 約300世帯の実績から。年齢別のキャッシュフロー表まで</figcaption></figure>
-      <figure class="shot rvi" style="--d:.16s"><img src="hoken-lp-photos/app-shindan.jpg" alt="AI診断の画面" loading="lazy">
-        <figcaption>AI診断 ── 10分野を、安心できる点と気をつけたい点の両方で</figcaption></figure>
-    </div>
   </div>
 </section>
 
@@ -817,6 +977,9 @@ footer{border-top:1px solid var(--line); padding:38px 0; font-size:13px; color:v
     </div>
   </div>
 </section>
+
+<!-- 写真の帯②（打ち合わせの様子）。PHOTOS の desk2 に入れると出る -->
+<figure class="pstrip" data-ph="desk2"><img alt="打ち合わせの様子" loading="lazy"><figcaption>導入後は、月1回のオンラインでのご相談も承っています。</figcaption></figure>
 
 <!-- ==================== 費用 ==================== -->
 <section class="sec" id="price">
@@ -1003,12 +1166,23 @@ footer{border-top:1px solid var(--line); padding:38px 0; font-size:13px; color:v
    ========================================================================= */
 var CAPACITY = { total: 20, left: null };
 
+/* ★写真の入れ方（2026-09-10 現在、7枠とも空です）
+     1) hoken-lp-photos/ にファイルを置く
+     2) 下の '' の中にファイル名を書く（例：desk:'hoken-lp-photos/desk-01.jpg'）
+   それだけで、その枠のイラスト無しの箱が写真に変わります。**空の枠は表示されません。**
+   ★条件：日本人・スーツできちっとした身なり・引き締まった体型。
+     太った人・崩れた着こなし（裾出し・ネクタイ緩め・腕まくり）は使わない。
+     広告に使うので、商用利用可・人物ならモデルリリースのあるものを選ぶこと。
+   ★この実行環境からはフリー素材に1枚も到達できません（egress の 403 CONNECT）。
+     お手元でダウンロードしたものか、御社で撮った写真をお送りください。 */
 var PHOTOS = {
+  desk:    '',   // ヒーローの下に敷く帯（横長 16:6。おしゃれなデスク・事務所の全景）
   koushin: '',   // 更改の書類やパソコンに向かっている場面（横長 16:10）
   senpai:  '',   // 後輩と並んで座っている／教えている場面（横長 16:10）
   mendan:  '',   // お客様と面談している場面（横長 16:10）
-  office:  '',   // 事務所の様子（縦長 3:4。空ならこの枠は出ません）
-  band:    ''    // 帯に敷く写真（横長 16:7 くらい。おしゃれなデスク・オフィス）
+  band:    '',   // 「愛媛・砥部町から」の帯（横長 16:7）
+  desk2:   '',   // 費用の手前に敷く帯（横長 16:6。打ち合わせ・オンライン面談の机）
+  office:  ''    // 事務所の様子（縦長 3:4。空ならこの枠は出ません）
 };
 
 (function () {
