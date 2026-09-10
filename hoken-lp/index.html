@@ -305,6 +305,9 @@ header{
 .numgrid b{display:block; font-family:var(--n); font-weight:700; font-size:clamp(29px,5.4vw,50px);
   line-height:1; letter-spacing:-.02em; color:var(--accent)}
 .numgrid span{display:block; font-size:12.5px; color:var(--ink3); margin-top:10px; letter-spacing:.06em}
+/* ★単位は数字より小さく、色を落として添える（数字を主役のままにする） */
+.numgrid b i{font-style:normal; font-size:.40em; font-weight:700; margin-left:.16em; color:var(--ink2)}
+.numgrid span em{font-style:normal; color:var(--ink2); font-weight:700}
 
 /* ---------- お困りごと ---------- */
 .pains{border-top:1px solid var(--line)}
@@ -344,6 +347,38 @@ header{
   color:var(--accent); background:var(--accentSoft); padding:6px 13px; border-radius:4px;
 }
 /* ★実画面のギャラリー（6枚）。2列→1列。説明はスクリーンショットの下に小さく */
+/* ---------- ★画像を押すと大きく（ライトボックス）----------
+   2026-09-10 ユーザー指示「ツールの紹介に関しての写真を押すと大きく画面に表示されるように
+   すべて修正してください」。ツールの画面はどれも文字が小さいので、押したら原寸で読める。
+   ★`#lb` は display を書くので、hidden で隠すときは [hidden] を !important でセットに
+     すること（この案件で3回踏んでいる詳細度の事故。#tk-expired・.mt-tools と同型） */
+.zoomable{cursor:zoom-in}
+.zoomable:focus-visible{outline:3px solid var(--accent); outline-offset:3px}
+#lb{
+  position:fixed; inset:0; z-index:200; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:14px;
+  padding:clamp(14px,3vw,40px); background:rgba(11,14,19,.88);
+}
+#lb[hidden]{display:none !important}
+#lb img{
+  max-width:100%; max-height:calc(100dvh - clamp(110px,15vw,170px));
+  width:auto; height:auto; background:#fff; border-radius:8px;
+  box-shadow:0 30px 80px rgba(0,0,0,.55);
+}
+#lb .lb-cap{
+  max-width:min(100%, 860px); text-align:center; color:#e8ecf1; font-size:13px; line-height:1.75;
+}
+#lb-close{
+  position:absolute; top:clamp(10px,2vw,20px); right:clamp(10px,2vw,20px);
+  width:46px; height:46px; border-radius:50%; border:1px solid rgba(255,255,255,.34);
+  background:rgba(255,255,255,.10); color:#fff; font-size:20px; line-height:1; cursor:pointer;
+}
+#lb-close:hover{background:rgba(255,255,255,.20)}
+@media(prefers-reduced-motion:no-preference){
+  #lb:not([hidden]) img{animation:lbin .22s cubic-bezier(.2,.8,.3,1) both}
+  @keyframes lbin{from{opacity:0; transform:scale(.97)} to{opacity:1; transform:none}}
+}
+
 /* ---------- ★写真だけの帯（#pstrip）----------
    2026-09-10 ユーザー指示「LPには写真を多く。現場でのデスクなどの写真を入れて」。
    ★この実行環境からフリー素材は1枚も取れない（proxy が 403 CONNECT で拒否。
@@ -612,17 +647,20 @@ footer{border-top:1px solid var(--line); padding:38px 0; font-size:13px; color:v
         <div class="ha ha-b1"><img src="hoken-lp-photos/app-cf.jpg" alt="ライフプランの年齢別キャッシュフロー表"></div>
         <div class="ha ha-b2"><img src="hoken-lp-photos/app-cards.jpg" alt="学習資料の一覧。分野から選べる"></div>
         <div class="ha ha-main"><img src="hoken-lp-photos/app-mentor.jpg" alt="AI師匠の画面。相談を打つと見立てと今日やることが返ってくる" fetchpriority="high"></div>
-        <span class="ha-chip ha-c1"><b>13</b>冊・239の原則</span>
-        <span class="ha-chip ha-c2"><b>295</b>本以上・11分野</span>
+        <span class="ha-chip ha-c1"><b>13</b>冊・239の考え方</span>
+        <span class="ha-chip ha-c2"><b>295</b>以上・11分野</span>
       </div>
     </div>
 
     <div class="numbar">
       <div class="numgrid">
-        <div class="rv"><b>9</b><span>社内で使うツール</span></div>
-        <div class="rv" style="--d:.1s"><b>295</b><span>学習資料 11分野</span></div>
-        <div class="rv" style="--d:.2s"><b>6,045</b><span>FP・実務資格の想定問題</span></div>
-        <div class="rv" style="--d:.3s"><b>約300</b><span>ライフプランを作った世帯</span></div>
+        <!-- ★2026-09-10 ユーザー指示「単位を入れてください。世帯、個、分野、問。」
+             ★あわせて「本」という数え方はやめた（同日の指示）。295 の単位は置かず、
+               分野は下の説明に置いてある -->
+        <div class="rv"><b>9<i>個</i></b><span>社内で使うツール</span></div>
+        <div class="rv" style="--d:.1s"><b>295</b><span>学習資料　11<em>分野</em></span></div>
+        <div class="rv" style="--d:.2s"><b>6,045<i>問</i></b><span>FP・実務資格の想定問題</span></div>
+        <div class="rv" style="--d:.3s"><b>約300<i>世帯</i></b><span>作ってきたライフプラン</span></div>
       </div>
     </div>
   </div>
@@ -659,8 +697,8 @@ footer{border-top:1px solid var(--line); padding:38px 0; font-size:13px; color:v
         <div class="pk-tx">
           <span class="pk-n rv">01</span>
           <h3 class="rv" style="--d:.04s">「掛け捨ては、もったいないよね」<br>——そう言われて、詰まったことは。</h3>
-          <p class="rv" style="--d:.08s">損得の話に見えて、じつは線を3本引けば済む話です。生命保険・医療・年金・相続・税金まで<b>11分野295本以上</b>の読みものを、まず自分が読む材料として置いています。読んだうえで、自分の言葉に置き換えてお客様にお話しいただく形です。</p>
-          <span class="pk-t rv" style="--d:.12s">代理店さまの学習資料　11分野・295本以上</span>
+          <p class="rv" style="--d:.08s">損得の話に見えて、じつは線を3本引けば済む話です。生命保険・医療・年金・相続・税金まで<b>11分野295以上</b>の読みものを、まず自分が読む材料として置いています。読んだうえで、自分の言葉に置き換えてお客様にお話しいただく形です。</p>
+          <span class="pk-t rv" style="--d:.12s">代理店さまの学習資料　11分野・295以上</span>
         </div>
         <figure class="pk-im rvi" style="--d:.06s">
           <img src="hoken-lp-photos/app-kihon.jpg" alt="定期と終身の考え方のページ。家が燃えなかった年を損したとは言いません" loading="lazy">
@@ -686,22 +724,26 @@ footer{border-top:1px solid var(--line); padding:38px 0; font-size:13px; color:v
         </figure>
       </div>
 
-      <!-- ③ ライフプランツールの中身 -->
+      <!-- ③ ライフプランツール（★2026-09-10 ユーザー指示で全面的に書き替えた）
+           「音声入力で抜けを無くし、概要も自動生成、次に何をしたらいいかも道筋を立ててくれます。
+             ライフプランは必要と思っているが、なかなか手を出しにくい。
+             あなたをサポートしてくれるツールです」
+           ★「作るのが大変」ではなく「支えてくれる」と書くこと。道具の自慢に戻さない -->
       <div class="pk">
         <div class="pk-tx">
           <span class="pk-n rv">03</span>
-          <h3 class="rv" style="--d:.04s">「で、うちはいくら必要ですか」<br>——その場で、絵にできますか。</h3>
-          <p class="rv" style="--d:.08s">食費も、ガソリン代も、お小遣いも、1項目ずつ。NISA・iDeCo・公的年金は、利回りと積立から。<b>約300世帯</b>のライフプランを実際に作ってきた入力項目が、そのまま入っています。入れ終わると、30年ぶんの収入・支出・貯蓄の推移が1枚の表になります。</p>
-          <span class="pk-t rv" style="--d:.12s">約300世帯の実績　AI診断は10分野</span>
+          <h3 class="rv" style="--d:.04s">ライフプランは、必要だと思う。<br>——でも、手が出しにくい。</h3>
+          <p class="rv" style="--d:.08s">面談は<b>録音するだけ</b>。話した内容が文字起こしと概要にまとまるので、聞き漏らしが埋まります。そのうえで<b>次に何をしたらいいか</b>を、重要度とスピードで並べた見取り図にしてくれます。<b>約300世帯</b>ぶんの入力項目もそのまま入っているので、ゼロから組み立てる必要はありません。</p>
+          <span class="pk-t rv" style="--d:.12s">音声で入力　概要も、次の一手も自動で</span>
         </div>
         <figure class="pk-im rvi" style="--d:.06s">
-          <img src="hoken-lp-photos/app-seikatsu.jpg" alt="ライフプランの生活費入力。食費・外食費・日用品・電気・ガス・水道・携帯代まで1項目ずつ" loading="lazy">
+          <img src="hoken-lp-photos/lp-tenote.jpg" alt="次の一手の見取り図。重要度とスピードで並べ、誰がやるかまで振り分けられている" loading="lazy">
           <div class="pk-sub">
-            <img src="hoken-lp-photos/app-unyou.jpg" alt="貯蓄運用と公的年金の入力。NISA・iDeCoを利回りと積立で" loading="lazy">
+            <img src="hoken-lp-photos/lp-okane.jpg" alt="お金の見通し。100歳まで資金ショートを起こさない安定した結果" loading="lazy">
+            <img src="hoken-lp-photos/app-seikatsu.jpg" alt="生活費の入力。食費・外食費・日用品・電気・ガス・水道・携帯代まで1項目ずつ" loading="lazy">
             <img src="hoken-lp-photos/app-cf.jpg" alt="年齢別のキャッシュフロー表" loading="lazy">
-            <img src="hoken-lp-photos/app-shindan.jpg" alt="AI診断。安心できる点と気をつけたい点の両方を出す" loading="lazy">
           </div>
-          <figcaption>入力 → 30年の表 → AI診断まで。担当者の主観ではなく、数字から見た第三者の目でお話しできます。</figcaption>
+          <figcaption>録音 → 文字起こしと概要 → 次の一手。お金の見通しと年ごとの表まで、そのまま続きます。</figcaption>
         </figure>
       </div>
 
@@ -710,8 +752,8 @@ footer{border-top:1px solid var(--line); padding:38px 0; font-size:13px; color:v
         <div class="pk-tx">
           <span class="pk-n rv">04</span>
           <h3 class="rv" style="--d:.04s">夜10時、部下から相談が来た。<br>——聞ける人が、社内にいますか。</h3>
-          <p class="rv" style="--d:.08s">打てば返ります。見立て → 例え話 → 置く・聞く・引く、まで。本13冊<b>239の原則</b>と<b>1,228本の例え話</b>から選んで返します。厳しめにも、褒め伸ばしにも。口調も判断軸も、御社の運営方針に合わせてお作りします。</p>
-          <span class="pk-t rv" style="--d:.12s">本13冊・239の原則　口調は御社用に</span>
+          <p class="rv" style="--d:.08s">打てば返ります。見立て → 例え話 → 置く・聞く・引く、まで。13冊ぶんの<b>239の考え方</b>と<b>1,228の例え話</b>から選んで返します。厳しめにも、褒め伸ばしにも。口調も判断軸も、御社の運営方針に合わせてお作りします。</p>
+          <span class="pk-t rv" style="--d:.12s">13冊・239の考え方　口調は御社用に</span>
         </div>
         <figure class="pk-im rvi" style="--d:.06s">
           <img src="hoken-lp-photos/app-reply.jpg" alt="AI師匠の返答。見立て・例え話・置く聞く引くの図まで返ってくる" loading="lazy">
@@ -810,7 +852,7 @@ footer{border-top:1px solid var(--line); padding:38px 0; font-size:13px; color:v
         <h3 class="rv" style="--d:.06s">新人の隣に、<br>24時間の「AI師匠」。</h3>
         <p class="rv" style="--d:.1s">相談を打つと、見立て・考え方・今日やることが返ってきます。「お客様の家計を、どこから整理すればいいか」——そんな相談にも、ファイナンシャルプランナーの目で、その場で。あなたが更改を回している間も、新人は独りで学べます。</p>
         <div class="chips rv" style="--d:.14s">
-          <span class="chip">本 <b>13</b>冊・<b>239</b>の原則</span>
+          <span class="chip"><b>13</b>冊・<b>239</b>の考え方</span>
           <span class="chip">例え話 <b>1,352</b>本</span>
           <span class="chip">ファイナンシャルプランナーの目で点検</span>
           <span class="chip">師匠はオーダーメード</span>
@@ -855,7 +897,7 @@ footer{border-top:1px solid var(--line); padding:38px 0; font-size:13px; color:v
         <h3 class="rv" style="--d:.06s">更改の席で聞かれる話を、<br>先に読んでおく。</h3>
         <!-- ★2026-09-09 ユーザー指示「お客様に渡すことはしたくないです。代理店での学習資料に
              したいと思っています」。お客様に配る前提の書き方（渡せる・お渡し）に戻さないこと -->
-        <p class="rv" style="--d:.1s">家計・税金・相続・公的保障・資産形成まで、11分野295本。医療保険・終身保険・相続・年金——更改の席で聞かれる話を、募集人がひととおり読んで自分の言葉にしておけます。ひとつの画面から分野で選んで、読みたいところだけ。</p>
+        <p class="rv" style="--d:.1s">家計・税金・相続・公的保障・資産形成まで、11分野・295。医療保険・終身保険・相続・年金——更改の席で聞かれる話を、募集人がひととおり読んで自分の言葉にしておけます。ひとつの画面から分野で選んで、読みたいところだけ。</p>
         <div class="chips rv" style="--d:.14s">
           <span class="chip"><b>11</b>分野・<b>295</b>本</span>
           <span class="chip">分野を選んで読める</span>
@@ -920,15 +962,15 @@ footer{border-top:1px solid var(--line); padding:38px 0; font-size:13px; color:v
 
     <!-- ★2026-09-10：この節から下が文字だけで続いていたので、実画面を入れた -->
     <figure class="wide rvi">
-      <img src="hoken-lp-photos/app-hub.jpg" alt="ツール管理画面。社内の9本も学習資料も、この1画面から開ける" loading="lazy">
-      <figcaption>社内で使う9本も、学習資料295本以上も、この1画面から。ブラウザで開くだけです。</figcaption>
+      <img src="hoken-lp-photos/app-hub.jpg" alt="ツール管理画面。社内の9個も学習資料も、この1画面から開ける" loading="lazy">
+      <figcaption>社内で使う9個も、学習資料295以上も、この1画面から。ブラウザで開くだけです。</figcaption>
     </figure>
 
     <div class="reasons">
-      <div class="reason rv"><span class="rn">01</span><h3>現場のFPが作っている</h3><p>会計・記帳代行を母体にした会社が、ファイナンシャルプランナーの目で中身を組み立てています。<b>約300世帯</b>のライフプランを実際に作ってきた提案の視点が、そのまま道具になっています。</p><span class="rt">約300世帯の実績／法人・経営43本・税金32本</span></div>
-      <div class="reason rv" style="--d:.06s"><span class="rn">02</span><h3>師匠は、あつらえます</h3><p>夜でも土日でも同じ水準で返るうえに、口調も考え方もその代理店さまに合わせてお作りします。厳しめ・Z世代・褒め伸ばしの作り分けもできます。</p><span class="rt">本13冊・239の原則／オーダーメード</span></div>
+      <div class="reason rv"><span class="rn">01</span><h3>現場のFPが作っている</h3><p>会計・記帳代行を母体にした会社が、ファイナンシャルプランナーの目で中身を組み立てています。<b>約300世帯</b>のライフプランを実際に作ってきた提案の視点が、そのまま道具になっています。</p><span class="rt">約300世帯の実績／法人・経営43・税金32</span></div>
+      <div class="reason rv" style="--d:.06s"><span class="rn">02</span><h3>師匠は、あつらえます</h3><p>夜でも土日でも同じ水準で返るうえに、口調も考え方もその代理店さまに合わせてお作りします。厳しめ・Z世代・褒め伸ばしの作り分けもできます。</p><span class="rt">13冊・239の考え方／オーダーメード</span></div>
       <div class="reason rv" style="--d:.12s"><span class="rn">03</span><h3>FPも、実務資格も</h3><p>FP技能検定1〜3級に加えて、生保・損保の実務資格（基礎単位・商品単位・更新・大学課程）まで同じ画面に。学ぶ順番も示します。</p><span class="rt">13試験・6,045問</span></div>
-      <div class="reason rv"><span class="rn">04</span><h3>学ぶ材料が、社内にそろう</h3><p>家計・税金・相続・公的保障・資産形成まで11分野。医療保険も終身保険も、独学でなく読みものとして置いてあります。朝礼の前に1本、移動の合間に1本、という使い方をされています。</p><span class="rt">11分野・295本</span></div>
+      <div class="reason rv"><span class="rn">04</span><h3>学ぶ材料が、社内にそろう</h3><p>家計・税金・相続・公的保障・資産形成まで11分野。医療保険も終身保険も、独学でなく読みものとして置いてあります。朝礼の前に1本、移動の合間に1本、という使い方をされています。</p><span class="rt">11分野・295</span></div>
       <div class="reason rv" style="--d:.06s"><span class="rn">05</span><h3>募集品質も、置いてあります</h3><p>意向把握・比較推奨・情報提供義務・高齢者募集など、実務ルール100問と監査の想定問答つき。速さと引き換えに手順を飛ばさない作りです。</p><span class="rt">コンプライアンス100本ノック</span></div>
       <div class="reason rv" style="--d:.12s"><span class="rn">06</span><h3>端末の中だけで動きます</h3><p>相談の内容も、入力したお客様の情報も、その端末に残るだけ。外部のサーバーへ送っていません。インストールも要らず、ブラウザで開くだけです。</p><span class="rt">導入は、リンクを配るだけ</span></div>
     </div>
@@ -940,7 +982,7 @@ footer{border-top:1px solid var(--line); padding:38px 0; font-size:13px; color:v
   <div class="wrap">
     <div class="sec-head">
       <span class="kicker rv">中身のご紹介</span>
-      <h2 class="st rv" style="--d:.06s">社内で使う、9本。</h2>
+      <h2 class="st rv" style="--d:.06s">社内で使う、9個。</h2>
       <p class="lead rv" style="--d:.12s">育てる・鍛える・回す。新人だけでなく、育てる側の手がここで空きます。</p>
     </div>
 
@@ -994,7 +1036,7 @@ footer{border-top:1px solid var(--line); padding:38px 0; font-size:13px; color:v
   <div class="wrap">
     <div class="sec-head c">
       <span class="kicker rv">代理店さまの学習資料</span>
-      <h2 class="st rv" style="--d:.06s">家計・税金・相続まで、<em>295本</em>。</h2>
+      <h2 class="st rv" style="--d:.06s">家計・税金・相続まで、<em>295</em>。</h2>
       <p class="lead rv" style="--d:.12s">ひとつの画面から分野で選んで、読みたいところだけ。特定の保険会社・商品を扱うものではなく、制度の仕組みを整理するための読みものです。募集人の学習用としてお使いください。</p>
     </div>
 
@@ -1039,7 +1081,7 @@ footer{border-top:1px solid var(--line); padding:38px 0; font-size:13px; color:v
       <div class="step rv">
         <span class="sn">ステップ 1</span>
         <h3>リモートで30分</h3>
-        <p>画面共有で、社内の9本とお客様用の295本を実際に動かしてお見せします。気になったところは、その場で聞いてください。</p>
+        <p>画面共有で、社内の9個と学習資料295を実際に動かしてお見せします。気になったところは、その場で聞いてください。</p>
         <span class="sd">お申し込みから数日以内</span>
       </div>
       <div class="step rv" style="--d:.08s">
@@ -1135,8 +1177,8 @@ footer{border-top:1px solid var(--line); padding:38px 0; font-size:13px; color:v
         <div class="pp"><span class="y">55,000</span><span class="u">円／月</span></div>
         <div class="px">税込</div>
         <ul>
-          <li>社内ツール 9本すべて</li>
-          <li>学習資料 295本すべて（11分野）</li>
+          <li>社内ツール 9個すべて</li>
+          <li>学習資料 295すべて（11分野）</li>
           <li>人数ぶんの追加料金なし</li>
           <li>使い方の説明（リモート）</li>
           <li>内容の更新・追加も込み</li>
@@ -1149,8 +1191,8 @@ footer{border-top:1px solid var(--line); padding:38px 0; font-size:13px; color:v
         <div class="pp"><span class="y">110,000</span><span class="u">円／月</span></div>
         <div class="px">税込</div>
         <ul>
-          <li>社内ツール 9本すべて</li>
-          <li>学習資料 295本すべて（11分野）</li>
+          <li>社内ツール 9個すべて</li>
+          <li>学習資料 295すべて（11分野）</li>
           <li>人数ぶんの追加料金なし</li>
           <li>使い方の説明（リモート）</li>
           <li>内容の更新・追加も込み</li>
@@ -1198,8 +1240,8 @@ footer{border-top:1px solid var(--line); padding:38px 0; font-size:13px; color:v
         <div class="fa">AI師匠には管理職向けの相談も入っています。1on1の台本・チームの点検・指示の言い換え・朝礼の一言など、「今日、部下に何をどう言うか」を返します。数字の追い方や時間の使い方についても相談できます。</div>
       </details>
       <details>
-        <summary>295本は、お客様にお渡しするものですか。</summary>
-        <div class="fa"><b>いいえ。代理店さまの学習資料としてお使いいただく前提です。</b>社内の9本とあわせて、募集人の方が読んで学ぶためのものとしてご提供しています。お客様への提示・配布はご遠慮ください。なお、お客様への説明にそのまま使える言い回しも入っていますので、読んだうえでご自身の言葉に置き換えてお使いください。</div>
+        <summary>学習資料295は、お客様にお渡しするものですか。</summary>
+        <div class="fa"><b>いいえ。代理店さまの学習資料としてお使いいただく前提です。</b>社内の9個とあわせて、募集人の方が読んで学ぶためのものとしてご提供しています。お客様への提示・配布はご遠慮ください。なお、お客様への説明にそのまま使える言い回しも入っていますので、読んだうえでご自身の言葉に置き換えてお使いください。</div>
       </details>
       <details>
         <summary>税金の話も入っていますが、税務相談はできますか。</summary>
@@ -1250,7 +1292,7 @@ footer{border-top:1px solid var(--line); padding:38px 0; font-size:13px; color:v
         <li>本ツール群は保険商品の販売・募集を行うものではありません。特定の保険会社・商品を推奨するものでもありません。</li>
         <li>商品間の有利不利を断定的に示す内容は含めていません（保険業法第300条第1項）。</li>
         <li>お客様向けツールの試算は、制度の仕組みを理解していただくための概算です。実際の給付・税額・保険料は、契約内容と個別の事情によって異なります。</li>
-        <li>社内ツール（AI師匠・資格試験トレーニングなど9本）は代理店の研修用です。お客様への提示はご遠慮ください。</li>
+        <li>社内ツール（AI師匠・資格試験トレーニングなど9個）は代理店の研修用です。お客様への提示はご遠慮ください。</li>
         <li>資格試験トレーニングの問題は出題範囲にもとづく想定問題です。過去問の転載は行っていません。試験の区分・受験要件は年度で変わりますので、お申し込み前に必ず各団体の案内でご確認ください。</li>
         <li>「AI師匠」は、あらかじめ用意した知識にもとづいて動く社内向けの相談ツールです。外部のAIサービスへは接続していません。</li>
       </ul>
@@ -1262,7 +1304,7 @@ footer{border-top:1px solid var(--line); padding:38px 0; font-size:13px; color:v
 <section class="sec final" id="contact">
   <div class="wrap">
     <h2 class="rv">まずは30分、<br>のぞいてみませんか。</h2>
-    <p class="fs rv" style="--d:.08s">画面共有で、9本と295本を実際に動かしてお見せします。その場で決めていただく必要はありません。</p>
+    <p class="fs rv" style="--d:.08s">画面共有で、9個と295を実際に動かしてお見せします。その場で決めていただく必要はありません。</p>
     <!-- ★リンク先は公開URL（相対パスにしないこと）。このファイルは office-m/hoken-lp/index.html に
          コピーして公開するので、相対パスだと公開先で 404 になる（体験版のリンクと同じ書き方） -->
     <a class="btn btn-w rv" style="--d:.14s" id="mailBtn" href="https://office-m-nakatani.github.io/office-m/hoken-mendan/">
@@ -1281,6 +1323,13 @@ footer{border-top:1px solid var(--line); padding:38px 0; font-size:13px; color:v
 </footer>
 
 <div class="sticky"><a href="#contact">まずは30分、リモートで</a></div>
+
+<!-- ★画像を押すと大きく出す入れ物。中身は下の script が差し込む -->
+<div id="lb" hidden role="dialog" aria-modal="true" aria-label="画面を大きく表示">
+  <button id="lb-close" type="button" aria-label="閉じる">×</button>
+  <img id="lb-img" src="" alt="">
+  <p class="lb-cap" id="lb-cap"></p>
+</div>
 
 <script>
 /* =========================================================================
@@ -1351,6 +1400,51 @@ var PHOTOS = {
     }
   })();
 
+  /* ★画像を押すと大きく（2026-09-10 ユーザー指示）。
+     対象はツールの画面だけ。装飾の帯（.pstrip）は対象にしない */
+  (function () {
+    var lb = document.getElementById('lb');
+    var im = document.getElementById('lb-img');
+    var cp = document.getElementById('lb-cap');
+    var cl = document.getElementById('lb-close');
+    if (!lb || !im) return;
+    var last = null;
+
+    function show(el) {
+      last = el;
+      var fig = el.closest('figure');
+      var fc = fig ? fig.querySelector('figcaption') : null;
+      im.src = el.currentSrc || el.src;
+      im.alt = el.alt || '';
+      cp.textContent = (fc && fc.textContent.trim()) || el.alt || '';
+      lb.hidden = false;
+      document.documentElement.style.overflow = 'hidden';
+      cl.focus();
+    }
+    function hide() {
+      lb.hidden = true;
+      im.removeAttribute('src');
+      document.documentElement.style.overflow = '';
+      if (last && last.focus) last.focus();
+    }
+
+    var SEL = '.hero-art img, .pk-im > img, .pk-sub img, .pkmini img, ' +
+              '.tcard img, .cshots img, .wide img, .solshot img';
+    document.querySelectorAll(SEL).forEach(function (el) {
+      el.classList.add('zoomable');
+      el.setAttribute('tabindex', '0');
+      el.setAttribute('role', 'button');
+      el.setAttribute('aria-label', (el.alt || '画面') + '（押すと大きく表示します）');
+      el.addEventListener('click', function () { show(el); });
+      el.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(el); }
+      });
+    });
+
+    lb.addEventListener('click', function (e) { if (e.target === lb || e.target === cl) hide(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !lb.hidden) hide(); });
+  })();
+
   /* 写真の差し込み */
   Object.keys(PHOTOS).forEach(function (k) {
     var src = (PHOTOS[k] || '').trim();
@@ -1394,5 +1488,6 @@ var PHOTOS = {
      ページを作ったので、そちらでフォーム入力→mailto組み立てを行う。このIIFEでは何もしない） */
 })();
 </script>
+
 </body>
 </html>
