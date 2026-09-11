@@ -777,6 +777,180 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
 </style>
 </head>
 <body>
+<!-- OMGATE-BEGIN ★合言葉の扉。正本は hoken-gate-src/gate.html。ページ側を直接編集しないこと（apply_gate.py で入れ直すと消える） -->
+<style>
+/* ★中身は「開いていない限り隠す」＝ fail-closed。JavaScript が切られていても
+   中身は出ない（class を足して隠す形にすると、JS 無しで素通りしてしまう） */
+html:not(.omgate-open) body > *:not(#omgate){display:none !important}
+html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
+#omgate{position:fixed; inset:0; z-index:2147483000; display:grid; place-items:center; padding:22px;
+  background:linear-gradient(168deg,#f2f7fd 0%,#fdfbf7 54%,#f1f6fc 100%);
+  font-family:'Zen Kaku Gothic New',system-ui,-apple-system,'Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;
+  color:#2b3646; line-height:1.95; letter-spacing:.015em; -webkit-font-smoothing:antialiased}
+/* ★display を書くので [hidden] とセットで書く（この案件で4回目の詳細度事故） */
+#omgate[hidden]{display:none !important}
+#omgate .og-card{width:min(100%,432px); background:#fff; border:1px solid #e7edf5; border-radius:20px;
+  padding:34px 30px 28px; text-align:center; box-shadow:0 14px 44px rgba(43,54,70,.10)}
+#omgate .og-ico{width:56px; height:56px; margin:0 auto 16px; border-radius:50%; background:#eef4ff;
+  display:grid; place-items:center; color:#2f63c8}
+#omgate .og-ico svg{width:26px; height:26px}
+#omgate h1{margin:0; font-size:18px; font-weight:800; letter-spacing:.04em; line-height:1.6}
+#omgate .og-lead{margin:8px 0 20px; font-size:13px; color:#5d6b7c; line-height:1.9}
+#omgate input[type=password]{width:100%; font-family:inherit; font-size:17px; font-weight:500; letter-spacing:.06em;
+  color:#2b3646; background:#fbfdff; border:1px solid #dae3ee; border-radius:13px; padding:14px 16px; outline:none;
+  text-align:center; transition:border-color .18s, box-shadow .18s}
+#omgate input[type=password]::placeholder{color:#8b9bad; font-weight:400; letter-spacing:.04em}
+#omgate input[type=password]:focus{border-color:#bed3f7; background:#fff; box-shadow:0 0 0 4px #eef4ff}
+#omgate .og-err{min-height:24px; font-size:13px; color:#b9645a; margin-top:8px}
+#omgate .og-keep{display:flex; align-items:center; justify-content:center; gap:8px; font-size:12.5px;
+  color:#5d6b7c; margin:2px 0 16px; cursor:pointer}
+#omgate .og-keep input{width:18px; height:18px; accent-color:#0b5cff; cursor:pointer}
+#omgate button{width:100%; font-family:inherit; font-weight:700; font-size:16px; letter-spacing:.08em;
+  padding:15px; border:0; border-radius:14px; color:#fff; cursor:pointer;
+  background:linear-gradient(135deg,#2f74ff 0%,#0b5cff 58%,#0847c9 100%);
+  box-shadow:0 8px 22px rgba(11,92,255,.20); transition:transform .18s, box-shadow .18s, filter .18s}
+#omgate button:hover{filter:brightness(1.04); transform:translateY(-1px)}
+#omgate .og-note{margin:20px 0 0; padding-top:16px; border-top:1px solid #eef1f6;
+  font-size:12px; color:#7d8b9b; line-height:1.9; text-align:left}
+#omgate .og-note a{color:#2f63c8; font-weight:700}
+#omgate .og-note b{color:#5d6b7c}
+@media(max-width:420px){ #omgate .og-card{padding:28px 20px 24px} }
+@media(prefers-reduced-motion:reduce){ #omgate *{transition:none !important} }
+</style>
+<div id="omgate" role="dialog" aria-modal="true" aria-labelledby="omgate-h">
+  <div class="og-card">
+    <div class="og-ico" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="4" y="10.5" width="16" height="10.5" rx="2.6"/><path d="M8 10.5V7.4a4 4 0 0 1 8 0v3.1"/><circle cx="12" cy="15.7" r="1.15"/>
+      </svg>
+    </div>
+    <h1 id="omgate-h">代理店さま専用のページです</h1>
+    <p class="og-lead">ご契約の代理店さまにお渡ししている<br>合言葉を入れてください。</p>
+    <form id="omgate-f" autocomplete="off">
+      <input type="password" id="omgate-p" placeholder="合言葉" autocomplete="current-password" aria-label="合言葉">
+      <div class="og-err" id="omgate-e" role="alert"></div>
+      <label class="og-keep"><input type="checkbox" id="omgate-k" checked>この端末では30日間、次回から省略する</label>
+      <button type="submit">開く</button>
+    </form>
+    <p class="og-note">
+      <b>管理画面から開いた場合は、この画面は出ません。</b><br>
+      <a href="https://office-m-nakatani.github.io/office-m/hoken-hub/">保険ツール管理画面をひらく</a><br><br>
+      このページは代理店さまの社内学習用です。お客様への提示・転送はご遠慮ください。<br>
+      合言葉が分からないときは、ご契約時のご案内をご確認ください。
+    </p>
+  </div>
+</div>
+<script>
+/* ============================================================
+   合言葉の扉（2026-09-11 ユーザー指示）
+   「URLをコピーして送付されたら情報が外に出てしまう。お客様専用の
+     パスワードを入力してこのページに行った人でないと見れないように」
+
+   ★これはブラウザの中だけで確かめるしくみで、堅牢な認証ではない。
+     URLを受け取っただけの人をそっと止めるための扉（利用規約 第6条5項に
+     明記してあるとおり）。この扉を「暗号化」「本当のロック」と説明しないこと。
+
+   開いてよいのは次の3つ。どれも同じオリジン（office-m-nakatani.github.io）
+   の中だけで完結する。
+     ① 管理画面（hoken-hub）で合言葉を入れた端末
+        localStorage 'officem.hokenHub.auth'
+        ★ハッシュの中身は照合しない。代理店ごとの専用管理画面
+          （make_agency.py が作る）は合言葉が違うので、
+          「どこかの管理画面が通した」ことだけを見る
+     ② 共有リンクの枠の中（管理画面が iframe で開いたとき）
+        sessionStorage 'officem.hokenGate.share'
+        ★sessionStorage はタブ単位。枠の中のURLをコピーして
+          別の人に送っても、その人のタブには無いので開かない
+     ③ 体験版（3日間）が配った鍵。ページを名指しで許す
+        localStorage 'officem.hokenGate.taiken' = {e:期限, ids:[…]}
+   ============================================================ */
+(function () {
+  var R = document.documentElement;
+  var AUTH = 'officem.hokenHub.auth';
+  var SHARE = 'officem.hokenGate.share';
+  var TRIAL = 'officem.hokenGate.taiken';
+  var SALT = 'officem-hoken-hub-2026|';
+  /* 受け付ける合言葉のソルト付きハッシュ（平文はどのファイルにも書かない）。
+     ★管理画面の PASS_HASHES と同じもの。ただし期限切れの臨時パスワードは入れていない */
+  var OKH = ['011b517160f7c9f0b9eb2007ad01cba186e7fd97f970fb12cdc299f5036f8292',
+             '438c03df96ee445897fee60e6c52ff454d3976192f6c3c4826a75e35d8dec226'];
+  var DAYS = 30;
+
+  function read(store, k) { try { return JSON.parse(store.getItem(k) || 'null'); } catch (e) { return null; } }
+  function live(o) { return !!(o && typeof o.e === 'number' && o.e > Date.now()); }
+  function pageId() {
+    var p = String(location.pathname).replace(/\/+$/, '');
+    return p.slice(p.lastIndexOf('/') + 1).replace(/\.html$/i, '');
+  }
+  function allowed() {
+    try {
+      var a = read(localStorage, AUTH);
+      if (live(a) && /^[0-9a-f]{64}$/.test(String(a.h || ''))) return true;
+    } catch (e) {}
+    try { if (live(read(sessionStorage, SHARE))) return true; } catch (e) {}
+    try {
+      var t = read(localStorage, TRIAL);
+      if (live(t) && t.ids && t.ids.join && t.ids.indexOf(pageId()) >= 0) return true;
+    } catch (e) {}
+    return false;
+  }
+  function open_() {
+    R.className += ' omgate-open';
+    var g = document.getElementById('omgate');
+    if (g) g.hidden = true;
+  }
+
+  if (allowed()) { open_(); return; }
+
+  var f = document.getElementById('omgate-f');
+  var inp = document.getElementById('omgate-p');
+  var err = document.getElementById('omgate-e');
+  var keep = document.getElementById('omgate-k');
+
+  /* crypto.subtle は https と localhost でしか使えない。無い環境では
+     合言葉を確かめられないので、入力欄を出さずに管理画面へ案内する */
+  var canHash = !!(window.crypto && window.crypto.subtle && window.TextEncoder);
+  if (!canHash) {
+    if (f) f.innerHTML = '<div class="og-err">この画面では合言葉を確認できません。'
+      + 'お手数ですが、管理画面から開いてください。</div>';
+    return;
+  }
+
+  function sha256(str) {
+    return crypto.subtle.digest('SHA-256', new TextEncoder().encode(str)).then(function (buf) {
+      var b = new Uint8Array(buf), out = '', i;
+      for (i = 0; i < b.length; i++) out += ('0' + b[i].toString(16)).slice(-2);
+      return out;
+    });
+  }
+
+  f.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var pw = (inp.value || '').trim();
+    if (!pw) { err.textContent = '合言葉を入れてください。'; return; }
+    err.textContent = '';
+    sha256(SALT + pw).then(function (h) {
+      if (OKH.indexOf(h) < 0) {
+        err.textContent = '合言葉がちがうようです。';
+        inp.value = ''; inp.focus();
+        return;
+      }
+      try {
+        if (keep && keep.checked) {
+          localStorage.setItem(AUTH, JSON.stringify({ h: h, e: Date.now() + DAYS * 86400000 }));
+        } else {
+          sessionStorage.setItem(SHARE, JSON.stringify({ e: Date.now() + 12 * 3600000 }));
+        }
+      } catch (e2) { /* 保存できなくても、その場では開く */ }
+      open_();
+    })['catch'](function () { err.textContent = 'この画面では合言葉を確認できませんでした。'; });
+  });
+
+  setTimeout(function () { try { inp.focus(); } catch (e) {} }, 60);
+})();
+</script>
+<!-- OMGATE-END -->
+
 
 <!-- ================= ヒーロー ================= -->
 <header class="hero">

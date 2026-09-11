@@ -999,6 +999,20 @@ main.mt-main{ padding:16px 0 8px; }
     var pill = document.getElementById('tk-days-pill');
     if(pill) pill.innerHTML = '<i class="fa-solid fa-clock"></i> お試しのご利用です（あと' + remDays + '日）';
     show(app);
+
+    /* ★体験中だけ、下の学習資料5点の合言葉の扉（hoken-gate-src/gate.html）を通す。
+       扉は localStorage 'officem.hokenGate.taiken' = {e:期限, ids:[…]} を見て、
+       **ids に名指しされたページだけ**開く（③の素通り）。
+       ★ids を増やさないこと。増やすと体験の人に295点ぜんぶ開いてしまう。
+       ★期限は「初回アクセスから72時間」と「発行から7日」の早いほうに合わせる
+         （体験が切れたら、この鍵も一緒に切れる）。 */
+    try{
+      var gateHours = Math.max(0, Math.min(remHours, remDaysIssue * 24));
+      localStorage.setItem('officem.hokenGate.taiken', JSON.stringify({
+        e: Date.now() + gateHours * 3600000,
+        ids: ['seimeihoken-check','shibouhoken-check','kaigo-check','hojin-hoken-check','souzoku-check']
+      }));
+    }catch(e){}
   }
 })();
 </script>
