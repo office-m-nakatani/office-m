@@ -436,8 +436,24 @@ body.vc-dock-on .chat-fab{ display:none !important; }
 .mt-bub table{ border-collapse:collapse; margin:4px 0; font-size:.8rem; }
 .mt-bub th, .mt-bub td{ border:1px solid #d9e3dc; padding:4px 8px; text-align:left; }
 .mt-bub th{ background:#eaf1ec; font-weight:700; }
-.mt-quick{ display:flex; flex-wrap:wrap; gap:6px; flex:0 0 auto; }
-.mt-quick .chat-chip{ border-color:#c9d8ce; background:#eef4f0; color:#1f3328; }
+.mt-quick{ display:flex; flex-direction:column; flex:0 0 auto; }
+.mt-quick-flow{ overflow:hidden;
+      -webkit-mask-image:linear-gradient(90deg,transparent,#000 20px,#000 calc(100% - 20px),transparent);
+      mask-image:linear-gradient(90deg,transparent,#000 20px,#000 calc(100% - 20px),transparent); }
+.mt-quick-track{ display:flex; gap:6px; width:max-content; padding:2px 1px; animation:mtQuickFlow 46s linear infinite; }
+.mt-quick.mt-quick-hold .mt-quick-track, .mt-quick:hover .mt-quick-track, .mt-quick:focus-within .mt-quick-track{
+      animation-play-state:paused; }
+@keyframes mtQuickFlow{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+@media (prefers-reduced-motion: reduce){
+.mt-quick-track{ animation:none; }
+}
+.mt-quick .chat-chip{ border-color:#c9d8ce; background:#eef4f0; color:#1f3328; flex:0 0 auto; white-space:nowrap; }
+.mt-quick-all{ display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+.mt-quick-all[hidden]{ display:none !important; }
+.mt-quick-more{ align-self:flex-start; margin:6px 0 0; padding:4px 12px; min-height:26px;
+      border:1px dashed #9db3a8; border-radius:999px; background:#fff; color:#1f3328;
+      font-family:inherit; font-size:.74rem; font-weight:700; cursor:pointer; flex:0 0 auto; }
+.mt-quick-more:hover{ background:#eef4f0; }
 .mt-panel{ border:1.5px solid var(--line); border-radius:12px; padding:10px 12px; background:#fff; }
 .mt-panel h4{ margin:0 0 6px; font-size:.86rem; display:flex; align-items:center; gap:7px; color:#1f3328; }
 .mt-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:8px 10px; }
@@ -609,8 +625,6 @@ body.vc-dock-on .chat-fab{ display:none !important; }
 #mentor-modal .modal-body > .mt-panel{ min-height:120px; }
 .mt-face{ width:54px; height:54px; }
 .mt-face svg{ width:100%; height:100%; }
-.mt-quick{ flex-wrap:nowrap; overflow-x:auto; padding-bottom:4px; -webkit-overflow-scrolling:touch; }
-.mt-quick .chat-chip{ flex:0 0 auto; white-space:nowrap; }
 }
 .sec-next .btn{ min-height:44px; }
 .ic-fold{ margin-top:10px; }
@@ -796,7 +810,9 @@ main.mt-main{ padding:6px 0 6px; }
 #mentor-modal .mt-bub .mt-opt.mt-opt-other .mt-opt-n{ background:var(--ink-soft); }
 #mentor-modal .mt-bub .mt-ask.mt-ask-done .mt-opt.mt-opt-picked{ border-color:var(--blue-deep); background:#eef4f9; }
 
-/* --- 相談のきっかけ（管理画面の「◯◯する」の小見出しと同じ顔） --- */
+/* --- 相談のきっかけ（管理画面の「◯◯する」の小見出しと同じ顔） ---
+   ★2026-09-12：自動で流れる帯（マーキー本体は ichijo.html 側の .mt-quick-track が持つ）。
+   ここは色と見出しラベルだけを単独ページの琥珀系に着せ替える */
 #mentor-modal .mt-quick{ position:relative; padding-top:20px; }
 #mentor-modal .mt-quick::before{
   content:'相談のきっかけ'; position:absolute; top:0; left:0;
@@ -804,25 +820,8 @@ main.mt-main{ padding:6px 0 6px; }
 }
 #mentor-modal .mt-quick .chat-chip{ border:1px solid var(--amber-line); background:var(--yellow-pale); color:#6b4a12; border-radius:999px; padding:7px 13px; }
 #mentor-modal .mt-quick .chat-chip:hover{ background:#fbe9c9; }
-/* きっかけは22個ある。全部出すと会話の枠が3行ぶん狭くなるので、1行だけ出して畳んでおく。
-   ★高さは「見出しの20px＋ボタンの34px」でぴったり54px要る。46pxだとボタンの下が8px切れて、
-     朝の3問などの丸い枠が欠けて見えた（ユーザー指摘・2026-09-07）。4pxだけ余裕を持たせる。
-     ここを詰め直すときは、必ずボタンの実測（34px）＋padding-top（20px）から計算すること */
-@media (min-width:641px){
-  /* ★1行に収める（2026-09-07）。見出しを行の中に入れて、横に流れる並びにした。
-     以前は「見出し20px＋ボタン34px＝58px」＋2行目の『ほかの相談も見る』42px で、合わせて100px使っていた。
-     ここを2行に戻すと会話の枠が60px狭くなる */
-  #mentor-modal .mt-quick{ display:flex; align-items:center; max-height:38px; padding-top:0;
-    flex-wrap:nowrap; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
-  #mentor-modal .mt-quick::-webkit-scrollbar{ display:none; }
-  #mentor-modal .mt-quick::before{ position:static; flex:0 0 auto; align-self:center; margin-right:4px; }
-  #mentor-modal .mt-quick > *{ flex:0 0 auto; }
-  #mentor-modal .mt-quick.mt-quick-open{ max-height:none; flex-wrap:wrap; overflow:visible; }
-}
 .mt-quick-more{
-  align-self:flex-start; margin:-3px 0 0; padding:2px 11px; min-height:24px;
-  border:1px dashed var(--blue-pale2); border-radius:999px; background:#fff;
-  color:var(--blue-deep); font-family:inherit; font-size:.72rem; font-weight:700; cursor:pointer;
+  color:var(--blue-deep); border-color:var(--blue-pale2);
 }
 .mt-quick-more:hover{ background:var(--blue-pale); }
 
@@ -893,8 +892,7 @@ main.mt-main{ padding:6px 0 6px; }
   #mentor-modal .mt-who b, #mentor-modal .mt-who span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block; }
   #mentor-modal .mt-log{ padding:11px 12px; }
   #mentor-modal .mt-quick{ padding-top:4px; }
-  #mentor-modal .mt-quick::before{ display:none; }    /* 横に流れる並びなので見出しは重なる */
-  .mt-quick-more{ display:none; }
+  #mentor-modal .mt-quick::before{ display:none; }    /* 流れる帯の上に見出しが重なるので隠す */
 }
 @media print{
   header.mt-head, .mt-quick, .mt-quick-more, .mt-input, .mt-foot, .mt-side{ display:none !important; }
@@ -1208,7 +1206,11 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
             <div class="mt-side-mood" id="mt-side-mood"></div>
           </aside>
         </div>
-        <div class="mt-quick" id="mt-quick"></div>
+        <div class="mt-quick" id="mt-quick">
+          <div class="mt-quick-flow" id="mt-quick-flow"><div class="mt-quick-track" id="mt-quick-track"></div></div>
+          <div class="mt-quick-all" id="mt-quick-all" hidden></div>
+        </div>
+        <button type="button" class="mt-quick-more" id="mt-quick-more" aria-expanded="false">ほかの相談も見る</button>
         <div class="mt-input">
           <textarea id="mt-text" rows="1" placeholder="相談を書く（例：今月あと3件足りない。紹介が出ない。）"></textarea>
           <button class="btn btn-ghost btn-sm mt-micbtn" id="mt-mic" type="button" aria-pressed="false" aria-label="声で相談する（もう一度押すと止まる）"><i class="fa-solid fa-microphone"></i></button>
@@ -4828,6 +4830,12 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
                                            : '不安で押すな。急がせるな。言質を取るな。決めるのは相手だ。') + '</span>';
       return h;
     }
+    /* ★2026-09-12・ユーザー指示「相談のきっかけは、流れるようにしてください。
+       流れるものは保険中心のものに限定してください」。
+       流れる帯（自動マーキー）は MT_QUICK（保険中心）だけを回す。
+       暮らし・人生の相談は MT_QUICK_LIFE に分け、「ほかの相談も見る」を開いたときに一緒に出す
+       （★別の場所に隔離すると押すのに勇気が要る、という2026-09-10の方針はここで保っている）。
+       ★文言は MT_INTENTS の name と必ずそろえること（同じ文で来たら +5点） */
     const MT_QUICK = [
       { q:'今日の一手', i:'fa-lightbulb' }, { q:'お客様への有益情報', i:'fa-gift' }, { q:'人・数字・営業で見る', i:'fa-eye' }, { q:'朝の3問', i:'fa-mug-hot' }, { q:'夕方の3問', i:'fa-moon' }, { q:'自分で点検', i:'fa-list-check' },
       { q:'今月の数字が足りない', i:'fa-chart-line' }, { q:'紹介が出ない', i:'fa-people-arrows' }, { q:'単価が上がらない', i:'fa-yen-sign' },
@@ -4843,18 +4851,18 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       /* また使いたくなる道具（2026-09-07）。営業担当5つ＋中間管理職5つ */
       { q:'今日の1件', i:'fa-circle-check' }, { q:'面談の30秒前', i:'fa-stopwatch' }, { q:'数字の推移', i:'fa-chart-column' }, { q:'自分の型', i:'fa-bookmark' },
       { q:'1on1の台本', i:'fa-clipboard-list' }, { q:'メンバー', i:'fa-id-card' }, { q:'チームの点検', i:'fa-people-roof' }, { q:'朝礼の一言', i:'fa-bullhorn' }, { q:'指示の言い換え', i:'fa-shuffle' },
-      /* 暮らし・人生の相談（2026-09-10・ユーザー指示）。★仕事の相談の中に混ぜて置いてある。
-         別の場所に隔離すると、押すのに勇気が要る。★文言は MT_INTENTS の name と必ずそろえること
-         （同じ文で来たら +5点で迷わずその型になる） */
+      { q:'保険の仕組みを深く知りたい', i:'fa-book-open' }, { q:'お金の基本を伝えたい', i:'fa-coins' }, { q:'心理学で相手を読みたい', i:'fa-brain' }, { q:'経営者に提案したい', i:'fa-building' }, { q:'自社株と承継の話をしたい', i:'fa-sitemap' }, { q:'退職金の話を分けて伝えたい', i:'fa-hand-holding-dollar' }
+    ];
+    /* 暮らし・人生の相談（2026-09-10・ユーザー指示）。流れる帯には出さないが、
+       「ほかの相談も見る」を開くと MT_QUICK と一緒に並ぶ（消してはいない） */
+    const MT_QUICK_LIFE = [
       { q:'これからの生き方に迷っている', i:'fa-signs-post' }, { q:'家族のこと', i:'fa-house-chimney-user' },
       { q:'恋愛・パートナーのこと', i:'fa-heart' }, { q:'続かない・自分を変えたい', i:'fa-seedling' },
       { q:'人づきあいで疲れる', i:'fa-user-group' }, { q:'気持ちが晴れない・自信がない', i:'fa-cloud-sun' },
       { q:'自分の暮らしのお金が不安', i:'fa-piggy-bank' },
-      /* 2026-09-11：暮らしの相談を6つ足した／深掘りの知識（保険の仕組み・お金の基本・心理学） */
       { q:'仕事・転職で迷っている', i:'fa-briefcase' }, { q:'親の介護・老いのこと', i:'fa-person-cane' },
       { q:'子育てのこと', i:'fa-child' }, { q:'体調・健康のこと', i:'fa-heart-pulse' },
-      { q:'決められない・後悔している', i:'fa-scale-balanced' }, { q:'失敗から立ち直りたい', i:'fa-arrow-rotate-left' },
-      { q:'保険の仕組みを深く知りたい', i:'fa-book-open' }, { q:'お金の基本を伝えたい', i:'fa-coins' }, { q:'心理学で相手を読みたい', i:'fa-brain' }, { q:'経営者に提案したい', i:'fa-building' }, { q:'自社株と承継の話をしたい', i:'fa-sitemap' }, { q:'退職金の話を分けて伝えたい', i:'fa-hand-holding-dollar' }
+      { q:'決められない・後悔している', i:'fa-scale-balanced' }, { q:'失敗から立ち直りたい', i:'fa-arrow-rotate-left' }
     ];
     const mtLog = $('mt-log');
     /* 返事は長い。下端に合わせると「見立て」が画面の外に出て、途中から読むことになる。
@@ -5036,8 +5044,14 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       try{ mtYesterdayAsk(); }catch(e){}   /* 昨日の1件が効いたか（1日1回だけ・2026-09-07） */
       try{ mtStreakPaint(); }catch(e){}
       const sq = $('mt-self-qs'); if(sq && !sq.innerHTML) sq.innerHTML = mtSelfPanelHTML();
-      const qk = $('mt-quick');
-      if(qk && !qk.innerHTML) qk.innerHTML = MT_QUICK.map(function(c){ return '<button type="button" class="chat-chip" data-mtq="' + esc(c.q) + '"><i class="fa-solid ' + c.i + '"></i> ' + esc(c.q) + '</button>'; }).join('');
+      const qkTrack = $('mt-quick-track');
+      if(qkTrack && !qkTrack.innerHTML){
+        const mtQuickChip = function(c){ return '<button type="button" class="chat-chip" data-mtq="' + esc(c.q) + '"><i class="fa-solid ' + c.i + '"></i> ' + esc(c.q) + '</button>'; };
+        /* 流すのは保険中心（MT_QUICK）だけ。継ぎ目なくループさせるため同じ並びを2周ぶん置く */
+        qkTrack.innerHTML = MT_QUICK.map(mtQuickChip).join('') + MT_QUICK.map(mtQuickChip).join('');
+        const qkAll = $('mt-quick-all');
+        if(qkAll) qkAll.innerHTML = MT_QUICK.concat(MT_QUICK_LIFE).map(mtQuickChip).join('');
+      }
       const m = $('mentor-modal'); if(m) m.hidden = false;
       mtApplyFull();
     }
@@ -5065,6 +5079,23 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
         if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); mtSend($('mt-text').value); }
       });
       if($('mt-quick')) $('mt-quick').addEventListener('click', function(e){ const b = e.target.closest('[data-mtq]'); if(b) mtSend(b.dataset.mtq); });
+      /* 「ほかの相談も見る」＝保険中心（流れている分）＋暮らし・人生の相談を、全部静的に一覧表示 */
+      const qkMoreBtn = $('mt-quick-more'), qkAllEl = $('mt-quick-all');
+      if(qkMoreBtn && qkAllEl) qkMoreBtn.addEventListener('click', function(){
+        const open = qkAllEl.hidden;
+        qkAllEl.hidden = !open;
+        qkMoreBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        qkMoreBtn.textContent = open ? '相談のきっかけを畳む' : 'ほかの相談も見る';
+      });
+      /* スマホはホバーが効かないので、触れているあいだ流れを止める */
+      const qkFlowEl = $('mt-quick');
+      if(qkFlowEl){
+        const mtQuickHold = function(){ qkFlowEl.classList.add('mt-quick-hold'); };
+        const mtQuickRelease = function(){ qkFlowEl.classList.remove('mt-quick-hold'); };
+        qkFlowEl.addEventListener('touchstart', mtQuickHold, { passive:true });
+        qkFlowEl.addEventListener('touchend', mtQuickRelease);
+        qkFlowEl.addEventListener('touchcancel', mtQuickRelease);
+      }
       /* FP1級の目：問い返しの選択肢（4択＋その他） */
       if(mtLog) mtLog.addEventListener('click', function(e){ const b = e.target.closest('[data-mtopt]'); if(b && mtLog.contains(b)) mtChoose(b); });
       if($('mt-persona')) $('mt-persona').addEventListener('change', function(){ MT.active = $('mt-persona').value; mtPend = null; mtSave(); mtRenderFace(); mtFillSettings(); mtFillKpi(); mtRenderLog(); });
@@ -5185,20 +5216,9 @@ try{ mtOpen(); }catch(e){ if(window.console) console.error('[AI師匠]', e); }
   const sel = $('mt-persona'); if(sel) sel.addEventListener('change', draw);
   const save = $('mts-save'); if(save) save.addEventListener('click', function(){ setTimeout(draw, 0); });
 })();
-
-/* 相談のきっかけは22個ある。会話の枠を広く取るため2行で畳み、押したら全部出す */
-(function(){
-  const qk = $('mt-quick'); if(!qk || !qk.parentNode) return;
-  const b = document.createElement('button');
-  b.type = 'button'; b.className = 'mt-quick-more'; b.setAttribute('aria-expanded', 'false');
-  b.textContent = 'ほかの相談も見る';
-  qk.parentNode.insertBefore(b, qk.nextSibling);
-  b.addEventListener('click', function(){
-    const open = qk.classList.toggle('mt-quick-open');
-    b.setAttribute('aria-expanded', open ? 'true' : 'false');
-    b.textContent = open ? '相談のきっかけを畳む' : 'ほかの相談も見る';
-  });
-})();
+/* 「ほかの相談も見る」ボタンと流れる帯の一時停止は、ichijo.html 側の共通JS（mtWire）が
+   #mt-quick-more・#mt-quick-all を持つ静的HTMLに対して配線している（2026-09-12）。
+   ここでは何もしない（前は単独ページ用に動的生成していたが、二重管理をやめて一本化した） */
 </script>
 </body>
 </html>
