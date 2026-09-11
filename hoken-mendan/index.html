@@ -818,28 +818,68 @@ footer a{color:var(--ink2)}
   });
 
   /* 送り先へ渡す。
-     ★Content-Type は text/plain。application/json にすると事前の許可確認（preflight）が
-       走り、Apps Script はそれに答えられないので届かなくなる。中身は JSON の文字列のまま */
+     ★★fetch では送らない（2026-09-11）。
+       Apps Script のウェブアプリは /exec がいったん別ドメインへ転送される作りで、
+       ブラウザの取り決め（CORS）にそのまま乗らず、こちら側で結果を読めない。
+       実際、デプロイが「全員」でも fetch は失敗扱いになった。
+       そこで **見えない iframe への、ふつうのフォーム送信** にしてある。
+       ページの移動と同じ扱いなので、この制限を受けない。
+     ★受け口（gas-mendan.gs）は payload という名前の欄で JSON を受け取る。
+       片方だけ直すと届かなくなるので、必ず両方そろえること。
+     ★★応答の中身は読めない（別ドメインのため）。そこで受け口の側が
+       postMessage で「受け取った」と伝えてくる。それが来たときだけ成功とする。
+       ・読み込みが終わったことを成功の印にしてはいけない。通信に失敗したときも
+         ブラウザがエラーの画面を読み込んで、同じように「読み込み完了」になる
+         （実際に、通信できない状態でも「送信しました」と出てしまった）
+       ・20秒待っても返事が来なければ失敗として扱い、メールソフトの案内に落とす */
   function postForm(payload){
-    if (!window.fetch) return Promise.reject(new Error('no fetch'));
-    var ctl = ('AbortController' in window) ? new AbortController() : null;
-    var timer = setTimeout(function(){ if (ctl) ctl.abort(); }, 15000);
-    return fetch(FORM_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(payload),
-      signal: ctl ? ctl.signal : undefined,
-      redirect: 'follow'
-    }).then(function(res){
-      clearTimeout(timer);
-      if (!res.ok) throw new Error('http ' + res.status);
-      return res.text();
-    }).then(function(txt){
-      var j = null;
-      try { j = JSON.parse(txt); } catch (err) { /* 応答が読めないこともある */ }
-      if (j && j.ok === false) throw new Error(j.error || 'ng');
-      return true;
-    }, function(err){ clearTimeout(timer); throw err; });
+    return new Promise(function(resolve, reject){
+      var name = 'mdsend' + Date.now();
+      var ifr = document.createElement('iframe');
+      ifr.name = name;
+      ifr.setAttribute('aria-hidden', 'true');
+      ifr.tabIndex = -1;
+      ifr.style.cssText = 'position:absolute;left:-9999px;top:0;width:1px;height:1px;border:0';
+      document.body.appendChild(ifr);
+
+      var f = document.createElement('form');
+      f.method = 'POST';
+      f.action = FORM_ENDPOINT;
+      f.target = name;
+      f.style.display = 'none';
+      var i = document.createElement('input');
+      i.type = 'hidden';
+      i.name = 'payload';
+      i.value = JSON.stringify(payload);
+      f.appendChild(i);
+      document.body.appendChild(f);
+
+      var fin = false, timer = null;
+      function finish(sent, why){
+        if (fin) return;
+        fin = true;
+        clearTimeout(timer);
+        window.removeEventListener('message', onMsg);
+        setTimeout(function(){
+          try { ifr.parentNode && ifr.parentNode.removeChild(ifr); } catch (err) {}
+          try { f.parentNode && f.parentNode.removeChild(f); } catch (err) {}
+        }, 1500);
+        sent ? resolve(true) : reject(new Error(why || 'timeout'));
+      }
+      /* 受け口からの返事。合図の文字列で見分ける（他の埋め込みと混ざらないように） */
+      var TAG = 'officem-mendan:';
+      function onMsg(ev){
+        var d = ev && ev.data;
+        if (typeof d !== 'string' || d.slice(0, TAG.length) !== TAG) return;
+        var j = null;
+        try { j = JSON.parse(d.slice(TAG.length)); } catch (err) {}
+        if (j && j.ok === false) finish(false, j.msg || 'ng');
+        else finish(true);
+      }
+      window.addEventListener('message', onMsg);
+      timer = setTimeout(function(){ finish(false); }, 20000);
+      try { f.submit(); } catch (err) { finish(false); }
+    });
   }
 
   function openMailer(subject, body){
