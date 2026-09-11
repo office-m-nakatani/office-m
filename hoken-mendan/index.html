@@ -14,17 +14,26 @@
      Instagram広告／Google検索 → LP → 体験版（3日間）→ ★このフォーム → リモート面談
      LPの最終CTA・体験版の下部CTAは、このページへのリンクにしてある。
 
-  ■ ★バックエンドを持たない（費用ゼロの原則）
-     このページ自体はサーバーに何も送らない。送信ボタンを押すと、入力内容を
-     件名・本文に入れた mailto: リンクを組み立てて開くだけ（送るのは訪問者自身の
-     メールソフト）。宛先は y.nakatani@office-m-tax.com 固定。
-     メールソフトが開かない環境向けに、同じ内容をコピーできる代替パネルを用意した。
+  ■ ★送信のしくみ（2026-09-11 ユーザー指示「この内容を入力するとそのまま
+     y.nakatani@office-m-tax.com に届くようにしてください」で作り替えた）
+
+     スクリプトの先頭にある FORM_ENDPOINT に、Google Apps Script のウェブアプリの
+     URL を入れると、入力内容がそのまま担当のメールに届く。
+     ・自前のサーバーは持たない＝費用ゼロの原則は守っている（Apps Script は無料枠）
+     ・お客様の個人情報は、よそのサービスを経由せず自分の Google アカウントの中だけに残る
+     ・差出人は自分のアカウントになるが、★返信先（Reply-To）にお客様のアドレスを
+       入れてあるので、届いたメールにそのまま返信すればお客様に返る
+     ・作り方は hoken-form-src/README.md（5分）。貼るコードは hoken-form-src/gas-mendan.gs
+
+     ★FORM_ENDPOINT が空のとき、および通信に失敗したときは、これまでどおり
+       mailto: を組み立ててメールソフトを開く形に落ちる（黙って失敗させない）。
+       メールソフトが開かない環境向けの、同じ内容をコピーできる代替パネルも残してある。
 
   ■ ★ご希望日時はカレンダー＋時間の選択（2026-09-10 ユーザー指示
      「ご希望の日時はカレンダーと時間を表示し、お客様の入力を簡単にしてください。
        第三希望まで出してください」）
      ・自前のカレンダー（外部ライブラリなし）。翌日〜90日先まで選べる
-     ・日付を押す → 時間（9枠・3×3）を押す → 希望に入る。最大3つ
+     ・日付を押す → 時間（8:00〜18:00の10枠）を押す → 希望に入る。最大3つ
      ・既に入っている時間をもう一度押すと外れる（トグル）
      ・★土日も選べるようにしてある。祝日データは持っていない（間違った休日を
        出さないため）。「調整のうえご返信します」と添えてある
@@ -191,7 +200,9 @@ select{appearance:none; background-image:url("data:image/svg+xml;charset=utf8,%3
 
 .timehead{font-size:13px; font-weight:700; letter-spacing:.07em; color:var(--ink2); margin:0 0 11px; min-height:1.9em}
 .timehead .dim{color:var(--ink3); font-weight:500; letter-spacing:.02em}
-.times{display:grid; grid-template-columns:repeat(3,1fr); gap:9px}
+/* ★列数は枠の数（10）で割り切れる数にすること。auto-fit にすると最後の行に空きマスが出る */
+.times{display:grid; grid-template-columns:repeat(5,1fr); gap:9px}
+@media(max-width:460px){ .times{grid-template-columns:repeat(2,1fr); gap:10px} }
 .tchip{padding:13px 4px; border:1px solid var(--line2); border-radius:12px; background:var(--paper);
   font-size:15.5px; font-family:var(--n); font-weight:500; color:var(--ink); cursor:pointer;
   transition:border-color .15s, background .15s, color .15s}
@@ -254,6 +265,33 @@ select{appearance:none; background-image:url("data:image/svg+xml;charset=utf8,%3
   border:1px solid var(--accentLine); border-radius:999px; padding:11px 22px; cursor:pointer; transition:background .18s}
 .copybtn:hover{background:var(--accentSoft)}
 .copied{color:var(--ink2); font-size:12.5px; margin-left:10px}
+
+/* ★いたずら送信よけの欄。画面からは完全に隠すが display:none にはしない
+   （display:none だと埋めない機械があるため）。読み上げからは aria-hidden で外してある */
+.hp{position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden}
+
+/* ★display を書くものを hidden で隠すときは、必ずこの型でセットにする
+   （#tk-expired・.mt-tools で同じ事故を起こしている。詳細度で [hidden] が負ける） */
+#meetForm[hidden], #sent[hidden], #done[hidden]{display:none !important}
+
+/* 送信中・送信できたとき */
+.btn[disabled]{filter:saturate(.35) brightness(1.02); box-shadow:none; cursor:progress; transform:none}
+.spin{width:17px; height:17px; border:2px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%;
+  animation:mdspin .8s linear infinite}
+@keyframes mdspin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){ .spin{animation-duration:2.4s} }
+
+#sent{margin-top:18px; border:1px solid #b9dcc6; border-radius:18px; padding:clamp(22px,3.6vw,32px);
+  background:linear-gradient(180deg,#f4fbf6 0%,#fbfdfb 100%); box-shadow:0 2px 14px rgba(31,122,68,.07)}
+#sent .stick{display:flex; align-items:center; gap:12px; margin-bottom:13px}
+#sent .ring{flex:0 0 auto; width:38px; height:38px; border-radius:50%; background:#e2f3e8; color:#1f7a44;
+  display:flex; align-items:center; justify-content:center}
+#sent h2{margin:0; font-size:19px; font-weight:800; letter-spacing:.03em; color:#18603a}
+#sent p{margin:0 0 13px; font-size:14px; color:var(--ink2); line-height:1.95}
+#sent .recap{border:1px solid #d8ece0; border-radius:13px; background:var(--paper); padding:15px 18px; font-size:13.5px; line-height:2; color:var(--ink2)}
+#sent .recap b{color:var(--ink)}
+#sent .again{margin-top:14px; font-size:12.5px; color:var(--ink3); line-height:1.9}
+#sent .again a{color:var(--accentInk); font-weight:700}
 
 /* ---------- 注意事項・フッター ---------- */
 .disc{border:1px solid var(--line); border-radius:16px; padding:22px 24px; font-size:12.5px; color:var(--ink2); line-height:2; background:var(--cream); margin-bottom:18px}
@@ -318,6 +356,13 @@ footer a{color:var(--ink2)}
   </section>
 
   <form id="meetForm" class="wrap" novalidate>
+
+    <!-- ★いたずら送信よけ（人には見えない欄。機械が埋めたら受け取らない）。
+         消さないこと。宛先が公開されている受け口なので、これが無いと迷惑メールが入る -->
+    <div class="hp" aria-hidden="true">
+      <label for="f-hp">この欄は入力しないでください</label>
+      <input type="text" id="f-hp" name="company_url" tabindex="-1" autocomplete="off">
+    </div>
 
     <!-- ① ご連絡先 -->
     <section class="card">
@@ -448,6 +493,20 @@ footer a{color:var(--ink2)}
   </form>
 
   <div class="wrap">
+    <!-- 送信できたとき -->
+    <div id="sent" hidden>
+      <div class="stick">
+        <span class="ring"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5.2 5.2L20 7"/></svg></span>
+        <h2>送信しました</h2>
+      </div>
+      <p>お申し込みありがとうございます。担当（中谷）に届きました。<br>
+        <b>2営業日以内にご返信</b>し、日程確定後に<b>オンライン面談のURL</b>をメールでお送りします。</p>
+      <div class="recap" id="sentRecap"></div>
+      <p class="again">2営業日を過ぎても届かない場合は、迷惑メールフォルダをご確認のうえ
+        <a href="mailto:y.nakatani@office-m-tax.com">y.nakatani@office-m-tax.com</a> までお知らせください。</p>
+    </div>
+
+    <!-- 送れなかったとき（メールソフトに切り替える） -->
     <div id="done" hidden>
       <h2>メールソフトが開きましたか？</h2>
       <p>開いた場合は、そのまま送信してください。開かない場合は、下の内容をコピーして
@@ -483,9 +542,21 @@ footer a{color:var(--ink2)}
 (function(){
   'use strict';
   var TO = 'y.nakatani@office-m-tax.com';
+
+  /* ★★送信先（Google Apps Script のウェブアプリ）
+     ここに URL を入れると、入力内容がそのまま y.nakatani@office-m-tax.com に届く。
+     空のままにすると、これまでどおり訪問者のメールソフトを開く形で動く（壊れない）。
+     ・作り方は hoken-form-src/README.md（5分・費用ゼロ・お客様の情報は自分の
+       Googleアカウントの中だけに残る）
+     ・貼り付ける URL は https://script.google.com/macros/s/……/exec の形
+     ★URL を入れ替えたら、必ず自分で1件テスト送信して届くか確かめること */
+  var FORM_ENDPOINT = '';
   var WD = ['日','月','火','水','木','金','土'];
-  /* 時間の枠。★3列×3行でちょうど埋まる9つにしてある（半端な行を出さないため） */
-  var SLOTS = ['10:00','11:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00'];
+  /* 時間の枠。★2026-09-11 ユーザー指示「希望の日時は8時から18時までにしてください」
+     　8:00〜18:00。12:00 は昼どきなので外してあり、ちょうど10枠になる。
+     ★枠の数を変えるときは .times の列数も直すこと（5列×2行／狭い画面は2列×5行で、
+       どちらも割り切れる数にしてある。半端な行を出さないため） */
+  var SLOTS = ['8:00','9:00','10:00','11:00','13:00','14:00','15:00','16:00','17:00','18:00'];
   var MAX = 3;
 
   var today = new Date(); today.setHours(0,0,0,0);
@@ -634,14 +705,34 @@ footer a{color:var(--ink2)}
 
   renderCal(); renderTimes(); renderPicks();
 
-  /* ---- 送信（mailto を組み立てて開くだけ。バックエンドは持たない） ---- */
+  /* ---- 送信 ----
+     FORM_ENDPOINT が入っていれば、そこへ送って担当のメールに直接届ける。
+     空のとき・通信に失敗したときは、これまでどおりメールソフトを開く形に落ちる。 */
   var form = $('meetForm'), done = $('done'), doneBody = $('doneBody'), submitBtn = $('submitBtn');
+  var sent = $('sent'), sentRecap = $('sentRecap'), formnote = document.querySelector('.formnote');
+  var BTN_HTML = submitBtn.innerHTML;
+  var busy = false;
 
   function v(id){ return $(id).value.trim(); }
   function or(id, alt){ return v(id) || alt; }
 
+  /* 送り先があるときは、ボタンの文言も「送信する」に変える */
+  if (FORM_ENDPOINT){
+    submitBtn.innerHTML = submitBtn.innerHTML.replace('この内容でメールを作成する', 'この内容で送信する');
+    BTN_HTML = submitBtn.innerHTML;
+    if (formnote) formnote.innerHTML = '押すと、この内容がそのまま担当（中谷）に届きます。<br>' +
+      'メールソフトは開きません。受け取りしだい2営業日以内にご返信します。';
+  }
+
+  function btnBusy(on){
+    busy = on;
+    submitBtn.disabled = on;
+    submitBtn.innerHTML = on ? '<span class="spin" aria-hidden="true"></span>送信しています…' : BTN_HTML;
+  }
+
   form.addEventListener('submit', function(e){
     e.preventDefault();
+    if (busy) return;
     if (!form.reportValidity()) return;
 
     var agency = v('f-agency'), name = v('f-name');
@@ -677,13 +768,88 @@ footer a{color:var(--ink2)}
     var subject = '【面談のお申し込み】' + agency + '　' + name + '様';
     var body = lines.join('\n');
 
-    window.location.href = 'mailto:' + TO + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+    /* 送り先が無ければ、これまでどおりメールソフトを開く */
+    if (!FORM_ENDPOINT){ openMailer(subject, body); return; }
 
+    /* ここから直接送信 */
+    var payload = {
+      agency: agency,
+      name: name,
+      email: v('f-email'),
+      tel: or('f-tel', ''),
+      count: v('f-count'),
+      picks: picks.map(function(p){ return fmtFull(p); }),
+      trouble: or('f-trouble', ''),
+      source: v('f-source'),
+      trial: $('f-trial').checked,
+      subject: subject,
+      body: body,
+      hp: $('f-hp').value,              /* ★機械が埋めたら受け取らない印 */
+      page: location.href
+    };
+
+    btnBusy(true);
+    postForm(payload).then(function(){
+      btnBusy(false);
+      form.hidden = true;
+      done.hidden = true;
+      sentRecap.textContent = '';
+      [['代理店名', agency], ['お名前', name + ' 様'], ['ご連絡先', payload.email],
+       ['ご希望の日時', picks.length ? picks.map(function(p){ return fmtFull(p); }).join(' ／ ') : 'おまかせ（ご相談のうえ調整）']
+      ].forEach(function(r){
+        var d = document.createElement('div');
+        var b = document.createElement('b'); b.textContent = r[0] + '：';
+        d.appendChild(b); d.appendChild(document.createTextNode(r[1]));
+        sentRecap.appendChild(d);
+      });
+      sent.hidden = false;
+      sent.scrollIntoView({ behavior:'smooth', block:'start' });
+    }, function(){
+      /* 通信できなかったとき。★黙って失敗させない。メールソフトに切り替える */
+      btnBusy(false);
+      done.querySelector('h2').textContent = 'うまく送信できませんでした';
+      done.querySelector('p').innerHTML =
+        '通信がうまくいきませんでした。申し訳ありませんが、<b>メールでお送りください</b>。<br>' +
+        'いまお使いのメールソフトが開きます。開かない場合は、下の内容をコピーして ' +
+        '<a href="mailto:' + TO + '">' + TO + '</a> 宛てにお送りください。<br>' +
+        '受け取りしだい2営業日以内にご返信し、日程確定後に<b>オンライン面談のURL</b>をメールでお送りします。';
+      openMailer(subject, body);
+    });
+  });
+
+  /* 送り先へ渡す。
+     ★Content-Type は text/plain。application/json にすると事前の許可確認（preflight）が
+       走り、Apps Script はそれに答えられないので届かなくなる。中身は JSON の文字列のまま */
+  function postForm(payload){
+    if (!window.fetch) return Promise.reject(new Error('no fetch'));
+    var ctl = ('AbortController' in window) ? new AbortController() : null;
+    var timer = setTimeout(function(){ if (ctl) ctl.abort(); }, 15000);
+    return fetch(FORM_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload),
+      signal: ctl ? ctl.signal : undefined,
+      redirect: 'follow'
+    }).then(function(res){
+      clearTimeout(timer);
+      if (!res.ok) throw new Error('http ' + res.status);
+      return res.text();
+    }).then(function(txt){
+      var j = null;
+      try { j = JSON.parse(txt); } catch (err) { /* 応答が読めないこともある */ }
+      if (j && j.ok === false) throw new Error(j.error || 'ng');
+      return true;
+    }, function(err){ clearTimeout(timer); throw err; });
+  }
+
+  function openMailer(subject, body){
+    window.location.href = 'mailto:' + TO + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
     doneBody.value = 'To: ' + TO + '\nSubject: ' + subject + '\n\n' + body;
     done.hidden = false;
-    submitBtn.textContent = 'もう一度、メールソフトを開く';
+    submitBtn.innerHTML = 'もう一度、メールソフトを開く';
+    BTN_HTML = submitBtn.innerHTML;
     done.scrollIntoView({ behavior:'smooth', block:'start' });
-  });
+  }
 
   $('copyBtn').addEventListener('click', function(){
     var msg = $('copiedMsg');
