@@ -635,6 +635,43 @@ footer{border-top:1px solid var(--line); padding:38px 0; font-size:13px; color:v
 .sticky a{display:block; text-align:center; background:var(--accent); color:#fff; font-weight:700; font-size:15.5px; padding:15px; border-radius:6px; text-decoration:none}
 @media(max-width:820px){ .sticky{display:block} body{padding-bottom:82px} }
 </style>
+
+<script>
+/* =========================================================================
+   ★★LINE で開くと「会社概要」から始まる不具合の対策（2026-09-11・ユーザー指摘）
+
+   原因：このページには #contact・#price へ飛ぶボタンが4つある（ヘッダー・ヒーロー2つ・
+   下の帯）。一度押すとアドレスの末尾に「#contact」が付く。**その状態のアドレスを
+   コピーして LINE で送ると、受け取った人は最後の節へ飛ばされる**。#contact は
+   いちばん下なので下端で頭打ちになり、画面には「会社概要」が出る（390pxで再現した）。
+   しかも遅れて読む写真でページが伸びるぶん、飛び先より手前で止まる。
+
+   ここでは「印が付いて来たら消して、先頭から読ませる」。
+   ★戻る・進むで来たときは触らない（読んでいた場所へ戻したいため）。
+   ★ボタンの側でも、そもそも印を残さないようにしてある（ページ末尾の script）。
+     2つで1組なので、片方だけ消さないこと。
+   ========================================================================= */
+(function () {
+  if (!location.hash) return;
+  var nav = '';
+  try { nav = (performance.getEntriesByType('navigation')[0] || {}).type || ''; } catch (e) {}
+  if (nav === 'back_forward') return;
+  try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+
+  var doc = document.documentElement, on = true;
+  function stop() { if (!on) return; on = false; doc.style.scrollBehavior = ''; }
+  function toTop() { if (!on) return; doc.style.scrollBehavior = 'auto'; window.scrollTo(0, 0); }
+  /* 指が動いたら、そこから先は触らない（読み始めた人を引き戻さない） */
+  ['wheel', 'touchstart', 'pointerdown', 'keydown'].forEach(function (ev) {
+    window.addEventListener(ev, stop, { passive: true, once: true });
+  });
+  toTop();
+  window.addEventListener('DOMContentLoaded', toTop);
+  window.addEventListener('load', toTop);
+  [120, 350, 800, 1500].forEach(function (ms) { setTimeout(toTop, ms); });
+  setTimeout(stop, 1800);
+})();
+</script>
 </head>
 <body>
 
@@ -1653,6 +1690,46 @@ var PHOTOS = {
       el.classList.add('on');
     });
   });
+
+  /* ★★ページ内のボタン（#contact・#price）は、アドレスに印を残さずに送る。
+     押したあとのアドレスをコピーして共有すると、受け取った人がページの下端＝
+     会社概要から始まってしまうため（2026-09-11・LINE で実際に起きた）。
+     href はそのまま残してある（長押しでの操作と、JSが動かないときのため）。
+     ★<head> の「印が付いて来たら消す」処理と2つで1組。片方だけ消さないこと。
+     ★貼り付くヘッダーのぶんだけ手前で止める（押した先が帯の下に隠れないように） */
+  (function () {
+    function headOff() {
+      var hd = document.querySelector('header');
+      return hd ? hd.getBoundingClientRect().height + 8 : 0;
+    }
+    function go(t, smooth) {
+      var y = Math.max(0, t.getBoundingClientRect().top + window.pageYOffset - headOff());
+      if (smooth) { try { window.scrollTo({ top: y, behavior: 'smooth' }); return; } catch (e) {} }
+      window.scrollTo(0, y);
+    }
+    document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+      var id = a.getAttribute('href').slice(1);
+      if (!id) return;
+      a.addEventListener('click', function (e) {
+        var t = document.getElementById(id);
+        if (!t) return;
+        e.preventDefault();
+        go(t, true);
+        /* ★送ったあとに合わせ直す。遅れて読む写真でページが伸びるので、
+           押した時点の位置のままだと 1,300px ほど手前で止まる（実測した）。
+           指が動いたらやめる（読み始めた人を動かさない） */
+        var n = 0, live = true;
+        var quit = function () { live = false; };
+        ['wheel', 'touchstart', 'pointerdown', 'keydown'].forEach(function (ev) {
+          window.addEventListener(ev, quit, { passive: true, once: true });
+        });
+        var again = setInterval(function () {
+          if (!live || ++n > 8) { clearInterval(again); return; }
+          if (Math.abs(t.getBoundingClientRect().top - headOff()) > 24) go(t, false);
+        }, 260);
+      });
+    });
+  })();
 
   /* ★ふわっと出す。一度出たら戻さない */
   var els = document.querySelectorAll('.rv, .rvi');

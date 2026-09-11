@@ -209,6 +209,73 @@ footer a{color:var(--accent)}
   .line-box{padding:20px 18px}
 }
 </style>
+
+<script>
+/* =========================================================================
+   ★★LINE などアプリの中のブラウザで開いたとき、途中から始まらないようにする
+   （2026-09-11。案内LPで実際に起きた不具合の、同じ対策をこちらにも入れてある）
+
+   ページ内のボタン（#inside など）を一度押すと、アドレスの末尾に印が付く。
+   **その状態のアドレスをコピーして送ると、受け取った人が途中から始まる**。
+   ①印が付いて来たら消して先頭から読ませる ②ボタンは印を残さずに送る、の2つで1組。
+   ★戻る・進むで来たときは触らない（読んでいた場所へ戻したいため）
+   ========================================================================= */
+(function () {
+  if (location.hash) {
+    var nav = '';
+    try { nav = (performance.getEntriesByType('navigation')[0] || {}).type || ''; } catch (e) {}
+    if (nav !== 'back_forward') {
+      try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+      var doc = document.documentElement, on = true;
+      var stop = function () { if (!on) return; on = false; doc.style.scrollBehavior = ''; };
+      var toTop = function () { if (!on) return; doc.style.scrollBehavior = 'auto'; window.scrollTo(0, 0); };
+      ['wheel', 'touchstart', 'pointerdown', 'keydown'].forEach(function (ev) {
+        window.addEventListener(ev, stop, { passive: true, once: true });
+      });
+      toTop();
+      window.addEventListener('DOMContentLoaded', toTop);
+      window.addEventListener('load', toTop);
+      [120, 350, 800, 1500].forEach(function (ms) { setTimeout(toTop, ms); });
+      setTimeout(stop, 1800);
+    }
+  }
+
+  /* ページ内のボタンは、アドレスに印を残さずに送る。
+     ★貼り付くヘッダーのぶんだけ手前で止める */
+  window.addEventListener('DOMContentLoaded', function () {
+    function headOff() {
+      var hd = document.querySelector('header');
+      return hd ? hd.getBoundingClientRect().height + 8 : 0;
+    }
+    function go(t, smooth) {
+      var y = Math.max(0, t.getBoundingClientRect().top + window.pageYOffset - headOff());
+      if (smooth) { try { window.scrollTo({ top: y, behavior: 'smooth' }); return; } catch (e) {} }
+      window.scrollTo(0, y);
+    }
+    document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+      var id = a.getAttribute('href').slice(1);
+      if (!id) return;
+      a.addEventListener('click', function (e) {
+        var t = document.getElementById(id);
+        if (!t) return;
+        e.preventDefault();
+        go(t, true);
+        /* ★送ったあとに合わせ直す（遅れて読む写真でページが伸びるため）。
+           指が動いたらやめる */
+        var n = 0, live = true;
+        var quit = function () { live = false; };
+        ['wheel', 'touchstart', 'pointerdown', 'keydown'].forEach(function (ev) {
+          window.addEventListener(ev, quit, { passive: true, once: true });
+        });
+        var again = setInterval(function () {
+          if (!live || ++n > 8) { clearInterval(again); return; }
+          if (Math.abs(t.getBoundingClientRect().top - headOff()) > 24) go(t, false);
+        }, 260);
+      });
+    });
+  });
+})();
+</script>
 </head>
 <body>
 
