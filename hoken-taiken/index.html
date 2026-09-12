@@ -412,6 +412,9 @@ body.vc-dock-on .chat-fab{ display:none !important; }
 .mt-bub .mt-manga, .mt-bub .mt-manga-2, .mt-bub .mt-manga-3, .mt-bub .mt-manga-4, .mt-bub .mt-manga-5{ grid-template-columns:1fr; }
 }
 @media (max-width:520px){
+.chat-msg.bot{ flex-direction:column; align-items:stretch; gap:3px; }
+.chat-msg.bot .chat-ava{ margin-left:2px; }
+.chat-msg.bot .chat-bubble{ max-width:100%; }
 .chat-bubble.mt-bub{ font-size:1rem; line-height:1.8; }
 .mt-bub .mt-h{ font-size:1.1rem; margin:20px 0 8px; gap:9px; }
 .mt-bub .mt-h::before{ width:9px; }
@@ -482,6 +485,11 @@ body.vc-dock-on .chat-fab{ display:none !important; }
 @keyframes mtQuickFlow{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
 @media (prefers-reduced-motion: reduce){
 .mt-quick-track{ animation:none; }
+}
+@media (max-width:520px){
+.mt-quick-flow{ overflow-x:auto; -webkit-overflow-scrolling:touch; -webkit-mask-image:none; mask-image:none; }
+.mt-quick-track{ animation:none; }
+.mt-quick-track > .mt-quick-dup{ display:none; }
 }
 .mt-quick .chat-chip{ border-color:#c9d8ce; background:#eef4f0; color:#1f3328; flex:0 0 auto; white-space:nowrap; }
 .mt-quick-all{ display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
@@ -842,15 +850,27 @@ main.mt-main{ padding:16px 0 8px; }
 
 @media (max-width:640px){
   #mentor-modal .modal{ height:min(72vh, 620px); min-height:420px; border-radius:16px; }
-  #mentor-modal .modal-body{ padding:10px 11px 12px; }
-  #mentor-modal .mt-top{ flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; padding:6px 9px; }
+  /* ★2026-09-12（携帯）：単独ページ（保険AI師匠.html）と同じ直し。余白を詰め、返事の吹き出しを全幅に、
+     上の行は顔を大きくしてボタンはアイコンだけにする（顔は ichijo.html 側で吹き出しの上へ移してある） */
+  #mentor-modal .modal-body{ padding:8px 9px 10px; }
+  #mentor-modal .chat-msg.bot .chat-bubble{ max-width:100%; }
+  #mentor-modal .mt-top{ flex-wrap:nowrap; overflow-x:visible; padding:5px 8px; }
   #mentor-modal .mt-top > *{ flex:0 0 auto; }
   #mentor-modal .mt-top select{ max-width:46vw; }
-  #mentor-modal .mt-who{ max-width:26vw; }
+  #mentor-modal .mt-bar .mt-face{ width:46px; height:46px; }
+  #mentor-modal .mt-who{ max-width:38vw; }
   #mentor-modal .mt-who b, #mentor-modal .mt-who span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block; }
-  #mentor-modal .mt-log{ padding:11px 12px; }
-  #mentor-modal .mt-quick{ padding-top:4px; }
+  /* 文字は font-size:0 で消す（#mt-play は JS が innerHTML を書き換えるので span で包めない）。
+     読み上げ機向けの aria-label は ichijo.html 側に付けてある */
+  #mentor-modal .mt-bar .mt-bar-r{ gap:6px; }
+  #mentor-modal .mt-bar .mt-bar-r .btn{ font-size:0; padding:0; width:42px; min-width:42px; height:42px; min-height:42px; justify-content:center; }
+  #mentor-modal .mt-bar .mt-bar-r .btn > i{ font-size:15px; }
+  #mentor-modal .mt-log{ padding:10px 9px; }
+  #mentor-modal .mt-quick{ padding-top:2px; }
   #mentor-modal .mt-quick::before{ display:none; }
+  .mt-quick-more{ margin-top:4px; padding:3px 11px; min-height:24px; font-size:.72rem; }
+  /* 入力欄の案内文は1行に収めて「…」で切る（2行目が板の下で切れていた）。文言は変えない */
+  #mentor-modal .mt-input textarea::placeholder{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 }
 
 /* ---- 体験版だけの節（学習資料・資格試験・切り返し辞典・下の案内） ------ */
@@ -982,9 +1002,9 @@ main.mt-main{ padding:16px 0 8px; }
           <span class="mt-streak" id="mt-streak" hidden aria-live="polite"></span>
           <span class="mt-bar-r">
             <button type="button" class="btn btn-ghost btn-sm" id="mt-play"><i class="fa-solid fa-play"></i> 再生</button>
-            <button type="button" class="btn btn-ghost btn-sm" id="mt-say" aria-pressed="false"><i class="fa-solid fa-volume-high"></i> 自動で読み上げ</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="mt-say" aria-pressed="false" aria-label="返事を自動で読み上げる"><i class="fa-solid fa-volume-high"></i> 自動で読み上げ</button>
             <button type="button" class="btn btn-ghost btn-sm" id="mt-full" aria-pressed="false" title="画面いっぱいに表示する"><i class="fa-solid fa-expand"></i> 画面いっぱい</button>
-            <button type="button" class="btn btn-ghost btn-sm" id="mt-more" aria-expanded="false"><i class="fa-solid fa-gear"></i> 設定</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="mt-more" aria-expanded="false" aria-label="設定"><i class="fa-solid fa-gear"></i> 設定</button>
           </span>
         </div>
         <!-- 設定（押したときだけ出る）。上長の切り替え・道具・段階はここに入れた -->
@@ -5050,11 +5070,14 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&lt;','<':'&lt;'
       const sq = $('mt-self-qs'); if(sq && !sq.innerHTML) sq.innerHTML = mtSelfPanelHTML();
       const qkTrack = $('mt-quick-track');
       if(qkTrack && !qkTrack.innerHTML){
-        const mtQuickChip = function(c){ return '<button type="button" class="chat-chip" data-mtq="' + esc(c.q) + '"><i class="fa-solid ' + c.i + '"></i> ' + esc(c.q) + '</button>'; };
-        /* 流すのは保険中心（MT_QUICK）だけ。継ぎ目なくループさせるため同じ並びを2周ぶん置く */
-        qkTrack.innerHTML = MT_QUICK.map(mtQuickChip).join('') + MT_QUICK.map(mtQuickChip).join('');
+        const mtQuickChip = function(c, dup){ return '<button type="button" class="chat-chip' + (dup ? ' mt-quick-dup' : '') + '" data-mtq="' + esc(c.q) + '"><i class="fa-solid ' + c.i + '"></i> ' + esc(c.q) + '</button>'; };
+        /* 流すのは保険中心（MT_QUICK）だけ。継ぎ目なくループさせるため同じ並びを2周ぶん置く。
+           ★2周目には mt-quick-dup を付ける（携帯では流すのをやめて横に送る形にするので、2周目を隠す）。
+           ★.map(mtQuickChip) と直接渡さないこと。第2引数に添字が入って、2つ目以降が全部 dup 扱いになる */
+        qkTrack.innerHTML = MT_QUICK.map(function(c){ return mtQuickChip(c); }).join('')
+          + MT_QUICK.map(function(c){ return mtQuickChip(c, true); }).join('');
         const qkAll = $('mt-quick-all');
-        if(qkAll) qkAll.innerHTML = MT_QUICK.concat(MT_QUICK_LIFE).map(mtQuickChip).join('');
+        if(qkAll) qkAll.innerHTML = MT_QUICK.concat(MT_QUICK_LIFE).map(function(c){ return mtQuickChip(c); }).join('');
       }
       const m = $('mentor-modal'); if(m) m.hidden = false;
       mtApplyFull();
