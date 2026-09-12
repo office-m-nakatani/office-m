@@ -257,7 +257,7 @@ body.vc-dock-on .chat-fab{ display:none !important; }
 #mentor-modal .modal-body > *{ flex:0 0 auto; }
 #mentor-modal .modal-body > .mt-log,
     #mentor-modal .modal-body > .mt-stagewrap{ flex:1 1 0; }
-.mt-stagewrap{ display:flex; gap:14px; min-height:300px; align-items:stretch; }
+.mt-stagewrap{ display:flex; gap:10px; min-height:300px; align-items:stretch; }
 .mt-stagewrap > .mt-log{ flex:1 1 auto; min-width:0; min-height:0; }
 .mt-side{ flex:0 0 186px; order:-1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px;
       padding:14px 10px 16px; border:1.5px solid var(--line); border-radius:14px; background:#f4f8f5;
@@ -286,6 +286,9 @@ body.vc-dock-on .chat-fab{ display:none !important; }
 .mt-log{ flex:1 1 auto; min-height:300px; max-height:none; overflow-y:auto; padding:6px 2px; display:flex; flex-direction:column; gap:10px; }
 .mt-ava{ width:38px; height:38px; border-radius:12px; background:#eef4f0; border:1.5px solid #d9e3dc; overflow:hidden; padding:0; }
 .mt-ava svg{ width:100%; height:100%; display:block; }
+.chat-msg.bot{ flex-direction:column; align-items:stretch; gap:4px; }
+.chat-msg.bot .chat-ava{ margin-left:2px; }
+.chat-msg.bot .chat-bubble{ max-width:100%; }
 .mt-face{ display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px; flex:0 0 auto;
       border-radius:50%; overflow:hidden; background:#eef4f0; border:1.5px solid #d9e3dc; }
 .mt-face svg{ width:100%; height:100%; display:block; }
@@ -445,9 +448,7 @@ body.vc-dock-on .chat-fab{ display:none !important; }
 .mt-bub .mt-manga, .mt-bub .mt-manga-2, .mt-bub .mt-manga-3, .mt-bub .mt-manga-4, .mt-bub .mt-manga-5{ grid-template-columns:1fr; }
 }
 @media (max-width:520px){
-.chat-msg.bot{ flex-direction:column; align-items:stretch; gap:3px; }
-.chat-msg.bot .chat-ava{ margin-left:2px; }
-.chat-msg.bot .chat-bubble{ max-width:100%; }
+.chat-msg.bot{ gap:3px; }
 .chat-bubble.mt-bub{ font-size:1rem; line-height:1.8; }
 .mt-bub .mt-h{ font-size:1.1rem; margin:20px 0 8px; gap:9px; }
 .mt-bub .mt-h::before{ width:9px; }
@@ -773,7 +774,9 @@ body{
    固定pxの上限だけを上げれば、上限に届くまでは常に「画面いっぱい」になり、どの幅でも旧来以上になる。
    会話の1行が長くなりすぎないよう、吹き出し側は下の #mentor-modal .chat-bubble で
    上限（min(96%,1120px)）を持たせている */
-.wrap{ max-width:1900px; margin:0 auto; padding:0 16px; }
+/* ★2026-09-12（ユーザー指示「右を使えるところまでチャットの幅を増やして」）：左右の余白は 16→8px。
+   ★これ以上詰めないこと（板の角丸20pxと影が画面の端で切れる） */
+.wrap{ max-width:1900px; margin:0 auto; padding:0 8px; }
 
 /* --- 上の帯：管理画面の社内ツールのカード（琥珀）と同じ顔にする --- */
 header.mt-head{ background:var(--bg); border-bottom:1px solid var(--line); }
@@ -835,13 +838,16 @@ main.mt-main{ padding:4px 0 4px; }
 #mentor-modal .modal{
   /* ★会話の枠。上の帯と下の注意書きのぶんだけ引いて、残りを全部会話に使う。
      ★2026-09-12（3回目）：幅は .wrap と同じ 1900px（固定px。vw倍率にしない理由は上のコメント参照）。
-     高さの余白も14→10pxに詰めた */
-  width:100%; max-width:1900px; height:calc(100dvh - var(--headh) - 10px); min-height:580px; max-height:none;
+     高さの余白も14→10pxに詰めた。
+     ★2026-09-12（5回目・ユーザー指示「幅と高さを極限まで」）：さらに 10→4px。
+     ★0にしないこと（板の下の影と角丸が切れ、1pxの縦スクロールが出る） */
+  width:100%; max-width:1900px; height:calc(100dvh - var(--headh) - 4px); min-height:580px; max-height:none;
   margin:0 auto; border:1px solid var(--line); border-radius:20px; box-shadow:var(--shadow);
 }
 #mentor-modal .modal-head{ display:none; }            /* 名乗りは上の帯に出している */
 /* ★flex:1 が無いと、板だけ大きくて会話の枠が min-height（220px）のまま縮む。会話を板いっぱいに広げる */
-#mentor-modal .modal-body{ padding:8px 14px 10px; gap:7px; flex:1 1 auto; min-height:0; }
+/* ★2026-09-12（5回目）：左右 14→8px・下 10→8px。板の内側の余白は会話の幅にそのまま効く */
+#mentor-modal .modal-body{ padding:8px 8px 8px; gap:6px; flex:1 1 auto; min-height:0; }
 /* パネルの中の注意書きは、下の注意書きと同じ内容。会話を広く取るため畳む（下には出ている） */
 #mentor-modal .modal-body > .mt-note{ display:none; }
 
@@ -967,9 +973,11 @@ main.mt-main{ padding:4px 0 4px; }
 
 /* --- 会話の横の師匠（大きい顔）。抜き出したCSSはライフプランの緑なので、保険ツールの顔に着せ替える --- */
 #mentor-modal .mt-side{
-  flex-basis:198px; border:1px solid var(--amber-line); border-radius:20px;
+  /* ★2026-09-12（5回目）：列の幅 198→172px（顔は152pxなので収まる）。左右の余白も 12→8px。
+     ★152pxより細くしないこと（顔が縮んで表情が読めない） */
+  flex-basis:172px; border:1px solid var(--amber-line); border-radius:20px;
   background:linear-gradient(170deg, var(--yellow-pale) 0%, #fff 70%); box-shadow:var(--shadow-soft);
-  padding:16px 12px 18px;
+  padding:14px 8px 16px;
 }
 /* 大きさは変えない。引き出しを開くと会話は300pxまで縮むので、はみ出すと相談のきっかけの行に被る */
 #mentor-modal .mt-side-art{ width:152px; height:152px; border-color:var(--amber-line); background:#fff;
@@ -997,8 +1005,11 @@ main.mt-main{ padding:4px 0 4px; }
 /* --- 会話の読みやすさ（2026-09-07・ユーザー指示「幅も縦も広げて読みやすく」） ---
    板を広げたぶん、吹き出しの中の1行が長くなりすぎると逆に読みにくい。
    そこで吹き出し自体に上限を持たせ、行間と文字を少しだけ大きくする。 */
-#mentor-modal .mt-log{ padding:14px 16px; }
-#mentor-modal .chat-msg.bot .chat-bubble{ max-width:min(96%, 1120px); line-height:1.85; font-size:1.06rem; }
+/* ★2026-09-12（5回目・ユーザー指示「幅と高さを極限まで大きく」）：会話の板の余白 14/16 → 12/10px。
+   ★吹き出しの上限（min(96%,1120px)）を外した。顔が吹き出しの上に移って左の46pxが空いたぶんと
+   合わせて、1行の文字数が増えている。★min() の上限に戻さないこと */
+#mentor-modal .mt-log{ padding:12px 10px; }
+#mentor-modal .chat-msg.bot .chat-bubble{ max-width:100%; line-height:1.85; font-size:1.06rem; }
 #mentor-modal .chat-msg.user .chat-bubble{ max-width:min(84%, 640px); }
 /* ★2026-09-12：ここに `#mentor-modal .mt-h{ font-size:.86rem }` があって見出しを本文より小さくしていた。消してある。戻さないこと */
 /* ライフプラン側のモーダルに付いた「画面いっぱい」ボタンは、この単独ページには要らない
