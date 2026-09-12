@@ -757,9 +757,15 @@ body{
   font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",YuGothic,Meiryo,"Noto Sans JP",sans-serif;
   background:var(--bg); color:var(--ink); line-height:1.75;
 }
-/* ★2026-09-07・ユーザー指示で板を広げた（1180→1460）。会話の1行が長くなりすぎないよう、
-   吹き出し側は下の #mentor-modal .mt-bub で上限を持たせている */
-.wrap{ max-width:1460px; margin:0 auto; padding:0 16px; }
+/* ★2026-09-07・ユーザー指示で板を広げた（1180→1460）。
+   ★2026-09-12（3回目）・ユーザー指示「画面をできるだけ最大にして見やすく」で 1460→1900 にした。
+   ★vw倍率（96vwなど）にしないこと。一度 min(96vw,1900px) で試したところ、
+   1440〜1550px幅あたりの一般的なノートPCの画面では「96vw−左右パディング」が旧来の1460px上限
+   より狭くなってしまい、逆に画面が小さくなる回帰を起こした（実測1350px<旧1408px）。
+   固定pxの上限だけを上げれば、上限に届くまでは常に「画面いっぱい」になり、どの幅でも旧来以上になる。
+   会話の1行が長くなりすぎないよう、吹き出し側は下の #mentor-modal .chat-bubble で
+   上限（min(96%,1120px)）を持たせている */
+.wrap{ max-width:1900px; margin:0 auto; padding:0 16px; }
 
 /* --- 上の帯：管理画面の社内ツールのカード（琥珀）と同じ顔にする --- */
 header.mt-head{ background:var(--bg); border-bottom:1px solid var(--line); }
@@ -792,15 +798,17 @@ header.mt-head{ background:var(--bg); border-bottom:1px solid var(--line); }
 .mt-head .mt-links a:hover{ background:var(--blue-pale); }
 
 /* --- 相談の画面（モーダルの外枠を、管理画面と同じカードに戻す） --- */
-main.mt-main{ padding:6px 0 6px; }
+main.mt-main{ padding:4px 0 4px; }
 /* ★板の高さは「画面 − 上の帯 − 余白」。ここがずれるとページ全体が縦にスクロールして、
    相談のきっかけと入力欄が画面の外に出る。帯の高さを変えたら --headh も直すこと
    （2026-09-07・ユーザー指示「もっとチャットを大きく」） */
 :root{ --headh:49px; }
 #mentor-modal{ position:static; inset:auto; display:block; background:none; padding:0; z-index:auto; }
 #mentor-modal .modal{
-  /* ★会話の枠。上の帯と下の注意書きのぶんだけ引いて、残りを全部会話に使う */
-  width:100%; max-width:1460px; height:calc(100dvh - var(--headh) - 14px); min-height:580px; max-height:none;
+  /* ★会話の枠。上の帯と下の注意書きのぶんだけ引いて、残りを全部会話に使う。
+     ★2026-09-12（3回目）：幅は .wrap と同じ 1900px（固定px。vw倍率にしない理由は上のコメント参照）。
+     高さの余白も14→10pxに詰めた */
+  width:100%; max-width:1900px; height:calc(100dvh - var(--headh) - 10px); min-height:580px; max-height:none;
   margin:0 auto; border:1px solid var(--line); border-radius:20px; box-shadow:var(--shadow);
 }
 #mentor-modal .modal-head{ display:none; }            /* 名乗りは上の帯に出している */
@@ -975,8 +983,14 @@ main.mt-main{ padding:6px 0 6px; }
 #mentor-modal .mt-input .btn{ border-radius:50%; width:46px; height:46px; padding:0; flex:0 0 auto; }
 
 /* --- 下の注意書き --------------------------------------------- */
-.mt-foot{ padding:10px 0 20px; font-size:.74rem; color:var(--ink-soft); line-height:1.8; }
+.mt-foot{ padding:8px 0 14px; font-size:.74rem; color:var(--ink-soft); line-height:1.8; }
 .mt-foot p + p{ margin-top:2px; }
+/* ★2026-09-12：既定で畳んでおく（ユーザー指示）。押すと開く。中身は今までどおり5行 */
+.mt-foot-d summary{ cursor:pointer; font-weight:700; color:var(--ink-soft); padding:4px 0; }
+.mt-foot-d summary:hover{ color:var(--blue-deep); }
+.mt-foot-d[open] summary{ margin-bottom:6px; }
+.mt-foot-d p{ margin:0; }
+.mt-foot-d p + p{ margin-top:6px; }
 
 @media (max-width:640px){
   .mt-head .wrap{ gap:10px; padding-top:8px; padding-bottom:8px; }
@@ -1326,11 +1340,16 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
   </div>
   </div>
   <div class="wrap mt-foot">
-    <p>※ 社内の相談用です。お客様に配布しないでください。外部のAIには接続していません（費用ゼロ・入力内容は外に出ません）。人物設定と会話はこの端末のブラウザにだけ残ります（共有PCでは使わないこと）。</p>
-    <p>※ <b>声で話す機能について。</b>マイクの文字起こしと読み上げは、ブラウザ（端末）の機能を使っています。ブラウザによっては<b>音声が提供元のサーバーへ送られることがあります</b>。お客様の氏名・病歴・契約金額は声に出さないでください。文字で相談する場合は、これまでどおり何も外に出ません。</p>
-    <p>※ 個別の税額計算・申告書の作成・税務相談は税理士の業務です。このページが返すのは、提案の前に確かめることと、税理士に渡す材料までです。返答は教材・公開ページに明記のある範囲で、金額の断定はしません。</p>
-    <p>※ 返事の下に出る「著者『題名』より」は、その本の要点を土台にしているという意味です。<b>本文をそのまま引いてはいません</b>。文章は全て、保険営業・マネジメントの場面に置き換えた師匠の言葉です。</p>
-    <p>※ このページだけで完結します（ライフプランツールを開く必要はありません）。ライフプラン（一条版）の中にある「AI師匠」とは、見た目は違いますが同じ中身・同じ保存先です。どちらで話しても同じ師匠・同じ会話が続きます。</p>
+    <!-- ★2026-09-12（3回目）：ユーザー指示「ここはたたんでおいてください」。既定は閉じた <details>。
+         中身は変えていない（社内限定・声の注意・税務の線引き・出どころ・完結する旨の5行）。 -->
+    <details class="mt-foot-d">
+      <summary>ご利用にあたっての注意事項（社内利用・声の機能・税務の線引き・出どころ）</summary>
+      <p>※ 社内の相談用です。お客様に配布しないでください。外部のAIには接続していません（費用ゼロ・入力内容は外に出ません）。人物設定と会話はこの端末のブラウザにだけ残ります（共有PCでは使わないこと）。</p>
+      <p>※ <b>声で話す機能について。</b>マイクの文字起こしと読み上げは、ブラウザ（端末）の機能を使っています。ブラウザによっては<b>音声が提供元のサーバーへ送られることがあります</b>。お客様の氏名・病歴・契約金額は声に出さないでください。文字で相談する場合は、これまでどおり何も外に出ません。</p>
+      <p>※ 個別の税額計算・申告書の作成・税務相談は税理士の業務です。このページが返すのは、提案の前に確かめることと、税理士に渡す材料までです。返答は教材・公開ページに明記のある範囲で、金額の断定はしません。</p>
+      <p>※ 返事の下に出る「著者『題名』より」は、その本の要点を土台にしているという意味です。<b>本文をそのまま引いてはいません</b>。文章は全て、保険営業・マネジメントの場面に置き換えた師匠の言葉です。</p>
+      <p>※ このページだけで完結します（ライフプランツールを開く必要はありません）。ライフプラン（一条版）の中にある「AI師匠」とは、見た目は違いますが同じ中身・同じ保存先です。どちらで話しても同じ師匠・同じ会話が続きます。</p>
+    </details>
   </div>
 </main>
 
