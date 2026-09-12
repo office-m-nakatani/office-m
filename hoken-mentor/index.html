@@ -513,8 +513,8 @@ body.vc-dock-on .chat-fab{ display:none !important; }
       -webkit-mask-image:linear-gradient(90deg,transparent,#000 20px,#000 calc(100% - 20px),transparent);
       mask-image:linear-gradient(90deg,transparent,#000 20px,#000 calc(100% - 20px),transparent); }
 .mt-quick-track{ display:flex; gap:6px; width:max-content; padding:2px 1px; animation:mtQuickFlow 72s linear infinite; }
-.mt-quick.mt-quick-hold .mt-quick-track, .mt-quick:hover .mt-quick-track, .mt-quick:focus-within .mt-quick-track{
-      animation-play-state:paused; }
+.mt-quick.mt-quick-hold .mt-quick-track{ animation-play-state:paused; }
+.mt-quick:has(:focus-visible) .mt-quick-track{ animation-play-state:paused; }
 @keyframes mtQuickFlow{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
 @media (prefers-reduced-motion: reduce){
 .mt-quick-track{ animation:none; }
@@ -797,7 +797,27 @@ header.mt-head{ background:var(--bg); border-bottom:1px solid var(--line); }
 .mt-head .mt-sub{ display:block; font-size:.78rem; color:var(--ink-soft); font-weight:600;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
 @media (max-width:1080px){ .mt-head .mt-sub{ display:none; } }
-.mt-head .mt-links{ margin-left:auto; display:flex; gap:8px; flex:0 0 auto; }
+
+/* ★2026-09-12（4回目）：板の中の「顔・名前・ボタン」の行（.mt-bar）を畳み、ボタンだけ上の帯へ移した。
+   ユーザー指示「これを追加できれば、写真2枚目のこれを削除できる。削除して空いたスペースもチャットの枠に」。
+   ・名前（師匠／Office-M）は、この帯の説明文（#mt-head-sub）が同じことを言っているので重複だった
+   ・顔は帯の絵（#mt-head-art）と、会話の横の大きい顔（.mt-side）と、返事ごとの絵で足りている
+   ★戻すときは、この2つ（帯の入れ物と .mt-bar の display:none）をセットで外すこと */
+.mt-head .mt-head-tools{ margin-left:auto; display:flex; align-items:center; gap:8px; flex:0 0 auto; min-width:0; }
+.mt-head .mt-bar-r{ display:flex; align-items:center; gap:8px; flex:0 0 auto; }
+/* 帯に移したボタンは「ツール一覧」と同じ形にそろえる（#mentor-modal の上書きが効かなくなるため） */
+.mt-head .mt-bar-r .btn{
+  min-height:34px; padding:6px 14px; border-radius:999px; font-size:.84rem; letter-spacing:.03em;
+  white-space:nowrap; box-shadow:none;
+}
+.mt-head .mt-bar-r .btn-ghost{ background:#fff; color:var(--blue-deep); border:1px solid var(--blue-pale2); }
+.mt-head .mt-bar-r .btn-ghost:hover{ background:var(--blue-pale); }
+.mt-head .mt-bar-r .btn[aria-pressed="true"]{ background:var(--blue-pale); border-color:var(--blue); }
+.mt-head .mt-streak{ flex:0 0 auto; }
+/* ★板の中の上の行は畳む（ボタンは上の帯に移してある）。中身は消していない＝JSはそのまま動く */
+#mentor-modal .mt-bar{ display:none !important; }
+
+.mt-head .mt-links{ margin-left:0; display:flex; gap:8px; flex:0 0 auto; }
 .mt-head .mt-links a{
   display:inline-flex; align-items:center; gap:7px; min-height:34px; padding:6px 14px; white-space:nowrap;
   border:1px solid var(--blue-pale2); border-radius:999px; background:#fff;
@@ -1002,12 +1022,26 @@ main.mt-main{ padding:4px 0 4px; }
 
 @media (max-width:640px){
   /* ★2026-09-12（携帯）：上の帯を --headh（49px）の実寸に合わせて詰めた。
-     前は art 38px＋上下 8px＝実高55pxで、宣言（49px）と6pxずれ、板が画面の下へはみ出していた（実測846>844） */
-  .mt-head .wrap{ gap:9px; padding-top:6px; padding-bottom:6px; }
-  .mt-head .mt-head-art{ width:36px; height:36px; }
+     前は art 38px＋上下 8px＝実高55pxで、宣言（49px）と6pxずれ、板が画面の下へはみ出していた（実測846>844）。
+     ★4回目でボタンをこの帯へ移したので、絵とボタンを40pxにして 40＋上下4＋枠1＝49px に合わせている。
+       どれかを大きくすると、また板が画面の下へはみ出す */
+  .mt-head .wrap{ gap:7px; padding-top:4px; padding-bottom:4px; }
+  .mt-head .mt-head-art{ width:40px; height:40px; }  /* 携帯は横の大きい顔が消えるので、ここが顔の主役 */
   .mt-head h1{ font-size:1.02rem; }
   .mt-head .mt-sub{ display:none; }                  /* 1行に収めて、会話の枠を広く取る */
-  .mt-head .mt-links a{ padding:6px 12px; font-size:.78rem; white-space:nowrap; }
+  .mt-head .mt-badge{ display:none; }                /* 社内用の札は1行に収めるため隠す（題名と下の注意書きに出る） */
+  /* ★帯のボタンは、携帯ではアイコンだけの丸（3つとも1画面に収めるため）。
+     ★文字は font-size:0 で消す。#mt-play は JS が innerHTML を丸ごと書き換える（素のテキストノード）ので、
+       span で包んで隠す形にはできない。読み上げ機向けに aria-label を ichijo.html 側で付けてある */
+  .mt-head .mt-head-tools{ gap:6px; }
+  .mt-head .mt-bar-r{ gap:6px; }
+  .mt-head .mt-bar-r .btn{ font-size:0; padding:0; width:40px; min-width:40px; height:40px; min-height:40px; justify-content:center; border-radius:50%; }
+  .mt-head .mt-bar-r .btn > i{ font-size:15px; }
+  /* ツール一覧は「ここから出ていく」リンク。丸だけにすると声・設定のボタンと見分けが付かないので、
+     携帯では琥珀にして役目を分ける（押し間違いで管理画面へ飛ばないため） */
+  .mt-head .mt-links a{ font-size:0; gap:0; padding:0; width:40px; min-width:40px; height:40px; min-height:40px; justify-content:center; border-radius:50%;
+    background:var(--yellow-pale); border-color:var(--amber-line); color:var(--amber); }
+  .mt-head .mt-links a > i{ font-size:15px; }
   main.mt-main{ padding:4px 0 6px; }
   .wrap{ padding:0 10px; }
   #mentor-modal .modal{ height:calc(100dvh - var(--headh) - 12px); min-height:440px; border-radius:16px; }
@@ -1015,22 +1049,10 @@ main.mt-main{ padding:4px 0 4px; }
      余白を詰めて、返事の吹き出しを全幅にする（顔は ichijo.html 側で吹き出しの上へ移してある）。 */
   #mentor-modal .modal-body{ padding:8px 9px 10px; }
   #mentor-modal .chat-msg.bot .chat-bubble{ max-width:100%; }
-  /* スマホは操作の行が3段に折り返して、会話の枠を200px近く食う。1行に収める。
-     ★2026-09-12：ボタンをアイコンだけにしたので横スクロールは要らなくなった（visible に戻す）。
-       前は 465px あって、横に送らないと「設定」が画面の外だった（実測 scrollWidth 465 > 344） */
-  #mentor-modal .mt-top{ flex-wrap:nowrap; overflow-x:visible; padding:5px 8px; }
-  #mentor-modal .mt-top > *{ flex:0 0 auto; }
-  #mentor-modal .mt-top select{ max-width:46vw; }
-  /* ★携帯は会話の横の大きい顔（.mt-side）が消えるので、ここが顔の主役。38→46pxに大きくする */
-  #mentor-modal .mt-bar .mt-face{ width:46px; height:46px; }
-  #mentor-modal .mt-who{ max-width:38vw; }
-  #mentor-modal .mt-who b, #mentor-modal .mt-who span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block; }
-  /* ★声・設定のボタンは、携帯ではアイコンだけ（3つとも1画面に収めるため）。
-     ★文字は font-size:0 で消す。#mt-play は JS が innerHTML を丸ごと書き換える（素のテキストノード）ので、
-       span で包んで隠す形にはできない。読み上げ機向けに aria-label を ichijo.html 側で付けてある */
-  #mentor-modal .mt-bar .mt-bar-r{ gap:6px; }
-  #mentor-modal .mt-bar .mt-bar-r .btn{ font-size:0; padding:0; width:42px; min-width:42px; height:42px; min-height:42px; justify-content:center; }
-  #mentor-modal .mt-bar .mt-bar-r .btn > i{ font-size:15px; }
+  /* ★板の中の上の行（.mt-bar）は畳んである（ボタンは上の帯へ）。ここに携帯用の指定はもう要らない。
+     戻すときは、この位置に「1行に収める・アイコンだけ・顔46px」の一式が必要になる（履歴は git に残してある） */
+  /* ★連続日数の札は、いちばん狭い画面では隠す（ボタン3つと顔を1行に残すほうを優先） */
+  .mt-head .mt-streak{ font-size:.68rem; padding:3px 8px; }
   #mentor-modal .mt-log{ padding:10px 9px; }
   #mentor-modal .mt-quick{ padding-top:2px; }
   #mentor-modal .mt-quick::before{ display:none; }    /* 流れる帯の上に見出しが重なるので隠す */
@@ -1039,6 +1061,12 @@ main.mt-main{ padding:4px 0 4px; }
   /* ★入力欄の案内文は1行に収めて「…」で切る。2行目が板の下で切れて読めなかった。
      ★文言そのものは変えないこと（2026-09-11 の指示で「調べる」と例文を入れてある） */
   #mentor-modal .mt-input textarea::placeholder{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+}
+@media (max-width:420px){
+  /* ★連続日数の札は、いちばん狭い画面では隠す。顔とボタン3つを1行に残すほうを優先する。
+     実測：430pxなら札（76px）まで1行に収まる。360pxで出すと題名が「AI師」まで切れた（境目は約420px）。
+     ★この閾値を下げないこと */
+  .mt-head .mt-streak{ display:none; }
 }
 @media print{
   header.mt-head, .mt-quick, .mt-quick-more, .mt-input, .mt-foot, .mt-side{ display:none !important; }
@@ -1232,6 +1260,11 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
       <h1>AI師匠 <span class="mt-badge"><i class="fa-solid fa-lock"></i> 社内用</span></h1>
       <span class="mt-sub" id="mt-head-sub">数字・断り文句・提案を、ファイナンシャルプランナーの目で見る</span>
     </span>
+    <!-- ★2026-09-12（4回目）：ユーザー指示「（再生・自動で読み上げ・設定を）ここに追加してください。
+         これを追加できれば（板の中の顔・名前の行を）削除できる」。
+         ボタンは板の中の .mt-bar-r をそのまま「移してくる」（下の script）。
+         同じボタンを作り直すと id が二重になって JS の配線が壊れる。 -->
+    <span class="mt-head-tools" id="mt-head-tools"></span>
     <span class="mt-links">
       <a href="https://office-m-nakatani.github.io/office-m/hoken-hub/"><i class="fa-solid fa-table-cells-large"></i> ツール一覧</a>
     </span>
@@ -5380,6 +5413,25 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
 
 /* 単独ページなので、読み込んだ時点で開いた状態にする（モーダルの開閉は無い） */
 try{ mtOpen(); }catch(e){ if(window.console) console.error('[AI師匠]', e); }
+
+/* ★2026-09-12（4回目）：板の中の上の行にあったボタン（再生・自動で読み上げ・設定）を、
+   上の帯へ「移してくる」。ユーザー指示「ここに追加できれば、板の中のこの行を削除できる。
+   削除して空いたスペースもチャットの枠に」。
+   ★同じボタンを帯に作り直さないこと（id が二重になって、JS の配線と読み上げの状態が壊れる）。
+   要素を移しても、ichijo.html 側の addEventListener はそのまま効く（同じ節点なので）。
+   行そのものは CSS で畳んである（#mentor-modal .mt-bar{display:none}）＝顔と名前は消えるが、
+   名前は帯の説明文が、顔は帯の絵・横の大きい顔・返事ごとの絵が受け持っている。 */
+(function(){
+  try{
+    const box = $('mt-head-tools');
+    const bar = document.querySelector('#mentor-modal .mt-bar');
+    const btns = bar && bar.querySelector('.mt-bar-r');
+    if(!box || !btns) return;
+    const streak = $('mt-streak');          /* 連続日数の札も一緒に持ってくる */
+    if(streak) box.appendChild(streak);
+    box.appendChild(btns);
+  }catch(e){ if(window.console) console.error('[AI師匠] 帯にボタンを移せなかった', e); }
+})();
 
 /* 上の帯にも師匠の顔と名前を出す（誰に相談しているのかが分かるように）。
    顔の絵は ichijo.html 側の mtFaceSVG が正本。ここでは呼ぶだけ。 */
