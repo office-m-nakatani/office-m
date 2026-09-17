@@ -577,6 +577,20 @@ body.vc-dock-on .chat-fab{ display:none !important; }
 .mt-kata-row{flex-direction:column; gap:1px;}
 .mt-kata-row > i{flex:none;}
 }
+#mentor-modal .modal-body.mt-kata-on > .mt-tools,
+#mentor-modal .modal-body.mt-kata-on > .mt-stagewrap,
+#mentor-modal .modal-body.mt-kata-on > .mt-quick,
+#mentor-modal .modal-body.mt-kata-on > .mt-quick-more,
+#mentor-modal .modal-body.mt-kata-on > .mt-input,
+#mentor-modal .modal-body.mt-kata-on > .mt-note,
+#mentor-modal .modal-body.mt-kata-on > #mt-self,
+#mentor-modal .modal-body.mt-kata-on > #mt-settings,
+#mentor-modal .modal-body.mt-kata-on > #mt-kpi{display:none !important;}
+#mentor-modal .modal-body.mt-kata-on > #mt-kata{flex:1 1 auto; min-height:0; max-height:none; overflow:auto;
+  /* ★枠と地を外す。引き出しの枠のまま画面いっぱいに伸ばすと、
+     下半分が「空の白い箱」に見える（2026-09-18 実測）。ここは一枚の画面として見せる */
+  border:none; background:transparent; padding:2px 2px 8px;}
+#mt-kata[hidden]{display:none !important;}
 .mt-panel h4{ margin:0 0 6px; font-size:.86rem; display:flex; align-items:center; gap:7px; color:#1f3328; }
 .mt-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:8px 10px; }
 .mt-grid label{ display:block; font-size:.72rem; color:var(--ink-soft); margin-bottom:2px; }
@@ -1361,8 +1375,11 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
           <button type="button" class="btn btn-ghost btn-sm" id="mt-self-btn" aria-expanded="false"><i class="fa-solid fa-list-check"></i> 自分で点検</button>
           <button type="button" class="btn btn-ghost btn-sm" id="mt-clear"><i class="fa-solid fa-eraser"></i> 会話を消す</button>
           <span class="mt-stagebox">
-            <label for="mt-stage" style="font-size:.78rem; color:var(--ink-soft);">あなたの段階</label>
-            <select id="mt-stage" aria-label="あなたの段階（開くトークの段が変わります）"></select>
+            <!-- ★「あなたの段階」の選ぶ欄を外した（2026-09-18 ユーザー指示
+                 「あなたの段階を削除し、TOT最上位にしてください」）。
+                 段階は TOT（最上位・4段全て）に固定してあるので、選ばせる必要がない。
+                 固定は mtLoad の o.stage で持っている。★'base' に戻さないこと。
+                 残してあるのは「自立の段階」（自分で点検の結果）で、これは別のもの。 -->
             <span class="mt-stage-badge" id="mt-stage-badge">自立の段階：まだ点検していない</span>
           </span>
         </div>
@@ -1593,7 +1610,17 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       '紹介を頼む前に、自分が誰かをつないだ', '保険以外の土産（相手の商売に効く話）を持っていった'
     
     ];
-    const MT_KEY = 'lifeplan_ichijo_mentor_v1';
+    /* ★会社フォルダ版（カタツギ・2026-09-17 ユーザー決定「配り方：ハ」）。
+       make_agency.py --company が、下の null をその会社の「社長の型」（人物設定）に差し替える。
+       null のまま＝一条ライフプラン・共有のAI師匠。その場合は何も変わらない。
+       差し替えたときだけ：
+         ① 保存先を会社ごとに分ける（同じオリジンの他のページ・他の会社と混ざらない）
+         ② 人物設定は開くたびにこの中身で上書きする（月1回の直しを全員の端末に届けるため。
+            会話・今月の数字・段階は消さない）
+         ③ 画面では人物設定を触れない・師匠の切り替えも出さない（誰も触れない＝2026-09-17 ユーザー決定）
+       ★次の行の目印（MT-AGENCY を挟んだコメントと null）の形を変えると、make_agency.py が差し込めなくなる */
+    const MT_AGENCY = /*MT-AGENCY*/null;
+    const MT_KEY = 'lifeplan_ichijo_mentor_v1' + (MT_AGENCY && MT_AGENCY.slug ? ':' + MT_AGENCY.slug : '');
     const MT_BOOK_LABELS = { zou:'『夢をかなえるゾウ』', carnegie:'『人を動かす』', covey:'『7つの習慣』', cialdini:'『影響力の武器』', shikigaku:'『リーダーの仮面』（識学）', teio:'『誰も知らない帝王学』', koudou:'『行動経済学が最強の学問である』',
                           meyer:'『人生成功の鍵は目標設定にある』',
                           yudaya:'『ユダヤの商法』',
@@ -2249,7 +2276,11 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       o.kpi = o.kpi || {}; o.log = o.log || {};
       // 3倍化で足した記憶：相談の型の履歴（同じ相談の繰り返しに気づかせる）・段階・点検の履歴・出した切り口
       o.hist = (o.hist && typeof o.hist === 'object') ? o.hist : {};
-      o.stage = MT_STAGES.some(function(s){ return s.id === o.stage; }) ? o.stage : 'base';
+      /* ★段階は TOT（最上位・4段全て）に固定（2026-09-18 ユーザー指示
+         「あなたの段階を削除し、TOT最上位にしてください」）。画面から選ぶ欄を外したので、
+         端末に 'base' が残っていた人も最上位で開く。★ここを元の判定に戻すと、
+         前に 'base' を選んだ端末だけ①〜②段しか開かない状態が残る。 */
+      o.stage = 'tot';
       o.self = Array.isArray(o.self) ? o.self : [];
       o.recentKk = Array.isArray(o.recentKk) ? o.recentKk : [];
       o.recentPsy = Array.isArray(o.recentPsy) ? o.recentPsy : [];
@@ -2306,7 +2337,32 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       // FP1級の目：出した一問の履歴（同じ問題を続けて出さない）と、正誤の数
       o.recentFp = Array.isArray(o.recentFp) ? o.recentFp : [];
       o.quiz = (o.quiz && typeof o.quiz === 'object') ? { n:(o.quiz.n | 0), ok:(o.quiz.ok | 0) } : { n:0, ok:0 };
+      if(MT_AGENCY) mtAgencyApply(o);
       return o;
+    }
+    /* 会社フォルダ版：社長の型1人だけを置き、開くたびに MT_AGENCY の中身で上書きする。
+       ★端末で持っているのは会話・数字・段階だけ。人物設定は端末に残っていても使わない */
+    function mtAgencyApply(o){
+      const A = MT_AGENCY, src = (A.persona && typeof A.persona === 'object') ? A.persona : {};
+      const list = function(v){ return Array.isArray(v) ? v.map(function(x){ return String(x).trim(); }).filter(Boolean) : []; };
+      const P = Object.assign({}, JSON.parse(JSON.stringify(MT_DEFAULT_PERSONA)), JSON.parse(JSON.stringify(MT_COMPANY_PRESETS[0])));
+      P.id = 'default';
+      P.company = String(A.company || P.company);
+      if(src.name) P.name = String(src.name);
+      if(src.call) P.call = String(src.call);
+      P.style = (src.style === 'zsedai') ? 'zsedai' : 'shisho';
+      const st = (src.strict && typeof src.strict === 'object') ? src.strict : MT_DEFAULT_PERSONA.strict;
+      P.strict = {}; ['num','time','promise','health','weak'].forEach(function(k){ P.strict[k] = !!st[k]; });
+      // 本は全部読んでいる前提（画面で選ばせていないのと同じ）
+      const books = Array.isArray(P.books) ? P.books.slice() : [];
+      (typeof MT_BOOKS !== 'undefined' ? MT_BOOKS : []).forEach(function(b){ if(books.indexOf(b.key) < 0) books.push(b.key); });
+      P.books = books;
+      if(Array.isArray(src.likes)) P.likes = list(src.likes);
+      P.lines = list(src.lines);
+      if(A.ctx && typeof A.ctx === 'object') P.ctx = A.ctx;
+      o.personas = { default: P };
+      o.active = 'default';
+      o.agencyRev = String(A.rev || '');
     }
     let MT; try{ MT = mtLoad(); }catch(e){ MT = { personas:{}, active:'default', kpi:{}, log:{}, deleted:[] }; try{ localStorage.removeItem(MT_KEY); }catch(_){ } MT = mtLoad(); }
     function mtSave(){ try{ localStorage.setItem(MT_KEY, JSON.stringify(MT)); }catch(e){} }
@@ -3265,7 +3321,9 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
         const txt = (k.talk && k.talk[x[0]]) || '';
         return { who:(i === 3 ? 'eigyo-egao' : 'eigyo-idle'), lab:x[1], say:txt || x[1], key:(i === 1 || i === 2), max:52 };
       }), { max:52 });
-      h += mtFigStage();   /* いま何段まで開いているかを札でも見せる */
+      /* ★「あなたの段階」の札は出さない（2026-09-18 ユーザー指示で段階を削除・TOT固定）。
+         全員が4段全て開いているので、毎回「いまここ／4段全て・最上位」と並べても伝わるものが無い。
+         mtFigStage() は残してある（段階を戻すときに使う）。★h += で呼び戻さないこと */
       h += '<ul class="mt-tot">'; for(let i = 0; i < openTo; i++) h += step(i); h += '</ul>';
       if(openTo < 4){
         const close = (MT_TEXTS.stage_close || {})[openTo === 2 ? 'mdrt' : 'cot'];
@@ -5402,6 +5460,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       const del = $('mts-del'); if(del) del.disabled = (MT.active === 'default');
     }
     function mtReadSettings(){
+      if(MT_AGENCY) return;   /* 会社フォルダ版は画面で人物設定を変えない */
       const P = mtP(); if(!P) return;
       const g = function(id){ return (($(id) && $(id).value) || '').trim(); };
       P.company = g('mts-company') || P.company; P.name = g('mts-name') || '師匠'; P.call = g('mts-call') || 'せんぱい'; P.style = g('mts-tone') || 'shisho';
@@ -5691,6 +5750,11 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
     }
     (function mtWire(){
       if(!$('mentor-modal')) return;
+      /* 会社フォルダ版：人物設定の引き出しと師匠の切り替えを、画面から取り除く（誰も触れない）
+         ★「社長の型を写す」（12問）もここで取り除く。あれは導入のときに社長が型を言葉にする道具で、
+           型は make_agency.py が MT_AGENCY に焼いてある。残しておくと社員が押せてしまい、
+           その場だけ型が変わって、開き直すと黙って戻る（mtAgencyApply が上書きするため）。 */
+      if(MT_AGENCY) ['mt-persona', 'mt-set-btn', 'mt-settings', 'mt-kata-btn', 'mt-kata'].forEach(function(id){ const el = $(id); if(el) el.remove(); });
       if($('btn-mentor')) $('btn-mentor').addEventListener('click', mtOpen);
       if($('mt-close')) $('mt-close').addEventListener('click', mtClose);
       $('mentor-modal').addEventListener('click', function(e){ if(e.target === $('mentor-modal')) mtClose(); });
@@ -5744,13 +5808,27 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       });
       mtVoiceInit();
 /* KATA-WIRE-BEGIN ★社長の型を写す（12問）の配線。2026-09-17 */
+      /* ★開いているあいだは板の全体を使う（2026-09-18）。閉じたら必ず元へ戻す */
+      function mtKataShow(on){
+        const p = $('mt-kata'), b = $('mt-kata-btn'),
+              body = $('mentor-modal') ? $('mentor-modal').querySelector('.modal-body') : null;
+        if(p) p.hidden = !on;
+        if(b) b.setAttribute('aria-expanded', on ? 'true' : 'false');
+        if(body) body.classList.toggle('mt-kata-on', !!on);
+        if(on){ if(typeof mtShut === 'function') mtShut('mt-kata'); mtKataOpen();
+                if(p) p.scrollTop = 0; }
+      }
       if($('mt-kata-btn')) $('mt-kata-btn').addEventListener('click', function(){
         const p = $('mt-kata'); if(!p) return;
-        const open = p.hidden;
-        p.hidden = !open;
-        this.setAttribute('aria-expanded', open ? 'true' : 'false');
-        if(open) mtKataOpen();
+        mtKataShow(p.hidden);
       });
+      /* ★見出しの × 。MT_DRAWERS に入れていないので、ここで自分で配線する
+         （入れていないのは、12問のあいだ他の引き出しと同じ畳み方をさせないため） */
+      (function(){
+        const p = $('mt-kata'); if(!p) return;
+        const x = p.querySelector('[data-mtclose]'); if(!x) return;
+        x.addEventListener('click', function(){ mtKataShow(false); });
+      })();
       if($('mt-kata-next')) $('mt-kata-next').addEventListener('click', mtKataNext);
       if($('mt-kata-back')) $('mt-kata-back').addEventListener('click', mtKataBack);
       if($('mt-kata-save')) $('mt-kata-save').addEventListener('click', mtKataApply);
@@ -5758,6 +5836,8 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       if($('mt-kata-again')) $('mt-kata-again').addEventListener('click', function(){ mtKataA = {}; mtKataOpen(); });
       if($('mt-kata-try')) $('mt-kata-try').addEventListener('click', function(){
         mtKataApply();
+        /* ★相談してみるのだから、12問を畳んで会話の画面へ戻す（でないと相談の欄が隠れたまま） */
+        mtKataShow(false);
         const t = $('mt-text'); if(t){ t.focus(); t.value = '部下に同じことを何度言っても伝わりません'; }
       });
       /* KATA-WIRE-END */      if($('mts-save')) $('mts-save').addEventListener('click', function(){ mtReadSettings(); mtRenderFace(); mtAdd('bot', mtFill(mtP().style === 'zsedai' ? '設定、覚えました。{call}、次からこの感じで話しますね。' : '設定を覚えた。{call}、次からこの口で話す。', mtP()), false); });
