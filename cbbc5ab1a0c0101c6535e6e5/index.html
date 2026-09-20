@@ -782,8 +782,10 @@ a{color:var(--info);}
   --info:#456884; --info-bg:#EBF1F5;
   --violet:#6E5B87; --violet-bg:#F1EDF6;
   /* 拠点の識別。彩度は与えない（彩度は「状態」専用）。必ず文字ラベルを併記する */
-  --jp-bg:#EDF2F6; --jp-ed:#CBDAE6;
-  --db-bg:#F8F2E9; --db-ed:#E5D7C3;
+  /* 担当の色。Yui は薄いピンク、Ai は薄い黄色。
+     文字の色は実測でAA(4.5:1)を通したものだけ */
+  --jp-bg:#FCF0F3; --jp-ed:#F0D6DE; --jp-tx:#9B4560;
+  --db-bg:#FCF6E3; --db-ed:#EDE0B7; --db-tx:#7E6124;
   --track:#EDE9E4;
   /* 文字の大きさ。時間のない人が片手で読むので、本文は16pxを下限にする */
   --fs-xs:.78rem; --fs-sm:.88rem; --fs-base:1rem; --fs-md:1.08rem;
@@ -827,8 +829,8 @@ h1,h2,h3,.ttl,.kpi b,.brow-n b,.fl-t{font-feature-settings:"palt" 1;font-weight:
 .pill.p-ok{background:var(--ok-bg);color:var(--ok);}
 .pill.p-warn{background:var(--warn-bg);color:var(--warn);}
 .pill.p-info{background:var(--info-bg);color:var(--info);}
-.pill.p-jp{background:var(--jp-bg);color:var(--info);}
-.pill.p-db{background:var(--db-bg);color:var(--gold);}
+.pill.p-jp{background:var(--jp-bg);color:var(--jp-tx);}
+.pill.p-db{background:var(--db-bg);color:var(--db-tx);}
 
 /* ============================================================
    タスクカード
@@ -858,8 +860,8 @@ h1,h2,h3,.ttl,.kpi b,.brow-n b,.fl-t{font-feature-settings:"palt" 1;font-weight:
 
 .task .tmeta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 9px;}
 .t-who{font-size:.73rem;font-weight:700;letter-spacing:.1em;padding:3px 10px;border-radius:7px;}
-.t-who.jp{background:var(--jp-bg);color:var(--info);}
-.t-who.db{background:var(--db-bg);color:var(--gold);}
+.t-who.jp{background:var(--jp-ed);color:var(--jp-tx);}
+.t-who.db{background:var(--db-ed);color:var(--db-tx);}
 .t-st{font-size:.82rem;font-weight:700;letter-spacing:.05em;color:var(--tx2);}
 .st-late .t-st{color:var(--accent-d);}
 .st-today .t-st{color:var(--warn);}
@@ -1149,6 +1151,26 @@ body.mx-drag .mx td,body.mx-drag .mx th{transition:none;}
   text-underline-offset:3px;}
 .vlink.none:hover{color:var(--accent-d);background:none;}
 .vlink-w{margin-top:8px;}
+/* 一覧の紙そのものを担当の色に。読まずに、どちらの仕事かが分かる */
+.task.w-jp{background:var(--jp-bg);}
+.task.w-db{background:var(--db-bg);}
+.task.w-jp .tcheck,.task.w-db .tcheck{background:var(--surface);}
+.task.w-jp .tchat,.task.w-db .tchat,
+.task.w-jp .tedit,.task.w-db .tedit{background:var(--surface);}
+/* 期限を過ぎた紙だけ、左端に朱の線を立てる */
+.task.is-late{box-shadow:inset 3px 0 0 var(--accent), var(--lift);}
+/* 入力の中の、開いて書くところ */
+.frm .fdet{border:1px dashed var(--line2);border-radius:var(--r-sm);padding:0 13px;}
+.frm .fdet[open]{padding-bottom:13px;}
+.frm .fdet>summary{display:flex;align-items:center;gap:7px;min-height:48px;cursor:pointer;
+  font-size:var(--fs-sm);font-weight:700;color:var(--tx2);list-style:none;}
+.frm .fdet>summary::-webkit-details-marker{display:none;}
+.frm .fdet>summary i{font-style:normal;font-weight:500;color:var(--tx3);font-size:.76rem;}
+.frm .fdet>summary svg{width:15px;height:15px;color:var(--tx3);}
+.frm .fdet>summary:hover{color:var(--accent-d);}
+.frm .fdet textarea{width:100%;box-sizing:border-box;}
+/* 区分は二段で出すが、見出しはひとつ。段のあいだを詰める */
+.frm label>.seg+.seg{margin-top:7px;}
 /* つながっているかどうか。いちばん上に、静かに、でも常に出しておく */
 .hbtn.fb-on{color:var(--ok);}
 .hbtn.fb-err{color:var(--accent-d);background:var(--accent-bg);}
@@ -1460,7 +1482,12 @@ function load(){
   if(!S.gotAt) S.gotAt=0;
   /* 停滞日数の起点。rev は共有コードの取り込みや些末な編集でも動くので使えない */
   S.videos.forEach(function(v){ if(!v.stAt) v.stAt=v.moveAt||v.rev||v.at||now();
-    if(!v.cuts) v.cuts=[]; });
+    if(!Array.isArray(v.cuts)) v.cuts=[];
+    if(!Array.isArray(v.tags)) v.tags=[]; });
+  /* 記録の入れ物が欠けていると、完了を押した瞬間に画面が固まる */
+  S.tasks.forEach(function(x){
+    if(!Array.isArray(x.log)) x.log=[];
+    if(!Array.isArray(x.ack)) x.ack=[]; });
   S.series.forEach(function(x){ if(x.ttp===undefined) x.ttp=''; });
   S.posts.forEach(function(x){ if(x.url===undefined) x.url=''; if(x.res===undefined) x.res=''; });
   sample2real();
@@ -2411,7 +2438,10 @@ function taskCard(t){
   /* 上から下へ、状態 → やること → なぜ → 経過 → 押すもの、の順に置く。
      題名にページの幅を全部使えるようにしたので、二行に折れることが減った */
   /* 期限を過ぎたものは、状態ではなく期限そのもので気づかせる */
-  return '<article class="task st-'+st+(lateOf(t)?' is-late':'')+'">'+
+  /* どちらの仕事かは、札の色ではなく紙そのものの色で分かるようにする。
+     一覧をざっと見たときに、読まずに分かれてほしい */
+  return '<article class="task st-'+st+(lateOf(t)?' is-late':'')+
+    ' w-'+(t.who==='shop'?'db':'jp')+'">'+
     '<div class="tmeta">'+meta+'</div>'+
     /* 題名を押せば、そのタスクの1ページが開く。
        カードは一覧の顔、ページが本体 */
@@ -3424,14 +3454,20 @@ function sheetTaskEdit(id,who0){
       return '<button data-v="'+k+'" aria-pressed="'+(t.cat===k)+'">'+ic(TCAT[k].i)+TCAT[k].l+'</button>';
     }).join('')+'</div>';
   }
+  var memo0=t.memo||t.why||'';
   var b='<div class="frm">'+
-    '<label><span class="jp">タスク</span><input type="text" id="tTtl" value="'+esc(t.ttl)+'" placeholder="例：ラーメンの麺リフトを撮る"></label>'+
-    /* 何をどうしてほしいのかは、ここに書く。
-       「なぜやるのか」と分けていたが、書く側は分けて考えていなかった */
-    '<label><span class="jp">メモ</span><textarea id="tMemoF" rows="4" placeholder="例：丼は白の縁あり。麺は2秒かけて上げる。昼の窓際で。">'+esc(t.memo||t.why||'')+'</textarea></label>'+
-    '<label><span class="jp">区分</span>'+catSeg('tCat',TCAT_G1)+'</label>'+
-    '<label><span class="jp">区分2</span>'+catSeg('tCat2',TCAT_G2)+'</label>'+
-    '<label><span class="jp">期限</span>'+dateField('tDue',t.due)+'</label></div>';
+    '<label><span class="jp">タスク</span><input type="text" id="tTtl" value="'+esc(t.ttl)+'" placeholder="例：麺リフトを撮る"></label>'+
+    '<label><span class="jp">期限</span>'+dateField('tDue',t.due)+'</label>'+
+    /* 区分は二段に見せていたが、選ぶのは一つ。見出しも一つでいい */
+    '<label><span class="jp">区分</span>'+catSeg('tCat',TCAT_G1)+
+      catSeg('tCat2',TCAT_G2)+'</label>'+
+    /* メモは、書きたい人だけが開く。
+       開いた瞬間に空の大きな欄があると、埋めないといけない気がして手が止まる */
+    '<details class="fdet"'+(memo0?' open':'')+'><summary>'+ic('pencil')+
+      'メモを書く<i>（任意）</i></summary>'+
+      '<textarea id="tMemoF" rows="3" placeholder="例：丼は白の縁あり。麺は2秒かけて上げる。昼の窓際で。">'+
+      esc(memo0)+'</textarea></details>'+
+    '</div>';
   sheet(id?'タスクの編集':(roleName(t.who)+'のタスクを追加'),b,
     (id?'<button class="btn btn-ghost" data-act="deltask" data-id="'+id+'">'+ic('trash')+'削除</button>':'')+
     '<button class="btn btn-main" data-act="savetask" data-id="'+(id||'')+
@@ -3969,6 +4005,8 @@ document.addEventListener('click',function(e){
   /* タスク */
   if(a==='check'){
     var t=byId(S.tasks,id), acc2=me(); if(!t||!acc2) return;
+    if(!Array.isArray(t.log)) t.log=[];
+    if(!Array.isArray(t.ack)) t.ack=[];
     var d=doneOf(t);
     if(d){
       if(!confirm('完了を取り消しますか？　これまでの記録には残ります。')) return;
@@ -4457,7 +4495,11 @@ function fbSend(){
   clearTimeout(FBQ);
   FBQ=setTimeout(function(){
     var body;
-    try{ body=JSON.stringify({at:now(),by:(me()||{}).name||'',d:changed(0)}); }catch(e){ return; }
+    /* 中身は文字のまま渡す。置き場所は空の配列を保存しないので、
+       そのまま渡すと log や ack のキーごと消え、相手の端末では
+       記録の入れ物が無いタスクになる */
+    try{ body=JSON.stringify({at:now(),by:(me()||{}).name||'',j:JSON.stringify(changed(0))}); }
+    catch(e){ return; }
     fetch(FB_URL+'/'+FB_ROOM+'/d/'+fbDev()+'.json',{method:'PUT',body:body})
       .then(function(r){
         if(r.ok){ FBER=0; S.lastShare=now(); FBAT=now(); save0(); fbSet('on'); }
@@ -4487,6 +4529,19 @@ function fbStart(){
     });
   });
 }
+/* 古い形で置かれたものを受けるときの手当て。
+   空の配列が消えているので、入れ物を作り直してから渡す */
+function fbFix(d){
+  if(!d) return d;
+  ['A','T','V','R','P','D','U','X','M'].forEach(function(k){ if(!Array.isArray(d[k])) d[k]=[]; });
+  (d.T||[]).forEach(function(x){
+    if(!Array.isArray(x.log)) x.log=[];
+    if(!Array.isArray(x.ack)) x.ack=[]; });
+  (d.V||[]).forEach(function(x){
+    if(!Array.isArray(x.cuts)) x.cuts=[];
+    if(!Array.isArray(x.tags)) x.tags=[]; });
+  return d;
+}
 function fbTake(path,data){
   if(data==null||!S) return;
   var got=[];
@@ -4501,7 +4556,13 @@ function fbTake(path,data){
   var hit=false;
   FBIN=true;
   try{
-    got.forEach(function(x){ if(x&&x.d){ mergeIn(x.d); hit=true; } });
+    got.forEach(function(x){
+      if(!x) return;
+      var d=null;
+      if(typeof x.j==='string'){ try{ d=JSON.parse(x.j); }catch(e2){ d=null; } }
+      else if(x.d) d=fbFix(x.d);   /* 古い形。念のため受けられるようにしておく */
+      if(d){ mergeIn(d); hit=true; }
+    });
   }catch(e){}
   FBIN=false;
   fbSet('on'); FBAT=now();
