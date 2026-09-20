@@ -2829,11 +2829,14 @@ function matrixHtml(){
     '　列の見出しを押して横へ動かすと、並び順を変えられる。');
   /* 足す口は表の上に置く。下に置くと、足すたびに表の終わりまで
      横にも縦にもスクロールしてから探すことになる */
-  if(ops) h+='<div class="mxadds">'+
+  /* 足す口は二人とも使える。撮っている側が「この切り口も要る」と思ったときに
+     日本へ頼んでからでないと足せないのでは、思いついた時点で止まる。
+     中身（台本・目的・注意）を書くのは日本側のまま */
+  h+='<div class="mxadds">'+
     '<button class="mxadd" data-act="mxaddcol">'+ic('plus')+'シリーズ（横）を足す</button>'+
     '<button class="mxadd" data-act="mxaddrow">'+ic('plus')+'見る観点（縦）を足す</button></div>';
   h+='<div class="mx-wrap"><table class="mx"><thead><tr><th class="rh" style="white-space:nowrap">シリーズ'+
-    (ops?'<button class="rh-add" data-act="mxaddcol" aria-label="シリーズを追加">'+ic('plus')+'追加</button>':'')+
+    '<button class="rh-add" data-act="mxaddcol" aria-label="シリーズを追加">'+ic('plus')+'追加</button>'+
     '</th>';
   ss.forEach(function(s){
     var un=unreadOf('series',s.id);
@@ -2923,7 +2926,8 @@ function matrixHtml(){
      決まった5行は動かさない（この構成で回してきたので、消すと過去の記入が読めなくなる） */
   rowsOrdered().forEach(function(r){
     h+='</tr><tr><th class="rh rh-x">'+ic('grid')+'<span>'+esc(r.l)+'</span>'+
-      (ops?'<button class="rh-e" data-act="edrow" data-id="'+r.id+'" aria-label="この行を直す">'+ic('pencil')+'</button>':'')+'</th>';
+      /* 足せるのに名前を直せないのは、ちぐはぐ。軸そのものは二人とも扱える */
+      '<button class="rh-e" data-act="edrow" data-id="'+r.id+'" aria-label="この行を直す">'+ic('pencil')+'</button></th>';
     ss.forEach(function(s){
       var xv=(s.ext||{})[r.id]||'';
       var mmx=cellMm(s,'x:'+r.id);
@@ -3569,14 +3573,19 @@ function sheetVideo(id,toBottom){
     (v.date?pill('p-mute',fmtMd(v.date),'calendar'):'')+'</div>';
   ex+='<div class="ttl" style="margin-top:8px">'+esc(v.ttl)+'</div>';
   ex+='<div class="tmeta" style="margin-top:9px">'+(v.tags||[]).map(function(t){ return pill('p-gold',t,'pin'); }).join('')+'</div>';
-  /* 動画を見ながら、何に気をつけるのかを読む。
+  /* いちばん上は「何のために撮るのか」。動画より先にこれを読ませる（ユーザー指示） */
+  if(s) ex+='<div class="sec" style="margin:18px 0 8px"><h2>'+ic('target')+'撮影目的</h2></div>'+
+    '<div class="fs-sm mute" style="white-space:pre-wrap">'+esc(s.purpose||'')+'</div>'+
+    '<div class="cut-a"><button class="qbtn" data-act="ask" data-scope="video" data-ref="'+v.id+
+    '" data-cut="">？　目的が分からない</button></div>';
+  /* 目的を読んだすぐ下で、その動画を見られるようにする。
      置き場所を開いて別のタブへ行くと、指示はもう画面に無い */
   var fr=driveEmbed(v.url);
-  if(fr) ex+='<div style="margin-top:14px">'+fr+
+  if(fr) ex+='<div style="margin-top:16px">'+fr+
     '<div class="vfnote">'+ic('info')+'<span>ここで再生できないときは、下の「Googleドライブで開く」から。'+
     '共有の設定が「リンクを知っている全員」になっている必要があります。</span></div></div>';
   /* 編集はCanvaでしている。素材からそのまま開けるようにしておく */
-  ex+='<div class="vtop">'+
+  ex+='<div class="vtop"'+(fr?'':' style="margin-top:16px"')+'>'+
     (safeUrl(v.url)?urlBtn(v.url,'Googleドライブで開く','play'):'')+
     (safeUrl(v.canva)
       ? urlBtn(v.canva,'Canvaで編集する','image')
@@ -3584,11 +3593,6 @@ function sheetVideo(id,toBottom){
         ic('image')+'Canvaを開く</a>')+
     '<button class="btn btn-line btn-sm" data-act="edvideo" data-id="'+v.id+'">'+ic('pencil')+'この素材を直す</button>'+
     '</div>';
-  /* 先に読むのは「何のために撮るのか」。手順はその下で開く */
-  if(s) ex+='<div class="sec" style="margin:18px 0 8px"><h2>'+ic('target')+'撮影目的</h2></div>'+
-    '<div class="fs-sm mute" style="white-space:pre-wrap">'+esc(s.purpose||'')+'</div>'+
-    '<div class="cut-a"><button class="qbtn" data-act="ask" data-scope="video" data-ref="'+v.id+
-    '" data-cut="">？　目的が分からない</button></div>';
   ex+=cutsHtml(v);
   ex+=pastHtml(v);
   ex+=sec('Video','撮った動画','folder',
