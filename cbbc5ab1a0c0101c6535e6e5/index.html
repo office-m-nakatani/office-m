@@ -1356,7 +1356,10 @@ a.btn{text-decoration:none;}
    閉じたときに見ていた場所を見失う */
 body.has-sheet{position:fixed;left:0;right:0;width:100%;overflow:hidden;}
 /* シートの中を端まで送ったあと、続けて後ろへ流れるのも止める */
-.ov,.sheet-bd,.mx-wrap{overscroll-behavior:contain;}
+.ov,.sheet-bd{overscroll-behavior:contain;}
+/* 表の欄は中身の高さに合わせる（下のJS）。欄の中だけが別に動くと、
+   表の上でホイールを回してもページが進まない */
+.cellin{overflow:hidden;}
 /* シートを画面いっぱいに。撮影の指示は行数が多く、
    660pxの枠に収めると、いちばん読みたい下の行がいつも枠の外にある */
 .ov.full{padding:0;align-items:stretch;}
@@ -1396,6 +1399,77 @@ body.has-sheet{position:fixed;left:0;right:0;width:100%;overflow:hidden;}
 
 /* ---- 引き出し ---- */
 .sheet{border-radius:26px 26px 0 0;}
+
+/* ============================================================
+   白を基調に（ユーザー指示・2026-09-20）
+   灰の地は「今まで以上に見にくい」。地を白に戻し、面は 1px の線で区切る。
+   Yui＝薄い緑／Ai＝薄いオレンジは据え置き。白の上でいちばん分かれて見える。
+   ここは最後に置く。前に置くと同じ詳細度の既存ルールに負ける
+   ============================================================ */
+:root{
+  --bg:#FFFFFF; --surface:#FFFFFF; --surface2:#F6F7F9; --surface3:#EEF0F3;
+  --line:#E4E7EC; --line2:#CFD4DC; --track:#EDEFF2;
+  --tx:#2E3239; --tx2:#585E67; --tx3:#646A73;
+  /* 白の上では影が見えない。線で区切るので、影はほんの気配だけ */
+  --lift:0 1px 2px rgba(30,34,40,.04);
+}
+body{background:var(--bg);}
+.hd{background:#fff;border-bottom:1px solid var(--line);}
+.nav{background:#fff;}
+/* 面はすべて線で区切る */
+.card,.gap,.shoot,.wkp,.acc,.pres,.mx-wrap,.ibx,.sum,.rank,.vg,.kpis,.cal-grid{
+  border:1px solid var(--line);box-shadow:var(--lift);}
+.task{border:1px solid var(--line);box-shadow:var(--lift);}
+/* 担当のカードは、その色の線で囲う。白地の上で札の色だけが浮かないように */
+.task.w-jp{border-color:var(--jp-ed);}
+.task.w-db{border-color:var(--db-ed);}
+.task.st-done{background:var(--surface2);border-color:var(--line);}
+.brow{box-shadow:inset 0 0 0 1px var(--line);}
+.brow-jp{box-shadow:inset 0 0 0 1px var(--jp-ed);}
+.brow-db{box-shadow:inset 0 0 0 1px var(--db-ed);}
+/* 押すものは線をはっきり */
+.btn-line{border-color:var(--line2);}
+.chip{border-color:var(--line2);}
+.cellin{border-color:var(--line2);}
+.mx th,.mx td{border-color:var(--line);}
+.mx thead th.ch,.mx thead th.rh,.mx th.rh{background:var(--surface2);}
+
+/* ---- 余白。8px の段で揃える ---- */
+.wrap{padding:0 20px;}
+#main{padding-top:8px;}
+.sec{margin:32px 0 14px;}
+.sec:first-child,.sec-tight:first-child{margin-top:16px;}
+.card{padding:24px;}
+.card + .card{margin-top:12px;}
+.tlist{gap:12px;}
+.task{padding:18px 20px 16px 22px;}
+.task .tmeta{margin-bottom:10px;gap:10px;}
+.task .ttl{margin-bottom:6px;}
+.task .twhy{margin:8px 0 10px;}
+.tbar{margin:8px 0 12px;}
+.tgrp{margin-bottom:4px;}
+.vgrid{gap:12px;}
+.vg{padding:18px 18px 16px;}
+.mx th,.mx td{padding:12px 12px;}
+.mx td.ed{padding:10px 12px;}
+.cellin{padding:9px 10px;}
+.mxadds{margin:0 0 12px;}
+@media(max-width:519px){ .mxadds{flex-direction:column;} .mxadd{white-space:normal;} }
+.frm{gap:18px;}
+.sheet-hd{padding:16px 18px;}
+.sheet-bd{padding:20px 18px 24px;}
+.sheet-ft{padding:12px 18px calc(12px + env(safe-area-inset-bottom));}
+.sheet{border:1px solid var(--line);}
+.composer{padding-top:14px;}
+.hint{margin-top:12px;}
+.addrow{margin-top:14px;}
+.chips{gap:8px;}
+@media(min-width:768px){
+  .wrap{padding:0 24px;}
+  #main{padding-top:12px;}
+  .card{padding:26px 28px;}
+  .task{padding:20px 22px 18px 24px;}
+}
 
 /* ---- 狭い画面 ---- */
 @media(max-width:400px){
@@ -4430,7 +4504,15 @@ function render(){
   m.innerHTML = VIEW==='task'?viewTask() : VIEW==='plan'?viewPlan() : VIEW==='cal'?viewCal() :
                 VIEW==='chat'?viewChat() : viewData();
   keepChip();
+  fitCells();
   /* 連絡タブは受信箱になったので、開いただけで既読にしない（中を開いたときに markRead される） */
+}
+/* 表の欄を中身の高さに合わせる。行数の見積もりでは、狭い列で長い台本が
+   欄の中に閉じ込められ、欄の中だけが別に動いてしまう */
+function fitCells(){
+  $$('.cellin').forEach(function(el){
+    el.style.height='auto'; el.style.height=(el.scrollHeight+2)+'px';
+  });
 }
 
 /* ============================================================
