@@ -1240,6 +1240,28 @@ body.mx-drag .mx td,body.mx-drag .mx th{transition:none;}
   font-size:.7rem;font-weight:700;letter-spacing:.02em;}
 .mx th.rh .rh-add:hover{border-color:var(--accent);color:var(--accent-d);background:var(--accent-bg);}
 .mx th.rh .rh-add svg{width:14px;height:14px;}
+/* シートを画面いっぱいに。撮影の指示は行数が多く、
+   660pxの枠に収めると、いちばん読みたい下の行がいつも枠の外にある */
+.ov.full{padding:0;align-items:stretch;}
+.ov.full .sheet{max-width:none;width:100%;height:100%;max-height:100%;
+  border-radius:0;border:0;}
+.sheet-hd .sheet-x+.sheet-x{margin-left:0;}
+/* 投稿の行に置く、動画を落とすところ。行の中なので細くする */
+.vdrop.sm{gap:7px;flex-basis:100%;order:8;margin-top:7px;}
+.vdrop.sm .vdrop-z{padding:9px 11px;border-radius:10px;border-width:1px;
+  flex-direction:row;gap:6px;text-align:left;}
+.vdrop.sm .vdrop-z svg{width:14px;height:14px;}
+.vdrop.sm .vdrop-z b{font-size:.72rem;}
+/* 未着手は二種類が混ざる。くりかえしと、いつまでのもの。
+   混ぜて一列に積むと、今日やるものと今週やるものが交互に出てくる */
+.tcols{display:grid;grid-template-columns:1fr 1fr;gap:13px;align-items:start;}
+.tcol{min-width:0;display:flex;flex-direction:column;gap:9px;}
+.tcol-h{display:flex;align-items:center;gap:6px;padding:0 2px;
+  font-size:.74rem;font-weight:700;letter-spacing:.04em;color:var(--tx2);}
+.tcol-h svg{width:14px;height:14px;color:var(--tx3);}
+.tcol-h b{margin-left:auto;font-size:.72rem;font-weight:700;color:var(--tx3);}
+.tcol .empty{padding:20px 12px;}
+@media(max-width:767px){ .tcols{grid-template-columns:1fr;gap:16px;} }
 /* カットごとのメモ。撮った側が気づいたことを、その行に残す */
 .cut-mm{display:flex;align-items:flex-start;gap:6px;margin-top:7px;padding:7px 9px;
   border-radius:8px;background:var(--surface2);font-size:.72rem;line-height:1.7;color:var(--tx);}
@@ -1388,6 +1410,8 @@ var IC={
 check:'<path d="M4.5 12.8l4.8 4.7L19.5 6.5"/>',
 list:'<path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/>',
 grid:'<path d="M3.5 3.5h7v7h-7ZM13.5 3.5h7v7h-7ZM3.5 13.5h7v7h-7ZM13.5 13.5h7v7h-7Z"/>',
+expand:'<path d="M4 9V4h5M20 15v5h-5M20 9V4h-5M4 15v5h5"/>',
+shrink:'<path d="M9 4v5H4M15 20v-5h5M15 4v5h5M9 20v-5H4"/>',
 grip:'<circle cx="9" cy="6" r="1.3"/><circle cx="15" cy="6" r="1.3"/><circle cx="9" cy="12" r="1.3"/><circle cx="15" cy="12" r="1.3"/><circle cx="9" cy="18" r="1.3"/><circle cx="15" cy="18" r="1.3"/>',
 calendar:'<path d="M7 3v3M17 3v3M3.5 9.5h17M5 5.5h14a1.5 1.5 0 011.5 1.5v12A1.5 1.5 0 0119 20.5H5A1.5 1.5 0 013.5 19V7A1.5 1.5 0 015 5.5Z"/>',
 chat:'<path d="M20.5 11.5c0 4.4-3.8 8-8.5 8-1 0-2-.2-2.9-.5L4 21l1.3-3.7A7.7 7.7 0 013.5 11.5c0-4.4 3.8-8 8.5-8s8.5 3.6 8.5 8Z"/>',
@@ -2525,6 +2549,40 @@ function viewTask(){
 
   h+='<div class="tlist">';
   if(!list.length) h+='<div class="empty">'+ic('check')+'該当するタスクはありません</div>';
+  else if(FILT==='todo'){
+    /* まだのものは二種類ある。毎日・毎週くりかえすものと、いつまでのもの。
+       混ぜて一列に積むと、今日やるものと今週やるものが交互に出てきて、
+       どこから手を付ければよいのかが読み取れない */
+    var rep=[], due=[];
+    list.forEach(function(x){ (x.rep!=='none'?rep:due).push(x); });
+    /* いつまでのものは、期限の近いものから。期限の無いものは後ろへ */
+    due.sort(function(a,b){
+      var x=(a.due||'9999-99-99'), y=(b.due||'9999-99-99');
+      return x<y?-1:x>y?1:(a.at||0)-(b.at||0);
+    });
+    /* くりかえしは毎日が先。今日じゅうに終わるものから並べる */
+    rep.sort(function(a,b){
+      var x=(a.rep==='daily'?0:1), y=(b.rep==='daily'?0:1);
+      return x-y||(a.at||0)-(b.at||0);
+    });
+    h+='<div class="tcols">';
+    [[rep,'くりかえし','sync','毎日・毎週'],[due,'いつまでのもの','calendar','期限の近い順']].forEach(function(g2){
+      h+='<div class="tcol"><div class="tcol-h">'+ic(g2[2])+esc(g2[1])+
+        '<i class="mute3" style="font-style:normal;font-weight:600;font-size:.7rem">　'+esc(g2[3])+'</i>'+
+        '<b>'+g2[0].length+'</b></div>';
+      if(!g2[0].length) h+='<div class="empty">'+ic('check')+'ありません</div>';
+      g2[0].forEach(function(x){ h+=taskCard(x); });
+      h+='</div>';
+    });
+    h+='</div>';
+  }
+  else if(FILT==='done'){
+    /* 終わった順に、新しいものから。いつ終わったのかが並びそのものになる */
+    list.slice().sort(function(a,b){
+      var x=doneOf(a), y=doneOf(b);
+      return ((y?y.at:0)-(x?x.at:0))||(b.at||0)-(a.at||0);
+    }).forEach(function(x){ h+=taskCard(x); });
+  }
   else if(FILT==='all'){
     /* 状態ごとにまとめて、見出しを置く。ただ新しい順に積むだけだと、
        どこまでが今日の話で、どこからが終わった話なのかが読み取れない */
@@ -3222,9 +3280,18 @@ function viewData(){
 /* ============================================================
    14. シート
    ============================================================ */
+/* 画面いっぱいで開くかどうか。押すたびに覚える。
+   撮影の指示は行数が多く、660pxの枠だと読みたい行がいつも枠の外にある */
+var SHFULL=0;
+try{ SHFULL=(localStorage.getItem(STORE+'_full')==='1')?1:0; }catch(e){}
+function shFullBtn(){
+  return '<button class="sheet-x" data-act="shfull" aria-label="'+
+    (SHFULL?'元の大きさに戻す':'画面いっぱいに広げる')+'" title="'+
+    (SHFULL?'元の大きさに戻す':'画面いっぱいに広げる')+'">'+ic(SHFULL?'shrink':'expand')+'</button>';
+}
 function sheet(title,body,foot,noClose){
-  $('#modal').innerHTML='<div class="ov" data-act="ovclose"><div class="sheet" role="dialog" aria-modal="true">'+
-    '<div class="sheet-hd"><h2>'+title+'</h2>'+(noClose?'':'<button class="sheet-x" data-act="close" aria-label="閉じる">'+ic('x')+'</button>')+'</div>'+
+  $('#modal').innerHTML='<div class="ov'+(SHFULL?' full':'')+'" data-act="ovclose"><div class="sheet" role="dialog" aria-modal="true">'+
+    '<div class="sheet-hd"><h2>'+title+'</h2>'+shFullBtn()+(noClose?'':'<button class="sheet-x" data-act="close" aria-label="閉じる">'+ic('x')+'</button>')+'</div>'+
     '<div class="sheet-bd'+(body.indexOf('class="composer"')>=0?' has-comp':'')+'">'+body+'</div>'+
     (foot?'<div class="sheet-ft">'+foot+'</div>':'')+'</div></div>';
   document.body.classList.add('has-sheet');
@@ -3507,7 +3574,14 @@ function sheetDay(ds){
         '<button class="pvid" data-act="pvid" data-id="'+p.id+'" data-d="'+ds+'">'+ic('play')+
         (lv?esc(lv.ttl):'素材を結び付ける')+'</button>'+
         '<button class="pvid" data-act="purl" data-id="'+p.id+'" data-d="'+ds+'">'+ic('link')+
-        (p.url?'投稿のリンクあり':'投稿のリンクを入れる')+'</button></div>'; }).join('')+'</div>';
+        (p.url?'投稿のリンクあり':'投稿のリンクを入れる')+'</button>'+
+        /* 出した投稿が、どの動画だったのか。ドライブの住所をここへ落とせば残る */
+        '<div class="vdrop sm" data-pd="'+p.id+'">'+
+          (safeUrl(p.dv)?'<div class="dv">'+urlBtn(p.dv,'この投稿の動画を開く','play')+'</div>':'')+
+          '<div class="vdrop-z">'+ic('link')+'<b>'+
+            (p.dv?'別の動画に貼り替えるなら、ここへドラッグ':'ここに Google ドライブの動画をドラッグ')+
+          '</b></div></div>'+
+        '</div>'; }).join('')+'</div>';
   }
   b+=sec('Result','当日実績','users')+'<div class="frm">'+
     '<label><span class="jp">来客数（人）</span><input type="text" inputmode="numeric" id="dGuests" value="'+(dy.guests||'')+'"></label>'+
@@ -3530,6 +3604,9 @@ function sheetPostUrl(pid,ds){
   b+='<div class="frm">'+
     '<label><span class="jp">投稿のリンク</span>'+
     '<input id="puUrl" type="text" inputmode="url" placeholder="https://www.instagram.com/p/..." value="'+esc(pp.url||'')+'"></label>'+
+    /* 出した動画そのものの置き場所。一覧の枠へ落としても、ここへ貼っても同じ */
+    '<label><span class="jp">動画の置き場所（Googleドライブ）</span>'+
+    '<input id="puDv" type="text" inputmode="url" placeholder="https://drive.google.com/file/d/..." value="'+esc(pp.dv||'')+'"></label>'+
     /* 数字は2つだけ。3つ4つ並べると、現地は結局どれも入れなくなる */
     '<label><span class="jp">再生数（任意）</span>'+
     '<input id="puViews" type="text" inputmode="numeric" placeholder="例：12300" value="'+(pp.views||'')+'"></label>'+
@@ -4155,6 +4232,16 @@ document.addEventListener('click',function(e){
     if(vu&&iu) vSetUrl(vu,iu.value);
     return;
   }
+  if(a==='shfull'){
+    SHFULL=SHFULL?0:1;
+    try{ localStorage.setItem(STORE+'_full',SHFULL?'1':'0'); }catch(e){}
+    var ov2=$('.ov'); if(ov2){ if(SHFULL) ov2.classList.add('full'); else ov2.classList.remove('full'); }
+    var fb=$('[data-act="shfull"]');
+    if(fb){ fb.innerHTML=ic(SHFULL?'shrink':'expand');
+      fb.setAttribute('aria-label',SHFULL?'元の大きさに戻す':'画面いっぱいに広げる');
+      fb.setAttribute('title',SHFULL?'元の大きさに戻す':'画面いっぱいに広げる'); }
+    return;
+  }
   if(a==='goalview'){ sheetGoalView(); return; }
 
   if(a==='ovclose'){ if(e.target.classList.contains('ov')&&me()){ closeSheet(); render(); } return; }
@@ -4429,7 +4516,7 @@ document.addEventListener('click',function(e){
   if(a==='purl'){ holdDay(b.dataset.d); save(); closeSheet(); sheetPostUrl(id,b.dataset.d); return; }
   if(a==='savepurl'){
     var pu=byId(S.posts,id);
-    if(pu){ pu.url=$('#puUrl').value.trim(); pu.res=$('#puRes').value.trim();
+    if(pu){ pu.url=$('#puUrl').value.trim(); pu.dv=$('#puDv').value.trim(); pu.res=$('#puRes').value.trim();
       pu.views=num($('#puViews').value); pu.saves=num($('#puSaves').value);
       touch(pu); save(); }
     closeSheet(); sheetDay(b.dataset.d); render(); return;
@@ -4714,9 +4801,16 @@ document.addEventListener('drop',function(e){
   e.preventDefault();
   var z=vdZone(e); vdOff();
   if(!z) return;
-  var v=byId(S.videos,z.dataset.vd); if(!v) return;
   var u=dropUrl(e.dataTransfer);
-  if(safeUrl(u)){ vSetUrl(v,u); return; }
+  /* 落とし先は素材の画面と、日付ごとの投稿の行の二つ */
+  var pd=z.dataset.pd?byId(S.posts,z.dataset.pd):null;
+  var v=z.dataset.vd?byId(S.videos,z.dataset.vd):null;
+  if(!v&&!pd) return;
+  if(safeUrl(u)){
+    if(pd){ pd.dv=((u||'')+'').trim(); touch(pd); save(); render(); sheetDay(pd.d); }
+    else vSetUrl(v,u);
+    return;
+  }
   var f=e.dataTransfer&&e.dataTransfer.files;
   if(f&&f.length){
     /* 動画そのものは預かれない。預かっても相手の端末には届かないので、
