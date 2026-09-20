@@ -1471,6 +1471,282 @@ body{background:var(--bg);}
   .task{padding:20px 22px 18px 24px;}
 }
 
+/* ============================================================
+   探す
+   ・入れる欄は上に貼り付けておく。結果を追ううちに、言葉を足す口が
+     画面の外へ出てしまうと、絞り込みが二度手間になる
+   ============================================================ */
+.sq-top{position:sticky;top:-20px;z-index:3;background:var(--surface);
+  margin:-20px -18px 14px;padding:20px 18px 12px;border-bottom:1px solid var(--line);}
+.sq-box{display:flex;align-items:center;gap:10px;
+  border:1px solid var(--line2);border-radius:14px;background:var(--surface);
+  padding:0 12px;min-height:54px;transition:border-color .12s, box-shadow .12s;}
+.sq-box:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg);}
+.sq-box>svg{width:19px;height:19px;flex:none;color:var(--tx3);}
+.sq-box input{flex:1;min-width:0;border:0;background:none;outline:none;
+  font-size:1.06rem;line-height:1.6;color:var(--tx);padding:12px 0;}
+.sq-box input::placeholder{color:var(--tx3);font-size:.94rem;}
+.sq-clr{flex:none;width:34px;height:34px;border-radius:9px;color:var(--tx3);
+  display:inline-flex;align-items:center;justify-content:center;}
+.sq-clr:hover{background:var(--surface2);color:var(--tx);}
+.sq-clr svg{width:15px;height:15px;}
+.sq-n{font-size:.8rem;font-weight:700;letter-spacing:.06em;color:var(--tx3);margin:0 2px 10px;}
+.sq-list{display:flex;flex-direction:column;gap:10px;}
+/* 1件ずつが紙。押せば、その場所が開く */
+.sq-row{display:block;width:100%;text-align:left;background:var(--surface);
+  border:1px solid var(--line);border-radius:16px;padding:14px 16px 12px;
+  box-shadow:var(--lift);transition:border-color .12s, transform .12s;}
+.sq-row:hover{border-color:var(--line2);transform:translateY(-1px);}
+.sq-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:7px;}
+.sq-h>svg{width:15px;height:15px;flex:none;color:var(--tx3);}
+.sq-kd{font-size:.74rem;font-weight:700;letter-spacing:.06em;color:var(--tx2);
+  background:var(--surface2);border-radius:6px;padding:2px 9px;}
+.sq-s{font-size:.76rem;font-weight:700;letter-spacing:.04em;color:var(--tx3);}
+.sq-w{font-size:1.04rem;font-weight:700;line-height:1.55;letter-spacing:.02em;color:var(--tx);}
+.sq-x{font-size:.88rem;line-height:1.8;color:var(--tx2);margin-top:6px;}
+.sq-m{font-size:.76rem;color:var(--tx3);letter-spacing:.02em;margin-top:8px;
+  font-variant-numeric:tabular-nums;}
+/* 当たったところ。塗りつぶさず、下に線を引く。明朝の字面を汚さない */
+.sq-row mark,#sqRes mark{background:var(--gold-bg);color:inherit;border-radius:3px;
+  padding:0 2px;box-shadow:inset 0 -2px 0 var(--gold);}
+.sq-more{display:flex;align-items:flex-start;gap:7px;margin-top:12px;
+  font-size:.8rem;line-height:1.7;color:var(--tx3);}
+.sq-more svg{width:14px;height:14px;flex:none;margin-top:4px;color:var(--gold);}
+@media(max-width:400px){
+  .sq-top{margin:-20px -16px 12px;padding:20px 16px 12px;}
+  .sq-box input{font-size:1rem;}
+  /* 虫めがねが増えたぶん、店名が「Dubai Sh…」まで削られた。
+     同期は絵だけにして、名前に幅を戻す */
+  #syncTx{display:none;}
+  #btnSync{padding:8px;min-width:44px;justify-content:center;}
+  .hd-in{gap:8px;} .hd-right{gap:6px;}
+}
+
+/* ============================================================
+   組み直した画面（2026-09-20）
+   タスクの二段 ／ 投稿のページ ／ 担当割り ／ ノート
+   ============================================================ */
+
+/* ---- 切り替え。4つ入るので、狭い画面では文字を小さくして畳む ---- */
+.seg-top.seg4 button{padding:9px 3px;letter-spacing:.04em;gap:5px;}
+@media(max-width:420px){
+  .seg-top.seg4 button{flex-direction:column;gap:3px;font-size:.7rem;padding:8px 2px;}
+  .seg-top.seg4 button svg{width:16px;height:16px;}
+}
+.seg.wrap button{flex:0 0 auto;}
+
+/* ---- タスク。上が制作中、下が投稿済み ---- */
+.tbar-n{display:inline-flex;align-items:center;gap:7px;font-size:.82rem;font-weight:700;
+  letter-spacing:.06em;color:var(--tx2);}
+.tbar-n svg{width:15px;height:15px;color:var(--tx3);}
+.tbar-n b{font-size:1.02rem;color:var(--tx);}
+.tstage{margin-top:18px;}
+.tstage-h{display:flex;align-items:center;gap:8px;font-size:.84rem;font-weight:700;
+  letter-spacing:.08em;color:var(--tx2);padding:0 2px 10px;border-bottom:1px solid var(--line);
+  margin-bottom:14px;}
+.tstage-h svg{width:16px;height:16px;color:var(--tx3);}
+.tstage-h b{margin-left:auto;font-size:.94rem;color:var(--tx);font-variant-numeric:tabular-nums;}
+/* 投稿済みは読み返す場所。制作中と同じ濃さで並ぶと、上の段が埋もれる */
+.tstage.done{opacity:.86;}
+.tstage.done .tstage-h{color:var(--ok);}
+.tstage.done .tstage-h svg{color:var(--ok);}
+
+/* ステータスのタグ。いくつでも並ぶので、面ではなく細い線で置く */
+.tstat{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 9px;}
+.tstat.in{display:inline-flex;margin:0;}
+.tst-t{display:inline-flex;align-items:center;gap:4px;font-size:.72rem;font-weight:700;
+  letter-spacing:.04em;color:var(--tx2);background:var(--surface2);
+  border:1px solid var(--line);border-radius:6px;padding:2px 8px;}
+.tst-t svg{width:12px;height:12px;color:var(--tx3);}
+/* 自由記入だけは色を変える。決まった言葉ではないと、ひと目で分かるように */
+.tst-x{display:inline-flex;align-items:center;font-size:.72rem;font-weight:700;
+  color:var(--gold);background:var(--gold-bg);border:1px solid var(--gold);
+  border-radius:6px;padding:2px 8px;}
+/* 担当になってからの日数。3日を超えたら赤（指示） */
+.t-days{display:inline-flex;align-items:center;gap:4px;font-size:.74rem;font-weight:700;
+  color:var(--tx3);font-variant-numeric:tabular-nums;}
+.t-days svg{width:12px;height:12px;}
+.t-days.hot{color:var(--accent);}
+.late{color:var(--accent);font-weight:700;}
+
+/* ---- 担当割り。誰の手元に何が溜まっているか ---- */
+.asg{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:620px){.asg{grid-template-columns:1fr;}}
+.asg-c{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);
+  padding:14px 14px 12px;box-shadow:var(--lift);}
+.asg-c.jp{border-color:var(--jp-ed);}
+.asg-c.db{border-color:var(--db-ed);}
+.asg-h{display:flex;align-items:center;gap:8px;font-size:.88rem;font-weight:700;
+  letter-spacing:.04em;color:var(--tx);padding-bottom:10px;margin-bottom:10px;
+  border-bottom:1px solid var(--line);}
+.asg-h b{margin-left:auto;font-size:.82rem;color:var(--tx3);font-variant-numeric:tabular-nums;}
+.asg-r{display:block;width:100%;text-align:left;padding:9px 10px;border-radius:9px;
+  border:1px solid transparent;}
+.asg-r:hover{background:var(--surface2);border-color:var(--line);}
+.asg-t{display:block;font-size:.94rem;font-weight:700;line-height:1.55;color:var(--tx);}
+.asg-m{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:5px;}
+.asg-m i{font-style:normal;font-size:.68rem;font-weight:700;color:var(--tx2);
+  background:var(--surface2);border-radius:5px;padding:1px 6px;}
+.asg-d{font-size:.7rem;font-weight:700;color:var(--tx3);font-variant-numeric:tabular-nums;}
+.asg-d.hot{color:var(--accent);}
+.asg-u{font-size:.7rem;color:var(--tx3);}
+
+/* ---- 方向性。いちばん上に置く読み物 ---- */
+.dir{border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:var(--r);
+  background:var(--surface);padding:20px 22px;box-shadow:var(--lift);}
+.dir-t{font-size:1.14rem;font-weight:700;line-height:1.8;letter-spacing:.02em;color:var(--tx);}
+.dir-t em{font-style:normal;color:var(--gold);box-shadow:inset 0 -2px 0 var(--gold-bg);}
+.dir-s{font-size:.9rem;line-height:1.95;color:var(--tx2);margin-top:12px;white-space:pre-wrap;}
+.dir-s em{font-style:normal;font-weight:700;color:var(--tx);}
+.dir .btn{margin-top:14px;}
+
+/* ---- 投稿の一覧 ---- */
+.plist{display:flex;flex-direction:column;gap:10px;}
+.pcard{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);
+  box-shadow:var(--lift);overflow:hidden;}
+.pcard.idea{border-style:dashed;background:var(--surface2);}
+.pcard-b{display:block;width:100%;text-align:left;padding:16px 18px 14px;}
+.pcard-b:hover{background:var(--surface2);}
+.pcard-t{display:block;font-size:1.08rem;font-weight:700;line-height:1.55;
+  letter-spacing:.02em;color:var(--tx);}
+.pcard-m{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-top:9px;}
+.pcard-n{display:inline-flex;align-items:center;gap:4px;font-size:.74rem;font-weight:700;
+  color:var(--info);}
+.pcard-n svg{width:13px;height:13px;}
+/* どこまで書けたか。6つの点と数字。数字だけだと目が滑る */
+.pcard-p{display:flex;align-items:center;gap:5px;margin-top:11px;}
+.pcard-p i{width:100%;max-width:26px;height:4px;border-radius:2px;background:var(--track);}
+.pcard-p i.on{background:var(--ok);}
+.pcard-p b{margin-left:6px;font-size:.72rem;font-weight:700;color:var(--tx3);
+  font-variant-numeric:tabular-nums;white-space:nowrap;}
+.pcard-go{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;
+  padding:11px;font-size:.82rem;font-weight:700;color:var(--ok);
+  background:var(--ok-bg);border-top:1px solid var(--line);}
+.pcard-go svg{width:14px;height:14px;}
+
+/* ---- 投稿のページ。項目が縦に並ぶ ---- */
+.ppg{margin-bottom:20px;}
+.ppg-hd{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:14px;}
+.ppg-say{font-size:.84rem;line-height:1.8;color:var(--tx2);background:var(--surface2);
+  border-radius:10px;padding:11px 13px;margin:0 0 16px;}
+.psec{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);
+  padding:15px 16px 13px;margin-bottom:12px;box-shadow:var(--lift);}
+.psec-h{display:flex;align-items:center;gap:7px;margin-bottom:9px;}
+.psec-h svg{width:16px;height:16px;color:var(--tx3);flex:none;}
+.psec-h h3{font-size:.96rem;font-weight:700;letter-spacing:.06em;color:var(--tx);margin:0;}
+.psec-e{margin-left:auto;font-size:.7rem;font-weight:700;color:var(--tx3);
+  background:var(--surface2);border-radius:5px;padding:2px 7px;}
+.psec .cellin{width:100%;min-height:76px;border:1px solid var(--line2);border-radius:10px;
+  padding:11px 12px;font-size:.92rem;line-height:1.85;background:var(--surface);}
+.psec-t{display:flex;align-items:center;gap:7px;width:100%;margin-top:10px;padding:9px 11px;
+  border:1px solid var(--line);border-radius:10px;font-size:.8rem;font-weight:700;
+  color:var(--tx2);background:var(--surface2);}
+.psec-t:hover{border-color:var(--line2);color:var(--tx);}
+.psec-t svg{width:14px;height:14px;color:var(--tx3);}
+.psec-t.un{border-color:var(--info);color:var(--info);background:var(--info-bg);}
+.psec-t.un svg{color:var(--info);}
+.psec-t b{margin-left:auto;background:var(--info);color:#fff;border-radius:9px;
+  min-width:19px;padding:1px 6px;font-size:.7rem;text-align:center;}
+.psec-v{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:9px 10px;
+  border-radius:9px;font-size:.88rem;font-weight:700;color:var(--tx);}
+.psec-v:hover{background:var(--surface2);}
+.psec-v svg{width:15px;height:15px;color:var(--tx3);flex:none;}
+.psec-v span{flex:1;min-width:0;}
+.psec-now{border:1px solid var(--line);border-radius:var(--r);background:var(--surface2);
+  padding:14px 16px;margin-bottom:6px;}
+.psec-tx{font-size:.9rem;line-height:1.9;color:var(--tx);white-space:pre-wrap;}
+.psec-tx.none{color:var(--tx3);}
+.psec-tx em{font-style:normal;font-weight:700;color:var(--gold);}
+
+/* ---- ノート。教科書の一覧 ---- */
+.nlist{display:flex;flex-direction:column;gap:8px;}
+.ncard{display:flex;align-items:flex-start;gap:13px;width:100%;text-align:left;
+  border:1px solid var(--line);border-radius:var(--r);background:var(--surface);
+  padding:16px 16px 14px;box-shadow:var(--lift);}
+.ncard:hover{border-color:var(--line2);background:var(--surface2);}
+.ncard-n{flex:none;font-size:.82rem;font-weight:700;color:var(--tx3);
+  font-variant-numeric:tabular-nums;padding-top:3px;letter-spacing:.06em;}
+.ncard-b{flex:1;min-width:0;}
+.ncard-c{display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:.1em;
+  color:var(--gold);background:var(--gold-bg);border-radius:5px;padding:1px 7px;
+  margin-bottom:6px;}
+.ncard-t{display:block;font-size:1.06rem;font-weight:700;line-height:1.5;
+  letter-spacing:.02em;color:var(--tx);}
+.ncard-s{display:block;font-size:.82rem;line-height:1.75;color:var(--tx2);margin-top:5px;}
+.ncard-m{display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-weight:700;
+  color:var(--info);margin-top:8px;}
+.ncard-m svg{width:12px;height:12px;}
+.ncard-u{flex:none;background:var(--info);color:#fff;border-radius:10px;min-width:20px;
+  padding:1px 6px;font-size:.72rem;font-weight:700;text-align:center;}
+.ncard-k{flex:none;color:var(--tx3);padding-top:3px;}
+.ncard-k svg{width:15px;height:15px;}
+
+/* ---- ノートの本文。なぞってコメントする場所 ---- */
+.note-hd{border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:18px;}
+.note-c{display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:.1em;
+  color:var(--gold);background:var(--gold-bg);border-radius:5px;padding:2px 8px;}
+.note-hd h3{font-size:1.36rem;font-weight:700;line-height:1.5;letter-spacing:.02em;
+  color:var(--tx);margin:9px 0 0;}
+.note-hd p{font-size:.86rem;line-height:1.85;color:var(--tx2);margin:8px 0 0;}
+.note-body{-webkit-user-select:text;user-select:text;}
+.nb{position:relative;font-size:.95rem;line-height:2.05;color:var(--tx);
+  margin:0 0 15px;padding-right:2px;}
+.nb em{font-style:normal;font-weight:700;color:var(--tx);
+  box-shadow:inset 0 -3px 0 var(--gold-bg);}
+.nb-h{font-size:1.06rem;font-weight:700;line-height:1.6;letter-spacing:.04em;
+  margin:26px 0 12px;padding-left:12px;border-left:3px solid var(--gold);}
+.nb-li{padding-left:16px;border-left:2px solid var(--line);}
+/* なぜ大事か。読み飛ばされると、やり方だけが残って理由が消える */
+.nb-why{border:1px solid var(--line);border-left:4px solid var(--accent);
+  background:var(--surface2);border-radius:10px;padding:14px 16px;
+  font-size:.9rem;line-height:1.95;color:var(--tx2);margin:18px 0;}
+.nb-why em{color:var(--accent);box-shadow:none;}
+.nb-do,.nb-ng{display:flex;align-items:flex-start;gap:9px;font-size:.9rem;line-height:1.8;
+  margin:0 0 7px;padding-left:2px;}
+.nb-do:before{content:"";flex:none;width:7px;height:7px;margin-top:.72em;background:var(--ok);}
+.nb-ng:before{content:"";flex:none;width:7px;height:7px;margin-top:.72em;background:var(--accent);}
+.nb-num{display:flex;align-items:baseline;gap:12px;border:1px solid var(--line);
+  border-radius:10px;background:var(--surface2);padding:12px 14px;margin:0 0 8px;
+  font-size:.84rem;line-height:1.75;color:var(--tx2);}
+.nb-v{flex:none;font-size:1.28rem;font-weight:700;color:var(--info);
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em;}
+.nb-qa{border-top:1px solid var(--line);padding-top:14px;margin:0 0 14px;
+  font-size:.9rem;line-height:1.9;color:var(--tx2);}
+.nb-q{display:block;font-size:1rem;font-weight:700;color:var(--tx);margin-bottom:6px;}
+.nb-q:before{content:"Q　";color:var(--accent);font-weight:700;}
+/* なぞられた場所。明朝の字面を塗りつぶさず、下に線を引く */
+mark.ncm{background:var(--info-bg);color:inherit;border-radius:3px;padding:0 2px;
+  box-shadow:inset 0 -2px 0 var(--info);cursor:pointer;}
+.nb.hit{background:var(--gold-bg);border-radius:8px;padding:8px 10px;margin-left:-10px;}
+.nb-c{display:inline-flex;align-items:center;gap:4px;margin-left:7px;vertical-align:middle;
+  font-size:.72rem;font-weight:700;color:var(--info);background:var(--info-bg);
+  border:1px solid var(--info);border-radius:6px;padding:1px 7px;}
+.nb-c svg{width:12px;height:12px;}
+/* なぞったときだけ出る。指の上に出すと、選んだ文字が隠れる */
+.nq-btn{position:fixed;z-index:60;display:inline-flex;align-items:center;gap:7px;
+  padding:10px 16px;border-radius:999px;background:var(--tx);color:#fff;
+  font-size:.82rem;font-weight:700;letter-spacing:.04em;
+  box-shadow:0 6px 20px -6px rgba(30,34,40,.5);}
+.nq-btn svg{width:14px;height:14px;}
+.nq-btn.off{display:none;}
+.nb-back{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;font-weight:700;
+  color:var(--tx2);border:1px solid var(--line);border-radius:9px;padding:7px 12px;
+  margin-bottom:14px;}
+.nb-back:hover{background:var(--surface2);color:var(--tx);}
+.nb-back svg{width:14px;height:14px;}
+.nb-src{display:flex;gap:10px;border:1px solid var(--line);border-radius:10px;
+  background:var(--surface2);padding:13px 15px;font-size:.88rem;line-height:1.9;
+  color:var(--tx2);}
+.nb-src>svg{width:15px;height:15px;flex:none;margin-top:5px;color:var(--tx3);}
+.nb-src em{font-style:normal;font-weight:700;color:var(--tx);}
+.nb-sel{display:flex;align-items:flex-start;gap:8px;margin-top:10px;
+  font-size:.82rem;line-height:1.8;color:var(--info);}
+.nb-sel svg{width:14px;height:14px;flex:none;margin-top:4px;}
+/* やり取りの中で、なぞった文字を引く */
+.qt-chip{display:flex;align-items:flex-start;gap:6px;font-size:.76rem;line-height:1.75;
+  color:var(--tx2);border-left:2px solid var(--info);padding:1px 0 1px 9px;margin:0 0 7px;}
+.qt-chip svg{width:12px;height:12px;flex:none;margin-top:4px;color:var(--info);}
+
 /* ---- 狭い画面 ---- */
 @media(max-width:400px){
   .card{padding:19px 16px;}
@@ -1528,6 +1804,7 @@ body{background:var(--bg);}
     <div class="hd-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5h17c0 5.2-3.8 9-8.5 9s-8.5-3.8-8.5-9Z"/><path d="M8 7.5c0-1.8 1.8-1.8 1.8-3.5M12 7.5c0-1.8 1.8-1.8 1.8-3.5M16 7.5c0-1.8 1.8-1.8 1.8-3.5"/></svg></div>
     <button class="hd-t" id="hdMe" data-act="accounts"><b id="hdShop">Dubai Shiogensui</b><span id="hdWho"></span></button>
     <div class="hd-right">
+      <button class="hbtn" id="btnSearch" aria-label="探す"><span id="sqIc"></span></button>
       <button class="hbtn" id="btnSync"><span id="syncIc"></span><span id="syncTx">同期</span></button>
       <button class="hbtn" id="btnSet" aria-label="設定"><span id="setIc"></span></button>
     </div>
@@ -1582,17 +1859,45 @@ var VST={
 };
 var VST_ORDER=['plan','shot','review','redo','ok','posted'];
 
-/* 区分は二段。上が撮る側、下が作る側。選ぶのはどちらか一つだけ。
-   前は店の運営ぜんたいを八つに分けていたが、二人がやり取りしているのは
-   一本の動画をどう仕上げるかなので、その言葉に合わせる */
+/* ステータスのタグ。一本の動画が、いまどの工程で止まっているかを表す。
+   「一つだけ」ではなく、いくつでも選べる（録音：アフレコと撮影待ちの同時、など）。
+   当てはまる言葉が無いときのために、自由記入の欄を別に持つ */
 var TCAT={
-  shoot:{l:'撮影',i:'camera'},    voice:{l:'アフレコ',i:'mic'},
-  caption:{l:'キャプション文',i:'chat'}, telop:{l:'テロップ文',i:'image'},
-  edit:{l:'編集',i:'film'},       script:{l:'台本',i:'pencil'},
-  plan:{l:'提案',i:'target'}
+  script:{l:'台本',i:'pencil'},   shoot:{l:'撮影',i:'camera'},
+  voice:{l:'アフレコ',i:'mic'},   edit:{l:'編集',i:'film'},
+  telop:{l:'テロップ文',i:'image'}, caption:{l:'キャプション文',i:'chat'},
+  post:{l:'投稿',i:'send'},       plan:{l:'提案',i:'target'}
 };
-var TCAT_G1=['shoot','voice','caption','telop'];
-var TCAT_G2=['edit','script','plan'];
+var TCAT_ORDER=['script','shoot','voice','edit','telop','caption','post','plan'];
+/* 古い保存には cat と cat2 が一つずつ入っている。tags へ寄せる */
+function tCats(t){
+  if(Array.isArray(t.cats)) return t.cats.filter(function(k){ return TCAT[k]; });
+  var a=[]; if(TCAT[t.cat]) a.push(t.cat); if(TCAT[t.cat2]) a.push(t.cat2);
+  return a;
+}
+/* 担当に選ばれてから何日たったか。3日を超えたら赤（録音） */
+function tDays(t){
+  var b=t.asAt||t.moveAt||t.at||0; if(!b) return 0;
+  return Math.max(0, diffDays(today(), ymdTZ(b,TZ_DUBAI)));
+}
+/* 1投稿のページに、上から順に並ぶ項目（録音より）。
+   タイトル → 目的 → 台本 → 撮影 → キャプション文 → リールカバー。
+   注意・うちの場合は、これまで比較表で使ってきた行なので後ろに残す。
+   k は series の持ち物の鍵と同じ。比較表の列と同じ中身を、縦に読む形で出しているだけ */
+var PSEC=[
+  {k:'purpose',l:'目的',        i:'target',ph:'何のために撮るのか。ここを見失うと、きれいなだけの画になる。'},
+  {k:'script', l:'台本',        i:'film',  ph:'例）0〜2秒 湯気のアップ／2〜6秒 麺を2秒かけて持ち上げる'},
+  {k:'shoot',  l:'撮影',        i:'camera',ph:'撮影データの置き場所（ドライブのURLなど）と、撮るときの要点。'},
+  {k:'cap',    l:'キャプション文',i:'chat', ph:'まず日本語で書く。英文は現地で作り、ここで往復する。'},
+  {k:'cov',    l:'リールカバー',  i:'image', ph:'表紙に使う一枚と、そこに乗せる文字。'},
+  {k:'caution',l:'注意',        i:'alert', ph:'撮る前に必ず確かめること。'},
+  {k:'ttp',    l:'うちの場合',    i:'pin',   ph:'参考の投稿を、自分の店にどう置き換えるか。'}
+];
+function psecOf(k){ for(var i=0;i<PSEC.length;i++) if(PSEC[i].k===k) return PSEC[i]; return null; }
+/* 項目ごとのやり取りの居場所。scope は sec、ref は「投稿のid|項目の鍵」 */
+function secRef(sid,k){ return sid+'|'+k; }
+
+
 
 /* ============================================================
    2. アイコン（絵文字は使わない。すべてインラインSVG）
@@ -1647,7 +1952,12 @@ down:'<path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M4 20h16"/>',
 up:'<path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4 20h16"/>',
 lock:'<path d="M7 10.5V7.5a5 5 0 0110 0v3M5.5 10.5h13a1 1 0 011 1v8a1 1 0 01-1 1h-13a1 1 0 01-1-1v-8a1 1 0 011-1Z"/>',
 swap:'<path d="M7 4 3.5 7.5 7 11M3.5 7.5H17a3.5 3.5 0 013.5 3.5M17 20l3.5-3.5L17 13M20.5 16.5H7A3.5 3.5 0 013.5 13"/>',
-bowl:'<path d="M3.5 10.5h17c0 5-3.8 9-8.5 9s-8.5-4-8.5-9Z"/><path d="M9 7.5c0-1.5 1.5-1.5 1.5-3M14 7.5c0-1.5 1.5-1.5 1.5-3"/>'
+search:'<circle cx="10.8" cy="10.8" r="6.6"/><path d="M15.6 15.6 20.5 20.5"/>',
+bowl:'<path d="M3.5 10.5h17c0 5-3.8 9-8.5 9s-8.5-4-8.5-9Z"/><path d="M9 7.5c0-1.5 1.5-1.5 1.5-3M14 7.5c0-1.5 1.5-1.5 1.5-3"/>',
+/* ノート。開いた本。教科書を置く場所だと、形だけで分かるように */
+note:'<path d="M12 6.4C10.4 5 8.4 4.4 5 4.4v13c3.4 0 5.4.6 7 2 1.6-1.4 3.6-2 7-2v-13c-3.4 0-5.4.6-7 2Z"/><path d="M12 6.4v13"/>',
+/* 文章の一部に付いた覚え書き */
+quote:'<path d="M5.5 5.5h13v10h-8l-5 4Z"/><path d="M9 9.5h6M9 12.5h4"/>'
 };
 function ic(n){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(IC[n]||'')+'</svg>'; }
 
@@ -1691,12 +2001,12 @@ function hash(s){ var h=0x811c9dc5; s=String(s);
    ============================================================ */
 /* 最初に出すのは自分の分だけ。他人のタスクまで並ぶと、1日3分の人は
    自分が何をすればいいのか探すところから始めることになる（上の絞り込みで全件に戻せる） */
-var S=null, VIEW='task', PTAB='mx', CAL=null, FILT='todo', CTAB='turn';
+var S=null, VIEW='task', PTAB='live', CAL=null, FILT='todo', CTAB='turn';
 /* 「この質問に答える」を押したときだけ入る。送信した答えは質問に紐づく（qa） */
 var ANSQ='';
 
 function blank(){
-  return { v:2, shop:'Dubai Shiogensui', accounts:[], menus:[], series:[], videos:[], tasks:[],
+  return { v:2, shop:'Dubai Shiogensui', accounts:[], menus:[], series:[], videos:[], tasks:[], notes:[],
     posts:[], days:[], msgs:[], me:{id:''}, read:{}, lastShare:0, pendShare:0,
     /* 相手の端末から取り込んだ出来事。この端末だけのもので、相手へは送らない */
     feed:[], feedSeen:0,
@@ -1738,8 +2048,23 @@ function load(){
   /* 記録の入れ物が欠けていると、完了を押した瞬間に画面が固まる */
   S.tasks.forEach(function(x){
     if(!Array.isArray(x.log)) x.log=[];
-    if(!Array.isArray(x.ack)) x.ack=[]; });
-  S.series.forEach(function(x){ if(x.ttp===undefined) x.ttp=''; });
+    if(!Array.isArray(x.ack)) x.ack=[];
+    if(!Array.isArray(x.cats)) x.cats=tCats(x);
+    if(x.stx===undefined) x.stx='';
+    /* 経過日数の起点。担当を変えた日に置き直す */
+    if(!x.asAt) x.asAt=x.moveAt||x.at||now(); });
+  /* 投稿の新しい項目。古い保存から開いても、欄が無くて落ちないようにする。
+     stage は live＝実際に動いているもの、idea＝まだ思いつきの企画 */
+  S.series.forEach(function(x){
+    if(x.ttp===undefined) x.ttp='';
+    if(x.cap===undefined) x.cap='';
+    if(x.cov===undefined) x.cov='';
+    if(x.shoot===undefined) x.shoot='';
+    if(x.stage!=='idea') x.stage='live';
+  });
+  /* ノートは読むための資料。前からある保存には入っていないので、空なら入れる */
+  if(!Array.isArray(S.notes)) S.notes=[];
+  if(!S.notes.length) S.notes=seedNotes();
   S.posts.forEach(function(x){ if(x.url===undefined) x.url=''; if(x.res===undefined) x.res=''; });
   sample2real();
   reskin();
@@ -1962,6 +2287,14 @@ function reskin(){
       p2.res='餃子だけの画が続いたせいか、セットだと伝わらなかった。保存が伸びなかった';
   });
 }
+/* 教科書をノートに分け直したもの。段落ごとにコメントを付けられるので、
+   一段落に一つのことだけを書く。cat＝背表紙の分類、say＝何の話かの一行 */
+var SHOP_NOTES=[{"id":"nt-who","cat":"前提","ttl":"ドバイのお客さんは誰か","say":"日本の常識で撮ると、ドバイでは伝わらない。まず「画面の向こうに誰がいるか」を揃える。","bl":[{"id":"nt-who-1","t":"num","v":"88.5%","x":"UAE に住んでいる人のうち、外国人が占める割合"},{"id":"nt-who-2","t":"num","v":"38%","x":"いちばん多い出身国はインド。次いでパキスタン・バングラデシュ・フィリピン"},{"id":"nt-who-3","t":"num","v":"8.05M","x":"UAE の Instagram 利用者数。人口のおよそ7割"},{"id":"nt-who-4","t":"num","v":"2h58m","x":"UAE に住む人が、1日にSNSを見ている時間"},{"id":"nt-who-5","t":"p","x":"画面の向こうにいる大半は、日本食を【寿司としてしか知らない人】です。ラーメンを食べたことがない人、そもそも「熱いスープに麺を入れて、音を立ててすする料理」という考え方を持っていない人が、普通にいます。"},{"id":"nt-who-6","t":"h","x":"お客さんは4種類いる。同じ動画で全員は取れない"},{"id":"nt-who-7","t":"li","x":"【① JLTで働く人】平日11時半から13時。徒歩5分以内しか候補にしない。5人前後の同僚と相談して決める。効くのは、今日やっている・今空いているを伝えるストーリーと、位置情報と、友達に送れる短い動画。"},{"id":"nt-who-8","t":"li","x":"【② 近隣タワーの住人】平日の夜と週末。外に出たくない日はデリバリー。効くのは、夜の雰囲気、持ち帰りと配達の見せ方、家族向けの量。"},{"id":"nt-who-9","t":"li","x":"【③ 日本食を知っている層】日本人駐在・アジア系・日本好き。本物かどうかを探していて、他のラーメン店ももう知っている。効くのは、大阪・20年以上・自家製麺・スープの仕込みといった、作り手の事実。"},{"id":"nt-who-10","t":"li","x":"【④ ラーメンを知らない人】いちばん人数が多い。「何これ」で止まる。味の説明では動かない。効くのは、湯気・すする動き・音。そして「これは何か」を5語で言う英語のテロップ。"},{"id":"nt-who-11","t":"why","x":"ドバイは人が入れ替わり続ける街です。駐在の任期が終われば常連は国に帰ります。日本の商店街の「10年通ってくれる常連」は、ここでは前提にできません。だから集客は一度知られたら終わりではなく、【毎月、新しく来た人に見つけてもらい直す作業】になります。これが、毎日投稿するいちばん現実的な理由です。"},{"id":"nt-who-12","t":"h","x":"競合は増え続けている"},{"id":"nt-who-13","t":"p","x":"2026年のドバイでは、ラーメン店の出店が続いています。英国発の Maki & Ramen が中東初出店、Dubai Opera に Ramen Hisa、Jumeirah の新しいモールに Tora Tora。Daikan は市内4拠点に広がり、【同じJLTのレイクショアタワーにもラーメンバーがあります】。"},{"id":"nt-who-14","t":"p","x":"味で勝っていても、思い出してもらえなければ負けます。「ラーメンが食べたい」と思った瞬間に頭に浮かぶかどうか。その勝負をしています。"}]},{"id":"nt-tool","cat":"原理","ttl":"インスタは何をする道具か","say":"「宣伝する場所」だと思うと手が止まる。実際には、仕事の違う3つの道具が入っている。","bl":[{"id":"nt-tool-1","t":"li","x":"【リール】見つけてもらう道具。まだ店を知らない人の画面に、こちらから出ていける唯一の手段。届く相手はフォロワーの外がほとんど。【手を抜いてはいけない】。最初の2秒とテロップに全力を使う。"},{"id":"nt-tool-2","t":"li","x":"【ストーリー】忘れられないための道具。すでに知っている人に「今日もやってるよ」を届ける。届く相手はフォロワーだけ。【抜いていい】。10秒・手持ち・音なしで合格。"},{"id":"nt-tool-3","t":"li","x":"【フィード】信用されるための道具。リールで気になった人が必ず見に来る、店の顔。届く相手は検討中の人。頻度は抜いていいが、見た目の統一は抜かない。"},{"id":"nt-tool-4","t":"li","x":"【口コミ返信】不安を消す道具。読むのは書いた本人ではなく、次に来る客。24時間以内に返す。文は短くていい。"},{"id":"nt-tool-5","t":"h","x":"お客さんが来店するまでの6歩"},{"id":"nt-tool-6","t":"p","x":"自分が店を選ぶときを思い出してください。この順番を飛ばすことはできません。"},{"id":"nt-tool-7","t":"li","x":"【1. リールが流れてくる】本人は店を探していない。スクロールの途中に「何これ」で指が止まる。ここが入口の9割。"},{"id":"nt-tool-8","t":"li","x":"【2. プロフィールを開く】3秒で「行ける店かどうか」を決める。場所・営業時間・何の店か・写真の並び。"},{"id":"nt-tool-9","t":"li","x":"【3. 保存する、友達に送る】その場では来ない。「今度行こう」で保存、または同僚に送る。送信されることが最強の合図。"},{"id":"nt-tool-10","t":"li","x":"【4. ストーリーで思い出す】保存したことを人は忘れる。毎日のストーリーが「そういえば」を作る。"},{"id":"nt-tool-11","t":"li","x":"【5. 地図を開く、予約する】位置情報タグと Google マップ。ドバイでは地図アプリが飲食店探しの主戦場。"},{"id":"nt-tool-12","t":"li","x":"【6. 来店して、また撮られる】来た人が撮って上げる。その投稿がまた1に戻る。ここまで来て、やっと回り始める。"},{"id":"nt-tool-13","t":"why","x":"リールは新しい人、ストーリーは知っている人、フィードは迷っている人。どれか一つだけやっても回りません。3つ揃って初めて「来店」という1本の線になります。"}]},{"id":"nt-story","cat":"中核","ttl":"なぜ毎日ストーリーなのか","say":"この教科書でいちばん伝えたいところ。理由は7つあって、どれも店の都合ではなくお客さん側の都合です。","bl":[{"id":"nt-story-1","t":"li","x":"【1. お客さんは今日やっているかを知りたい】ドバイは閉店・移転・休業・時間変更が日常的に起きる街です。初めての店に行く人がいちばん怖いのは「行ったら閉まっていた」。毎日ストーリーが上がっている店は、それだけで今日確実に開いているという証明になります。これは営業時間の表示より強い。"},{"id":"nt-story-2","t":"li","x":"【2. 判断の窓は1日に2回、数十分しかない】人が飲食店を選ぶのは、空腹になった瞬間だけです。11時半から13時と、19時から21時。その数十分に画面に出ていなければ、存在していないのと同じです。"},{"id":"nt-story-3","t":"li","x":"【3. ラーメンを知らない人は、1回では理解できない】初めて見る料理は、1本の動画では食べ物として認識されません。麺を上げる、スープを注ぐ、客がすする、器が湯気を立てる。毎日ちがう角度で見て、5回目くらいでやっと「あれは美味しいものだ」に変わります。教えているのであって、宣伝しているのではありません。"},{"id":"nt-story-4","t":"li","x":"【4. 知っている店にしないと、外国の料理は怖い】知らない国の、知らない料理の、知らない店。ハードルが3つあります。毎日ストーリーを見ている人にとっては、少なくとも店は知っているものに変わります。ハードルが1つ減るだけで、来店率はまったく違います。"},{"id":"nt-story-5","t":"li","x":"【5. 1人が見て、5人が来る】JLTのランチは、たいてい同僚と相談して決まります。ストーリーを見た1人が「ここ行かない？」とDMで転送する。飲食店にとって、この転送が実質的な集客の本体です。"},{"id":"nt-story-6","t":"li","x":"【6. 更新を止めると、フォロワーはいないのと同じになる】ストーリー欄は、よく見る順に前から並びます。更新が止まると後ろに送られ、やがて表示されなくなります。フォロワーは減っていないのに、届かなくなる。"},{"id":"nt-story-7","t":"li","x":"【7. 24時間で消えるから、練習になる】失敗が残りません。だから毎日撮る人だけが、構図・光・テロップが上手くなります。リールがうまい人は例外なく、ストーリーで数百回練習した人です。ストーリーは本番ではなく、毎日の素振りです。"},{"id":"nt-story-8","t":"num","v":"+23%","x":"毎日投稿する店の、フォロワー定着率（週3回未満との比較）"},{"id":"nt-story-9","t":"num","v":"約70%","x":"ストーリーの平均完走率。ただし最初の1枚で約24%が離脱する"},{"id":"nt-story-10","t":"num","v":"2〜3本","x":"1日の現実的な本数。多い日で4本まで"},{"id":"nt-story-11","t":"h","x":"ストーリーは、雑でいい"},{"id":"nt-story-12","t":"p","x":"ここを誤解して止まる人がいちばん多い。【ストーリーに作品を求めないでください。】"},{"id":"nt-story-13","t":"do","x":"縦・手持ち・10秒以内"},{"id":"nt-story-14","t":"do","x":"音は入れなくていい"},{"id":"nt-story-15","t":"do","x":"編集ゼロ。撮って出し"},{"id":"nt-story-16","t":"do","x":"文字は英語で3語から5語だけ"},{"id":"nt-story-17","t":"do","x":"仕込み中・開店前の30秒で撮る"},{"id":"nt-story-18","t":"ng","x":"BGM探し（5分溶ける）"},{"id":"nt-story-19","t":"ng","x":"凝った効果・スタンプの山"},{"id":"nt-story-20","t":"ng","x":"長い日本語の説明文"},{"id":"nt-story-21","t":"ng","x":"いい絵が撮れる日を待つこと"},{"id":"nt-story-22","t":"ng","x":"1本に2つ以上のことを言う"},{"id":"nt-story-23","t":"h","x":"1日の3本。これを毎日回すだけ"},{"id":"nt-story-24","t":"li","x":"【11時ごろ】今日やってます。スープの湯気、麺を茹でる、看板の明かり。文字は OPEN NOW · 11:30。"},{"id":"nt-story-25","t":"li","x":"【18時半ごろ】今夜の一杯。いちばん押したい丼を1つ。寄りで10秒。文字は TONIGHT: SHIO。"},{"id":"nt-story-26","t":"li","x":"【不定期】参加できるもの。アンケート（Shio or Shoyu?）、質問箱、「明日は何を食べたい？」。"},{"id":"nt-story-27","t":"p","x":"アンケートや質問への回答は、DMの会話として扱われます。一度でも反応してくれた人には、その後の投稿が届きやすくなります。スタンプは遊びではなく、届く経路を作る作業です。"},{"id":"nt-story-28","t":"why","x":"1週間止めると、フォロワーのストーリー欄から後ろに下がります。1か月止めると、たいていの人にはもう表示されません。その状態からの再起動は、ゼロから始めるより重い。一度やめた店として見られるからです。毎日やることのいちばんの値打ちは、実は【やめないこと】にあります。"}]},{"id":"nt-reel","cat":"リール","ttl":"リールは最初の1.7秒で決まる","say":"なぜ「つかみ」にそこまでこだわるのか。飛ばされる仕組みを知れば納得できます。","bl":[{"id":"nt-reel-1","t":"p","x":"リールを見ている人は、店を探していません。暇つぶしに指を動かしているだけです。その人に対して、こちらは【見続ける理由を1.7秒以内に差し出す】必要があります。"},{"id":"nt-reel-2","t":"num","v":"1.7秒","x":"見続けるか飛ばすかを決めるまでの時間"},{"id":"nt-reel-3","t":"num","v":"5〜10倍","x":"3秒残存率60%超の動画が、40%未満の動画より稼ぐ表示回数"},{"id":"nt-reel-4","t":"num","v":"20%未満","x":"目標とすべき3秒離脱率。40%を超えたら作り直し"},{"id":"nt-reel-5","t":"h","x":"インスタが伸ばす動画を決める3つの合図"},{"id":"nt-reel-6","t":"p","x":"運営が公表している主な判断材料は、【合計視聴時間】（繰り返し再生も足される）、【リーチあたりの送信数】（DM転送）、【リーチあたりのいいね】の3つです。"},{"id":"nt-reel-7","t":"p","x":"大事なのは、再生回数ではなく秒数で測られることです。15秒の動画を3回見られたほうが、60秒を1回より強い。だから【短くしてループさせる】のが正解です。"},{"id":"nt-reel-8","t":"h","x":"使えるつかみの型"},{"id":"nt-reel-9","t":"li","x":"【パターン破り】予想外の絵で止める。3秒残存の目安は72〜84%。例：真っ白な湯気の中から丼がぬっと出てくる。麺を1.5メートルの高さまで持ち上げる。"},{"id":"nt-reel-10","t":"li","x":"【知りたくさせる】答えを最後に置く。目安65〜78%。例：Why Dubai queues for THIS bowl。スープを18時間煮る鍋をいきなり映す。"},{"id":"nt-reel-11","t":"li","x":"【直球の質問】目安58〜72%。例：Ever had ramen without pork? ／ Spicy or clean?"},{"id":"nt-reel-12","t":"li","x":"【言い切り】目安55〜70%。例：Osaka's No.1 shio ramen. Now in JLT."},{"id":"nt-reel-13","t":"li","x":"【悩みから入る】目安50〜65%。例：Too hot to go outside? We deliver.（5月から9月）"},{"id":"nt-reel-14","t":"li","x":"【行列・人気を見せる】目安45〜60%。例：満席の店内。すすっている外国人客の笑顔。"},{"id":"nt-reel-15","t":"why","x":"最初の1カットに絶対に入れてはいけないもの。ロゴ、店名、外観、暗い店内、無人の空の席、静止画。これが出た瞬間に「広告だ」と判断されて飛ばされます。【ロゴを出すなら最後の1秒です。】"},{"id":"nt-reel-16","t":"h","x":"尺・ループ・音の決まりごと"},{"id":"nt-reel-17","t":"li","x":"【尺は7秒から15秒を基本に。】長くても30秒。90秒を超えると伸びません。"},{"id":"nt-reel-18","t":"li","x":"【最後のコマを最初のコマに似せる。】ループで2周目に入ると視聴秒数が倍になります。丼の寄りで始めて丼の寄りで終わるだけで効きます。"},{"id":"nt-reel-19","t":"li","x":"【音は流行っている音を最初から鳴らす。】冒頭から音を入れた動画は、途中から入れた動画より残存率が高いという報告があります。ただし音に頼らない。"},{"id":"nt-reel-20","t":"li","x":"【使い回しはしない。】他人の動画の転載や再利用は配信が落ちます。30日間に転載が10本を超えると、おすすめ枠から外れます。撮るのが面倒でも、自分で撮るほうが結局速い。"},{"id":"nt-reel-21","t":"li","x":"【テスト投稿（Trial Reels）を使う。】フォロワーには出さず、知らない人にだけ先に出して反応を見られます。この口座は約4,500人なので使えます。新しい型を試すときは必ずこれから。"}]},{"id":"nt-telop","cat":"テロップ","ttl":"音は出ていない","say":"「面倒だから今日はテロップなしで」が、いちばん高くつく手抜きです。","bl":[{"id":"nt-telop-1","t":"li","x":"【そもそも音を出していない】電車・オフィス・家族の横。SNSは無音で見られるのが普通です。音声で説明した内容は、そのまま消えます。"},{"id":"nt-telop-2","t":"li","x":"【英語が母語でない人が大半】ドバイの共通語は英語ですが、多くの人にとって第二言語です。耳で聞く英語より、目で読む英語のほうが圧倒的に伝わります。しかも短い文なら、インド系・アラブ系・フィリピン系、誰にでも届きます。"},{"id":"nt-telop-3","t":"li","x":"【数字がはっきり出ている】字幕のある動画は、ない動画より平均視聴維持が約38%長く、完走されやすさは約80%高いという結果が出ています。テロップを入れるだけで、同じ動画が1.4倍働きます。"},{"id":"nt-telop-4","t":"h","x":"テロップの書き方。守るのはこれだけ"},{"id":"nt-telop-5","t":"li","x":"【英語が主、日本語は飾り。】意味を伝えるのは英語。日本語は本物っぽさの演出として、器や暖簾と一緒に少しだけ。"},{"id":"nt-telop-6","t":"li","x":"【1画面7語以内。】読み切れない文は、無いのと同じ。"},{"id":"nt-telop-7","t":"li","x":"【画面の上下は空ける。】上下それぞれ約15%は画面の飾りに隠れます。文字は真ん中の帯に。"},{"id":"nt-telop-8","t":"li","x":"【自動で作られる字幕は必ず直す。】店名・料理名（shio / shoyu / paitan / wonton）はほぼ間違って変換されます。"},{"id":"nt-telop-9","t":"li","x":"【最初の1枚に「これは何か」を書く。】Japanese noodle soup, made in Osaka style。ラーメンを知らない人に対して、これを省略しない。"}]},{"id":"nt-shoot","cat":"撮影","ttl":"「美味しそう」の正体","say":"なぜ味の説明ではなく、湯気と照りと音なのか。人が食べ物を選ぶ仕組みの話です。","bl":[{"id":"nt-shoot-1","t":"p","x":"人は、飲食店を理屈で選んでいません。空腹のときの判断は、ほぼ反射です。調べてから決める人は少数派で、大半は【見た瞬間の体の反応】で決めます。"},{"id":"nt-shoot-2","t":"p","x":"そして【ラーメンを知らない人ほど、この反射の比重が上がります】。味の知識がないぶん、目に映るものだけで判断するからです。ドバイで「美味しそうに撮る」ことが日本より大事なのは、このためです。"},{"id":"nt-shoot-3","t":"h","x":"食欲が動く5つの物理"},{"id":"nt-shoot-4","t":"li","x":"【湯気】熱い、今できた、安全で旨い、と直につながる。冷めた料理は本能的に避けられる。撮り方は、逆光ぎみに、暗い背景で。湯気は光に透かさないと写らない。"},{"id":"nt-shoot-5","t":"li","x":"【照り（脂と油の光）】脳が「高カロリーだから旨い」と判断する最短の合図。撮り方は、スープの表面の丸い油に光を当てる。真上からではなく斜め45度。"},{"id":"nt-shoot-6","t":"li","x":"【動き】止まった写真より、動いているものに目が留まる。麺のリフト、スープを注ぐ、卵を割る。動きの途中から撮り始める。"},{"id":"nt-shoot-7","t":"li","x":"【音】すする音・揚げる音は、聞いた人の唾液を増やす。できるだけ現場の音を残す。BGMで消さない。"},{"id":"nt-shoot-8","t":"li","x":"【人】食べている人の表情は「安全」の証明。知らない料理ほど必要。客とスタッフの手と顔。国籍が多様なほど「自分も入れる店」に見える。"},{"id":"nt-shoot-9","t":"do","x":"配膳から30秒以内に撮る（湯気の寿命）"},{"id":"nt-shoot-10","t":"do","x":"丼に近づく。画面いっぱいに麺"},{"id":"nt-shoot-11","t":"do","x":"光に向かって（逆光ぎみ）"},{"id":"nt-shoot-12","t":"do","x":"スマホは両手。肘を台につける"},{"id":"nt-shoot-13","t":"do","x":"縦。9対16以外は撮らない"},{"id":"nt-shoot-14","t":"ng","x":"真上からテーブル全景だけ"},{"id":"nt-shoot-15","t":"ng","x":"麺が伸びてから撮り直す"},{"id":"nt-shoot-16","t":"ng","x":"暗い店内で照明を足さない"},{"id":"nt-shoot-17","t":"ng","x":"歩きながらの手ブレ撮り"},{"id":"nt-shoot-18","t":"ng","x":"店名ロゴから始める"},{"id":"nt-shoot-19","t":"h","x":"毎日回せる撮影の型 10本"},{"id":"nt-shoot-20","t":"p","x":"「ネタがない」は、型を持っていないだけです。この10本を順番に回せば、10日分の素材が出ます。"},{"id":"nt-shoot-21","t":"li","x":"【01 麺リフト】湯気と麺と箸。近い。3秒。リールの冒頭向き。"},{"id":"nt-shoot-22","t":"li","x":"【02 スープ注ぎ】注ぐ動作の途中から。音つき。リールの冒頭向き。"},{"id":"nt-shoot-23","t":"li","x":"【03 仕込み】鍋・寸胴・火。作り手の手。ストーリー向き。"},{"id":"nt-shoot-24","t":"li","x":"【04 自家製麺】製麺機・切り出し・打ち粉。リールとフィード向き。"},{"id":"nt-shoot-25","t":"li","x":"【05 完成の寄り】丼の全景は撮らない。具材の一点。フィード向き。"},{"id":"nt-shoot-26","t":"li","x":"【06 お客さんの一口】すする顔。必ず許可を取る。リール向き。"},{"id":"nt-shoot-27","t":"li","x":"【07 開店の合図】暖簾・照明・OPEN。朝。ストーリー向き。"},{"id":"nt-shoot-28","t":"li","x":"【08 スタッフ】顔と名前。1人ずつ。ストーリーとフィード向き。"},{"id":"nt-shoot-29","t":"li","x":"【09 説明もの】Shio と Shoyu の違いを15秒。リール向き。"},{"id":"nt-shoot-30","t":"li","x":"【10 持ち帰り・配達】容器・封・外に出る絵。夏場のストーリー向き。"}]},{"id":"nt-dubai","cat":"現地","ttl":"ドバイ翻訳。日本と違うところ","say":"日本の店のやり方をそのまま持ってくると外す点を、先に潰しておきます。","bl":[{"id":"nt-dubai-1","t":"h","x":"豚を使わないことは、弱点ではなく最大の武器"},{"id":"nt-dubai-2","t":"p","x":"この店のスープは鶏をもとにしています。日本の感覚では「豚骨がない」は制約に聞こえますが、【ドバイでは逆です】。人口の大半を占めるムスリムの方にとって、豚が入っている可能性は、最初から候補に入らない理由になります。"},{"id":"nt-dubai-3","t":"p","x":"【豚を使わないラーメンは、この街でいちばん多くの人が食べられるラーメンです。】"},{"id":"nt-dubai-4","t":"why","x":"表記のきまり。ここだけは厳守です。ハラル認証・アルコールの有無・アレルギーは、【店が公式に確かめている事実だけ】を、店が決めた文言で書きます。スタッフの推測で「ハラルです」と書かない。はっきりしないときは書かずに、DMで問い合わせてもらう。一度の誤表記で、取り返しのつかない信用の損を出します。"},{"id":"nt-dubai-5","t":"h","x":"「ラーメンとは何か」から説明する"},{"id":"nt-dubai-6","t":"p","x":"月に1回は、初めての人向けの説明を出してください。知っている人向けの投稿ばかりでは、いちばん人数の多い「ラーメンを知らない層」に届きません。"},{"id":"nt-dubai-7","t":"li","x":"What is ramen? Noodles + broth, 3 minutes to make, 18 hours to prepare."},{"id":"nt-dubai-8","t":"li","x":"How to eat it: slurp. Loud is polite in Japan.（音を立てて食べていい、は外国人にとって驚きであり、体験として売れる）"},{"id":"nt-dubai-9","t":"li","x":"Shio / Shoyu / Spicy Miso / Paitan — which one are you?（選べるようにする）"},{"id":"nt-dubai-10","t":"h","x":"季節と曜日が日本と違う"},{"id":"nt-dubai-11","t":"li","x":"【5月から9月・猛暑】昼間に外を歩かない。移動はタワーの中か車かデリバリー。出す内容は、涼しい店内、配達の見せ方、タワーから濡れずに来られる道順。"},{"id":"nt-dubai-12","t":"li","x":"【10月から4月・いちばんいい季節】観光客が増え、外で過ごす。新しい駐在も入ってくる。新規向けのリールの比率を上げる。テラス・夜の絵。"},{"id":"nt-dubai-13","t":"li","x":"【ラマダン】2027年は2月7日ごろから3月8日ごろ。日中の飲食の扱いに配慮が要る。日没後の食事（イフタール）が主戦場。日中は食べる動画を控えめに、仕込みや作り手側の絵へ。夜の投稿を増やす。"},{"id":"nt-dubai-14","t":"li","x":"【週末】UAEの休みは土日。金曜の午後から空気が変わる。木曜の夜と金曜の夜に「週末の一杯」。家族連れ向けの量と席。"},{"id":"nt-dubai-15","t":"h","x":"JLTという土地の特殊性"},{"id":"nt-dubai-16","t":"p","x":"JLTはオフィスと住居のタワーが密集した区画です。ランチの候補は【徒歩5分圏】で決まり、駐車と移動が面倒なぶん、どのタワーの、どのクラスターかが来店の可否を左右します。"},{"id":"nt-dubai-17","t":"p","x":"投稿には必ず位置情報を付け、キャプションに Cluster Y · Lake Shore Tower のような目印を入れてください。ドバイでは飲食店探しが地図アプリ中心に動いていて、インスタと地図の両方に同じ情報が載っていることが効きます。"}]},{"id":"nt-cap","cat":"文章","ttl":"キャプションと検索","say":"キャプションは感想文ではなく、探している人に見つけてもらうための道具です。","bl":[{"id":"nt-cap-1","t":"li","x":"【1行目が全て。】2行目から先は、開かないと読めません。言いたいことは1行目に。"},{"id":"nt-cap-2","t":"li","x":"【英語が主。】日本語は下に2行か3行そえる程度。"},{"id":"nt-cap-3","t":"li","x":"【検索される言葉を、文章の中に入れる。】インスタは今、キャプションの文字そのものを検索の対象にします。ramen in JLT ／ Japanese restaurant Dubai ／ shio ramen を、自然な文として入れる。"},{"id":"nt-cap-4","t":"li","x":"【ハッシュタグは3個から5個。】30個並べる時代は終わりました。地名と料理名で十分（例：#jltdubai #ramendubai #dubaifoodie）。"},{"id":"nt-cap-5","t":"li","x":"【位置情報タグは毎回。】これが地図と来店に直結します。"},{"id":"nt-cap-6","t":"li","x":"【お願いごとは1つだけ。】保存してか、友達に送ってか、来てか。3つ書くと0になります。いちばん効くのは【送って】。DMの転送は、いいねの3倍から5倍の重みで扱われます。"}]},{"id":"nt-review","cat":"口コミ","ttl":"口コミ返信","say":"返信を読むのは、書いた本人ではありません。これから行くかどうか迷っている次の客です。","bl":[{"id":"nt-review-1","t":"li","x":"【24時間以内に、全件。】星だけの評価にも一言。"},{"id":"nt-review-2","t":"li","x":"【名乗る。】— Kenji, Shiogensui JLT のように人の名前で返すと、店が人に見えます。"},{"id":"nt-review-3","t":"li","x":"【具体的に触れる。】「ご来店ありがとうございます」だけの定型文は逆効果。何を食べたかに触れる。"},{"id":"nt-review-4","t":"li","x":"【低い評価には、言い訳せず、事実だけ、直し方だけ。】1に謝る、2に何が起きたかの事実、3にどう直すか、4に来店のお願い。4行で終わらせる。【反論は絶対にしない。】次の客が読んでいます。"}]},{"id":"nt-num","cat":"数字","ttl":"数字の見方","say":"全部の数字を見ると疲れて続きません。見るのは5つだけ。","bl":[{"id":"nt-num-1","t":"li","x":"【3秒残存率】（視聴維持のグラフの出だし）最初のカットが効いているか。悪いときは、冒頭の1カットを撮り直す。それだけ。"},{"id":"nt-num-2","t":"li","x":"【送信数】（DMの転送）人に教えたいと思われたか。いちばん大事。悪いときは、誰かと来たくなる絵にする。量・席・2人分。"},{"id":"nt-num-3","t":"li","x":"【保存数】今度行くと思われたか。悪いときは、場所・営業時間・値段を画面に入れる。"},{"id":"nt-num-4","t":"li","x":"【プロフィールへのアクセス】動画から店へ興味が移ったか。悪いときは、動画の最後に店名と場所を1秒。"},{"id":"nt-num-5","t":"li","x":"【ストーリーの完走率】最後まで見られているか。悪いときは、1枚目を変える。24%はそこで抜けます。"},{"id":"nt-num-6","t":"p","x":"【見なくていいもの】いいねの数、日々のフォロワーの増減。どちらも来店とほとんど関係がなく、気分だけ揺さぶられます。"},{"id":"nt-num-7","t":"why","x":"週に1回、3つだけ確かめる。1つ、今週いちばん送信された投稿はどれか。2つ、それは何の型だったか（10本のうち）。3つ、来週その型を2本撮る。これだけで運用は回ります。分析は増やさないでください。増やすと撮影の時間がなくなります。"}]},{"id":"nt-week","cat":"運用","ttl":"1日と1週間の型","say":"「時間があるときにやる」では絶対に続きません。時刻に紐づけます。","bl":[{"id":"nt-week-1","t":"h","x":"1日。合計15分"},{"id":"nt-week-2","t":"li","x":"【10時50分】仕込みを30秒だけ撮る。鍋・麺・火。あとで使う素材。編集しない。"},{"id":"nt-week-3","t":"li","x":"【11時00分】ストーリー1本目「今日やってます」。撮って出し。英語3語。所要1分。"},{"id":"nt-week-4","t":"li","x":"【13時30分】ピークのあとに1本ためる。混んでいた店内、空いた丼、客の笑顔（許可を取る）。"},{"id":"nt-week-5","t":"li","x":"【18時30分】ストーリー2本目「今夜の一杯」。押したい丼を寄りで10秒。"},{"id":"nt-week-6","t":"li","x":"【21時30分】口コミとDMに返信。全件。1件30秒。"},{"id":"nt-week-7","t":"h","x":"1週間"},{"id":"nt-week-8","t":"li","x":"【月】リール1本（新規向け・つかみ重視）"},{"id":"nt-week-9","t":"li","x":"【火】ストーリーのみ"},{"id":"nt-week-10","t":"li","x":"【水】フィード1枚（完成の寄り・見た目の統一）"},{"id":"nt-week-11","t":"li","x":"【木】リール1本（週末の告知・家族向け）"},{"id":"nt-week-12","t":"li","x":"【金】ストーリーのみ（夜に厚く）"},{"id":"nt-week-13","t":"li","x":"【土】お客さんの投稿を共有、またはスタッフ紹介"},{"id":"nt-week-14","t":"li","x":"【日】今週の振り返り3問と、来週の撮影メモ"},{"id":"nt-week-15","t":"p","x":"【毎日必ずやるのはストーリーだけ。】リールは週2本で十分です。週2本を12か月続けた店が勝ちます。毎日10本上げて3週間でやめる店ではなく。"}]},{"id":"nt-faq","cat":"想定問答","ttl":"言い訳への回答","say":"出てくる言葉は毎回同じです。先に答えを書いておきます。","bl":[{"id":"nt-faq-1","t":"qa","q":"毎日なんてムリ。忙しい","x":"ストーリー2本＝合計20秒の動画と、英語5語。所要2分です。仕込みの手を止めずに撮れます。ムリなのは毎日リールを作ることで、それは誰も求めていません。"},{"id":"nt-faq-2","t":"qa","q":"ネタがない","x":"撮影の型10本を順に回してください。10日分あります。お客さんは昨日のあなたの投稿を覚えていません。同じ麺リフトでも、人・光・日が違えば別の動画です。"},{"id":"nt-faq-3","t":"qa","q":"料理が良ければ、そのうち来る","x":"日本ならある程度そうです。ドバイは違います。住民の9割が外国人で、常連は数年で帰国します。しかも同じタワー街に競合のラーメン店があります。味は二度目を作る力であって、一度目を作る力ではありません。一度目を作るのがインスタの仕事です。"},{"id":"nt-faq-4","t":"qa","q":"この写真、前にも出した","x":"フォロワーのうち、1本の投稿を見ているのは一部です。同じ内容を見ている人は、ほぼいません。ただし他人の動画の転載や、過去の投稿のそのまま再利用は配信が落ちます。自分で撮り直すこと。それが5分で済むように型があります。"},{"id":"nt-faq-5","t":"qa","q":"英語が苦手","x":"使うのは5語です。Open now. ／ Fresh noodles, every day. ／ Shio or Shoyu? 長い英語は誰も読みません。下手な長文より、短い5語のほうが伝わります。"},{"id":"nt-faq-6","t":"qa","q":"やっても数字が増えない","x":"見る数字を間違えている可能性が高いです。いいねやフォロワーではなく、送信数・保存数・プロフィールへのアクセスを見てください。そして、成果が出るのは早くて2か月から3か月です。1か月でやめると、それまでの分がゼロになります。"}]},{"id":"nt-start","cat":"はじめ方","ttl":"今日からの3日間","say":"全部を一度にやろうとしないでください。この3日で「続く形」になります。","bl":[{"id":"nt-start-1","t":"li","x":"【1日目】アラームを2つ設定する。10時55分と18時25分。鳴ったら撮る。それだけ。内容は考えない。"},{"id":"nt-start-2","t":"li","x":"【2日目】撮影の型10本を印刷して厨房に貼る。撮ったら印を入れる。1周したら最初に戻る。"},{"id":"nt-start-3","t":"li","x":"【3日目】リールを1本、テスト投稿で出す。フォロワーには出ません。知らない人の反応だけを見て、良ければ本投稿に上げる。"},{"id":"nt-start-4","t":"p","x":"進み具合と撮影の割り当ては、この画面で管理します。撮った・編集した・投稿した、をその都度つけてください。【誰が何をやったかが見えないと、やった人が損をします。】"}]},{"id":"nt-src","cat":"ことわり","ttl":"数字の出どころと、書いてはいけないこと","say":"この教科書の数字が、どこから来たものかを書いておきます。","bl":[{"id":"nt-src-1","t":"p","x":"本文の割合や秒数は、世界の飲食・小売の口座を集計した【公開されている目安】です。当店の実数ではありません。判断のものさしとして使い、最後は自店の数字（送信数・保存数・プロフィールへのアクセス）で確かめてください。"},{"id":"nt-src-2","t":"why","x":"ハラル認証・アルコール・アレルギーに関する表記は、【店が公式に確かめた内容だけ】を載せてください。この教科書はその可否を判断するものではありません。"},{"id":"nt-src-3","t":"li","x":"【人口と外国人比率】UAE Population Statistics 2026（GMI）、Expatriates in the UAE（Wikipedia）"},{"id":"nt-src-4","t":"li","x":"【SNSの利用状況】Digital 2026: The United Arab Emirates（DataReportal）"},{"id":"nt-src-5","t":"li","x":"【ドバイのラーメン市場・当店の概要】Curly Tales、Time Out Dubai、shiogensui.ae"},{"id":"nt-src-6","t":"li","x":"【飲食店探しと地図アプリ】Google「Map Your Dubai」、Gulf News"},{"id":"nt-src-7","t":"li","x":"【表示を決める合図・転載の扱い・尺の目安】Hootsuite、Sprout Social、Buffer"},{"id":"nt-src-8","t":"li","x":"【ストーリーの頻度と完走率】Dash Social、Upgrow"},{"id":"nt-src-9","t":"li","x":"【1.7秒・3秒残存率・字幕の効果】Retensis、Fobet Media、Zebracat、Metricool"},{"id":"nt-src-10","t":"li","x":"【テスト投稿の仕様】Instagram for Creators、Metricool"},{"id":"nt-src-11","t":"li","x":"【ラマダン2027の見込み】The National（月の観測により前後します）"}]}];
+function seedNotes(){
+  /* rev は 0 にしておく。見本と同じ理屈で、実際に触った側が必ず勝つ */
+  return SHOP_NOTES.map(function(x){
+    return {id:x.id,cat:x.cat,ttl:x.ttl,say:x.say,bl:x.bl,rev:0,at:now()}; });
+}
 function seed(){
   var t=today();
   S.accounts=[
@@ -1970,6 +2303,7 @@ function seed(){
     {id:'a-yui',   name:'Yui',   role:'ops',  pin:'', color:3, at:now(), rev:now()}
   ];
   S.menus=SHOP_MENUS.map(function(n,i){ return {id:'mn-'+(i+1),name:n,rev:now()}; });
+  S.notes=seedNotes();
 
   S.series=SHOP_SERIES.map(function(x){
     return {id:x.id,name:x.name,tag:x.tag,rev:now(),at:now(),
@@ -1992,21 +2326,21 @@ function seed(){
   function mk(ttl,cat,who,due,rep,why){
     var at0=now()-3*864e5;
     if(due) at0=Math.min(at0, fromYmd(due).getTime()-864e5);
-    return {id:uid('t'),ttl:ttl,cat:cat,who:who,due:due,rep:rep||'none',why:why||'',
-      log:[],ack:[],rev:now(),at:at0};
+    return {id:uid('t'),ttl:ttl,cat:cat,cats:cat?[cat]:[],stx:'',who:who,due:due,
+      rep:rep||'none',why:why||'',log:[],ack:[],rev:now(),at:at0,asAt:at0};
   }
   S.tasks=[
     mk('今週のリールを1本投稿する','post','shop','','weekly','リールだけが、まだ店を知らない人に届く。新規客の入口はここしかない。'),
     mk('今週のストーリーを1件投稿する','post','shop','','weekly','既に知っている人に「今日行こう」を思い出してもらうため。新規には届かない。'),
-    mk('当日の来客数とラーメンの出数を入力する','num','shop','','daily','この2つが無いと、どの投稿が効いたのか永久に分からなくなる。'),
-    mk('Googleマップの新規口コミに返信する','map','shop','','daily','検索から来る客は口コミを読んでから決める。返信の有無が判断材料になる。'),
+    mk('当日の来客数とラーメンの出数を入力する','','shop','','daily','この2つが無いと、どの投稿が効いたのか永久に分からなくなる。'),
+    mk('Googleマップの新規口コミに返信する','','shop','','daily','検索から来る客は口コミを読んでから決める。返信の有無が判断材料になる。'),
     mk('今週のリールを1本撮影する','shoot','shop','','weekly','素材が切れると投稿が止まる。投稿が止まると新規が止まる。'),
-    mk('店頭黒板を今週のおすすめに書き換える','store','shop',addDays(t,1),'weekly','通りがかりの人に「セットがある」と知らせる唯一の接点。'),
+    mk('店頭黒板を今週のおすすめに書き換える','','shop',addDays(t,1),'weekly','通りがかりの人に「セットがある」と知らせる唯一の接点。'),
     mk('撮影データをドライブへ格納する','shoot','shop',addDays(t,-1),'none','手元に置いたままだと日本側が添削できず、その週の投稿が作れない。'),
     mk('翌週の台本を3本送付する','edit','ops','','weekly','Aiに考える時間を使わせない。撮るだけの状態にして渡す。'),
     mk('添削の回答を返す','edit','ops','','daily','返事が遅れると、その分だけAiの撮影が止まる。'),
-    mk('Talabatの掲載写真を更新する','deli','shop',addDays(t,3),'none','デリバリーの写真が古いと、セットの存在が伝わらない。'),
-    mk('JLT内オフィスへランチ割引カードを配布する','local','shop',addDays(t,5),'none','徒歩5分の就業者が、最も再来店しやすい層だから。')
+    mk('Talabatの掲載写真を更新する','','shop',addDays(t,3),'none','デリバリーの写真が古いと、セットの存在が伝わらない。'),
+    mk('JLT内オフィスへランチ割引カードを配布する','','shop',addDays(t,5),'none','徒歩5分の就業者が、最も再来店しやすい層だから。')
   ];
   /* 実施と承認は時刻で照合する。ここを now() で作ると、2台がそれぞれ初めて開いたあとに
      同期したとき、同じ見本の実施が両方残って二重に見える。日付から決まる時刻にする */
@@ -2224,7 +2558,25 @@ function ansNew(scope,ref){
 function ansAll(){ var n=0; inboxRows().forEach(function(x){ n+=x.a||0; }); return n; }
 function unreadAll(scope){
   if(scope==='g') return unreadOf('g','');
-  var list = scope==='task'?S.tasks : scope==='video'?S.videos : S.series, n=0;
+  /* 項目ごとのやり取りは「投稿のid|項目」で分かれている。
+     投稿の数だけ見て終わると、台本に来た質問がバッジに出ない */
+  /* ノートは段落ごとにやり取りが分かれている（ref＝記事のid|段落のid）。
+     段落の数だけ数えると重いので、届いた文のほうから数える */
+  if(scope==='note'){
+    var role0=meRole(), q0=0;
+    S.msgs.forEach(function(m){
+      if(m.scope!=='note'||m.role===role0) return;
+      if(m.at>(S.read[tkey('note',m.ref)]||0)) q0++; });
+    return q0;
+  }
+  if(scope==='sec'){
+    var m=0;
+    alive(S.series).forEach(function(o){
+      PSEC.forEach(function(sc){ m+=unreadOf('sec',secRef(o.id,sc.k)); }); });
+    return m;
+  }
+  var list = scope==='task'?S.tasks : scope==='video'?S.videos :
+             scope==='note'?S.notes : S.series, n=0;
   alive(list).forEach(function(o){ n+=unreadOf(scope,o.id); });
   return n;
 }
@@ -2248,12 +2600,14 @@ function sec(kick,title,icon,sub){
     (sub?'<div class="sub">'+esc(sub)+'</div>':'')+'</div>';
 }
 function navHtml(){
+  /* 打ち合わせで決めた4つ。連絡は畳み、分析はノートに席を譲った。
+     やり取りは「投稿の項目ごと」「タスクごと」に移したので、
+     連絡だけを集めた画面はもう要らない（記録はシートから読める） */
   var items=[
-    {k:'task', l:'タスク',    i:'list',     n:unreadAll('task')},
-    {k:'plan', l:'企画',      i:'grid',     n:unreadAll('video')+unreadAll('series')},
-    {k:'cal',  l:'実績',      i:'calendar', n:0},
-    {k:'chat', l:'連絡',      i:'chat',     n:turnCount()},
-    {k:'data', l:'分析',      i:'chart',    n:0}
+    {k:'task',  l:'タスク', i:'list',     n:unreadAll('task')},
+    {k:'post',  l:'投稿',   i:'grid',     n:unreadAll('video')+unreadAll('series')+unreadAll('sec')},
+    {k:'month', l:'今月',   i:'calendar', n:0},
+    {k:'note',  l:'ノート', i:'note',     n:unreadAll('note')}
   ];
   return items.map(function(v){
     return '<button data-nav="'+v.k+'" aria-selected="'+(VIEW===v.k)+'">'+ic(v.i)+'<span>'+v.l+'</span>'+
@@ -2463,7 +2817,7 @@ function gapHtml(){
       esc(roleName('ops'))+'と'+esc(roleName('shop'))+'のタスク</h2>'+
       /* 「答える質問」「添削の途中」は盤とまったく同じ1件を数えていたので外した。
          盤に出ない「今週の投稿」だけを、独立タイル（85px）ではなく見出しの右端に置く */
-      '<button class="gap-wk'+(wp>=2?' ok':'')+'" data-nav="cal">'+ic('calendar')+
+      '<button class="gap-wk'+(wp>=2?' ok':'')+'" data-nav="month">'+ic('calendar')+
         '今週の投稿 <b>'+wp+'</b> ／ 2</button>'+
       /* 狙いの入口は「今から撮るもの」の脇にしか無かった。
          そこを外したので、ここへ移す */
@@ -2473,7 +2827,7 @@ function gapHtml(){
     /* 並びは拠点で固定する。日本が左、ドバイが右。
        読む人によって左右が入れ替わると、二台を並べて話すときに食い違う */
     '<div class="gap-board">'+col('jp')+col('db')+
-      (an?'<button class="brow brow-ans" data-nav="chat">'+
+      (an?'<button class="brow brow-ans" data-act="inbox">'+
         '<span class="brow-t">'+ic('check')+'答えが届いています</span>'+
         '<span class="brow-n"><b>'+an+'</b><i>件</i></span>'+
         '<span class="brow-s">読むだけで終わります</span>'+
@@ -2724,28 +3078,40 @@ function viewTask(){
   /* 未読のお知らせ帯は連絡タブのバッジと二重なので外した（60px）。
      見出し「業務タスク」もタブ名と同じなので外した（31px） */
   /* 足す口は絞り込みの右にも置く。下までスクロールしないと足せないのは遠い */
-  h+='<div class="tbar"><div class="chips">'+[['todo','未着手',c.todo],['done','完了済み',c.done]].map(function(x){
-    return '<button class="chip" data-filt="'+x[0]+'" aria-pressed="'+(FILT===x[0])+'">'+x[1]+'<b>'+x[2]+'</b></button>'; }).join('')+'</div>'+
+  /* 絞り込みの札はやめた。制作中と投稿済みを上下の段で同時に出す（録音）。
+     完了を押せば、そのまま下の段へ移る */
+  h+='<div class="tbar"><div class="tbar-n">'+ic('list')+'制作中 <b>'+c.todo+'</b>'+
+    '　／　投稿済み <b>'+c.done+'</b></div>'+
     '<button class="btn btn-main btn-sm tbar-add" data-act="addtask" data-who="'+(meRole()||'shop')+'">'+
     ic('plus')+'タスクを追加</button></div>';
 
+  function tsort(arr){
+    return arr.slice().sort(function(a,b){
+      var x=(a.due||'9999-99-99'), y=(b.due||'9999-99-99');
+      if(a.rep!=='none') x='0000';
+      if(b.rep!=='none') y='0000';
+      return x<y?-1:x>y?1:(a.at||0)-(b.at||0);
+    });
+  }
+  var live=tsort(ts.filter(function(t){ return statusOf(t)!=='done'; }));
+  var fin =ts.filter(function(t){ return statusOf(t)==='done'; })
+    .sort(function(a,b){ var x=doneOf(a), y=doneOf(b);
+      return ((y?y.at:0)-(x?x.at:0))||(b.at||0)-(a.at||0); });
 
-  var list=ts.filter(function(t){
-    var s=statusOf(t);
-    if(FILT==='all') return true;
-    if(FILT==='todo'||FILT==='done') return s===FILT;
-    return s===FILT;
-  /* 期限の近いものから。期限の無いものは後ろへ */
-  }).sort(function(a,b){
-    var x=(a.due||'9999-99-99'), y=(b.due||'9999-99-99');
-    if(a.rep!=='none') x='0000';
-    if(b.rep!=='none') y='0000';
-    return x<y?-1:x>y?1:(a.at||0)-(b.at||0);
-  });
-
-  h+='<div class="tlist">';
-  if(!list.length) h+='<div class="empty">'+ic('check')+'該当するタスクはありません</div>';
-  else if(FILT==='todo'){
+  h+='<div class="tstage"><div class="tstage-h">'+ic('film')+'制作中<b>'+live.length+'</b></div>';
+  h+=tlistHtml(live,'todo');
+  h+='</div>';
+  h+='<div class="tstage done"><div class="tstage-h">'+ic('check')+'投稿済み<b>'+fin.length+'</b></div>';
+  h+=tlistHtml(fin,'done');
+  h+='</div>';
+  return h;
+}
+/* 一覧の中身。制作中はくりかえしと期限つきに分けて2列、投稿済みはそのまま積む */
+function tlistHtml(list,kind){
+  var h='<div class="tlist">';
+  if(!list.length) h+='<div class="empty">'+ic('check')+
+    (kind==='todo'?'制作中のものはありません':'まだありません')+'</div>';
+  else if(kind==='todo'){
     /* まだのものは二種類ある。毎日・毎週くりかえすものと、いつまでのもの。
        混ぜて一列に積むと、今日やるものと今週やるものが交互に出てきて、
        どこから手を付ければよいのかが読み取れない */
@@ -2772,29 +3138,12 @@ function viewTask(){
     });
     h+='</div>';
   }
-  else if(FILT==='done'){
-    /* 終わった順に、新しいものから。いつ終わったのかが並びそのものになる */
-    list.slice().sort(function(a,b){
-      var x=doneOf(a), y=doneOf(b);
-      return ((y?y.at:0)-(x?x.at:0))||(b.at||0)-(a.at||0);
-    }).forEach(function(x){ h+=taskCard(x); });
-  }
-  else if(FILT==='all'){
-    /* 状態ごとにまとめて、見出しを置く。ただ新しい順に積むだけだと、
-       どこまでが今日の話で、どこからが終わった話なのかが読み取れない */
-    var g={todo:[],done:[]};
-    list.forEach(function(t){ g[statusOf(t)].push(t); });
-    ['todo','done'].forEach(function(k){
-      if(!g[k].length) return;
-      h+='<div class="tgrp"><span class="tgrp-l st-'+k+'">'+esc(STL[k].l)+'</span>'+
-        '<span class="tgrp-n">'+g[k].length+'</span></div>';
-      g[k].forEach(function(t){ h+=taskCard(t); });
-    });
+  else if(kind==='done'){
+    list.forEach(function(x){ h+=taskCard(x); });
   }
   else list.forEach(function(t){ h+=taskCard(t); });
-  /* どちらの分として足すのかを、押す前に見せておく */
-  return h+'</div><button class="addrow" data-act="addtask" data-who="'+(meRole()||'shop')+'">'+
-    ic('plus')+'タスクを追加</button>';
+  /* 足す口は上の帯にある。段ごとに置くと、同じボタンが画面に2つ出る */
+  return h+'</div>';
 }
 function taskCard(t){
   var st=statusOf(t), d=doneOf(t), a=null, cat=TCAT[t.cat]||null;
@@ -2811,7 +3160,17 @@ function taskCard(t){
      いちばん読みたい「いつまで」と「くりかえし」がその後ろへ押しやられる */
   var meta='<span class="t-who '+(t.who==='shop'?'db':'jp')+'">'+
       esc(roleName(t.who))+'</span>'+
-    (mtx.length?'<span class="t-sub">'+esc(mtx.join('・'))+'</span>':'');
+    (mtx.length?'<span class="t-sub">'+esc(mtx.join('・'))+'</span>':'')+
+    /* 担当になってから何日たったか。3日を超えたら赤くする。
+       くりかえしのタスクは毎期やり直すので、日数を数えても意味がない */
+    (st!=='done'&&t.rep==='none'
+      ? '<span class="t-days'+(tDays(t)>3?' hot':'')+'">'+ic('clock')+tDays(t)+'日</span>' : '');
+  /* ステータス。いくつでも付く。自由記入はそのまま後ろに続ける */
+  var cts=tCats(t);
+  var stat=(cts.length||t.stx)
+    ? '<div class="tstat">'+cts.map(function(k){
+        return '<span class="tst-t">'+ic(TCAT[k].i)+TCAT[k].l+'</span>'; }).join('')+
+      (t.stx?'<span class="tst-x">'+esc(t.stx)+'</span>':'')+'</div>' : '';
   /* 済んだら、誰がいつ押したかを残す。まだなら、いつまでかだけ */
   var flow;
   if(d){
@@ -2839,10 +3198,9 @@ function taskCard(t){
        カードは一覧の顔、ページが本体 */
     '<h3 class="ttl"><button class="ttl-b" data-act="taskpage" data-id="'+t.id+'">'+
       esc(t.ttl)+(un?' <span class="t-un">'+ic('chat')+un+'</span>':'')+'</button></h3>'+
-    /* 「なぜ」は自分の担当分だけ全文で出す。
-       相手の担当分まで全部載せると一覧が倍に伸びるし、終わったものは読み返さない。
-       相手の意図を知りたいときは、下のふきだしから直接きける */
-    (t.why&&st!=='done'&&mine?'<p class="twhy">'+esc(t.why)+'</p>':'')+
+    stat+
+    /* 「なぜやるのか」は一覧に出さない（ユーザー指示）。
+       一覧は題名だけで見渡せるほうが速い。中身は題名を押して開いたページで読む */
     '<div class="tflow">'+flow+'</div>'+histHtml(t)+
     /* 一覧は読むだけの場所にする（ユーザー指示）。
        完了は、題名を押して開いたタスクのページで押す。
@@ -2851,14 +3209,68 @@ function taskCard(t){
 }
 
 /* ============================================================
-   10. 企画
+   10. 投稿
    ============================================================ */
-function viewPlan(){
-  var h='<div class="seg-top">'+
-    '<button data-ptab="mx" aria-selected="'+(PTAB==='mx')+'">'+ic('grid')+'比較表</button>'+
-    '<button data-ptab="vid" aria-selected="'+(PTAB==='vid')+'">'+ic('play')+'撮影素材</button></div>';
-  h+=(PTAB==='mx'?matrixHtml():videoListHtml());
-  return h+'<button class="addrow" data-act="addvideo">'+ic('plus')+'撮影素材を追加</button>';
+/* stage で分ける。live＝実際に動いているもの、idea＝まだ思いつきの企画 */
+function postsOf(stage){
+  return seriesOrdered().filter(function(x){ return (x.stage==='idea'?'idea':'live')===stage; });
+}
+/* どこまで書けているか。6つの項目のうち、中身が入っているものを数える */
+function psecDone(s2){
+  var n=0; PSEC.forEach(function(sc){ if((cellGet(s2,sc.k)||'').trim()) n++; });
+  return n;
+}
+function postUnread(s2){
+  var n=unreadOf('series',s2.id);
+  PSEC.forEach(function(sc){ n+=unreadOf('sec',secRef(s2.id,sc.k)); });
+  return n;
+}
+/* 一覧の1枚。押せばその投稿のページが開く */
+function postCard(s2){
+  var idea=(s2.stage==='idea'), un=postUnread(s2), dn=psecDone(s2);
+  var vs=videosOf(s2.id);
+  return '<article class="pcard'+(idea?' idea':'')+'">'+
+    '<button class="pcard-b" data-act="postpage" data-id="'+s2.id+'">'+
+      '<span class="pcard-t">'+esc(s2.name)+'</span>'+
+      '<span class="pcard-m">'+
+        pill(idea?'p-mute':'p-ok',idea?'企画':'投稿',idea?'pencil':'check')+
+        (vs.length?pill('p-gold','素材 '+vs.length+'本','play'):'')+
+        (un?'<span class="pcard-n">'+ic('chat')+un+'</span>':'')+
+      '</span>'+
+      /* 6つのうち何個書けたか。数字だけだと目が滑るので、点でも出す */
+      '<span class="pcard-p" aria-label="'+PSEC.length+'項目のうち'+dn+'項目を記入済み">'+
+        PSEC.map(function(sc){
+          return '<i class="'+((cellGet(s2,sc.k)||'').trim()?'on':'')+'" title="'+esc(sc.l)+'"></i>'; }).join('')+
+        '<b>'+dn+' ／ '+PSEC.length+'</b></span>'+
+    '</button>'+
+    (idea?'<button class="pcard-go" data-act="tolive" data-id="'+s2.id+'">'+ic('arrowR')+
+      '投稿へ移す</button>':'')+
+    '</article>';
+}
+function postListHtml(stage){
+  var list=postsOf(stage), h='';
+  if(stage==='live') h+=sec('Posts','いま進んでいる投稿','grid',
+    '押すと、その投稿のページが開きます。目的から順に、項目ごとにやり取りできます。');
+  else h+=sec('Ideas','企画（思いついたこと）','pencil',
+    '全部を埋める必要はありません。良い投稿を見つけたとき、思いついたことだけ書いてください。'+
+    '実際に動き始めたら「投稿へ移す」を押します。');
+  if(!list.length) h+='<div class="empty">'+ic('check')+
+    (stage==='live'?'進んでいる投稿はありません':'企画はまだありません')+'</div>';
+  h+='<div class="plist">'+list.map(postCard).join('')+'</div>';
+  h+='<button class="addrow" data-act="addpost" data-stage="'+stage+'">'+ic('plus')+
+    (stage==='live'?'投稿を追加':'企画を追加')+'</button>';
+  return h;
+}
+function viewPost(){
+  /* 切り替えは4つ。実際に動いているもの／思いつき／横に並べて見比べる／撮った素材 */
+  var tabs=[['live','投稿','grid'],['idea','企画','pencil'],['mx','見比べ','expand'],['vid','撮影素材','play']];
+  var h='<div class="seg-top seg4">'+tabs.map(function(t){
+    return '<button data-ptab="'+t[0]+'" aria-selected="'+(PTAB===t[0])+'">'+ic(t[2])+t[1]+'</button>';
+  }).join('')+'</div>';
+  if(PTAB==='mx')  return h+matrixHtml();
+  if(PTAB==='vid') return h+videoListHtml()+
+    '<button class="addrow" data-act="addvideo">'+ic('plus')+'撮影素材を追加</button>';
+  return h+postListHtml(PTAB==='idea'?'idea':'live');
 }
 /* 横軸の並び。配列の順番は同期で保たれないので、番号で持つ */
 function seriesOrdered(){
@@ -2942,7 +3354,10 @@ function cellRows(v){
 function matrixHtml(){
   /* 中身を書き換えられるのは日本側だけ。並べ替えは、見る順番の話なので二人とも */
   var ss=seriesOrdered(), ops=(meRole()==='ops');
-  var rows=[{k:'script',l:'台本',i:'film'},{k:'purpose',l:'目的',i:'target'},{k:'caution',l:'注意',i:'alert'}];
+  /* 手書きの表にあった5行は消さない。投稿のページで増えた項目を、同じ順で足す */
+  var rows=[{k:'purpose',l:'目的',i:'target'},{k:'script',l:'台本',i:'film'},
+            {k:'shoot',l:'撮影',i:'camera'},{k:'cap',l:'キャプション文',i:'chat'},
+            {k:'cov',l:'リールカバー',i:'image'},{k:'caution',l:'注意',i:'alert'}];
   var h=sec('Matrix','企画比較表','grid','シリーズを横に並べて比較する。台本・目的・注意はシリーズ単位、素材とタグは1本単位。'+
     '　列の見出しを押して横へ動かすと、並び順を変えられる。');
   /* 足す口は表の上に置く。下に置くと、足すたびに表の終わりまで
@@ -2960,7 +3375,7 @@ function matrixHtml(){
     var un=unreadOf('series',s.id);
     h+='<th class="ch" data-sid="'+s.id+'"><span class="sname">'+esc(s.name)+'</span>'+
       '<span class="tagline">'+pill('p-gold',s.tag==='staff'?'スタッフ タグ':'メニュー タグ','pin')+'</span>'+
-      '<button class="btn btn-line btn-sm" data-act="series" data-id="'+s.id+'" style="margin-top:9px">'+ic('eye')+'詳細'+
+      '<button class="btn btn-line btn-sm" data-act="postpage" data-id="'+s.id+'" style="margin-top:9px">'+ic('eye')+'ページ'+
         (un?' '+un:'')+'</button>'+
       /* 見出しのどこを押しても、そのまま横へ動かせば運べる。
          つまみは「動かせる」と分かるための目印。文字は置かない */
@@ -3110,7 +3525,7 @@ function videoCard(v){
 }
 
 /* ============================================================
-   11. 実績カレンダー
+   11. 今月
    ============================================================ */
 /* 日付セルの中に出すラベル。動画に紐づいていればその題名、なければ種別名。
    保険営業ダッシュボードと同じく、時刻は出さない（ユーザー指示） */
@@ -3137,8 +3552,55 @@ function calChip(p){
     : '<span class="cal-ch" style="color:'+t.tc+';border-color:'+t.c+'80;background:'+t.c+'22" title="'+
       ttl+'">'+esc(label)+'</span>';
 }
-function viewCal(){
+/* 担当割り。誰の手元に何が溜まっているかを、2列で見せる（手書きの「月スケ／担当割り」）。
+   タスクの一覧は「何を」で並ぶが、ここは「誰が」で並ぶ。
+   渡したのに動いていないことは、人ごとに積んで初めて見える */
+function assignHtml(){
+  var h=sec('Assign','担当割り','users',
+    '渡してから何日たっているか。3日を超えたものは赤。押すとそのタスクが開きます。');
+  h+='<div class="asg">';
+  ['ops','shop'].forEach(function(r){
+    var list=alive(S.tasks).filter(function(t){
+      return t.who===r&&statusOf(t)!=='done'&&t.rep==='none'; })
+      .sort(function(a,b){ return tDays(b)-tDays(a); });
+    h+='<div class="asg-c '+(r==='shop'?'db':'jp')+'">'+
+      '<div class="asg-h">'+avaOf(byRole(r),'sm')+esc(roleName(r))+'<b>'+list.length+'</b></div>';
+    if(!list.length) h+='<div class="empty">'+ic('check')+'手元にありません</div>';
+    list.forEach(function(t){
+      var cs=tCats(t);
+      h+='<button class="asg-r" data-act="taskpage" data-id="'+t.id+'">'+
+        '<span class="asg-t">'+esc(t.ttl)+'</span>'+
+        '<span class="asg-m">'+
+          (cs.length?cs.map(function(k){ return '<i>'+TCAT[k].l+'</i>'; }).join(''):'')+
+          (t.stx?'<i>'+esc(t.stx)+'</i>':'')+
+          '<span class="asg-d'+(tDays(t)>3?' hot':'')+'">'+tDays(t)+'日</span>'+
+          (t.due?'<span class="asg-u">'+fmtMd(t.due)+'まで</span>':'')+
+        '</span></button>';
+    });
+    h+='</div>';
+  });
+  return h+'</div>';
+}
+/* その役の人を1人。名前と色を出すためだけに使う */
+function byRole(r){
+  var a=alive(S.accounts).filter(function(x){ return x.role===r; });
+  return a[0]||null;
+}
+function viewMonth(){
   if(!CAL){ var d=fromYmd(today()); CAL={y:d.getUTCFullYear(),m:d.getUTCMonth()}; }
+  /* いちばん上は「何のためにやっているか」。ここを見失うと、
+     きれいなだけの画を撮って終わる（録音） */
+  var g=S.goal||{};
+  var h0=sec('Direction','方向性と考え方','target','見失ったときに、ここへ戻ってきてください。');
+  h0+='<div class="dir"><div class="dir-t">'+emph(g.t||'')+'</div>'+
+    (g.s?'<div class="dir-s">'+emph(g.s)+'</div>':'')+
+    '<button class="btn btn-line btn-sm" data-act="goal">'+ic('pencil')+'今月の目標を直す</button></div>';
+  h0+=assignHtml();
+  h0+=sec('Calendar','出したもの','calendar',
+    '投稿済みにしたものだけが、その日に出ます。予定ではなく実績です。日付を押すと、その日の記録を書けます。');
+  return h0+viewCalBody();
+}
+function viewCalBody(){
   var first=new Date(Date.UTC(CAL.y,CAL.m,1)), last=new Date(Date.UTC(CAL.y,CAL.m+1,0));
   var h='<div class="cal-hd"><button class="cal-nav" data-act="calmv" data-d="-1" aria-label="前月">'+ic('arrowL')+'</button>'+
     '<h2>'+CAL.y+'年 '+(CAL.m+1)+'月</h2>'+
@@ -3200,7 +3662,8 @@ function viewCal(){
   /* FABを廃したので、いちばん使う「本日の記録」はここに置く */
   h+='<button class="addrow" data-act="addtoday">'+ic('plus')+'本日の記録をつける</button>';
   h+='<div class="hint">'+ic('info')+'<span>日付をタップすると当日の投稿と来客数を入力できます。並びはドバイの営業日基準。</span></div>';
-  return h;
+  /* 数字は、読み物の最後に置く。先頭に置くと、毎日見る画面が数字の画面になる */
+  return h+statsHtml();
 }
 
 /* ============================================================
@@ -3259,17 +3722,20 @@ function inboxRow(r){
     '</span></span>'+
     (r.un>0?'<span class="ibx-n">'+(r.un>99?'99':r.un)+'</span>':'')+'</button>';
 }
-function viewChat(){
+/* 連絡タブを畳んだので、受信箱はシートで開く。
+   「答えが届いています」から入る道は、これまでと同じ */
+function sheetInbox(){
   var rows=inboxRows();
   var turn=rows.filter(function(x){ return x.turn; });
-  var h=sec('Messages','やり取り','chat','投稿・素材・タスクごとに分かれています。上から順に返せば、返し忘れはありません。');
-  h+='<div class="chips">'+[['turn','自分が返す番',turn.length],['all','全部',rows.length]].map(function(x){
+  var list=CTAB==='turn'?turn:rows;
+  var h='<div class="chips">'+[['turn','自分が返す番',turn.length],['all','全部',rows.length]].map(function(x){
     return '<button class="chip" data-ctab="'+x[0]+'" aria-pressed="'+(CTAB===x[0])+'">'+x[1]+'<b>'+x[2]+'</b></button>';
   }).join('')+'</div>';
-  var list=CTAB==='turn'?turn:rows;
   if(!list.length) h+='<div class="empty">'+ic('check')+
     (CTAB==='turn'?'返す番のものはありません':'まだやり取りがありません')+'</div>';
-  return h+'<div class="ibx">'+list.map(inboxRow).join('')+'</div>';
+  h+='<div class="ibx">'+list.map(inboxRow).join('')+'</div>';
+  h+='<button class="addrow" data-act="gchat">'+ic('chat')+'みんなへの連絡をひらく</button>';
+  sheet('返す番のやり取り',h);
 }
 /* 質問がどのカットに付いているかを1行で添える。
    定型文は全カット共通なので、これが無いと「どういう意味ですか？」だけが届く */
@@ -3382,6 +3848,7 @@ function threadHtml(ms){
       '<div class="bub">'+
         (m.q?'<div class="q-tag">'+ic('info')+'質問</div>'+cutRefOf(m):'')+
         (m.sec?'<div class="sec-chip">'+ic('play')+esc(m.sec)+'</div>':'')+
+        (m.qt?'<div class="qt-chip">'+ic('quote')+esc(m.qt)+'</div>':'')+
         '<div class="tx">'+linkify(esc(m.tx))+'</div>'+
         (wait?(m.role===role
           ? '<div class="q-wait">'+ic('clock')+'返事を待っています</div>'
@@ -3436,9 +3903,225 @@ document.addEventListener('input',function(e){
 });
 
 /* ============================================================
-   13. 分析
+   12-b. 探す
+   ・やり取りも、台本も、撮影手順も、メモも、ひとつの窓から探す。
+     「あの話、どこで言ったか」を思い出す時間が、この二人にはいちばん無い
+   ・並びは新しい順だけ（ユーザー指示）。当たり具合で並べ替えない——
+     順番の理由が読む側に分からないと、探し直しになる
    ============================================================ */
-function viewData(){
+var SQ='', SQTM=null;
+/* 全角と半角、大文字と小文字の違いで取りこぼさない */
+function sqFold(s){
+  s=((s==null?'':s)+'');
+  try{ s=s.normalize('NFKC'); }catch(e){}
+  return s.toLowerCase();
+}
+function sqTerms(q){
+  return sqFold(q).split(/[\s\u3000]+/).filter(function(x){ return x; });
+}
+function sqHit(text,terms){
+  var f=sqFold(text);
+  for(var i=0;i<terms.length;i++) if(f.indexOf(terms[i])<0) return false;
+  return true;
+}
+/* esc のあとに印を付ける。逆にすると、書き込んだ文字がそのままHTMLになる。
+   実体参照の中（&amp; など）を割らないよう、その綴りは印を付けない */
+function sqMark(text,terms){
+  var h=esc(((text==null?'':text)+''));
+  terms.forEach(function(t2){
+    if(!t2||/^(amp|lt|gt|quot|#39|#x27)$/i.test(t2)) return;
+    var e2=t2.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    try{ h=h.replace(new RegExp(e2,'gi'),function(m){ return '<mark>'+m+'</mark>'; }); }catch(e3){}
+  });
+  return h;
+}
+/* 見つかったところの前後だけを出す。全文を並べると、どれがどれだか読めない */
+function sqSnip(text,terms){
+  var raw=((text==null?'':text)+'').replace(/\s+/g,' ').trim();
+  var low=sqFold(raw), pos=-1;
+  terms.forEach(function(t2){ var p=low.indexOf(t2); if(p>=0&&(pos<0||p<pos)) pos=p; });
+  var st=0, head=false;
+  if(pos>46){ st=pos-40; head=true; }
+  var cut=raw.slice(st,st+130), tail=(st+130<raw.length);
+  return (head?'…':'')+sqMark(cut,terms)+(tail?'…':'');
+}
+/* 探せるものを、ぜんぶ同じ形に並べ直す。
+   k=種別の札　s=小見出し　w=対象の名前　x=本文　at=いつ　by=だれ　a=開く先 */
+function sqAll(){
+  var out=[], RL={script:'台本',purpose:'目的',caution:'注意',ttp:'うちの場合',
+    shoot:'撮影',cap:'キャプション文',cov:'リールカバー'};
+  function add(o){ out.push(o); }
+  var upd=function(o){ return Math.max(o.rev||0,o.at||0); };
+
+  alive(S.msgs).forEach(function(m){
+    var w='連絡', act={k:'chat',b:1};
+    if(m.scope==='video'){ var v0=byId(S.videos,m.ref);
+      w=v0?v0.ttl:'（消えた素材）'; act={k:'video',i:m.ref,b:1}; }
+    else if(m.scope==='task'){ var t0=byId(S.tasks,m.ref);
+      w=t0?t0.ttl:'（消えたタスク）'; act={k:'task',i:m.ref,b:1}; }
+    else if(m.scope==='series'){ var s0=byId(S.series,m.ref);
+      w=s0?s0.name:'（消えたシリーズ）'; act={k:'series',i:m.ref,b:1}; }
+    else if(m.scope==='post'){ w='出した投稿'; act={k:'post',i:m.ref,b:1}; }
+    /* 項目ごとのやり取り。ref は「投稿のid|項目の鍵」 */
+    else if(m.scope==='sec'){ var pp=(m.ref||'').split('|'), sx=byId(S.series,pp[0]);
+      w=(sx?sx.name:'（消えた投稿）')+'／'+(RL[pp[1]]||pp[1]);
+      act={k:'sec',i:pp[0],x:pp[1],b:1}; }
+    /* ノートの段落に付いたコメント */
+    else if(m.scope==='note'){ var np=(m.ref||'').split('|'), nx=byId(S.notes,np[0]);
+      w=(nx?nx.ttl:'（消えた記事）');
+      act={k:'notec',i:np[0],x:np[1],b:1}; }
+    add({k:'やり取り',i:'chat',s:(m.q?'質問':(m.qa?'答え':(m.qt?'文中のコメント':''))),
+      w:w,x:(m.qt?'「'+m.qt+'」について　':'')+(m.tx||''),
+      at:m.at||0,by:m.name||'',a:act});
+  });
+
+  alive(S.tasks).forEach(function(t2){
+    var at=upd(t2), act={k:'task',i:t2.id};
+    add({k:'タスク',i:'list',s:roleName(t2.who),w:t2.ttl,x:'',at:at,by:'',a:act});
+    if(t2.why) add({k:'タスク',i:'target',s:'なぜやるのか',w:t2.ttl,x:t2.why,at:at,by:'',a:act});
+    if(t2.memo) add({k:'タスク',i:'pencil',s:'メモ',w:t2.ttl,x:t2.memo,at:at,by:'',a:act});
+    /* ステータス。決まったタグも、自由記入も、どちらも言葉で探せるようにする */
+    var cs2=tCats(t2).map(function(k){ return TCAT[k].l; });
+    if(cs2.length||t2.stx)
+      add({k:'タスク',i:'pin',s:'ステータス',w:t2.ttl,
+        x:cs2.concat(t2.stx?[t2.stx]:[]).join('　'),at:at,by:'',a:act});
+  });
+
+  alive(S.videos).forEach(function(v2){
+    var at=vUpdAt(v2), act={k:'video',i:v2.id}, sr=byId(S.series,v2.sid);
+    add({k:'素材',i:'play',s:(sr?sr.name:'未分類'),w:v2.ttl,x:'',at:at,by:'',a:act});
+    if((v2.tags||[]).length)
+      add({k:'素材',i:'pin',s:'タグ',w:v2.ttl,x:(v2.tags||[]).join('　'),at:at,by:'',a:act});
+    alive(v2.cuts).forEach(function(c2,i2){
+      var body=[c2.t,c2.d,c2.n].filter(Boolean).join('　');
+      if(body) add({k:'素材',i:'film',s:'撮影手順'+(i2+1),w:v2.ttl,x:body,at:at,by:'',a:act});
+      if(c2.memo) add({k:'素材',i:'pencil',s:'手順'+(i2+1)+'のメモ',w:v2.ttl,x:c2.memo,
+        at:c2.mat||at,by:c2.mby||'',a:act});
+    });
+    if(v2.refNote) add({k:'素材',i:'eye',s:'参考のどこを真似るか',w:v2.ttl,x:v2.refNote,at:at,by:'',a:act});
+  });
+
+  /* ノートは読み物。書き換えないので rev は 0 のまま＝並びのいちばん下に沈む。
+     それでいい。探して当たるのが大事で、新しさを競う中身ではない */
+  alive(S.notes).forEach(function(n3){
+    var at3=n3.rev||0;
+    add({k:'ノート',i:'note',s:n3.cat,w:n3.ttl,x:n3.say||'',at:at3,by:'',
+      a:{k:'note',i:n3.id}});
+    (n3.bl||[]).forEach(function(b3){
+      var tx3=(b3.t==='qa'?(b3.q+'　'):'')+(b3.x||'');
+      tx3=tx3.replace(/[【】]/g,'');
+      if(tx3) add({k:'ノート',i:'quote',s:n3.ttl,w:n3.ttl,x:tx3,at:at3,by:'',
+        a:{k:'note',i:n3.id,x:b3.id}});
+    });
+  });
+
+  /* 企画は「最後に手を入れた時刻」で見る。見本は rev が 0 なので
+     いちばん下へ沈み、手を入れたものから順に上がってくる */
+  seriesOrdered().forEach(function(s2){
+    var at=s2.rev||0;
+    add({k:(s2.stage==='idea'?'企画':'投稿'),i:'grid',s:(s2.stage==='idea'?'思いつき':'進行中'),
+      w:s2.name,x:'',at:at,by:'',a:{k:'ppage',i:s2.id}});
+    ['purpose','script','shoot','cap','cov','caution','ttp'].forEach(function(kk){
+      if(s2[kk]) add({k:'企画',i:'film',s:RL[kk],w:s2.name,x:s2[kk],at:at,by:'',
+        a:{k:'cell',i:s2.id,x:kk}});
+    });
+    rowsOrdered().forEach(function(r2){
+      var xv=(s2.ext||{})[r2.id]||'';
+      if(xv) add({k:'企画',i:'grid',s:r2.l,w:s2.name,x:xv,at:at,by:'',
+        a:{k:'cell',i:s2.id,x:'x:'+r2.id}});
+    });
+    var mm=s2.mm||{};
+    Object.keys(mm).forEach(function(kk){
+      var o2=mm[kk]; if(!o2||!o2.tx) return;
+      var lab=(kk.indexOf('x:')===0?((byId(S.rows,kk.slice(2))||{}).l||'観点'):(RL[kk]||kk));
+      add({k:'企画',i:'pencil',s:lab+'のメモ',w:s2.name,x:o2.tx,at:o2.at||at,by:o2.by||'',
+        a:{k:'cell',i:s2.id,x:kk}});
+    });
+  });
+
+  /* 実績は、記録を作った時刻ではなくその投稿の日付で並べる。
+     作った時刻で並べると、3か月前の投稿が今日の話より上に来る */
+  alive(S.posts).forEach(function(p2){
+    var at=Math.max(p2.rev||0, fromYmd(p2.d).getTime()),
+        act={k:'day',i:p2.d}, v4=p2.vid?byId(S.videos,p2.vid):null;
+    var w=fmtYmd(p2.d)+(v4?'　'+v4.ttl:'');
+    if(p2.res) add({k:'実績',i:'megaphone',s:'手応え',w:w,x:p2.res,at:at,by:p2.by||'',a:act});
+    if(p2.memo) add({k:'実績',i:'pencil',s:'メモ',w:w,x:p2.memo,at:at,by:p2.by||'',a:act});
+  });
+  alive(S.days).forEach(function(d2){
+    if(!d2.memo) return;
+    add({k:'実績',i:'calendar',s:'その日のメモ',w:fmtYmd(d2.d),x:d2.memo,
+      at:Math.max(d2.rev||0, fromYmd(d2.d).getTime()),by:'',a:{k:'day',i:d2.d}});
+  });
+
+  var g2=S.goal||{};
+  if(g2.t||g2.s) add({k:'狙い',i:'target',s:'今月の狙い',w:(g2.t||''),x:(g2.s||''),
+    at:g2.rev||0,by:'',a:{k:'goal'}});
+  return out;
+}
+function sqFind(qs){
+  var terms=sqTerms(qs);
+  if(!terms.length) return [];
+  return sqAll().filter(function(r2){ return sqHit(r2.w+' '+r2.x,terms); })
+    /* 新しい順だけ。当たりの強さで混ぜると、順番の理由が読む側に分からない */
+    .sort(function(a2,b2){ return (b2.at||0)-(a2.at||0); });
+}
+function sheetSearch(){
+  SQ='';
+  sheet('探す',
+    '<div class="sq-top"><div class="sq-box">'+ic('search')+
+      '<input type="text" id="sqIn" autocomplete="off" spellcheck="false" '+
+      'placeholder="言葉を入れてください（例：餃子　音）">'+
+      '<button class="sq-clr" data-act="sqclear" aria-label="消す">'+ic('x')+'</button></div></div>'+
+    '<div id="sqRes"></div>');
+  var i0=$('#sqIn');
+  if(i0){
+    i0.addEventListener('input',function(){
+      SQ=i0.value; clearTimeout(SQTM); SQTM=setTimeout(sqDraw,110);
+    });
+    setTimeout(function(){ try{ i0.focus(); }catch(e){} },40);
+  }
+  sqDraw();
+}
+function sqDraw(){
+  var box=$('#sqRes'); if(!box) return;
+  var qs=(SQ||'').trim();
+  if(!qs){
+    box.innerHTML='<div class="hint">'+ic('info')+
+      '<span>タスク・撮影手順・企画の表・やり取り・実績のメモを、まとめて探します。'+
+      '見つかったものは<b>新しい順</b>に並びます。</span></div>';
+    return;
+  }
+  var rs=sqFind(qs), terms=sqTerms(qs);
+  if(!rs.length){
+    box.innerHTML='<div class="empty">'+ic('search')+'「'+esc(qs)+'」は見つかりませんでした</div>';
+    return;
+  }
+  var h='<div class="sq-n">'+rs.length+'件　新しい順</div><div class="sq-list">';
+  rs.slice(0,80).forEach(function(r2){
+    h+='<button class="sq-row" data-act="sqgo" data-k="'+esc(r2.a.k)+'"'+
+      (r2.a.i?' data-i="'+esc(r2.a.i)+'"':'')+
+      (r2.a.x?' data-x="'+esc(r2.a.x)+'"':'')+
+      (r2.a.b?' data-b="1"':'')+'>'+
+      '<div class="sq-h">'+ic(r2.i)+'<span class="sq-kd">'+esc(r2.k)+'</span>'+
+        (r2.s?'<span class="sq-s">'+esc(r2.s)+'</span>':'')+'</div>'+
+      '<div class="sq-w">'+sqMark(r2.w,terms)+'</div>'+
+      (r2.x?'<div class="sq-x">'+sqSnip(r2.x,terms)+'</div>':'')+
+      /* ノートは書き換えない読み物。日時を出す意味がないので、何の資料かを出す */
+      '<div class="sq-m">'+(r2.by?esc(r2.by)+'　':'')+
+        (r2.k==='ノート'?'インスタ運用の教科書'
+          :(r2.at?esc(bothTime(r2.at)):'まだ動いていません'))+'</div>'+
+      '</button>';
+  });
+  if(rs.length>80)
+    h+='<div class="sq-more">'+ic('info')+'多すぎます。言葉を足して絞ってください（新しい80件を出しています）</div>';
+  box.innerHTML=h+'</div>';
+}
+
+/* ============================================================
+   13. 数字（今月の画面のいちばん下に置く）
+   ============================================================ */
+function statsHtml(){
   var w0=weekStart(today()), w1=addDays(w0,-7);
   var dIdx=(fromYmd(today()).getUTCDay()+6)%7;
   function inW(d,s){ return d>=s&&d<addDays(s,7); }
@@ -3480,7 +4163,7 @@ function viewData(){
       '<div style="font-size:.86rem;font-weight:700;color:var(--tx2);margin-top:8px">今週はまだ記録がありません</div>'+
       '<div style="font-size:.76rem;color:var(--tx3);margin-top:7px;line-height:1.8">'+
         '実績タブの日付から、来客数とラーメンの出数を入れてください。</div>'+
-      '<button class="btn btn-line btn-sm" style="margin-top:14px" data-nav="cal">'+ic('calendar')+'実績を入れる</button></div>';
+      '<button class="btn btn-line btn-sm" style="margin-top:14px" data-nav="month">'+ic('calendar')+'実績を入れる</button></div>';
   }else
   h+='<div class="card" style="text-align:center;padding:30px 22px">'+
     '<div style="display:flex;align-items:baseline;justify-content:center;gap:12px">'+
@@ -3536,6 +4219,208 @@ function viewData(){
       '<div class="tr"><div class="fl" style="width:'+(z?3:Math.max(8,v/mx*100))+'%;background:'+(z?'var(--accent)':'var(--gold)')+'"></div></div>'+
       '<div class="vl"'+(z?' style="color:var(--accent)"':'')+'>'+v+'</div></div>'; }).join('')+'</div></div>';
   return h;
+}
+
+/* ------------------------------------------------------------
+   1投稿＝1ページ。項目ごとに、書く欄とやり取りが並ぶ
+   ------------------------------------------------------------ */
+function sheetPostPage(sid,toBottom){
+  var s2=byId(S.series,sid); if(!s2) return;
+  var idea=(s2.stage==='idea');
+  var ex='<div class="ppg">';
+  ex+='<div class="ppg-hd">'+
+    pill(idea?'p-mute':'p-ok',idea?'企画（思いついたこと）':'進んでいる投稿',idea?'pencil':'check')+
+    '<button class="btn btn-line btn-sm" data-act="edseries" data-id="'+s2.id+'">'+ic('pencil')+'名前を直す</button>'+
+    '<button class="btn btn-line btn-sm" data-act="'+(idea?'tolive':'toidea')+'" data-id="'+s2.id+'">'+
+      ic(idea?'arrowR':'arrowL')+(idea?'投稿へ移す':'企画へ戻す')+'</button>'+
+    '</div>';
+  if(idea) ex+='<p class="ppg-say">'+
+    '全部を埋める必要はありません。思いついたことだけ書いて、動き始めたら「投稿へ移す」を押してください。</p>';
+  PSEC.forEach(function(sc){
+    var v=cellGet(s2,sc.k), ms=msgsOf('sec',secRef(s2.id,sc.k)), un=unreadOf('sec',secRef(s2.id,sc.k));
+    ex+='<section class="psec" id="ps-'+sc.k+'">'+
+      '<div class="psec-h">'+ic(sc.i)+'<h3>'+esc(sc.l)+'</h3>'+
+        (v?'':'<span class="psec-e">未記入</span>')+'</div>'+
+      cellBox(s2,sc.k,v)+
+      '<button class="psec-t'+(un?' un':'')+'" data-act="sectalk" data-id="'+s2.id+'" data-k="'+sc.k+'">'+
+        ic('chat')+(ms.length?'この項目のやり取り '+ms.length+'件':'この項目について聞く')+
+        (un?'<b>'+un+'</b>':'')+'</button>'+
+      '</section>';
+  });
+  /* 自分たちで足した観点も、同じ形で下に並べる */
+  alive(S.rows).forEach(function(r2){
+    var k='x:'+r2.id, v2=cellGet(s2,k);
+    ex+='<section class="psec"><div class="psec-h">'+ic('grid')+'<h3>'+esc(r2.l)+'</h3>'+
+      (v2?'':'<span class="psec-e">未記入</span>')+'</div>'+cellBox(s2,k,v2)+'</section>';
+  });
+  /* この投稿のために撮った素材 */
+  var vs=videosOf(s2.id);
+  ex+='<section class="psec"><div class="psec-h">'+ic('play')+'<h3>撮影素材</h3></div>';
+  if(!vs.length) ex+='<div class="empty">'+ic('camera')+'まだありません</div>';
+  vs.forEach(function(v3){
+    ex+='<button class="psec-v" data-act="video" data-id="'+v3.id+'">'+ic('film')+
+      '<span>'+esc(v3.ttl)+'</span>'+pill(VST[v3.st].p,VST[v3.st].l)+'</button>';
+  });
+  ex+='</section></div>';
+  ex+=sec('Talk','この投稿ぜんたいのやり取り','chat','項目に分けにくい話は、ここに書いてください。');
+  sheetThread('series',s2.id,esc(s2.name),ex,toBottom);
+}
+/* 項目ごとのやり取り。どの項目の話か、上に中身を出しておく */
+function sheetSecTalk(sid,k,toBottom){
+  var s2=byId(S.series,sid); if(!s2) return;
+  var sc=psecOf(k); if(!sc) return;
+  var v=cellGet(s2,k);
+  var ex='<button class="nb-back" data-act="postpage" data-id="'+s2.id+'">'+
+    ic('arrowL')+'投稿のページへ戻る</button>';
+  ex+='<div class="psec-now"><div class="psec-h">'+ic(sc.i)+'<h3>'+esc(sc.l)+'</h3></div>'+
+    (v?'<div class="psec-tx">'+emph(v)+'</div>':'<div class="psec-tx none">まだ書かれていません</div>')+'</div>';
+  ex+=sec('Talk',sc.l+'について','chat',
+    '「これってどういうこと？」も、ここに書けば相手に届きます。');
+  sheetThread('sec',secRef(s2.id,k),esc(s2.name)+'／'+esc(sc.l),ex,toBottom!==false);
+}
+
+/* ============================================================
+   13-b. ノート（インスタ運用の教科書）
+   紙で配ると読まれない。読んだ人が「ここが分からない」と言える形にする。
+   段落をなぞると、その段落のやり取りが開く
+   ============================================================ */
+function noteRef(nid,bid){ return nid+'|'+bid; }
+function noteMsgs(nid,bid){ return msgsOf('note',noteRef(nid,bid)); }
+/* その記事に付いた覚え書きの数。分けて数えないと、どの記事に話が集まっているか分からない */
+function noteCmt(n2){
+  var c=0; (n2.bl||[]).forEach(function(b2){ c+=noteMsgs(n2.id,b2.id).length; });
+  return c;
+}
+function noteUn(n2){
+  var c=0; (n2.bl||[]).forEach(function(b2){ c+=unreadOf('note',noteRef(n2.id,b2.id)); });
+  return c;
+}
+function viewNote(){
+  var h=sec('Notebook','インスタ運用の教科書','note',
+    '読んで終わりにしないための場所。分からないところは、その文章をなぞると「ここにコメント」が出ます。'+
+    '聞いた言葉はそこに残るので、同じことを何度でも読み返せます。');
+  h+='<div class="nlist">';
+  alive(S.notes).forEach(function(n2,i){
+    var cm=noteCmt(n2), un=noteUn(n2);
+    h+='<button class="ncard" data-act="note" data-id="'+n2.id+'">'+
+      '<span class="ncard-n">'+pad2(i+1)+'</span>'+
+      '<span class="ncard-b">'+
+        '<span class="ncard-c">'+esc(n2.cat)+'</span>'+
+        '<span class="ncard-t">'+esc(n2.ttl)+'</span>'+
+        '<span class="ncard-s">'+esc(n2.say)+'</span>'+
+        (cm?'<span class="ncard-m">'+ic('quote')+'この記事へのコメント '+cm+'件</span>':'')+
+      '</span>'+
+      (un?'<span class="ncard-u">'+un+'</span>':'')+
+      '<span class="ncard-k">'+ic('arrowR')+'</span></button>';
+  });
+  return h+'</div>';
+}
+/* 【】は強調。なぞられた文字には印を付ける。
+   印の位置は、【】を取り除いた「画面に見えている文字列」で数える。
+   強調の途中で印が始まると入れ子が壊れるので、境目でいったん閉じて開き直す */
+function nbHtml(x,qts){
+  x=(x==null?'':x)+'';
+  var plain='', map=[], i;
+  for(i=0;i<x.length;i++){ var c0=x.charAt(i);
+    if(c0==='【'||c0==='】') continue;
+    map.push(i); plain+=c0; }
+  var mk=[];
+  (qts||[]).forEach(function(q){
+    if(!q||q.length<2) return;
+    var j=plain.indexOf(q); if(j<0) return;
+    mk.push([map[j], map[j+q.length-1]+1]); });
+  mk.sort(function(a,b){ return a[0]-b[0]; });
+  var mg=[]; mk.forEach(function(r){ var l=mg[mg.length-1];
+    if(l&&r[0]<=l[1]){ if(r[1]>l[1]) l[1]=r[1]; } else mg.push([r[0],r[1]]); });
+  var out='', inm=false, mi=0;
+  for(i=0;i<x.length;i++){
+    while(mi<mg.length&&mg[mi][1]<=i) mi++;
+    var want=(mi<mg.length&&i>=mg[mi][0]&&i<mg[mi][1]);
+    if(want&&!inm){ out+='<mark class="ncm">'; inm=true; }
+    else if(!want&&inm){ out+='</mark>'; inm=false; }
+    var ch=x.charAt(i);
+    if(ch==='【'||ch==='】'){
+      if(inm) out+='</mark>';
+      out+=(ch==='【'?'<em>':'</em>');
+      if(inm) out+='<mark class="ncm">';
+      continue;
+    }
+    out+=esc(ch);
+  }
+  if(inm) out+='</mark>';
+  return out;
+}
+function sheetNote(nid,bid){
+  var n2=byId(S.notes,nid); if(!n2) return;
+  NQ=null;
+  var h='<div class="note-hd"><span class="note-c">'+esc(n2.cat)+'</span>'+
+    '<h3>'+esc(n2.ttl)+'</h3><p>'+esc(n2.say)+'</p></div>';
+  h+='<div class="note-body" data-n="'+n2.id+'">';
+  (n2.bl||[]).forEach(function(b2){
+    var ms=noteMsgs(n2.id,b2.id);
+    var qts=ms.map(function(m){ return m.qt||''; }).filter(function(q){ return q; })
+      .sort(function(a,b){ return b.length-a.length; });
+    var body;
+    if(b2.t==='num') body='<span class="nb-v">'+esc(b2.v)+'</span>'+nbHtml(b2.x,qts);
+    else if(b2.t==='qa') body='<span class="nb-q">'+esc(b2.q)+'</span>'+nbHtml(b2.x,qts);
+    else body=nbHtml(b2.x,qts);
+    h+='<div class="nb nb-'+b2.t+(bid===b2.id?' hit':'')+'" data-n="'+n2.id+'" data-b="'+b2.id+'">'+
+      body+
+      (ms.length?'<button class="nb-c" data-act="notec" data-id="'+n2.id+'" data-b="'+b2.id+'">'+
+        ic('quote')+ms.length+'</button>':'')+
+      '</div>';
+  });
+  h+='</div>';
+  /* なぞったときだけ出る。位置は選んだ文字のすぐ上 */
+  h+='<button class="nq-btn off" id="nqBtn" data-act="nqgo">'+ic('quote')+'ここにコメント</button>';
+  sheet(esc(n2.ttl),h);
+  if(bid){ var el0=$('.nb.hit'); if(el0) setTimeout(function(){
+    el0.scrollIntoView({block:'center'}); },30); }
+}
+/* なぞった文字。送るときに、その文のうしろに残す */
+var NQ=null, NQT='';
+function nqHide(){ var b2=$('#nqBtn'); if(b2) b2.className='nq-btn off'; NQ=null; }
+function nqCheck(){
+  var b2=$('#nqBtn'); if(!b2) return;
+  var sl=window.getSelection();
+  if(!sl||sl.isCollapsed||!sl.rangeCount){ nqHide(); return; }
+  var rg=sl.getRangeAt(0);
+  var el=rg.startContainer.nodeType===1?rg.startContainer:rg.startContainer.parentNode;
+  var blk=(el&&el.closest)?el.closest('.nb'):null;
+  if(!blk||!blk.dataset.b){ nqHide(); return; }
+  var qt=sl.toString().replace(/\s+/g,' ').replace(/^\s+|\s+$/g,'');
+  if(qt.length<2){ nqHide(); return; }
+  var rc=rg.getBoundingClientRect();
+  NQ={nid:blk.dataset.n,bid:blk.dataset.b,qt:qt.slice(0,80)};
+  b2.className='nq-btn';
+  b2.style.left=Math.max(10,Math.min(window.innerWidth-200,rc.left+rc.width/2-95))+'px';
+  b2.style.top=Math.max(8,rc.top-48)+'px';
+}
+/* 指を離した時点で見る。selectionchange だけだと、なぞっている最中に
+   何度も動いて、まだ選び終えていない文字で札が出る */
+document.addEventListener('mouseup',function(){ setTimeout(nqCheck,0); });
+document.addEventListener('touchend',function(){ setTimeout(nqCheck,0); });
+/* どこかを押して選択が外れたら、札も消す */
+document.addEventListener('selectionchange',function(){
+  var b3=$('#nqBtn'); if(!b3) return;
+  var sl3=window.getSelection();
+  if(!sl3||sl3.isCollapsed) nqHide();
+});
+/* シートの中を動かすと、札だけが元の位置に取り残される */
+document.addEventListener('scroll',function(){ if(NQ) nqHide(); },true);
+
+/* その段落のやり取り。なぞった文字があれば、それを添えて送る */
+function sheetNoteCmt(nid,bid,qt){
+  var n2=byId(S.notes,nid); if(!n2) return;
+  var b2=null; (n2.bl||[]).forEach(function(x){ if(x.id===bid) b2=x; });
+  NQT=qt||'';
+  var ex='<button class="nb-back" data-act="note" data-id="'+nid+'" data-b="'+bid+'">'+
+    ic('arrowL')+'記事へ戻る</button>';
+  ex+='<div class="nb-src">'+ic('quote')+'<div>'+(b2?nbHtml(b2.x,qt?[qt]:[]):'')+'</div></div>';
+  if(qt) ex+='<div class="nb-sel">'+ic('info')+'<span>「'+esc(qt)+'」について書きます</span></div>';
+  ex+=sec('Talk','ここへのコメント','chat',
+    '分からなかったこと、ドバイでは事情が違うこと、言葉の意味。どれでも書いてください。');
+  sheetThread('note',noteRef(nid,bid),esc(n2.ttl),ex,true);
 }
 
 /* ============================================================
@@ -3694,8 +4579,15 @@ function sheetTaskPage(id,toBottom){
     propRow('状態','<span class="t-st">'+esc(STL[st].l)+'</span>','st-'+st)+
     propRow('期限', t.rep==='daily'?'毎日' : t.rep==='weekly'?'毎週'
       : (t.due?fmtMd(t.due)+'まで':'決めていない'))+
-    propRow('区分1', cat?esc(cat.l):'<span class="mute3">なし</span>')+
-    propRow('区分2', cat2?esc(cat2.l):'<span class="mute3">なし</span>')+
+    propRow('ステータス', (function(){
+      var cs=tCats(t);
+      if(!cs.length&&!t.stx) return '<span class="mute3">なし</span>';
+      return '<span class="tstat in">'+cs.map(function(k){
+        return '<span class="tst-t">'+ic(TCAT[k].i)+TCAT[k].l+'</span>'; }).join('')+
+        (t.stx?'<span class="tst-x">'+esc(t.stx)+'</span>':'')+'</span>';
+    })())+
+    propRow('経過', t.rep!=='none'?'<span class="mute3">くりかえし</span>'
+      :'<span class="'+(tDays(t)>3?'late':'')+'">担当になってから '+tDays(t)+'日</span>')+
     '</div></div>';
 
   /* いちばん押すものを、読んだすぐ下に置く */
@@ -3991,11 +4883,12 @@ function dateField(id,val){
 }
 function sheetTaskEdit(id,who0){
   var t=id?byId(S.tasks,id):{ttl:'',cat:'',who:(who0||meRole()||'shop'),due:'',rep:'none',why:''};
-  function catSeg(gid,keys){
-    return '<div class="seg" id="'+gid+'">'+keys.map(function(k){
-      var now2=(gid==='tCat2')?(t.cat2||''):(t.cat||'');
-    return '<button data-v="'+k+'" aria-pressed="'+(now2===k)+'">'+ic(TCAT[k].i)+TCAT[k].l+'</button>';
-    }).join('')+'</div>';
+  /* ステータスは、いくつでも選べる。押すたびに入り切りが変わる */
+  var on0=tCats(t);
+  function catSeg(){
+    return '<div class="seg wrap" id="tCat">'+TCAT_ORDER.map(function(k){
+      return '<button data-v="'+k+'" aria-pressed="'+(on0.indexOf(k)>=0)+'">'+
+        ic(TCAT[k].i)+TCAT[k].l+'</button>'; }).join('')+'</div>';
   }
   var memo0=t.memo||t.why||'';
   var b='<div class="frm">'+
@@ -4007,10 +4900,11 @@ function sheetTaskEdit(id,who0){
           ic('users')+esc(roleName(r))+'</button>'; }).join('')+'</div></label>'+
     '<label><span class="jp">タスク</span><input type="text" id="tTtl" value="'+esc(t.ttl)+'" placeholder="例：麺リフトを撮る"></label>'+
     '<label><span class="jp">期限</span>'+dateField('tDue',t.due)+'</label>'+
-    /* 区分は二段。撮る側と作る側なので、両方あたる仕事がある。
-       それぞれから一つずつ選べる（どちらも選ばなくてよい） */
-    '<label><span class="jp">区分1</span>'+catSeg('tCat',TCAT_G1)+'</label>'+
-    '<label><span class="jp">区分2</span>'+catSeg('tCat2',TCAT_G2)+'</label>'+
+    /* いま何の工程で止まっているか。当てはまるものを、いくつでも押す */
+    '<label><span class="jp">ステータス<i>（いくつでも選べます）</i></span>'+catSeg()+'</label>'+
+    /* このリールだけ特別な作業があるときのために、言葉で書ける欄を持つ（録音） */
+    '<label><span class="jp">上に無いもの<i>（任意）</i></span>'+
+      '<input type="text" id="tStx" value="'+esc(t.stx||'')+'" placeholder="例：英文チェック待ち"></label>'+
     /* 畳んでおくと、押して開いてから、もう一度押して書くことになる。
        書く人にとっては二度手間でしかないので、最初から書ける欄にしておく */
     '<label><span class="jp">メモ<i>（任意）</i></span>'+
@@ -4498,11 +5392,12 @@ function render(){
       '<span class="hd-nm">'+esc(ac0.name)+'</span>'+ic('swap')
     : '<span class="hd-nm">操作者を選ぶ</span>'+ic('swap');
   $('#setIc').innerHTML=ic('gear');
+  $('#sqIc').innerHTML=ic('search');
   paintSync();
 
   var m=$('#main');
-  m.innerHTML = VIEW==='task'?viewTask() : VIEW==='plan'?viewPlan() : VIEW==='cal'?viewCal() :
-                VIEW==='chat'?viewChat() : viewData();
+  m.innerHTML = VIEW==='task'?viewTask() : VIEW==='post'?viewPost() :
+                VIEW==='month'?viewMonth() : viewNote();
   keepChip();
   fitCells();
   /* 連絡タブは受信箱になったので、開いただけで既読にしない（中を開いたときに markRead される） */
@@ -4529,18 +5424,15 @@ document.addEventListener('click',function(e){
   var ct=e.target.closest('[data-ctab]'); if(ct){ CTAB=ct.dataset.ctab; render(); return; }
   var vf=e.target.closest('[data-vfilt]'); if(vf){ FILT=vf.dataset.vfilt; render(); return; }
 
-  var seg=e.target.closest('#acRole button,#acColor button,#tWho button,#tCat button,#tCat2 button,#tRep button,#vSid button,#sTag button');
+  var seg=e.target.closest('#acRole button,#acColor button,#tWho button,#tRep button,#vSid button,#sTag button');
   if(seg){
-    var on=(seg.getAttribute('aria-pressed')==='true');
     Array.prototype.forEach.call(seg.parentNode.children,function(x){ x.setAttribute('aria-pressed','false'); });
-    var pid=seg.parentNode.id;
-    /* 区分1と区分2は別もの。押し直せば、その段だけ「なし」に戻せる */
-    if((pid==='tCat'||pid==='tCat2')&&on) return;
     seg.setAttribute('aria-pressed','true'); return;
   }
   var ci=e.target.closest('.cellin');
   if(ci){ return; }
-  var mc=e.target.closest('#dMenus button,#vTags button');
+  /* ステータスのタグは、いくつでも押せる（録音）。押すたびに入り切りが変わる */
+  var mc=e.target.closest('#dMenus button,#vTags button,#tCat button');
   if(mc){ mc.setAttribute('aria-pressed', mc.getAttribute('aria-pressed')==='true'?'false':'true'); return; }
 
   /* 日付の欄。押された時点で暦に変え、そのまま開く。
@@ -4655,10 +5547,17 @@ document.addEventListener('click',function(e){
     /* 担当は画面で選ぶ。足した場所で決め打ちにすると、
        間違えたときに作り直すしかなくなる */
     var wsel=$('#tWho [aria-pressed="true"]');
+    var who0=o2.who;
     o2.who = wsel ? wsel.dataset.v : (o2.who||b.dataset.who||meRole()||'shop');
-    /* 区分1と区分2は別々に持つ */
-    var c1=$('#tCat [aria-pressed="true"]'), c2=$('#tCat2 [aria-pressed="true"]');
-    o2.cat=c1?c1.dataset.v:''; o2.cat2=c2?c2.dataset.v:'';
+    /* 担当を変えた日が、経過日数の起点。ここを動かさないと
+       「Aiに渡してから何日」が、Yuiが作った日から数えられてしまう */
+    if(!o2.asAt||who0!==o2.who) o2.asAt=now();
+    /* 担当が変わったら、経過日数を数え直す。前の人の待ち時間を引き継がない */
+    if(o2.asAt===undefined||o2.who!==(o2._who0||o2.who)) o2.asAt=o2.asAt||now();
+    /* ステータスはいくつでも。押されているものを全部拾う */
+    o2.cats=$$('#tCat [aria-pressed="true"]').map(function(x){ return x.dataset.v; });
+    o2.cat=o2.cats[0]||''; o2.cat2=o2.cats[1]||'';
+    o2.stx=($('#tStx')?$('#tStx').value:'').trim();
     if(!o2.rep) o2.rep='none';
     o2.due=$('#tDue').value||'';
     touch(o2); if(!id) S.tasks.push(o2);
@@ -4772,6 +5671,57 @@ document.addEventListener('click',function(e){
     /* 進捗だけを別リビジョンで運ぶ。rev を上げるとカット割りごと相手を上書きする */
     vv.srev=now(); if(!vv.rev) vv.rev=now(); delete vv.inb; delete vv.sd;
     save(); closeSheet(); sheetVideo(id); } return; }
+  if(a==='sqclear'){
+    SQ=''; var si=$('#sqIn'); if(si){ si.value=''; try{ si.focus(); }catch(e){} }
+    sqDraw(); return;
+  }
+  /* 読むだけで終わらせない。見つけた場所まで連れて行く */
+  if(a==='sqgo'){
+    var gk=b.dataset.k, gi=b.dataset.i||'', gx=b.dataset.x||'', gb=b.dataset.b==='1';
+    closeSheet();
+    if(gk==='task'){ sheetTaskPage(gi,gb); return; }
+    if(gk==='video'){ sheetVideo(gi,gb); return; }
+    if(gk==='series'){ sheetSeries(gi,gb); return; }
+    if(gk==='cell'){ sheetCell(gi,gx); return; }
+    if(gk==='day'){ sheetDay(gi); return; }
+    if(gk==='post'){ sheetThread('post',gi,'出した投稿',null,true); return; }
+    if(gk==='goal'){ sheetGoal(); return; }
+    if(gk==='note'){ sheetNote(gi,gx); return; }
+    if(gk==='notec'){ sheetNoteCmt(gi,gx,''); return; }
+    if(gk==='ppage'){ sheetPostPage(gi,gb); return; }
+    if(gk==='sec'){ sheetSecTalk(gi,gx,gb); return; }
+    /* 連絡タブは無くしたので、みんなへの連絡はシートで開く */
+    sheetThread('g','','みんなへの連絡',null,true); return;
+  }
+  if(a==='inbox'){ sheetInbox(); return; }
+  if(a==='gchat'){ closeSheet(); sheetThread('g','','みんなへの連絡',null,true); return; }
+  if(a==='postpage'){ closeSheet(); sheetPostPage(id); return; }
+  if(a==='sectalk'){ closeSheet(); sheetSecTalk(id,b.dataset.k); return; }
+  if(a==='note'){ closeSheet(); sheetNote(id,b.dataset.b||''); return; }
+  if(a==='notec'){ closeSheet(); sheetNoteCmt(id,b.dataset.b,''); return; }
+  if(a==='nqgo'){ if(!NQ) return; var nq=NQ; nqHide();
+    try{ window.getSelection().removeAllRanges(); }catch(e9){}
+    closeSheet(); sheetNoteCmt(nq.nid,nq.bid,nq.qt); return; }
+  /* 企画と投稿の行き来。中身はそのまま、置き場所だけが変わる */
+  if(a==='tolive'||a==='toidea'){
+    var sm=byId(S.series,id); if(!sm) return;
+    sm.stage=(a==='tolive'?'live':'idea'); touch(sm); save();
+    closeSheet(); PTAB=sm.stage; render(); return;
+  }
+  if(a==='addpost'){
+    var stg=b.dataset.stage==='idea'?'idea':'live';
+    var nm2=prompt(stg==='idea'?'企画の名前を入れてください':'投稿の名前を入れてください','');
+    if(nm2===null) return;
+    nm2=nm2.replace(/^\s+|\s+$/g,''); if(!nm2) return;
+    /* 新しいものは左端（先頭）へ。あとから足したものほど、いま考えている話 */
+    var sar2=seriesOrdered();
+    sar2.forEach(function(x,i){ if(x.ord!==i+1){ x.ord=i+1; touch(x); } });
+    S.series.push({id:uid('s'),name:nm2,tag:'menu',stage:stg,
+      script:'',purpose:'',caution:'',ttp:'',cap:'',cov:'',shoot:'',
+      ord:0,rev:now(),at:now()});
+    save(); render();
+    return;
+  }
   if(a==='gaplist'){ sheetGap(b.dataset.side); return; }
   if(a==='edcut'){ closeSheet(); sheetCut(id,b.dataset.cut||''); return; }
   if(a==='savecut'){
@@ -4890,6 +5840,9 @@ document.addEventListener('click',function(e){
     if(sv&&/^\d+$/.test(sv)) sv='0:'+(sv.length<2?'0'+sv:sv);   /* 「3」だけ入れたら 0:03 と読む */
     var mo={id:uid('m'),scope:b.dataset.scope,ref:b.dataset.ref||'',role:meRole(),name:meName(),tx:tx,at:now()};
     if(sv) mo.sec=sv;
+    /* ノートは、どの文字をなぞって書いたのかを残す。これが無いと、
+       あとで読む人には「記事のどこの話か」が分からない */
+    if(mo.scope==='note'&&NQT){ mo.qt=NQT; NQT=''; }
     var pend=null;
     if(ANSQ){ var aq2=byId(S.msgs,ANSQ);
       /* 別のスレッドの質問に紐づくと迷子になるので、同じスレッドのときだけ答えとして扱う */
@@ -4913,6 +5866,8 @@ document.addEventListener('click',function(e){
     if(sc==='g'){ closeSheet(); sheetThread('g','','みんなへの連絡',null,true); render(); }
     else if(sc==='task'){ var t3=byId(S.tasks,rf); sheetThread('task',rf,esc(t3?t3.ttl:''),null,true); }
     else if(sc==='video') sheetVideo(rf,true);
+    else if(sc==='note'){ var pr=rf.split('|'); sheetNoteCmt(pr[0],pr[1],''); }
+    else if(sc==='sec'){ var ps=rf.split('|'); sheetSecTalk(ps[0],ps[1],''); }
     else sheetSeries(rf,true);
     return;
   }
@@ -4991,7 +5946,8 @@ document.addEventListener('click',function(e){
       if(fsc==='video'){ sheetVideo(frf,true); return; }
       if(fsc==='task'){ sheetTaskPage(frf,true); return; }
       if(fsc==='post'){ sheetThread('post',frf,'出した投稿',null,true); return; }
-      VIEW='chat'; FILT='all'; render(); window.scrollTo(0,0); return;
+      if(fsc==='note'){ sheetNote(frf,''); return; }
+      sheetThread('g','','みんなへの連絡',null,true); return;
     }
     render(); return;
   }
@@ -5180,6 +6136,7 @@ document.addEventListener('keydown',function(e){
   var v=byId(S.videos,b.dataset.id); if(v) vSetUrl(v,i.value);
 });
 $('#btnSet').addEventListener('click',function(){ sheetSet(); });
+$('#btnSearch').addEventListener('click',function(){ sheetSearch(); });
 /* 携帯は、画面を伏せているあいだに接続を切る。戻ってきたらつなぎ直す */
 document.addEventListener('visibilitychange',function(){
   if(document.visibilityState==='visible'&&FB_URL){
