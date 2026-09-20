@@ -1149,6 +1149,18 @@ body.mx-drag .mx td,body.mx-drag .mx th{transition:none;}
   text-underline-offset:3px;}
 .vlink.none:hover{color:var(--accent-d);background:none;}
 .vlink-w{margin-top:8px;}
+/* 状態は二つだけ。未着手は静かに、完了は緑で。
+   期限を過ぎたものは、状態ではなく期限の文字の色で気づかせる */
+.tgrp-l.st-todo{color:var(--tx2);}
+.tgrp-l.st-done{color:var(--ok);}
+.st-todo .t-st{color:var(--tx2);}
+.st-done .t-st{color:var(--ok);}
+.st-done .ttl,.st-done .ttl-b{color:var(--tx2);}
+.gap-row .d.st-todo{color:var(--tx2);}
+.gap-row .d.st-done{color:var(--ok);}
+.task.st-todo{box-shadow:var(--lift);}
+.task.is-late .t-sub{color:var(--accent-d);font-weight:700;}
+.task.is-late{box-shadow:inset 3px 0 0 var(--accent), var(--lift);}
 .dv{display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
 .dv-none{display:inline-flex;align-items:flex-start;gap:6px;font-size:var(--fs-sm);
   line-height:1.7;color:var(--tx2);}
@@ -1288,11 +1300,17 @@ var VST={
 };
 var VST_ORDER=['plan','shot','review','redo','ok','posted'];
 
+/* 区分は二段。上が撮る側、下が作る側。選ぶのはどちらか一つだけ。
+   前は店の運営ぜんたいを八つに分けていたが、二人がやり取りしているのは
+   一本の動画をどう仕上げるかなので、その言葉に合わせる */
 var TCAT={
-  shoot:{l:'撮影',i:'camera'}, edit:{l:'編集',i:'film'}, post:{l:'投稿',i:'image'},
-  map:{l:'地図',i:'pin'},      deli:{l:'配達',i:'bike'}, store:{l:'店頭',i:'store'},
-  local:{l:'外商',i:'bldg'},   num:{l:'数値',i:'chart'}
+  shoot:{l:'撮影',i:'camera'},    voice:{l:'アフレコ',i:'mic'},
+  caption:{l:'キャプション文',i:'chat'}, telop:{l:'テロップ文',i:'image'},
+  edit:{l:'編集',i:'film'},       script:{l:'台本',i:'pencil'},
+  plan:{l:'提案',i:'target'}
 };
+var TCAT_G1=['shoot','voice','caption','telop'];
+var TCAT_G2=['edit','script','plan'];
 
 /* ============================================================
    2. アイコン（絵文字は使わない。すべてインラインSVG）
@@ -1311,6 +1329,7 @@ plus:'<path d="M12 5v14M5 12h14"/>',
 x:'<path d="M6 6l12 12M18 6L6 18"/>',
 send:'<path d="M4.5 12l15-7.5-4 15-3.5-5.5-7.5-2Z"/>',
 camera:'<path d="M4 8.5h3L8.5 6h7L17 8.5h3a1 1 0 011 1v9a1 1 0 01-1 1H4a1 1 0 01-1-1v-9a1 1 0 011-1Z"/><path d="M15 13.5a3 3 0 11-6 0 3 3 0 016 0Z"/>',
+mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0013 0M12 18v3M8.5 21h7"/>',
 film:'<path d="M3.5 5.5h17v13h-17ZM3.5 9.5h17M3.5 15.5h17M7.5 5.5v13M16.5 5.5v13"/>',
 image:'<path d="M4 5.5h16v13H4ZM4 15l4.5-4.5 4 4 3-3L20 16"/>',
 megaphone:'<path d="M4 10v4a1 1 0 001 1h2l7 4V5L7 9H5a1 1 0 00-1 1ZM17.5 9a4 4 0 010 6"/>',
@@ -1388,7 +1407,7 @@ function hash(s){ var h=0x811c9dc5; s=String(s);
    ============================================================ */
 /* 最初に出すのは自分の分だけ。他人のタスクまで並ぶと、1日3分の人は
    自分が何をすればいいのか探すところから始めることになる（上の絞り込みで全件に戻せる） */
-var S=null, VIEW='task', PTAB='mx', CAL=null, FILT='mine', CTAB='turn';
+var S=null, VIEW='task', PTAB='mx', CAL=null, FILT='todo', CTAB='turn';
 /* 「この質問に答える」を押したときだけ入る。送信した答えは質問に紐づく（qa） */
 var ANSQ='';
 
@@ -1740,17 +1759,11 @@ function prevIn(t,arr){
 }
 /* これまでの記録（実施・承認）を新しい順に。恒常要件1の「何月何日に」を過去分まで満たす */
 /* ボタンに書く言葉。押す前に何が起きるか読めるようにする */
-function ckLabel(t,mine,d,a){
-  if(mine) return d?'取り消す':'実施した';
-  /* 取り消せるのは、今日（今週）の分を承認しているときだけ */
-  if(a) return '取り消す';
-  var np=pendingAcks(t).length;
-  if(np) return np>1?np+'件承認':'承認する';
-  return '実施待ち';
-}
+/* 誰が押してもいい。相手の分を代わりに片付けることは、実際に起きる */
+function ckLabel(t,mine,d,a){ return d?'完了を取り消す':'完了にする'; }
 function histHtml(t){
   var un=undoneSet(t.log), ua=undoneSet(t.ack), ev=[], la={};
-  (t.log||[]).forEach(function(x){ if(x.undo||un[x.at]) return; la[x.at]=1; ev.push({at:x.at,k:'実施',by:x.by}); });
+  (t.log||[]).forEach(function(x){ if(x.undo||un[x.at]) return; la[x.at]=1; ev.push({at:x.at,k:'完了',by:x.by}); });
   /* 相手の端末の見本に対する承認は、こちらには対応する実施が無い。
      出すと、同じ時刻の同じ人の承認が2件並んで見える */
   var seen={};
@@ -1759,7 +1772,7 @@ function histHtml(t){
     /* 2台が同じ実施をそれぞれ承認すると、同じ1件に承認が2つ付く。
        記録としては1件にまとめて見せる */
     if(x['for']){ if(seen[x['for']]) return; seen[x['for']]=1; }
-    ev.push({at:x.at,k:'承認',by:x.by}); });
+    ev.push({at:x.at,k:'確認',by:x.by}); });
   if(!ev.length) return '';
   ev.sort(function(pp,qq){ return qq.at-pp.at; });
   return '<details class="thist"><summary>これまでの記録　'+ev.length+'件</summary>'+
@@ -1767,15 +1780,14 @@ function histHtml(t){
       return '<div class="thist-r"><b>'+e.k+'</b><i>'+esc(e.by)+'</i><span>'+bothTime(e.at)+'</span></div>';
     }).join('')+'</details>';
 }
-function statusOf(t){
-  var d=doneOf(t), a=ackOf(t);
-  if(d&&a) return 'done';
-  if(d) return 'wait';
-  if(t.rep==='daily'||t.rep==='weekly') return 'today';
-  if(t.due){ var k=diffDays(t.due,today()); if(k<0) return 'late'; if(k===0) return 'today'; }
-  return 'plan';
+/* 状態は二つだけ。終わったか、まだか。
+   期限を過ぎているかどうかは状態ではなく、期限そのものが語ればいい */
+function statusOf(t){ return doneOf(t) ? 'done' : 'todo'; }
+var STL={ todo:{l:'未着手',p:'p-mute'}, done:{l:'完了済み',p:'p-ok'} };
+/* 期限を過ぎているか。色を変えるためだけに使う */
+function lateOf(t){
+  return (statusOf(t)==='todo' && t.rep==='none' && t.due && diffDays(t.due,today())<0);
 }
-var STL={done:{l:'完了',p:'p-ok'},wait:{l:'承認待',p:'p-info'},today:{l:'本日',p:'p-warn'},late:{l:'期限すぎ',p:'p-accent'},plan:{l:'予定',p:'p-mute'}};
 
 /* ============================================================
    7. 連絡
@@ -1907,27 +1919,7 @@ function sideTasks(side){
 function gapItems(side){
   var out=[];
   alive(S.tasks).forEach(function(t){
-    /* 承認待ちは statusOf('wait') ではなく pendingAcks で拾う。
-       毎日タスクは現地が夜に実施→日本が翌朝に承認、で必ず期間をまたぐため、
-       statusOf では当日分も前日分も盤から落ちていた */
-    var pa=pendingAcks(t);
-    if(pa.length&&(t.who==='shop'?'jp':'db')===side){
-      if(pa.length>=3){
-        out.push({k:'tack',id:t.id,ak:1,
-          ttl:'承認待ち　'+t.ttl+'　'+pa.length+'件（'+mdTZ(pa[pa.length-1].at,TZ_DUBAI)+'〜'+
-              mdTZ(pa[0].at,TZ_DUBAI)+'）',
-          at:t.at,due:t.due,rep:t.rep,
-          day:stallOf(ymdTZ(pa[pa.length-1].at,TZ_DUBAI))});
-      }else{
-        pa.forEach(function(x){
-          out.push({k:'tack',id:t.id,ak:1,
-            ttl:'承認待ち　'+t.ttl+'　'+mdTZ(x.at,TZ_DUBAI),
-            at:t.at,due:t.due,rep:t.rep,
-            day:stallOf(ymdTZ(x.at,TZ_DUBAI))});
-        });
-      }
-    }
-    if(statusOf(t)==='late'&&(t.who==='shop'?'db':'jp')===side){
+    if(lateOf(t)&&(t.who==='shop'?'db':'jp')===side){
       out.push({k:'tchat',id:t.id,ttl:'期限切れ　'+t.ttl,day:stallOf(t.due),
         at:t.at,due:t.due,rep:t.rep});
     }
@@ -2063,13 +2055,13 @@ function gapHtml(){
     /* 数えるものを一つに揃える。大きい数と添え字で基準が違うと、
        「2件なのに止まり4件」という、読み解けない札になる */
     var lt=0, td=0;
-    ts.forEach(function(t){ var k=statusOf(t); if(k==='late') lt++; else if(k==='today') td++; });
+    ts.forEach(function(t){ if(lateOf(t)) lt++; else if(t.rep!=='none'||(t.due&&diffDays(t.due,today())===0)) td++; });
     return '<div class="brow brow-'+side+(lt?' is-stop':'')+(self?' is-me':'')+'">'+
       '<button class="brow-hit" data-act="gaplist" data-side="'+side+'">'+
       '<span class="brow-t">'+ttl+'</span>'+
       '<span class="brow-n"><b>'+ts.length+'</b><i>件</i></span>'+
       '<span class="brow-s">'+(lt?'期限すぎ '+lt+'件'
-        : td?'本日 '+td+'件'
+        : td?'本日まで '+td+'件'
         : it.length?'止まり '+it.length+'件'+(mx?'　最長 '+mx+'日':'')
         : '急ぎなし')+'</span>'+
       '<span class="brow-k">'+ic('arrowR')+'</span></button>'+
@@ -2156,7 +2148,7 @@ function sheetGap(side){
 
   if(it.length){
     b+=sec('Stop','ここで止まっているもの','alert',
-      esc(roleName(who))+'が動かすまで進みません。素材の添削や承認もここに出ます。');
+      esc(roleName(who))+'が動かすまで進みません。素材の添削もここに出ます。');
     it.forEach(function(x){
       b+='<button class="gap-row" data-act="'+x.k+'" data-id="'+x.id+'">'+
         '<span class="t">'+esc(x.ttl)+whenLine(x)+'</span>'+
@@ -2319,10 +2311,8 @@ function sheetAsk(scope,ref,cut){
    ============================================================ */
 function viewTask(){
   var ts=alive(S.tasks), role=meRole();
-  var c={all:ts.length,mine:0,late:0,today:0,wait:0,done:0};
-  ts.forEach(function(t){ var s=statusOf(t);
-    if(t.who!==role ? pendingAcks(t).length>0 : (s!=='done'&&s!=='plan')) c.mine++;
-    if(c[s]!==undefined) c[s]++; });
+  var c={todo:0,done:0};
+  ts.forEach(function(t){ c[statusOf(t)]++; });
   /* 「本日の進捗」のリングとタイルは廃止した。3つの数字は直下の絞り込みチップと同じ値で、
      104pxのリングが受け渡し盤と主役を奪い合い、現地の初画面から「今日やること」が落ちる */
   /* 現地は「今から撮るもの」が先、日本は「返す番」が先。やることが違うので順番も違う */
@@ -2338,32 +2328,31 @@ function viewTask(){
 
   /* 未読のお知らせ帯は連絡タブのバッジと二重なので外した（60px）。
      見出し「業務タスク」もタブ名と同じなので外した（31px） */
-  h+='<div class="chips">'+[['mine','自分の番',c.mine],['all','全件',c.all],['late','期限すぎ',c.late],
-    ['today','本日',c.today],['wait','承認待ち',c.wait],['done','完了',c.done]].map(function(x){
+  h+='<div class="chips">'+[['todo','未着手',c.todo],['done','完了済み',c.done]].map(function(x){
     return '<button class="chip" data-filt="'+x[0]+'" aria-pressed="'+(FILT===x[0])+'">'+x[1]+'<b>'+x[2]+'</b></button>'; }).join('')+'</div>';
 
 
   var list=ts.filter(function(t){
     var s=statusOf(t);
     if(FILT==='all') return true;
-    /* いま自分が動くものだけ。相手のタスクは、自分が承認する番のときだけ出す。
-       自分の分からは、終わったものと先の予定を外す（今日の話ではない） */
-    if(FILT==='mine'){
-      if(t.who!==role) return pendingAcks(t).length>0;
-      var sm=statusOf(t);
-      return sm!=='done'&&sm!=='plan';
-    }
+    if(FILT==='todo'||FILT==='done') return s===FILT;
     return s===FILT;
-  }).sort(function(a,b){ var o={late:0,today:1,wait:2,plan:3,done:4}; return o[statusOf(a)]-o[statusOf(b)]; });
+  /* 期限の近いものから。期限の無いものは後ろへ */
+  }).sort(function(a,b){
+    var x=(a.due||'9999-99-99'), y=(b.due||'9999-99-99');
+    if(a.rep!=='none') x='0000';
+    if(b.rep!=='none') y='0000';
+    return x<y?-1:x>y?1:(a.at||0)-(b.at||0);
+  });
 
   h+='<div class="tlist">';
   if(!list.length) h+='<div class="empty">'+ic('check')+'該当するタスクはありません</div>';
-  else if(FILT==='all'||FILT==='mine'){
+  else if(FILT==='all'){
     /* 状態ごとにまとめて、見出しを置く。ただ新しい順に積むだけだと、
        どこまでが今日の話で、どこからが終わった話なのかが読み取れない */
-    var g={late:[],today:[],wait:[],plan:[],done:[]};
+    var g={todo:[],done:[]};
     list.forEach(function(t){ g[statusOf(t)].push(t); });
-    ['late','today','wait','plan','done'].forEach(function(k){
+    ['todo','done'].forEach(function(k){
       if(!g[k].length) return;
       h+='<div class="tgrp"><span class="tgrp-l st-'+k+'">'+esc(STL[k].l)+'</span>'+
         '<span class="tgrp-n">'+g[k].length+'</span></div>';
@@ -2371,11 +2360,13 @@ function viewTask(){
     });
   }
   else list.forEach(function(t){ h+=taskCard(t); });
-  return h+'</div><button class="addrow" data-act="addtask">'+ic('plus')+'タスクを追加</button>';
+  /* どちらの分として足すのかを、押す前に見せておく */
+  return h+'</div><button class="addrow" data-act="addtask" data-who="'+(meRole()||'shop')+'">'+
+    ic('plus')+esc(roleName(meRole()||'shop'))+'のタスクを追加</button>';
 }
 function taskCard(t){
-  var st=statusOf(t), d=doneOf(t), a=ackOf(t), cat=TCAT[t.cat]||TCAT.shoot;
-  var role=meRole(), mine=t.who===role, can=mine||pendingAcks(t).length>0||!!a;
+  var st=statusOf(t), d=doneOf(t), a=null, cat=TCAT[t.cat]||null;
+  var role=meRole(), mine=t.who===role, can=true;
   /* ピル4個が2段に折り返して55px使い、しかも先に目に入るのが分類ラベルだった。
      状態1個に絞る。区分はタイトル前のアイコン、担当は左の帯色、繰り返しは状態の文言へ吸収 */
   var repL = t.rep==='daily'?'毎日' : t.rep==='weekly'?'毎週' : '';
@@ -2383,39 +2374,30 @@ function taskCard(t){
      題名より先に札が目に入り、どれも同じ顔のカードになる。
      担当だけ面で出し、状態と期限は文字の色で差をつける */
   var mtx=[]; if(repL) mtx.push(repL);
-  if(t.rep==='none'&&t.due) mtx.push(fmtMd(t.due)+'まで');
+  if(t.rep==='none'&&t.due) mtx.push(fmtMd(t.due)+(lateOf(t)?'まで（過ぎています）':'まで'));
   var meta='<span class="t-who '+(t.who==='shop'?'db':'jp')+'">'+
       esc(roleName(t.who))+'</span>'+
     '<span class="t-st">'+esc(STL[st].l)+'</span>'+
     (mtx.length?'<span class="t-sub">'+esc(mtx.join('・'))+'</span>':'');
-  var other=t.who==='shop'?'ops':'shop';
-  /* 済んだものだけを日時つきで出す。まだのものは「次は誰の番か」の1行に畳む */
+  /* 済んだら、誰がいつ押したかを残す。まだなら、いつまでかだけ */
   var flow;
-  if(!d){
-    /* 文字列を包まないと、アイコンと本文が別々の要素として折り返して2行になる */
-    flow='<span class="nx">'+ic('clock')+'<span>'+esc(roleName(t.who))+'が実施 → '+esc(roleName(other))+'が承認</span></span>';
+  if(d){
+    flow='<span class="dn">'+ic('check')+'完了　'+esc(d.by)+
+      '<span class="tt">'+bothTime(d.at)+'</span></span>';
+  }else{
+    flow='';
     /* 毎日・毎週は期間が変わると今期の記録が空になる。前回を残さないと
        「何月何日にチェックしたか」が画面から消える */
     if(t.rep!=='none'){ var pv=prevIn(t,t.log);
       if(pv) flow+='<span class="pv">'+ic('check')+'前回　'+esc(pv.by)+
         '<span class="tt">'+bothTime(pv.at)+'</span></span>'; }
-  }else{
-    flow='<span class="dn">'+ic('check')+'実施　'+esc(d.by)+
-      '<span class="tt">'+bothTime(d.at)+'</span></span>';
-    flow+= a ? '<span class="ak">'+ic('check')+'承認　'+esc(a.by)+
-               '<span class="tt">'+bothTime(a.at)+'</span></span>'
-             : '<span class="nx">'+ic('eye')+esc(roleName(other))+'の承認待ち</span>';
   }
-  /* 「完了」は今日（今週）の分だけを見る。前の日の分が承認されないまま
-     残っていると、カードは完了、盤は承認待ち、と食い違って見える */
-  var np2=pendingAcks(t).length;
-  if(np2&&a) flow+='<button class="nx nx-b" data-act="tack" data-id="'+t.id+'">'+ic('clock')+
-    '前の分が '+np2+'件、承認待ちです'+ic('arrowR')+'</button>';
   var un=unreadOf('task',t.id);
   var lb=ckLabel(t,mine,d,a);
   /* 上から下へ、状態 → やること → なぜ → 経過 → 押すもの、の順に置く。
      題名にページの幅を全部使えるようにしたので、二行に折れることが減った */
-  return '<article class="task st-'+st+'">'+
+  /* 期限を過ぎたものは、状態ではなく期限そのもので気づかせる */
+  return '<article class="task st-'+st+(lateOf(t)?' is-late':'')+'">'+
     '<div class="tmeta">'+meta+'</div>'+
     /* 題名を押せば、そのタスクの1ページが開く。
        カードは一覧の顔、ページが本体 */
@@ -3138,8 +3120,8 @@ function propRow(l,v,cls){
 /* 1タスク＝1ページ。やること・なぜ・メモ・記録・やり取りを、ひとつづきにする */
 function sheetTaskPage(id,toBottom){
   var t=byId(S.tasks,id); if(!t) return;
-  var st=statusOf(t), d=doneOf(t), a=ackOf(t), cat=TCAT[t.cat]||TCAT.shoot;
-  var role=meRole(), mine=t.who===role, can=mine||pendingAcks(t).length>0||!!a;
+  var st=statusOf(t), d=doneOf(t), a=null, cat=TCAT[t.cat]||null;
+  var role=meRole(), mine=t.who===role, can=true;
   var other=t.who==='shop'?'ops':'shop';
   if(TMEMO.k!==t.id) TMEMO={k:t.id,v:(t.memo||'')};
 
@@ -3150,8 +3132,7 @@ function sheetTaskPage(id,toBottom){
     propRow('状態','<span class="t-st">'+esc(STL[st].l)+'</span>','st-'+st)+
     propRow('期限', t.rep==='daily'?'毎日' : t.rep==='weekly'?'毎週'
       : (t.due?fmtMd(t.due)+'まで':'決めていない'))+
-    propRow('区分', esc(cat.l))+
-    propRow('流れ', esc(roleName(t.who))+'が実施　→　'+esc(roleName(other))+'が承認')+
+    propRow('区分', cat?esc(cat.l):'<span class="mute3">なし</span>')+
     '</div></div>';
 
   /* いちばん押すものを、読んだすぐ下に置く */
@@ -3423,22 +3404,24 @@ function dateField(id,val){
     ' value="'+esc(val||'')+'" placeholder="押すと暦が出ます">';
 }
 function sheetTaskEdit(id,who0){
-  var t=id?byId(S.tasks,id):{ttl:'',cat:'shoot',who:(who0||'shop'),due:'',rep:'none',why:''};
+  var t=id?byId(S.tasks,id):{ttl:'',cat:'',who:(who0||meRole()||'shop'),due:'',rep:'none',why:''};
+  function catSeg(gid,keys){
+    return '<div class="seg" id="'+gid+'">'+keys.map(function(k){
+      return '<button data-v="'+k+'" aria-pressed="'+(t.cat===k)+'">'+ic(TCAT[k].i)+TCAT[k].l+'</button>';
+    }).join('')+'</div>';
+  }
   var b='<div class="frm">'+
-    '<label><span class="jp">タスク名</span><input type="text" id="tTtl" value="'+esc(t.ttl)+'" placeholder="例：ストーリーを1件投稿する"></label>'+
-    '<label><span class="jp">なぜやるのか（'+esc(roleName('shop'))+'に伝わる言葉で）</span><textarea id="tWhy" placeholder="例：リールだけが、まだ店を知らない人に届くから">'+esc(t.why||'')+'</textarea></label>'+
-    '<label><span class="jp">実施担当</span><div class="seg" id="tWho">'+
-      '<button data-v="shop" aria-pressed="'+(t.who==='shop')+'">'+ic('store')+esc(roleName('shop'))+'</button>'+
-      '<button data-v="ops" aria-pressed="'+(t.who==='ops')+'">'+ic('users')+esc(roleName('ops'))+'</button></div></label>'+
-    '<label><span class="jp">区分</span><div class="seg" id="tCat">'+Object.keys(TCAT).map(function(k){
-      return '<button data-v="'+k+'" aria-pressed="'+(t.cat===k)+'">'+ic(TCAT[k].i)+TCAT[k].l+'</button>'; }).join('')+'</div></label>'+
-    '<label><span class="jp">繰り返し</span><div class="seg" id="tRep">'+
-      [['none','単発'],['daily','毎日'],['weekly','毎週']].map(function(r){
-        return '<button data-v="'+r[0]+'" aria-pressed="'+(t.rep===r[0])+'">'+r[1]+'</button>'; }).join('')+'</div></label>'+
-    '<label><span class="jp">期限（単発の場合）</span>'+dateField('tDue',t.due)+'</label></div>';
-  sheet(id?'タスクの編集':'タスクの追加',b,
+    '<label><span class="jp">タスク</span><input type="text" id="tTtl" value="'+esc(t.ttl)+'" placeholder="例：ラーメンの麺リフトを撮る"></label>'+
+    /* 何をどうしてほしいのかは、ここに書く。
+       「なぜやるのか」と分けていたが、書く側は分けて考えていなかった */
+    '<label><span class="jp">メモ</span><textarea id="tMemoF" rows="4" placeholder="例：丼は白の縁あり。麺は2秒かけて上げる。昼の窓際で。">'+esc(t.memo||t.why||'')+'</textarea></label>'+
+    '<label><span class="jp">区分</span>'+catSeg('tCat',TCAT_G1)+'</label>'+
+    '<label><span class="jp">区分2</span>'+catSeg('tCat2',TCAT_G2)+'</label>'+
+    '<label><span class="jp">期限</span>'+dateField('tDue',t.due)+'</label></div>';
+  sheet(id?'タスクの編集':(roleName(t.who)+'のタスクを追加'),b,
     (id?'<button class="btn btn-ghost" data-act="deltask" data-id="'+id+'">'+ic('trash')+'削除</button>':'')+
-    '<button class="btn btn-main" data-act="savetask" data-id="'+(id||'')+'">'+ic('check')+'保存</button>');
+    '<button class="btn btn-main" data-act="savetask" data-id="'+(id||'')+
+      '" data-who="'+esc(t.who||'')+'">'+ic('check')+'保存</button>');
 }
 function sheetVideoEdit(id){
   var v=id?byId(S.videos,id):{ttl:'',sid:(seriesOrdered()[0]||{}).id||'',date:today(),tags:[],url:'',ref:'',refNote:'',st:'plan'};
@@ -3866,16 +3849,27 @@ document.addEventListener('click',function(e){
   var nav=e.target.closest('[data-nav]');
   /* タスクに戻ってきたときは、また自分の分から見せる */
   /* 持ち上げた列を抱えたまま他のタブへ行くと、戻ったとき詳細が開けないままになる */
-  if(nav){ VIEW=nav.dataset.nav; FILT=(VIEW==='task'?'mine':'all'); mxDrop();
+  if(nav){ VIEW=nav.dataset.nav; FILT=(VIEW==='task'?'todo':'all'); mxDrop();
     closeSheet(); render(); window.scrollTo(0,0); return; }
   var pt=e.target.closest('[data-ptab]'); if(pt){ PTAB=pt.dataset.ptab; FILT='all'; mxDrop(); render(); return; }
   var fl=e.target.closest('[data-filt]'); if(fl){ FILT=fl.dataset.filt; render(); return; }
   var ct=e.target.closest('[data-ctab]'); if(ct){ CTAB=ct.dataset.ctab; render(); return; }
   var vf=e.target.closest('[data-vfilt]'); if(vf){ FILT=vf.dataset.vfilt; render(); return; }
 
-  var seg=e.target.closest('#acRole button,#acColor button,#tWho button,#tCat button,#tRep button,#vSid button,#sTag button');
-  if(seg){ Array.prototype.forEach.call(seg.parentNode.children,function(x){ x.setAttribute('aria-pressed','false'); });
-    seg.setAttribute('aria-pressed','true'); return; }
+  var seg=e.target.closest('#acRole button,#acColor button,#tWho button,#tCat button,#tCat2 button,#tRep button,#vSid button,#sTag button');
+  if(seg){
+    var on=(seg.getAttribute('aria-pressed')==='true');
+    Array.prototype.forEach.call(seg.parentNode.children,function(x){ x.setAttribute('aria-pressed','false'); });
+    var pid=seg.parentNode.id;
+    if(pid==='tCat'||pid==='tCat2'){
+      /* 区分は二段で見せているが、中身はひとつ。片方を押したら、もう片方は外す。
+         押し直せば「区分なし」に戻せる——当てはまらない仕事のほうが多い */
+      var other=$('#'+(pid==='tCat'?'tCat2':'tCat'));
+      if(other) Array.prototype.forEach.call(other.children,function(x){ x.setAttribute('aria-pressed','false'); });
+      if(on) return;
+    }
+    seg.setAttribute('aria-pressed','true'); return;
+  }
   var mc=e.target.closest('#dMenus button,#vTags button');
   if(mc){ mc.setAttribute('aria-pressed', mc.getAttribute('aria-pressed')==='true'?'false':'true'); return; }
 
@@ -3933,27 +3927,14 @@ document.addEventListener('click',function(e){
   /* タスク */
   if(a==='check'){
     var t=byId(S.tasks,id), acc2=me(); if(!t||!acc2) return;
-    var mine=t.who===acc2.role, d=doneOf(t), ak=ackOf(t);
-    if(mine){
-      if(d){
-        if(!confirm('この実施の記録を取り消しますか？　これまでの記録には残ります。')) return;
-        t.log.push({at:now(),by:acc2.name,bid:acc2.id,undo:1,un:d.at});
-      }else t.log.push({at:now(),by:acc2.name,bid:acc2.id});
+    var d=doneOf(t);
+    if(d){
+      if(!confirm('完了を取り消しますか？　これまでの記録には残ります。')) return;
+      /* 記録は消さずに「取り消した」を積む。配列から消すと、同期の和集合マージが
+         「消した」を表現できず、相手の端末から必ず復活する */
+      t.log.push({at:now(),by:acc2.name,bid:acc2.id,undo:1,un:d.at});
     }else{
-      if(ak){
-        /* 取り消すのは今日（今週）の分1件だけ。全部を消すと、
-           1タップで何か月分もの「誰がいつ確認したか」が消える */
-        if(!confirm('この承認を取り消しますか？　これまでの記録には残ります。')) return;
-        t.ack.push({at:now(),by:acc2.name,bid:acc2.id,undo:1,un:ak.at});
-      }else{
-        var pa=pendingAcks(t);
-        if(!pa.length){ alert(roleName(t.who)+'の実施後に承認できます。'); return; }
-        /* たまっている未承認をまとめて片付ける。1件ずつだと、3日分実施されたとき
-           2回押すまでカードの見た目が変わらず、「押しても効かない」に見える。
-           1件ずつ見て決めたいときは「承認する」の画面から */
-        var t0=now();
-        pa.forEach(function(x,i){ t.ack.push({at:t0+i,by:acc2.name,bid:acc2.id,'for':x.at}); });
-      }
+      t.log.push({at:now(),by:acc2.name,bid:acc2.id});
     }
     moved(t); save(); render(); return;
   }
@@ -3982,10 +3963,14 @@ document.addEventListener('click',function(e){
     var o2=id?byId(S.tasks,id):{id:uid('t'),log:[],ack:[],at:now(),
       by:me0?me0.name:'', bid:me0?me0.id:'', bro:me0?me0.role:''};
     o2.ttl=ttl;
-    o2.why=($('#tWhy')?$('#tWhy').value:'').trim();
-    o2.who=$('#tWho [aria-pressed="true"]').dataset.v;
-    o2.cat=$('#tCat [aria-pressed="true"]').dataset.v;
-    o2.rep=$('#tRep [aria-pressed="true"]').dataset.v;
+    o2.memo=($('#tMemoF')?$('#tMemoF').value:'').trim();
+    if(TMEMO.k===o2.id) TMEMO.v=o2.memo;
+    /* 担当は、どの札から足したかで決まっている。ここで選び直させない */
+    if(!o2.who) o2.who=b.dataset.who||meRole()||'shop';
+    /* 区分は二段に分かれて出しているが、選ぶのは一つ */
+    var c1=$('#tCat [aria-pressed="true"]'), c2=$('#tCat2 [aria-pressed="true"]');
+    o2.cat=c1?c1.dataset.v:(c2?c2.dataset.v:'');
+    if(!o2.rep) o2.rep='none';
     o2.due=$('#tDue').value||'';
     touch(o2); if(!id) S.tasks.push(o2);
     save(); closeSheet(); render(); return;
