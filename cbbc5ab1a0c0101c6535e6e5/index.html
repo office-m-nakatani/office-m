@@ -1270,6 +1270,23 @@ body.mx-drag .mx td,body.mx-drag .mx th{transition:none;}
 /* ボタンの形をしたリンクに下線が入り、押せるものとしての見た目が崩れていた */
 a.btn{text-decoration:none;}
 .cutdet>.sub{font-size:var(--fs-sm);color:var(--tx2);line-height:1.75;}
+/* 表のセルは、その場で書く。開いた画面の中で書くと、
+   隣の列に何を書いたのかが見えなくなり、比べながら書けない */
+.mx td.ed{padding-top:9px;padding-bottom:9px;}
+.cellin{display:block;width:100%;border:1px solid var(--line);border-radius:9px;
+  background:var(--surface);padding:8px 9px;font-family:inherit;
+  font-size:var(--fs-xs);line-height:1.8;color:var(--tx2);letter-spacing:.015em;
+  resize:vertical;min-height:74px;transition:border-color .12s, box-shadow .12s;}
+.cellin:hover{border-color:var(--line2);}
+.cellin:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg);color:var(--tx);}
+.cellin::placeholder{color:var(--tx3);}
+/* セルの足もと。メモの印と、横に並べて比べる画面への入口 */
+.cellft{display:flex;align-items:center;gap:7px;margin-top:6px;min-height:30px;}
+.cellmore{margin-left:auto;display:inline-flex;align-items:center;gap:4px;
+  min-height:30px;padding:0 9px;border-radius:8px;border:1px solid var(--line);
+  background:var(--surface);color:var(--tx3);font-size:.68rem;font-weight:700;letter-spacing:.02em;}
+.cellmore svg{width:12px;height:12px;}
+.cellmore:hover{border-color:var(--accent);color:var(--accent-d);background:var(--accent-bg);}
 /* 撮影素材は並べて見る。1本ずつ縦に積むと、何本あってどれが止まっているのかが掴めない */
 .vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(246px,1fr));gap:13px;}
 .vg{display:flex;flex-direction:column;gap:9px;text-align:left;width:100%;
@@ -2740,15 +2757,10 @@ function taskCard(t){
        相手の意図を知りたいときは、下のふきだしから直接きける */
     (t.why&&st!=='done'&&mine?'<p class="twhy">'+esc(t.why)+'</p>':'')+
     '<div class="tflow">'+flow+'</div>'+histHtml(t)+
-    /* 押すものは下にまとめる。いちばん押すボタンに幅を与えて、
-       文字を入れておく。丸い印だけでは、押すまで何が起きるか分からない */
-    /* 押すものはひとつだけ。連絡と直すはタスクのページに置いてある。
-       一覧は読むためのもので、そこに操作を三つ並べると、どれが本命か分からない。
-       届いている連絡は題名の脇の数で知らせる */
-    '<div class="tact">'+
-    '<button class="tcheck '+(a?'ack':d?'on':'')+'" data-act="check" data-id="'+t.id+'"'+(can?'':' disabled')+
-      ' aria-label="'+lb+'">'+ic('check')+'<span class="lb">'+lb+'</span></button>'+
-    '</div></article>';
+    /* 一覧は読むだけの場所にする（ユーザー指示）。
+       完了は、題名を押して開いたタスクのページで押す。
+       一覧で押せてしまうと、めくっている指で触って済みになる */
+    '</article>';
 }
 
 /* ============================================================
@@ -2821,6 +2833,12 @@ function mxDrop(){
   document.body.classList.remove('mx-drag');
   save(); render();
 }
+/* 中身の分だけ最初から高さを取る。3行で出して毎回引き伸ばさせない */
+function cellRows(v){
+  v=(v||'')+'';
+  var n=v.split('\n').length+Math.floor(v.length/15);
+  return Math.max(4,Math.min(22,n));
+}
 function matrixHtml(){
   /* 中身を書き換えられるのは日本側だけ。並べ替えは、見る順番の話なので二人とも */
   var ss=seriesOrdered(), ops=(meRole()==='ops');
@@ -2856,9 +2874,19 @@ function matrixHtml(){
     ss.forEach(function(s){
       var v=s[r.k]||'';
       var mmv=cellMm(s,r.k);
-      h+='<td class="ed" data-act="edcell" data-id="'+s.id+'" data-k="'+r.k+'"><div class="cell'+(v?'':' none')+'">'+
-        (v?esc(v):'未記入')+'</div>'+
-        (mmv?'<span class="cell-mm">'+ic('pencil')+'メモ</span>':'')+'</td>';
+      /* 書く場所を表の中に置く。開いた画面の中で書くと、
+         隣の列に何が書いてあるのか見えず、比べながら書けない（ユーザー指示）。
+         横に並べて読む画面は「広げる」から今までどおり開ける */
+      h+='<td class="ed" data-id="'+s.id+'" data-k="'+r.k+'">'+
+        (ops
+          ? '<textarea class="cellin" data-cell="'+s.id+'" data-k="'+r.k+'" rows="'+cellRows(v)+
+            '" placeholder="未記入">'+esc(v)+'</textarea>'
+          : '<div class="cell'+(v?'':' none')+'">'+(v?esc(v):'未記入')+'</div>')+
+        '<div class="cellft">'+
+          (mmv?'<span class="cell-mm">'+ic('pencil')+'メモ</span>':'')+
+          '<button class="cellmore" data-act="edcell" data-id="'+s.id+'" data-k="'+r.k+
+            '">'+ic('expand')+'広げる</button>'+
+        '</div></td>';
     });
     h+='</tr>';
   });
@@ -2940,7 +2968,7 @@ function matrixHtml(){
   /* 軸を足す入口は表の外に置く。表の中に足すと、行の数だけ空のセルが増える */
   h+='<div class="hint">'+ic('info')+'<span>横にスワイプして見比べます。'+
     '<b>列の見出しを押したまま左右へ動かすと、並び順が変わります。</b>'+
-    (ops?'セルをタップで編集。':'編集は日本チームが行います。')+'</span></div>';
+    (ops?'枠の中にそのまま書けます。欄から外れたときに残ります。':'編集は日本チームが行います。')+'</span></div>';
   return h;
 }
 /* 縦軸の並び。横軸と同じ考え方で番号で持つ */
@@ -3282,16 +3310,38 @@ function composerHtml(scope,ref){
   if(aq) h+='<div class="ansmk">'+ic('info')+'<span>「'+esc(aq.tx.slice(0,22))+
     (aq.tx.length>22?'…':'')+'」への答えとして送ります</span>'+
     '<button class="x" data-act="ansqx" aria-label="やめる">'+ic('x')+'</button></div>';
-  if(scope==='video') h+='<div class="chint">'+ic('info')+
-    '<span>左の欄は「何秒の時点か」。</span></div>';
-  h+='<div class="quick">'+
-    '<button class="qask" data-act="ask" data-scope="'+scope+'" data-ref="'+esc(ref)+'" data-cut="">？ 質問する</button>'+
-    '</div><div class="cbox">'+
+  /* 質問を立てるボタンは置かない（ユーザー指示）。
+     聞きたいことは、この欄にそのまま書けば相手に届く */
+  h+='<div class="cbox">'+
     (scope==='video'?'<input id="cSec" class="csec" inputmode="numeric" maxlength="5" placeholder="0:03" aria-label="何秒の時点か">':'')+
     '<textarea id="cin" rows="1" placeholder="メッセージを入力">'+esc(CIN.v||'')+'</textarea>'+
     '<button class="send" data-act="send" data-scope="'+scope+'" data-ref="'+esc(ref)+'" aria-label="送信">'+ic('send')+'</button></div></div>';
   return h+'</div>';
 }
+
+/* セルを書いている最中に相手の更新が届くと、画面ごと描き直されて
+   書きかけの文字が消える。書き終わる（欄から外れる）まで待たせる */
+var RRQ=0;
+function cellBusy(){
+  var a=document.activeElement;
+  return !!(a&&a.classList&&a.classList.contains('cellin'));
+}
+function renderSoon(){ if(cellBusy()){ RRQ=1; return; } render(); }
+/* 表のセルは、欄から外れたときに残す。一文字ごとに書き戻すと、
+   相手の画面が書いている途中の文で何度も塗り替わる */
+document.addEventListener('focusout',function(e){
+  var el=e.target;
+  if(!el||!el.classList||!el.classList.contains('cellin')) return;
+  var s=byId(S.series,el.dataset.cell), k=el.dataset.k;
+  if(s&&(s[k]||'')!==el.value){ s[k]=el.value; touch(s); save(); }
+  if(RRQ){ RRQ=0; render(); }
+});
+/* 書いている間、欄が足りなくならないようにする */
+document.addEventListener('input',function(e){
+  var el=e.target;
+  if(!el||!el.classList||!el.classList.contains('cellin')) return;
+  el.style.height='auto'; el.style.height=(el.scrollHeight+2)+'px';
+});
 
 /* ============================================================
    13. 分析
@@ -3526,7 +3576,7 @@ function propRow(l,v,cls){
 /* 1タスク＝1ページ。やること・なぜ・メモ・記録・やり取りを、ひとつづきにする */
 function sheetTaskPage(id,toBottom){
   var t=byId(S.tasks,id); if(!t) return;
-  var st=statusOf(t), d=doneOf(t), a=null, cat=TCAT[t.cat]||null;
+  var st=statusOf(t), d=doneOf(t), a=null, cat=TCAT[t.cat]||null, cat2=TCAT[t.cat2]||null;
   var role=meRole(), mine=t.who===role, can=true;
   var other=t.who==='shop'?'ops':'shop';
   if(TMEMO.k!==t.id) TMEMO={k:t.id,v:(t.memo||'')};
@@ -3538,7 +3588,8 @@ function sheetTaskPage(id,toBottom){
     propRow('状態','<span class="t-st">'+esc(STL[st].l)+'</span>','st-'+st)+
     propRow('期限', t.rep==='daily'?'毎日' : t.rep==='weekly'?'毎週'
       : (t.due?fmtMd(t.due)+'まで':'決めていない'))+
-    propRow('区分', cat?esc(cat.l):'<span class="mute3">なし</span>')+
+    propRow('区分1', cat?esc(cat.l):'<span class="mute3">なし</span>')+
+    propRow('区分2', cat2?esc(cat2.l):'<span class="mute3">なし</span>')+
     '</div></div>';
 
   /* いちばん押すものを、読んだすぐ下に置く */
@@ -3576,8 +3627,7 @@ function sheetVideo(id,toBottom){
   /* いちばん上は「何のために撮るのか」。動画より先にこれを読ませる（ユーザー指示） */
   if(s) ex+='<div class="sec" style="margin:18px 0 8px"><h2>'+ic('target')+'撮影目的</h2></div>'+
     '<div class="fs-sm mute" style="white-space:pre-wrap">'+esc(s.purpose||'')+'</div>'+
-    '<div class="cut-a"><button class="qbtn" data-act="ask" data-scope="video" data-ref="'+v.id+
-    '" data-cut="">？　目的が分からない</button></div>';
+    '';
   /* 目的を読んだすぐ下で、その動画を見られるようにする。
      置き場所を開いて別のタブへ行くと、指示はもう画面に無い */
   var fr=driveEmbed(v.url);
@@ -3670,7 +3720,7 @@ function sheetSeries(id,toBottom){
     ex+='<div class="sec" style="margin:14px 0 8px"><h2>'+ic(r[2])+r[1]+
       (meRole()==='ops'
         ? ' <button class="btn btn-ghost btn-sm" data-act="edcell" data-id="'+s.id+'" data-k="'+r[0]+'">'+ic('pencil')+'編集</button>'
-        : ' <button class="btn btn-ghost btn-sm" data-act="series" data-id="'+s.id+'" data-b="1">'+ic('chat')+'質問する</button>')+
+        : '')+
       '</h2></div>'+
       '<div class="fs-sm mute" style="white-space:pre-wrap">'+(s[r[0]]?esc(s[r[0]]):'<span class="mute3">未記入</span>')+'</div>';
   });
@@ -3686,8 +3736,6 @@ function sheetSeries(id,toBottom){
       ? '<button class="btn btn-line btn-sm" data-act="edseries" data-id="'+s.id+'">'+ic('pencil')+'名前を直す</button>'+
         '<button class="btn btn-ghost btn-sm" data-act="delseries" data-id="'+s.id+'">'+ic('trash')+'この列を削除</button>'
       : '')+'</div></div>';
-  ex+='<div class="cut-a" style="margin-top:12px"><button class="qbtn" data-act="ask" data-scope="series" data-ref="'+
-    s.id+'" data-cut="">？　この型について聞く</button></div>';
   ex+=sec('Discussion','質問・相談','chat');
   sheetThread('series',s.id,esc(s.name),ex,toBottom);
 }
@@ -3834,13 +3882,14 @@ function sheetGoal(){
    空のうちは文字の欄にして言葉で誘い、押された瞬間に暦へ変える */
 function dateField(id,val){
   return '<input id="'+id+'" data-date="1"'+(val?' type="date"':' type="text" readonly')+
-    ' value="'+esc(val||'')+'" placeholder="押すと暦が出ます">';
+    ' value="'+esc(val||'')+'">';
 }
 function sheetTaskEdit(id,who0){
   var t=id?byId(S.tasks,id):{ttl:'',cat:'',who:(who0||meRole()||'shop'),due:'',rep:'none',why:''};
   function catSeg(gid,keys){
     return '<div class="seg" id="'+gid+'">'+keys.map(function(k){
-      return '<button data-v="'+k+'" aria-pressed="'+(t.cat===k)+'">'+ic(TCAT[k].i)+TCAT[k].l+'</button>';
+      var now2=(gid==='tCat2')?(t.cat2||''):(t.cat||'');
+    return '<button data-v="'+k+'" aria-pressed="'+(now2===k)+'">'+ic(TCAT[k].i)+TCAT[k].l+'</button>';
     }).join('')+'</div>';
   }
   var memo0=t.memo||t.why||'';
@@ -3853,9 +3902,10 @@ function sheetTaskEdit(id,who0){
           ic('users')+esc(roleName(r))+'</button>'; }).join('')+'</div></label>'+
     '<label><span class="jp">タスク</span><input type="text" id="tTtl" value="'+esc(t.ttl)+'" placeholder="例：麺リフトを撮る"></label>'+
     '<label><span class="jp">期限</span>'+dateField('tDue',t.due)+'</label>'+
-    /* 区分は二段に見せていたが、選ぶのは一つ。見出しも一つでいい */
-    '<label><span class="jp">区分</span>'+catSeg('tCat',TCAT_G1)+
-      catSeg('tCat2',TCAT_G2)+'</label>'+
+    /* 区分は二段。撮る側と作る側なので、両方あたる仕事がある。
+       それぞれから一つずつ選べる（どちらも選ばなくてよい） */
+    '<label><span class="jp">区分1</span>'+catSeg('tCat',TCAT_G1)+'</label>'+
+    '<label><span class="jp">区分2</span>'+catSeg('tCat2',TCAT_G2)+'</label>'+
     /* 畳んでおくと、押して開いてから、もう一度押して書くことになる。
        書く人にとっては二度手間でしかないので、最初から書ける欄にしておく */
     '<label><span class="jp">メモ<i>（任意）</i></span>'+
@@ -4374,15 +4424,12 @@ document.addEventListener('click',function(e){
     var on=(seg.getAttribute('aria-pressed')==='true');
     Array.prototype.forEach.call(seg.parentNode.children,function(x){ x.setAttribute('aria-pressed','false'); });
     var pid=seg.parentNode.id;
-    if(pid==='tCat'||pid==='tCat2'){
-      /* 区分は二段で見せているが、中身はひとつ。片方を押したら、もう片方は外す。
-         押し直せば「区分なし」に戻せる——当てはまらない仕事のほうが多い */
-      var other=$('#'+(pid==='tCat'?'tCat2':'tCat'));
-      if(other) Array.prototype.forEach.call(other.children,function(x){ x.setAttribute('aria-pressed','false'); });
-      if(on) return;
-    }
+    /* 区分1と区分2は別もの。押し直せば、その段だけ「なし」に戻せる */
+    if((pid==='tCat'||pid==='tCat2')&&on) return;
     seg.setAttribute('aria-pressed','true'); return;
   }
+  var ci=e.target.closest('.cellin');
+  if(ci){ return; }
   var mc=e.target.closest('#dMenus button,#vTags button');
   if(mc){ mc.setAttribute('aria-pressed', mc.getAttribute('aria-pressed')==='true'?'false':'true'); return; }
 
@@ -4499,9 +4546,9 @@ document.addEventListener('click',function(e){
        間違えたときに作り直すしかなくなる */
     var wsel=$('#tWho [aria-pressed="true"]');
     o2.who = wsel ? wsel.dataset.v : (o2.who||b.dataset.who||meRole()||'shop');
-    /* 区分は二段に分かれて出しているが、選ぶのは一つ */
+    /* 区分1と区分2は別々に持つ */
     var c1=$('#tCat [aria-pressed="true"]'), c2=$('#tCat2 [aria-pressed="true"]');
-    o2.cat=c1?c1.dataset.v:(c2?c2.dataset.v:'');
+    o2.cat=c1?c1.dataset.v:''; o2.cat2=c2?c2.dataset.v:'';
     if(!o2.rep) o2.rep='none';
     o2.due=$('#tDue').value||'';
     touch(o2); if(!id) S.tasks.push(o2);
@@ -5130,7 +5177,7 @@ function fbTake(path,data){
   }catch(e){}
   FBIN=false;
   fbSet('on'); FBAT=now();
-  if(hit){ S.gotAt=now(); save0(); render(); }
+  if(hit){ S.gotAt=now(); save0(); renderSoon(); }
 }
 
 /* ============================================================
