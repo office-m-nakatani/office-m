@@ -1241,6 +1241,63 @@ body.mx-drag .mx td,body.mx-drag .mx th{transition:none;}
   font-size:.7rem;font-weight:700;letter-spacing:.02em;}
 .mx th.rh .rh-add:hover{border-color:var(--accent);color:var(--accent-d);background:var(--accent-bg);}
 .mx th.rh .rh-add svg{width:14px;height:14px;}
+/* タブ。どれを見ているのかが下線1本では遠目に分からない。面で示す。
+   横並びのときは中身が左端に寄っていたので、真ん中へ置く */
+.nav button{justify-content:center;}
+.nav button[aria-selected="true"]{background:var(--accent-bg);font-weight:700;}
+.nav button[aria-selected="true"] svg{color:var(--accent);}
+@media(min-width:768px){
+  .nav button{justify-content:center;border-radius:11px 11px 0 0;}
+}
+/* 絞り込みの右に、足す口を置く。下までスクロールしないと足せないのは遠い */
+.tbar{display:flex;align-items:center;gap:10px;margin-top:4px;}
+.tbar .chips{flex:1;min-width:0;padding-bottom:0;}
+.tbar-add{flex:none;white-space:nowrap;}
+@media(max-width:519px){
+  .tbar{flex-direction:column;align-items:stretch;gap:8px;}
+  .tbar-add{width:100%;}
+}
+/* 撮影手順は畳んでおく。押すと開く */
+.cutdet{border:1px solid var(--line);border-radius:14px;background:var(--surface);
+  padding:0 15px;margin-top:16px;}
+.cutdet[open]{padding-bottom:15px;}
+.cutdet>summary{display:flex;align-items:center;gap:9px;min-height:54px;cursor:pointer;
+  list-style:none;font-size:1.02rem;font-weight:700;letter-spacing:.02em;color:var(--tx);}
+.cutdet>summary::-webkit-details-marker{display:none;}
+.cutdet>summary svg{width:16px;height:16px;color:var(--tx3);}
+.cutdet>summary i{font-style:normal;margin-left:auto;font-size:.74rem;font-weight:700;color:var(--tx3);}
+.cutdet>summary:hover{color:var(--accent-d);}
+/* ボタンの形をしたリンクに下線が入り、押せるものとしての見た目が崩れていた */
+a.btn{text-decoration:none;}
+.cutdet>.sub{font-size:var(--fs-sm);color:var(--tx2);line-height:1.75;}
+/* 撮影素材は並べて見る。1本ずつ縦に積むと、何本あってどれが止まっているのかが掴めない */
+.vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(246px,1fr));gap:13px;}
+.vg{display:flex;flex-direction:column;gap:9px;text-align:left;width:100%;
+  background:var(--surface);border:0;border-radius:18px;padding:17px 17px 15px;
+  box-shadow:var(--lift);position:relative;overflow:hidden;transition:.15s;}
+.vg::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--line2);}
+.vg:hover{transform:translateY(-2px);}
+.vg.v-shot::before{background:var(--gold);} .vg.v-review::before{background:var(--info);}
+.vg.v-redo::before{background:var(--accent);} .vg.v-ok::before{background:var(--ok);}
+.vg.v-posted::before{background:var(--violet);}
+.vg-t{font-size:1.02rem;font-weight:700;line-height:1.5;letter-spacing:.02em;}
+.vg-m{display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+.vg-u{font-size:.71rem;font-weight:700;color:var(--tx3);line-height:1.6;letter-spacing:.02em;}
+.vg-u b{color:var(--tx2);font-weight:700;}
+.vg .stepbar{margin-top:0;}
+.vg-f{display:flex;align-items:center;gap:7px;margin-top:auto;padding-top:4px;}
+.vg-f .vg-k{margin-left:auto;color:var(--tx3);display:flex;}
+.vg-f .vg-k svg{width:16px;height:16px;}
+.vg-dot{min-width:20px;height:20px;border-radius:10px;background:var(--accent);color:#fff;
+  font-size:.7rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;padding:0 6px;}
+/* 動画を見ながら読む。枠が出せないときのために、下に開く口も残す */
+.vframe{position:relative;width:100%;aspect-ratio:16/9;max-width:100%;border-radius:14px;
+  overflow:hidden;background:var(--surface3);margin-bottom:9px;}
+.vframe iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
+.vfnote{display:flex;align-items:flex-start;gap:6px;font-size:.72rem;line-height:1.7;
+  color:var(--tx3);margin-bottom:14px;}
+.vfnote svg{width:13px;height:13px;flex:none;margin-top:3px;}
+.vtop{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
 /* 連絡が届いていることは、題名の脇で知らせる。
    カードからふきだしの印を外したので、ここが唯一の入口になる */
 .t-un{display:inline-flex;align-items:center;gap:3px;vertical-align:2px;
@@ -2449,8 +2506,10 @@ function cutsHtml(v){
   /* 墓標（del=1）を数に入れると、盤の「カット2」とシートの「2」が別のカットを指す。
      通し番号は必ず alive() の index+1 で数える */
   var canEd=meRole()==='ops', cs=alive(v.cuts);
-  var h=sec('Shot list','撮影手順','film',
-    '上から順に撮ります。気づいたことは、その行にメモを残せます。');
+  /* 手順は畳んでおく。先に読むのは目的で、手順はいざ撮るときに開く */
+  var h='<details class="cutdet"><summary>'+ic('film')+'撮影手順'+
+    '<i>'+(cs.length?cs.length+'カット':'まだありません')+'</i></summary>'+
+    '<div class="sub" style="margin:0 0 10px">上から順に撮ります。気づいたことは、その行にメモを残せます。</div>';
   if(!cs.length){
     h+='<div class="empty">'+ic('film')+(canEd?'まだ指示がありません。下のボタンで足してください':'まだ指示がありません')+'</div>';
   }else{
@@ -2485,7 +2544,7 @@ function cutsHtml(v){
   if(canEd) h+='<button class="btn btn-line btn-sm" data-act="edcut" data-id="'+
     v.id+'" data-cut="">'+ic('plus')+'カットを足す</button>';
   if(cs.length) h+='<button class="btn btn-line btn-sm" data-act="print">'+ic('print')+'この指示を印刷</button>';
-  return h+'</div>';
+  return h+'</div></details>';
 }
 function sheetCut(vid,cid){
   var v=byId(S.videos,vid); if(!v) return;
@@ -2560,8 +2619,11 @@ function viewTask(){
 
   /* 未読のお知らせ帯は連絡タブのバッジと二重なので外した（60px）。
      見出し「業務タスク」もタブ名と同じなので外した（31px） */
-  h+='<div class="chips">'+[['todo','未着手',c.todo],['done','完了済み',c.done]].map(function(x){
-    return '<button class="chip" data-filt="'+x[0]+'" aria-pressed="'+(FILT===x[0])+'">'+x[1]+'<b>'+x[2]+'</b></button>'; }).join('')+'</div>';
+  /* 足す口は絞り込みの右にも置く。下までスクロールしないと足せないのは遠い */
+  h+='<div class="tbar"><div class="chips">'+[['todo','未着手',c.todo],['done','完了済み',c.done]].map(function(x){
+    return '<button class="chip" data-filt="'+x[0]+'" aria-pressed="'+(FILT===x[0])+'">'+x[1]+'<b>'+x[2]+'</b></button>'; }).join('')+'</div>'+
+    '<button class="btn btn-main btn-sm tbar-add" data-act="addtask" data-who="'+(meRole()||'shop')+'">'+
+    ic('plus')+'タスクを追加</button></div>';
 
 
   var list=ts.filter(function(t){
@@ -2628,7 +2690,7 @@ function viewTask(){
   else list.forEach(function(t){ h+=taskCard(t); });
   /* どちらの分として足すのかを、押す前に見せておく */
   return h+'</div><button class="addrow" data-act="addtask" data-who="'+(meRole()||'shop')+'">'+
-    ic('plus')+esc(roleName(meRole()||'shop'))+'のタスクを追加</button>';
+    ic('plus')+'タスクを追加</button>';
 }
 function taskCard(t){
   var st=statusOf(t), d=doneOf(t), a=null, cat=TCAT[t.cat]||null;
@@ -2887,33 +2949,40 @@ function rowsOrdered(){
 function videoListHtml(){
   var vs=alive(S.videos).sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
   var h=sec('Footage','撮影素材','play','1本ごとに保存場所・進捗・添削を管理する。');
-  h+='<div class="chips"><button class="chip" data-vfilt="all" aria-pressed="'+(FILT==='all')+'">全件<b>'+vs.length+'</b></button>'+
+  h+='<div class="tbar"><div class="chips"><button class="chip" data-vfilt="all" aria-pressed="'+(FILT==='all')+'">全件<b>'+vs.length+'</b></button>'+
     VST_ORDER.map(function(k){
       var n=vs.filter(function(v){ return v.st===k; }).length;
-      return '<button class="chip" data-vfilt="'+k+'" aria-pressed="'+(FILT===k)+'">'+VST[k].l+'<b>'+n+'</b></button>'; }).join('')+'</div>';
+      return '<button class="chip" data-vfilt="'+k+'" aria-pressed="'+(FILT===k)+'">'+VST[k].l+'<b>'+n+'</b></button>'; }).join('')+'</div>'+
+    '<button class="btn btn-main btn-sm tbar-add" data-act="addvideo">'+ic('plus')+'撮影素材を追加</button></div>';
   var list=vs.filter(function(v){ return FILT==='all'||v.st===FILT; });
-  h+='<div class="tlist">';
+  h+='<div class="vgrid">';
   if(!list.length) h+='<div class="empty">'+ic('play')+'該当する素材はありません</div>';
   list.forEach(function(v){ h+=videoCard(v); });
   return h+'</div>';
 }
+/* いつ動いた素材なのかは、進捗の印の次に知りたい。
+   撮影日（予定の日）と、最後に誰かが触った日時は別物なので、両方出す */
+function vUpdAt(v){
+  return Math.max(v.rev||0, v.srev||0, v.stAt||0, v.at||0)||0;
+}
 function videoCard(v){
   var s=byId(S.series,v.sid), st=VST[v.st]||VST.plan, un=unreadOf('video',v.id), bar='';
   for(var i=1;i<=4;i++) bar+='<i class="'+(v.st==='redo'&&i===2?'bad':(st.n>=i?'on':''))+'"></i>';
-  /* カードのどこを押しても開く。タスクと違いカード内に排他の操作が無いので安全 */
-  return '<article class="vcard '+st.cls+'" data-act="video" data-id="'+v.id+'">'+
-    '<div class="vic">'+ic(v.st==='posted'?'megaphone':'play')+'</div>'+
-    '<div class="vb"><div class="tmeta">'+pill(st.p,st.l)+pill('p-mute',s?s.name:'未分類')+
+  var up=vUpdAt(v);
+  /* 1本ずつ縦に積むと、何本あってどれが止まっているのかが掴めない。
+     並べて、題名と最後に動いた日時だけを読む。中身は押してから */
+  return '<button class="vg '+st.cls+'" data-act="video" data-id="'+v.id+'">'+
+    '<div class="vg-m">'+pill(st.p,st.l)+pill('p-mute',s?s.name:'未分類')+
       (v.date?pill('p-mute',fmtMd(v.date),'calendar'):'')+'</div>'+
-      '<div class="vt">'+esc(v.ttl)+'</div>'+
-      '<div class="tmeta" style="margin-top:7px">'+(v.tags||[]).map(function(t){ return pill('p-gold',t,'pin'); }).join('')+'</div>'+
-      '<div class="stepbar">'+bar+'</div>'+
-      '<div class="vflow">企画 → 撮影済 → 添削中 → 承認済 → 投稿済</div>'+
-      /* 撮ったのに置き場所が空だと、日本側はそもそも見ることができない。
-         一覧の時点で分かるようにしておく */
-      (vLink(v)?'<div class="vlink-w">'+vLink(v)+'</div>':'')+'</div>'+
-    '<div class="tside"><button class="tchat" data-act="video" data-id="'+v.id+'" aria-label="詳細">'+ic('chat')+
-    (un?'<span class="dot">'+un+'</span>':'')+'</button></div></article>';
+    '<div class="vg-t">'+esc(v.ttl)+'</div>'+
+    '<div class="stepbar">'+bar+'</div>'+
+    '<div class="vg-u">'+(up?'更新　'+esc(bothTime(up)):'まだ動いていません')+'</div>'+
+    '<div class="vg-f">'+
+      (safeUrl(v.url)
+        ? '<span class="vg-k" title="動画の置き場所あり">'+ic('play')+'</span>'
+        : (v.st!=='plan'?'<span class="vg-k" style="color:var(--warn)" title="置き場所が未記入">'+ic('link')+'</span>':''))+
+      (un?'<span class="vg-dot">'+un+'</span>':'')+
+    '</div></button>';
 }
 
 /* ============================================================
@@ -3142,6 +3211,16 @@ function vDropHtml(v){
 }
 function vSetUrl(v,u){
   v.url=((u||'')+'').trim(); touch(v); save(); sheetVideo(v.id);
+}
+/* ドライブの住所から、そのまま見られる枠を作る。
+   /view は枠の中では開かないので /preview に読み替える */
+function driveEmbed(u){
+  var a=safeUrl(u); if(!a) return '';
+  if(!/(^|\.)drive\.google\.com\//.test(a.replace(/^https?:\/\//,''))) return '';
+  var m=a.match(/\/d\/([A-Za-z0-9_-]{10,})/)||a.match(/[?&]id=([A-Za-z0-9_-]{10,})/);
+  if(!m) return '';
+  return '<div class="vframe"><iframe src="https://drive.google.com/file/d/'+esc(m[1])+
+    '/preview" allow="autoplay" allowfullscreen loading="lazy" title="撮った動画"></iframe></div>';
 }
 function vLink(v){
   if(!v) return '';
@@ -3490,12 +3569,28 @@ function sheetVideo(id,toBottom){
     (v.date?pill('p-mute',fmtMd(v.date),'calendar'):'')+'</div>';
   ex+='<div class="ttl" style="margin-top:8px">'+esc(v.ttl)+'</div>';
   ex+='<div class="tmeta" style="margin-top:9px">'+(v.tags||[]).map(function(t){ return pill('p-gold',t,'pin'); }).join('')+'</div>';
-  ex+=cutsHtml(v);
-  ex+=pastHtml(v);
+  /* 動画を見ながら、何に気をつけるのかを読む。
+     置き場所を開いて別のタブへ行くと、指示はもう画面に無い */
+  var fr=driveEmbed(v.url);
+  if(fr) ex+='<div style="margin-top:14px">'+fr+
+    '<div class="vfnote">'+ic('info')+'<span>ここで再生できないときは、下の「Googleドライブで開く」から。'+
+    '共有の設定が「リンクを知っている全員」になっている必要があります。</span></div></div>';
+  /* 編集はCanvaでしている。素材からそのまま開けるようにしておく */
+  ex+='<div class="vtop">'+
+    (safeUrl(v.url)?urlBtn(v.url,'Googleドライブで開く','play'):'')+
+    (safeUrl(v.canva)
+      ? urlBtn(v.canva,'Canvaで編集する','image')
+      : '<a class="btn btn-line btn-sm" href="https://www.canva.com/" target="_blank" rel="noopener">'+
+        ic('image')+'Canvaを開く</a>')+
+    '<button class="btn btn-line btn-sm" data-act="edvideo" data-id="'+v.id+'">'+ic('pencil')+'この素材を直す</button>'+
+    '</div>';
+  /* 先に読むのは「何のために撮るのか」。手順はその下で開く */
   if(s) ex+='<div class="sec" style="margin:18px 0 8px"><h2>'+ic('target')+'撮影目的</h2></div>'+
     '<div class="fs-sm mute" style="white-space:pre-wrap">'+esc(s.purpose||'')+'</div>'+
     '<div class="cut-a"><button class="qbtn" data-act="ask" data-scope="video" data-ref="'+v.id+
     '" data-cut="">？　目的が分からない</button></div>';
+  ex+=cutsHtml(v);
+  ex+=pastHtml(v);
   ex+=sec('Video','撮った動画','folder',
     'Googleドライブで動画を開いて、その住所をここへ落とすか、貼り付けてください。')+vDropHtml(v);
   if(v.ref||v.refNote){
@@ -3746,6 +3841,12 @@ function sheetTaskEdit(id,who0){
   }
   var memo0=t.memo||t.why||'';
   var b='<div class="frm">'+
+    /* どちらの分としても足せる。日本から現地へ頼むことも、
+       現地から日本へ頼むことも、実際には両方起きる */
+    '<label><span class="jp">だれのタスク</span><div class="seg" id="tWho">'+
+      ['ops','shop'].map(function(r){
+        return '<button data-v="'+r+'" aria-pressed="'+((t.who||'shop')===r)+'">'+
+          ic('users')+esc(roleName(r))+'</button>'; }).join('')+'</div></label>'+
     '<label><span class="jp">タスク</span><input type="text" id="tTtl" value="'+esc(t.ttl)+'" placeholder="例：麺リフトを撮る"></label>'+
     '<label><span class="jp">期限</span>'+dateField('tDue',t.due)+'</label>'+
     /* 区分は二段に見せていたが、選ぶのは一つ。見出しも一つでいい */
@@ -3757,13 +3858,13 @@ function sheetTaskEdit(id,who0){
       '<textarea id="tMemoF" rows="3" placeholder="例：丼は白の縁あり。麺は2秒かけて上げる。昼の窓際で。">'+
       esc(memo0)+'</textarea></label>'+
     '</div>';
-  sheet(id?'タスクの編集':(roleName(t.who)+'のタスクを追加'),b,
+  sheet(id?'タスクの編集':'タスクを追加',b,
     (id?'<button class="btn btn-ghost" data-act="deltask" data-id="'+id+'">'+ic('trash')+'削除</button>':'')+
     '<button class="btn btn-main" data-act="savetask" data-id="'+(id||'')+
       '" data-who="'+esc(t.who||'')+'">'+ic('check')+'保存</button>');
 }
 function sheetVideoEdit(id){
-  var v=id?byId(S.videos,id):{ttl:'',sid:(seriesOrdered()[0]||{}).id||'',date:today(),tags:[],url:'',ref:'',refNote:'',st:'plan'};
+  var v=id?byId(S.videos,id):{ttl:'',sid:(seriesOrdered()[0]||{}).id||'',date:today(),tags:[],url:'',canva:'',ref:'',refNote:'',st:'plan'};
   var pool=alive(S.menus).map(function(m){ return m.name; }).concat(alive(S.accounts).map(function(a){ return a.name; }));
   var b='<div class="frm">'+
     '<label><span class="jp">タイトル</span><input type="text" id="vTtl" value="'+esc(v.ttl)+'" placeholder="例：からあげ＋ラーメンセット"></label>'+
@@ -3776,6 +3877,12 @@ function sheetVideoEdit(id){
       '<input type="text" id="vUrl" value="'+esc(v.url||'')+'" placeholder="https://drive.google.com/...">'+
       '<span class="fnote">ドライブで動画を開き、共有 → リンクをコピー。'+
       '「リンクを知っている全員」にしてから貼ってください。</span></label>'+
+    /* 編集はCanvaでしている。素材から一押しで開けないと、
+       毎回ブラウザの履歴をたどることになる */
+    '<label><span class="jp">Canvaの編集ページ（この素材の）</span>'+
+      '<input type="text" id="vCanva" value="'+esc(v.canva||'')+'" placeholder="https://www.canva.com/design/...">'+
+      '<span class="fnote">Canvaでこの動画のデザインを開き、上の住所をそのまま貼ってください。'+
+      '空のままなら、Canvaの入口だけが開きます。</span></label>'+
     '<label><span class="jp">参考にする動画のリンク（他店・見本）</span>'+
       '<input type="text" id="vRef" value="'+esc(v.ref||'')+'" placeholder="https://..."></label>'+
     '<label><span class="jp">参考のどこを真似るか</span><textarea id="vRefNote" placeholder="例：麺リフトの速度">'+esc(v.refNote||'')+'</textarea></label></div>';
@@ -4384,8 +4491,10 @@ document.addEventListener('click',function(e){
     o2.ttl=ttl;
     o2.memo=($('#tMemoF')?$('#tMemoF').value:'').trim();
     if(TMEMO.k===o2.id) TMEMO.v=o2.memo;
-    /* 担当は、どの札から足したかで決まっている。ここで選び直させない */
-    if(!o2.who) o2.who=b.dataset.who||meRole()||'shop';
+    /* 担当は画面で選ぶ。足した場所で決め打ちにすると、
+       間違えたときに作り直すしかなくなる */
+    var wsel=$('#tWho [aria-pressed="true"]');
+    o2.who = wsel ? wsel.dataset.v : (o2.who||b.dataset.who||meRole()||'shop');
     /* 区分は二段に分かれて出しているが、選ぶのは一つ */
     var c1=$('#tCat [aria-pressed="true"]'), c2=$('#tCat2 [aria-pressed="true"]');
     o2.cat=c1?c1.dataset.v:(c2?c2.dataset.v:'');
@@ -4485,7 +4594,8 @@ document.addEventListener('click',function(e){
     v2.tags=$$('#vTags button[aria-pressed="true"]').map(function(x){ return x.dataset.menu; });
     /* 書いてもらった文字はそのまま残す。リンクにするかどうかは出すときに決める
        （ここで捨てると「入れたのに消えた」になる） */
-    v2.url=$('#vUrl').value.trim(); v2.ref=$('#vRef').value.trim(); v2.refNote=$('#vRefNote').value.trim();
+    v2.url=$('#vUrl').value.trim(); v2.canva=$('#vCanva').value.trim();
+    v2.ref=$('#vRef').value.trim(); v2.refNote=$('#vRefNote').value.trim();
     touch(v2); if(!id) S.videos.push(v2);
     save(); closeSheet(); render(); return;
   }
