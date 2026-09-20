@@ -87,7 +87,9 @@ em{font-style:normal;font-weight:700;color:var(--gold);}
 .empty{padding:22px 10px;text-align:center;color:var(--tx3);font-size:.86rem;}
 
 /* 1行＝1本 */
-.li{display:grid;grid-template-columns:20px 1fr auto;gap:10px;align-items:start;padding:11px 4px;border-bottom:1px solid var(--surface3);}
+.li{position:relative;display:grid;grid-template-columns:20px 1fr auto;gap:10px;align-items:start;padding:11px 8px 11px 13px;border-bottom:1px solid var(--surface3);background:var(--wtint,transparent);border-radius:0 10px 10px 0;}
+/* 左の帯。担当の濃い色。2人なら上下で2色 */
+.li:before{content:"";position:absolute;left:0;top:5px;bottom:5px;width:3px;border-radius:0 3px 3px 0;background:var(--wbar,transparent);}
 .li:last-child{border-bottom:0;}
 .chk{width:20px;height:20px;border:1.5px solid var(--line2);border-radius:6px;background:#fff;margin-top:5px;position:relative;}
 .chk:hover{border-color:var(--ok);}
@@ -125,6 +127,19 @@ em{font-style:normal;font-weight:700;color:var(--gold);}
 .un svg{width:12px;height:12px;}
 
 /* 担当ごと */
+/* 担当を横に並べた箱 */
+.asg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:2px 0 6px;}
+.asg-c{border:1px solid var(--line);border-radius:var(--r);padding:11px 12px 9px;}
+.asg-c.jp{border-color:var(--jp-ed);background:#FAFDFB;} .asg-c.db{border-color:var(--db-ed);background:#FFFBF7;}
+.asg-h{display:flex;align-items:center;gap:7px;width:100%;}
+.asg-h b{font-size:1.3rem;font-weight:700;color:var(--tx);font-variant-numeric:tabular-nums;}
+.asg-h i{font-style:normal;font-size:.72rem;color:var(--tx3);margin-left:-3px;}
+.asg-h svg{width:14px;height:14px;color:var(--tx3);margin-left:auto;}
+.asg-s{font-size:.74rem;color:var(--tx3);margin-top:2px;}
+.asg-s.hot{color:var(--accent);font-weight:700;}
+.asg-a{display:inline-flex;align-items:center;justify-content:center;gap:4px;width:100%;margin-top:8px;padding-top:8px;border-top:1px solid var(--line);font-size:.78rem;font-weight:700;color:var(--tx2);}
+.asg-a:hover{color:var(--accent);}
+.asg-a svg{width:12px;height:12px;}
 .two{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:10px;}
 @media(max-width:600px){.two{grid-template-columns:1fr;}}
 .col{border:1px solid var(--line);border-radius:var(--r);padding:12px 12px 8px;box-shadow:var(--lift);}
@@ -596,6 +611,17 @@ function doneReels(){ return alive(S.reels).filter(function(r){ return !!r.done;
    6. 部品
    ============================================================ */
 function whoPill(role){ return '<span class="who '+ROLE[role]+'">'+esc(roleName(role))+'</span>'; }
+/* 行ぜんたいを担当の色にする。名前の札だけだと、並んだときに誰のものか読み取れない。
+   左の帯は濃い色、地は薄い色。2人で持つものは2色を分け合う */
+function whoBar(r){
+  var cs=chipCols(r,WCOL); if(!cs.length) return 'var(--line2)';
+  return cs.length>1?'linear-gradient(180deg,'+cs[0]+' 50%,'+cs[1]+' 50%)':cs[0];
+}
+function whoTint(r){
+  var cs=chipCols(r,WBG); if(!cs.length) return '#fff';
+  return cs.length>1?'linear-gradient(100deg,'+cs[0]+' 0%,#fff 42%,#fff 58%,'+cs[1]+' 100%)':cs[0];
+}
+function whoStyle(r){ return 'style="--wbar:'+whoBar(r)+';--wtint:'+whoTint(r)+'"'; }
 /* 1本を2人で持つことがある。並べて出さないと、片方だけの仕事に見える */
 function whosHtml(r){ return (r.whos||[r.who]).map(whoPill).join(''); }
 /* 札には、付けてからの日数を添える。3日を超えたら赤（録音「3日超えたら赤くなる」） */
@@ -613,7 +639,7 @@ function unHtml(r){ var n=unreadReel(r); return n?'<span class="un">'+ic('chat')
 /* 1行＝1本 */
 function rowHtml(r){
   var dn=!!r.done;
-  return '<div class="li'+(dn?' done':'')+'">'+
+  return '<div class="li'+(dn?' done':'')+'" '+whoStyle(r)+'>'+
     '<button class="chk'+(dn?' on':'')+'" data-act="'+(dn?'undone':'done')+'" data-id="'+r.id+'" aria-label="'+(dn?'制作中に戻す':'投稿済みにする')+'"></button>'+
     '<div><button class="t" data-act="open" data-id="'+r.id+'"><u>'+esc(r.ttl)+'</u></button>'+
       (dn?'<div class="d">'+esc(r.done.by)+'　'+bothTime(r.done.at)+' に投稿</div>'
@@ -632,10 +658,27 @@ function navHtml(){
 /* ============================================================
    7. 画面
    ============================================================ */
+/* 旧い画面と同じ、担当を横に並べた箱。いま誰に何本あるかを、一覧の前に置く */
+function asgHtml(){
+  var live=liveReels();
+  var ks=WHOK.filter(function(k){
+    return k!=='mgr'||live.some(function(r){ return (r.whos||[]).indexOf('mgr')>=0; }); });
+  var h='<div class="asg">';
+  ks.forEach(function(k){
+    var list=live.filter(function(r){ return (r.whos||[r.who]).indexOf(k)>=0; });
+    var hot=list.filter(function(r){ var n=daysLeft(r); return n!==null&&n<=2; }).length;
+    h+='<div class="asg-c '+ROLE[k]+'">'+
+      '<button class="asg-h" data-act="whotab">'+whoPill(k)+'<b>'+list.length+'</b><i>本</i>'+ic('arrowR')+'</button>'+
+      '<div class="asg-s'+(hot?' hot':'')+'">'+(hot?'あと2日以内　'+hot+'本':'急ぎはありません')+'</div>'+
+      '<button class="asg-a" data-act="add" data-who="'+k+'">'+ic('plus')+'追加</button>'+
+      '</div>';
+  });
+  return h+'</div>';
+}
 /* 企画の1行。四角の代わりに「制作中へ」の矢印 */
 function planRowHtml(r){
   var p=(r.sec.purpose.tx||'').split('\n')[0];
-  return '<div class="li"><button class="mv" data-act="toPost" data-id="'+r.id+'" aria-label="制作中へ移す" title="制作中へ移す">'+ic('arrowR')+'</button>'+
+  return '<div class="li" '+whoStyle(r)+'><button class="mv" data-act="toPost" data-id="'+r.id+'" aria-label="制作中へ移す" title="制作中へ移す">'+ic('arrowR')+'</button>'+
     '<div><button class="t" data-act="open" data-id="'+r.id+'"><u>'+esc(r.ttl)+'</u></button>'+
       '<div class="d">'+(p?esc(p.slice(0,60)):'目的はまだ')+'</div></div>'+
     '<div class="r"><span class="whos">'+whosHtml(r)+'</span></div></div>';
@@ -653,6 +696,7 @@ function viewAll(){
     pl.forEach(function(r){ h+=planRowHtml(r); });
     return h;
   }
+  h+=asgHtml();
   h+='<div class="band">'+ic('film')+'制作中<b>'+live.length+'</b></div>';
   if(!live.length) h+='<div class="empty">まだありません。「追加」から1本目を入れてください。</div>';
   live.forEach(function(r){ h+=rowHtml(r); });
@@ -965,9 +1009,10 @@ function sheetMe(){
 }
 
 /* --- 追加・編集 --- */
-function sheetEdit(id,asPlan){
+function sheetEdit(id,asPlan,who){
   var r=id?byId(S.reels,id):newReel();
   if(!id&&asPlan) r.plan=1;
+  if(!id&&who&&WHO[who]) r.whos=[who];
   var h='<div class="frm">'+
     '<label><span class="jp">区分</span><div class="seg" id="fPlan">'+
       '<button data-v="post" aria-pressed="'+(!r.plan)+'">'+ic('film')+'投稿（動いている）</button>'+
@@ -1128,7 +1173,8 @@ document.addEventListener('click',function(e){
   if(a==='pickme'){ S.me={id:id}; save0(); closeSheet(); render(); return; }
   if(a==='allm'){ ALLM=b.dataset.v; render(); return; }
   if(a==='toPost'){ var rp=byId(S.reels,id); if(!rp) return; rp.plan=0; delete rp.sd; touch(rp); save(); if($('#modal').innerHTML) reSheet(function(){ sheetReel(id); }); render(); return; }
-  if(a==='add'){ if(!me()){ sheetMe(); return; } sheetEdit('',b.dataset.plan==='1'); return; }
+  if(a==='whotab'){ VIEW='who'; closeSheet(); render(); window.scrollTo(0,0); return; }
+  if(a==='add'){ if(!me()){ sheetMe(); return; } sheetEdit('',b.dataset.plan==='1',b.dataset.who||''); return; }
   if(a==='edit'){ sheetEdit(id); return; }
   if(a==='open'){ sheetReel(id); return; }
   if(a==='talk'){ sheetTalk(id,b.dataset.k); return; }
