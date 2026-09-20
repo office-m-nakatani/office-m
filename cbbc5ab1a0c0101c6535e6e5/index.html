@@ -858,8 +858,8 @@ h1,h2,h3,.ttl,.kpi b,.brow-n b,.fl-t{font-feature-settings:"palt" 1;font-weight:
 .task.st-done::before{background:var(--ok);}
 .task.st-done{box-shadow:0 1px 2px rgba(56,51,47,.03);background:#FBF9F7;}
 
-.task .tmeta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 9px;}
-.t-who{font-size:.73rem;font-weight:700;letter-spacing:.1em;padding:3px 10px;border-radius:7px;}
+.task .tmeta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 13px;}
+.t-who{font-size:.82rem;font-weight:700;letter-spacing:.08em;padding:4px 12px;border-radius:8px;}
 .t-who{background:var(--surface);}
 .t-who.jp{color:var(--jp-tx);box-shadow:inset 0 0 0 1px var(--jp-ed);}
 .t-who.db{color:var(--db-tx);box-shadow:inset 0 0 0 1px var(--db-ed);}
@@ -868,7 +868,8 @@ h1,h2,h3,.ttl,.kpi b,.brow-n b,.fl-t{font-feature-settings:"palt" 1;font-weight:
 .st-today .t-st{color:var(--warn);}
 .st-wait .t-st{color:var(--info);}
 .st-done .t-st{color:var(--ok);}
-.t-sub{font-size:.79rem;color:var(--tx3);letter-spacing:.03em;}
+/* くりかえしと期限は、一覧でいちばん先に読む手がかり。小さくしない */
+.t-sub{font-size:.88rem;font-weight:700;color:var(--tx2);letter-spacing:.03em;}
 
 .task .ttl{margin:0 0 11px;font-size:1.17rem;font-weight:700;line-height:1.52;
   letter-spacing:.025em;color:var(--tx);}
@@ -1240,6 +1241,35 @@ body.mx-drag .mx td,body.mx-drag .mx th{transition:none;}
   font-size:.7rem;font-weight:700;letter-spacing:.02em;}
 .mx th.rh .rh-add:hover{border-color:var(--accent);color:var(--accent-d);background:var(--accent-bg);}
 .mx th.rh .rh-add svg{width:14px;height:14px;}
+/* 連絡が届いていることは、題名の脇で知らせる。
+   カードからふきだしの印を外したので、ここが唯一の入口になる */
+.t-un{display:inline-flex;align-items:center;gap:3px;vertical-align:2px;
+  margin-left:7px;padding:2px 8px;border-radius:999px;
+  background:var(--accent);color:#fff;font-size:.7rem;font-weight:700;letter-spacing:.02em;}
+.t-un svg{width:11px;height:11px;}
+/* 一覧のカードの間。詰めると、どこまでが1件なのか目で切れない */
+.tlist{gap:12px;}
+.tcol{gap:12px;}
+/* セルを書くときに、ほかの列を並べて見る。
+   横に並べて比べる表なのに、書くときだけ1枚に閉じていた */
+.cellwrap{display:grid;grid-template-columns:1fr;gap:18px;}
+@media(min-width:760px){ .cellwrap.two{grid-template-columns:1.05fr .95fr;} }
+.cellcmp{display:flex;flex-direction:column;gap:11px;min-width:0;}
+.cellcmp-i{background:var(--surface2);border-radius:12px;padding:12px 14px;}
+.cellcmp-i b{display:block;font-size:.78rem;font-weight:700;color:var(--tx2);
+  letter-spacing:.03em;margin-bottom:7px;}
+.cellcmp-t{font-size:.78rem;line-height:1.85;white-space:pre-wrap;color:var(--tx);}
+.cellcmp-t.none{color:var(--tx3);}
+.cellmm{margin-top:18px;}
+.cellmm textarea{width:100%;box-sizing:border-box;border:1px solid var(--line2);
+  border-radius:var(--r-sm);padding:11px 13px;min-height:96px;background:var(--surface);
+  font-size:var(--fs-sm);line-height:1.75;resize:vertical;}
+.cellmm textarea:focus{outline:none;border-color:var(--accent);}
+/* 表のセルに、メモがあることの印 */
+.cell-mm{display:inline-flex;align-items:center;gap:4px;margin-top:7px;padding:2px 8px;
+  border-radius:5px;background:var(--surface3);color:var(--tx2);
+  font-size:.68rem;font-weight:700;letter-spacing:.04em;}
+.cell-mm svg{width:11px;height:11px;}
 /* シートを画面いっぱいに。撮影の指示は行数が多く、
    660pxの枠に収めると、いちばん読みたい下の行がいつも枠の外にある */
 .ov.full{padding:0;align-items:stretch;}
@@ -2419,7 +2449,7 @@ function cutsHtml(v){
   /* 墓標（del=1）を数に入れると、盤の「カット2」とシートの「2」が別のカットを指す。
      通し番号は必ず alive() の index+1 で数える */
   var canEd=meRole()==='ops', cs=alive(v.cuts);
-  var h=sec('Shot list','こう撮ってほしい','film',
+  var h=sec('Shot list','撮影手順','film',
     '上から順に撮ります。気づいたことは、その行にメモを残せます。');
   if(!cs.length){
     h+='<div class="empty">'+ic('film')+(canEd?'まだ指示がありません。下のボタンで足してください':'まだ指示がありません')+'</div>';
@@ -2611,9 +2641,10 @@ function taskCard(t){
      担当だけ面で出し、状態と期限は文字の色で差をつける */
   var mtx=[]; if(repL) mtx.push(repL);
   if(t.rep==='none'&&t.due) mtx.push(fmtMd(t.due)+(lateOf(t)?'まで（過ぎています）':'まで'));
+  /* 状態は上の絞り込みで選んでいる。どのカードにも同じ言葉を書くと、
+     いちばん読みたい「いつまで」と「くりかえし」がその後ろへ押しやられる */
   var meta='<span class="t-who '+(t.who==='shop'?'db':'jp')+'">'+
       esc(roleName(t.who))+'</span>'+
-    '<span class="t-st">'+esc(STL[st].l)+'</span>'+
     (mtx.length?'<span class="t-sub">'+esc(mtx.join('・'))+'</span>':'');
   /* 済んだら、誰がいつ押したかを残す。まだなら、いつまでかだけ */
   var flow;
@@ -2641,7 +2672,7 @@ function taskCard(t){
     /* 題名を押せば、そのタスクの1ページが開く。
        カードは一覧の顔、ページが本体 */
     '<h3 class="ttl"><button class="ttl-b" data-act="taskpage" data-id="'+t.id+'">'+
-      esc(t.ttl)+'</button></h3>'+
+      esc(t.ttl)+(un?' <span class="t-un">'+ic('chat')+un+'</span>':'')+'</button></h3>'+
     /* 「なぜ」は自分の担当分だけ全文で出す。
        相手の担当分まで全部載せると一覧が倍に伸びるし、終わったものは読み返さない。
        相手の意図を知りたいときは、下のふきだしから直接きける */
@@ -2649,14 +2680,13 @@ function taskCard(t){
     '<div class="tflow">'+flow+'</div>'+histHtml(t)+
     /* 押すものは下にまとめる。いちばん押すボタンに幅を与えて、
        文字を入れておく。丸い印だけでは、押すまで何が起きるか分からない */
+    /* 押すものはひとつだけ。連絡と直すはタスクのページに置いてある。
+       一覧は読むためのもので、そこに操作を三つ並べると、どれが本命か分からない。
+       届いている連絡は題名の脇の数で知らせる */
     '<div class="tact">'+
     '<button class="tcheck '+(a?'ack':d?'on':'')+'" data-act="check" data-id="'+t.id+'"'+(can?'':' disabled')+
       ' aria-label="'+lb+'">'+ic('check')+'<span class="lb">'+lb+'</span></button>'+
-    '<button class="tchat" data-act="tchat" data-id="'+t.id+'" aria-label="このタスクの連絡">'+ic('chat')+
-    (un?'<span class="dot">'+un+'</span>':'')+'</button>'+
-    /* 打ち間違えた題名も、逆にした担当も、ここからでないと直せない */
-    '<button class="tchat tedit" data-act="edtask" data-id="'+t.id+'" aria-label="このタスクを直す">'+
-      ic('pencil')+'</button></div></article>';
+    '</div></article>';
 }
 
 /* ============================================================
@@ -2735,6 +2765,11 @@ function matrixHtml(){
   var rows=[{k:'script',l:'台本',i:'film'},{k:'purpose',l:'目的',i:'target'},{k:'caution',l:'注意',i:'alert'}];
   var h=sec('Matrix','企画比較表','grid','シリーズを横に並べて比較する。台本・目的・注意はシリーズ単位、素材とタグは1本単位。'+
     '　列の見出しを押して横へ動かすと、並び順を変えられる。');
+  /* 足す口は表の上に置く。下に置くと、足すたびに表の終わりまで
+     横にも縦にもスクロールしてから探すことになる */
+  if(ops) h+='<div class="mxadds">'+
+    '<button class="mxadd" data-act="mxaddcol">'+ic('plus')+'シリーズ（横）を足す</button>'+
+    '<button class="mxadd" data-act="mxaddrow">'+ic('plus')+'見る観点（縦）を足す</button></div>';
   h+='<div class="mx-wrap"><table class="mx"><thead><tr><th class="rh" style="white-space:nowrap">シリーズ'+
     (ops?'<button class="rh-add" data-act="mxaddcol" aria-label="シリーズを追加">'+ic('plus')+'追加</button>':'')+
     '</th>';
@@ -2755,8 +2790,10 @@ function matrixHtml(){
     h+='<tr><th class="rh">'+ic(r.i)+r.l+'</th>';
     ss.forEach(function(s){
       var v=s[r.k]||'';
+      var mmv=cellMm(s,r.k);
       h+='<td class="ed" data-act="edcell" data-id="'+s.id+'" data-k="'+r.k+'"><div class="cell'+(v?'':' none')+'">'+
-        (v?esc(v):'未記入')+'</div></td>';
+        (v?esc(v):'未記入')+'</div>'+
+        (mmv?'<span class="cell-mm">'+ic('pencil')+'メモ</span>':'')+'</td>';
     });
     h+='</tr>';
   });
@@ -2827,15 +2864,14 @@ function matrixHtml(){
       (ops?'<button class="rh-e" data-act="edrow" data-id="'+r.id+'" aria-label="この行を直す">'+ic('pencil')+'</button>':'')+'</th>';
     ss.forEach(function(s){
       var xv=(s.ext||{})[r.id]||'';
+      var mmx=cellMm(s,'x:'+r.id);
       h+='<td class="ed" data-act="edcell" data-id="'+s.id+'" data-k="x:'+r.id+'"><div class="cell'+(xv?'':' none')+
-        '">'+(xv?esc(xv):'未記入')+'</div></td>';
+        '">'+(xv?esc(xv):'未記入')+'</div>'+
+        (mmx?'<span class="cell-mm">'+ic('pencil')+'メモ</span>':'')+'</td>';
     });
   });
   h+='</tr></tbody></table></div>';
   /* 軸を足す入口は表の外に置く。表の中に足すと、行の数だけ空のセルが増える */
-  /* 横（シリーズ）を足す口は「シリーズ」の欄へ移した。縦だけがここに残る */
-  if(ops) h+='<div class="mxadds">'+
-    '<button class="mxadd" data-act="mxaddrow">'+ic('plus')+'見る観点（縦）を足す</button></div>';
   h+='<div class="hint">'+ic('info')+'<span>横にスワイプして見比べます。'+
     '<b>列の見出しを押したまま左右へ動かすと、並び順が変わります。</b>'+
     (ops?'セルをタップで編集。':'編集は日本チームが行います。')+'</span></div>';
@@ -3787,22 +3823,44 @@ function sheetRowEdit(id){
     '<button class="btn btn-main" data-act="saverow" data-id="'+(r?r.id:'')+'">'+ic('check')+'保存</button>'+
     (r?' <button class="btn btn-ghost" data-act="delrow" data-id="'+r.id+'">'+ic('trash')+'この行を消す</button>':''));
 }
+/* そのセルに残したメモ。書いた人と日付まで持つ */
+function cellMm(s,k){ return ((s&&s.mm)||{})[k]||null; }
+/* 同じ行の、ほかの列。横に並べて比べる表なのに、
+   書くときだけ1枚に閉じていて、何と揃えたいのかが見えなかった */
+function cellOthers(sid,k,xr){
+  var out='';
+  seriesOrdered().forEach(function(o){
+    if(o.id===sid) return;
+    var v=xr?((o.ext||{})[xr.id]||''):(o[k]||'');
+    out+='<div class="cellcmp-i"><b>'+esc(o.name)+'</b>'+
+      '<div class="cellcmp-t'+(v?'':' none')+'">'+(v?esc(v):'未記入')+'</div></div>';
+  });
+  return out;
+}
 function sheetCell(sid,k){
   var s=byId(S.series,sid); if(!s) return;
   /* 自分で足した観点は x: を付けた鍵で持つ。決まった行と同じ画面で書ける */
   var xr=(k.indexOf('x:')===0)?byId(S.rows,k.slice(2)):null;
   var L=xr?xr.l:{script:'台本',purpose:'目的',caution:'注意',ttp:'うちの場合（参考をどう自店に翻訳するか）'}[k];
   var CV=xr?((s.ext||{})[xr.id]||''):(s[k]||'');
-  if(meRole()!=='ops'){
-    sheet(esc(s.name)+'／'+L,
-      '<div class="fs-sm mute" style="white-space:pre-wrap">'+esc(CV||'未記入')+'</div>'+
-      '<div class="res info" style="margin-top:16px">'+L+'を編集できるのは日本チームです。不明点はこのシリーズの相談に記入してください。</div>',
-      '<button class="btn btn-line" data-act="series" data-id="'+s.id+'" data-b="1">'+ic('chat')+'相談を書く</button>');
-    return;
-  }
+  var ops=(meRole()==='ops'), mm=cellMm(s,k), oth=cellOthers(sid,k,xr);
+  var main = ops
+    ? '<div class="frm"><label>'+L+'<textarea id="cellTx" rows="14" style="min-height:240px">'+esc(CV)+'</textarea></label></div>'
+    : '<div class="fs-sm mute" style="white-space:pre-wrap">'+esc(CV||'未記入')+'</div>'+
+      '<div class="res info" style="margin-top:16px">'+L+'を書き換えられるのは日本チームです。'+
+      '気づいたことは、下のメモに残してください。</div>';
+  /* メモは二人とも書ける。書き換えの権限とは別の話で、
+     現地が気づいたことを置く場所がどこにも無かった */
+  main+='<div class="cellmm"><div class="tcol-h">'+ic('pencil')+'メモ'+
+    (mm&&mm.by?'<b>'+esc(mm.by)+'　'+mdTZ(mm.at,TZ_DUBAI)+'</b>':'')+'</div>'+
+    '<textarea id="cellMm" rows="4" placeholder="例：この台本で撮ったら麺が切れて見えた。次は2秒かけて上げる。">'+
+    esc(mm?mm.tx:'')+'</textarea></div>';
   sheet(esc(s.name)+'／'+L,
-    '<div class="frm"><label>'+L+'<textarea id="cellTx" rows="14" style="min-height:240px">'+esc(CV)+'</textarea></label></div>',
-    '<button class="btn btn-main" data-act="savecell" data-id="'+sid+'" data-k="'+k+'">'+ic('check')+'保存</button>');
+    '<div class="cellwrap'+(oth?' two':'')+'"><div>'+main+'</div>'+
+    (oth?'<div class="cellcmp"><div class="tcol-h">'+ic('grid')+'ほかの列（読むだけ）</div>'+oth+'</div>':'')+
+    '</div>',
+    (ops?'<button class="btn btn-main" data-act="savecell" data-id="'+sid+'" data-k="'+esc(k)+'">'+ic('check')+'保存</button>'
+        :'<button class="btn btn-main" data-act="savecellmm" data-id="'+sid+'" data-k="'+esc(k)+'">'+ic('check')+'メモを保存</button>'));
 }
 
 /* ============================================================
@@ -4343,11 +4401,28 @@ document.addEventListener('click',function(e){
      押した人には何も起きていないように見える */
   if(a==='series'){ var toB=b.dataset.b==='1'; closeSheet(); sheetSeries(id,toB); return; }
   if(a==='edcell'){ closeSheet(); sheetCell(id,b.dataset.k); return; }
+  if(a==='savecellmm'){
+    var sm=byId(S.series,id), km=b.dataset.k, im=$('#cellMm');
+    if(!sm||!im) return;
+    var tm=im.value.trim(), am=me();
+    if(!sm.mm) sm.mm={};
+    if(tm) sm.mm[km]={tx:tm,by:(am||{}).name||'',at:now()};
+    else delete sm.mm[km];
+    touch(sm); save(); closeSheet(); render(); return;
+  }
   if(a==='savecell'){
     var s2=byId(S.series,id), kk=b.dataset.k;
     if(s2){
       if(kk.indexOf('x:')===0){ if(!s2.ext) s2.ext={}; s2.ext[kk.slice(2)]=$('#cellTx').value; }
       else s2[kk]=$('#cellTx').value;
+      /* メモも同じ画面にある。別のボタンにすると、書いたのに残らない */
+      var im2=$('#cellMm');
+      if(im2){
+        var tm2=im2.value.trim(), am2=me();
+        if(!s2.mm) s2.mm={};
+        if(tm2) s2.mm[kk]={tx:tm2,by:(am2||{}).name||'',at:now()};
+        else delete s2.mm[kk];
+      }
       touch(s2); save();
     }
     closeSheet(); render(); return; }
