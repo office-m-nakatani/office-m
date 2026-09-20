@@ -1149,6 +1149,17 @@ body.mx-drag .mx td,body.mx-drag .mx th{transition:none;}
   text-underline-offset:3px;}
 .vlink.none:hover{color:var(--accent-d);background:none;}
 .vlink-w{margin-top:8px;}
+/* つながっているかどうか。いちばん上に、静かに、でも常に出しておく */
+.hbtn.fb-on{color:var(--ok);}
+.hbtn.fb-err{color:var(--accent-d);background:var(--accent-bg);}
+.fbst{display:flex;align-items:flex-start;gap:11px;padding:14px 15px;border-radius:var(--r-sm);
+  margin-bottom:16px;background:var(--surface2);line-height:1.75;}
+.fbst svg{width:19px;height:19px;flex:none;margin-top:2px;}
+.fbst b{font-size:var(--fs-sm);font-weight:700;}
+.fbst.fb-on{background:var(--ok-bg);}
+.fbst.fb-on svg,.fbst.fb-on b{color:var(--ok);}
+.fbst.fb-err{background:var(--accent-bg);}
+.fbst.fb-err svg,.fbst.fb-err b{color:var(--accent-d);}
 /* 状態は二つだけ。未着手は静かに、完了は緑で。
    期限を過ぎたものは、状態ではなく期限の文字の色で気づかせる */
 .tgrp-l.st-todo{color:var(--tx2);}
@@ -1485,8 +1496,11 @@ function sample2real(){
   if(S.shop==='JLT ラーメン') S.shop='Dubai Shiogensui';
   save();
 }
-function save(){ try{ localStorage.setItem(STORE,JSON.stringify(S)); }
+/* 手元に残すだけ。送らない（受け取った内容を書き戻すときに使う） */
+function save0(){ try{ localStorage.setItem(STORE,JSON.stringify(S)); }
   catch(e){ alert('保存できませんでした。ブラウザの空き容量を確認してください。'); } }
+/* ふだんの保存。手元に残して、そのまま相手にも届ける */
+function save(){ save0(); fbSend(); }
 /* 自分が触ったら「相手から来たもの」ではなくなる。
    見本の印も外す。外さないと、見本を書き換えたものや、
    見本の日付に入れた当日の記録まで、相手が受け取らない */
@@ -3692,9 +3706,41 @@ function mergeIn(o){
   save();
   return n;
 }
+/* つながっているかどうかは、いちばん上にいつも出しておく。
+   「送ったつもりで届いていない」が、この二人のあいだで一番起きてほしくないこと */
+function paintSync(){
+  var ic0=$('#syncIc'), tx=$('#syncTx'), bt=$('#btnSync');
+  if(!ic0||!tx||!bt) return;
+  if(!FB_URL){
+    ic0.innerHTML=ic('sync');
+    var c=countOf(changed(S.lastShare)), first=!S.lastShare;
+    tx.innerHTML='同期'+(first?'':(c?' <span class="n">'+c+'</span>':''));
+    bt.className='hbtn'+(c&&!first?' on':'');
+    return;
+  }
+  ic0.innerHTML=ic(FBST==='on'?'link':'sync');
+  tx.innerHTML= FBST==='on' ? 'つながっています'
+              : FBST==='err' ? 'つながっていません'
+              : 'つないでいます';
+  bt.className='hbtn fb-'+FBST;
+}
 function sheetSync(){
   var c=countOf(changed(S.lastShare));
-  var b='<div class="sync-step"><div class="sync-n">1</div><div class="sync-b">'+
+  var b='';
+  if(FB_URL){
+    b+='<div class="fbst fb-'+FBST+'">'+ic(FBST==='on'?'link':'alert')+
+      '<div><b>'+(FBST==='on'?'つながっています':FBST==='err'?'つながっていません':'つないでいます')+'</b>'+
+      '<div class="fs-xs mute3" style="margin-top:4px">'+
+      (FBST==='on'
+        ? '書いたものは、そのまま相手の画面に出ます。相手が書いたものも、こちらに出ます。'+
+          (FBAT?'<br>最後のやり取り　'+bothTime(FBAT):'')
+        : FBST==='err'
+        ? '電波か回線が届いていません。つながり次第ひとりでに送り直します。'+
+          '<br>急ぐときは、下のコードを送る方法も使えます。'
+        : 'つなぎにいっています。')+
+      '</div></div></div>';
+  }
+  b+='<div class="sync-step"><div class="sync-n">1</div><div class="sync-b">'+
     '<b>自分の変更を送信する</b><div class="fs-xs mute3" style="margin-top:3px">'+
       '生成したコードを WhatsApp などに貼り付けて送ります。'+
       (S.lastShare?'':'<br><b style="color:var(--tx)">初回だけは全部を送るので3万字ほどになります。'+
@@ -3828,12 +3874,8 @@ function render(){
       /* 長いほうは375pxで切れる。タスクのピルと同じ短い呼び名を使う */
       '<span class="hd-nm">'+esc(ac0.name)+'</span>'+ic('swap')
     : '<span class="hd-nm">操作者を選ぶ</span>'+ic('swap');
-  $('#syncIc').innerHTML=ic('sync');
   $('#setIc').innerHTML=ic('gear');
-  /* 一度も同期していない時点の「119」は、減らせる数ではないので出さない */
-  var c=countOf(changed(S.lastShare)), first=!S.lastShare;
-  $('#syncTx').innerHTML='同期'+(first?'':(c?' <span class="n">'+c+'</span>':''));
-  $('#btnSync').className='hbtn'+(c&&!first?' on':'');
+  paintSync();
 
   var m=$('#main');
   m.innerHTML = VIEW==='task'?viewTask() : VIEW==='plan'?viewPlan() : VIEW==='cal'?viewCal() :
@@ -4376,6 +4418,95 @@ document.addEventListener('keydown',function(e){
   var n=document.querySelector('.chmv[data-sid="'+g.dataset.sid+'"]'); if(n) n.focus();
 });
 $('#btnSet').addEventListener('click',function(){ sheetSet(); });
+/* 携帯は、画面を伏せているあいだに接続を切る。戻ってきたらつなぎ直す */
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='visible'&&FB_URL){
+    if(!FBES||FBST==='err'){ if(FBES){ try{ FBES.close(); }catch(e){} FBES=null; } FBER=0; fbStart(); }
+    else fbSend();
+  }
+});
+window.addEventListener('online',function(){
+  if(FBES){ try{ FBES.close(); }catch(e){} FBES=null; }
+  FBER=0; fbStart();
+});
+
+
+/* ============================================================
+   18.5 つながり（お互いの入力がそのまま届く）
+   ============================================================ */
+/* 置き場所。部屋の名前が住所そのものなので、これを知らない人は中を見られない。
+   ルールで「ルートは読めない・部屋の名前を知っていれば読み書きできる」としてある */
+var FB_URL='https://dubai-shiogensui-default-rtdb.asia-southeast1.firebasedatabase.app';
+var FB_ROOM='3e9c4d003efb814ae613b490378e56fa';
+var FBDEV='', FBES=null, FBQ=null, FBIN=false, FBST='off', FBAT=0, FBER=0;
+/* 端末の名札。同じ人が二台で開くこともあるので、人ではなく端末で分ける */
+function fbDev(){
+  if(FBDEV) return FBDEV;
+  try{ FBDEV=localStorage.getItem(STORE+'_dev')||''; }catch(e){}
+  if(!FBDEV){
+    FBDEV='d'+Math.random().toString(36).slice(2,10)+(''+now()).slice(-5);
+    try{ localStorage.setItem(STORE+'_dev',FBDEV); }catch(e){}
+  }
+  return FBDEV;
+}
+function fbSet(s){ if(FBST===s) return; FBST=s; paintSync(); }
+/* 自分の持っているものを丸ごと置く。差分だけを積むと、相手がいつ読むか分からない以上、
+   どこまで届いたかを両側で数える羽目になる。丸ごと置けば、最後に置いたものが正しい */
+function fbSend(){
+  if(!FB_URL||FBIN||!S) return;
+  clearTimeout(FBQ);
+  FBQ=setTimeout(function(){
+    var body;
+    try{ body=JSON.stringify({at:now(),by:(me()||{}).name||'',d:changed(0)}); }catch(e){ return; }
+    fetch(FB_URL+'/'+FB_ROOM+'/d/'+fbDev()+'.json',{method:'PUT',body:body})
+      .then(function(r){
+        if(r.ok){ FBER=0; S.lastShare=now(); FBAT=now(); save0(); fbSet('on'); }
+        else fbSet('err');
+      })
+      .catch(function(){ fbSet('err'); });
+  },1800);
+}
+/* 受け取り。相手が置いた瞬間に流れてくる */
+function fbStart(){
+  if(!FB_URL||FBES) return;
+  try{ FBES=new EventSource(FB_URL+'/'+FB_ROOM+'/d.json'); }
+  catch(e){ fbSet('err'); return; }
+  FBES.addEventListener('open',function(){ FBER=0; fbSet('on'); fbSend(); });
+  FBES.addEventListener('error',function(){
+    fbSet('err');
+    /* 回線が切れることはある。つなぎ直しは自分でやる。
+       ただし間隔は広げていく。切れたままの相手を叩き続けても何も起きない */
+    if(FBES){ try{ FBES.close(); }catch(e){} FBES=null; }
+    FBER++;
+    setTimeout(fbStart, Math.min(60000, 3000*FBER));
+  });
+  ['put','patch'].forEach(function(k){
+    FBES.addEventListener(k,function(ev){
+      var m; try{ m=JSON.parse(ev.data); }catch(e){ return; }
+      fbTake(m.path,m.data);
+    });
+  });
+}
+function fbTake(path,data){
+  if(data==null||!S) return;
+  var got=[];
+  if(path==='/'){
+    /* つないだ直後は全員分がまとめて来る */
+    Object.keys(data).forEach(function(k){ if(k!==fbDev()&&data[k]) got.push(data[k]); });
+  }else{
+    var k=(path||'').replace(/^\//,'').split('/')[0];
+    if(!k||k===fbDev()) return;
+    got.push(data);
+  }
+  var hit=false;
+  FBIN=true;
+  try{
+    got.forEach(function(x){ if(x&&x.d){ mergeIn(x.d); hit=true; } });
+  }catch(e){}
+  FBIN=false;
+  fbSet('on'); FBAT=now();
+  if(hit){ S.gotAt=now(); save0(); render(); }
+}
 
 /* ============================================================
    19. 起動
@@ -4384,6 +4515,9 @@ $('#btnSet').addEventListener('click',function(){ sheetSet(); });
    保存が壊れていても、初期化して開ける状態までは必ず持っていく */
 try{
   load(); render();
+  /* つながるのは、画面が出てから。つなぎに手間取っても、
+     画面が出ないという事態にはしない */
+  setTimeout(fbStart,300);
   if(BROKEN) sheetBroken();
   else if(!me()) sheetAccounts(true);
 }catch(e){
