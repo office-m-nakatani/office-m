@@ -1169,16 +1169,8 @@ body.mx-drag .mx td,body.mx-drag .mx th{transition:none;}
 .task.w-jp .tedit,.task.w-db .tedit{background:var(--surface);}
 /* 期限を過ぎた紙だけ、左端に朱の線を立てる */
 .task.is-late{box-shadow:inset 3px 0 0 var(--accent), var(--lift);}
-/* 入力の中の、開いて書くところ */
-.frm .fdet{border:1px dashed var(--line2);border-radius:var(--r-sm);padding:0 13px;}
-.frm .fdet[open]{padding-bottom:13px;}
-.frm .fdet>summary{display:flex;align-items:center;gap:7px;min-height:48px;cursor:pointer;
-  font-size:var(--fs-sm);font-weight:700;color:var(--tx2);list-style:none;}
-.frm .fdet>summary::-webkit-details-marker{display:none;}
-.frm .fdet>summary i{font-style:normal;font-weight:500;color:var(--tx3);font-size:.76rem;}
-.frm .fdet>summary svg{width:15px;height:15px;color:var(--tx3);}
-.frm .fdet>summary:hover{color:var(--accent-d);}
-.frm .fdet textarea{width:100%;box-sizing:border-box;}
+/* 見出しの脇の但し書き。「任意」は見出しと同じ太さで書くと指示に見える */
+.frm .jp i{font-style:normal;font-weight:500;color:var(--tx3);font-size:.76rem;}
 /* 区分は二段で出すが、見出しはひとつ。段のあいだを詰める */
 .frm label>.seg+.seg{margin-top:7px;}
 /* つながっているかどうか。いちばん上に、静かに、でも常に出しておく */
@@ -2135,8 +2127,6 @@ function gapHtml(){
   /* 共有コードを取り込むまで相手側の数字は必ず古い。この一文が無いと盤の数字が嘘になる */
   /* 送った時刻と取り込んだ時刻の新しいほう。取り込みだけしても「一度も同期していません」が
      残っていると、やることをやった人に嘘を出し続けることになる */
-  var syncAt=Math.max(S.lastShare||0,S.gotAt||0);
-  var old=!syncAt||stallOf(ymdTZ(syncAt,TZ_DUBAI))>=2;
   return '<section class="gap">'+
     '<div class="gap-hd"><h2>'+ic('swap')+
       esc(roleName('ops'))+'と'+esc(roleName('shop'))+'のタスク</h2>'+
@@ -2154,13 +2144,8 @@ function gapHtml(){
         '<span class="brow-s">読むだけで終わります</span>'+
         '<span class="brow-k">'+ic('arrowR')+'</span></button>':'')+'</div>'+
     '<p class="gap-clock">'+bothTime(now())+'</p>'+
-    /* 毎回出す必要はない。間があいた時だけ出す */
-    /* つながっているあいだは、送り忘れという状態が起きない。
-       つながっていないときだけ、間があいたことを知らせる */
-    ((old&&FBST!=='on')?'<p class="gap-sync old">'+ic('alert')+
-      '<span>'+(syncAt
-        ? '最後のやり取り　'+bothTime(syncAt)+'。相手側の数字は、この時点のものです'
-        : 'まだつながっていません。右上から送ってください')+'</span></p>':'')+
+    /* つながっているかどうかは、画面のいちばん上にいつも出ている。
+       盤の下でもう一度言うと、見るところが二つになる */
     '</section>';
 }
 /* 「今月の狙い」は独立させた。現地の初画面では、狙いのすぐ下に
@@ -2179,12 +2164,15 @@ function sheetGoalView(){
 /* 件数ボタンの飛び先。タスクと素材が混ざるので、タスク一覧の絞り込みには飛ばさない */
 /* 「いつ足したか・いつまでのものか」を一行に。
    日数だけでは、けさ始まった話なのか、先月から転がっているのかが読めない */
-function whenLine(x){
+function whenLine(x,stall){
   var a=[];
   if(x.at) a.push(mdTZ(x.at,TZ_DUBAI)+' 追加');
   if(x.rep==='daily') a.push('毎日');
   else if(x.rep==='weekly') a.push('毎週');
   else if(x.due) a.push(fmtMd(x.due)+(x.dl||' まで'));
+  /* 何日止まっているか。右端の札を言葉に揃えた分、
+     「どれだけ待たせているか」はこちらで言う */
+  if(stall) a.push(stall+'日 止まっています');
   return a.length?'<span class="s">'+esc(a.join('　／　'))+'</span>':'';
 }
 function sheetGap(side){
@@ -2203,9 +2191,12 @@ function sheetGap(side){
     b+=sec('Stop','ここで止まっているもの','alert',
       esc(roleName(who))+'が動かすまで進みません。素材の添削もここに出ます。');
     it.forEach(function(x){
+      /* 右端の札は、下の一覧と同じ言葉にする。
+         同じ画面の同じ位置で数え方が変わると、どちらの読み方なのか毎回考えることになる。
+         ここに並ぶものは、まだどれも終わっていない */
       b+='<button class="gap-row" data-act="'+x.k+'" data-id="'+x.id+'">'+
-        '<span class="t">'+esc(x.ttl)+whenLine(x)+'</span>'+
-        '<span class="d'+(x.day>=3?'':' w')+'">'+(x.day?x.day+'日':'本日')+'</span>'+
+        '<span class="t">'+esc(x.ttl)+whenLine(x,x.day)+'</span>'+
+        '<span class="d st-todo">'+esc(STL.todo.l)+'</span>'+
         '<span class="lk">'+ic('arrowR')+'</span></button>';
     });
   }
@@ -3473,12 +3464,11 @@ function sheetTaskEdit(id,who0){
     /* 区分は二段に見せていたが、選ぶのは一つ。見出しも一つでいい */
     '<label><span class="jp">区分</span>'+catSeg('tCat',TCAT_G1)+
       catSeg('tCat2',TCAT_G2)+'</label>'+
-    /* メモは、書きたい人だけが開く。
-       開いた瞬間に空の大きな欄があると、埋めないといけない気がして手が止まる */
-    '<details class="fdet"'+(memo0?' open':'')+'><summary>'+ic('pencil')+
-      'メモを書く<i>（任意）</i></summary>'+
+    /* 畳んでおくと、押して開いてから、もう一度押して書くことになる。
+       書く人にとっては二度手間でしかないので、最初から書ける欄にしておく */
+    '<label><span class="jp">メモ<i>（任意）</i></span>'+
       '<textarea id="tMemoF" rows="3" placeholder="例：丼は白の縁あり。麺は2秒かけて上げる。昼の窓際で。">'+
-      esc(memo0)+'</textarea></details>'+
+      esc(memo0)+'</textarea></label>'+
     '</div>';
   sheet(id?'タスクの編集':(roleName(t.who)+'のタスクを追加'),b,
     (id?'<button class="btn btn-ghost" data-act="deltask" data-id="'+id+'">'+ic('trash')+'削除</button>':'')+
