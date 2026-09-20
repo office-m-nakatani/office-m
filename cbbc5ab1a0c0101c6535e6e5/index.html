@@ -782,10 +782,10 @@ a{color:var(--info);}
   --info:#456884; --info-bg:#EBF1F5;
   --violet:#6E5B87; --violet-bg:#F1EDF6;
   /* 拠点の識別。彩度は与えない（彩度は「状態」専用）。必ず文字ラベルを併記する */
-  /* 担当の色。Yui は薄いピンク、Ai は薄い黄色。
+  /* 担当の色。Yui は薄い緑、Ai は薄いオレンジ。
      文字の色は実測でAA(4.5:1)を通したものだけ */
-  --jp-bg:#FCF0F3; --jp-ed:#F0D6DE; --jp-tx:#9B4560;
-  --db-bg:#FCF6E3; --db-ed:#EDE0B7; --db-tx:#7E6124;
+  --jp-bg:#EFF7F1; --jp-ed:#CFE5D6; --jp-tx:#38684A;
+  --db-bg:#FEF3EA; --db-ed:#F2D9C2; --db-tx:#95521F;
   --track:#EDE9E4;
   /* 文字の大きさ。時間のない人が片手で読むので、本文は16pxを下限にする */
   --fs-xs:.78rem; --fs-sm:.88rem; --fs-base:1rem; --fs-md:1.08rem;
@@ -860,8 +860,9 @@ h1,h2,h3,.ttl,.kpi b,.brow-n b,.fl-t{font-feature-settings:"palt" 1;font-weight:
 
 .task .tmeta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 9px;}
 .t-who{font-size:.73rem;font-weight:700;letter-spacing:.1em;padding:3px 10px;border-radius:7px;}
-.t-who.jp{background:var(--jp-ed);color:var(--jp-tx);}
-.t-who.db{background:var(--db-ed);color:var(--db-tx);}
+.t-who{background:var(--surface);}
+.t-who.jp{color:var(--jp-tx);box-shadow:inset 0 0 0 1px var(--jp-ed);}
+.t-who.db{color:var(--db-tx);box-shadow:inset 0 0 0 1px var(--db-ed);}
 .t-st{font-size:.82rem;font-weight:700;letter-spacing:.05em;color:var(--tx2);}
 .st-late .t-st{color:var(--accent-d);}
 .st-today .t-st{color:var(--warn);}
@@ -967,8 +968,17 @@ h1,h2,h3,.ttl,.kpi b,.brow-n b,.fl-t{font-feature-settings:"palt" 1;font-weight:
 .brow{display:block;position:relative;width:100%;text-align:left;border:0;
   padding:13px 30px 12px 14px;min-height:0;border-radius:14px;
   background:var(--surface2);box-shadow:none;}
-/* いま自分が動く側だけ、紙を一枚起こす。相手待ちは沈めておく */
-.brow.is-me{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line2);}
+/* 盤の札も、一覧と同じ担当の色で敷く。どちらの持ち場かを先に見せる */
+.brow-jp{background:var(--jp-bg);}
+.brow-db{background:var(--db-bg);}
+/* いま自分が動く側だけ、縁を立てて一枚起こす */
+.brow.is-me{box-shadow:inset 0 0 0 1.5px var(--line2);}
+.brow-jp.is-me{box-shadow:inset 0 0 0 1.5px var(--jp-ed);}
+.brow-db.is-me{box-shadow:inset 0 0 0 1.5px var(--db-ed);}
+.brow-jp .brow-t{color:var(--jp-tx);}
+.brow-db .brow-t{color:var(--db-tx);}
+.brow-jp .brow-add{border-top-color:var(--jp-ed);}
+.brow-db .brow-add{border-top-color:var(--db-ed);}
 .brow-t{display:block;font-size:.82rem;font-weight:700;letter-spacing:.04em;color:var(--tx2);
   line-height:1.5;margin:0;}
 .brow-n{display:flex;align-items:baseline;gap:3px;margin:5px 0 3px;}
@@ -2145,10 +2155,12 @@ function gapHtml(){
         '<span class="brow-k">'+ic('arrowR')+'</span></button>':'')+'</div>'+
     '<p class="gap-clock">'+bothTime(now())+'</p>'+
     /* 毎回出す必要はない。間があいた時だけ出す */
-    (old?'<p class="gap-sync old">'+ic('alert')+
+    /* つながっているあいだは、送り忘れという状態が起きない。
+       つながっていないときだけ、間があいたことを知らせる */
+    ((old&&FBST!=='on')?'<p class="gap-sync old">'+ic('alert')+
       '<span>'+(syncAt
-        ? '最後のやり取り　'+bothTime(syncAt)+(old?'。相手側の数字は、この時点のものです':'')
-        : 'まだ同期していません。右上の「同期」から送ってください')+'</span></p>':'')+
+        ? '最後のやり取り　'+bothTime(syncAt)+'。相手側の数字は、この時点のものです'
+        : 'まだつながっていません。右上から送ってください')+'</span></p>':'')+
     '</section>';
 }
 /* 「今月の狙い」は独立させた。現地の初画面では、狙いのすぐ下に
