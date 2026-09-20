@@ -99,6 +99,9 @@ em{font-style:normal;font-weight:700;color:var(--gold);}
 .li .t:hover u{box-shadow:inset 0 -1px 0 var(--accent);}
 .li .m{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px;align-items:center;}
 .li .r{display:flex;flex-direction:column;gap:4px;align-items:flex-end;white-space:nowrap;}
+.li .whos{display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end;}
+.with{display:inline-flex;align-items:center;gap:4px;font-size:.7rem;color:var(--tx3);margin-top:3px;}
+.with svg{width:11px;height:11px;}
 .li.done .t{color:var(--tx3);font-weight:400;text-decoration:line-through;text-decoration-color:var(--line2);}
 .li.done .t:hover{color:var(--tx);}
 .who{display:inline-block;font-size:.74rem;font-weight:700;border-radius:6px;padding:1px 9px;line-height:1.75;}
@@ -262,7 +265,7 @@ a{color:var(--info);word-break:break-all;}
 .cal .c.today{border-color:var(--accent);} .cal .c.today .n{color:var(--accent);font-weight:700;}
 .cal .c.fut{background:#FAFAFB;}
 .chip{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;font-size:.6rem;font-weight:700;color:#fff;background:#B93D28;border-radius:3px;padding:1px 3px;line-height:1.35;margin-top:2px;overflow:hidden;word-break:break-all;}
-.chip.plan{background:transparent;color:var(--tx2);border:1px dashed var(--line2);}
+.chip.plan{border:1.5px dashed currentColor;}
 /* ---- ノート。教科書の目次 ---- */
 .ncat{font-size:.72rem;font-weight:700;letter-spacing:.12em;color:var(--gold);margin:18px 2px 6px;}
 .nrow{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;padding:11px 4px;border-bottom:1px solid var(--surface3);}
@@ -308,6 +311,15 @@ mark.ncm{background:var(--info-bg);color:inherit;border-radius:3px;padding:0 2px
 .nq-btn{position:fixed;z-index:60;display:inline-flex;align-items:center;gap:7px;padding:10px 16px;border-radius:999px;background:var(--tx);color:#fff;font-size:.82rem;font-weight:700;letter-spacing:.04em;box-shadow:0 6px 20px -6px rgba(30,34,40,.5);}
 .nq-btn svg{width:14px;height:14px;}
 .nq-btn.off{display:none;}
+/* 動画の住所を落とす枠 */
+.udrop{display:block;}
+.udrop .hint{margin-top:8px;}
+.udz{display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;border:1.5px dashed var(--line2);border-radius:12px;padding:10px 12px;margin-top:8px;}
+.udz svg{width:18px;height:18px;color:var(--tx3);}
+.udz b{font-size:.8rem;font-weight:700;color:var(--tx2);}
+.udz i{font-style:normal;font-size:.72rem;color:var(--tx3);line-height:1.6;}
+.udrop.over .udz{border-color:var(--accent);border-style:solid;background:var(--accent-bg);}
+.udrop.over .udz svg,.udrop.over .udz b{color:var(--accent-d);}
 .nb-src{margin-top:12px;}
 .nb-sel{display:flex;gap:8px;align-items:flex-start;font-size:.82rem;line-height:1.7;color:var(--info);margin-top:10px;}
 .nb-sel svg{width:14px;height:14px;flex:none;margin-top:4px;}
@@ -468,12 +480,18 @@ var CAL=null;
 function newSec(){ return {tx:'',who:'',ok:0,okBy:'',okAt:0,rev:0}; }
 function newUSec(){ return {url:'',fb:'',memo:'',who:'',ok:0,okBy:'',okAt:0,rev:0}; }
 function newReel(){
-  return {id:uid('r'),ttl:'',d:'',who:'shop',tags:[],tagAt:{},stx:'',pri:'',plan:0,done:null,
+  return {id:uid('r'),ttl:'',d:'',who:'shop',whos:['shop'],tags:[],tagAt:{},stx:'',pri:'',plan:0,done:null,
     sec:{purpose:newSec(),script:newSec(),shoot:newUSec(),edit:newUSec(),cap:newSec(),cov:newSec(),
       after:{tx:'',url:'',rev:0}},
     rev:now(),at:now()};
 }
 function fixReel(r){
+  /* 担当者は複数。前からある保存や、古い版の端末から来たものは who（1人）だけ持っている。
+     who は古い版のために残し、いつも whos の先頭と同じにしておく */
+  if(!Array.isArray(r.whos)) r.whos=[];
+  r.whos=r.whos.filter(function(k){ return !!WHO[k]; });
+  if(!r.whos.length) r.whos=[WHO[r.who]?r.who:'shop'];
+  r.who=r.whos[0];
   if(!Array.isArray(r.tags)) r.tags=[];
   if(!r.tagAt||typeof r.tagAt!=='object') r.tagAt={};
   r.plan=(r.plan===1)?1:0;
@@ -517,21 +535,21 @@ function seed(){
     {id:'a-ryuki',name:'Ryuki',role:'mgr', rev:0,at:now()}
   ];
   function ad(n){ var d=fromYmd(t); d.setUTCDate(d.getUTCDate()+n); return ymdTZ(d.getTime(),0); }
-  var r1=newReel(); r1.id='r-hashi'; r1.ttl='ラーメン食べ方リール（おはし）'; r1.d=ad(2); r1.who='shop';
+  var r1=newReel(); r1.id='r-hashi'; r1.ttl='ラーメン食べ方リール（おはし）'; r1.d=ad(2); r1.whos=['ops','shop'];
   r1.tags=['voice']; r1.tagAt={voice:ad(-4)}; r1.stx='英文チェック待ち'; r1.pri='high';
   r1.sec.purpose.tx='おはしで食べる姿を【体験】として売る。ラーメンを知らない層に「音を立てていい」を伝える。'; r1.sec.purpose.who='ops'; r1.sec.purpose.ok=1; r1.sec.purpose.okBy='Yui'; r1.sec.purpose.okAt=now()-5*864e5;
   r1.sec.script.tx='0〜2秒　箸で麺を持ち上げる（湯気が立つうちに）\n2〜6秒　すする音。顔まで入れる\n6〜10秒　英語テロップ「Loud is polite in Japan」'; r1.sec.script.who='ops'; r1.sec.script.ok=1; r1.sec.script.okBy='Yui'; r1.sec.script.okAt=now()-4*864e5;
   r1.sec.shoot.who='shop'; r1.sec.edit.who='ops'; r1.sec.cap.who='shop'; r1.sec.cov.who='shop';
   r1.rev=0; r1.at=now()-6*864e5; r1.sd=1;
-  var r2=newReel(); r2.id='r-gyoza'; r2.ttl='餃子セット（新メニュー）'; r2.d=ad(6); r2.who='ops'; r2.tags=['script']; r2.tagAt={script:ad(-1)}; r2.pri='mid';
+  var r2=newReel(); r2.id='r-gyoza'; r2.ttl='餃子セット（新メニュー）'; r2.d=ad(6); r2.whos=['ops','shop']; r2.tags=['script']; r2.tagAt={script:ad(-1)}; r2.pri='mid';
   r2.sec.purpose.who='ops'; r2.sec.script.who='ops'; r2.sec.shoot.who='shop'; r2.sec.cap.who='shop'; r2.sec.cov.who='shop';
   r2.rev=0; r2.at=now()-2*864e5; r2.sd=1;
   /* 出したものが1本あると、カレンダーの見方が伝わる */
-  var r3=newReel(); r3.id='r-yaki'; r3.ttl='餃子の焼き上がり'; r3.d=ad(-2); r3.who='shop'; r3.tags=[];
+  var r3=newReel(); r3.id='r-yaki'; r3.ttl='餃子の焼き上がり'; r3.d=ad(-2); r3.whos=['shop']; r3.tags=[];
   r3.done={by:'Ai',at:now()-2*864e5}; r3.sec.after.tx='保存が多かった。「セット」の字幕が効いた。翌日ランチで餃子セット＋3。';
   r3.rev=0; r3.at=now()-9*864e5; r3.sd=1;
   /* 企画＝まだ動いていない案。思いついたときに題名と一言だけ置いておく */
-  var r4=newReel(); r4.id='r-staff'; r4.ttl='スタッフ紹介リール（Ryuki）'; r4.who='mgr'; r4.plan=1;
+  var r4=newReel(); r4.id='r-staff'; r4.ttl='スタッフ紹介リール（Ryuki）'; r4.whos=['mgr']; r4.plan=1;
   r4.sec.purpose.tx='家族でやっている本物の店だと分かる顔を出す。厨房の Ryuki が一言。'; r4.sec.purpose.who='ops';
   r4.rev=0; r4.at=now()-3*864e5; r4.sd=1;
   S.reels=[r1,r2,r3,r4];
@@ -578,6 +596,8 @@ function doneReels(){ return alive(S.reels).filter(function(r){ return !!r.done;
    6. 部品
    ============================================================ */
 function whoPill(role){ return '<span class="who '+ROLE[role]+'">'+esc(roleName(role))+'</span>'; }
+/* 1本を2人で持つことがある。並べて出さないと、片方だけの仕事に見える */
+function whosHtml(r){ return (r.whos||[r.who]).map(whoPill).join(''); }
 /* 札には、付けてからの日数を添える。3日を超えたら赤（録音「3日超えたら赤くなる」） */
 function tagsHtml(r){
   var h='', t0=today();
@@ -598,7 +618,7 @@ function rowHtml(r){
     '<div><button class="t" data-act="open" data-id="'+r.id+'"><u>'+esc(r.ttl)+'</u></button>'+
       (dn?'<div class="d">'+esc(r.done.by)+'　'+bothTime(r.done.at)+' に投稿</div>'
          :'<div class="m">'+tagsHtml(r)+priHtml(r)+unHtml(r)+'</div>')+'</div>'+
-    '<div class="r">'+whoPill(r.who)+(dn?'':dlHtml(r))+'</div>'+
+    '<div class="r"><span class="whos">'+whosHtml(r)+'</span>'+(dn?'':dlHtml(r))+'</div>'+
     '</div>';
 }
 function navHtml(){
@@ -618,11 +638,11 @@ function planRowHtml(r){
   return '<div class="li"><button class="mv" data-act="toPost" data-id="'+r.id+'" aria-label="制作中へ移す" title="制作中へ移す">'+ic('arrowR')+'</button>'+
     '<div><button class="t" data-act="open" data-id="'+r.id+'"><u>'+esc(r.ttl)+'</u></button>'+
       '<div class="d">'+(p?esc(p.slice(0,60)):'目的はまだ')+'</div></div>'+
-    '<div class="r">'+whoPill(r.who)+'</div></div>';
+    '<div class="r"><span class="whos">'+whosHtml(r)+'</span></div></div>';
 }
 function viewAll(){
   var live=liveReels(), fin=doneReels(), pl=planReels();
-  var h='<div class="top"><div><h1>リール制作</h1><div class="sub">1行＝1本。四角を押すと投稿済みへ。題名を押すと詳細。</div></div>'+
+  var h='<div class="top"><div><h1>リール制作</h1></div>'+
     '<button class="btn btn-main" data-act="add" data-plan="'+(ALLM==='plan'?1:0)+'">'+ic('plus')+'追加</button></div>';
   /* 投稿（動いているもの）と 企画（案）。同じ画面で切り替える（録音） */
   h+='<div class="mode"><button data-act="allm" data-v="post" aria-selected="'+(ALLM!=='plan')+'">投稿</button>'+
@@ -634,8 +654,7 @@ function viewAll(){
     return h;
   }
   h+='<div class="band">'+ic('film')+'制作中<b>'+live.length+'</b></div>';
-  if(live.length) h+='<div class="cols"><span></span><span>投稿予定日　タイトル／ステータス</span><span>担当者</span></div>';
-  else h+='<div class="empty">まだありません。「追加」から1本目を入れてください。</div>';
+  if(!live.length) h+='<div class="empty">まだありません。「追加」から1本目を入れてください。</div>';
   live.forEach(function(r){ h+=rowHtml(r); });
   h+='<div class="band done">'+ic('check')+'投稿済み<b>'+fin.length+'</b></div>';
   if(!fin.length) h+='<div class="empty">まだありません</div>';
@@ -644,18 +663,22 @@ function viewAll(){
 }
 function viewWho(){
   var live=liveReels();
-  var h='<div class="top"><div><h1>担当ごと</h1><div class="sub">いま誰の手元に何があるか。全体の一覧と同じ中身です。</div></div>'+
+  var h='<div class="top"><div><h1>担当ごと</h1></div>'+
     '<button class="btn btn-main" data-act="add">'+ic('plus')+'追加</button></div>';
   h+='<div class="two">';
   WHOK.forEach(function(role){
-    var list=live.filter(function(r){ return r.who===role; });
+    /* 2人で持っている1本は、両方の列に出す。どちらから見ても自分の仕事 */
+    var list=live.filter(function(r){ return (r.whos||[r.who]).indexOf(role)>=0; });
     if(role==='mgr'&&!list.length) return;
     h+='<div class="col '+ROLE[role]+'"><h3>'+whoPill(role)+'<b>'+list.length+'</b></h3>';
     if(!list.length) h+='<div class="empty">手元にありません</div>';
     list.forEach(function(r){
       h+='<div class="mi"><button class="chk" data-act="done" data-id="'+r.id+'" aria-label="投稿済みにする"></button>'+
         '<div><button class="t" data-act="open" data-id="'+r.id+'">'+esc(r.ttl)+'</button>'+
-        '<div class="m">'+tagsHtml(r)+unHtml(r)+'</div>'+dlHtml(r)+'</div></div>';
+        '<div class="m">'+tagsHtml(r)+unHtml(r)+'</div>'+
+        ((r.whos||[]).length>1?'<div class="with">'+ic('users')+'いっしょに '+
+          esc((r.whos||[]).filter(function(k){ return k!==role; }).map(roleName).join('・'))+'</div>':'')+
+        dlHtml(r)+'</div></div>';
     });
     h+='</div>';
   });
@@ -680,7 +703,7 @@ function viewMonth(){
   if(!CAL){ var d0=fromYmd(today()); CAL={y:d0.getUTCFullYear(),m:d0.getUTCMonth()}; }
   var g=S.goal||{};
   /* いちばん上は「何のためにやっているか」。見失ったときに戻る場所 */
-  var h='<div class="top"><div><h1>今月</h1><div class="sub">方向性と目標は、見失ったときにここへ戻ってきてください。</div></div></div>';
+  var h='<div class="top"><div><h1>今月</h1></div></div>';
   h+='<div class="dir"><div class="k">方向性・考え方</div>'+
     (g.s?'<div class="s">'+emph(g.s)+'</div>':'<div class="s none">まだ書かれていません</div>')+
     '<div class="k">今月の目標</div>'+
@@ -696,12 +719,32 @@ function viewMonth(){
     var ds=CAL.y+'-'+pad2(CAL.m+1)+'-'+pad2(day);
     var on=reelsOn(ds);
     /* 出したものは塗り、これから出すものは点線。両方が1つの暦に載る（案B） */
-    var chips=on.slice(0,3).map(function(o){ return '<span class="chip'+(o.plan?' plan':'')+'">'+esc(o.r.ttl)+'</span>'; }).join('');
+    var chips=on.slice(0,3).map(function(o){ return chipHtml(o); }).join('');
     if(on.length>3) chips+='<span class="chip plan">+'+(on.length-3)+'</span>';
     h+='<button class="c'+(ds===td?' today':'')+(ds>td?' fut':'')+'" data-act="day" data-d="'+ds+'"><span class="n">'+day+'</span>'+chips+'</button>';
   }
-  h+='</div><div class="legend"><span><i style="background:#B93D28"></i>出した</span><span><i style="border:1px dashed var(--line2)"></i>出す予定（点線）</span><span>日付を押すと、その日の投稿とメモ</span></div>';
+  h+='</div><div class="legend">'+
+    WHOK.map(function(k){ return '<span><i style="background:'+WCOL[k]+'"></i>'+esc(roleName(k))+'</span>'; }).join('')+
+    '<span><i style="border:1.5px dashed var(--line2)"></i>出す予定（点線）</span>'+
+    '<span>日付を押すと、その日の投稿とメモ</span></div>';
   return h;
+}
+/* 暦の中の1枚。誰のものかを色で、出したか予定かを塗りと点線で分ける。
+   2人で持っているものは、2色を半分ずつ */
+var WCOL={ops:'#38684A',shop:'#95521F',mgr:'#95521F'};
+var WBG ={ops:'#EFF7F1',shop:'#FEF3EA',mgr:'#FEF3EA'};
+function chipCols(r,map){
+  var cs=[]; (r.whos||[r.who]).forEach(function(k){ var c=map[k]; if(c&&cs.indexOf(c)<0) cs.push(c); });
+  return cs;
+}
+function chipHtml(o){
+  var st=chipCols(o.r,WCOL), bg=chipCols(o.r,WBG);
+  if(!st.length){ st=['#585E67']; bg=['#F6F7F9']; }
+  var fill=function(cs){ return cs.length>1?'linear-gradient(90deg,'+cs[0]+' 50%,'+cs[1]+' 50%)':cs[0]; };
+  /* 出したものは濃く塗る。予定は薄く塗って点線で囲む。2人のものは2色を半分ずつ */
+  var css=o.plan?('background:'+fill(bg)+';color:'+st[0]+';border-color:'+st[0])
+                :('background:'+fill(st));
+  return '<span class="chip'+(o.plan?' plan':'')+'" style="'+css+'">'+esc(o.r.ttl)+'</span>';
 }
 /* その日の投稿。出したものはメモつき、予定は題名と担当 */
 function sheetDay(ds){
@@ -712,7 +755,7 @@ function sheetDay(ds){
     var r=o.r, a=r.sec.after||{};
     h+='<button class="dayl" data-act="open" data-id="'+r.id+'"><i class="'+(o.plan?'plan':'')+'"></i><div>'+
       '<div class="t">'+esc(r.ttl)+'</div>'+
-      '<div class="s">'+whoPill(r.who)+'　'+(o.plan?'出す予定':'ドバイ '+hmTZ(r.done.at,TZ_DUBAI)+' に投稿')+'</div>'+
+      '<div class="s">'+whosHtml(r)+'　'+(o.plan?'出す予定':'ドバイ '+hmTZ(r.done.at,TZ_DUBAI)+' に投稿')+'</div>'+
       (!o.plan&&a.tx?'<div class="s">'+emph(a.tx)+'</div>':'')+
       '</div></button>';
   });
@@ -754,7 +797,7 @@ function unreadNote(){
   return q;
 }
 function viewNote(){
-  var h='<div class="top"><div><h1>ノート</h1><div class="sub">インスタ運用の教科書を14に分けたもの。迷ったら読む。分からない文はなぞって聞く。</div></div></div>';
+  var h='<div class="top"><div><h1>ノート</h1></div></div>';
   var cat='';
   SHOP_NOTES.forEach(function(n2,i){
     if(n2.cat!==cat){ cat=n2.cat; h+='<div class="ncat">'+esc(cat)+'</div>'; }
@@ -895,6 +938,13 @@ function sheet(title,body,foot){
   }
   fit();
 }
+/* 中の欄を押しただけでシートを作り直すと、一番上に飛ぶ。
+   作り直す前の位置を覚えておいて、同じ所へ戻す */
+function reSheet(fn){
+  var bd=$('.sh-bd'), y=bd?bd.scrollTop:0;
+  fn();
+  var b2=$('.sh-bd'); if(b2) b2.scrollTop=y;
+}
 function closeSheet(){
   $('#modal').innerHTML='';
   if(document.body.classList.contains('has-sheet')){
@@ -924,8 +974,8 @@ function sheetEdit(id,asPlan){
       '<button data-v="plan" aria-pressed="'+(!!r.plan)+'">'+ic('pencil')+'企画（案）</button></div></label>'+
     '<label><span class="jp">タイトル</span><input type="text" id="fTtl" value="'+esc(r.ttl)+'" placeholder="例：ラーメン食べ方リール（おはし）"></label>'+
     '<label><span class="jp">投稿予定日</span><input type="date" id="fD" value="'+esc(r.d)+'"></label>'+
-    '<label><span class="jp">担当者</span><div class="seg" id="fWho">'+WHOK.map(function(k){
-      return '<button class="'+ROLE[k]+'" data-v="'+k+'" aria-pressed="'+(r.who===k)+'">'+ic('users')+esc(roleName(k))+'</button>'; }).join('')+'</div></label>'+
+    '<label><span class="jp">担当者 <i>（2人でもよい）</i></span><div class="seg multi" id="fWho">'+WHOK.map(function(k){
+      return '<button class="'+ROLE[k]+'" data-v="'+k+'" aria-pressed="'+((r.whos||[]).indexOf(k)>=0)+'">'+ic('users')+esc(roleName(k))+'</button>'; }).join('')+'</div></label>'+
     '<label><span class="jp">ステータス <i>（いくつでも）</i></span><div class="seg multi" id="fTags">'+TAGS.map(function(t){
       return '<button data-v="'+t[0]+'" aria-pressed="'+(r.tags.indexOf(t[0])>=0)+'">'+ic(t[2])+t[1]+'</button>'; }).join('')+'</div></label>'+
     '<label><span class="jp">上に無いもの <i>（任意）</i></span><input type="text" id="fStx" value="'+esc(r.stx)+'" placeholder="例：英文チェック待ち"></label>'+
@@ -942,18 +992,24 @@ function sheetEdit(id,asPlan){
 function secBody(r,s){
   var x=r.sec[s.k];
   if(s.u){
-    return '<div class="sub">'+
-      '<em>URL</em><input type="url" data-sec="'+r.id+'" data-k="'+s.k+'" data-f="url" value="'+esc(x.url)+'" placeholder="'+esc(s.pu)+'">'+
-      '<em>FB</em><textarea data-sec="'+r.id+'" data-k="'+s.k+'" data-f="fb" rows="2" placeholder="見た人からの直してほしい点">'+esc(x.fb)+'</textarea>'+
-      '<em>備考</em><textarea data-sec="'+r.id+'" data-k="'+s.k+'" data-f="memo" rows="2" placeholder="'+esc(s.pm)+'">'+esc(x.memo)+'</textarea>'+
-      '</div>'+(x.url?'<div class="hint" style="margin-top:6px">'+ic('link')+'<span>'+linkify(esc(x.url))+'</span></div>':'');
+    /* 動画そのものは預かれない（置き場所が無く、相手の端末にも届かない）。
+       ドライブの住所を受け取る口だけを広くしておく。枠のどこへ落としても同じ */
+    return '<div class="udrop" data-sec="'+r.id+'" data-k="'+s.k+'">'+
+      '<div class="sub">'+
+      '<em>URL</em><input type="url" data-sec="'+r.id+'" data-k="'+s.k+'" data-f="url" value="'+esc(x.url)+'">'+
+      '<em>FB</em><textarea data-sec="'+r.id+'" data-k="'+s.k+'" data-f="fb" rows="2">'+esc(x.fb)+'</textarea>'+
+      '<em>備考</em><textarea data-sec="'+r.id+'" data-k="'+s.k+'" data-f="memo" rows="2">'+esc(x.memo)+'</textarea>'+
+      '</div>'+
+      '<div class="udz">'+ic('link')+'<b>ここに動画をドラッグ</b><i>ドライブで開いた動画を、この枠のどこへ落としても受け取ります</i></div>'+
+      (x.url?'<div class="hint">'+ic('link')+'<span>'+linkify(esc(x.url))+'</span></div>':'')+
+      '</div>';
   }
   return '<textarea data-sec="'+r.id+'" data-k="'+s.k+'" data-f="tx" rows="3" placeholder="'+esc(s.ph||'')+'">'+esc(x.tx)+'</textarea>';
 }
 function sheetReel(id){
   var r=byId(S.reels,id); if(!r) return;
   markRead(ref(r.id,'all'));
-  var h='<div class="meta">'+whoPill(r.who)+dlHtml(r)+tagsHtml(r).replace(/<span class="warn">[\s\S]*?<\/span>/,'')+priHtml(r)+
+  var h='<div class="meta">'+whosHtml(r)+dlHtml(r)+tagsHtml(r).replace(/<span class="warn">[\s\S]*?<\/span>/,'')+priHtml(r)+
     '<button class="btn btn-line btn-sm" data-act="edit" data-id="'+r.id+'" style="margin-left:auto">'+ic('pencil')+'直す</button></div>';
   /* 1週間前の目安。投稿日の7日前を過ぎて台本が空なら、ここで言う */
   if(r.d&&!r.done){
@@ -979,7 +1035,7 @@ function sheetReel(id){
     var af=r.sec.after;
     h+='<section class="after"><div class="sec-h"><h3>'+ic('check')+'投稿してどうだったか</h3></div>'+
       '<textarea data-sec="'+r.id+'" data-k="after" data-f="tx" rows="3" placeholder="手応え・数字・気づき。例）保存が多かった。翌日ランチで餃子セット＋3。">'+esc(af.tx)+'</textarea>'+
-      '<div class="sub" style="margin-top:8px"><em>URL</em><input type="url" data-sec="'+r.id+'" data-k="after" data-f="url" value="'+esc(af.url)+'" placeholder="投稿のURL"></div>'+
+      '<div class="sub" style="margin-top:8px"><em>URL</em><input type="url" data-sec="'+r.id+'" data-k="after" data-f="url" value="'+esc(af.url)+'"></div>'+
       (af.url?'<div class="hint" style="margin-top:6px">'+ic('link')+'<span>'+linkify(esc(af.url))+'</span></div>':'')+
       '</section>';
   }
@@ -1071,7 +1127,7 @@ document.addEventListener('click',function(e){
   if(a==='savegoal'){ S.goal={t:$('#gT').value.trim(),s:$('#gS').value.trim(),rev:now()}; save(); closeSheet(); render(); return; }
   if(a==='pickme'){ S.me={id:id}; save0(); closeSheet(); render(); return; }
   if(a==='allm'){ ALLM=b.dataset.v; render(); return; }
-  if(a==='toPost'){ var rp=byId(S.reels,id); if(!rp) return; rp.plan=0; delete rp.sd; touch(rp); save(); if($('#modal').innerHTML) sheetReel(id); render(); return; }
+  if(a==='toPost'){ var rp=byId(S.reels,id); if(!rp) return; rp.plan=0; delete rp.sd; touch(rp); save(); if($('#modal').innerHTML) reSheet(function(){ sheetReel(id); }); render(); return; }
   if(a==='add'){ if(!me()){ sheetMe(); return; } sheetEdit('',b.dataset.plan==='1'); return; }
   if(a==='edit'){ sheetEdit(id); return; }
   if(a==='open'){ sheetReel(id); return; }
@@ -1084,7 +1140,9 @@ document.addEventListener('click',function(e){
     var ttl=$('#fTtl').value.trim(); if(!ttl){ alert('タイトルを入れてください'); return; }
     var r=id?byId(S.reels,id):newReel();
     r.ttl=ttl; r.d=$('#fD').value||'';
-    var w=$('#fWho [aria-pressed="true"]'); r.who=w?w.dataset.v:r.who;
+    var ws=$$('#fWho [aria-pressed="true"]').map(function(x){ return x.dataset.v; });
+    if(!ws.length){ alert('担当者を選んでください'); return; }
+    r.whos=ws; r.who=ws[0];
     r.tags=$$('#fTags [aria-pressed="true"]').map(function(x){ return x.dataset.v; });
     /* 札を付けた日を覚える。外した札の日付は捨てる（付け直したら数え直し） */
     var t0=today(), ta={}; r.tags.forEach(function(k){ ta[k]=r.tagAt[k]||t0; }); r.tagAt=ta;
@@ -1092,7 +1150,12 @@ document.addEventListener('click',function(e){
     r.stx=$('#fStx').value.trim();
     var pr=$('#fPri [aria-pressed="true"]'); r.pri=pr?pr.dataset.v:'';
     /* 担当が決まった時点で、その人の欄の担当も同じにしておく（あとで変えられる） */
-    if(!id){ r.sec.purpose.who='ops'; r.sec.script.who='ops'; r.sec.shoot.who=r.who; r.sec.edit.who='ops'; r.sec.cap.who=r.who; r.sec.cov.who=r.who; }
+    /* 項目ごとの担当の初めの置き方。撮るのは現地、書くのは日本、が既定。あとで変えられる */
+    if(!id){
+      var db=(r.whos.indexOf('shop')>=0)?'shop':(r.whos.indexOf('mgr')>=0?'mgr':r.whos[0]);
+      var jp=(r.whos.indexOf('ops')>=0)?'ops':r.whos[0];
+      r.sec.purpose.who=jp; r.sec.script.who=jp; r.sec.shoot.who=db; r.sec.edit.who=jp; r.sec.cap.who=db; r.sec.cov.who=db;
+    }
     delete r.sd; touch(r); if(!id) S.reels.push(r);
     save(); closeSheet(); render(); return;
   }
@@ -1106,19 +1169,19 @@ document.addEventListener('click',function(e){
     if(!me()){ sheetMe(); return; }
     rr.done=(a==='done')?{by:meName(),at:now()}:null;
     delete rr.sd; touch(rr); save();
-    if($('#modal').innerHTML) sheetReel(id); render(); return;
+    if($('#modal').innerHTML) reSheet(function(){ sheetReel(id); }); render(); return;
   }
   if(a==='secwho'){
     var rw=byId(S.reels,id); if(!rw) return;
     var xw=rw.sec[b.dataset.k]; xw.who=(xw.who===b.dataset.v)?'':b.dataset.v; xw.rev=now();
-    delete rw.sd; touch(rw); save(); sheetReel(id); return;
+    delete rw.sd; touch(rw); save(); reSheet(function(){ sheetReel(id); }); return;
   }
   if(a==='secok'){
     var ro=byId(S.reels,id); if(!ro) return;
     if(!me()){ sheetMe(); return; }
     var xo=ro.sec[b.dataset.k];
     xo.ok=xo.ok?0:1; xo.okBy=xo.ok?meName():''; xo.okAt=xo.ok?now():0; xo.rev=now();
-    delete ro.sd; touch(ro); save(); sheetReel(id); render(); return;
+    delete ro.sd; touch(ro); save(); reSheet(function(){ sheetReel(id); }); render(); return;
   }
   if(a==='send'){
     if(!me()){ sheetMe(); return; }
@@ -1136,6 +1199,61 @@ document.addEventListener('click',function(e){
     render(); return;
   }
 });
+/* 落とされたものから住所を取り出す。ドライブからの持ち出し方は環境で変わるので、拾える口はぜんぶ見る */
+function dropUrl(dt){
+  if(!dt) return '';
+  var t='';
+  try{ t=dt.getData('text/uri-list')||''; }catch(e){}
+  if(!t){ try{ t=dt.getData('text/plain')||''; }catch(e){} }
+  if(!t){ var h=''; try{ h=dt.getData('text/html')||''; }catch(e){}
+    var m=h.match(/href\s*=\s*["']([^"']+)["']/i); if(m) t=m[1]; }
+  /* uri-list は複数行で来ることがある。先頭の一本だけ使う */
+  t=((t||'')+'').split(/[\r\n]+/).filter(function(x){ return x&&x.charAt(0)!=='#'; })[0]||'';
+  return t.trim();
+}
+/* 「drive.google.com/…」のように https:// を書き落とすのは日常なので補う */
+function fixUrl(u){
+  u=((u||'')+'').trim(); if(!u) return '';
+  if(/^https?:\/\//i.test(u)) return u;
+  if(/^[a-z0-9]([a-z0-9\-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9\-]*[a-z0-9])?)+([\/?#]|$)/i.test(u)) return 'https://'+u;
+  return '';
+}
+var UDZ=null;
+function udOff(){ if(UDZ){ UDZ.classList.remove('over'); UDZ=null; } }
+/* 枠を外したときに、画面ごとファイルへ飛ばされるのがいちばん困る。
+   受け取らない場所でも既定の動きは止める */
+document.addEventListener('dragover',function(e){
+  e.preventDefault();
+  var t=e.target, z=(t&&t.closest)?t.closest('.udrop'):null;
+  if(!z){ udOff(); return; }
+  try{ e.dataTransfer.dropEffect='copy'; }catch(er){}
+  if(UDZ!==z){ udOff(); UDZ=z; z.classList.add('over'); }
+});
+document.addEventListener('dragleave',function(e){ if(UDZ&&!UDZ.contains(e.relatedTarget)) udOff(); });
+document.addEventListener('drop',function(e){
+  e.preventDefault();
+  var t=e.target, z=(t&&t.closest)?t.closest('.udrop'):null;
+  udOff();
+  if(!z) return;
+  var r=byId(S.reels,z.dataset.sec), k=z.dataset.k;
+  if(!r||!r.sec[k]) return;
+  var u=fixUrl(dropUrl(e.dataTransfer));
+  if(u){
+    r.sec[k].url=u; r.sec[k].rev=now(); delete r.sd; touch(r); save();
+    reSheet(function(){ sheetReel(r.id); });
+    return;
+  }
+  var f=e.dataTransfer&&e.dataTransfer.files;
+  if(f&&f.length){
+    /* 動画そのものは預かれない。預かっても相手の端末には届かないので、
+       「貼ったのに見えない」が起きる。置き場所はドライブのまま */
+    alert('動画そのものは、この画面には置けません。\n\n'+f[0].name+
+      '\n\nGoogleドライブに上げてから、その動画の住所をこの枠へ落としてください。');
+    return;
+  }
+  alert('リンクを読み取れませんでした。\nGoogleドライブで動画を開いて、上の住所をそのまま貼り付けてください。');
+});
+
 /* 一つのシートしか無いので、外側を押したら閉じる */
 document.addEventListener('mousedown',function(e){ if(e.target.classList&&e.target.classList.contains('ov')) closeSheet(); });
 
