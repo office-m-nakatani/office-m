@@ -10,7 +10,7 @@
 <style>
 /* ============================================================
    Dubai Shiogensui（ドバイ JLT）集客管理コンソール
-   ・日本チームと 現地スタッフ（ドバイ）の双方向タスク管理
+   ・日本（Yui）とドバイ（Ai・Ryuki）の双方向タスク管理
    ・1画面＝1ファイル。バックエンド無し（費用ゼロ）。
      データは各端末の localStorage、受け渡しは「共有コード」のコピペ。
    ・操作者は個別アカウント（暗証番号つき）。端末を複数人で共有する前提。
@@ -1006,9 +1006,14 @@ h1,h2,h3,.ttl,.kpi b,.brow-n b,.fl-t{font-feature-settings:"palt" 1;font-weight:
 .gap-row .d.st-wait{color:var(--info);}
 .gap-row .d.st-plan{color:var(--tx3);}
 /* 長押しはスマホの作法で、パソコンでは誰も気づけない。つまみを常に出しておく */
-.chmv{display:block;margin:8px auto 0;width:32px;height:25px;border:0;border-radius:8px;
-  background:var(--surface3);color:var(--tx3);cursor:pointer;}
+/* 掴むつまみ。掴めるものだと分かる形にしておかないと、誰も触らない */
+.chmv{display:flex;align-items:center;justify-content:center;gap:5px;
+  margin:9px auto 0;min-height:34px;padding:6px 11px;border:0;border-radius:10px;
+  background:var(--surface3);color:var(--tx2);cursor:grab;
+  touch-action:none;user-select:none;-webkit-user-select:none;}
+.chmv i{font-style:normal;font-size:.72rem;font-weight:700;letter-spacing:.04em;}
 .chmv:hover{background:var(--accent-bg);color:var(--accent-d);}
+.chmv:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .chmv svg{width:15px;height:15px;}
 .gap-sync{padding:11px 16px 14px;font-size:.76rem;line-height:1.6;color:var(--tx3);}
 .gap-sync.old{color:var(--tx2);}
@@ -1119,14 +1124,18 @@ h1,h2,h3,.ttl,.kpi b,.brow-n b,.fl-t{font-feature-settings:"palt" 1;font-weight:
    比較表の軸
    ============================================================ */
 /* 長押しで持ち上がった列。どれを動かしているのかが、ひと目で分かるようにする */
-.mx th.ch.mv{background:var(--warn-bg);box-shadow:inset 0 0 0 2px var(--warn);}
-.mxmv{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap;max-width:100%;justify-content:center;}
-.mxmv .btn-sm{min-height:44px;padding:10px 12px;min-width:0;flex:0 1 auto;}
+/* 運んでいる最中の列。持ち上がっていることが、ひと目で分かるように */
+.mx th.ch.drag{background:var(--gold-bg);box-shadow:inset 0 0 0 2px var(--gold);}
+.mx th.ch.drag .sname{color:var(--gold);}
+.mx th.ch.drag .chmv{background:var(--gold);color:#fff;cursor:grabbing;}
+body.mx-drag{cursor:grabbing;user-select:none;-webkit-user-select:none;}
+body.mx-drag .mx-wrap{overflow-x:hidden;}
+body.mx-drag .mx td,body.mx-drag .mx th{transition:none;}
 /* 長押しで動かす列。指を置いた瞬間にOSの文字選択と喧嘩して、
    コピーの吹き出しが出てしまうので、この見出しだけ選べなくする */
 .mx th.ch,.mx th.ch .sname{user-select:none;-webkit-user-select:none;
   -webkit-touch-callout:none;}
-.mxmv .btn-sm[disabled]{opacity:.38;}
+
 /* 撮った動画への入口。表の中にも一覧の中にも同じ形で出るので、
    小さくても押せる高さを持たせる */
 .vlink{display:inline-flex;align-items:center;gap:5px;margin-top:5px;min-height:30px;
@@ -1211,7 +1220,7 @@ h1,h2,h3,.ttl,.kpi b,.brow-n b,.fl-t{font-feature-settings:"palt" 1;font-weight:
     <div class="gate-m"><svg viewBox="0 0 24 24"><rect x="4.5" y="10.5" width="15" height="10"
       rx="2.2"/><path d="M8 10.5V7.8a4 4 0 018 0v2.7"/></svg></div>
     <p class="gate-t">Dubai Shiogensui 集客管理</p>
-    <p class="gate-s">この画面は、日本チームと現地スタッフだけのものです。<br>合言葉を入れてください。</p>
+    <p class="gate-s">この画面は、この店の人だけのものです。<br>合言葉を入れてください。</p>
     <input id="gatePin" type="tel" inputmode="numeric" maxlength="8" autocomplete="off"
       aria-label="合言葉">
     <button class="gate-go" id="gateGo" type="button">開く</button>
@@ -1253,7 +1262,8 @@ var DOW=['日','月','火','水','木','金','土'];
 
 /* 呼び名は2つだけにする。「運用」「運用チーム」「日本」が混ざっていて、
    同じ相手を指していることが読み取れなかった */
-var ROLE={ ops:{l:'日本チーム',s:'日本'}, shop:{l:'現地スタッフ',s:'現地'} };
+/* 役の呼び名は、名前が取れないときの控え。ふだんは roleName() で人の名前を出す */
+var ROLE={ ops:{l:'日本',s:'日本'}, shop:{l:'ドバイ',s:'ドバイ'} };
 
 /* 投稿種別。色は1つの意味にだけ使う（カレンダーの点＝この色） */
 /* c＝塗り（カレンダーの帯・凡例の四角）。tc＝文字色。
@@ -1569,8 +1579,8 @@ function seed(){
     mk('今週のリールを1本撮影する','shoot','shop','','weekly','素材が切れると投稿が止まる。投稿が止まると新規が止まる。'),
     mk('店頭黒板を今週のおすすめに書き換える','store','shop',addDays(t,1),'weekly','通りがかりの人に「セットがある」と知らせる唯一の接点。'),
     mk('撮影データをドライブへ格納する','shoot','shop',addDays(t,-1),'none','手元に置いたままだと日本側が添削できず、その週の投稿が作れない。'),
-    mk('翌週の台本を3本送付する','edit','ops','','weekly','現地に考える時間を使わせない。撮るだけの状態にして渡す。'),
-    mk('添削の回答を返す','edit','ops','','daily','返事が遅れると、その分だけ現地の撮影が止まる。'),
+    mk('翌週の台本を3本送付する','edit','ops','','weekly','Aiに考える時間を使わせない。撮るだけの状態にして渡す。'),
+    mk('添削の回答を返す','edit','ops','','daily','返事が遅れると、その分だけAiの撮影が止まる。'),
     mk('Talabatの掲載写真を更新する','deli','shop',addDays(t,3),'none','デリバリーの写真が古いと、セットの存在が伝わらない。'),
     mk('JLT内オフィスへランチ割引カードを配布する','local','shop',addDays(t,5),'none','徒歩5分の就業者が、最も再来店しやすい層だから。')
   ];
@@ -1996,7 +2006,7 @@ function feedBar(){
   var w=(fn[0].tx||fn[0].ttl||'')+(fn.length>1?'　ほか'+(fn.length-1)+'件':'');
   /* 誰からの知らせか。両方から来ていることもある */
   var ro={}; fn.forEach(function(f){ if(f.ro) ro[f.ro]=1; });
-  var who=Object.keys(ro).map(function(k){ return ROLE[k].l; }).join('・')||'相手';
+  var who=Object.keys(ro).map(function(k){ return roleName(k); }).join('・')||'相手';
   return '<button class="fbar" data-act="feed">'+
     '<span class="fbar-i">'+ic('bell')+'</span>'+
     '<span class="fbar-b"><span class="fbar-t">'+esc(who)+'から '+fn.length+'件の更新</span>'+
@@ -2023,8 +2033,7 @@ function sheetFeed(){
         /* 言われた中身をここに出す。開かないと分からないのでは、
            時間のない人は結局どれも開かない */
         (f.tx?'<div class="fl-x">'+esc(f.tx)+'</div>':'')+
-        '<div class="fl-m">'+esc(f.by?((f.ro?ROLE[f.ro].l+'・':'')+f.by)
-          :(f.ro?ROLE[f.ro].l:'相手'))+
+        '<div class="fl-m">'+esc(f.by?f.by:(f.ro?roleName(f.ro):'相手'))+
           '<span class="tt">'+bothTime(f.ts||f.at)+'</span></div></div>'+
         '<span class="fl-k">'+ic('arrowR')+'</span></button>';
     });
@@ -2141,7 +2150,7 @@ function sheetGap(side){
   var mem=roleMembers(who);
   if(mem.length>1) b0='<div class="hint" style="margin-bottom:14px">'+ic('info')+
     '<span>'+esc(mem.map(function(x){ return x.name; }).join('・'))+
-    '　'+(side==='jp'?'日本チーム':'現地スタッフ')+'の分が、すべてここに入ります。</span></div>';
+    'の分が、すべてここに入ります。</span></div>';
   var b=b0+'<button class="addrow" data-act="addtask" data-who="'+who+'">'+
     ic('plus')+esc(L)+'を追加</button>';
 
@@ -2376,7 +2385,7 @@ function taskCard(t){
   var mtx=[]; if(repL) mtx.push(repL);
   if(t.rep==='none'&&t.due) mtx.push(fmtMd(t.due)+'まで');
   var meta='<span class="t-who '+(t.who==='shop'?'db':'jp')+'">'+
-      (t.who==='shop'?'現地':'日本')+'</span>'+
+      esc(roleName(t.who))+'</span>'+
     '<span class="t-st">'+esc(STL[st].l)+'</span>'+
     (mtx.length?'<span class="t-sub">'+esc(mtx.join('・'))+'</span>':'');
   var other=t.who==='shop'?'ops':'shop';
@@ -2384,18 +2393,18 @@ function taskCard(t){
   var flow;
   if(!d){
     /* 文字列を包まないと、アイコンと本文が別々の要素として折り返して2行になる */
-    flow='<span class="nx">'+ic('clock')+'<span>'+ROLE[t.who].s+'が実施 → '+ROLE[other].s+'が承認</span></span>';
+    flow='<span class="nx">'+ic('clock')+'<span>'+esc(roleName(t.who))+'が実施 → '+esc(roleName(other))+'が承認</span></span>';
     /* 毎日・毎週は期間が変わると今期の記録が空になる。前回を残さないと
        「何月何日にチェックしたか」が画面から消える */
     if(t.rep!=='none'){ var pv=prevIn(t,t.log);
       if(pv) flow+='<span class="pv">'+ic('check')+'前回　'+esc(pv.by)+
         '<span class="tt">'+bothTime(pv.at)+'</span></span>'; }
   }else{
-    flow='<span class="dn">'+ic('check')+ROLE[t.who].s+'実施　'+esc(d.by)+
+    flow='<span class="dn">'+ic('check')+'実施　'+esc(d.by)+
       '<span class="tt">'+bothTime(d.at)+'</span></span>';
-    flow+= a ? '<span class="ak">'+ic('check')+ROLE[other].s+'承認　'+esc(a.by)+
+    flow+= a ? '<span class="ak">'+ic('check')+'承認　'+esc(a.by)+
                '<span class="tt">'+bothTime(a.at)+'</span></span>'
-             : '<span class="nx">'+ic('eye')+ROLE[other].s+'の承認待ち</span>';
+             : '<span class="nx">'+ic('eye')+esc(roleName(other))+'の承認待ち</span>';
   }
   /* 「完了」は今日（今週）の分だけを見る。前の日の分が承認されないまま
      残っていると、カードは完了、盤は承認待ち、と食い違って見える */
@@ -2453,43 +2462,66 @@ function reord(arr){
 function videosOf(sid){ return alive(S.videos).filter(function(v){ return v.sid===sid; })
   .sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); }); }
 
-/* 長押しで動かしている最中の列。動かしている間だけ、その列に左右の行き先を出す */
-var MXMV='';
-/* 動かしている列を、横スクロールの真ん中に寄せる。
-   右端の列を持ち上げると、左右のボタンが画面の外に出たままになる */
-function mxShow(){
-  setTimeout(function(){
-    var el=$('.mx th.ch.mv'), wrap=$('.mx-wrap'); if(!el||!wrap) return;
-    /* 真ん中に寄せると、左に貼り付いている見出し列の下に潜って名前が読めない。
-       見出し列のすぐ右に置く */
-    var rh=$('.mx th.rh'), pad=(rh?rh.offsetWidth:0)+10;
-    var er=el.getBoundingClientRect(), wr=wrap.getBoundingClientRect();
-    wrap.scrollLeft+= (er.left-wr.left)-pad;
-  },0);
+/* いま掴んでいる列。掴んでいる間だけ中身が入る */
+var MXD=null;
+/* 掴んだ列を、指の位置で入れ替える。
+   矢印で一つずつ送る形は、押した手応えはあっても、
+   どこへ行くのかが指で分からなかった。掴んで運び、離したところに置く */
+function mxCols(){
+  return [].map.call(document.querySelectorAll('.mx th.ch'),function(el){
+    var r=el.getBoundingClientRect();
+    return {sid:el.dataset.sid, mid:(r.left+r.right)/2};
+  });
+}
+function mxMark(){
+  if(!MXD) return;
+  var th=document.querySelector('.mx th.ch[data-sid="'+MXD.sid+'"]');
+  if(th) th.classList.add('drag');
+}
+function mxGrab(sid,x){
+  if(MXD) return;
+  MXD={sid:sid};
+  document.body.classList.add('mx-drag');
+  mxMark();
+  try{ if(navigator.vibrate) navigator.vibrate(12); }catch(e){}
+}
+function mxMoveTo(x){
+  if(!MXD) return;
+  var cols=mxCols(), i=-1;
+  cols.forEach(function(c,k){ if(c.sid===MXD.sid) i=k; });
+  if(i<0) return;
+  /* 隣の列の真ん中を越えたら、その場で入れ替える。
+     離すまで待たせると、どこに入るのか分からないまま運ぶことになる */
+  var j=i;
+  if(i<cols.length-1 && x>cols[i+1].mid) j=i+1;
+  else if(i>0 && x<cols[i-1].mid) j=i-1;
+  if(j===i) return;
+  var sa=seriesOrdered(); reord(sa);
+  var o=sa[i].ord; sa[i].ord=sa[j].ord; sa[j].ord=o;
+  touch(sa[i]); touch(sa[j]);
+  render(); mxMark();
+  try{ if(navigator.vibrate) navigator.vibrate(8); }catch(e){}
+}
+function mxDrop(){
+  if(!MXD) return;
+  MXD=null;
+  document.body.classList.remove('mx-drag');
+  save(); render();
 }
 function matrixHtml(){
   var ss=seriesOrdered(), ops=(meRole()==='ops');
   var rows=[{k:'script',l:'台本',i:'film'},{k:'purpose',l:'目的',i:'target'},{k:'caution',l:'注意',i:'alert'}];
   var h=sec('Matrix','企画比較表','grid','シリーズを横に並べて比較する。台本・目的・注意はシリーズ単位、素材とタグは1本単位。');
   h+='<div class="mx-wrap"><table class="mx"><thead><tr><th class="rh" style="white-space:nowrap">シリーズ</th>';
-  ss.forEach(function(s,i){
-    var un=unreadOf('series',s.id), mv=(MXMV===s.id);
-    h+='<th class="ch'+(mv?' mv':'')+'" data-sid="'+s.id+'"><span class="sname">'+esc(s.name)+'</span>'+
+  ss.forEach(function(s){
+    var un=unreadOf('series',s.id);
+    h+='<th class="ch" data-sid="'+s.id+'"><span class="sname">'+esc(s.name)+'</span>'+
       '<span class="tagline">'+pill('p-gold',s.tag==='staff'?'スタッフ タグ':'メニュー タグ','pin')+'</span>'+
-      (mv
-        ? '<span class="mxmv">'+
-          /* 端では押しても動かない。押せる見た目のままだと、壊れたと思われる */
-          '<button class="btn btn-line btn-sm" data-act="mxmv" data-sid="'+s.id+'" data-d="-1" aria-label="一つ左へ"'+
-            (i===0?' disabled':'')+'>'+ic('arrowL')+'</button>'+
-          '<button class="btn btn-line btn-sm" data-act="mxmv" data-sid="'+s.id+'" data-d="1" aria-label="一つ右へ"'+
-            (i===ss.length-1?' disabled':'')+'>'+ic('arrowR')+'</button>'+
-          '<button class="btn btn-main btn-sm" data-act="mxmvend">'+ic('check')+'ここに決める</button></span>'
-        : '<button class="btn btn-line btn-sm" data-act="series" data-id="'+s.id+'" style="margin-top:9px">'+ic('eye')+'詳細'+
-          (un?' '+un:'')+'</button>'+
-          /* 長押しはスマホでは自然だが、パソコンでは気づきようがない。
-             常に見えるつまみからも、同じ移動に入れるようにする */
-          (ops?'<button class="chmv" data-act="mxmvon" data-sid="'+s.id+'" aria-label="'+
-            esc(s.name)+'の位置を動かす">'+ic('grip')+'</button>':''))+'</th>';
+      '<button class="btn btn-line btn-sm" data-act="series" data-id="'+s.id+'" style="margin-top:9px">'+ic('eye')+'詳細'+
+        (un?' '+un:'')+'</button>'+
+      /* つまみを掴んだまま横へ運ぶ。列の名前を長押ししても同じように掴める */
+      (ops?'<span class="chmv" data-sid="'+s.id+'" role="button" tabindex="0" aria-label="'+
+        esc(s.name)+'の位置を動かす">'+ic('grip')+'<i>動かす</i></span>':'')+'</th>';
   });
   h+='</tr></thead><tbody>';
   rows.forEach(function(r){
@@ -2522,7 +2554,7 @@ function matrixHtml(){
     fb.slice(0,3).forEach(function(x){
       t+='<div style="margin-bottom:9px;padding-left:9px;border-left:2px solid '+
         (x.m.role==='ops'?'var(--jp-ed)':'var(--db-ed)')+'">'+
-        '<div style="font-size:.72rem;font-weight:700;color:var(--tx2)">'+esc(x.m.name)+'／'+ROLE[x.m.role].s+
+        '<div style="font-size:.72rem;font-weight:700;color:var(--tx2)">'+esc(x.m.name)+
         '　'+mdTZ(x.m.at,TZ_DUBAI)+'</div>'+
         '<div style="font-size:.78rem;line-height:1.7">'+esc(x.m.tx.slice(0,58))+(x.m.tx.length>58?'…':'')+'</div>'+
         '<button class="btn btn-ghost btn-sm" data-act="video" data-id="'+x.v.id+'" style="margin-top:3px">'+esc(x.v.ttl)+'</button>'+
@@ -2847,7 +2879,7 @@ function threadHtml(ms){
     var isMe=(m.role===role&&m.name===nm);
     var wait=m.q&&!ansOf(m.id);
     h+='<div class="msg'+(isMe?' me':'')+(m.q?' isq':'')+'">'+avaName(m.name)+
-      '<div><div class="nm">'+esc(m.name)+'／'+ROLE[m.role].s+'</div>'+
+      '<div><div class="nm">'+esc(m.name)+'</div>'+
       '<div class="bub">'+
         (m.q?'<div class="q-tag">'+ic('info')+'質問</div>'+cutRefOf(m):'')+
         (m.sec?'<div class="sec-chip">'+ic('play')+esc(m.sec)+'</div>':'')+
@@ -3025,10 +3057,10 @@ function sheetAccounts(force){
   ['shop','ops'].forEach(function(r){
     var list=alive(S.accounts).filter(function(a){ return a.role===r; });
     if(!list.length) return;
-    b+='<div style="grid-column:1/-1;margin-top:6px"><span class="acc-hd">'+(r==='shop'?'ドバイ ／ 現地スタッフ':'日本 ／ 日本チーム')+'</span></div>';
+    b+='<div style="grid-column:1/-1;margin-top:6px"><span class="acc-hd">'+esc(roleName(r))+'</span></div>';
     list.forEach(function(a){
       b+='<button class="acc'+(S.me.id===a.id?' on':'')+'" data-act="pick" data-id="'+a.id+'">'+avaOf(a)+
-        '<div class="b"><div class="n">'+esc(a.name)+'</div><div class="r">'+ROLE[a.role].s+'</div></div>'+
+        '<div class="b"><div class="n">'+esc(a.name)+'</div><div class="r">'+esc(roleName(a.role))+'</div></div>'+
         (a.pin?'<span class="lk">'+ic('lock')+'</span>':'')+'</button>';
     });
   });
@@ -3046,9 +3078,9 @@ function sheetAccNew(id){
   var a=id?byId(S.accounts,id):{name:'',role:'shop',pin:'',color:alive(S.accounts).length%6};
   var b='<div class="frm">'+
     '<label><span class="jp">名前</span><input type="text" id="acName" value="'+esc(a.name)+'" placeholder="例：Ai"></label>'+
-    '<label><span class="jp">所属</span><div class="seg" id="acRole">'+
-      '<button data-v="shop" aria-pressed="'+(a.role==='shop')+'">'+ic('store')+'現地スタッフ</button>'+
-      '<button data-v="ops" aria-pressed="'+(a.role==='ops')+'">'+ic('users')+'日本チーム</button></div></label>'+
+    '<label><span class="jp">どちら側の人か</span><div class="seg" id="acRole">'+
+      '<button data-v="shop" aria-pressed="'+(a.role==='shop')+'">'+ic('store')+esc(roleName('shop'))+'と同じ</button>'+
+      '<button data-v="ops" aria-pressed="'+(a.role==='ops')+'">'+ic('users')+esc(roleName('ops'))+'と同じ</button></div></label>'+
     '<label><span class="jp">表示色</span><div class="seg" id="acColor">'+
       [0,1,2,3,4,5].map(function(c){ return '<button data-v="'+c+'" aria-pressed="'+(a.color===c)+'" style="padding:8px;min-width:44px;min-height:44px;justify-content:center"><span class="ava s c'+c+'">　</span></button>'; }).join('')+
       '</div></label>'+
@@ -3063,7 +3095,7 @@ function sheetAccNew(id){
 function sheetAccEdit(){
   var b='<div class="acc-grid">'+alive(S.accounts).map(function(a){
     return '<button class="acc" data-act="accnew" data-id="'+a.id+'">'+avaOf(a)+
-      '<div class="b"><div class="n">'+esc(a.name)+'</div><div class="r">'+ROLE[a.role].s+(a.pin?'／暗証番号あり':'')+'</div></div>'+
+      '<div class="b"><div class="n">'+esc(a.name)+'</div><div class="r">'+esc(roleName(a.role))+(a.pin?'／暗証番号あり':'')+'</div></div>'+
       '<span class="lk">'+ic('pencil')+'</span></button>'; }).join('')+'</div>';
   sheet('アカウントの編集',b);
 }
@@ -3114,12 +3146,12 @@ function sheetTaskPage(id,toBottom){
   var ex='<div class="card" style="margin-bottom:16px">';
   ex+='<div class="props">'+
     propRow('担当','<span class="t-who '+(t.who==='shop'?'db':'jp')+'">'+
-      (t.who==='shop'?'現地':'日本')+'</span>　'+ROLE[t.who].l)+
+      esc(roleName(t.who))+'</span>')+
     propRow('状態','<span class="t-st">'+esc(STL[st].l)+'</span>','st-'+st)+
     propRow('期限', t.rep==='daily'?'毎日' : t.rep==='weekly'?'毎週'
       : (t.due?fmtMd(t.due)+'まで':'決めていない'))+
     propRow('区分', esc(cat.l))+
-    propRow('流れ', ROLE[t.who].s+'が実施　→　'+ROLE[other].s+'が承認')+
+    propRow('流れ', esc(roleName(t.who))+'が実施　→　'+esc(roleName(other))+'が承認')+
     '</div></div>';
 
   /* いちばん押すものを、読んだすぐ下に置く */
@@ -3331,13 +3363,13 @@ function sheetAck(tid){
   var pa=pendingAcks(t), acc=me();
   var wrong=acc&&t.who===acc.role;
   var b='<div class="hint" style="margin-bottom:14px">'+ic('info')+
-    '<span>'+ROLE[t.who].l+'が実施した記録を、1件ずつ承認します。日付ごとに残ります。</span></div>';
+    '<span>'+esc(roleName(t.who))+'が実施した記録を、1件ずつ承認します。日付ごとに残ります。</span></div>';
   if(wrong) b+='<div class="notice">'+ic('alert')+'<span>このタスクの承認は'+
-    ROLE[t.who==='shop'?'ops':'shop'].l+'が行います。</span></div>';
+    esc(roleName(t.who==='shop'?'ops':'shop'))+'が行います。</span></div>';
   if(!pa.length) b+='<div class="empty">'+ic('check')+'承認待ちはありません</div>';
   pa.forEach(function(x){
     b+='<div class="pres"><div class="pres-h"><b>'+esc(t.ttl)+'</b></div>'+
-      '<div class="pres-n">'+ROLE[t.who].s+'実施　'+esc(x.by)+'<br>'+bothTime(x.at)+'</div>'+
+      '<div class="pres-n">実施　'+esc(x.by)+'<br>'+bothTime(x.at)+'</div>'+
       (wrong?'':'<button class="btn btn-main btn-sm" style="margin-top:10px" data-act="ackone" data-id="'+
         t.id+'" data-at="'+x.at+'">'+ic('check')+'承認する</button>')+'</div>';
   });
@@ -3380,7 +3412,7 @@ function sheetGoal(){
     '<label><span class="jp">来店数の目標（人／月）</span><input type="text" inputmode="numeric" id="gG" value="'+(g.guests||'')+'"></label>'+
     '<label><span class="jp">ラーメン率の目標（％）</span><input type="text" inputmode="numeric" id="gR" value="'+(g.rate||'')+'"></label>'+
     '</div><div class="hint" style="margin-top:14px">'+ic('info')+
-    '<span>ここに書いた一文が、現地スタッフが画面を開いて最初に見る言葉になります。作業ではなく、何のためかが伝わる言い方にしてください。</span></div>';
+    '<span>ここに書いた一文が、'+esc(roleName('shop'))+'が画面を開いて最初に見る言葉になります。作業ではなく、何のためかが伝わる言い方にしてください。</span></div>';
   sheet('今月の狙い',b,'<button class="btn btn-main" data-act="savegoal">'+ic('check')+'保存</button>');
 }
 /* 日付の欄。値が無いあいだ type="date" は「yyyy/mm/dd」と出るだけで、
@@ -3394,10 +3426,10 @@ function sheetTaskEdit(id,who0){
   var t=id?byId(S.tasks,id):{ttl:'',cat:'shoot',who:(who0||'shop'),due:'',rep:'none',why:''};
   var b='<div class="frm">'+
     '<label><span class="jp">タスク名</span><input type="text" id="tTtl" value="'+esc(t.ttl)+'" placeholder="例：ストーリーを1件投稿する"></label>'+
-    '<label><span class="jp">なぜやるのか（現地に伝わる言葉で）</span><textarea id="tWhy" placeholder="例：リールだけが、まだ店を知らない人に届くから">'+esc(t.why||'')+'</textarea></label>'+
+    '<label><span class="jp">なぜやるのか（'+esc(roleName('shop'))+'に伝わる言葉で）</span><textarea id="tWhy" placeholder="例：リールだけが、まだ店を知らない人に届くから">'+esc(t.why||'')+'</textarea></label>'+
     '<label><span class="jp">実施担当</span><div class="seg" id="tWho">'+
-      '<button data-v="shop" aria-pressed="'+(t.who==='shop')+'">'+ic('store')+'現地</button>'+
-      '<button data-v="ops" aria-pressed="'+(t.who==='ops')+'">'+ic('users')+'日本チーム</button></div></label>'+
+      '<button data-v="shop" aria-pressed="'+(t.who==='shop')+'">'+ic('store')+esc(roleName('shop'))+'</button>'+
+      '<button data-v="ops" aria-pressed="'+(t.who==='ops')+'">'+ic('users')+esc(roleName('ops'))+'</button></div></label>'+
     '<label><span class="jp">区分</span><div class="seg" id="tCat">'+Object.keys(TCAT).map(function(k){
       return '<button data-v="'+k+'" aria-pressed="'+(t.cat===k)+'">'+ic(TCAT[k].i)+TCAT[k].l+'</button>'; }).join('')+'</div></label>'+
     '<label><span class="jp">繰り返し</span><div class="seg" id="tRep">'+
@@ -3760,8 +3792,8 @@ function sheetSet(){
     '<div style="margin-top:16px"><button class="btn btn-line btn-sm" data-act="accounts">'+ic('users')+'アカウント管理</button></div>'+
     sec('Manual','使い方','info')+
     '<div class="card fs-xs mute" style="line-height:1.95">'+
-    '<b style="color:var(--tx)">現地スタッフ（ドバイ）</b><br>① 操作者を自分に切り替える　② タスクをチェック　③ 実績に当日の投稿と来客数を入力　④ 閉店後に同期コードを送信<br><br>'+
-    '<b style="color:var(--tx)">日本チーム</b><br>① 受信したコードを取り込む　② 現地の実施状況を承認　③ 素材に添削を記入　④ 自分のコードを返送<br><br>'+
+    '<b style="color:var(--tx)">'+esc(roleName('shop'))+'（ドバイ）</b><br>① 操作者を自分に切り替える　② タスクをチェック　③ 実績に当日の投稿と来客数を入力　④ 閉店後に同期コードを送信<br><br>'+
+    '<b style="color:var(--tx)">'+esc(roleName('ops'))+'（日本）</b><br>① 受信したコードを取り込む　② '+esc(roleName('shop'))+'の実施状況を承認　③ 素材に添削を記入　④ 自分のコードを返送<br><br>'+
     '<b style="color:var(--tx)">日時について</b><br>ドバイと日本は5時間差があるため、日時は常に両方を表示します。カレンダーの日付は店舗の営業日（ドバイ）基準です。<br><br>'+
     '<b style="color:var(--tx)">データの所在</b><br>記録はこの端末のブラウザ内のみに保存されます。端末を変えると引き継がれません。控えは下記から書き出してください。</div>'+
     sec('Data','データ管理','folder')+
@@ -3811,7 +3843,7 @@ function render(){
   $('#hdWho').innerHTML = ac0
     ? '<i class="ava c'+(ac0.color||0)+'">'+esc(ac0.name.slice(0,1))+'</i>'+
       /* 長いほうは375pxで切れる。タスクのピルと同じ短い呼び名を使う */
-      '<span class="hd-nm">'+esc(ac0.name)+'　'+ROLE[ac0.role].s+'</span>'+ic('swap')
+      '<span class="hd-nm">'+esc(ac0.name)+'</span>'+ic('swap')
     : '<span class="hd-nm">操作者を選ぶ</span>'+ic('swap');
   $('#syncIc').innerHTML=ic('sync');
   $('#setIc').innerHTML=ic('gear');
@@ -3834,9 +3866,9 @@ document.addEventListener('click',function(e){
   var nav=e.target.closest('[data-nav]');
   /* タスクに戻ってきたときは、また自分の分から見せる */
   /* 持ち上げた列を抱えたまま他のタブへ行くと、戻ったとき詳細が開けないままになる */
-  if(nav){ VIEW=nav.dataset.nav; FILT=(VIEW==='task'?'mine':'all'); MXMV='';
+  if(nav){ VIEW=nav.dataset.nav; FILT=(VIEW==='task'?'mine':'all'); mxDrop();
     closeSheet(); render(); window.scrollTo(0,0); return; }
-  var pt=e.target.closest('[data-ptab]'); if(pt){ PTAB=pt.dataset.ptab; FILT='all'; MXMV=''; render(); return; }
+  var pt=e.target.closest('[data-ptab]'); if(pt){ PTAB=pt.dataset.ptab; FILT='all'; mxDrop(); render(); return; }
   var fl=e.target.closest('[data-filt]'); if(fl){ FILT=fl.dataset.filt; render(); return; }
   var ct=e.target.closest('[data-ctab]'); if(ct){ CTAB=ct.dataset.ctab; render(); return; }
   var vf=e.target.closest('[data-vfilt]'); if(vf){ FILT=vf.dataset.vfilt; render(); return; }
@@ -3915,7 +3947,7 @@ document.addEventListener('click',function(e){
         t.ack.push({at:now(),by:acc2.name,bid:acc2.id,undo:1,un:ak.at});
       }else{
         var pa=pendingAcks(t);
-        if(!pa.length){ alert(ROLE[t.who].l+'の実施後に承認できます。'); return; }
+        if(!pa.length){ alert(roleName(t.who)+'の実施後に承認できます。'); return; }
         /* たまっている未承認をまとめて片付ける。1件ずつだと、3日分実施されたとき
            2回押すまでカードの見た目が変わらず、「押しても効かない」に見える。
            1件ずつ見て決めたいときは「承認する」の画面から */
@@ -3938,7 +3970,7 @@ document.addEventListener('click',function(e){
   if(a==='tack'){ closeSheet(); sheetAck(id); return; }
   if(a==='ackone'){
     var ta=byId(S.tasks,id), ac3=me(); if(!ta||!ac3) return;
-    if(ta.who===ac3.role){ alert('承認は'+ROLE[ta.who==='shop'?'ops':'shop'].l+'が行います。'); return; }
+    if(ta.who===ac3.role){ alert('承認は'+roleName(ta.who==='shop'?'ops':'shop')+'が行います。'); return; }
     ta.ack.push({at:now(),by:ac3.name,bid:ac3.id,'for':parseInt(b.dataset.at,10)});
     moved(ta); save(); closeSheet(); sheetAck(id); render(); return;
   }
@@ -4003,15 +4035,6 @@ document.addEventListener('click',function(e){
     var rt=ra[ri].ord; ra[ri].ord=ra[rj].ord; ra[rj].ord=rt;
     touch(ra[ri]); touch(ra[rj]); save(); render(); sheetRowEdit(id); return;
   }
-  if(a==='mxmv'){
-    var sa=seriesOrdered(); reord(sa);
-    var si=-1, ssid=b.dataset.sid; sa.forEach(function(x,j){ if(x.id===ssid) si=j; });
-    var sj=si+(+b.dataset.d); if(si<0||sj<0||sj>=sa.length) return;
-    var st0=sa[si].ord; sa[si].ord=sa[sj].ord; sa[sj].ord=st0;
-    touch(sa[si]); touch(sa[sj]); save(); render(); mxShow(); return;
-  }
-  if(a==='mxmvon'){ MXMV=b.dataset.sid; render(); mxShow(); return; }
-  if(a==='mxmvend'){ MXMV=''; render(); return; }
   if(a==='video'){ closeSheet(); sheetVideo(id); return; }
   if(a==='addvideo'){ sheetVideoEdit(''); return; }
   if(a==='edvideo'){ closeSheet(); sheetVideoEdit(id); return; }
@@ -4321,17 +4344,20 @@ $('#btnSync').addEventListener('click',function(){ sheetSync(); });
 /* 列の名前を長押しすると、その列を動かせるようにする。
    この表は横に流して読むものなので、指が少しでも動いたら「スクロールのつもり」とみなしてやめる。
    ボタンの上から始まった長押しは拾わない（詳細を開くつもりの指を奪ってしまう） */
+/* つまみは触れた瞬間から掴む。列の名前は長押しで掴む。
+   どちらも、そのまま横へ動かせば列がついてくる */
 var LPT=null;
 document.addEventListener('pointerdown',function(e){
   if(meRole()!=='ops') return;
+  var g=e.target.closest('.chmv');
+  if(g&&g.dataset.sid){ e.preventDefault(); mxGrab(g.dataset.sid,e.clientX); return; }
   if(e.target.closest('button,a,input,textarea')) return;
   var th=e.target.closest('.mx th.ch'); if(!th||!th.dataset.sid) return;
   var sid=th.dataset.sid;
   LPT={x:e.clientX,y:e.clientY,t:setTimeout(function(){
-    LPT=null; MXMV=sid; render(); mxShow();
-    try{ if(navigator.vibrate) navigator.vibrate(15); }catch(e2){}
-  },480)};
-},{passive:true});
+    LPT=null; mxGrab(sid,e.clientX);
+  },420)};
+},{passive:false});
 document.addEventListener('focusout',function(e){
   var d=e.target;
   if(d&&d.tagName==='INPUT'&&d.dataset&&d.dataset.date&&d.type==='date'&&!d.value){
@@ -4339,10 +4365,30 @@ document.addEventListener('focusout',function(e){
   }
 },true);
 document.addEventListener('pointermove',function(e){
+  if(MXD){ e.preventDefault(); mxMoveTo(e.clientX); return; }
   if(LPT&&(Math.abs(e.clientX-LPT.x)>8||Math.abs(e.clientY-LPT.y)>8)){ clearTimeout(LPT.t); LPT=null; }
-},{passive:true});
-['pointerup','pointercancel','scroll'].forEach(function(k){
-  document.addEventListener(k,function(){ if(LPT){ clearTimeout(LPT.t); LPT=null; } },{passive:true,capture:true});
+},{passive:false});
+['pointerup','pointercancel'].forEach(function(k){
+  document.addEventListener(k,function(){
+    if(LPT){ clearTimeout(LPT.t); LPT=null; }
+    mxDrop();
+  },{passive:true,capture:true});
+});
+/* 掴む前に画面が動いたら、それはスクロールであって長押しではない */
+document.addEventListener('scroll',function(){ if(LPT){ clearTimeout(LPT.t); LPT=null; } },
+  {passive:true,capture:true});
+/* 指で運べない場面のために、つまみに矢印キーでも同じことをさせる */
+document.addEventListener('keydown',function(e){
+  var g=document.activeElement;
+  if(!g||!g.classList||!g.classList.contains('chmv')) return;
+  var d=(e.key==='ArrowLeft'?-1:e.key==='ArrowRight'?1:0); if(!d) return;
+  e.preventDefault();
+  var sa=seriesOrdered(); reord(sa);
+  var i=-1; sa.forEach(function(x,k){ if(x.id===g.dataset.sid) i=k; });
+  var j=i+d; if(i<0||j<0||j>=sa.length) return;
+  var o=sa[i].ord; sa[i].ord=sa[j].ord; sa[j].ord=o;
+  touch(sa[i]); touch(sa[j]); save(); render();
+  var n=document.querySelector('.chmv[data-sid="'+g.dataset.sid+'"]'); if(n) n.focus();
 });
 $('#btnSet').addEventListener('click',function(){ sheetSet(); });
 
