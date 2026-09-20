@@ -1143,10 +1143,13 @@ h1,h2,h3,.ttl,.kpi b,.brow-n b,.fl-t{font-feature-settings:"palt" 1;font-weight:
 body.mx-drag{cursor:grabbing;user-select:none;-webkit-user-select:none;}
 body.mx-drag .mx-wrap{overflow-x:hidden;}
 body.mx-drag .mx td,body.mx-drag .mx th{transition:none;}
-/* 長押しで動かす列。指を置いた瞬間にOSの文字選択と喧嘩して、
-   コピーの吹き出しが出てしまうので、この見出しだけ選べなくする */
+/* 見出しは、どこを押しても掴める。押して横へ動かせば列がついてくる。
+   指を置いた瞬間にOSの文字選択と喧嘩するので、この見出しだけ選べなくする。
+   縦の指の動きは表を読むためのものなので、そちらはブラウザに渡す */
 .mx th.ch,.mx th.ch .sname{user-select:none;-webkit-user-select:none;
-  -webkit-touch-callout:none;}
+  -webkit-touch-callout:none;touch-action:pan-y;cursor:grab;}
+.mx th.ch button{cursor:pointer;}
+.mx th.ch.drag{cursor:grabbing;}
 
 /* 撮った動画への入口。表の中にも一覧の中にも同じ形で出るので、
    小さくても押せる高さを持たせる */
@@ -2000,37 +2003,6 @@ function repRate(role){
   var ts=alive(S.tasks).filter(function(t){ return t.who===role&&(t.rep==='daily'||t.rep==='weekly'); });
   return { d:ts.filter(function(t){ return !!doneOf(t); }).length, n:ts.length };
 }
-/* 現地が開いて最初に要るのは「今から撮るもの」。
-   企画タブへ行って素材を探して開く、では1日3分の運用に乗らない */
-function shootHtml(){
-  var wk=weekStart(today()), w1=addDays(wk,7);
-  var list=alive(S.videos).filter(function(v){
-    if(v.st==='posted'||v.st==='ok') return false;              /* 撮り終わっているものは出さない */
-    if(v.st==='review') return false;                            /* 日本が見ている最中 */
-    if(!v.date) return true;                                     /* 日付未定も「まだ撮っていない」 */
-    return v.date<w1;                                            /* 今週分まで（過ぎた分も残す） */
-  }).sort(function(a,b){ return (a.date||'9999')<(b.date||'9999')?-1:1; });
-  /* 見出しは小さく。空いた分をカードに回す */
-  var h='<div class="sec sec-tight"><h2>'+ic('camera')+'今から撮るもの</h2>'+
-    '<button class="sec-aim" data-act="goalview">'+ic('target')+
-      (+today().slice(5,7))+'月の狙い'+ic('arrowR')+'</button></div>';
-  h+='<div class="shoot">';
-  if(!list.length) h+='<div class="wkp-e">いま撮るものはありません</div>';
-  list.forEach(function(v){
-    var cn=alive(v.cuts).length, ov=v.date&&v.date<today(), av=ansNew('video',v.id);
-    h+='<button class="shoot-r" data-act="video" data-id="'+v.id+'">'+
-      '<span class="shoot-i">'+ic(v.st==='redo'?'alert':'camera')+'</span>'+
-      '<span class="shoot-b"><span class="shoot-t">'+esc(v.ttl)+'</span>'+
-      '<span class="shoot-m">'+pill(VST[v.st].p,VST[v.st].l)+
-        (v.date?'<span class="shoot-d'+(ov?' late':'')+'">'+fmtMd(v.date)+(ov?' すぎ':'')+'</span>':
-                '<span class="shoot-d">日付未定</span>')+
-        (cn?'<span class="shoot-c">'+ic('film')+cn+'カット</span>':
-            '<span class="shoot-c no">指示がまだ</span>')+
-        (av?'<span class="shoot-c ans">'+ic('check')+'答えが届きました</span>':'')+
-      '</span></span><span class="shoot-k">'+ic('arrowR')+'</span></button>';
-  });
-  return h+'</div>';
-}
 /* 相手が何をしたのか。取り込んだ直後に一度出して終わりにすると、
    別の用事の途中で同期した人が読み落とす。読むまで先頭に残す */
 function feedBar(){
@@ -2134,6 +2106,10 @@ function gapHtml(){
          盤に出ない「今週の投稿」だけを、独立タイル（85px）ではなく見出しの右端に置く */
       '<button class="gap-wk'+(wp>=2?' ok':'')+'" data-nav="cal">'+ic('calendar')+
         '今週の投稿 <b>'+wp+'</b> ／ 2</button>'+
+      /* 狙いの入口は「今から撮るもの」の脇にしか無かった。
+         そこを外したので、ここへ移す */
+      '<button class="sec-aim" style="margin-left:0" data-act="goalview">'+ic('target')+
+        (+today().slice(5,7))+'月の狙い'+ic('arrowR')+'</button>'+
       '</div>'+
     /* 並びは拠点で固定する。日本が左、ドバイが右。
        読む人によって左右が入れ替わると、二台を並べて話すときに食い違う */
@@ -2148,8 +2124,6 @@ function gapHtml(){
        盤の下でもう一度言うと、見るところが二つになる */
     '</section>';
 }
-/* 「今月の狙い」は独立させた。現地の初画面では、狙いのすぐ下に
-   「今から撮るもの」を置きたいため（盤より先に手が動く） */
 /* 狙いの全文。現地は読むだけ、日本はここから編集へ進む */
 function sheetGoalView(){
   var m=today().slice(0,7), g=S.goal;
@@ -2359,16 +2333,12 @@ function viewTask(){
   ts.forEach(function(t){ c[statusOf(t)]++; });
   /* 「本日の進捗」のリングとタイルは廃止した。3つの数字は直下の絞り込みチップと同じ値で、
      104pxのリングが受け渡し盤と主役を奪い合い、現地の初画面から「今日やること」が落ちる */
-  /* 現地は「今から撮るもの」が先、日本は「返す番」が先。やることが違うので順番も違う */
   /* 操作者はヘッダーに出したので、ここからは外した（70px） */
-  /* 現地は「今から撮るもの」から始める。狙いは見出しの脇に置いて、
-     読みたいときだけ開く（初画面で98px使っていた）。
-     日本は方向を決める側なので、狙いを先に置いたままにする */
-  /* 狙いは両方とも見出し脇のリンクに畳む。毎日読むものではないのに、
+  /* 狙いは見出し脇のリンクに畳む。毎日読むものではないのに、
      初画面で98px使って「押せるもの」を画面の外へ押し出していた */
-  var h = feedBar() + (meRole()==='shop'
-    ? shootHtml()+gapHtml()
-    : gapHtml()+shootHtml());
+  /* 「今から撮るもの」は外した。同じ素材が企画タブの「撮影素材」に並ぶので、
+     同じものを二か所で数えることになっていた */
+  var h = feedBar() + gapHtml();
 
   /* 未読のお知らせ帯は連絡タブのバッジと二重なので外した（60px）。
      見出し「業務タスク」もタブ名と同じなので外した（31px） */
@@ -2538,9 +2508,11 @@ function mxDrop(){
   save(); render();
 }
 function matrixHtml(){
+  /* 中身を書き換えられるのは日本側だけ。並べ替えは、見る順番の話なので二人とも */
   var ss=seriesOrdered(), ops=(meRole()==='ops');
   var rows=[{k:'script',l:'台本',i:'film'},{k:'purpose',l:'目的',i:'target'},{k:'caution',l:'注意',i:'alert'}];
-  var h=sec('Matrix','企画比較表','grid','シリーズを横に並べて比較する。台本・目的・注意はシリーズ単位、素材とタグは1本単位。');
+  var h=sec('Matrix','企画比較表','grid','シリーズを横に並べて比較する。台本・目的・注意はシリーズ単位、素材とタグは1本単位。'+
+    '　列の見出しを押して横へ動かすと、並び順を変えられる。');
   h+='<div class="mx-wrap"><table class="mx"><thead><tr><th class="rh" style="white-space:nowrap">シリーズ</th>';
   ss.forEach(function(s){
     var un=unreadOf('series',s.id);
@@ -2548,9 +2520,10 @@ function matrixHtml(){
       '<span class="tagline">'+pill('p-gold',s.tag==='staff'?'スタッフ タグ':'メニュー タグ','pin')+'</span>'+
       '<button class="btn btn-line btn-sm" data-act="series" data-id="'+s.id+'" style="margin-top:9px">'+ic('eye')+'詳細'+
         (un?' '+un:'')+'</button>'+
-      /* つまみを掴んだまま横へ運ぶ。列の名前を長押ししても同じように掴める */
-      (ops?'<span class="chmv" data-sid="'+s.id+'" role="button" tabindex="0" aria-label="'+
-        esc(s.name)+'の位置を動かす">'+ic('grip')+'<i>動かす</i></span>':'')+'</th>';
+      /* 見出しのどこを押しても、そのまま横へ動かせば運べる。
+         つまみは「動かせる」と分かるための目印で、二人とも使う */
+      '<span class="chmv" data-sid="'+s.id+'" role="button" tabindex="0" aria-label="'+
+        esc(s.name)+'の位置を動かす">'+ic('grip')+'<i>動かす</i></span></th>';
   });
   h+='</tr></thead><tbody>';
   rows.forEach(function(r){
@@ -2639,8 +2612,8 @@ function matrixHtml(){
     '<button class="mxadd" data-act="mxaddcol">'+ic('plus')+'シリーズ（横）</button>'+
     '<button class="mxadd" data-act="mxaddrow">'+ic('plus')+'見る観点（縦）</button></div>';
   h+='<div class="hint">'+ic('info')+'<span>横にスワイプして見比べます。'+
-    (ops?'セルをタップで編集。<b>列の名前を長押しすると、その列を左右へ動かせます。</b>'
-        :'編集は日本チームが行います。')+'</span></div>';
+    '<b>列の見出しを押したまま左右へ動かすと、並び順が変わります。</b>'+
+    (ops?'セルをタップで編集。':'編集は日本チームが行います。')+'</span></div>';
   return h;
 }
 /* 縦軸の並び。横軸と同じ考え方で番号で持つ */
@@ -4415,15 +4388,17 @@ $('#btnSync').addEventListener('click',function(){ sheetSync(); });
    どちらも、そのまま横へ動かせば列がついてくる */
 var LPT=null;
 document.addEventListener('pointerdown',function(e){
-  if(meRole()!=='ops') return;
   var g=e.target.closest('.chmv');
   if(g&&g.dataset.sid){ e.preventDefault(); mxGrab(g.dataset.sid,e.clientX); return; }
   if(e.target.closest('button,a,input,textarea')) return;
   var th=e.target.closest('.mx th.ch'); if(!th||!th.dataset.sid) return;
   var sid=th.dataset.sid;
-  LPT={x:e.clientX,y:e.clientY,t:setTimeout(function(){
-    LPT=null; mxGrab(sid,e.clientX);
-  },420)};
+  /* 押したまま待っても掴めるし、押してすぐ横へ動かしても掴める。
+     待たせる作りだと、動かし始めた指が取り消し扱いになって、
+     「長押ししても動かない」という手応えだけが残る */
+  LPT={x:e.clientX,y:e.clientY,sid:sid,t:setTimeout(function(){
+    if(LPT){ LPT=null; mxGrab(sid,e.clientX); }
+  },320)};
 },{passive:false});
 document.addEventListener('focusout',function(e){
   var d=e.target;
@@ -4433,7 +4408,16 @@ document.addEventListener('focusout',function(e){
 },true);
 document.addEventListener('pointermove',function(e){
   if(MXD){ e.preventDefault(); mxMoveTo(e.clientX); return; }
-  if(LPT&&(Math.abs(e.clientX-LPT.x)>8||Math.abs(e.clientY-LPT.y)>8)){ clearTimeout(LPT.t); LPT=null; }
+  if(!LPT) return;
+  var dx=e.clientX-LPT.x, dy=e.clientY-LPT.y;
+  /* 横へ動いたら、それは列を運ぼうとしている手。その場で掴む */
+  if(Math.abs(dx)>6&&Math.abs(dx)>=Math.abs(dy)){
+    clearTimeout(LPT.t);
+    var sid=LPT.sid; LPT=null;
+    e.preventDefault(); mxGrab(sid,e.clientX); mxMoveTo(e.clientX); return;
+  }
+  /* 縦へ動いたのは、表を上下に読んでいるだけ */
+  if(Math.abs(dy)>10){ clearTimeout(LPT.t); LPT=null; }
 },{passive:false});
 ['pointerup','pointercancel'].forEach(function(k){
   document.addEventListener(k,function(){
