@@ -1203,6 +1203,25 @@ body.mx-drag .mx td,body.mx-drag .mx th{transition:none;}
 .dv-none{display:inline-flex;align-items:flex-start;gap:6px;font-size:var(--fs-sm);
   line-height:1.7;color:var(--tx2);}
 .dv-none svg{width:15px;height:15px;flex:none;margin-top:4px;color:var(--tx3);}
+/* 動画の置き場所。住所を落とすか、貼り付けるか、どちらでも同じ結果になる枠 */
+.vdrop{display:flex;flex-direction:column;gap:11px;}
+.vdrop-z{display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;
+  border:2px dashed var(--line2);border-radius:14px;padding:18px 14px;background:var(--surface2);
+  transition:.15s;}
+.vdrop-z svg{width:22px;height:22px;color:var(--tx3);}
+.vdrop-z b{font-size:var(--fs-sm);font-weight:700;color:var(--tx2);line-height:1.6;}
+.vdrop-z i{font-style:normal;font-size:.74rem;font-weight:600;color:var(--tx3);line-height:1.7;}
+.vdrop.over .vdrop-z{border-color:var(--accent);background:var(--accent-bg);}
+.vdrop.over .vdrop-z svg,.vdrop.over .vdrop-z b{color:var(--accent-d);}
+.vdrop-f{display:flex;gap:8px;align-items:center;}
+.vdrop-f input{flex:1;min-width:0;border:1px solid var(--line2);border-radius:var(--r-sm);
+  padding:11px 13px;min-height:46px;background:var(--surface);font-size:var(--fs-sm);
+  letter-spacing:.02em;}
+.vdrop-f input:focus{outline:none;border-color:var(--accent);}
+.vdrop-f .btn{flex:none;}
+.vdrop-no{display:flex;align-items:flex-start;gap:6px;font-size:var(--fs-sm);
+  line-height:1.7;color:var(--tx2);}
+.vdrop-no svg{width:15px;height:15px;flex:none;margin-top:4px;color:var(--tx3);}
 /* 入力欄の下に置く、書き方の添え */
 .frm .fnote{display:block;margin-top:6px;font-size:.74rem;line-height:1.7;color:var(--tx3);
   letter-spacing:.02em;}
@@ -1457,8 +1476,8 @@ function blank(){
     /* 比較表に自分で足した行（縦軸）。決まった5行とは別に持つ */
     rows:[],
     goal:{ bowls:2000, guests:3000, rate:75, rev:0,
-      t:'からあげ単品で帰るお客様を減らし、【ラーメンの出数】を上げる。',
-      s:'この店の強みは、日本人の家族が自分たちで作っている本物であること。海外で日本料理を出す店は数あるが、日本人が厨房に立っている店は多くない。撮る画には、必ずそれが写るようにする。' } };
+      t:'餃子だけで帰るお客様を減らし、【ラーメンの出数】を上げる。',
+      s:'この店の強みは、大阪から来た家族が自分たちで作っている本物であること。ドバイに日本食の店は多いが、日本人が厨房に立っている店は多くない。撮る画には、必ずそれが写るようにする。毎日11時半から22時まで開けていることも、投稿で繰り返し伝える。' } };
 }
 var BROKEN=0;      /* 前回の保存が読めなかった。起動後に知らせて、控えから戻せるようにする */
 function load(){
@@ -1496,6 +1515,7 @@ function load(){
   S.series.forEach(function(x){ if(x.ttp===undefined) x.ttp=''; });
   S.posts.forEach(function(x){ if(x.url===undefined) x.url=''; if(x.res===undefined) x.res=''; });
   sample2real();
+  reskin();
 }
 /* 一度でも開いた端末には、前の見本が保存として残る。そのままだと
    新しい版を配っても、画面には古い店名と古い名前が出たままになる。
@@ -1555,6 +1575,163 @@ function sdmark(){
   ['menus','series','videos','tasks','posts','days','msgs'].forEach(function(k){
     (S[k]||[]).forEach(function(x){ x.sd=1; }); });
 }
+/* ============================================================
+   5.5 この店の見本
+   Shiogensui（大阪から来た家族が営むラーメン店／JLT Cluster Y／毎日 11:30-22:00）
+   実際の数字や品書きではなく、形を掴むための見本。店で書き換えていく
+   ============================================================ */
+var SHOP_MENUS=['天然塩ラーメン','醤油ラーメン','味噌ラーメン','塩チャーシューメン',
+  '餃子','からあげ','チャーシュー丼','セット（ラーメン＋餃子）'];
+/* 旧い見本の品書きからの言い換え。実績の日ごとの記録にも同じ名前が入っている */
+var SHOP_MENU_OLD={'鶏白湯ラーメン':'天然塩ラーメン','辛味噌ラーメン':'醤油ラーメン',
+  'ベジラーメン':'塩チャーシューメン','セット（ラーメン＋からあげ）':'セット（ラーメン＋餃子）'};
+var SHOP_SERIES=[
+  {id:'s-ramen',name:'看板の塩ラーメン',tag:'menu',ttp:'',
+   script:'0〜2秒　澄んだスープのアップ（丼を置いた直後・逆光で湯気を立てる）\n2〜6秒　麺リフト（2秒かけて持ち上げる。カメラは麺と同じ高さ）\n6〜9秒　具の寄り（チャーシュー→ネギ→メンマを1秒ずつ）\n9〜12秒　スープを一口（レンゲは口へ。カメラを見ない）\n12〜15秒　Cluster Y の入口（英語の看板が読める位置で静止）',
+   purpose:'「美味しそう」で止めず、「今日の昼はここ」まで連れていく。\nJLTで働く人が11時半から14時のあいだに思い出す画を、1枚残すことが目的。\n塩は写真で差が出にくい。澄んだスープと湯気は、必ず1カット目に置く。',
+   caution:'・縦（9対16）で撮影。横向きは使用不可\n・1カット2〜4秒。長いカットは最後まで見てもらえない\n・昼は窓際の自然光。店内の照明だけではスープが濁って見える\n・客が写る場合は必ず許諾を取る\n・英語字幕を入れる。読む人の多くは日本語を読まない'},
+  {id:'s-staff',name:'大阪から来た家族',tag:'staff',ttp:'',
+   script:'0〜2秒　名前と担当を英語字幕で大きく出す\n2〜7秒　手元だけを寄りで（湯切り・麺上げ・盛り付け）\n7〜11秒　「どこから来たのか」への一言（Osaka, Japan）\n11〜15秒　全員でカメラへ一礼＋店の外観',
+   purpose:'料理ではなく人で覚えてもらう。「あの家族の店」になれば、また来る理由が一つ増える。\n\n【この店がいちばん強いところ】大阪から来た家族が、自分たちで作っていること。\nドバイに日本食の店は多いが、日本人が厨房に立ち、家族で回している店は多くない。\nこれは他店が真似できない。顔と手元を映すこと自体が、その証明になる。',
+   caution:'・本人の許諾を必ず取る。撮ることと、出すことは別に確認する\n・宗教と服装への配慮。無理に写さない\n・英語字幕を入れる。客の多くは日本語を読まない\n・「Family-run, from Osaka」は毎回どこかに入れる'},
+  {id:'s-side',name:'もう一品',tag:'menu',
+   ttp:'見本は2品を1画面に入れる撮り方。うちは餃子の皿を丼の手前に置き、麺を持ち上げる瞬間に奥で湯気が立つ位置で撮る。字幕は必ず「Set ◯◯ AED」。',
+   script:'0〜2秒　餃子の焼き音から入る（映像より先に音）\n2〜6秒　ラーメンの横に置く（必ず2品を同じ画面に）\n6〜10秒　交互に食べる画\n10〜15秒　「セットで◯◯AED」を英語字幕で大きく',
+   purpose:'餃子やからあげを単品で終わらせない。「ラーメンと一緒に頼むもの」にする。\n※いまの最大の課題（サイドだけで帰られる）を解消するためのシリーズ。',
+   caution:'・必ず2品を同じ画面に収める。単品だけの画は使わない\n・価格はAED表記でそろえる。セットの呼び方も毎回同じにする\n・「セット」は字幕と声の両方で出す'}
+];
+/* dd＝撮影日が今日から何日ずれているか。sd＝その状態になってから何日経ったか */
+var SHOP_VIDEOS=[
+  {id:'v-tori',sid:'s-ramen',ttl:'天然塩ラーメン（看板の一杯）',tags:['天然塩ラーメン'],
+   ref:'https://www.instagram.com/',refNote:'麺リフトを2秒かけて上げている。うちは1秒で上げ切っていて湯気が写らない',
+   st:'review',dd:-3,sd:5,
+   cuts:[
+     {id:'c-tori-1',t:'0:00〜0:02',d:'丼を置くところから。湯気が立っているうちに回す',n:'店内の音楽は切る'},
+     {id:'c-tori-2',t:'0:02〜0:06',d:'麺を2秒かけて持ち上げる。スープが垂れるまで止めない',n:'1秒で上げ切らない。途中で止めない'},
+     {id:'c-tori-3',t:'0:06〜0:10',d:'スープを一口。飲んだ人の顔まで入れる',n:''},
+     {id:'c-tori-4',t:'0:10〜0:15',d:'厨房で麺を茹でている手元',n:'顔は入れなくてよい'}
+   ]},
+  {id:'v-set',sid:'s-side',ttl:'餃子＋ラーメンのセット',tags:['餃子','セット（ラーメン＋餃子）'],
+   ref:'https://www.instagram.com/',refNote:'2品を必ず1画面に入れている。単品の画が1カットも無い',
+   st:'ok',dd:-6,sd:4,
+   cuts:[
+     {id:'c-set-1',t:'0:00〜0:04',d:'ラーメンと餃子を必ず同じ画面に入れて置く',n:'単品だけの画を1カットも入れない'},
+     {id:'c-set-2',t:'0:04〜0:08',d:'餃子を割る。中の湯気が出るまで待つ',n:''},
+     {id:'c-set-3',t:'0:08〜0:12',d:'「Set ◯◯ AED」の英語字幕',n:''}
+   ]},
+  {id:'v-ai',sid:'s-staff',ttl:'店長 Ai の一日',tags:['Ai'],ref:'',refNote:'',st:'posted',dd:-10,sd:8,cuts:[]},
+  {id:'v-kara',sid:'s-ramen',ttl:'醤油ラーメン（塩との違いを見せる）',tags:['醤油ラーメン'],
+   ref:'',refNote:'',st:'plan',dd:1,sd:1,
+   cuts:[
+     {id:'c-kara-1',t:'0:00〜0:03',d:'塩と醤油を左右に並べて置く',n:'手前に寄せすぎない。2杯が全部入るように'},
+     {id:'c-kara-2',t:'0:03〜0:08',d:'醤油を一口。スープの色の違いが出る角度で',n:''},
+     {id:'c-kara-3',t:'0:08〜0:12',d:'「Choose your broth」の英語字幕',n:''}
+   ]},
+  {id:'v-gyoza',sid:'s-side',ttl:'餃子の焼き上がり',tags:['餃子'],
+   ref:'',refNote:'音量が不足のため再撮影',st:'redo',dd:-1,sd:1,
+   cuts:[
+     {id:'c-gyo-1',t:'0:00〜0:05',d:'鉄板の焼き音から入る。換気扇は止める',n:'音楽を乗せない。音が主役'},
+     {id:'c-gyo-2',t:'0:05〜0:10',d:'持ち上げて羽根を見せる',n:''}
+   ]},
+  /* 先月に出し終えたもの。次に同じ品を撮るときの下敷きになる */
+  {id:'v-tori0',sid:'s-ramen',ttl:'天然塩ラーメン（8月）',tags:['天然塩ラーメン'],
+   ref:'',refNote:'',st:'posted',dd:-26,sd:24,cuts:[]},
+  {id:'v-set0',sid:'s-side',ttl:'餃子だけで帰らせない（8月）',tags:['餃子','セット（ラーメン＋餃子）'],
+   ref:'',refNote:'',st:'posted',dd:-33,sd:31,cuts:[]}
+];
+var SHOP_GOAL={
+  t:'餃子だけで帰るお客様を減らし、【ラーメンの出数】を上げる。',
+  s:'この店の強みは、大阪から来た家族が自分たちで作っている本物であること。ドバイに日本食の店は多いが、日本人が厨房に立っている店は多くない。撮る画には、必ずそれが写るようにする。毎日11時半から22時まで開けていることも、投稿で繰り返し伝える。'};
+var SHOP_DAYMENUS=['天然塩ラーメン','醤油ラーメン','味噌ラーメン','餃子','からあげ','セット（ラーメン＋餃子）'];
+/* 前に置いていた見本。入れ替えてよいかどうかの照合にだけ使う */
+var SHOP_PREV={
+  menus:['鶏白湯ラーメン','味噌ラーメン','辛味噌ラーメン','ベジラーメン','からあげ','餃子','チャーシュー丼','セット（ラーメン＋からあげ）'],
+  series:{
+    's-ramen':{name:'ラーメン紹介リール',
+      script:'0〜2秒　湯気のアップ（丼を置いた直後・逆光気味）\n2〜6秒　麺リフト（2秒かけて持ち上げる。カメラは麺と同じ高さ）\n6〜9秒　具材の寄り（チャーシュー→味玉→ネギを1秒ずつ）\n9〜12秒　一口＋表情（目線は丼へ。カメラを見ない）\n12〜15秒　入口の看板（文字が読める位置で静止）',
+      purpose:'「美味しそう」で終わらせず、「今日そこへ食べに行く」まで到達させる。\nJLTの就業者が昼休みに思い出す画を1枚残すことが目的。',
+      caution:'・縦（9:16）で撮影。横向きは使用不可\n・1カット2〜4秒。長尺のカットは離脱される\n・昼は窓際の自然光で撮影。店内照明のみではスープが濁って見える\n・客が写り込む場合は必ず許諾を取る\n・チャーシューが鶏であることが判別できる見せ方にする'},
+    's-staff':{name:'スタッフ紹介リール',
+      script:'0〜2秒　氏名と担当を字幕で大きく表示\n2〜7秒　手元の作業（麺上げ・盛り付け）を寄りで\n7〜11秒　「おすすめは」への回答を一言で\n11〜15秒　カメラへ一言＋店舗外観',
+      purpose:'料理ではなく人で記憶してもらう。「あの人がいる店」になれば再来店の理由が1つ増える。\n\n【この店の最大の強み】日本人が自分たちで作っている、本物の日本のラーメンであること。\n海外で日本料理を出す店は数あるが、日本人が厨房に立ち、家族で営んでいる店は多くない。\nこれは他店が真似できない。顔と手元を映すこと自体が、その証明になる。',
+      caution:'・本人の許諾を必ず取得（撮影と公開は別途確認）\n・宗教および服装への配慮。無理に写さない\n・英語字幕を入れる（客の多くは日本語を読まない）'},
+    's-side':{name:'サイドメニューリール',
+      ttp:'参考は2品を1画面に入れる撮り方。うちはからあげの皿を丼の手前に置き、麺を持ち上げる瞬間に奥で湯気が立つ位置で撮る。字幕は必ず「セット ◯◯AED」。',
+      script:'0〜2秒　からあげの断面（衣の音を残す）\n2〜6秒　ラーメンの横に配置（必ず2品を同一画面に）\n6〜10秒　交互に食べる画\n10〜15秒　「セットで◯◯AED」を字幕で大きく',
+      purpose:'からあげ単品で完結させない。「ラーメン＋からあげで注文するもの」という認識を作る。\n※現状の最大の課題（サイドのみ注文される）を解消するためのシリーズ。',
+      caution:'・必ず2品を同一画面に収める。単品のみの画は使用しない\n・価格はAED表記で統一。セット名も毎回同じ呼称にする\n・「セット」を字幕と音声の両方で出す'}
+  },
+  videos:{
+    'v-tori':{ttl:'鶏白湯ラーメン（9月の新作）',
+      cuts:{'c-tori-4':{d:'厨房で作っている日本人スタッフの手元'},
+            'c-tori-1':{n:'店内のBGMは切る'}}},
+    'v-set':{ttl:'からあげ＋ラーメンセット',
+      cuts:{'c-set-1':{d:'ラーメンとからあげを必ず同じ画面に入れて置く'},
+            'c-set-2':{d:'からあげを割る。中の湯気が出るまで待つ'},
+            'c-set-3':{d:'「セットにすると◯◯AED」の英語字幕'}}},
+    'v-kara':{ttl:'辛味噌ラーメン（辛さ3段階）',
+      cuts:{'c-kara-1':{d:'辛さ1・2・3を左から並べて置く',n:'手前に寄せすぎない。3杯が全部入るように'},
+            'c-kara-2':{d:'3を一口。汗と表情まで撮る'},
+            'c-kara-3':{d:'「辛さは選べます」の英語字幕'}}},
+    'v-gyoza':{ttl:'餃子の焼き上がり',cuts:{'c-gyo-1':{n:'BGMを乗せない。音が主役'}}},
+    'v-tori0':{ttl:'鶏白湯ラーメン（8月）',cuts:{}},
+    'v-set0':{ttl:'からあげ単品で帰らせない（8月）',cuts:{}},
+    'v-ai':{ttl:'店長 Ai の一日',cuts:{}}
+  },
+  goal:{t:'からあげ単品で帰るお客様を減らし、【ラーメンの出数】を上げる。',
+    s:'この店の強みは、日本人の家族が自分たちで作っている本物であること。海外で日本料理を出す店は数あるが、日本人が厨房に立っている店は多くない。撮る画には、必ずそれが写るようにする。'}
+};
+/* 見本の中身を、この店のものに入れ替える。
+   すでに開いている端末では seed() が二度と走らないので、ここで直す。
+   入れ替えるのは「前の見本のままの欄」だけ。
+   一文字でも書き換えられていたら、その欄には手を付けない */
+function reskin(){
+  var P=SHOP_PREV;
+  function put(o,k,was,now2){ if(o&&o[k]===was&&was!==now2) o[k]=now2; }
+  (S.menus||[]).forEach(function(m,i){
+    if(!/^mn-/.test(m.id||'')) return;
+    put(m,'name',P.menus[i],SHOP_MENUS[i]);
+  });
+  SHOP_SERIES.forEach(function(x){
+    var s=byId(S.series,x.id), p=P.series[x.id]; if(!s||!p) return;
+    put(s,'name',p.name,x.name);
+    put(s,'script',p.script,x.script);
+    put(s,'purpose',p.purpose,x.purpose);
+    put(s,'caution',p.caution,x.caution);
+    if(p.ttp!==undefined) put(s,'ttp',p.ttp,x.ttp);
+  });
+  SHOP_VIDEOS.forEach(function(x){
+    var v=byId(S.videos,x.id), p=P.videos[x.id]; if(!v||!p) return;
+    if(v.ttl===p.ttl){
+      v.ttl=x.ttl;
+      /* 題名がそのままなら、その素材は見本のまま。札と添えも合わせる */
+      v.tags=x.tags.slice();
+      if(x.refNote) v.refNote=x.refNote;
+    }
+    (x.cuts||[]).forEach(function(c){
+      var cur=null;
+      (v.cuts||[]).forEach(function(y){ if(y.id===c.id) cur=y; });
+      if(!cur) return;
+      var pc=p.cuts&&p.cuts[c.id]; if(!pc) return;
+      if(pc.d!==undefined) put(cur,'d',pc.d,c.d);
+      if(pc.n!==undefined) put(cur,'n',pc.n,c.n||'');
+    });
+  });
+  if(S.goal){ put(S.goal,'t',P.goal.t,SHOP_GOAL.t); put(S.goal,'s',P.goal.s,SHOP_GOAL.s); }
+  /* 実績の日ごとの記録に入っている品名も言い換える */
+  (S.days||[]).forEach(function(d){
+    if(!Array.isArray(d.menus)) return;
+    d.menus=d.menus.map(function(n){ return SHOP_MENU_OLD[n]||n; });
+  });
+  (S.msgs||[]).forEach(function(m){
+    if(m.tx==='今週の依頼です。からあげ単品で完結している客が多いため、サイドメニューリールを1本お願いします。必ずラーメンと同一画面に収めてください。')
+      m.tx='今週の依頼です。餃子だけで帰られることが多いため、「もう一品」のリールを1本お願いします。必ずラーメンと同一画面に収めてください。';
+  });
+  (S.posts||[]).forEach(function(p2){
+    if(p2.res==='からあげだけの画が続いたせいか、セットだと伝わらなかった。保存が伸びなかった')
+      p2.res='餃子だけの画が続いたせいか、セットだと伝わらなかった。保存が伸びなかった';
+  });
+}
 function seed(){
   var t=today();
   S.accounts=[
@@ -1562,70 +1739,22 @@ function seed(){
     {id:'a-ryuki', name:'Ryuki', role:'shop', pin:'', color:1, at:now(), rev:now()},
     {id:'a-yui',   name:'Yui',   role:'ops',  pin:'', color:3, at:now(), rev:now()}
   ];
-  S.menus=['鶏白湯ラーメン','味噌ラーメン','辛味噌ラーメン','ベジラーメン','からあげ','餃子','チャーシュー丼','セット（ラーメン＋からあげ）']
-    .map(function(n,i){ return {id:'mn-'+(i+1),name:n,rev:now()}; });
+  S.menus=SHOP_MENUS.map(function(n,i){ return {id:'mn-'+(i+1),name:n,rev:now()}; });
 
-  S.series=[
-    { id:'s-ramen', name:'ラーメン紹介リール', tag:'menu', rev:now(), at:now(),
-      ttp:'',
-      script:'0〜2秒　湯気のアップ（丼を置いた直後・逆光気味）\n2〜6秒　麺リフト（2秒かけて持ち上げる。カメラは麺と同じ高さ）\n6〜9秒　具材の寄り（チャーシュー→味玉→ネギを1秒ずつ）\n9〜12秒　一口＋表情（目線は丼へ。カメラを見ない）\n12〜15秒　入口の看板（文字が読める位置で静止）',
-      purpose:'「美味しそう」で終わらせず、「今日そこへ食べに行く」まで到達させる。\nJLTの就業者が昼休みに思い出す画を1枚残すことが目的。',
-      caution:'・縦（9:16）で撮影。横向きは使用不可\n・1カット2〜4秒。長尺のカットは離脱される\n・昼は窓際の自然光で撮影。店内照明のみではスープが濁って見える\n・客が写り込む場合は必ず許諾を取る\n・チャーシューが鶏であることが判別できる見せ方にする' },
-    { id:'s-staff', name:'スタッフ紹介リール', tag:'staff', rev:now(), at:now(),
-      ttp:'',
-      script:'0〜2秒　氏名と担当を字幕で大きく表示\n2〜7秒　手元の作業（麺上げ・盛り付け）を寄りで\n7〜11秒　「おすすめは」への回答を一言で\n11〜15秒　カメラへ一言＋店舗外観',
-      purpose:'料理ではなく人で記憶してもらう。「あの人がいる店」になれば再来店の理由が1つ増える。\n\n【この店の最大の強み】日本人が自分たちで作っている、本物の日本のラーメンであること。\n海外で日本料理を出す店は数あるが、日本人が厨房に立ち、家族で営んでいる店は多くない。\nこれは他店が真似できない。顔と手元を映すこと自体が、その証明になる。',
-      caution:'・本人の許諾を必ず取得（撮影と公開は別途確認）\n・宗教および服装への配慮。無理に写さない\n・英語字幕を入れる（客の多くは日本語を読まない）' },
-    { id:'s-side', name:'サイドメニューリール', tag:'menu', rev:now(), at:now(),
-      ttp:'参考は2品を1画面に入れる撮り方。うちはからあげの皿を丼の手前に置き、麺を持ち上げる瞬間に奥で湯気が立つ位置で撮る。字幕は必ず「セット ◯◯AED」。',
-      script:'0〜2秒　からあげの断面（衣の音を残す）\n2〜6秒　ラーメンの横に配置（必ず2品を同一画面に）\n6〜10秒　交互に食べる画\n10〜15秒　「セットで◯◯AED」を字幕で大きく',
-      purpose:'からあげ単品で完結させない。「ラーメン＋からあげで注文するもの」という認識を作る。\n※現状の最大の課題（サイドのみ注文される）を解消するためのシリーズ。',
-      caution:'・必ず2品を同一画面に収める。単品のみの画は使用しない\n・価格はAED表記で統一。セット名も毎回同じ呼称にする\n・「セット」を字幕と音声の両方で出す' }
-  ];
+  S.series=SHOP_SERIES.map(function(x){
+    return {id:x.id,name:x.name,tag:x.tag,rev:now(),at:now(),
+      ttp:x.ttp,script:x.script,purpose:x.purpose,caution:x.caution};
+  });
 
   /* 見本の素材も、タスクと同じ理屈で足した日を戻す。
      at:now() のままだと「今日 追加 ／ 三日前 撮影」という行が並ぶ */
   function vat(d){ var x=now()-3*864e5; return d?Math.min(x, fromYmd(d).getTime()-864e5):x; }
-  S.videos=[
-    {id:'v-tori',sid:'s-ramen',ttl:'鶏白湯ラーメン（9月の新作）',date:addDays(t,-3),tags:['鶏白湯ラーメン'],
-     url:'',ref:'https://www.instagram.com/',refNote:'麺リフトを2秒かけて上げている。うちは1秒で上げ切っていて湯気が写らない',
-     st:'review',stAt:now()-86400000*5,rev:now(),at:now(),
-     cuts:[
-       {id:'c-tori-1',t:'0:00〜0:02',d:'丼を置くところから。湯気が立っているうちに回す',n:'店内のBGMは切る'},
-       {id:'c-tori-2',t:'0:02〜0:06',d:'麺を2秒かけて持ち上げる。スープが垂れるまで止めない',n:'1秒で上げ切らない。途中で止めない'},
-       {id:'c-tori-3',t:'0:06〜0:10',d:'スープを一口。飲んだ人の顔まで入れる',n:''},
-       {id:'c-tori-4',t:'0:10〜0:15',d:'厨房で作っている日本人スタッフの手元',n:'顔は入れなくてよい'}
-     ]},
-    {id:'v-set',sid:'s-side',ttl:'からあげ＋ラーメンセット',date:addDays(t,-6),tags:['からあげ','セット（ラーメン＋からあげ）'],
-     url:'',ref:'https://www.instagram.com/',refNote:'2品を必ず1画面に入れている。単品の画が1カットも無い',
-     st:'ok',stAt:now()-86400000*4,rev:now(),at:now(),
-     cuts:[
-       {id:'c-set-1',t:'0:00〜0:04',d:'ラーメンとからあげを必ず同じ画面に入れて置く',n:'単品だけの画を1カットも入れない'},
-       {id:'c-set-2',t:'0:04〜0:08',d:'からあげを割る。中の湯気が出るまで待つ',n:''},
-       {id:'c-set-3',t:'0:08〜0:12',d:'「セットにすると◯◯AED」の英語字幕',n:''}
-     ]},
-    {id:'v-ai',sid:'s-staff',ttl:'店長 Ai の一日',date:addDays(t,-10),tags:['Ai'],
-     url:'',ref:'',refNote:'',st:'posted',stAt:now()-86400000*8,rev:now(),at:now()},
-    {id:'v-kara',sid:'s-ramen',ttl:'辛味噌ラーメン（辛さ3段階）',date:addDays(t,1),tags:['辛味噌ラーメン'],
-     url:'',ref:'',refNote:'',st:'plan',stAt:now()-86400000,rev:now(),at:now(),
-     cuts:[
-       {id:'c-kara-1',t:'0:00〜0:03',d:'辛さ1・2・3を左から並べて置く',n:'手前に寄せすぎない。3杯が全部入るように'},
-       {id:'c-kara-2',t:'0:03〜0:08',d:'3を一口。汗と表情まで撮る',n:''},
-       {id:'c-kara-3',t:'0:08〜0:12',d:'「辛さは選べます」の英語字幕',n:''}
-     ]},
-    {id:'v-gyoza',sid:'s-side',ttl:'餃子の焼き上がり',date:addDays(t,-1),tags:['餃子'],
-     url:'',ref:'',refNote:'音量が不足のため再撮影',st:'redo',stAt:now()-86400000,rev:now(),at:now(),
-     cuts:[
-       {id:'c-gyo-1',t:'0:00〜0:05',d:'鉄板の焼き音から入る。換気扇は止める',n:'BGMを乗せない。音が主役'},
-       {id:'c-gyo-2',t:'0:05〜0:10',d:'持ち上げて羽根を見せる',n:''}
-     ]},
-    /* 先月に出し終えたもの。次に同じメニューを撮るときの下敷きになる */
-    {id:'v-tori0',sid:'s-ramen',ttl:'鶏白湯ラーメン（8月）',date:addDays(t,-26),tags:['鶏白湯ラーメン'],
-     url:'',ref:'',refNote:'',st:'posted',stAt:now()-86400000*24,rev:now(),at:now(),cuts:[]},
-    {id:'v-set0',sid:'s-side',ttl:'からあげ単品で帰らせない（8月）',date:addDays(t,-33),
-     tags:['からあげ','セット（ラーメン＋からあげ）'],
-     url:'',ref:'',refNote:'',st:'posted',stAt:now()-86400000*31,rev:now(),at:now(),cuts:[]}
-  ];
+  S.videos=SHOP_VIDEOS.map(function(x){
+    return {id:x.id,sid:x.sid,ttl:x.ttl,date:addDays(t,x.dd),tags:x.tags.slice(),
+      url:'',ref:x.ref,refNote:x.refNote,st:x.st,stAt:now()-86400000*x.sd,
+      rev:now(),at:now(),
+      cuts:(x.cuts||[]).map(function(c){ return {id:c.id,t:c.t,d:c.d,n:c.n||''}; })};
+  });
   S.videos.forEach(function(v){ v.at=vat(v.date); });
 
   /* 見本の期限は今日を基準に作る。足した日まで今日にすると、
@@ -1678,7 +1807,7 @@ function seed(){
     S.days.push({id:'d-'+d, d:d, guests:gs,
       bowls:Math.round(gs*(0.52+rr(d,'b')*0.18)),
       foll:Math.round(2+n*1.6+rr(d,'f')*5),
-      menus:pick(rnd,['鶏白湯ラーメン','味噌ラーメン','からあげ','セット（ラーメン＋からあげ）','餃子','辛味噌ラーメン']),
+      menus:pick(rnd,SHOP_DAYMENUS),
       memo:'', rev:now(), at:now()});
   }
   function sp(d,ty){ S.posts.push({id:'p-'+d+'-'+ty,d:d,ty:ty,vid:'',memo:'',rev:now(),at:now(),by:'Ai'}); }
@@ -1689,14 +1818,14 @@ function seed(){
     rev:now(),at:now()});
   S.posts.push({id:'p-set0',d:addDays(t,-32),ty:'reel',vid:'v-set0',memo:'',by:'Ryuki',
     url:'',views:5400,saves:21,
-    res:'からあげだけの画が続いたせいか、セットだと伝わらなかった。保存が伸びなかった',
+    res:'餃子だけの画が続いたせいか、セットだと伝わらなかった。保存が伸びなかった',
     rev:now(),at:now()});
   function pick(r,arr){ var out=[],k=1+Math.floor(r()*2), c=arr.slice();
     for(var j=0;j<k&&c.length;j++) out.push(c.splice(Math.floor(r()*c.length),1)[0]);
     return out; }
 
   S.msgs=[
-    {id:uid('g'),scope:'g',ref:'',role:'ops',name:'Yui',tx:'今週の依頼です。からあげ単品で完結している客が多いため、サイドメニューリールを1本お願いします。必ずラーメンと同一画面に収めてください。',at:now()-86400000*2},
+    {id:uid('g'),scope:'g',ref:'',role:'ops',name:'Yui',tx:'今週の依頼です。餃子だけで帰られることが多いため、「もう一品」のリールを1本お願いします。必ずラーメンと同一画面に収めてください。',at:now()-86400000*2},
     {id:uid('g'),scope:'g',ref:'',role:'shop',name:'Ai',tx:'承知しました。ランチのピークが終わる15時ごろに撮影します。',at:now()-86400000*2+3600000*3},
     {id:uid('g'),scope:'g',ref:'',role:'shop',name:'Ryuki',tx:'餃子の動画は音量が不足していたため再撮影します。',at:now()-86400000},
     {id:uid('g'),scope:'g',ref:'',role:'ops',name:'Yui',tx:'ありがとうございます。音は後付けできないため、再撮影の判断で正解です。',at:now()-86400000+3600000*2}
@@ -2849,6 +2978,39 @@ function safeUrl(u){
 /* 撮った動画そのものへの入口。題名だけでは「どの動画の話か」は分かっても、
    言われた側がその場で見に行けない。置き場所が空なら、そこから貼りに行ける。
    撮る前の企画には出さない（まだ動画が無いのに「未記入」と出ると急かすだけ） */
+/* 落とされたものから住所を取り出す。ドライブからの持ち出し方は
+   環境によって変わるので、拾える口はぜんぶ見る */
+function dropUrl(dt){
+  if(!dt) return '';
+  var s='';
+  try{ s=dt.getData('text/uri-list')||''; }catch(e){}
+  if(!s){ try{ s=dt.getData('text/plain')||''; }catch(e){} }
+  if(!s){
+    var h=''; try{ h=dt.getData('text/html')||''; }catch(e){}
+    var m=h.match(/href\s*=\s*["']([^"']+)["']/i); if(m) s=m[1];
+  }
+  /* uri-list は複数行で来ることがある。先頭の一本だけ使う */
+  s=((s||'')+'').split(/[\r\n]+/).filter(function(x){ return x&&x.charAt(0)!=='#'; })[0]||'';
+  return s.trim();
+}
+/* 動画の置き場所。落としても、貼り付けても、同じ結果になるようにしておく */
+function vDropHtml(v){
+  var a=safeUrl(v.url), h='<div class="vdrop" data-vd="'+v.id+'">';
+  if(a) h+='<div class="dv">'+urlBtn(v.url,'Googleドライブで開く','play')+'</div>';
+  else if(v.url) h+='<div class="urlmemo">'+ic('info')+'<span>'+esc(v.url)+'</span></div>';
+  else h+='<div class="vdrop-no">'+ic('info')+'<span>まだ貼られていません。'+
+    (v.st==='plan'?'撮影のあとに貼ってください。':'これが無いと日本側は動画を見られません。')+'</span></div>';
+  h+='<div class="vdrop-z">'+ic('link')+
+    '<b>ここに Google ドライブの動画をドラッグ</b>'+
+    '<i>この枠のどこへ落としても受け取ります。下の欄に貼り付けても同じです。</i></div>';
+  h+='<div class="vdrop-f"><input type="text" id="vUrl" value="'+esc(v.url||'')+
+    '" placeholder="https://drive.google.com/file/d/..." aria-label="動画の住所">'+
+    '<button class="btn btn-main btn-sm" data-act="vurl" data-id="'+v.id+'">'+ic('check')+'保存</button></div>';
+  return h+'</div>';
+}
+function vSetUrl(v,u){
+  v.url=((u||'')+'').trim(); touch(v); save(); sheetVideo(v.id);
+}
 function vLink(v){
   if(!v) return '';
   var a=safeUrl(v.url);
@@ -3194,12 +3356,7 @@ function sheetVideo(id,toBottom){
     '<div class="cut-a"><button class="qbtn" data-act="ask" data-scope="video" data-ref="'+v.id+
     '" data-cut="">？　目的が分からない</button></div>';
   ex+=sec('Video','撮った動画','folder',
-    'Googleドライブの共有リンクを貼ると、ここから直接開けます。')+'<div class="dv">';
-  ex+= v.url ? urlBtn(v.url,'Googleドライブで開く','play')+' '
-             : '<span class="dv-none">'+ic('info')+'まだ貼られていません。'+
-               (v.st==='plan'?'撮影のあとに貼ってください。':'これが無いと日本側は動画を見られません。')+'</span> ';
-  ex+='<button class="btn btn-line btn-sm" data-act="edvideo" data-id="'+v.id+'">'+ic('link')+
-    (v.url?'リンクを直す':'リンクを貼る')+'</button></div>';
+    'Googleドライブで動画を開いて、その住所をここへ落とすか、貼り付けてください。')+vDropHtml(v);
   if(v.ref||v.refNote){
     ex+='<div class="sec" style="margin:18px 0 8px"><h2>'+ic('eye')+'参考素材</h2></div>';
     if(v.ref) ex+=urlBtn(v.ref,'参考を開く','link');
@@ -3714,6 +3871,9 @@ function mergeIn(o){
     /* 連絡もここで見本を弾く。弾かないと、消したはずの見本のやり取りだけが戻る */
     if(S.nos&&m.sd) return;
     if(!byId(S.msgs,m.id)){ m.inb=1; S.msgs.push(m); n.M++; feedMsg(m); } });
+  /* 受け取った中に前の見本が混じっていることがある。
+     相手の端末が、まだ言い換える前の控えを置き場所に残しているため */
+  reskin();
   save();
   return n;
 }
@@ -3936,6 +4096,11 @@ document.addEventListener('click',function(e){
   }
   var b=e.target.closest('[data-act]'); if(!b) return;
   var a=b.dataset.act, id=b.dataset.id;
+  if(a==='vurl'){
+    var vu=byId(S.videos,id), iu=$('#vUrl');
+    if(vu&&iu) vSetUrl(vu,iu.value);
+    return;
+  }
   if(a==='goalview'){ sheetGoalView(); return; }
 
   if(a==='ovclose'){ if(e.target.classList.contains('ov')&&me()){ closeSheet(); render(); } return; }
@@ -4440,6 +4605,54 @@ document.addEventListener('keydown',function(e){
   var o=sa[i].ord; sa[i].ord=sa[j].ord; sa[j].ord=o;
   touch(sa[i]); touch(sa[j]); save(); render();
   var n=document.querySelector('.chmv[data-sid="'+g.dataset.sid+'"]'); if(n) n.focus();
+});
+/* 素材の画面が開いているあいだは、その中のどこへ落としても受け取る。
+   枠を外したときに画面ごとファイルへ飛ばされるのがいちばん困るので、
+   受け取らない場所でも既定の動きは止める */
+function vdZone(e){
+  var t=e.target, c=(t&&t.closest)?t:null;
+  var z=c?c.closest('.vdrop'):null;
+  if(z) return z;
+  var s=c?c.closest('.sheet'):null;
+  return s?s.querySelector('.vdrop'):null;
+}
+var VDZ=null;
+function vdOff(){ if(VDZ){ VDZ.classList.remove('over'); VDZ=null; } }
+document.addEventListener('dragover',function(e){
+  e.preventDefault();
+  var z=vdZone(e);
+  if(!z){ vdOff(); return; }
+  try{ e.dataTransfer.dropEffect='copy'; }catch(er){}
+  if(VDZ!==z){ vdOff(); VDZ=z; z.classList.add('over'); }
+});
+document.addEventListener('dragleave',function(e){
+  if(VDZ&&!VDZ.contains(e.relatedTarget)) vdOff();
+});
+document.addEventListener('drop',function(e){
+  e.preventDefault();
+  var z=vdZone(e); vdOff();
+  if(!z) return;
+  var v=byId(S.videos,z.dataset.vd); if(!v) return;
+  var u=dropUrl(e.dataTransfer);
+  if(safeUrl(u)){ vSetUrl(v,u); return; }
+  var f=e.dataTransfer&&e.dataTransfer.files;
+  if(f&&f.length){
+    /* 動画そのものは預かれない。預かっても相手の端末には届かないので、
+       「貼ったのに見えない」が起きる。置き場所はドライブのまま */
+    alert('動画そのものは、この画面には置けません。\n\n'+f[0].name+
+      '\n\nGoogleドライブに上げてから、その動画の住所をこの枠へ落としてください。');
+    return;
+  }
+  alert('リンクを読み取れませんでした。\nGoogleドライブで動画を開いて、上の住所をそのまま貼り付けてください。');
+});
+/* 貼り付けたあと、そのまま改行で保存できるようにする */
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Enter') return;
+  var i=e.target;
+  if(!i||i.id!=='vUrl') return;
+  var b=document.querySelector('[data-act="vurl"]'); if(!b) return;
+  e.preventDefault();
+  var v=byId(S.videos,b.dataset.id); if(v) vSetUrl(v,i.value);
 });
 $('#btnSet').addEventListener('click',function(){ sheetSet(); });
 /* 携帯は、画面を伏せているあいだに接続を切る。戻ってきたらつなぎ直す */
