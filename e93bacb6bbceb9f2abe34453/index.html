@@ -64,6 +64,9 @@ em{font-style:normal;font-weight:700;color:var(--gold);}
 .nav button{white-space:nowrap;}
 @media(max-width:430px){.nav button{font-size:.78rem;gap:4px;padding:12px 2px 11px;letter-spacing:0;} .nav button svg{width:14px;height:14px;} .nav .dot{right:calc(50% - 34px);}}
 .nav .dot{position:absolute;top:7px;right:calc(50% - 30px);min-width:17px;height:17px;border-radius:9px;background:var(--info);color:#fff;font-size:.68rem;line-height:17px;text-align:center;padding:0 5px;}
+/* いまの時刻。ノートの右に置く */
+.clk{flex:none;display:flex;flex-direction:column;justify-content:center;gap:1px;padding-left:14px;margin-left:4px;border-left:1px solid var(--line);font-size:.66rem;line-height:1.35;color:var(--tx3);white-space:nowrap;font-variant-numeric:tabular-nums;}
+@media(max-width:430px){.clk{font-size:.56rem;padding-left:7px;margin-left:2px;}}
 
 /* ---- 本文 ---- */
 #main{max-width:960px;margin:0 auto;padding:16px 18px 60px;}
@@ -300,6 +303,9 @@ body.has-sheet{position:fixed;width:100%;overflow:hidden;}
 .acrow.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);}
 a{color:var(--info);word-break:break-all;}
 /* ---- 今月 ---- */
+.delb{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:700;color:var(--tx3);border:1px solid var(--line);border-radius:999px;padding:5px 12px;}
+.delb:hover{color:var(--accent);border-color:var(--accent);background:var(--accent-bg);}
+.delb svg{width:13px;height:13px;}
 .dir{border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:var(--r);padding:16px 18px 14px;box-shadow:var(--lift);}
 .dir .k{font-size:.7rem;font-weight:700;letter-spacing:.14em;color:var(--gold);}
 .dir .t{font-size:1.1rem;font-weight:700;line-height:1.75;margin:2px 0 8px;}
@@ -318,7 +324,9 @@ a{color:var(--info);word-break:break-all;}
 .cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;}
 .cal .dow{font-size:.8rem;color:var(--tx3);text-align:center;letter-spacing:.08em;padding-bottom:5px;}
 .cal .dow.sun{color:var(--accent);} .cal .dow.sat{color:var(--info);}
-.cal .c{min-width:0;overflow:hidden;min-height:112px;border:1px solid var(--surface3);border-radius:10px;padding:6px 7px;font-size:.86rem;color:var(--tx3);text-align:left;display:block;width:100%;font-variant-numeric:tabular-nums;}
+.cal .c{min-width:0;overflow:hidden;min-height:112px;border:1px solid var(--surface3);border-radius:10px;padding:6px 7px;font-size:.86rem;color:var(--tx3);text-align:left;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;width:100%;font-variant-numeric:tabular-nums;}
+/* 日付は必ず升の左上。升の高さが変わっても動かない */
+.cal .c .n{align-self:flex-start;flex:none;}
 .cal .c:hover{border-color:var(--line2);background:var(--surface2);}
 .cal .c.pad{border-color:transparent;pointer-events:none;}
 .cal .c.today{border-color:var(--accent);} .cal .c.today .n{color:var(--accent);font-weight:700;}
@@ -327,6 +335,9 @@ a{color:var(--info);word-break:break-all;}
 /* 赤い点＝まだ終わっていない印。白い縁を付けて、どの地の色の上でも見えるようにする */
 .chip .dot,.legend .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#D62828;box-shadow:0 0 0 1.5px rgba(255,255,255,.9);margin-right:4px;vertical-align:1px;}
 .legend .dot.lg{width:8px;height:8px;box-shadow:none;vertical-align:0;}
+/* 何日間か続くもの。つながって見えるように、間の日は角を落とす */
+.chip.span{border-radius:5px 2px 2px 5px;}
+.chip.span.cont{border-radius:2px 5px 5px 2px;opacity:.82;}
 .chip{cursor:pointer;}
 .chip:hover{filter:brightness(.94);}
 /* 狭い画面では1枚1行。全部載せても暦が縦に伸びすぎないようにする */
@@ -560,7 +571,7 @@ var CAL=null;
 function newSec(){ return {tx:'',who:'',ok:0,okBy:'',okAt:0,rev:0}; }
 function newUSec(){ return {url:'',fb:'',memo:'',who:'',ok:0,okBy:'',okAt:0,rev:0}; }
 function newReel(){
-  return {id:uid('r'),ttl:'',d:'',who:'shop',whos:['shop'],tags:[],tagAt:{},stx:'',pri:'',plan:0,done:null,
+  return {id:uid('r'),ttl:'',d:'',d2:'',who:'shop',whos:['shop'],tags:[],tagAt:{},stx:'',pri:'',plan:0,done:null,
     sec:{purpose:newSec(),script:newSec(),shoot:newUSec(),edit:newUSec(),cap:newSec(),cov:newSec(),
       after:{tx:'',url:'',rev:0}},
     rev:now(),at:now()};
@@ -568,6 +579,8 @@ function newReel(){
 function fixReel(r){
   /* 担当者は複数。前からある保存や、古い版の端末から来たものは who（1人）だけ持っている。
      who は古い版のために残し、いつも whos の先頭と同じにしておく */
+  if(typeof r.d2!=='string') r.d2='';
+  if(r.d2&&(!r.d||r.d2<r.d)) r.d2='';   /* 終わりが始まりより前になっていたら捨てる */
   if(!Array.isArray(r.whos)) r.whos=[];
   r.whos=r.whos.filter(function(k){ return !!WHO[k]; });
   if(!r.whos.length) r.whos=[WHO[r.who]?r.who:'shop'];
@@ -659,6 +672,8 @@ function dlHtml(r){
   if(n===null) return '<span class="d">日付なし</span>';
   var hot=(n<=2);
   var w=n<0?('<b>'+(-n)+'日 過ぎています</b>'):n===0?'<b>今日</b>':('<b>あと'+n+'日</b>');
+  /* 何日から何日まで、のものは期間で出す */
+  if(r.d2) return '<span class="d'+(hot?' hot':'')+'">'+fmtMd(r.d)+'〜'+fmtMd(r.d2)+'　'+w+'</span>';
   return '<span class="d'+(hot?' hot':'')+'">'+fmtMd(r.d)+'　'+w+'</span>';
 }
 /* 投稿の1週間前を過ぎているのに、目的か台本が空。撮る側が待たされる合図 */
@@ -786,12 +801,18 @@ function rowHtml(r){
     '<div class="r"><span class="whos">'+whosHtml(r)+'</span>'+(dn?'':dlHtml(r))+'</div>'+
     '</div>';
 }
+/* いまの時刻。ドバイと日本を並べて出す。時差は毎回数えるものではない */
+function clkHtml(){
+  var t=now();
+  return '<span>ドバイ '+hmTZ(t,TZ_DUBAI)+'</span><span>日本 '+hmTZ(t,TZ_JAPAN)+'</span>';
+}
+function clkTick(){ var e=$('#clk'); if(e) e.innerHTML=clkHtml(); }
 function navHtml(){
   var items=[['all','全体','list',NM.n],['who','担当ごと','users',0],['month','今月','calendar',0],['note','ノート','book',unreadNote()]];
   return items.map(function(v){
     return '<button data-nav="'+v[0]+'" aria-selected="'+(VIEW===v[0])+'">'+ic(v[2])+v[1]+
       (v[3]?'<span class="dot">'+v[3]+'</span>':'')+'</button>';
-  }).join('');
+  }).join('')+'<span class="clk" id="clk" aria-label="いまの時刻">'+clkHtml()+'</span>';
 }
 
 /* ============================================================
@@ -898,7 +919,10 @@ function reelsOn(ds){
   var out=[];
   alive(S.reels).forEach(function(r){
     if(r.done){ if(doneYmd(r)===ds) out.push({r:r,plan:false}); }
-    else if(r.d===ds&&!r.plan) out.push({r:r,plan:true});
+    else if(r.plan) return;
+    /* 何日から何日まで、のものは、その間の日すべてに出す */
+    else if(r.d===ds) out.push({r:r,plan:true,span:!!r.d2,head:true});
+    else if(r.d2&&r.d&&ds>r.d&&ds<=r.d2) out.push({r:r,plan:true,span:true,head:false});
   });
   return out;
 }
@@ -958,9 +982,9 @@ function chipHtml(o){
      終わったか、まだかは、赤い点があるかどうかだけで見分ける */
   var fill=bg.length>1?'linear-gradient(90deg,'+bg[0]+' 50%,'+bg[1]+' 50%)':bg[0];
   var css='background:'+fill+';color:'+st[0]+';border-color:'+st[0];
-  return '<span class="chip'+(o.plan?' yet':' fin')+'" style="'+css+'" '+
+  return '<span class="chip'+(o.plan?' yet':' fin')+(o.span?' span':'')+(o.span&&!o.head?' cont':'')+'" style="'+css+'" '+
     'data-act="open" data-id="'+o.r.id+'" title="'+esc(o.r.ttl)+'">'+
-    (o.plan?'<i class="dot"></i>':'')+esc(o.r.ttl)+'</span>';
+    (o.plan&&o.head?'<i class="dot"></i>':'')+esc(o.r.ttl)+'</span>';
 }
 /* その日の投稿。出したものはメモつき、予定は題名と担当 */
 function sheetDay(ds){
@@ -972,7 +996,8 @@ function sheetDay(ds){
     var r=o.r, a=r.sec.after||{};
     h+='<button class="dayl" data-act="open" data-id="'+r.id+'"><i class="'+(o.plan?'plan':'')+'"></i><div>'+
       '<div class="t">'+esc(r.ttl)+'</div>'+
-      '<div class="s">'+whosHtml(r)+'　'+(o.plan?'まだ終わっていません（出す予定）':'ドバイ '+hmTZ(r.done.at,TZ_DUBAI)+' に投稿済み')+'</div>'+
+      '<div class="s">'+whosHtml(r)+'　'+(o.plan?(r.d2?fmtMd(r.d)+'〜'+fmtMd(r.d2)+'　まだ終わっていません':'まだ終わっていません（出す予定）')
+        :'ドバイ '+hmTZ(r.done.at,TZ_DUBAI)+' に投稿済み')+'</div>'+
       (!o.plan&&a.tx?'<div class="s">'+emph(a.tx)+'</div>':'')+
       '</div></button>';
   });
@@ -1194,7 +1219,9 @@ function sheetEdit(id,asPlan,who){
       '<button data-v="post" aria-pressed="'+(!r.plan)+'">'+ic('film')+'投稿</button>'+
       '<button data-v="plan" aria-pressed="'+(!!r.plan)+'">'+ic('pencil')+'企画</button></div></label>'+
     '<label><span class="jp">タイトル</span><input type="text" id="fTtl" value="'+esc(r.ttl)+'"></label>'+
-    '<label><span class="jp">投稿予定日</span><input type="date" id="fD" value="'+esc(r.d)+'"></label>'+
+    '<label><span class="jp">投稿予定日 <i>（始まりの日）</i></span><input type="date" id="fD" value="'+esc(r.d)+'"></label>'+
+    /* 何日から何日まで、という置き方もできる。出張や撮影期間など */
+    '<label><span class="jp">終わりの日 <i>（任意。何日間か続くとき）</i></span><input type="date" id="fD2" value="'+esc(r.d2||'')+'"></label>'+
     '<label><span class="jp">担当者 <i>（2人でもよい）</i></span><div class="seg multi" id="fWho">'+WHOK.map(function(k){
       return '<button class="'+ROLE[k]+'" data-v="'+k+'" aria-pressed="'+((r.whos||[]).indexOf(k)>=0)+'">'+ic('users')+esc(roleName(k))+'</button>'; }).join('')+'</div></label>'+
     '<label><span class="jp">ステータス <i>（いくつでも）</i></span><div class="seg multi" id="fTags">'+TAGS.map(function(t){
@@ -1278,7 +1305,9 @@ function sheetReel(id){
       '<button class="btn btn-main btn-sm" data-act="toPost" data-id="'+r.id+'">'+ic('arrowR')+'制作中へ移す</button>'
      :'<button class="btn btn-ok" data-act="done" data-id="'+r.id+'">'+ic('check')+'投稿済みにする</button>')+
     '<button class="talk" data-act="talk" data-id="'+r.id+'" data-k="all" style="margin-left:auto">'+ic('chat')+
-      (ma.length?'この1本全体のやり取り '+ma.length+'件':'この1本全体について')+'</button></div>';
+      (ma.length?'この1本全体のやり取り '+ma.length+'件':'この1本全体について')+'</button>'+
+    /* 要らなくなったもの・間違えて作ったものは、ここから消せる。投稿済みでも同じ */
+    '<button class="delb" data-act="del" data-id="'+r.id+'">'+ic('trash')+'この1本を削除</button></div>';
   sheet(esc(r.ttl),h);
 }
 
@@ -1406,6 +1435,8 @@ document.addEventListener('click',function(e){
     var ttl=$('#fTtl').value.trim(); if(!ttl){ alert('タイトルを入れてください'); return; }
     var r=id?byId(S.reels,id):newReel();
     r.ttl=ttl; r.d=$('#fD').value||'';
+    r.d2=$('#fD2')?($('#fD2').value||''):'';
+    if(r.d2&&(!r.d||r.d2<r.d)) r.d2='';
     var ws=$$('#fWho [aria-pressed="true"]').map(function(x){ return x.dataset.v; });
     if(!ws.length){ alert('担当者を選んでください'); return; }
     r.whos=ws; r.who=ws[0];
@@ -1553,7 +1584,7 @@ function payload(){
   /* 見本（sd）は送らない。相手の端末にも同じ見本があり、二重になる */
   return {v:1,at:now(),shop:S.shop,
     A:S.accounts.filter(function(x){ return !x.sd; }),
-    R:S.reels.filter(function(x){ return !x.sd; }),
+    R:S.reels.filter(function(x){ return !x.sd; }),   /* d2（終わりの日）も一緒に回る */
     M:S.msgs, L:(S.log||[]).slice(-200), G:S.goal, sig:fnv(SECRET)};
 }
 function fbSend(){
@@ -1619,6 +1650,8 @@ function fbStart(){
    11. 起動
    ============================================================ */
 load(); render(); fbStart();
+/* いまの時刻は、描き直さなくても進む */
+setInterval(clkTick,20000);
 if(!me()) sheetMe();
 })();
 </script>
