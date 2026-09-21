@@ -176,6 +176,14 @@ body.has-sheet{position:fixed;width:100%;overflow:hidden;}
 
 .frm{display:flex;flex-direction:column;gap:18px;}
 .frm label{display:block;}
+.frm [hidden]{display:none!important;}
+/* 期日と、継続する予定 */
+.dgrp{display:flex;flex-direction:column;gap:10px;}
+.fspan{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.spanb{align-self:flex-start;display:inline-flex;align-items:center;gap:5px;font-size:.74rem;font-weight:700;color:var(--tx3);border:1px solid var(--line);border-radius:999px;padding:4px 11px;}
+.spanb svg{width:12px;height:12px;}
+.spanb:hover{color:var(--tx);border-color:var(--line2);}
+.spanb[aria-pressed="true"]{color:var(--info);border-color:var(--info);background:var(--info-bg);}
 .frm .jp{display:block;font-size:.76rem;font-weight:700;letter-spacing:.1em;color:var(--tx2);margin-bottom:7px;}
 .frm .jp i{font-style:normal;font-weight:400;color:var(--tx3);}
 .frm input[type=text],.frm input[type=url],.frm input[type=date],.frm textarea{width:100%;border:1px solid var(--line2);border-radius:var(--r-sm);padding:11px 12px;background:#fff;line-height:1.7;}
@@ -243,6 +251,8 @@ body.has-sheet{position:fixed;width:100%;overflow:hidden;}
 .done-row .btn-ok:hover{background:#0E6A51;}
 .done-txt{font-size:.82rem;color:var(--ok);font-weight:700;}
 
+/* 新しい版の知らせ */
+.verbar{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:99990;background:var(--info);color:#fff;font-size:.84rem;font-weight:700;letter-spacing:.04em;border-radius:999px;padding:11px 20px;box-shadow:0 4px 16px rgba(30,34,40,.18);white-space:nowrap;}
 /* ---- 更新のお知らせ ---- */
 .fd{border:1px solid var(--line);border-radius:var(--r);padding:10px 12px 8px;margin:2px 0 12px;}
 .fd-h{display:flex;align-items:center;gap:7px;font-size:.82rem;font-weight:700;color:var(--tx2);padding-bottom:6px;}
@@ -1239,9 +1249,16 @@ function sheetEdit(id,asPlan,who){
       '<button data-v="post" aria-pressed="'+(!r.plan)+'">'+ic('film')+'投稿</button>'+
       '<button data-v="plan" aria-pressed="'+(!!r.plan)+'">'+ic('pencil')+'企画</button></div></label>'+
     '<label><span class="jp">タイトル</span><input type="text" id="fTtl" value="'+esc(r.ttl)+'"></label>'+
-    '<label><span class="jp">投稿予定日 <i>（始まりの日）</i></span><input type="date" id="fD" value="'+esc(r.d)+'"></label>'+
-    /* 何日から何日まで、という置き方もできる。出張や撮影期間など */
-    '<label><span class="jp">終わりの日 <i>（任意。何日間か続くとき）</i></span><input type="date" id="fD2" value="'+esc(r.d2||'')+'"></label>'+
+    /* 日付はふだん「期日」1つ。何日も続く予定はめったにないので、小さなボタンの奥に置く */
+    '<div class="dgrp">'+
+      '<label id="fDone"'+(r.d2?' hidden':'')+'><span class="jp">期日</span><input type="date" id="fD" value="'+esc(r.d2?'':r.d)+'"></label>'+
+      '<div id="fSpan" class="fspan"'+(r.d2?'':' hidden')+'>'+
+        '<label><span class="jp">始まる日</span><input type="date" id="fS1" value="'+esc(r.d2?r.d:'')+'"></label>'+
+        '<label><span class="jp">終わる日</span><input type="date" id="fS2" value="'+esc(r.d2||'')+'"></label>'+
+      '</div>'+
+      '<button type="button" class="spanb" id="fSpanB" data-act="spanT" aria-pressed="'+(r.d2?'true':'false')+'">'+
+        ic('calendar')+'継続する予定</button>'+
+    '</div>'+
     '<label><span class="jp">担当者 <i>（2人でもよい）</i></span><div class="seg multi" id="fWho">'+WHOK.map(function(k){
       return '<button class="'+ROLE[k]+'" data-v="'+k+'" aria-pressed="'+((r.whos||[]).indexOf(k)>=0)+'">'+ic('users')+esc(roleName(k))+'</button>'; }).join('')+'</div></label>'+
     '<label><span class="jp">ステータス <i>（いくつでも）</i></span><div class="seg multi" id="fTags">'+TAGS.map(function(t){
@@ -1424,6 +1441,21 @@ document.addEventListener('click',function(e){
   if(a==='pickme'){ S.me={id:id}; save0(); closeSheet(); render(); return; }
   if(a==='allm'){ ALLM=b.dataset.v; render(); return; }
   if(a==='toPost'){ var rp=byId(S.reels,id); if(!rp) return; rp.plan=0; delete rp.sd; touch(rp); save(); if($('#modal').innerHTML) reSheet(function(){ sheetReel(id); }); render(); return; }
+  if(a==='spanT'){
+    var on=(b.getAttribute('aria-pressed')!=='true');
+    b.setAttribute('aria-pressed',on?'true':'false');
+    var one=$('#fDone'), sp=$('#fSpan');
+    if(on){
+      one.setAttribute('hidden',''); sp.removeAttribute('hidden');
+      /* 入れてあった期日は「終わる日」に移す。期日＝締め切りなので、終わりの側 */
+      if(!$('#fS2').value) $('#fS2').value=$('#fD').value;
+      setTimeout(function(){ var t=$('#fS1'); if(t) t.focus(); },30);
+    }else{
+      sp.setAttribute('hidden',''); one.removeAttribute('hidden');
+      if(!$('#fD').value) $('#fD').value=$('#fS2').value||$('#fS1').value;
+    }
+    return;
+  }
   if(a==='more'){
     var mb=$('#fMore'), bb=$('#fMoreB'); if(!mb||!bb) return;
     var op=mb.hasAttribute('hidden');
@@ -1454,9 +1486,14 @@ document.addEventListener('click',function(e){
   if(a==='save'){
     var ttl=$('#fTtl').value.trim(); if(!ttl){ alert('タイトルを入れてください'); return; }
     var r=id?byId(S.reels,id):newReel();
-    r.ttl=ttl; r.d=$('#fD').value||'';
-    r.d2=$('#fD2')?($('#fD2').value||''):'';
-    if(r.d2&&(!r.d||r.d2<r.d)) r.d2='';
+    r.ttl=ttl;
+    /* 継続する予定なら 始まる日→d・終わる日→d2。そうでなければ 期日→d だけ */
+    var spOn=($('#fSpanB')&&$('#fSpanB').getAttribute('aria-pressed')==='true');
+    if(spOn){
+      var s1=$('#fS1').value||'', s2=$('#fS2').value||'';
+      if(s1&&s2&&s2<s1){ var tq=s1; s1=s2; s2=tq; }
+      if(s1&&s2&&s1!==s2){ r.d=s1; r.d2=s2; } else { r.d=s2||s1; r.d2=''; }
+    }else{ r.d=$('#fD').value||''; r.d2=''; }
     var ws=$$('#fWho [aria-pressed="true"]').map(function(x){ return x.dataset.v; });
     if(!ws.length){ alert('担当者を選んでください'); return; }
     r.whos=ws; r.who=ws[0];
@@ -1666,12 +1703,36 @@ function fbStart(){
     var m; try{ m=JSON.parse(ev.data); }catch(e){ return; } fbTake(m.path,m.data); }); });
 }
 
+/* ---- 版の見比べ ----
+   ブラウザは前に開いた版をしばらく持ち続けるので、直しても画面が古いままになる。
+   配る版には公開のたびに印（BUILD）が入る。置いてある版の印と違えば、新しい版が出ている */
+var BUILD='20260921-111019', VERNEW=false;
+function verCheck(){
+  if(BUILD==='dev'||VERNEW||location.protocol==='file:'||!window.fetch) return;
+  fetch(location.pathname+'?v='+now(),{cache:'no-store'}).then(function(r){ return r.ok?r.text():''; }).then(function(t){
+    var m=(t||'').match(/var BUILD='([^']+)'/);
+    if(!m||m[1]===BUILD||m[1]==='dev') return;
+    VERNEW=true;
+    /* 書きかけ（シートが開いている・入力中）なら、勝手には切り替えない */
+    var busy=!!$('#modal').innerHTML||(document.activeElement&&/INPUT|TEXTAREA/.test(document.activeElement.tagName));
+    if(!busy){ location.reload(); return; }
+    var bar=document.createElement('button');
+    bar.className='verbar'; bar.type='button';
+    bar.textContent='新しい版があります。押すと切り替わります';
+    bar.addEventListener('click',function(){ location.reload(); });
+    document.body.appendChild(bar);
+  }).catch(function(){});
+}
+
 /* ============================================================
    11. 起動
    ============================================================ */
 load(); render(); fbStart();
 /* いまの時刻は、描き直さなくても進む */
 setInterval(clkTick,20000);
+/* 新しい版が出ていないか、裏でときどき見比べる */
+verCheck(); setInterval(verCheck,3*60*1000);
+document.addEventListener('visibilitychange',function(){ if(!document.hidden) verCheck(); });
 if(!me()) sheetMe();
 })();
 </script>
