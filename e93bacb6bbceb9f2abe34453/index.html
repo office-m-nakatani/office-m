@@ -87,7 +87,7 @@ em{font-style:normal;font-weight:700;color:var(--gold);}
 .empty{padding:22px 10px;text-align:center;color:var(--tx3);font-size:.86rem;}
 
 /* 1行＝1本 */
-.li{position:relative;display:grid;grid-template-columns:20px 1fr auto;gap:10px;align-items:start;padding:11px 8px 11px 13px;border-bottom:1px solid var(--surface3);background:var(--wtint,transparent);border-radius:0 10px 10px 0;}
+.li{cursor:pointer;position:relative;display:grid;grid-template-columns:20px 1fr auto;gap:10px;align-items:start;padding:11px 8px 11px 13px;border-bottom:1px solid var(--surface3);background:var(--wtint,transparent);border-radius:0 10px 10px 0;}
 /* 左の帯。担当の濃い色。2人なら上下で2色 */
 .li:before{content:"";position:absolute;left:0;top:5px;bottom:5px;width:3px;border-radius:0 3px 3px 0;background:var(--wbar,transparent);}
 .li:last-child{border-bottom:0;}
@@ -146,7 +146,7 @@ em{font-style:normal;font-weight:700;color:var(--gold);}
 .col.jp{border-color:var(--jp-ed);background:#FAFDFB;} .col.db{border-color:var(--db-ed);background:#FFFBF7;}
 .col h3{margin:0 0 8px;font-size:.92rem;display:flex;align-items:center;gap:8px;}
 .col h3 b{margin-left:auto;font-size:.8rem;color:var(--tx3);font-variant-numeric:tabular-nums;}
-.mi{display:grid;grid-template-columns:20px 1fr;gap:8px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 10px 8px;margin-bottom:8px;}
+.mi{cursor:pointer;display:grid;grid-template-columns:20px 1fr;gap:8px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 10px 8px;margin-bottom:8px;}
 .mi .t{display:block;text-align:left;font-size:.94rem;font-weight:700;line-height:1.5;color:var(--tx);}
 .mi .t:hover{color:var(--accent);}
 .mi .m{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;align-items:center;}
@@ -172,6 +172,14 @@ body.has-sheet{position:fixed;width:100%;overflow:hidden;}
 .frm .jp i{font-style:normal;font-weight:400;color:var(--tx3);}
 .frm input[type=text],.frm input[type=url],.frm input[type=date],.frm textarea{width:100%;border:1px solid var(--line2);border-radius:var(--r-sm);padding:11px 12px;background:#fff;line-height:1.7;}
 .frm textarea{resize:vertical;min-height:80px;}
+/* 追加のときに開く詳細 */
+.fmore{display:flex;align-items:center;gap:7px;width:100%;border:1px solid var(--line);border-radius:12px;padding:11px 13px;font-size:.88rem;font-weight:700;color:var(--tx2);background:var(--surface2);}
+.fmore:hover{border-color:var(--line2);color:var(--tx);}
+.fmore svg{width:14px;height:14px;transition:transform .15s;}
+.fmore[aria-expanded="true"] svg{transform:rotate(90deg);}
+.fmore i{font-style:normal;font-weight:400;font-size:.76rem;color:var(--tx3);margin-left:auto;}
+.fmore-b{display:flex;flex-direction:column;gap:16px;margin-top:-2px;}
+.fmore-b textarea{width:100%;box-sizing:border-box;}
 .seg{display:flex;flex-wrap:wrap;gap:7px;}
 .seg button{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line2);border-radius:10px;padding:8px 13px;font-size:.86rem;font-weight:700;color:var(--tx2);background:#fff;}
 .seg button svg{width:13px;height:13px;}
@@ -218,6 +226,7 @@ body.has-sheet{position:fixed;width:100%;overflow:hidden;}
 .mode button[aria-selected="true"]{background:var(--accent);color:#fff;}
 .mode button b{font-size:.72rem;background:rgba(255,255,255,.28);border-radius:8px;padding:0 6px;margin-left:4px;}
 .mode button[aria-selected="false"] b{background:var(--accent-bg);color:var(--accent);}
+.li .mv,.li .chk,.mi .chk{cursor:pointer;}
 .li .mv{width:20px;height:20px;border:1.5px solid var(--line2);border-radius:6px;display:inline-flex;align-items:center;justify-content:center;color:var(--tx2);margin-top:2px;}
 .li .mv:hover{border-color:var(--accent);color:var(--accent);}
 .li .mv svg{width:12px;height:12px;}
@@ -1013,6 +1022,7 @@ function sheetEdit(id,asPlan,who){
   var r=id?byId(S.reels,id):newReel();
   if(!id&&asPlan) r.plan=1;
   if(!id&&who&&WHO[who]) r.whos=[who];
+  var pu=(r.sec.purpose.tx||''), sc=(r.sec.script.tx||''), mo=!!(pu||sc);
   var h='<div class="frm">'+
     '<label><span class="jp">区分</span><div class="seg" id="fPlan">'+
       '<button data-v="post" aria-pressed="'+(!r.plan)+'">'+ic('film')+'投稿（動いている）</button>'+
@@ -1026,6 +1036,14 @@ function sheetEdit(id,asPlan,who){
     '<label><span class="jp">上に無いもの <i>（任意）</i></span><input type="text" id="fStx" value="'+esc(r.stx)+'" placeholder="例：英文チェック待ち"></label>'+
     '<label><span class="jp">優先度 <i>（任意）</i></span><div class="seg" id="fPri">'+['high','mid','low'].map(function(k){
       return '<button data-v="'+k+'" aria-pressed="'+(r.pri===k)+'">'+PRI[k]+'</button>'; }).join('')+'</div></label>'+
+    /* 思いついた勢いのまま狙いまで書けるように、ここでも目的と台本を開ける。
+       書いたものは、そのまま一覧の1行に出る */
+    '<button class="fmore" id="fMoreB" data-act="more" aria-expanded="'+(mo?'true':'false')+'">'+
+      ic('arrowR')+'詳細（目的・台本）'+(mo?'':'<i>あとからでも書けます</i>')+'</button>'+
+    '<div id="fMore" class="fmore-b"'+(mo?'':' hidden')+'>'+
+      '<label><span class="jp">目的</span><textarea id="fPurpose" rows="3" placeholder="'+esc(secOf('purpose').ph)+'">'+esc(pu)+'</textarea></label>'+
+      '<label><span class="jp">台本</span><textarea id="fScript" rows="3" placeholder="'+esc(secOf('script').ph)+'">'+esc(sc)+'</textarea></label>'+
+    '</div>'+
     '</div>';
   sheet(id?'直す':'リールを追加',h,
     (id?'<button class="btn btn-line" data-act="del" data-id="'+id+'">'+ic('trash')+'削除</button>':'')+
@@ -1163,6 +1181,15 @@ document.addEventListener('click',function(e){
   }
   var mk0=e.target.closest('mark.ncm');
   if(mk0){ var nb0=mk0.closest('.nb'); if(nb0&&nb0.dataset.b){ sheetNoteCmt(nb0.dataset.n,nb0.dataset.b,''); return; } }
+  /* 枠のどこを押しても、その1本の詳細が開く。
+     四角（投稿済みにする）と矢印（制作中へ移す）は自分の役目があるので、そちらが先に効く */
+  if(!e.target.closest('[data-act]')){
+    var box=e.target.closest('.li,.mi');
+    if(box){
+      var ob=box.querySelector('[data-act="open"]');
+      if(ob&&ob.dataset.id){ sheetReel(ob.dataset.id); return; }
+    }
+  }
   var b=e.target.closest('[data-act]'); if(!b) return;
   var a=b.dataset.act, id=b.dataset.id||'';
   if(a==='close'){ closeSheet(); return; }
@@ -1173,6 +1200,14 @@ document.addEventListener('click',function(e){
   if(a==='pickme'){ S.me={id:id}; save0(); closeSheet(); render(); return; }
   if(a==='allm'){ ALLM=b.dataset.v; render(); return; }
   if(a==='toPost'){ var rp=byId(S.reels,id); if(!rp) return; rp.plan=0; delete rp.sd; touch(rp); save(); if($('#modal').innerHTML) reSheet(function(){ sheetReel(id); }); render(); return; }
+  if(a==='more'){
+    var mb=$('#fMore'), bb=$('#fMoreB'); if(!mb||!bb) return;
+    var op=mb.hasAttribute('hidden');
+    if(op) mb.removeAttribute('hidden'); else mb.setAttribute('hidden','');
+    bb.setAttribute('aria-expanded',op?'true':'false');
+    if(op) setTimeout(function(){ var t=$('#fPurpose'); if(t) t.focus(); },30);
+    return;
+  }
   if(a==='whotab'){ VIEW='who'; closeSheet(); render(); window.scrollTo(0,0); return; }
   if(a==='add'){ if(!me()){ sheetMe(); return; } sheetEdit('',b.dataset.plan==='1',b.dataset.who||''); return; }
   if(a==='edit'){ sheetEdit(id); return; }
@@ -1195,6 +1230,13 @@ document.addEventListener('click',function(e){
     var pl=$('#fPlan [aria-pressed="true"]'); r.plan=(pl&&pl.dataset.v==='plan')?1:0;
     r.stx=$('#fStx').value.trim();
     var pr=$('#fPri [aria-pressed="true"]'); r.pri=pr?pr.dataset.v:'';
+    /* 詳細で書いたものは、そのまま項目へ入れる。触っていない欄は上書きしない */
+    [['fPurpose','purpose'],['fScript','script']].forEach(function(p){
+      var el=$('#'+p[0]); if(!el) return;
+      var v=el.value.replace(/\s+$/,'');
+      if(v===(r.sec[p[1]].tx||'')) return;
+      r.sec[p[1]].tx=v; r.sec[p[1]].rev=now();
+    });
     /* 担当が決まった時点で、その人の欄の担当も同じにしておく（あとで変えられる） */
     /* 項目ごとの担当の初めの置き方。撮るのは現地、書くのは日本、が既定。あとで変えられる */
     if(!id){
