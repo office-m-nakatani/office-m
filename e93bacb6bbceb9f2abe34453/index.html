@@ -119,6 +119,7 @@ em{font-style:normal;font-weight:700;color:var(--gold);}
 .d{font-size:.76rem;color:var(--tx3);font-variant-numeric:tabular-nums;}
 .d b{color:var(--tx);}
 .d.hot,.d.hot b{color:var(--accent);}
+.d.ok,.d.ok b{color:var(--ok);}
 .pri{display:inline-block;font-size:.66rem;font-weight:700;border-radius:5px;padding:0 6px;line-height:1.7;}
 .pri.high{color:var(--accent);background:var(--accent-bg);}
 .pri.mid{color:var(--gold);background:var(--gold-bg);}
@@ -297,6 +298,8 @@ a{color:var(--info);word-break:break-all;}
 .chip .dot,.legend .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#D62828;box-shadow:0 0 0 1.5px rgba(255,255,255,.9);margin-right:4px;vertical-align:1px;}
 .legend .dot.lg{width:8px;height:8px;box-shadow:none;vertical-align:0;}
 .chip.more{background:#fff;color:var(--tx2);border:1px solid var(--line);}
+.chip{cursor:pointer;}
+.chip:hover{filter:brightness(.94);}
 /* ---- ノート。教科書の目次 ---- */
 .ncat{font-size:.72rem;font-weight:700;letter-spacing:.12em;color:var(--gold);margin:18px 2px 6px;}
 .nrow{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;padding:11px 4px;border-bottom:1px solid var(--surface3);}
@@ -368,7 +371,7 @@ mark.ncm{background:var(--info-bg);color:inherit;border-radius:3px;padding:0 2px
 .dayl{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--line);border-radius:14px;padding:11px 13px;margin-bottom:8px;width:100%;text-align:left;}
 .dayl:hover{background:var(--surface2);}
 .dayl i{flex:none;width:10px;height:10px;border-radius:2px;margin-top:9px;background:#B93D28;}
-.dayl i.plan{background:transparent;border:1px dashed var(--line2);}
+.dayl i.plan{background:#D62828;border:0;border-radius:50%;}
 .dayl .t{font-size:.98rem;font-weight:700;line-height:1.5;}
 .dayl .s{font-size:.8rem;color:var(--tx2);line-height:1.7;margin-top:3px;white-space:pre-wrap;}
 .after{border:1px solid var(--ok);border-radius:var(--r);padding:13px 14px 12px;margin-top:12px;}
@@ -611,6 +614,8 @@ function seed(){
 /* 投稿予定日まであと何日。過ぎたら負の数 */
 function daysLeft(r){ return r.d?diffDays(r.d,today()):null; }
 function dlHtml(r){
+  /* 出し終えたものに「何日 過ぎています」は出さない。出した日を出す */
+  if(r.done) return '<span class="d ok">'+fmtMd(ymdTZ(r.done.at,TZ_DUBAI))+'　<b>投稿済み</b></span>';
   var n=daysLeft(r);
   if(n===null) return '<span class="d">日付なし</span>';
   var hot=(n<=2);
@@ -799,7 +804,7 @@ function viewMonth(){
     var chips=on.slice(0,4).map(function(o){ return chipHtml(o); }).join('');
     if(on.length>4){
       var rest=on.slice(4), rd=rest.some(function(o){ return o.plan; });
-      chips+='<span class="chip more">'+(rd?'<i class="dot"></i>':'')+'ほか'+rest.length+'</span>';
+      chips+='<span class="chip more" data-act="day" data-d="'+ds+'">'+(rd?'<i class="dot"></i>':'')+'ほか'+rest.length+'</span>';
     }
     h+='<button class="c'+(ds===td?' today':'')+(ds>td?' fut':'')+'" data-act="day" data-d="'+ds+'"><span class="n">'+day+'</span>'+chips+'</button>';
   }
@@ -807,7 +812,7 @@ function viewMonth(){
     WHOK.map(function(k){ return '<span><i style="background:'+WCOL[k]+'"></i>'+esc(roleName(k))+'</span>'; }).join('')+
     '<span><i class="dot lg"></i>赤い点＝まだ終わっていない</span>'+
     '<span><i style="background:var(--tx3)"></i>塗りつぶし＝投稿済み</span>'+
-    '<span>日付を押すと、その日の投稿とメモ</span></div>';
+    '<span>1枚を押すとその1本の中身、日付を押すとその日ぜんぶ</span></div>';
   /* 日付を決めていないものは暦に置けない。ここに出しておかないと、そのまま忘れられる */
   var nod=liveReels().filter(function(r){ return !r.d; });
   if(nod.length){
@@ -834,7 +839,8 @@ function chipHtml(o){
      2人のものは2色を半分ずつ */
   var css=o.plan?('background:'+fill(bg)+';color:'+st[0]+';border-color:'+st[0])
                 :('background:'+fill(st));
-  return '<span class="chip'+(o.plan?' plan':' fin')+'" style="'+css+'">'+
+  return '<span class="chip'+(o.plan?' plan':' fin')+'" style="'+css+'" '+
+    'data-act="open" data-id="'+o.r.id+'" title="'+esc(o.r.ttl)+'">'+
     (o.plan?'<i class="dot"></i>':'')+esc(o.r.ttl)+'</span>';
 }
 /* その日の投稿。出したものはメモつき、予定は題名と担当 */
@@ -842,11 +848,12 @@ function sheetDay(ds){
   var on=reelsOn(ds);
   var h='';
   if(!on.length) h+='<div class="empty">この日の投稿はありません</div>';
+  else h+='<div class="hint">'+ic('info')+'<span>押すと、その1本の目的・台本・投稿してどうだったかが開きます。</span></div>';
   on.forEach(function(o){
     var r=o.r, a=r.sec.after||{};
     h+='<button class="dayl" data-act="open" data-id="'+r.id+'"><i class="'+(o.plan?'plan':'')+'"></i><div>'+
       '<div class="t">'+esc(r.ttl)+'</div>'+
-      '<div class="s">'+whosHtml(r)+'　'+(o.plan?'出す予定':'ドバイ '+hmTZ(r.done.at,TZ_DUBAI)+' に投稿')+'</div>'+
+      '<div class="s">'+whosHtml(r)+'　'+(o.plan?'まだ終わっていません（出す予定）':'ドバイ '+hmTZ(r.done.at,TZ_DUBAI)+' に投稿済み')+'</div>'+
       (!o.plan&&a.tx?'<div class="s">'+emph(a.tx)+'</div>':'')+
       '</div></button>';
   });
