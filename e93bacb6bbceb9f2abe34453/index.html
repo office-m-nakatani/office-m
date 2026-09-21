@@ -293,6 +293,10 @@ a{color:var(--info);word-break:break-all;}
 .cal .c.fut{background:#FAFAFB;}
 .chip{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;font-size:.6rem;font-weight:700;color:#fff;background:#B93D28;border-radius:3px;padding:1px 3px;line-height:1.35;margin-top:2px;overflow:hidden;word-break:break-all;}
 .chip.plan{border:1.5px dashed currentColor;}
+/* 赤い点＝まだ終わっていない印。白い縁を付けて、どの地の色の上でも見えるようにする */
+.chip .dot,.legend .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#D62828;box-shadow:0 0 0 1.5px rgba(255,255,255,.9);margin-right:4px;vertical-align:1px;}
+.legend .dot.lg{width:8px;height:8px;box-shadow:none;vertical-align:0;}
+.chip.more{background:#fff;color:var(--tx2);border:1px solid var(--line);}
 /* ---- ノート。教科書の目次 ---- */
 .ncat{font-size:.72rem;font-weight:700;letter-spacing:.12em;color:var(--gold);margin:18px 2px 6px;}
 .nrow{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;padding:11px 4px;border-bottom:1px solid var(--surface3);}
@@ -354,6 +358,13 @@ mark.ncm{background:var(--info-bg);color:inherit;border-radius:3px;padding:0 2px
 .qt-chip svg{width:12px;height:12px;flex:none;margin-top:5px;color:var(--info);}
 .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:.74rem;color:var(--tx3);margin-top:10px;}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;vertical-align:-1px;margin-right:4px;}
+/* 出す日が決まっていないもの */
+.nod{margin-top:14px;border:1px solid var(--line);border-radius:var(--r);padding:10px 12px 8px;}
+.nod-h{display:flex;align-items:center;gap:6px;font-size:.78rem;font-weight:700;color:var(--tx2);}
+.nod-h b{font-size:.95rem;color:var(--tx);font-variant-numeric:tabular-nums;margin-left:auto;}
+.nod-h .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#D62828;flex:none;}
+.nod-r{display:flex;align-items:center;gap:10px;width:100%;text-align:left;font-size:.82rem;color:var(--tx);padding:8px 2px;border-top:1px solid var(--surface3);margin-top:6px;}
+.nod-r span{margin-left:auto;flex:none;}
 .dayl{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--line);border-radius:14px;padding:11px 13px;margin-bottom:8px;width:100%;text-align:left;}
 .dayl:hover{background:var(--surface2);}
 .dayl i{flex:none;width:10px;height:10px;border-radius:2px;margin-top:9px;background:#B93D28;}
@@ -712,7 +723,7 @@ function viewAll(){
   h+='<div class="mode"><button data-act="allm" data-v="post" aria-selected="'+(ALLM!=='plan')+'">投稿</button>'+
      '<button data-act="allm" data-v="plan" aria-selected="'+(ALLM==='plan')+'">企画'+(pl.length?' <b>'+pl.length+'</b>':'')+'</button></div>';
   if(ALLM==='plan'){
-    h+='<div class="band">'+ic('pencil')+'企画（まだ動いていない案）<b>'+pl.length+'</b></div>';
+    h+='<div class="band">'+ic('pencil')+'企画<b>'+pl.length+'</b></div>';
     if(!pl.length) h+='<div class="empty">思いついた案を「追加」から。動き始めたら矢印で制作中へ。</div>';
     pl.forEach(function(r){ h+=planRowHtml(r); });
     return h;
@@ -784,15 +795,27 @@ function viewMonth(){
   for(var day=1;day<=last.getUTCDate();day++){
     var ds=CAL.y+'-'+pad2(CAL.m+1)+'-'+pad2(day);
     var on=reelsOn(ds);
-    /* 出したものは塗り、これから出すものは点線。両方が1つの暦に載る（案B） */
-    var chips=on.slice(0,3).map(function(o){ return chipHtml(o); }).join('');
-    if(on.length>3) chips+='<span class="chip plan">+'+(on.length-3)+'</span>';
+    /* 終わったものは濃く塗る。まだのものは薄く塗って赤い点。両方が1つの暦に載る */
+    var chips=on.slice(0,4).map(function(o){ return chipHtml(o); }).join('');
+    if(on.length>4){
+      var rest=on.slice(4), rd=rest.some(function(o){ return o.plan; });
+      chips+='<span class="chip more">'+(rd?'<i class="dot"></i>':'')+'ほか'+rest.length+'</span>';
+    }
     h+='<button class="c'+(ds===td?' today':'')+(ds>td?' fut':'')+'" data-act="day" data-d="'+ds+'"><span class="n">'+day+'</span>'+chips+'</button>';
   }
   h+='</div><div class="legend">'+
     WHOK.map(function(k){ return '<span><i style="background:'+WCOL[k]+'"></i>'+esc(roleName(k))+'</span>'; }).join('')+
-    '<span><i style="border:1.5px dashed var(--line2)"></i>出す予定（点線）</span>'+
+    '<span><i class="dot lg"></i>赤い点＝まだ終わっていない</span>'+
+    '<span><i style="background:var(--tx3)"></i>塗りつぶし＝投稿済み</span>'+
     '<span>日付を押すと、その日の投稿とメモ</span></div>';
+  /* 日付を決めていないものは暦に置けない。ここに出しておかないと、そのまま忘れられる */
+  var nod=liveReels().filter(function(r){ return !r.d; });
+  if(nod.length){
+    h+='<div class="nod"><div class="nod-h"><i class="dot"></i>出す日がまだ決まっていないもの<b>'+nod.length+'</b></div>'+
+      nod.map(function(r){
+        return '<button class="nod-r" data-act="open" data-id="'+r.id+'">'+esc(r.ttl)+'<span>'+whosHtml(r)+'</span></button>';
+      }).join('')+'</div>';
+  }
   return h;
 }
 /* 暦の中の1枚。誰のものかを色で、出したか予定かを塗りと点線で分ける。
@@ -807,10 +830,12 @@ function chipHtml(o){
   var st=chipCols(o.r,WCOL), bg=chipCols(o.r,WBG);
   if(!st.length){ st=['#585E67']; bg=['#F6F7F9']; }
   var fill=function(cs){ return cs.length>1?'linear-gradient(90deg,'+cs[0]+' 50%,'+cs[1]+' 50%)':cs[0]; };
-  /* 出したものは濃く塗る。予定は薄く塗って点線で囲む。2人のものは2色を半分ずつ */
+  /* 終わったものは濃く塗る。まだのものは薄く塗って点線で囲み、頭に赤い点を打つ。
+     2人のものは2色を半分ずつ */
   var css=o.plan?('background:'+fill(bg)+';color:'+st[0]+';border-color:'+st[0])
                 :('background:'+fill(st));
-  return '<span class="chip'+(o.plan?' plan':'')+'" style="'+css+'">'+esc(o.r.ttl)+'</span>';
+  return '<span class="chip'+(o.plan?' plan':' fin')+'" style="'+css+'">'+
+    (o.plan?'<i class="dot"></i>':'')+esc(o.r.ttl)+'</span>';
 }
 /* その日の投稿。出したものはメモつき、予定は題名と担当 */
 function sheetDay(ds){
@@ -1038,8 +1063,8 @@ function sheetEdit(id,asPlan,who){
   var pu=(r.sec.purpose.tx||''), sc=(r.sec.script.tx||''), mo=!!(pu||sc);
   var h='<div class="frm">'+
     '<label><span class="jp">区分</span><div class="seg" id="fPlan">'+
-      '<button data-v="post" aria-pressed="'+(!r.plan)+'">'+ic('film')+'投稿（動いている）</button>'+
-      '<button data-v="plan" aria-pressed="'+(!!r.plan)+'">'+ic('pencil')+'企画（案）</button></div></label>'+
+      '<button data-v="post" aria-pressed="'+(!r.plan)+'">'+ic('film')+'投稿</button>'+
+      '<button data-v="plan" aria-pressed="'+(!!r.plan)+'">'+ic('pencil')+'企画</button></div></label>'+
     '<label><span class="jp">タイトル</span><input type="text" id="fTtl" value="'+esc(r.ttl)+'" placeholder="例：ラーメン食べ方リール（おはし）"></label>'+
     '<label><span class="jp">投稿予定日</span><input type="date" id="fD" value="'+esc(r.d)+'"></label>'+
     '<label><span class="jp">担当者 <i>（2人でもよい）</i></span><div class="seg multi" id="fWho">'+WHOK.map(function(k){
@@ -1119,7 +1144,7 @@ function sheetReel(id){
   h+='<div class="done-row">'+
     (r.done?'<span class="done-txt">'+ic('check')+esc(r.done.by)+'　'+bothTime(r.done.at)+' に投稿済み</span>'+
       '<button class="btn btn-line btn-sm" data-act="undone" data-id="'+r.id+'">制作中に戻す</button>'
-     :r.plan?'<span class="done-txt">'+ic('pencil')+'企画（まだ動いていない案）</span>'+
+     :r.plan?'<span class="done-txt">'+ic('pencil')+'企画</span>'+
       '<button class="btn btn-main btn-sm" data-act="toPost" data-id="'+r.id+'">'+ic('arrowR')+'制作中へ移す</button>'
      :'<button class="btn btn-ok" data-act="done" data-id="'+r.id+'">'+ic('check')+'投稿済みにする</button>')+
     '<button class="talk" data-act="talk" data-id="'+r.id+'" data-k="all" style="margin-left:auto">'+ic('chat')+
