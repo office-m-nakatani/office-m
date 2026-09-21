@@ -275,7 +275,9 @@ a{color:var(--info);word-break:break-all;}
 .dir .t{font-size:1.1rem;font-weight:700;line-height:1.75;margin:2px 0 8px;}
 .dir .s{font-size:.88rem;line-height:1.9;color:var(--tx2);white-space:pre-wrap;margin-bottom:10px;}
 .dir .t2{font-size:1rem;font-weight:700;line-height:1.75;margin:2px 0 10px;white-space:pre-wrap;}
-.dir .none{color:var(--tx3);font-weight:400;}
+.dir{cursor:pointer;}
+.dir .none{display:flex;align-items:center;gap:6px;color:var(--tx3);font-weight:400;}
+.dir .none svg{width:13px;height:13px;flex:none;}
 .cal-hd{display:flex;align-items:center;justify-content:space-between;margin:18px 0 8px;}
 .cal-hd h2{margin:0;font-size:1.04rem;letter-spacing:.08em;}
 .cal-nav{width:38px;height:38px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;color:var(--tx2);border:1px solid var(--line);}
@@ -538,6 +540,15 @@ function load(){
   if(!S.read||typeof S.read!=='object') S.read={};
   if(!S.me) S.me={id:''};
   if(!S.goal||typeof S.goal!=='object') S.goal={t:'',s:'',rev:0};
+  /* 前に入れていた見本の文章が残っていたら、一度だけ空にする。
+     自分で書いたものは触らない（文字が一致したときだけ） */
+  if(!S.goalClr){
+    var GS='餃子だけで帰るお客様を減らし、【ラーメンの出数】を上げる。\nこの店の強みは、大阪から来た家族が自分たちで作っている本物であること。撮る画には、必ずそれが写るようにする。';
+    var GT='リール6本。うち「食べ方」シリーズを2本。';
+    if((S.goal.s||'')===GS) S.goal.s='';
+    if((S.goal.t||'')===GT) S.goal.t='';
+    S.goalClr=1;
+  }
   S.reels.forEach(fixReel);
 }
 function save0(){ try{ localStorage.setItem(STORE,JSON.stringify(S)); }catch(e){ alert('保存できませんでした。ブラウザの空き容量を確認してください。'); } }
@@ -579,8 +590,8 @@ function seed(){
   r4.rev=0; r4.at=now()-3*864e5; r4.sd=1;
   S.reels=[r1,r2,r3,r4];
   S.msgs=[];
-  S.goal={t:'リール6本。うち「食べ方」シリーズを2本。',
-    s:'餃子だけで帰るお客様を減らし、【ラーメンの出数】を上げる。\nこの店の強みは、大阪から来た家族が自分たちで作っている本物であること。撮る画には、必ずそれが写るようにする。',rev:0};
+  /* 方向性と今月の目標は、店の人が自分の言葉で書くところ。見本は入れない */
+  S.goal={t:'',s:'',rev:0};
 }
 
 /* ============================================================
@@ -758,11 +769,12 @@ function viewMonth(){
   var g=S.goal||{};
   /* いちばん上は「何のためにやっているか」。見失ったときに戻る場所 */
   var h='<div class="top"><div><h1>今月</h1></div></div>';
-  h+='<div class="dir"><div class="k">方向性・考え方</div>'+
-    (g.s?'<div class="s">'+emph(g.s)+'</div>':'<div class="s none">まだ書かれていません</div>')+
+  /* 書いていないうちは、そこを押せばそのまま書ける。押す場所を探させない */
+  h+='<div class="dir" data-act="goal"><div class="k">方向性・考え方</div>'+
+    (g.s?'<div class="s">'+emph(g.s)+'</div>':'<div class="s none">'+ic('pencil')+'押して書いてください。何のためにやっているか。</div>')+
     '<div class="k">今月の目標</div>'+
-    (g.t?'<div class="t2">'+emph(g.t)+'</div>':'<div class="t2 none">まだ書かれていません</div>')+
-    '<button class="btn btn-line btn-sm" data-act="goal">'+ic('pencil')+'直す</button></div>';
+    (g.t?'<div class="t2">'+emph(g.t)+'</div>':'<div class="t2 none">'+ic('pencil')+'押して書いてください。例）リール6本。</div>')+
+    '<button class="btn btn-line btn-sm" data-act="goal">'+ic('pencil')+(g.s||g.t?'直す':'書く')+'</button></div>';
   var first=new Date(Date.UTC(CAL.y,CAL.m,1)), last=new Date(Date.UTC(CAL.y,CAL.m+1,0)), td=today();
   h+='<div class="cal-hd"><button class="cal-nav" data-act="calmv" data-d="-1" aria-label="前の月">'+ic('arrowL')+'</button>'+
     '<h2>'+CAL.y+'年 '+(CAL.m+1)+'月</h2>'+
@@ -818,8 +830,8 @@ function sheetDay(ds){
 function sheetGoal(){
   var g=S.goal||{};
   var h='<div class="frm">'+
-    '<label><span class="jp">方向性・考え方 <i>（変わらないもの）</i></span><textarea id="gS" rows="5">'+esc(g.s||'')+'</textarea></label>'+
-    '<label><span class="jp">今月の目標</span><textarea id="gT" rows="3">'+esc(g.t||'')+'</textarea></label></div>'+
+    '<label><span class="jp">方向性・考え方 <i>（変わらないもの）</i></span><textarea id="gS" rows="5" placeholder="何のためにやっているか。見失ったときに戻ってくる文。">'+esc(g.s||'')+'</textarea></label>'+
+    '<label><span class="jp">今月の目標</span><textarea id="gT" rows="3" placeholder="数で決められるもの。例）リール6本。">'+esc(g.t||'')+'</textarea></label></div>'+
     '<div class="hint">'+ic('info')+'<span>【】で囲むと、その部分が強調されます。</span></div>';
   sheet('方向性と今月の目標',h,'<button class="btn btn-main" data-act="savegoal">'+ic('check')+'保存</button>');
 }
