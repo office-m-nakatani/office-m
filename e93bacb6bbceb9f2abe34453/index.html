@@ -322,9 +322,11 @@ a{color:var(--info);word-break:break-all;}
 .dir .s{font-size:.88rem;line-height:1.9;color:var(--tx2);white-space:pre-wrap;margin-bottom:10px;}
 .dir .t2{font-size:1rem;font-weight:700;line-height:1.75;margin:2px 0 10px;white-space:pre-wrap;}
 .dir{cursor:pointer;position:relative;}
-.dir .k:first-child{padding-right:86px;}
+.dir .k:first-child{padding-right:48px;}
 /* 「書く」は枠の右上に置く。読むところと、直すところを分ける */
-.dir-b{position:absolute;top:13px;right:14px;}
+.dir-b{position:absolute;top:11px;right:12px;width:36px;height:36px;border-radius:50%;border:1px solid var(--line2);display:inline-flex;align-items:center;justify-content:center;color:var(--tx2);background:#fff;}
+.dir-b:hover{color:var(--tx);border-color:var(--tx3);}
+.dir-b svg{width:15px;height:15px;}
 .dir .k+.k{margin-top:10px;}
 .cal-hd{display:flex;align-items:center;justify-content:space-between;margin:18px 0 8px;}
 .cal-hd h2{margin:0;font-size:1.22rem;letter-spacing:.08em;}
@@ -629,6 +631,8 @@ function load(){
     if((S.goal.t||'')===GT) S.goal.t='';
     S.goalClr=1;
   }
+  /* 月の目標は月ごとに持つ（mt['2026-09']）。前の版で書いた「今月の目標」は、今の月の分として引き継ぐ */
+  if(!S.goal.mt||typeof S.goal.mt!=='object'){ S.goal.mt={}; if(S.goal.t) S.goal.mt[today().slice(0,7)]=S.goal.t; }
   S.reels.forEach(fixReel);
 }
 function save0(){ try{ localStorage.setItem(STORE,JSON.stringify(S)); }catch(e){ alert('保存できませんでした。ブラウザの空き容量を確認してください。'); } }
@@ -752,7 +756,7 @@ function evTx(e){
   if(e.kind==='undone')return '制作中に戻りました';
   if(e.kind==='toPost')return '企画から制作中に移りました';
   if(e.kind==='del')   return '消しました';
-  if(e.kind==='goal')  return '方向性・今月の目標を直しました';
+  if(e.kind==='goal')  return '目標を直しました';
   if(e.kind==='msg')   return (L&&L!=='全体'?'［'+L+'］':'')+(e.tx||'');
   return '';
 }
@@ -953,11 +957,12 @@ function viewMonth(){
   /* いちばん上は「何のためにやっているか」。見失ったときに戻る場所 */
   var h='<div class="top"><div><h1>今月</h1></div></div>';
   /* 書いていないうちは、そこを押せばそのまま書ける。押す場所を探させない */
-  h+='<div class="dir" data-act="goal"><div class="k">方向性・考え方</div>'+
+  var mg=monGoal(calKey());
+  h+='<div class="dir" data-act="goal"><div class="k">目標</div>'+
     (g.s?'<div class="s">'+emph(g.s)+'</div>':'')+
-    '<div class="k">今月の目標</div>'+
-    (g.t?'<div class="t2">'+emph(g.t)+'</div>':'')+
-    '<button class="btn btn-line btn-sm dir-b" data-act="goal">'+ic('pencil')+(g.s||g.t?'直す':'書く')+'</button></div>';
+    '<div class="k">'+calMon()+'月の目標</div>'+
+    (mg?'<div class="t2">'+emph(mg)+'</div>':'')+
+    '<button class="dir-b" data-act="goal" aria-label="書く" title="書く">'+ic('pencil')+'</button></div>';
   var first=new Date(Date.UTC(CAL.y,CAL.m,1)), last=new Date(Date.UTC(CAL.y,CAL.m+1,0)), td=today();
   h+='<div class="cal-hd"><button class="cal-nav" data-act="calmv" data-d="-1" aria-label="前の月">'+ic('arrowL')+'</button>'+
     '<h2>'+CAL.y+'年 '+(CAL.m+1)+'月</h2>'+
@@ -979,7 +984,7 @@ function viewMonth(){
   /* 日付を決めていないものは暦に置けない。ここに出しておかないと、そのまま忘れられる */
   var nod=liveReels().filter(function(r){ return !r.d; });
   if(nod.length){
-    h+='<div class="nod"><div class="nod-h"><i class="dot"></i>出す日がまだ決まっていないもの<b>'+nod.length+'</b></div>'+
+    h+='<div class="nod"><div class="nod-h"><i class="dot"></i>ストック<b>'+nod.length+'</b></div>'+
       nod.map(function(r){
         return '<button class="nod-r" data-act="open" data-id="'+r.id+'">'+esc(r.ttl)+'<span>'+whosHtml(r)+'</span></button>';
       }).join('')+'</div>';
@@ -1034,13 +1039,17 @@ function sheetDay(ds){
   });
   sheet(fmtMd(ds),h);
 }
+/* 暦で見ている月。月の目標はこの月の分を出す・書く */
+function calKey(){ return CAL?(CAL.y+'-'+pad2(CAL.m+1)):today().slice(0,7); }
+function calMon(){ return CAL?(CAL.m+1):(+today().slice(5,7)); }
+function monGoal(k){ var g=S.goal||{}; return (g.mt&&g.mt[k])||''; }
 function sheetGoal(){
-  var g=S.goal||{};
+  var g=S.goal||{}, k=calKey();
   var h='<div class="frm">'+
-    '<label><span class="jp">方向性・考え方 <i>（変わらないもの）</i></span><textarea id="gS" rows="5">'+esc(g.s||'')+'</textarea></label>'+
-    '<label><span class="jp">今月の目標</span><textarea id="gT" rows="3">'+esc(g.t||'')+'</textarea></label></div>'+
+    '<label><span class="jp">目標</span><textarea id="gS" rows="5">'+esc(g.s||'')+'</textarea></label>'+
+    '<label><span class="jp">'+calMon()+'月の目標</span><textarea id="gT" rows="3">'+esc(monGoal(k))+'</textarea></label></div>'+
     '<div class="hint">'+ic('info')+'<span>【】で囲むと、その部分が強調されます。</span></div>';
-  sheet('方向性と今月の目標',h,'<button class="btn btn-main" data-act="savegoal">'+ic('check')+'保存</button>');
+  sheet('目標',h,'<button class="btn btn-main" data-act="savegoal" data-m="'+k+'">'+ic('check')+'保存</button>');
 }
 function render(){
   NM=newMap();
@@ -1438,7 +1447,14 @@ document.addEventListener('click',function(e){
   if(a==='calmv'){ CAL.m+=(+b.dataset.d); if(CAL.m<0){ CAL.m=11; CAL.y--; } if(CAL.m>11){ CAL.m=0; CAL.y++; } render(); return; }
   if(a==='day'){ sheetDay(b.dataset.d); return; }
   if(a==='goal'){ sheetGoal(); return; }
-  if(a==='savegoal'){ S.goal={t:$('#gT').value.trim(),s:$('#gS').value.trim(),rev:now()}; logAdd('goal',null); save(); closeSheet(); render(); return; }
+  if(a==='savegoal'){
+    var gk=b.dataset.m||calKey(), g0=S.goal||{}, mt={};
+    Object.keys(g0.mt||{}).forEach(function(x){ mt[x]=g0.mt[x]; });
+    mt[gk]=$('#gT').value.trim();
+    /* t は前の版の端末のために、今の月の分を入れておく */
+    S.goal={s:$('#gS').value.trim(),mt:mt,t:mt[today().slice(0,7)]||'',rev:now()};
+    logAdd('goal',null); save(); closeSheet(); render(); return;
+  }
   if(a==='pickme'){ S.me={id:id}; save0(); closeSheet(); render(); return; }
   if(a==='allm'){ ALLM=b.dataset.v; render(); return; }
   if(a==='toPost'){ var rp=byId(S.reels,id); if(!rp) return; rp.plan=0; delete rp.sd; touch(rp); save(); if($('#modal').innerHTML) reSheet(function(){ sheetReel(id); }); render(); return; }
@@ -1678,7 +1694,15 @@ function mergeIn(d){
   (d.L||[]).forEach(function(e){ if(e&&e.id&&!hl[e.id]){ S.log.push(e); hl[e.id]=1; hit=true; } });
   if(S.log.length>400){ S.log.sort(function(a,b){ return a.at-b.at; }); S.log=S.log.slice(-400); }
   if(d.shop&&d.shop!==S.shop){ S.shop=d.shop; hit=true; }
-  if(d.G&&(d.G.rev||0)>((S.goal&&S.goal.rev)||0)){ S.goal=d.G; hit=true; }
+  if(d.G&&(d.G.rev||0)>((S.goal&&S.goal.rev)||0)){
+    var keep=(S.goal&&S.goal.mt)||{};
+    S.goal=d.G;
+    if(!S.goal.mt||typeof S.goal.mt!=='object'){
+      S.goal.mt={}; Object.keys(keep).forEach(function(x){ S.goal.mt[x]=keep[x]; });
+      if(S.goal.t) S.goal.mt[today().slice(0,7)]=S.goal.t;
+    }
+    hit=true;
+  }
   return hit;
 }
 function fbTake(path,data){
@@ -1707,7 +1731,7 @@ function fbStart(){
 /* ---- 版の見比べ ----
    ブラウザは前に開いた版をしばらく持ち続けるので、直しても画面が古いままになる。
    配る版には公開のたびに印（BUILD）が入る。置いてある版の印と違えば、新しい版が出ている */
-var BUILD='20260921-111415', VERNEW=false;
+var BUILD='20260922-162109', VERNEW=false;
 function verCheck(){
   if(BUILD==='dev'||VERNEW||location.protocol==='file:'||!window.fetch) return;
   fetch(location.pathname+'?v='+now(),{cache:'no-store'}).then(function(r){ return r.ok?r.text():''; }).then(function(t){
