@@ -215,6 +215,40 @@ body.has-sheet{position:fixed;width:100%;overflow:hidden;}
 .rule{display:flex;align-items:flex-start;gap:7px;font-size:.8rem;line-height:1.75;color:var(--tx2);background:var(--surface2);border-radius:10px;padding:9px 12px;margin:10px 0 4px;}
 .rule svg{width:14px;height:14px;flex:none;margin-top:5px;color:var(--gold);}
 .rule.bad{color:var(--accent);background:var(--accent-bg);} .rule.bad svg{color:var(--accent);}
+/* 手書きの図の並び */
+.bx{margin-top:14px;}
+.bx-h{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;}
+.bx-h h3{margin:0;flex:1;min-width:0;font-size:.9rem;letter-spacing:.08em;display:inline-flex;align-items:center;gap:6px;}
+.bx textarea,.bx input[type=text],.bx input[type=url]{width:100%;box-sizing:border-box;border:1px solid var(--line2);border-radius:10px;padding:10px 11px;background:#fff;font-size:.94rem;line-height:1.8;resize:none;overflow:hidden;}
+.bx .rttl{font-size:1.02rem;font-weight:700;}
+.tkm{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line);border-radius:999px;padding:3px 9px;font-size:.74rem;font-weight:700;color:var(--tx3);background:#fff;}
+.tkm svg{width:13px;height:13px;}
+.tkm b{background:var(--info);color:#fff;border-radius:999px;padding:0 6px;font-size:.68rem;}
+.tkm.un{border-color:var(--info);color:var(--info);}
+.zone{margin-top:14px;background:#F1F5FA;border:1.5px solid #D3E0EC;border-radius:14px;padding:12px 13px 13px;display:flex;flex-direction:column;gap:7px;}
+.zone .zk{font-size:.78rem;font-weight:700;color:var(--tx2);letter-spacing:.08em;}
+.zone .zk+.zr+.zk{margin-top:4px;}
+.zr{display:flex;flex-wrap:wrap;gap:7px;}
+.zc{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line2);border-radius:999px;padding:7px 14px;font-size:.86rem;font-weight:700;color:var(--tx3);background:#fff;min-height:36px;}
+.zc svg{width:13px;height:13px;}
+.zc.jp[aria-pressed="true"]{background:var(--jp-bg);border-color:var(--jp-tx);color:var(--jp-tx);box-shadow:inset 0 0 0 1px var(--jp-tx);}
+.zc.db[aria-pressed="true"]{background:var(--db-bg);border-color:var(--db-tx);color:var(--db-tx);box-shadow:inset 0 0 0 1px var(--db-tx);}
+.zc.tg2[aria-pressed="true"]{background:var(--info-bg);border-color:var(--info);color:var(--info);box-shadow:inset 0 0 0 1px var(--info);}
+.zone .zx{font-size:.8rem;color:var(--tx2);}
+.fx{display:inline-flex;align-items:center;gap:6px;min-width:0;max-width:100%;font-size:.74rem;color:var(--tx3);}
+.fx i{font-style:normal;font-weight:700;border:1px solid var(--line);border-radius:6px;padding:0 6px;white-space:nowrap;}
+.fx .fu{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:14em;}
+.drv{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--info);border-radius:999px;padding:4px 12px;font-size:.8rem;font-weight:700;color:var(--info);background:var(--info-bg);text-decoration:none;}
+.drv svg{width:14px;height:14px;}
+.engh{display:flex;align-items:center;gap:7px;margin-top:22px;padding-top:14px;border-top:1px solid var(--line);font-size:.98rem;font-weight:700;letter-spacing:.08em;}
+.engh svg{width:16px;height:16px;color:var(--tx3);}
+.oth{margin-top:22px;border-top:1px solid var(--line);padding-top:12px;}
+.oth summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-size:.84rem;font-weight:700;color:var(--tx2);}
+.oth summary::-webkit-details-marker{display:none;}
+.oth summary svg{width:13px;height:13px;transition:transform .15s;}
+.oth[open] summary svg{transform:rotate(90deg);}
+.bx .udrop .sub{display:grid;grid-template-columns:44px 1fr;gap:8px;align-items:start;}
+.bx .udrop .sub em{font-size:.7rem;font-weight:700;color:var(--tx3);letter-spacing:.1em;padding-top:11px;}
 .sec{border:1px solid var(--line);border-radius:var(--r);padding:13px 14px 12px;margin-top:12px;box-shadow:var(--lift);}
 .sec.ok{border-color:var(--ok);}
 .sec-h{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
@@ -512,8 +546,11 @@ var ROLE={ops:'jp',shop:'db',mgr:'db'};
 /* ステータスのタグ。1本の動画が、いまどの工程にあるか。いくつでも付く */
 /* 写真①と録音のとおり4つ。上に無いものは自由記入。投稿は「投稿済みにする」の四角で足りる */
 var TAGS=[
-  ['script','台本','pencil'],['shoot','撮影','camera'],['voice','アフレコ','mic'],['edit','編集','film']
+  ['script','台本','pencil'],['shoot','撮影','camera'],['voice','アフレコ','mic'],['edit','編集','film'],
+  ['cap','キャプション','chat'],['eng','英文チェック','globe']
 ];
+/* 撮影データを置く共有ドライブ。全部の1本で同じ場所（固定）。ログインはGoogle側で行う */
+var DRIVE_URL='';
 function tagL(k){ for(var i=0;i<TAGS.length;i++) if(TAGS[i][0]===k) return TAGS[i]; return null; }
 /* 1本の詳細に、上から順に並ぶ項目（写真②） */
 var SECS=[
@@ -523,7 +560,9 @@ var SECS=[
   {k:'shoot',  l:'撮影データ',i:'camera',u:1,pu:'',pm:''},
   {k:'edit',   l:'編集リール',i:'play',  u:1,pu:'',pm:''},
   {k:'cap',    l:'キャプション文',i:'chat',ph:''},
-  {k:'cov',    l:'リールカバー',i:'image',ph:''}
+  {k:'cov',    l:'リールカバー',i:'image',ph:''},
+  {k:'voice',  l:'アフレコ',i:'mic',ph:''},
+  {k:'ent',    l:'英文のタイトル',i:'globe',ph:''}
 ];
 function secOf(k){ for(var i=0;i<SECS.length;i++) if(SECS[i].k===k) return SECS[i]; return null; }
 var PRI={high:'高',mid:'中',low:'低'};
@@ -557,7 +596,9 @@ var IC={
   arrowR:'<path d="M10 6l6 6-6 6"/>',
   trash:'<path d="M5 7h14M9 7V4.5h6V7M7 7l1 13h8l1-13M10 11v6M14 11v6"/>',
   calendar:'<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
-  play:'<path d="M8 5.5v13l10-6.5Z"/>'
+  play:'<path d="M8 5.5v13l10-6.5Z"/>',
+  globe:'<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.3 3.6 5.1 3.6 8.5s-1.2 6.2-3.6 8.5c-2.4-2.3-3.6-5.1-3.6-8.5s1.2-6.2 3.6-8.5Z"/>',
+  folder:'<path d="M3.5 6.5a1.5 1.5 0 0 1 1.5-1.5h4.5l2 2.5H19a1.5 1.5 0 0 1 1.5 1.5v9a1.5 1.5 0 0 1-1.5 1.5H5a1.5 1.5 0 0 1-1.5-1.5Z"/>'
 };
 function ic(n){ return '<svg viewBox="0 0 24 24" aria-hidden="true">'+(IC[n]||'')+'</svg>'; }
 
@@ -597,7 +638,7 @@ function newSec(){ return {tx:'',who:'',ok:0,okBy:'',okAt:0,rev:0}; }
 function newUSec(){ return {url:'',fb:'',memo:'',who:'',ok:0,okBy:'',okAt:0,rev:0}; }
 function newReel(){
   return {id:uid('r'),ttl:'',d:'',d2:'',who:'shop',whos:['shop'],tags:[],tagAt:{},stx:'',pri:'',plan:0,done:null,
-    sec:{purpose:newSec(),script:newSec(),shoot:newUSec(),edit:newUSec(),cap:newSec(),cov:newSec(),
+    sec:{purpose:newSec(),script:newSec(),shoot:newUSec(),edit:newUSec(),cap:newSec(),cov:newSec(),voice:newSec(),ent:newSec(),
       after:{tx:'',url:'',rev:0}},
     rev:now(),at:now()};
 }
@@ -756,11 +797,13 @@ function evTtl(e){
 function evTx(e){
   var L=secL(e.k);
   if(e.kind==='add')   return '新しく追加しました';
-  if(e.kind==='edit')  return '題名や日付を直しました';
+  if(e.kind==='edit')  return 'タイトルや日付を直しました';
   if(e.kind==='sec')   return L+'を書きました';
   if(e.kind==='ok')    return L+'にチェックが付きました';
   if(e.kind==='unok')  return L+'のチェックが外れました';
   if(e.kind==='who')   return L+'の担当が変わりました';
+  if(e.kind==='rwho')  return '担当者が変わりました';
+  if(e.kind==='rtag')  return '進捗：'+(e.tx||'');
   if(e.kind==='done')  return '投稿済みになりました';
   if(e.kind==='undone')return '制作中に戻りました';
   if(e.kind==='toPost')return '企画から制作中に移りました';
@@ -1316,27 +1359,51 @@ function sheetReel(id){
   /* 開いた時点で「新」は消す。ただし中のどこが新しかったかは、この画面の間は出しておく */
   var NS={}; (S.log||[]).forEach(function(e){ if(e.rid===r.id&&e.k&&evNew(e)) NS[e.k]=(NS[e.k]||0)+1; });
   S.read[rkey('fd|'+r.id)]=now(); save0();
-  var h='<div class="meta">'+whosHtml(r)+dlHtml(r)+tagsHtml(r).replace(/<span class="warn">[\s\S]*?<\/span>/,'')+priHtml(r)+
+  var h='<div class="meta">'+dlHtml(r)+priHtml(r)+
     '<button class="btn btn-line btn-sm" data-act="edit" data-id="'+r.id+'" style="margin-left:auto">'+ic('pencil')+'直す</button></div>';
-  /* 1週間前の目安。投稿日の7日前を過ぎて台本が空なら、ここで言う */
-  if(r.d&&!r.done){
-    var late=lateScript(r), n=daysLeft(r);
-    h+='<div class="rule'+(late?' bad':'')+'">'+ic(late?'alert':'info')+'<span>'+
-      (late?'投稿の1週間前を過ぎています。<b>目的と台本</b>を先に埋めてください。撮る側が待ちます。'
-           :'目的と台本は、投稿の<b>1週間前（'+fmtMd(ymdTZ(fromYmd(r.d).getTime()-7*864e5,0))+'）</b>までに。')+'</span></div>';
+  /* 1週間前を過ぎて台本が空のときだけ言う */
+  if(r.d&&!r.done&&lateScript(r)){
+    h+='<div class="rule bad">'+ic('alert')+'<span>投稿の1週間前を過ぎています。<b>目的と台本</b>を先に埋めてください。</span></div>';
   }
-  SECS.forEach(function(s){
-    var x=r.sec[s.k], rf=ref(r.id,s.k), ms=msgsOf(rf), un=unreadOf(rf);
-    h+='<section class="sec'+(x.ok?' ok':'')+'"><div class="sec-h"><h3>'+ic(s.i)+esc(s.l)+newPin(NS[s.k])+'</h3><span class="sp"></span>'+
-      '<span class="wseg">'+WHOK.map(function(k){
-        return '<button class="'+ROLE[k]+'" data-act="secwho" data-id="'+r.id+'" data-k="'+s.k+'" data-v="'+k+'" aria-pressed="'+(x.who===k)+'">'+esc(roleName(k))+'</button>'; }).join('')+'</span>'+
-      '<button class="okb'+(x.ok?' on':'')+'" data-act="secok" data-id="'+r.id+'" data-k="'+s.k+'"><span class="chk'+(x.ok?' on':'')+'"></span>'+(x.ok?'済み':'チェック')+'</button>'+
-      '</div>'+secBody(r,s)+
-      '<div class="sec-ft"><span class="okat">'+(x.ok&&x.okBy?esc(x.okBy)+'　'+bothTime(x.okAt):'')+'</span>'+
-      '<button class="talk'+(un?' un':'')+'" data-act="talk" data-id="'+r.id+'" data-k="'+s.k+'">'+ic('chat')+
-        (ms.length?'やり取り '+ms.length+'件':'この項目について聞く')+(un?'<b>'+un+'</b>':'')+'</button></div>'+
-      '</section>';
-  });
+  /* 項目ごとの話は、右上の小さな吹き出しから */
+  function tk(k){
+    var rf=ref(r.id,k), n=msgsOf(rf).length, un=unreadOf(rf);
+    return '<button class="tkm'+(un?' un':'')+'" data-act="talk" data-id="'+r.id+'" data-k="'+k+'" aria-label="この項目について話す">'+ic('chat')+
+      (n?'<span>'+n+'</span>':'')+(un?'<b>'+un+'</b>':'')+'</button>';
+  }
+  function bx(k,l){
+    return '<section class="bx"><div class="bx-h"><h3>'+esc(l)+newPin(NS[k])+'</h3>'+tk(k)+'</div>'+
+      '<textarea data-sec="'+r.id+'" data-k="'+k+'" data-f="tx" rows="3">'+esc(r.sec[k].tx)+'</textarea></section>';
+  }
+  h+='<section class="bx"><div class="bx-h"><h3>タイトル</h3></div>'+
+    '<input type="text" class="rttl" id="rTtl" data-rt="'+r.id+'" value="'+esc(r.ttl)+'"></section>';
+  h+=bx('purpose','目的');
+  /* 担当者から進捗ステータスまでは、薄い色の囲みにまとめる（押せばその場で変わる） */
+  var ws=r.whos||[r.who];
+  h+='<div class="zone"><div class="zk">担当者</div><div class="zr">'+WHOK.map(function(k){
+      return '<button class="zc '+ROLE[k]+'" data-act="rwho" data-id="'+r.id+'" data-v="'+k+'" aria-pressed="'+(ws.indexOf(k)>=0)+'">'+esc(roleName(k))+'</button>'; }).join('')+'</div>'+
+    '<div class="zk">進捗ステータス</div><div class="zr">'+TAGS.map(function(t){
+      var on=r.tags.indexOf(t[0])>=0;
+      return '<button class="zc tg2" data-act="rtag" data-id="'+r.id+'" data-v="'+t[0]+'" aria-pressed="'+on+'">'+ic(t[2])+esc(t[1])+'</button>'; }).join('')+'</div>'+
+    (r.stx?'<div class="zx">'+esc(r.stx)+'</div>':'')+'</div>';
+  h+=bx('script','台本');
+  /* 撮影：データは共有ドライブ（固定の場所）に置く。ここはメモだけ */
+  var sh=r.sec.shoot;
+  h+='<section class="bx"><div class="bx-h"><h3>撮影'+newPin(NS.shoot)+'</h3>'+
+      '<span class="fx"><i>固定URL</i><span class="fu">'+(DRIVE_URL?esc(DRIVE_URL):'未登録')+'</span></span>'+
+      (DRIVE_URL?'<a class="drv" href="'+esc(DRIVE_URL)+'" target="_blank" rel="noopener">'+ic('folder')+'ドライブ</a>'
+                :'<button class="drv" data-act="drive">'+ic('folder')+'ドライブ</button>')+tk('shoot')+'</div>'+
+    '<textarea data-sec="'+r.id+'" data-k="shoot" data-f="memo" rows="3">'+esc(sh.memo)+'</textarea>'+
+    (sh.url?'<div class="hint">'+ic('link')+'<span>'+linkify(esc(sh.url))+'</span></div>':'')+
+    (sh.fb?'<div class="hint">'+ic('chat')+'<span>'+esc(sh.fb)+'</span></div>':'')+'</section>';
+  /* 英文チェック（2枚目の図） */
+  h+='<div class="engh">'+ic('globe')+'英文チェック</div>';
+  h+=bx('voice','アフレコ')+bx('ent','タイトル')+bx('cap','キャプション');
+  /* 図に無いものは、下にまとめて畳んでおく。書いてあれば開いておく */
+  var ed=r.sec.edit, cv=r.sec.cov, has=!!(ed.url||ed.fb||ed.memo||cv.tx);
+  h+='<details class="oth"'+(has?' open':'')+'><summary>'+ic('arrowR')+'そのほか</summary>'+
+    '<section class="bx"><div class="bx-h"><h3>編集リール'+newPin(NS.edit)+'</h3>'+tk('edit')+'</div>'+secBody(r,secOf('edit'))+'</section>'+
+    bx('cov','リールカバー')+'</details>';
   /* 投稿したあとに残す欄。出していないうちは出さない（書く欄が増えると読み飛ばす） */
   if(r.done){
     var af=r.sec.after;
@@ -1356,7 +1423,7 @@ function sheetReel(id){
       (ma.length?'この1本全体のやり取り '+ma.length+'件':'この1本全体について')+'</button>'+
     /* 要らなくなったもの・間違えて作ったものは、ここから消せる。投稿済みでも同じ */
     '<button class="delb" data-act="del" data-id="'+r.id+'">'+ic('trash')+'この1本を削除</button></div>';
-  sheet(esc(r.ttl),h);
+  sheet('リールの中身',h);
 }
 
 /* --- 項目ごとのやり取り --- */
@@ -1411,6 +1478,12 @@ function secSave(el){
 }
 document.addEventListener('focusout',function(e){
   var el=e.target; if(el&&el.dataset&&el.dataset.sec) secSave(el);
+  if(el&&el.dataset&&el.dataset.rt){
+    var rr=byId(S.reels,el.dataset.rt); if(!rr) return;
+    var v=el.value.trim(); if(!v){ el.value=rr.ttl; return; }
+    if(v===rr.ttl) return;
+    rr.ttl=v; delete rr.sd; logAdd('edit',rr); touch(rr); save(); render();
+  }
 });
 document.addEventListener('input',function(e){
   var el=e.target; if(!el||el.tagName!=='TEXTAREA') return;
@@ -1556,6 +1629,22 @@ document.addEventListener('click',function(e){
     delete rr.sd; logAdd(a,rr); touch(rr); save();
     if($('#modal').innerHTML) reSheet(function(){ sheetReel(id); }); render(); return;
   }
+  if(a==='rwho'){
+    var rw2=byId(S.reels,id); if(!rw2) return;
+    var v2=b.dataset.v, cur=(rw2.whos||[rw2.who]).slice(), i2=cur.indexOf(v2);
+    if(i2>=0){ if(cur.length<2){ alert('担当者は1人以上にしてください'); return; } cur.splice(i2,1); } else cur.push(v2);
+    rw2.whos=WHOK.filter(function(k){ return cur.indexOf(k)>=0; }); rw2.who=rw2.whos[0];
+    delete rw2.sd; logAdd('rwho',rw2); touch(rw2); save(); reSheet(function(){ sheetReel(id); }); render(); return;
+  }
+  if(a==='rtag'){
+    var rt=byId(S.reels,id); if(!rt) return;
+    var tv=b.dataset.v, on=rt.tags.indexOf(tv)<0, tl=tagL(tv);
+    var ts=rt.tags.filter(function(k){ return k!==tv; }); if(on) ts.push(tv);
+    rt.tags=TAGS.map(function(t){ return t[0]; }).filter(function(k){ return ts.indexOf(k)>=0; });
+    if(on) rt.tagAt[tv]=today(); else delete rt.tagAt[tv];
+    delete rt.sd; logAdd('rtag',rt,'',(tl?tl[1]:'')+(on?'':'を外しました')); touch(rt); save(); reSheet(function(){ sheetReel(id); }); render(); return;
+  }
+  if(a==='drive'){ alert('共有ドライブのリンクはまだ登録されていません。'); return; }
   if(a==='secwho'){
     var rw=byId(S.reels,id); if(!rw) return;
     var xw=rw.sec[b.dataset.k]; xw.who=(xw.who===b.dataset.v)?'':b.dataset.v; xw.rev=now();
@@ -1738,7 +1827,7 @@ function fbStart(){
 /* ---- 版の見比べ ----
    ブラウザは前に開いた版をしばらく持ち続けるので、直しても画面が古いままになる。
    配る版には公開のたびに印（BUILD）が入る。置いてある版の印と違えば、新しい版が出ている */
-var BUILD='20260922-164705', VERNEW=false;
+var BUILD='20260922-170753', VERNEW=false;
 function verCheck(){
   if(BUILD==='dev'||VERNEW||location.protocol==='file:'||!window.fetch) return;
   fetch(location.pathname+'?v='+now(),{cache:'no-store'}).then(function(r){ return r.ok?r.text():''; }).then(function(t){
