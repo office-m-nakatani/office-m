@@ -161,16 +161,18 @@ body.mon #main{max-width:1240px;}
 .mi .d{margin-top:4px;display:block;}
 
 /* ---- シート ---- */
-.ov{position:fixed;inset:0;z-index:40;background:rgba(30,34,40,.28);display:flex;align-items:flex-end;justify-content:center;}
+/* スマホのブラウザは下の道具バーの分だけ見える高さが縮む。vh のままだとシートの頭（×）が画面の上に隠れる。
+   見えている高さ（dvh）で測り、上には必ず少し余白を残す */
+.ov{position:fixed;inset:0;z-index:40;background:rgba(30,34,40,.28);display:flex;align-items:flex-end;justify-content:center;padding-top:max(14px,env(safe-area-inset-top));}
 @media(min-width:700px){.ov{align-items:center;padding:24px;}}
-.sheet{width:100%;max-width:720px;max-height:94vh;background:#fff;border-radius:var(--r) var(--r) 0 0;display:flex;flex-direction:column;border:1px solid var(--line);}
-@media(min-width:700px){.sheet{border-radius:var(--r);max-height:90vh;}}
-.sh-hd{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line);}
+.sheet{width:100%;max-width:720px;max-height:94vh;max-height:calc(100dvh - max(14px,env(safe-area-inset-top)));background:#fff;border-radius:var(--r) var(--r) 0 0;display:flex;flex-direction:column;border:1px solid var(--line);}
+@media(min-width:700px){.sheet{border-radius:var(--r);max-height:90vh;max-height:90dvh;}}
+.sh-hd{flex:none;display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line);}
 .sh-hd h2{flex:1;min-width:0;margin:0;font-size:1.06rem;line-height:1.4;letter-spacing:.03em;}
-.sh-x{width:36px;height:36px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;color:var(--tx3);flex:none;}
+.sh-x{width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:var(--tx2);background:var(--surface2);border:1px solid var(--line);flex:none;}
 .sh-x:hover{background:var(--surface2);color:var(--tx);}
 .sh-x svg{width:17px;height:17px;}
-.sh-bd{overflow:auto;padding:18px 18px 24px;overscroll-behavior:contain;}
+.sh-bd{flex:1;min-height:0;overflow:auto;padding:18px 18px 24px;overscroll-behavior:contain;}
 .sh-ft{display:flex;justify-content:flex-end;gap:10px;padding:12px 18px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);}
 body.has-sheet{position:fixed;width:100%;overflow:hidden;}
 
@@ -1736,7 +1738,7 @@ function fbStart(){
 /* ---- 版の見比べ ----
    ブラウザは前に開いた版をしばらく持ち続けるので、直しても画面が古いままになる。
    配る版には公開のたびに印（BUILD）が入る。置いてある版の印と違えば、新しい版が出ている */
-var BUILD='20260922-163607', VERNEW=false;
+var BUILD='20260922-164705', VERNEW=false;
 function verCheck(){
   if(BUILD==='dev'||VERNEW||location.protocol==='file:'||!window.fetch) return;
   fetch(location.pathname+'?v='+now(),{cache:'no-store'}).then(function(r){ return r.ok?r.text():''; }).then(function(t){
