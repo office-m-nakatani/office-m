@@ -207,8 +207,10 @@ body.has-sheet{position:fixed;width:100%;overflow:hidden;}
 .seg button.jp[aria-pressed="true"]{background:var(--jp-bg);border-color:var(--jp-tx);color:var(--jp-tx);box-shadow:inset 0 0 0 1.5px var(--jp-tx);}
 .seg button.db[aria-pressed="true"]{background:var(--db-bg);border-color:var(--db-tx);color:var(--db-tx);box-shadow:inset 0 0 0 1.5px var(--db-tx);}
 /* 一覧：左から「日付とタイトル」「ステータス」「担当者」 */
-.lh{display:grid;grid-template-columns:minmax(150px,1.05fr) minmax(160px,1.25fr) minmax(110px,auto);gap:12px;padding:0 13px 6px;font-size:.72rem;font-weight:700;letter-spacing:.1em;color:var(--tx3);}
-.li2{cursor:pointer;position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(150px,1.05fr) minmax(160px,1.25fr) minmax(110px,auto);gap:12px;align-items:start;border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-bottom:8px;background:var(--wtint,#fff);}
+.lh{display:grid;grid-template-columns:minmax(150px,1.05fr) minmax(150px,1.2fr) 74px minmax(104px,auto);gap:11px;padding:0 13px 6px;font-size:.72rem;font-weight:700;letter-spacing:.1em;color:var(--tx3);}
+.li2{cursor:pointer;position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(150px,1.05fr) minmax(150px,1.2fr) 74px minmax(104px,auto);gap:11px;align-items:start;border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-bottom:8px;background:var(--wtint,#fff);}
+.li2 .mk{font-size:.72rem;color:var(--tx3);}
+.li2 .c4{display:flex;flex-wrap:wrap;gap:5px;}
 .li2 .c1{display:flex;flex-direction:column;gap:3px;min-width:0;}
 .li2 .c1 .t{text-align:left;font-size:.98rem;font-weight:700;color:var(--tx);line-height:1.6;}
 .li2 .c1 .d{font-size:.78rem;}
@@ -533,7 +535,7 @@ mark.ncm{background:var(--info-bg);color:inherit;border-radius:3px;padding:0 2px
 </div>
 
 <header class="hd"><div class="hd-in">
-  <div class="hd-t"><b id="hdShop">Dubai Shiogensui</b><small>リール制作</small></div>
+  <div class="hd-t"><b id="hdShop">Dubai Shiogensui</b></div>
   <span class="sync" id="sync"><i></i><span id="syncTx">同期</span></span>
   <button class="me" id="btnMe"></button>
 </div></header>
@@ -886,26 +888,30 @@ function stOnly(r){
   var h='', t0=today();
   (r.tags||[]).forEach(function(k){ var t=tagL(k); if(!t) return;
     var d0=(r.tagAt||{})[k], n=d0?diffDays(t0,d0):0;
-    h+='<span class="tg'+(n>3?' late':'')+'">'+ic(t[2])+esc(t[1])+(n>0?'<i>'+n+'日</i>':'')+'</span>'; });
+    h+='<span class="tg'+(n>3?' late':'')+'">'+ic(t[2])+esc(t[1])+'</span>'; });
   if(r.stx) h+='<span class="tx">'+esc(r.stx)+'</span>';
   return h;
 }
-/* 1行＝1本。左から「日付とタイトル」「ステータス」「担当者」（手書きの図） */
+/* 作った日（ドバイ基準） */
+function madeMd(r){ return fmtMd(ymdTZ(r.at||now(),TZ_DUBAI)); }
+/* 1行＝1本。左から「日付とタイトル」「進捗ステータス」「優先度」「担当者」（手書きの図） */
 function rowHtml(r){
   var dn=!!r.done, st=stOnly(r);
   return '<div class="li2'+(dn?' done':'')+'" '+whoStyle(r)+'>'+
     '<div class="c1">'+
-      (dn?'<span class="d ok">'+fmtMd(ymdTZ(r.done.at,TZ_DUBAI))+'　投稿済み</span>':dlHtml(r))+
+      '<span class="mk">'+madeMd(r)+'</span>'+
+      (dn?'<span class="d ok">'+fmtMd(ymdTZ(r.done.at,TZ_DUBAI))+'　投稿済み</span>':(r.d?dlHtml(r):''))+
       '<button class="t" data-act="open" data-id="'+r.id+'">'+esc(r.ttl)+'</button>'+newPin(NM.r[r.id])+
     '</div>'+
     '<button class="c2" data-act="open" data-id="'+r.id+'">'+
-      (st||'<span class="none">ステータスを決める</span>')+priHtml(r)+unHtml(r)+'</button>'+
+      (st||'<span class="none">ステータスを決める</span>')+unHtml(r)+'</button>'+
+    '<div class="c4">'+priHtml(r)+'</div>'+
     '<div class="c3">'+whosHtml(r)+'</div>'+
     '</div>';
 }
-/* 一覧の見出し（図の「日付 タイトル／ステータス／担当者」） */
+/* 一覧の見出し（図のとおり4つ） */
 function rowHd(){
-  return '<div class="lh"><span>日付　タイトル</span><span>ステータス</span><span>担当者</span></div>';
+  return '<div class="lh"><span>日付　タイトル</span><span>進捗ステータス</span><span>優先度</span><span>担当者</span></div>';
 }
 /* いまの時刻。ドバイと日本を並べて出す。時差は毎回数えるものではない */
 function clkHtml(){
@@ -914,7 +920,7 @@ function clkHtml(){
 }
 function clkTick(){ var e=$('#clk'); if(e) e.innerHTML=clkHtml(); }
 function navHtml(){
-  var items=[['all','全体','list',NM.n],['who','担当ごと','users',0],['month','今月','calendar',0],['note','ノート','book',unreadNote()]];
+  var items=[['all','進捗状況','list',NM.n],['who','担当ごと','users',0],['month','今月','calendar',0],['note','ノート','book',unreadNote()]];
   return items.map(function(v){
     return '<button data-nav="'+v[0]+'" aria-selected="'+(VIEW===v[0])+'">'+ic(v[2])+v[1]+
       (v[3]?'<span class="dot">'+v[3]+'</span>':'')+'</button>';
@@ -970,8 +976,7 @@ function feedHtml(){
 }
 function viewAll(){
   var live=liveReels(), fin=doneReels(), pl=planReels();
-  var h='<div class="top"><div><h1>リール制作</h1></div></div>';
-  h+=feedHtml();
+  var h=feedHtml();
   /* 投稿（動いているもの）と 企画（案）。同じ画面で切り替える（録音） */
   h+='<div class="mode"><button data-act="allm" data-v="post" aria-selected="'+(ALLM!=='plan')+'">投稿</button>'+
      '<button data-act="allm" data-v="plan" aria-selected="'+(ALLM==='plan')+'">企画'+(pl.length?' <b>'+pl.length+'</b>':'')+'</button></div>';
@@ -982,8 +987,8 @@ function viewAll(){
     pl.forEach(function(r){ h+=planRowHtml(r); });
     return h;
   }
-  h+=asgHtml();
   h+='<div class="band">'+ic('film')+'制作中<b>'+live.length+'</b></div>';
+  h+='<button class="addl" data-act="add">'+ic('plus')+'追加</button>';
   if(!live.length) h+='<div class="empty">まだありません</div>';
   else h+=rowHd();
   live.forEach(function(r){ h+=rowHtml(r); });
@@ -1860,7 +1865,7 @@ function fbStart(){
 /* ---- 版の見比べ ----
    ブラウザは前に開いた版をしばらく持ち続けるので、直しても画面が古いままになる。
    配る版には公開のたびに印（BUILD）が入る。置いてある版の印と違えば、新しい版が出ている */
-var BUILD='20260923-094302', VERNEW=false;
+var BUILD='20260923-101527', VERNEW=false;
 function verCheck(){
   if(BUILD==='dev'||VERNEW||location.protocol==='file:'||!window.fetch) return;
   fetch(location.pathname+'?v='+now(),{cache:'no-store'}).then(function(r){ return r.ok?r.text():''; }).then(function(t){
