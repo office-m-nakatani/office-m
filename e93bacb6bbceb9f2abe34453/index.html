@@ -224,6 +224,34 @@ body.has-sheet{position:fixed;width:100%;overflow:hidden;}
   .li2{grid-template-columns:1fr;gap:7px;}
   .li2 .c3{justify-content:flex-start;}
 }
+/* ノート */
+.ntrow{width:100%;display:flex;align-items:center;gap:11px;text-align:left;border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-bottom:8px;background:#fff;}
+.ntrow:hover{border-color:var(--line2);}
+.ntrow-p{flex:none;width:52px;height:52px;border-radius:9px;overflow:hidden;background:var(--surface2);}
+.ntrow-p img{width:100%;height:100%;object-fit:cover;display:block;}
+.ntrow-b{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+.ntrow-t{font-size:1rem;font-weight:700;line-height:1.5;}
+.ntrow-s{font-size:.8rem;color:var(--tx2);line-height:1.6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ntrow-d{font-size:.72rem;color:var(--tx3);}
+.ntrow-r{flex:none;display:inline-flex;align-items:center;gap:6px;color:var(--tx3);}
+.ntrow-r svg{width:15px;height:15px;}
+.nttl{width:100%;box-sizing:border-box;border:none;border-bottom:1px solid var(--line);border-radius:0;padding:4px 2px 9px;font-size:1.22rem;font-weight:700;letter-spacing:.04em;background:none;margin-top:6px;}
+.nttl:focus{outline:none;border-bottom-color:var(--tx3);}
+.nttb{position:sticky;top:0;z-index:3;display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:9px 0;background:#fff;border-bottom:1px solid var(--line);}
+.nttb button{min-width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line2);border-radius:9px;background:#fff;font-size:.86rem;font-weight:700;color:var(--tx2);padding:0 9px;}
+.nttb button:hover{border-color:var(--tx3);color:var(--tx);}
+.nttb button svg{width:16px;height:16px;}
+.nttb-g{display:inline-flex;gap:4px;padding-left:6px;margin-left:2px;border-left:1px solid var(--line);}
+.nttb .sz2{font-size:.72rem;} .nttb .sz3{font-size:.9rem;} .nttb .sz5{font-size:1.06rem;}
+.nttb .col{min-width:30px;width:30px;height:30px;border-radius:50%;border:1px solid rgba(0,0,0,.12);padding:0;}
+.ntbody{min-height:300px;border:1px solid var(--line2);border-radius:12px;padding:14px 15px;margin-top:12px;background:#fff;font-size:1rem;line-height:1.95;}
+.ntbody:focus{outline:2px solid var(--line2);outline-offset:1px;}
+.ntbody img{max-width:100%;height:auto;border-radius:10px;display:block;margin:8px 0;}
+.ntbody ul,.ntbody ol{padding-left:1.4em;margin:6px 0;}
+.ntbody table,.ntbody .ntt{border-collapse:collapse;width:100%;margin:10px 0;}
+.ntbody td,.ntbody th{border:1px solid var(--line2);padding:7px 9px;min-width:44px;vertical-align:top;}
+.ntft{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;}
+.ntft .talk{margin-left:auto;}
 .hint{display:flex;gap:7px;align-items:flex-start;font-size:.78rem;line-height:1.75;color:var(--tx3);margin-top:12px;}
 .hint svg{width:13px;height:13px;flex:none;margin-top:5px;}
 
@@ -616,6 +644,7 @@ var IC={
   calendar:'<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
   play:'<path d="M8 5.5v13l10-6.5Z"/>',
   globe:'<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.3 3.6 5.1 3.6 8.5s-1.2 6.2-3.6 8.5c-2.4-2.3-3.6-5.1-3.6-8.5s1.2-6.2 3.6-8.5Z"/>',
+  table:'<rect x="3.5" y="5" width="17" height="14" rx="1.5"/><path d="M3.5 10h17M3.5 14.5h17M9.5 5v14M15 5v14"/>',
   folder:'<path d="M3.5 6.5a1.5 1.5 0 0 1 1.5-1.5h4.5l2 2.5H19a1.5 1.5 0 0 1 1.5 1.5v9a1.5 1.5 0 0 1-1.5 1.5H5a1.5 1.5 0 0 1-1.5-1.5Z"/>'
 };
 function ic(n){ return '<svg viewBox="0 0 24 24" aria-hidden="true">'+(IC[n]||'')+'</svg>'; }
@@ -684,7 +713,14 @@ function load(){
   var raw=null;
   try{ raw=localStorage.getItem(STORE); if(raw) S=JSON.parse(raw); }catch(e){ S=null; }
   if(!S||typeof S!=='object'||!S.v){ S=blank(); seed(); save0(); }
-  ['accounts','reels','msgs','log'].forEach(function(k){ if(!Array.isArray(S[k])) S[k]=[]; });
+  ['accounts','reels','msgs','log','nt'].forEach(function(k){ if(!Array.isArray(S[k])) S[k]=[]; });
+  /* 前の版の教科書（読み物）と、その段落へのコメントは一度だけ片づける */
+  if(!S.ntClr){
+    S.msgs=S.msgs.filter(function(m){ return (m.ref||'').indexOf('nt-')!==0; });
+    S.log=(S.log||[]).filter(function(e2){ return (e2.rid||'').indexOf('nt-')!==0; });
+    Object.keys(S.read).forEach(function(k2){ if(k2.indexOf('|nt-')>=0) delete S.read[k2]; });
+    S.ntClr=1;
+  }
   /* 前からある保存に Ryuki が居なければ足す */
   if(!S.accounts.some(function(a){ return a.role==='mgr'; })) S.accounts.push({id:'a-ryuki',name:'Ryuki',role:'mgr',rev:0,at:now()});
   if(!S.read||typeof S.read!=='object') S.read={};
@@ -713,7 +749,7 @@ function roleName(r){ return WHO[r]?WHO[r].n:''; }
 /* 見本。rev を 0 にしておくと、実際に触った側が必ず勝つ */
 /* 教科書をノートに分け直したもの。段落ごとにコメントを付けられるので、
    一段落に一つのことだけを書く。cat＝背表紙の分類、say＝何の話かの一行 */
-var SHOP_NOTES=[{"id":"nt-who","cat":"前提","ttl":"ドバイのお客さんは誰か","say":"日本の常識で撮ると、ドバイでは伝わらない。まず「画面の向こうに誰がいるか」を揃える。","bl":[{"id":"nt-who-1","t":"num","v":"88.5%","x":"UAE に住んでいる人のうち、外国人が占める割合"},{"id":"nt-who-2","t":"num","v":"38%","x":"いちばん多い出身国はインド。次いでパキスタン・バングラデシュ・フィリピン"},{"id":"nt-who-3","t":"num","v":"8.05M","x":"UAE の Instagram 利用者数。人口のおよそ7割"},{"id":"nt-who-4","t":"num","v":"2h58m","x":"UAE に住む人が、1日にSNSを見ている時間"},{"id":"nt-who-5","t":"p","x":"画面の向こうにいる大半は、日本食を【寿司としてしか知らない人】です。ラーメンを食べたことがない人、そもそも「熱いスープに麺を入れて、音を立ててすする料理」という考え方を持っていない人が、普通にいます。"},{"id":"nt-who-6","t":"h","x":"お客さんは4種類いる。同じ動画で全員は取れない"},{"id":"nt-who-7","t":"li","x":"【① JLTで働く人】平日11時半から13時。徒歩5分以内しか候補にしない。5人前後の同僚と相談して決める。効くのは、今日やっている・今空いているを伝えるストーリーと、位置情報と、友達に送れる短い動画。"},{"id":"nt-who-8","t":"li","x":"【② 近隣タワーの住人】平日の夜と週末。外に出たくない日はデリバリー。効くのは、夜の雰囲気、持ち帰りと配達の見せ方、家族向けの量。"},{"id":"nt-who-9","t":"li","x":"【③ 日本食を知っている層】日本人駐在・アジア系・日本好き。本物かどうかを探していて、他のラーメン店ももう知っている。効くのは、大阪・20年以上・自家製麺・スープの仕込みといった、作り手の事実。"},{"id":"nt-who-10","t":"li","x":"【④ ラーメンを知らない人】いちばん人数が多い。「何これ」で止まる。味の説明では動かない。効くのは、湯気・すする動き・音。そして「これは何か」を5語で言う英語のテロップ。"},{"id":"nt-who-11","t":"why","x":"ドバイは人が入れ替わり続ける街です。駐在の任期が終われば常連は国に帰ります。日本の商店街の「10年通ってくれる常連」は、ここでは前提にできません。だから集客は一度知られたら終わりではなく、【毎月、新しく来た人に見つけてもらい直す作業】になります。これが、毎日投稿するいちばん現実的な理由です。"},{"id":"nt-who-12","t":"h","x":"競合は増え続けている"},{"id":"nt-who-13","t":"p","x":"2026年のドバイでは、ラーメン店の出店が続いています。英国発の Maki & Ramen が中東初出店、Dubai Opera に Ramen Hisa、Jumeirah の新しいモールに Tora Tora。Daikan は市内4拠点に広がり、【同じJLTのレイクショアタワーにもラーメンバーがあります】。"},{"id":"nt-who-14","t":"p","x":"味で勝っていても、思い出してもらえなければ負けます。「ラーメンが食べたい」と思った瞬間に頭に浮かぶかどうか。その勝負をしています。"}]},{"id":"nt-tool","cat":"原理","ttl":"インスタは何をする道具か","say":"「宣伝する場所」だと思うと手が止まる。実際には、仕事の違う3つの道具が入っている。","bl":[{"id":"nt-tool-1","t":"li","x":"【リール】見つけてもらう道具。まだ店を知らない人の画面に、こちらから出ていける唯一の手段。届く相手はフォロワーの外がほとんど。【手を抜いてはいけない】。最初の2秒とテロップに全力を使う。"},{"id":"nt-tool-2","t":"li","x":"【ストーリー】忘れられないための道具。すでに知っている人に「今日もやってるよ」を届ける。届く相手はフォロワーだけ。【抜いていい】。10秒・手持ち・音なしで合格。"},{"id":"nt-tool-3","t":"li","x":"【フィード】信用されるための道具。リールで気になった人が必ず見に来る、店の顔。届く相手は検討中の人。頻度は抜いていいが、見た目の統一は抜かない。"},{"id":"nt-tool-4","t":"li","x":"【口コミ返信】不安を消す道具。読むのは書いた本人ではなく、次に来る客。24時間以内に返す。文は短くていい。"},{"id":"nt-tool-5","t":"h","x":"お客さんが来店するまでの6歩"},{"id":"nt-tool-6","t":"p","x":"自分が店を選ぶときを思い出してください。この順番を飛ばすことはできません。"},{"id":"nt-tool-7","t":"li","x":"【1. リールが流れてくる】本人は店を探していない。スクロールの途中に「何これ」で指が止まる。ここが入口の9割。"},{"id":"nt-tool-8","t":"li","x":"【2. プロフィールを開く】3秒で「行ける店かどうか」を決める。場所・営業時間・何の店か・写真の並び。"},{"id":"nt-tool-9","t":"li","x":"【3. 保存する、友達に送る】その場では来ない。「今度行こう」で保存、または同僚に送る。送信されることが最強の合図。"},{"id":"nt-tool-10","t":"li","x":"【4. ストーリーで思い出す】保存したことを人は忘れる。毎日のストーリーが「そういえば」を作る。"},{"id":"nt-tool-11","t":"li","x":"【5. 地図を開く、予約する】位置情報タグと Google マップ。ドバイでは地図アプリが飲食店探しの主戦場。"},{"id":"nt-tool-12","t":"li","x":"【6. 来店して、また撮られる】来た人が撮って上げる。その投稿がまた1に戻る。ここまで来て、やっと回り始める。"},{"id":"nt-tool-13","t":"why","x":"リールは新しい人、ストーリーは知っている人、フィードは迷っている人。どれか一つだけやっても回りません。3つ揃って初めて「来店」という1本の線になります。"}]},{"id":"nt-story","cat":"中核","ttl":"なぜ毎日ストーリーなのか","say":"この教科書でいちばん伝えたいところ。理由は7つあって、どれも店の都合ではなくお客さん側の都合です。","bl":[{"id":"nt-story-1","t":"li","x":"【1. お客さんは今日やっているかを知りたい】ドバイは閉店・移転・休業・時間変更が日常的に起きる街です。初めての店に行く人がいちばん怖いのは「行ったら閉まっていた」。毎日ストーリーが上がっている店は、それだけで今日確実に開いているという証明になります。これは営業時間の表示より強い。"},{"id":"nt-story-2","t":"li","x":"【2. 判断の窓は1日に2回、数十分しかない】人が飲食店を選ぶのは、空腹になった瞬間だけです。11時半から13時と、19時から21時。その数十分に画面に出ていなければ、存在していないのと同じです。"},{"id":"nt-story-3","t":"li","x":"【3. ラーメンを知らない人は、1回では理解できない】初めて見る料理は、1本の動画では食べ物として認識されません。麺を上げる、スープを注ぐ、客がすする、器が湯気を立てる。毎日ちがう角度で見て、5回目くらいでやっと「あれは美味しいものだ」に変わります。教えているのであって、宣伝しているのではありません。"},{"id":"nt-story-4","t":"li","x":"【4. 知っている店にしないと、外国の料理は怖い】知らない国の、知らない料理の、知らない店。ハードルが3つあります。毎日ストーリーを見ている人にとっては、少なくとも店は知っているものに変わります。ハードルが1つ減るだけで、来店率はまったく違います。"},{"id":"nt-story-5","t":"li","x":"【5. 1人が見て、5人が来る】JLTのランチは、たいてい同僚と相談して決まります。ストーリーを見た1人が「ここ行かない？」とDMで転送する。飲食店にとって、この転送が実質的な集客の本体です。"},{"id":"nt-story-6","t":"li","x":"【6. 更新を止めると、フォロワーはいないのと同じになる】ストーリー欄は、よく見る順に前から並びます。更新が止まると後ろに送られ、やがて表示されなくなります。フォロワーは減っていないのに、届かなくなる。"},{"id":"nt-story-7","t":"li","x":"【7. 24時間で消えるから、練習になる】失敗が残りません。だから毎日撮る人だけが、構図・光・テロップが上手くなります。リールがうまい人は例外なく、ストーリーで数百回練習した人です。ストーリーは本番ではなく、毎日の素振りです。"},{"id":"nt-story-8","t":"num","v":"+23%","x":"毎日投稿する店の、フォロワー定着率（週3回未満との比較）"},{"id":"nt-story-9","t":"num","v":"約70%","x":"ストーリーの平均完走率。ただし最初の1枚で約24%が離脱する"},{"id":"nt-story-10","t":"num","v":"2〜3本","x":"1日の現実的な本数。多い日で4本まで"},{"id":"nt-story-11","t":"h","x":"ストーリーは、雑でいい"},{"id":"nt-story-12","t":"p","x":"ここを誤解して止まる人がいちばん多い。【ストーリーに作品を求めないでください。】"},{"id":"nt-story-13","t":"do","x":"縦・手持ち・10秒以内"},{"id":"nt-story-14","t":"do","x":"音は入れなくていい"},{"id":"nt-story-15","t":"do","x":"編集ゼロ。撮って出し"},{"id":"nt-story-16","t":"do","x":"文字は英語で3語から5語だけ"},{"id":"nt-story-17","t":"do","x":"仕込み中・開店前の30秒で撮る"},{"id":"nt-story-18","t":"ng","x":"BGM探し（5分溶ける）"},{"id":"nt-story-19","t":"ng","x":"凝った効果・スタンプの山"},{"id":"nt-story-20","t":"ng","x":"長い日本語の説明文"},{"id":"nt-story-21","t":"ng","x":"いい絵が撮れる日を待つこと"},{"id":"nt-story-22","t":"ng","x":"1本に2つ以上のことを言う"},{"id":"nt-story-23","t":"h","x":"1日の3本。これを毎日回すだけ"},{"id":"nt-story-24","t":"li","x":"【11時ごろ】今日やってます。スープの湯気、麺を茹でる、看板の明かり。文字は OPEN NOW · 11:30。"},{"id":"nt-story-25","t":"li","x":"【18時半ごろ】今夜の一杯。いちばん押したい丼を1つ。寄りで10秒。文字は TONIGHT: SHIO。"},{"id":"nt-story-26","t":"li","x":"【不定期】参加できるもの。アンケート（Shio or Shoyu?）、質問箱、「明日は何を食べたい？」。"},{"id":"nt-story-27","t":"p","x":"アンケートや質問への回答は、DMの会話として扱われます。一度でも反応してくれた人には、その後の投稿が届きやすくなります。スタンプは遊びではなく、届く経路を作る作業です。"},{"id":"nt-story-28","t":"why","x":"1週間止めると、フォロワーのストーリー欄から後ろに下がります。1か月止めると、たいていの人にはもう表示されません。その状態からの再起動は、ゼロから始めるより重い。一度やめた店として見られるからです。毎日やることのいちばんの値打ちは、実は【やめないこと】にあります。"}]},{"id":"nt-reel","cat":"リール","ttl":"リールは最初の1.7秒で決まる","say":"なぜ「つかみ」にそこまでこだわるのか。飛ばされる仕組みを知れば納得できます。","bl":[{"id":"nt-reel-1","t":"p","x":"リールを見ている人は、店を探していません。暇つぶしに指を動かしているだけです。その人に対して、こちらは【見続ける理由を1.7秒以内に差し出す】必要があります。"},{"id":"nt-reel-2","t":"num","v":"1.7秒","x":"見続けるか飛ばすかを決めるまでの時間"},{"id":"nt-reel-3","t":"num","v":"5〜10倍","x":"3秒残存率60%超の動画が、40%未満の動画より稼ぐ表示回数"},{"id":"nt-reel-4","t":"num","v":"20%未満","x":"目標とすべき3秒離脱率。40%を超えたら作り直し"},{"id":"nt-reel-5","t":"h","x":"インスタが伸ばす動画を決める3つの合図"},{"id":"nt-reel-6","t":"p","x":"運営が公表している主な判断材料は、【合計視聴時間】（繰り返し再生も足される）、【リーチあたりの送信数】（DM転送）、【リーチあたりのいいね】の3つです。"},{"id":"nt-reel-7","t":"p","x":"大事なのは、再生回数ではなく秒数で測られることです。15秒の動画を3回見られたほうが、60秒を1回より強い。だから【短くしてループさせる】のが正解です。"},{"id":"nt-reel-8","t":"h","x":"使えるつかみの型"},{"id":"nt-reel-9","t":"li","x":"【パターン破り】予想外の絵で止める。3秒残存の目安は72〜84%。例：真っ白な湯気の中から丼がぬっと出てくる。麺を1.5メートルの高さまで持ち上げる。"},{"id":"nt-reel-10","t":"li","x":"【知りたくさせる】答えを最後に置く。目安65〜78%。例：Why Dubai queues for THIS bowl。スープを18時間煮る鍋をいきなり映す。"},{"id":"nt-reel-11","t":"li","x":"【直球の質問】目安58〜72%。例：Ever had ramen without pork? ／ Spicy or clean?"},{"id":"nt-reel-12","t":"li","x":"【言い切り】目安55〜70%。例：Osaka's No.1 shio ramen. Now in JLT."},{"id":"nt-reel-13","t":"li","x":"【悩みから入る】目安50〜65%。例：Too hot to go outside? We deliver.（5月から9月）"},{"id":"nt-reel-14","t":"li","x":"【行列・人気を見せる】目安45〜60%。例：満席の店内。すすっている外国人客の笑顔。"},{"id":"nt-reel-15","t":"why","x":"最初の1カットに絶対に入れてはいけないもの。ロゴ、店名、外観、暗い店内、無人の空の席、静止画。これが出た瞬間に「広告だ」と判断されて飛ばされます。【ロゴを出すなら最後の1秒です。】"},{"id":"nt-reel-16","t":"h","x":"尺・ループ・音の決まりごと"},{"id":"nt-reel-17","t":"li","x":"【尺は7秒から15秒を基本に。】長くても30秒。90秒を超えると伸びません。"},{"id":"nt-reel-18","t":"li","x":"【最後のコマを最初のコマに似せる。】ループで2周目に入ると視聴秒数が倍になります。丼の寄りで始めて丼の寄りで終わるだけで効きます。"},{"id":"nt-reel-19","t":"li","x":"【音は流行っている音を最初から鳴らす。】冒頭から音を入れた動画は、途中から入れた動画より残存率が高いという報告があります。ただし音に頼らない。"},{"id":"nt-reel-20","t":"li","x":"【使い回しはしない。】他人の動画の転載や再利用は配信が落ちます。30日間に転載が10本を超えると、おすすめ枠から外れます。撮るのが面倒でも、自分で撮るほうが結局速い。"},{"id":"nt-reel-21","t":"li","x":"【テスト投稿（Trial Reels）を使う。】フォロワーには出さず、知らない人にだけ先に出して反応を見られます。この口座は約4,500人なので使えます。新しい型を試すときは必ずこれから。"}]},{"id":"nt-telop","cat":"テロップ","ttl":"音は出ていない","say":"「面倒だから今日はテロップなしで」が、いちばん高くつく手抜きです。","bl":[{"id":"nt-telop-1","t":"li","x":"【そもそも音を出していない】電車・オフィス・家族の横。SNSは無音で見られるのが普通です。音声で説明した内容は、そのまま消えます。"},{"id":"nt-telop-2","t":"li","x":"【英語が母語でない人が大半】ドバイの共通語は英語ですが、多くの人にとって第二言語です。耳で聞く英語より、目で読む英語のほうが圧倒的に伝わります。しかも短い文なら、インド系・アラブ系・フィリピン系、誰にでも届きます。"},{"id":"nt-telop-3","t":"li","x":"【数字がはっきり出ている】字幕のある動画は、ない動画より平均視聴維持が約38%長く、完走されやすさは約80%高いという結果が出ています。テロップを入れるだけで、同じ動画が1.4倍働きます。"},{"id":"nt-telop-4","t":"h","x":"テロップの書き方。守るのはこれだけ"},{"id":"nt-telop-5","t":"li","x":"【英語が主、日本語は飾り。】意味を伝えるのは英語。日本語は本物っぽさの演出として、器や暖簾と一緒に少しだけ。"},{"id":"nt-telop-6","t":"li","x":"【1画面7語以内。】読み切れない文は、無いのと同じ。"},{"id":"nt-telop-7","t":"li","x":"【画面の上下は空ける。】上下それぞれ約15%は画面の飾りに隠れます。文字は真ん中の帯に。"},{"id":"nt-telop-8","t":"li","x":"【自動で作られる字幕は必ず直す。】店名・料理名（shio / shoyu / paitan / wonton）はほぼ間違って変換されます。"},{"id":"nt-telop-9","t":"li","x":"【最初の1枚に「これは何か」を書く。】Japanese noodle soup, made in Osaka style。ラーメンを知らない人に対して、これを省略しない。"}]},{"id":"nt-shoot","cat":"撮影","ttl":"「美味しそう」の正体","say":"なぜ味の説明ではなく、湯気と照りと音なのか。人が食べ物を選ぶ仕組みの話です。","bl":[{"id":"nt-shoot-1","t":"p","x":"人は、飲食店を理屈で選んでいません。空腹のときの判断は、ほぼ反射です。調べてから決める人は少数派で、大半は【見た瞬間の体の反応】で決めます。"},{"id":"nt-shoot-2","t":"p","x":"そして【ラーメンを知らない人ほど、この反射の比重が上がります】。味の知識がないぶん、目に映るものだけで判断するからです。ドバイで「美味しそうに撮る」ことが日本より大事なのは、このためです。"},{"id":"nt-shoot-3","t":"h","x":"食欲が動く5つの物理"},{"id":"nt-shoot-4","t":"li","x":"【湯気】熱い、今できた、安全で旨い、と直につながる。冷めた料理は本能的に避けられる。撮り方は、逆光ぎみに、暗い背景で。湯気は光に透かさないと写らない。"},{"id":"nt-shoot-5","t":"li","x":"【照り（脂と油の光）】脳が「高カロリーだから旨い」と判断する最短の合図。撮り方は、スープの表面の丸い油に光を当てる。真上からではなく斜め45度。"},{"id":"nt-shoot-6","t":"li","x":"【動き】止まった写真より、動いているものに目が留まる。麺のリフト、スープを注ぐ、卵を割る。動きの途中から撮り始める。"},{"id":"nt-shoot-7","t":"li","x":"【音】すする音・揚げる音は、聞いた人の唾液を増やす。できるだけ現場の音を残す。BGMで消さない。"},{"id":"nt-shoot-8","t":"li","x":"【人】食べている人の表情は「安全」の証明。知らない料理ほど必要。客とスタッフの手と顔。国籍が多様なほど「自分も入れる店」に見える。"},{"id":"nt-shoot-9","t":"do","x":"配膳から30秒以内に撮る（湯気の寿命）"},{"id":"nt-shoot-10","t":"do","x":"丼に近づく。画面いっぱいに麺"},{"id":"nt-shoot-11","t":"do","x":"光に向かって（逆光ぎみ）"},{"id":"nt-shoot-12","t":"do","x":"スマホは両手。肘を台につける"},{"id":"nt-shoot-13","t":"do","x":"縦。9対16以外は撮らない"},{"id":"nt-shoot-14","t":"ng","x":"真上からテーブル全景だけ"},{"id":"nt-shoot-15","t":"ng","x":"麺が伸びてから撮り直す"},{"id":"nt-shoot-16","t":"ng","x":"暗い店内で照明を足さない"},{"id":"nt-shoot-17","t":"ng","x":"歩きながらの手ブレ撮り"},{"id":"nt-shoot-18","t":"ng","x":"店名ロゴから始める"},{"id":"nt-shoot-19","t":"h","x":"毎日回せる撮影の型 10本"},{"id":"nt-shoot-20","t":"p","x":"「ネタがない」は、型を持っていないだけです。この10本を順番に回せば、10日分の素材が出ます。"},{"id":"nt-shoot-21","t":"li","x":"【01 麺リフト】湯気と麺と箸。近い。3秒。リールの冒頭向き。"},{"id":"nt-shoot-22","t":"li","x":"【02 スープ注ぎ】注ぐ動作の途中から。音つき。リールの冒頭向き。"},{"id":"nt-shoot-23","t":"li","x":"【03 仕込み】鍋・寸胴・火。作り手の手。ストーリー向き。"},{"id":"nt-shoot-24","t":"li","x":"【04 自家製麺】製麺機・切り出し・打ち粉。リールとフィード向き。"},{"id":"nt-shoot-25","t":"li","x":"【05 完成の寄り】丼の全景は撮らない。具材の一点。フィード向き。"},{"id":"nt-shoot-26","t":"li","x":"【06 お客さんの一口】すする顔。必ず許可を取る。リール向き。"},{"id":"nt-shoot-27","t":"li","x":"【07 開店の合図】暖簾・照明・OPEN。朝。ストーリー向き。"},{"id":"nt-shoot-28","t":"li","x":"【08 スタッフ】顔と名前。1人ずつ。ストーリーとフィード向き。"},{"id":"nt-shoot-29","t":"li","x":"【09 説明もの】Shio と Shoyu の違いを15秒。リール向き。"},{"id":"nt-shoot-30","t":"li","x":"【10 持ち帰り・配達】容器・封・外に出る絵。夏場のストーリー向き。"}]},{"id":"nt-dubai","cat":"現地","ttl":"ドバイ翻訳。日本と違うところ","say":"日本の店のやり方をそのまま持ってくると外す点を、先に潰しておきます。","bl":[{"id":"nt-dubai-1","t":"h","x":"豚を使わないことは、弱点ではなく最大の武器"},{"id":"nt-dubai-2","t":"p","x":"この店のスープは鶏をもとにしています。日本の感覚では「豚骨がない」は制約に聞こえますが、【ドバイでは逆です】。人口の大半を占めるムスリムの方にとって、豚が入っている可能性は、最初から候補に入らない理由になります。"},{"id":"nt-dubai-3","t":"p","x":"【豚を使わないラーメンは、この街でいちばん多くの人が食べられるラーメンです。】"},{"id":"nt-dubai-4","t":"why","x":"表記のきまり。ここだけは厳守です。ハラル認証・アルコールの有無・アレルギーは、【店が公式に確かめている事実だけ】を、店が決めた文言で書きます。スタッフの推測で「ハラルです」と書かない。はっきりしないときは書かずに、DMで問い合わせてもらう。一度の誤表記で、取り返しのつかない信用の損を出します。"},{"id":"nt-dubai-5","t":"h","x":"「ラーメンとは何か」から説明する"},{"id":"nt-dubai-6","t":"p","x":"月に1回は、初めての人向けの説明を出してください。知っている人向けの投稿ばかりでは、いちばん人数の多い「ラーメンを知らない層」に届きません。"},{"id":"nt-dubai-7","t":"li","x":"What is ramen? Noodles + broth, 3 minutes to make, 18 hours to prepare."},{"id":"nt-dubai-8","t":"li","x":"How to eat it: slurp. Loud is polite in Japan.（音を立てて食べていい、は外国人にとって驚きであり、体験として売れる）"},{"id":"nt-dubai-9","t":"li","x":"Shio / Shoyu / Spicy Miso / Paitan — which one are you?（選べるようにする）"},{"id":"nt-dubai-10","t":"h","x":"季節と曜日が日本と違う"},{"id":"nt-dubai-11","t":"li","x":"【5月から9月・猛暑】昼間に外を歩かない。移動はタワーの中か車かデリバリー。出す内容は、涼しい店内、配達の見せ方、タワーから濡れずに来られる道順。"},{"id":"nt-dubai-12","t":"li","x":"【10月から4月・いちばんいい季節】観光客が増え、外で過ごす。新しい駐在も入ってくる。新規向けのリールの比率を上げる。テラス・夜の絵。"},{"id":"nt-dubai-13","t":"li","x":"【ラマダン】2027年は2月7日ごろから3月8日ごろ。日中の飲食の扱いに配慮が要る。日没後の食事（イフタール）が主戦場。日中は食べる動画を控えめに、仕込みや作り手側の絵へ。夜の投稿を増やす。"},{"id":"nt-dubai-14","t":"li","x":"【週末】UAEの休みは土日。金曜の午後から空気が変わる。木曜の夜と金曜の夜に「週末の一杯」。家族連れ向けの量と席。"},{"id":"nt-dubai-15","t":"h","x":"JLTという土地の特殊性"},{"id":"nt-dubai-16","t":"p","x":"JLTはオフィスと住居のタワーが密集した区画です。ランチの候補は【徒歩5分圏】で決まり、駐車と移動が面倒なぶん、どのタワーの、どのクラスターかが来店の可否を左右します。"},{"id":"nt-dubai-17","t":"p","x":"投稿には必ず位置情報を付け、キャプションに Cluster Y · Lake Shore Tower のような目印を入れてください。ドバイでは飲食店探しが地図アプリ中心に動いていて、インスタと地図の両方に同じ情報が載っていることが効きます。"}]},{"id":"nt-cap","cat":"文章","ttl":"キャプションと検索","say":"キャプションは感想文ではなく、探している人に見つけてもらうための道具です。","bl":[{"id":"nt-cap-1","t":"li","x":"【1行目が全て。】2行目から先は、開かないと読めません。言いたいことは1行目に。"},{"id":"nt-cap-2","t":"li","x":"【英語が主。】日本語は下に2行か3行そえる程度。"},{"id":"nt-cap-3","t":"li","x":"【検索される言葉を、文章の中に入れる。】インスタは今、キャプションの文字そのものを検索の対象にします。ramen in JLT ／ Japanese restaurant Dubai ／ shio ramen を、自然な文として入れる。"},{"id":"nt-cap-4","t":"li","x":"【ハッシュタグは3個から5個。】30個並べる時代は終わりました。地名と料理名で十分（例：#jltdubai #ramendubai #dubaifoodie）。"},{"id":"nt-cap-5","t":"li","x":"【位置情報タグは毎回。】これが地図と来店に直結します。"},{"id":"nt-cap-6","t":"li","x":"【お願いごとは1つだけ。】保存してか、友達に送ってか、来てか。3つ書くと0になります。いちばん効くのは【送って】。DMの転送は、いいねの3倍から5倍の重みで扱われます。"}]},{"id":"nt-review","cat":"口コミ","ttl":"口コミ返信","say":"返信を読むのは、書いた本人ではありません。これから行くかどうか迷っている次の客です。","bl":[{"id":"nt-review-1","t":"li","x":"【24時間以内に、全件。】星だけの評価にも一言。"},{"id":"nt-review-2","t":"li","x":"【名乗る。】— Kenji, Shiogensui JLT のように人の名前で返すと、店が人に見えます。"},{"id":"nt-review-3","t":"li","x":"【具体的に触れる。】「ご来店ありがとうございます」だけの定型文は逆効果。何を食べたかに触れる。"},{"id":"nt-review-4","t":"li","x":"【低い評価には、言い訳せず、事実だけ、直し方だけ。】1に謝る、2に何が起きたかの事実、3にどう直すか、4に来店のお願い。4行で終わらせる。【反論は絶対にしない。】次の客が読んでいます。"}]},{"id":"nt-num","cat":"数字","ttl":"数字の見方","say":"全部の数字を見ると疲れて続きません。見るのは5つだけ。","bl":[{"id":"nt-num-1","t":"li","x":"【3秒残存率】（視聴維持のグラフの出だし）最初のカットが効いているか。悪いときは、冒頭の1カットを撮り直す。それだけ。"},{"id":"nt-num-2","t":"li","x":"【送信数】（DMの転送）人に教えたいと思われたか。いちばん大事。悪いときは、誰かと来たくなる絵にする。量・席・2人分。"},{"id":"nt-num-3","t":"li","x":"【保存数】今度行くと思われたか。悪いときは、場所・営業時間・値段を画面に入れる。"},{"id":"nt-num-4","t":"li","x":"【プロフィールへのアクセス】動画から店へ興味が移ったか。悪いときは、動画の最後に店名と場所を1秒。"},{"id":"nt-num-5","t":"li","x":"【ストーリーの完走率】最後まで見られているか。悪いときは、1枚目を変える。24%はそこで抜けます。"},{"id":"nt-num-6","t":"p","x":"【見なくていいもの】いいねの数、日々のフォロワーの増減。どちらも来店とほとんど関係がなく、気分だけ揺さぶられます。"},{"id":"nt-num-7","t":"why","x":"週に1回、3つだけ確かめる。1つ、今週いちばん送信された投稿はどれか。2つ、それは何の型だったか（10本のうち）。3つ、来週その型を2本撮る。これだけで運用は回ります。分析は増やさないでください。増やすと撮影の時間がなくなります。"}]},{"id":"nt-week","cat":"運用","ttl":"1日と1週間の型","say":"「時間があるときにやる」では絶対に続きません。時刻に紐づけます。","bl":[{"id":"nt-week-1","t":"h","x":"1日。合計15分"},{"id":"nt-week-2","t":"li","x":"【10時50分】仕込みを30秒だけ撮る。鍋・麺・火。あとで使う素材。編集しない。"},{"id":"nt-week-3","t":"li","x":"【11時00分】ストーリー1本目「今日やってます」。撮って出し。英語3語。所要1分。"},{"id":"nt-week-4","t":"li","x":"【13時30分】ピークのあとに1本ためる。混んでいた店内、空いた丼、客の笑顔（許可を取る）。"},{"id":"nt-week-5","t":"li","x":"【18時30分】ストーリー2本目「今夜の一杯」。押したい丼を寄りで10秒。"},{"id":"nt-week-6","t":"li","x":"【21時30分】口コミとDMに返信。全件。1件30秒。"},{"id":"nt-week-7","t":"h","x":"1週間"},{"id":"nt-week-8","t":"li","x":"【月】リール1本（新規向け・つかみ重視）"},{"id":"nt-week-9","t":"li","x":"【火】ストーリーのみ"},{"id":"nt-week-10","t":"li","x":"【水】フィード1枚（完成の寄り・見た目の統一）"},{"id":"nt-week-11","t":"li","x":"【木】リール1本（週末の告知・家族向け）"},{"id":"nt-week-12","t":"li","x":"【金】ストーリーのみ（夜に厚く）"},{"id":"nt-week-13","t":"li","x":"【土】お客さんの投稿を共有、またはスタッフ紹介"},{"id":"nt-week-14","t":"li","x":"【日】今週の振り返り3問と、来週の撮影メモ"},{"id":"nt-week-15","t":"p","x":"【毎日必ずやるのはストーリーだけ。】リールは週2本で十分です。週2本を12か月続けた店が勝ちます。毎日10本上げて3週間でやめる店ではなく。"}]},{"id":"nt-faq","cat":"想定問答","ttl":"言い訳への回答","say":"出てくる言葉は毎回同じです。先に答えを書いておきます。","bl":[{"id":"nt-faq-1","t":"qa","q":"毎日なんてムリ。忙しい","x":"ストーリー2本＝合計20秒の動画と、英語5語。所要2分です。仕込みの手を止めずに撮れます。ムリなのは毎日リールを作ることで、それは誰も求めていません。"},{"id":"nt-faq-2","t":"qa","q":"ネタがない","x":"撮影の型10本を順に回してください。10日分あります。お客さんは昨日のあなたの投稿を覚えていません。同じ麺リフトでも、人・光・日が違えば別の動画です。"},{"id":"nt-faq-3","t":"qa","q":"料理が良ければ、そのうち来る","x":"日本ならある程度そうです。ドバイは違います。住民の9割が外国人で、常連は数年で帰国します。しかも同じタワー街に競合のラーメン店があります。味は二度目を作る力であって、一度目を作る力ではありません。一度目を作るのがインスタの仕事です。"},{"id":"nt-faq-4","t":"qa","q":"この写真、前にも出した","x":"フォロワーのうち、1本の投稿を見ているのは一部です。同じ内容を見ている人は、ほぼいません。ただし他人の動画の転載や、過去の投稿のそのまま再利用は配信が落ちます。自分で撮り直すこと。それが5分で済むように型があります。"},{"id":"nt-faq-5","t":"qa","q":"英語が苦手","x":"使うのは5語です。Open now. ／ Fresh noodles, every day. ／ Shio or Shoyu? 長い英語は誰も読みません。下手な長文より、短い5語のほうが伝わります。"},{"id":"nt-faq-6","t":"qa","q":"やっても数字が増えない","x":"見る数字を間違えている可能性が高いです。いいねやフォロワーではなく、送信数・保存数・プロフィールへのアクセスを見てください。そして、成果が出るのは早くて2か月から3か月です。1か月でやめると、それまでの分がゼロになります。"}]},{"id":"nt-start","cat":"はじめ方","ttl":"今日からの3日間","say":"全部を一度にやろうとしないでください。この3日で「続く形」になります。","bl":[{"id":"nt-start-1","t":"li","x":"【1日目】アラームを2つ設定する。10時55分と18時25分。鳴ったら撮る。それだけ。内容は考えない。"},{"id":"nt-start-2","t":"li","x":"【2日目】撮影の型10本を印刷して厨房に貼る。撮ったら印を入れる。1周したら最初に戻る。"},{"id":"nt-start-3","t":"li","x":"【3日目】リールを1本、テスト投稿で出す。フォロワーには出ません。知らない人の反応だけを見て、良ければ本投稿に上げる。"},{"id":"nt-start-4","t":"p","x":"進み具合と撮影の割り当ては、この画面で管理します。撮った・編集した・投稿した、をその都度つけてください。【誰が何をやったかが見えないと、やった人が損をします。】"}]},{"id":"nt-src","cat":"ことわり","ttl":"数字の出どころと、書いてはいけないこと","say":"この教科書の数字が、どこから来たものかを書いておきます。","bl":[{"id":"nt-src-1","t":"p","x":"本文の割合や秒数は、世界の飲食・小売の口座を集計した【公開されている目安】です。当店の実数ではありません。判断のものさしとして使い、最後は自店の数字（送信数・保存数・プロフィールへのアクセス）で確かめてください。"},{"id":"nt-src-2","t":"why","x":"ハラル認証・アルコール・アレルギーに関する表記は、【店が公式に確かめた内容だけ】を載せてください。この教科書はその可否を判断するものではありません。"},{"id":"nt-src-3","t":"li","x":"【人口と外国人比率】UAE Population Statistics 2026（GMI）、Expatriates in the UAE（Wikipedia）"},{"id":"nt-src-4","t":"li","x":"【SNSの利用状況】Digital 2026: The United Arab Emirates（DataReportal）"},{"id":"nt-src-5","t":"li","x":"【ドバイのラーメン市場・当店の概要】Curly Tales、Time Out Dubai、shiogensui.ae"},{"id":"nt-src-6","t":"li","x":"【飲食店探しと地図アプリ】Google「Map Your Dubai」、Gulf News"},{"id":"nt-src-7","t":"li","x":"【表示を決める合図・転載の扱い・尺の目安】Hootsuite、Sprout Social、Buffer"},{"id":"nt-src-8","t":"li","x":"【ストーリーの頻度と完走率】Dash Social、Upgrow"},{"id":"nt-src-9","t":"li","x":"【1.7秒・3秒残存率・字幕の効果】Retensis、Fobet Media、Zebracat、Metricool"},{"id":"nt-src-10","t":"li","x":"【テスト投稿の仕様】Instagram for Creators、Metricool"},{"id":"nt-src-11","t":"li","x":"【ラマダン2027の見込み】The National（月の観測により前後します）"}]}];
+/* ノートの中身は、店の人が自分たちで書く。見本は持たない */
 
 function seed(){
   var t=today();
@@ -814,7 +850,7 @@ function secL(k){
   var s2=secOf(k); return s2?s2.l:'';
 }
 function evTtl(e){
-  if((e.rid||'').indexOf('nt-')===0){ var n2=noteOf(e.rid); return n2?n2.ttl:'ノート'; }
+  if((e.rid||'').indexOf('nt-')===0){ var n2=ntOf(e.rid); return n2?(n2.ttl||'題名なし'):'ノート'; }
   var r=byId(S.reels,e.rid); return r?r.ttl:(e.ttl||'');
 }
 function evTx(e){
@@ -827,6 +863,8 @@ function evTx(e){
   if(e.kind==='who')   return L+'の担当が変わりました';
   if(e.kind==='rwho')  return '担当者が変わりました';
   if(e.kind==='rtag')  return '進捗：'+(e.tx||'');
+  if(e.kind==='nt')    return 'ノートを書きました';
+  if(e.kind==='ntnew') return 'ノートを作りました';
   if(e.kind==='done')  return '投稿済みになりました';
   if(e.kind==='undone')return '制作中に戻りました';
   if(e.kind==='toPost')return '企画から制作中に移りました';
@@ -1151,11 +1189,11 @@ function render(){
    紙で配ると読まれない。読んだ人が「ここが分からない」と言える形にする。
    段落をなぞると、その段落のやり取りが開く。ref は 記事id|段落id
    ============================================================ */
-function noteRef(nid,bid){ return nid+'|'+bid; }
-function noteOf(nid){ return byId(SHOP_NOTES,nid); }
-function noteCmt(n2){ var c=0; (n2.bl||[]).forEach(function(b2){ c+=msgsOf(noteRef(n2.id,b2.id)).length; }); return c; }
-function noteUn(n2){ var c=0; (n2.bl||[]).forEach(function(b2){ c+=unreadOf(noteRef(n2.id,b2.id)); }); return c; }
-/* 段落の数だけ数えると重いので、届いた文のほうから数える */
+function ntList(){ return (S.nt||[]).filter(function(n){ return !n.del; })
+  .sort(function(a,b){ return (b.up||b.at||0)-(a.up||a.at||0); }); }
+function ntOf(id){ return byId(S.nt||[],id); }
+function ntRef(id){ return id+'|all'; }
+/* 届いた文のほうから数える */
 function unreadNote(){
   var nm=meName(), q=0;
   S.msgs.forEach(function(m){
@@ -1163,132 +1201,130 @@ function unreadNote(){
     if(m.at>(S.read[rkey(m.ref)]||0)) q++; });
   return q;
 }
+/* 書いたものはそのまま残す。動く仕掛けだけは落とす */
+function ntSafe(h){
+  return (h||'')
+    .replace(/<\s*(script|style|iframe|object|embed)[\s\S]*?<\s*\/\s*\1\s*>/gi,'')
+    .replace(/\son[a-z]+\s*=\s*"[^"]*"/gi,'').replace(/\son[a-z]+\s*=\s*'[^']*'/gi,'')
+    .replace(/javascript:/gi,'');
+}
+function ntText(n){ var d=document.createElement('div'); d.innerHTML=ntSafe(n.html||''); return (d.textContent||'').replace(/\s+/g,' ').replace(/^\s+|\s+$/g,''); }
+function ntPhoto(n){ var m=(n.html||'').match(/<img[^>]+src="([^"]+)"/i); return m?m[1]:''; }
 function viewNote(){
-  var h='<div class="top"><div><h1>ノート</h1></div></div>';
-  var cat='';
-  SHOP_NOTES.forEach(function(n2,i){
-    if(n2.cat!==cat){ cat=n2.cat; h+='<div class="ncat">'+esc(cat)+'</div>'; }
-    var cm=noteCmt(n2), un=noteUn(n2);
-    h+='<button class="nrow" data-act="note" data-id="'+n2.id+'">'+
-      '<span class="nrow-n">'+pad2(i+1)+'</span>'+
-      '<span class="nrow-b"><span class="nrow-t">'+esc(n2.ttl)+'</span><span class="nrow-s">'+esc(n2.say)+'</span></span>'+
-      '<span class="nrow-r">'+(un?'<b class="nrow-u">'+un+'</b>':cm?'<i class="nrow-m">'+ic('quote')+cm+'</i>':'')+ic('arrowR')+'</span>'+
-      '</button>';
+  var ls=ntList();
+  var h='<div class="top"><div><h1>ノート</h1></div>'+
+    '<button class="btn btn-main" data-act="ntnew">'+ic('plus')+'追加</button></div>';
+  if(!ls.length) h+='<div class="empty">まだありません</div>';
+  ls.forEach(function(n){
+    var un=unreadOf(ntRef(n.id)), cm=msgsOf(ntRef(n.id)).length, ph=ntPhoto(n), tx=ntText(n), t=n.up||n.at;
+    h+='<button class="ntrow" data-act="note" data-id="'+n.id+'">'+
+      (ph?'<span class="ntrow-p"><img src="'+esc(ph)+'" alt=""></span>':'')+
+      '<span class="ntrow-b"><span class="ntrow-t">'+esc(n.ttl||'題名なし')+'</span>'+
+      (tx?'<span class="ntrow-s">'+esc(tx.slice(0,70))+'</span>':'')+
+      '<span class="ntrow-d">'+esc(n.by||'')+'　ドバイ '+hmTZ(t,TZ_DUBAI)+'</span></span>'+
+      '<span class="ntrow-r">'+(un?'<b class="nrow-u">'+un+'</b>':cm?'<i class="nrow-m">'+ic('chat')+cm+'</i>':'')+ic('arrowR')+'</span></button>';
   });
   return h;
 }
-/* 【】は強調。なぞられた文字には印を付ける。
-   印の位置は、【】を取り除いた「画面に見えている文字列」で数える。
-   強調の途中で印が始まると入れ子が壊れるので、境目でいったん閉じて開き直す */
-function nbHtml(x,qts){
-  x=(x==null?'':x)+'';
-  var plain='', map=[], i;
-  for(i=0;i<x.length;i++){ var c0=x.charAt(i);
-    if(c0==='【'||c0==='】') continue;
-    map.push(i); plain+=c0; }
-  var mk=[];
-  (qts||[]).forEach(function(q){
-    if(!q||q.length<2) return;
-    var j=plain.indexOf(q); if(j<0) return;
-    mk.push([map[j], map[j+q.length-1]+1]); });
-  mk.sort(function(a,b){ return a[0]-b[0]; });
-  var mg=[]; mk.forEach(function(r){ var l=mg[mg.length-1];
-    if(l&&r[0]<=l[1]){ if(r[1]>l[1]) l[1]=r[1]; } else mg.push([r[0],r[1]]); });
-  var out='', inm=false, mi=0;
-  for(i=0;i<x.length;i++){
-    while(mi<mg.length&&mg[mi][1]<=i) mi++;
-    var want=(mi<mg.length&&i>=mg[mi][0]&&i<mg[mi][1]);
-    if(want&&!inm){ out+='<mark class="ncm">'; inm=true; }
-    else if(!want&&inm){ out+='</mark>'; inm=false; }
-    var ch=x.charAt(i);
-    if(ch==='【'||ch==='】'){
-      if(inm) out+='</mark>';
-      out+=(ch==='【'?'<em>':'</em>');
-      if(inm) out+='<mark class="ncm">';
-      continue;
-    }
-    out+=esc(ch);
-  }
-  if(inm) out+='</mark>';
-  return out;
+/* いま開いているノート。書いたそばから保存する */
+var NTID='', NTT=null;
+function ntSave(){
+  var n=ntOf(NTID); if(!n) return false;
+  var t=$('#ntTtl'), b=$('#ntBody'); if(!t||!b) return false;
+  var ttl=t.value.replace(/^\s+|\s+$/g,''), html=ntSafe(b.innerHTML);
+  if(ttl===(n.ttl||'')&&html===(n.html||'')) return false;
+  n.ttl=ttl; n.html=html; n.up=now(); n.rev=now();
+  var nm=meName(); if(nm){ n.by=nm; n.role=meRole(); }
+  /* 書くたびにお知らせを出すと流れてしまう。10分に1回だけ残す */
+  if(!n.lg||now()-n.lg>600000){ logAdd('nt',n); n.lg=now(); }
+  save(); return true;
 }
-function sheetNote(nid,bid){
-  var n2=noteOf(nid); if(!n2) return;
-  NQ=null;
-  var h='<button class="back" data-act="notes">'+ic('arrowL')+'目次へ戻る</button>';
-  h+='<div class="note-hd"><span class="note-c">'+esc(n2.cat)+'</span><h3>'+esc(n2.ttl)+'</h3><p>'+esc(n2.say)+'</p></div>';
-  h+='<div class="note-body" data-n="'+n2.id+'">';
-  (n2.bl||[]).forEach(function(b2){
-    var ms=msgsOf(noteRef(n2.id,b2.id));
-    var qts=ms.map(function(m){ return m.qt||''; }).filter(function(q){ return q; })
-      .sort(function(a,b){ return b.length-a.length; });
-    var body;
-    /* 数字の段落は横並び。文をひとつの箱に入れないと、印の所だけが別の列になる */
-    if(b2.t==='num') body='<span class="nb-v">'+esc(b2.v)+'</span><span class="nb-x">'+nbHtml(b2.x,qts)+'</span>';
-    else if(b2.t==='qa') body='<span class="nb-q">'+esc(b2.q)+'</span>'+nbHtml(b2.x,qts);
-    else body=nbHtml(b2.x,qts);
-    var un=unreadOf(noteRef(n2.id,b2.id));
-    h+='<div class="nb nb-'+b2.t+(bid===b2.id?' hit':'')+'" data-n="'+n2.id+'" data-b="'+b2.id+'">'+
-      body+
-      (ms.length?'<button class="nb-c'+(un?' un':'')+'" data-act="notec" data-id="'+n2.id+'" data-b="'+b2.id+'">'+
-        ic('quote')+ms.length+'</button>':'')+
-      '</div>';
-  });
-  h+='</div>';
-
-  /* なぞったときだけ出る。位置は選んだ文字のすぐ上 */
-  h+='<button class="nq-btn off" id="nqBtn" data-act="nqgo">'+ic('quote')+'ここにコメント</button>';
-  sheet(esc(n2.ttl),h);
-  if(bid){ var el0=$('.nb.hit'); if(el0) setTimeout(function(){ el0.scrollIntoView({block:'center'}); },30); }
+var NTCOL=[['#2B2B2B','黒'],['#B23A48','赤'],['#23608F','青'],['#38684A','緑'],['#95521F','茶']];
+var NTSZ=[['2','小'],['3','中'],['5','大']];
+function sheetNote(id){
+  var n=ntOf(id); if(!n) return;
+  NTID=id; markRead(ntRef(id));
+  var ms=msgsOf(ntRef(id)), un=unreadOf(ntRef(id)), t=n.up||n.at;
+  var h='<button class="back" data-act="notes">'+ic('arrowL')+'ノートへ戻る</button>'+
+    '<input type="text" class="nttl" id="ntTtl" value="'+esc(n.ttl||'')+'">'+
+    '<div class="nttb">'+
+      '<button data-act="ntc" data-c="bold" aria-label="太字" title="太字"><b>B</b></button>'+
+      '<span class="nttb-g">'+NTSZ.map(function(z){
+        return '<button data-act="ntc" data-c="fontSize" data-v="'+z[0]+'" class="sz'+z[0]+'">'+z[1]+'</button>'; }).join('')+'</span>'+
+      '<span class="nttb-g">'+NTCOL.map(function(c){
+        return '<button data-act="ntc" data-c="foreColor" data-v="'+c[0]+'" class="col" style="background:'+c[0]+'" aria-label="'+c[1]+'" title="'+c[1]+'"></button>'; }).join('')+'</span>'+
+      '<button data-act="ntc" data-c="insertUnorderedList" aria-label="箇条書き" title="箇条書き">'+ic('list')+'</button>'+
+      '<button data-act="nttbl" aria-label="表" title="表">'+ic('table')+'</button>'+
+      '<button data-act="ntimg" aria-label="写真" title="写真">'+ic('image')+'</button>'+
+      '<button data-act="ntc" data-c="removeFormat" aria-label="飾りを消す" title="飾りを消す">'+ic('x')+'</button>'+
+    '</div>'+
+    '<div class="ntbody" id="ntBody" contenteditable="true" spellcheck="false">'+ntSafe(n.html||'')+'</div>'+
+    '<input type="file" id="ntImg" accept="image/*" hidden>'+
+    '<div class="ntft"><span class="d">'+esc(n.by||'')+'　'+bothTime(t)+'</span>'+
+      '<button class="talk'+(un?' un':'')+'" data-act="notec" data-id="'+n.id+'">'+ic('chat')+
+        (ms.length?'やり取り '+ms.length+'件':'この気付きについて話す')+(un?'<b>'+un+'</b>':'')+'</button>'+
+      '<button class="delb" data-act="ntdel" data-id="'+n.id+'">'+ic('trash')+'このノートを削除</button></div>';
+  sheet('ノート',h);
 }
-/* なぞった文字。送るときに、その文のうしろに残す */
-var NQ=null, NQT='';
-function nqHide(){ var b2=$('#nqBtn'); if(b2) b2.className='nq-btn off'; NQ=null; }
-function nqCheck(){
-  var b2=$('#nqBtn'); if(!b2) return;
-  var sl=window.getSelection();
-  if(!sl||sl.isCollapsed||!sl.rangeCount){ nqHide(); return; }
-  var rg=sl.getRangeAt(0);
-  var el=rg.startContainer.nodeType===1?rg.startContainer:rg.startContainer.parentNode;
-  var blk=(el&&el.closest)?el.closest('.nb'):null;
-  if(!blk||!blk.dataset.b){ nqHide(); return; }
-  var qt=sl.toString().replace(/\s+/g,' ').replace(/^\s+|\s+$/g,'');
-  if(qt.length<2){ nqHide(); return; }
-  var rc=rg.getBoundingClientRect();
-  NQ={nid:blk.dataset.n,bid:blk.dataset.b,qt:qt.slice(0,80)};
-  b2.className='nq-btn';
-  b2.style.left=Math.max(10,Math.min(window.innerWidth-200,rc.left+rc.width/2-95))+'px';
-  b2.style.top=Math.max(8,rc.top-48)+'px';
+/* 書いている所に入れる。外に居るときは終わりに足す */
+function ntPut(html){
+  var b=$('#ntBody'); if(!b) return;
+  var sl=window.getSelection(), inb=false;
+  if(sl&&sl.rangeCount){ var e0=sl.getRangeAt(0).startContainer;
+    e0=(e0.nodeType===1)?e0:e0.parentNode; inb=!!(e0&&e0.closest&&e0.closest('#ntBody')); }
+  if(inb){ document.execCommand('insertHTML',false,html); }
+  else{ b.insertAdjacentHTML('beforeend',html); }
+  ntSave();
 }
-/* 指を離した時点で見る。selectionchange だけだと、なぞっている最中に
-   何度も動いて、まだ選び終えていない文字で札が出る */
-document.addEventListener('mouseup',function(){ setTimeout(nqCheck,0); });
-document.addEventListener('touchend',function(){ setTimeout(nqCheck,0); });
-document.addEventListener('selectionchange',function(){
-  var b3=$('#nqBtn'); if(!b3) return;
-  var sl3=window.getSelection();
-  if(!sl3||sl3.isCollapsed) nqHide();
+/* 写真は端末の中で小さくしてから入れる。大きいまま入れると保存できなくなる */
+function ntPic(file,cb){
+  if(!file||!/^image\//.test(file.type||'')) return;
+  var fr=new FileReader();
+  fr.onload=function(){
+    var im=new Image();
+    im.onload=function(){
+      var mx=1000, sc=Math.min(1,mx/Math.max(im.width,im.height));
+      var c=document.createElement('canvas');
+      c.width=Math.max(1,Math.round(im.width*sc)); c.height=Math.max(1,Math.round(im.height*sc));
+      c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+      cb(c.toDataURL('image/jpeg',0.72));
+    };
+    im.onerror=function(){ alert('写真を読めませんでした'); };
+    im.src=fr.result;
+  };
+  fr.readAsDataURL(file);
+}
+/* 貼り付けは文字だけ。書式が混ざると、あとで直せなくなる。写真の貼り付けは受ける */
+document.addEventListener('paste',function(e){
+  var el=e.target, b=(el&&el.closest)?el.closest('#ntBody'):null; if(!b) return;
+  var dt=e.clipboardData; if(!dt) return;
+  var it=dt.items||[], i;
+  for(i=0;i<it.length;i++){ if((it[i].type||'').indexOf('image/')===0){
+    e.preventDefault(); ntPic(it[i].getAsFile(),function(u){ ntPut('<img src="'+u+'">'); }); return; } }
+  e.preventDefault();
+  document.execCommand('insertText',false,dt.getData('text/plain')||'');
 });
-/* シートの中を動かすと、札だけが元の位置に取り残される */
-document.addEventListener('scroll',function(){ if(NQ) nqHide(); },true);
-/* その段落のやり取り。なぞった文字があれば、それを添えて送る */
-function sheetNoteCmt(nid,bid,qt,toBottom){
-  var n2=noteOf(nid); if(!n2) return;
-  var b2=null; (n2.bl||[]).forEach(function(x){ if(x.id===bid) b2=x; });
-  var rf=noteRef(nid,bid); markRead(rf);
+/* 飾りのボタンを押したときに、書いていた所を見失わないように */
+document.addEventListener('mousedown',function(e){
+  if(e.target.closest&&e.target.closest('.nttb')) e.preventDefault();
+});
+document.addEventListener('change',function(e){
+  if(e.target&&e.target.id==='ntImg'){
+    var f=e.target.files&&e.target.files[0];
+    ntPic(f,function(u){ ntPut('<img src="'+u+'">'); });
+    e.target.value='';
+  }
+});
+/* その気付きについてのやり取り */
+function sheetNoteCmt(nid,toBottom){
+  var n=ntOf(nid); if(!n) return;
+  var rf=ntRef(nid); markRead(rf);
   if(CIN.k!==rf) CIN={k:rf,v:''};
-  NQT=qt||'';
-  var h='<button class="back" data-act="note" data-id="'+nid+'" data-b="'+bid+'">'+ic('arrowL')+'記事へ戻る</button>';
-  /* 元の文。これまでになぞられた所は全部に印を付け、今なぞった所も足す */
-  var ms0=msgsOf(rf), qts0=ms0.map(function(m){ return m.qt||''; }).filter(function(q){ return q; });
-  if(qt) qts0.push(qt);
-  qts0.sort(function(a,b){ return b.length-a.length; });
-  h+='<div class="src nb-src">'+(b2?nbHtml(b2.x,qts0):'')+'</div>';
-  if(qt) h+='<div class="nb-sel">'+ic('quote')+'<span>「'+esc(qt)+'」について書きます</span></div>';
-  h+=threadHtml(msgsOf(rf))+
+  var h='<button class="back" data-act="note" data-id="'+nid+'">'+ic('arrowL')+'ノートへ戻る</button>'+
+    threadHtml(msgsOf(rf))+
     '<div class="composer"><div class="cbox"><textarea id="cin" rows="1" placeholder="メッセージを書く">'+esc(CIN.v)+'</textarea>'+
     '<button class="send" data-act="send" data-ref="'+esc(rf)+'" aria-label="送信">'+ic('send')+'</button></div></div>';
-  sheet(esc(n2.ttl)+'／コメント',h);
+  sheet(esc(n.ttl||'ノート'),h);
   var bd=$('.sh-bd'); if(bd&&toBottom!==false) bd.scrollTop=bd.scrollHeight;
 }
 
@@ -1313,6 +1349,7 @@ function reSheet(fn){
   var b2=$('.sh-bd'); if(b2) b2.scrollTop=y;
 }
 function closeSheet(){
+  try{ if($('#ntBody')) ntSave(); }catch(e){}
   $('#modal').innerHTML='';
   if(document.body.classList.contains('has-sheet')){
     document.body.classList.remove('has-sheet'); document.body.style.top=''; window.scrollTo(0,SCY);
@@ -1528,6 +1565,12 @@ document.addEventListener('input',function(e){
   el.style.height='auto'; el.style.height=(el.scrollHeight+2)+'px';
   if(el.id==='cin') CIN.v=el.value;
 });
+/* ノートは書いたそばから保存する。保存を押させない */
+document.addEventListener('input',function(e){
+  var el=e.target; if(!el) return;
+  if(el.id!=='ntBody'&&el.id!=='ntTtl') return;
+  clearTimeout(NTT); NTT=setTimeout(function(){ ntSave(); },700);
+});
 document.addEventListener('click',function(e){
   var nav=e.target.closest('[data-nav]');
   if(nav){ VIEW=nav.dataset.nav; closeSheet(); render(); window.scrollTo(0,0); return; }
@@ -1603,16 +1646,38 @@ document.addEventListener('click',function(e){
     var fid=b.dataset.id||'';
     if(!fid) return;
     /* 開いた時点で見たことになるので、うしろの「更新」も出し直す */
-    if(fid.indexOf('nt-')===0){ sheetNoteCmt(fid,b.dataset.k||'',''); render(); return; }
+    if(fid.indexOf('nt-')===0){ sheetNoteCmt(fid); render(); return; }
     if(!byId(S.reels,fid)) return;
     sheetReel(fid); render(); return;
   }
   if(a==='open'){ sheetReel(id); render(); return; }
   if(a==='talk'){ sheetTalk(id,b.dataset.k); render(); return; }
-  if(a==='notes'){ closeSheet(); VIEW='note'; render(); return; }
-  if(a==='note'){ sheetNote(id,b.dataset.b||''); return; }
-  if(a==='notec'){ sheetNoteCmt(id,b.dataset.b,''); render(); return; }
-  if(a==='nqgo'){ if(!NQ) return; var q0=NQ; nqHide(); try{ window.getSelection().removeAllRanges(); }catch(e0){} sheetNoteCmt(q0.nid,q0.bid,q0.qt); return; }
+  if(a==='notes'){ ntSave(); closeSheet(); VIEW='note'; render(); return; }
+  if(a==='note'){ ntSave(); sheetNote(id); return; }
+  if(a==='notec'){ ntSave(); sheetNoteCmt(id); render(); return; }
+  if(a==='ntnew'){
+    if(!me()){ sheetMe(); return; }
+    if(!Array.isArray(S.nt)) S.nt=[];
+    var nn={id:uid('nt-'),ttl:'',html:'',by:meName(),role:meRole(),at:now(),up:now(),rev:now()};
+    S.nt.push(nn); logAdd('ntnew',nn); save(); render(); sheetNote(nn.id); return;
+  }
+  if(a==='ntdel'){
+    var nd=ntOf(id); if(!nd) return;
+    if(!confirm('このノートを削除しますか？')) return;
+    nd.del=1; nd.rev=now(); logAdd('del',nd); save(); NTID=''; closeSheet(); render(); return;
+  }
+  if(a==='ntc'){
+    var bb=$('#ntBody'); if(!bb) return;
+    bb.focus();
+    try{ document.execCommand('styleWithCSS',false,true); }catch(e1){}
+    document.execCommand(b.dataset.c,false,b.dataset.v||null);
+    ntSave(); return;
+  }
+  if(a==='nttbl'){
+    var row='<tr><td><br></td><td><br></td><td><br></td></tr>';
+    ntPut('<table class="ntt">'+row+row+row+'</table><p><br></p>'); return;
+  }
+  if(a==='ntimg'){ var fi=$('#ntImg'); if(fi) fi.click(); return; }
   if(a==='save'){
     var ttl=$('#fTtl').value.trim(); if(!ttl){ alert('タイトルを入れてください'); return; }
     var r=id?byId(S.reels,id):newReel();
@@ -1703,11 +1768,10 @@ document.addEventListener('click',function(e){
     var mo={id:uid('m'),ref:rf,role:meRole(),name:meName(),tx:tx,at:now()};
     /* ノートは、どの文字をなぞって書いたのかを残す。これが無いと、
        あとで読む人には「記事のどこの話か」が分からない */
-    if(rf.indexOf('nt-')===0&&NQT){ mo.qt=NQT; NQT=''; }
     S.msgs.push(mo);
     CIN={k:'',v:''}; save();
     var pr2=rf.split('|');
-    if(rf.indexOf('nt-')===0) sheetNoteCmt(pr2[0],pr2[1],'',true); else sheetTalk(pr2[0],pr2[1],true);
+    if(rf.indexOf('nt-')===0) sheetNoteCmt(pr2[0],true); else sheetTalk(pr2[0],pr2[1],true);
     render(); return;
   }
 });
@@ -1793,7 +1857,8 @@ function payload(){
   return {v:1,at:now(),shop:S.shop,
     A:S.accounts.filter(function(x){ return !x.sd; }),
     R:S.reels.filter(function(x){ return !x.sd; }),   /* d2（終わりの日）も一緒に回る */
-    M:S.msgs, L:(S.log||[]).slice(-200), G:S.goal, sig:fnv(SECRET)};
+    M:S.msgs, L:(S.log||[]).slice(-200), G:S.goal,
+    N:(S.nt||[]), sig:fnv(SECRET)};
 }
 function fbSend(){
   if(!FB_URL||FBIN||!S) return;
@@ -1821,8 +1886,19 @@ function mergeIn(d){
     SECS.map(function(s){ return s.k; }).concat(['after']).forEach(function(k){ var a=x.sec[k], b=ex.sec[k];
       if(a&&b&&(a.rev||0)>(b.rev||0)){ Object.assign(b,a); hit=true; } });
   });
+  /* ノート */
+  if(!Array.isArray(S.nt)) S.nt=[];
+  (d.N||[]).forEach(function(x){
+    var ex=byId(S.nt,x.id);
+    if(!ex){ S.nt.push(x); hit=true; return; }
+    if((x.rev||0)>(ex.rev||0)){ Object.assign(ex,x); hit=true; }
+  });
   var have={}; S.msgs.forEach(function(m){ have[m.id]=1; });
-  (d.M||[]).forEach(function(m){ if(m&&m.id&&!have[m.id]){ S.msgs.push(m); have[m.id]=1; hit=true; } });
+  (d.M||[]).forEach(function(m){
+    /* 前の版の教科書へのコメントは受け取らない（相手の端末に残っている） */
+    var rf0=m&&m.ref||'';
+    if(rf0.indexOf('nt-')===0&&rf0.slice(-4)!=='|all') return;
+    if(m&&m.id&&!have[m.id]){ S.msgs.push(m); have[m.id]=1; hit=true; } });
   /* 更新のお知らせも同じように、まだ持っていないものだけ足す */
   var hl={}; (S.log||[]).forEach(function(e){ hl[e.id]=1; });
   (d.L||[]).forEach(function(e){ if(e&&e.id&&!hl[e.id]){ S.log.push(e); hl[e.id]=1; hit=true; } });
@@ -1865,7 +1941,7 @@ function fbStart(){
 /* ---- 版の見比べ ----
    ブラウザは前に開いた版をしばらく持ち続けるので、直しても画面が古いままになる。
    配る版には公開のたびに印（BUILD）が入る。置いてある版の印と違えば、新しい版が出ている */
-var BUILD='20260923-101527', VERNEW=false;
+var BUILD='20260923-102353', VERNEW=false;
 function verCheck(){
   if(BUILD==='dev'||VERNEW||location.protocol==='file:'||!window.fetch) return;
   fetch(location.pathname+'?v='+now(),{cache:'no-store'}).then(function(r){ return r.ok?r.text():''; }).then(function(t){
