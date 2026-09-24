@@ -6975,7 +6975,6 @@ const mtRail = (function(){
     return q;
   }
   const LOCAL_V = { '予土線':35, '東海道本線':55, '山陽本線':55, '鹿児島本線':55 };
-  const XFER_MIN = 10;
   function speed(t, ln){
     if(!t) return LOCAL_V[ln] || 45;
     if(typeof t.v === 'number') return t.v;
@@ -6993,7 +6992,7 @@ const mtRail = (function(){
   function tripTime(L){
     let m = 0;
     L.forEach(function(g){ m += legFast(g).m; });
-    return { m:m + (L.length - 1) * XFER_MIN, xfer:L.length - 1 };
+    return { m:m, xfer:L.length - 1 };
   }
   const FR = (typeof MT_RAIL_FARES !== 'undefined') ? MT_RAIL_FARES : null;
   const CHIHO = { '内子線':1, '予土線':1, '鳴門線':1, '徳島線':1, '牟岐線':1, '岩徳線':1 };
@@ -7181,10 +7180,10 @@ const mtRail = (function(){
         + (F.other ? '<span class="mt-rt-fare-d">' + esc('土佐くろしお鉄道の区間の運賃は含みません') + '</span>' : '')
         + '</span>';
     }
-    let h = '<span class="mt-rt"><span class="mt-rt-head"><b>所要 約' + esc(hm(T.m)) + '</b> <span class="mt-rt-dur">（目安）</span>'
+    let h = '<span class="mt-rt"><span class="mt-rt-head"><b>乗車時間 約' + esc(hm(T.m)) + '</b> <span class="mt-rt-dur">（目安・乗り換えの時間は含みません）</span>'
       + '<span class="mt-rt-sub">' + esc((T.xfer ? '乗り換え' + T.xfer + '回' : '乗り換えなし') + '　' + km(J.total) + 'km' + (J.r.other ? '（ほかにJR以外 ' + km(J.all - J.total) + 'km）' : '')) + '</span>'
       + fareLine
-      + '<span class="mt-rt-warn">' + esc('列車の時刻は、時刻表のデータが入っていないので出していません。所要時間は列車ごとの平均の速さから出した目安です（乗り換えは1回' + XFER_MIN + '分で計算）。') + '</span>'
+      + '<span class="mt-rt-warn">' + esc('列車の時刻は、時刻表のデータが入っていないので出していません。乗車時間は、乗り物ごとの平均の速さから出した目安です。') + '</span>'
       + '<a class="mt-rt-yj" href="' + yahooURL(a, b, J.vias, t0) + '" target="_blank" rel="noopener">' + esc((given ? clk(t0) + '発' : 'いまから') + 'の実際の列車と時刻を Yahoo!乗換案内で見る') + '</a></span>';
     h += stRow(a, 'mt-rt-is-start', '', null, legCol(L[0]), '発');
     L.forEach(function(g, n){
@@ -7217,7 +7216,7 @@ const mtRail = (function(){
     if(th.length && L.length > 1) h += '<span class="mt-note">' + esc('乗り換えなしで行く列車もあります：' + th.map(function(t){ return t.n + (t.note ? '（' + t.note + '）' : ''); }).join('／') + '（在来線経由）') + '</span>';
     if(J.mode === 'zai' && J.r.edges.some(function(k){ return /^(東海道本線|山陽本線)$/.test(lineName(N.e[k][3])); }))
       h += '<span class="mt-note">' + esc('券面が在来線経由でも、並行する新幹線に乗れる区間があります（選択乗車・第157条。特急券は別に必要。その区間の新幹線だけの駅では途中下車できません）。') + '</span>';
-    h += '<span class="mt-note">' + esc('所要時間は、列車ごとの平均の速さから出した目安です（乗り換えは1回' + XFER_MIN + '分で計算。発車を待つ時間・運転日・停車駅は含みません）。運賃と特急料金は、2026年9月時点のJR各社の公式の運賃表・料金表から計算した参考値です（大人・きっぷ。IC運賃・割引・グリーン料金は含みません。営業キロが参考値なので、帯の境目では違うことがあります）。のりば・正確な時刻は下のリンクで確かめてください。') + '</span>';
+    h += '<span class="mt-note">' + esc('乗車時間は、乗り物ごとの平均の速さから出した目安です（乗り換えの時間・発車を待つ時間・運転日・停車駅は含みません）。運賃と特急料金は、2026年9月時点のJR各社の公式の運賃表・料金表から計算した参考値です（大人・きっぷ。IC運賃・割引・グリーン料金は含みません。営業キロが参考値なので、帯の境目では違うことがあります）。のりば・正確な時刻は下のリンクで確かめてください。') + '</span>';
     h += '<a class="mt-rail-map" href="' + yahooURL(a, b, J.vias, t0) + '" target="_blank" rel="noopener">時刻・のりばを Yahoo!乗換案内で見る（この経由・この出発時刻で開きます）</a>';
     return h;
   }
