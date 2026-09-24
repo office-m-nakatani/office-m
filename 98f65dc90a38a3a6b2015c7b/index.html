@@ -7335,6 +7335,19 @@ const mtRail = (function(){
   return { answer:answer, mount:mount, judge:judge, stopAt:stopAt, idx:idx, route:route, d10:d10, legs:legs };
 })();
 if(mtRail){ try{ mtRail.mount(); }catch(e){ if(window.console) console.error('[AI窓口] きっぷの欄を置けなかった', e); } }
+if(mtRail){
+  try{
+    const mtSend0 = mtSend;
+    mtSend = function(q){
+      try{ if(mtPend && mtRail.answer(String(q || ''), mtP())) mtPend = null; }catch(e){}
+      return mtSend0(q);
+    };
+    const qk = document.getElementById('mt-quick');
+    if(qk) qk.addEventListener('click', function(e){ if(e.target.closest && e.target.closest('[data-mtq]')) mtPend = null; }, true);
+    const go = document.getElementById('mt-rail-go');
+    if(go) go.addEventListener('click', function(){ mtPend = null; }, true);
+  }catch(e){ if(window.console) console.error('[AI窓口] 入力待ちの解除を付けられなかった', e); }
+}
 
 try{ mtOpen(); }catch(e){ if(window.console) console.error('[AI窓口]', e); }
 
