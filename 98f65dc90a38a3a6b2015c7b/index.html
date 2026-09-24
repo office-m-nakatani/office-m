@@ -6988,35 +6988,66 @@ const mtRail = (function(){
     L.forEach(function(g){ m += legFast(g).m; });
     return { m:m + (L.length - 1) * XFER_MIN, xfer:L.length - 1 };
   }
-  function legTimeText(g){
-    const f = legFast(g);
-    return '約' + hm(f.m) + (f.t && g.trains.length > 1 ? '（' + f.t.n.replace(/^(新幹線|特急|快速|寝台特急)/, '') + 'の場合）' : '');
+  const KCLS = { '新幹線':'s', '特急':'t', '快速':'r', '普通':'l' };
+  function legCol(g){ return g.trains.length ? (KCLS[legFast(g).t.k] || 'l') : (g.other ? 'o' : 'l'); }
+  function clk(m){ const d = Math.floor(m / 1440), x = ((m % 1440) + 1440) % 1440; return (d > 0 ? '翌' : '') + Math.floor(x / 60) + ':' + ('0' + (x % 60)).slice(-2); }
+  function toward(g){
+    if(g.trains.length){
+      const t = legFast(g).t, s0 = idx[t.c[0][1]], s1 = idx[t.c[t.c.length - 1][2]];
+      return d10(s0, g.from) <= d10(s0, g.to) ? s1 : s0;
+    }
+    const P = LPOS[N.e[g.e[0]][3]] || {}, up = P[g.to] > P[g.from];
+    let best = g.to, bp = up ? -1 : Infinity;
+    Object.keys(P).forEach(function(v){ if(up ? P[v] > bp : P[v] < bp){ bp = P[v]; best = +v; } });
+    return best;
   }
-  function legLabel(g){
-    if(!g.trains.length) return g.other ? g.line + '（JR以外の線）' : g.line + ' 普通';
-    return legFast(g).t.n;
-  }
-  function summaryHTML(J, L){
+  function nowRound(){ const d = new Date(); return Math.ceil((d.getHours() * 60 + d.getMinutes()) / 5) * 5; }
+  function timelineHTML(J, a, b, L, t0){
+    const given = t0 !== null && t0 !== undefined;
+    if(!given) t0 = nowRound();
     const T = tripTime(L);
-    return '<div class="mt-rail-sum">'
-      + '<div><span>営業キロ</span><b>' + km(J.total) + 'km</b>' + (J.r.other ? '<small>' + esc('ほかに JR以外の線 ' + km(J.all - J.total) + 'km') + '</small>' : '') + '</div>'
-      + '<div><span>おおよその時間</span><b>' + esc('約' + hm(T.m)) + '</b><small>' + esc((T.xfer ? '乗り換え' + T.xfer + '回' : '乗り換えなし') + '・下の列車に乗った場合') + '</small></div>'
-      + '<div class="mt-rail-sum-w"><span>乗るもの</span><b>' + esc(L.map(legLabel).join(' → ')) + '</b></div>'
-      + '</div>';
+    const stRow = function(v, cls, tm, ca, cb, tag){
+      return '<span class="mt-rt-st ' + cls + '"><span class="mt-rt-tm">' + tm + '</span>'
+        + '<span class="mt-rt-rail mt-a-' + (ca || 'n') + ' mt-b-' + (cb || 'n') + '">'
+        + (tag ? '<i class="mt-rt-tag">' + tag + '</i>' : '<i class="mt-rt-dot"></i>') + '</span>'
+        + '<span class="mt-rt-nm">' + esc(N.st[v]) + '</span></span>';
+    };
+    let cur = t0;
+    let h = '<span class="mt-rt"><span class="mt-rt-head"><b>' + clk(t0) + ' → ' + clk(t0 + T.m) + '</b> <span class="mt-rt-dur">（約' + esc(hm(T.m)) + '）</span>'
+      + '<span class="mt-rt-sub">' + esc((T.xfer ? '乗り換え' + T.xfer + '回' : '乗り換えなし') + '　' + km(J.total) + 'km' + (J.r.other ? '（ほかにJR以外 ' + km(J.all - J.total) + 'km）' : '')) + '</span>'
+      + '<span class="mt-rt-warn">' + esc((given ? clk(t0) + 'に出発' : 'いま出発') + 'した場合の目安です。時刻表の時刻ではありません' + (t0 + T.m >= 1440 ? '。日付をまたぐので、実際にはその日のうちに乗り継げる列車がないことがあります（夜行のサンライズ瀬戸をのぞく）' : '')) + '</span></span>';
+    h += stRow(a, 'mt-rt-is-start', '<b>' + clk(cur) + '</b>', null, legCol(L[0]), '発');
+    L.forEach(function(g, n){
+      const f = legFast(g), col = legCol(g);
+      const isLocal = !g.trains.length || f.t.k === '普通';
+      const name = g.trains.length ? f.t.n : (g.other ? g.line + '（JR以外の線）' : g.line + ' 普通');
+      const alt = g.trains.filter(function(t){ return t !== f.t; }).map(function(t){ return t.n; });
+      h += '<span class="mt-rt-lg mt-k-' + col + '"><span class="mt-rt-cnt"><span>' + esc(isLocal ? g.e.length + '駅' : f.t.k) + '</span></span>'
+        + '<span class="mt-rt-rail mt-a-' + col + ' mt-b-' + col + '"></span>'
+        + '<span class="mt-rt-info"><span class="mt-rt-tr"><i class="fa-solid fa-train"></i> <b>' + esc(name) + '</b></span>'
+        + '<span class="mt-rt-dir">' + esc(bare(N.st[toward(g)]) + '方面') + '</span>'
+        + '<span class="mt-rt-meta">' + esc(km(g.k10) + 'km・約' + hm(f.m)) + '</span>'
+        + (alt.length ? '<span class="mt-rt-alt">' + esc('ほかに：' + alt.join('・')) + '</span>' : '')
+        + (f.t && f.t.note ? '<span class="mt-rt-alt">' + esc(f.t.note) + '</span>' : '')
+        + '</span></span>';
+      const arr = cur + f.m;
+      if(n + 1 < L.length){
+        cur = arr + XFER_MIN;
+        h += stRow(g.to, 'mt-rt-is-mid', '<span class="mt-rt-arr">' + clk(arr) + '着</span><b>' + clk(cur) + '発</b>', col, legCol(L[n + 1]));
+      } else {
+        h += stRow(g.to, 'mt-rt-is-end', '<b>' + clk(arr) + '</b>', col, null, '着');
+      }
+    });
+    return h + '</span>';
   }
-  function legsHTML(J, a, b, L){
+  function legsHTML(J, a, b, L, t0){
     L = L || legs(J.r);
-    let h = '<ol class="mt-rail-legs">' + L.map(function(g, n){
-      const names = g.trains.length ? g.trains.map(function(t){ return t.n + (t.note ? '（' + t.note + '）' : ''); }).join('／')
-        : (g.other ? g.line + '（JR以外の線）' : g.line + '（普通・快速など）');
-      return '<li><b>' + esc(N.st[g.from]) + ' → ' + esc(N.st[g.to]) + '</b>　<span class="mt-src">' + km(g.k10) + 'km・' + esc(legTimeText(g)) + '</span><div class="mt-rail-leg-t">' + esc(names) + '</div>'
-        + (n + 1 < L.length ? '<span class="mt-rail-xfer">' + esc(N.st[g.to] + 'で乗り換え') + '</span>' : '') + '</li>';
-    }).join('') + '</ol>';
+    let h = timelineHTML(J, a, b, L, t0);
     const th = through(J.rz);
     if(th.length && L.length > 1) h += '<span class="mt-note">' + esc('乗り換えなしで行く列車もあります：' + th.map(function(t){ return t.n + (t.note ? '（' + t.note + '）' : ''); }).join('／') + '（在来線経由）') + '</span>';
     if(J.mode === 'zai' && J.r.edges.some(function(k){ return /^(東海道本線|山陽本線)$/.test(lineName(N.e[k][3])); }))
       h += '<span class="mt-note">' + esc('券面が在来線経由でも、並行する新幹線に乗れる区間があります（選択乗車・第157条。特急券は別に必要。その区間の新幹線だけの駅では途中下車できません）。') + '</span>';
-    h += '<span class="mt-note">' + esc('時間は、列車ごとの平均の速さから出した目安です（乗り換えは1回' + XFER_MIN + '分で計算。発車までの待ち時間・運転日は含みません）。正確な時刻は下のリンクで確かめてください。') + '</span>';
+    h += '<span class="mt-note">' + esc('時刻と時間は、列車ごとの平均の速さから出した目安です（乗り換えは1回' + XFER_MIN + '分で計算。発車を待つ時間・運転日・停車駅は含みません）。運賃・のりば・正確な時刻は下のリンクで確かめてください。') + '</span>';
     h += '<a class="mt-rail-map" href="' + yahooURL(a, b, J.vias) + '" target="_blank" rel="noopener">時刻・運賃・のりばを Yahoo!乗換案内で見る（この経由で開きます）</a>';
     return h;
   }
@@ -7054,7 +7085,7 @@ const mtRail = (function(){
     const via = segs(J.r).map(function(s){ return lineName(s.ln).replace(/（.*）$/, ''); }).filter(function(v, i, arr){ return arr.indexOf(v) === i; }).join('・');
     return (za ? za.name : N.st[a]) + ' → ' + (zb ? zb.name : N.st[b]) + (J.kinko ? '（' + J.kinko + '内の相互発着）' : '　経由：' + via);
   }
-  function answerRoute(a, b, stops, vias, mode, P){
+  function answerRoute(a, b, stops, vias, mode, P, t0){
     const J = judge(a, b, vias, mode);
     if(!J) return '<span class="mt-h">答え</span>' + esc(N.st[a] + 'から' + N.st[b] + 'までの経路が、入っている路線の中で見つかりませんでした。');
     let h = '<span class="mt-h">答え</span><b>' + esc(N.st[a]) + ' → ' + esc(N.st[b]) + '</b>　営業キロ <b>' + km(J.total) + 'km</b>'
@@ -7062,13 +7093,12 @@ const mtRail = (function(){
       + (vias.length ? '（' + esc(vias.map(function(v){ return N.st[v]; }).join('・')) + '経由）' : '（最短の経路）')
       + '　<span class="mt-src">券面：' + (J.mode === 'shin' ? '新幹線経由' : '在来線経由') + '</span><br>';
     const L = legs(J.r);
-    h += summaryHTML(J, L);
-    if(J.r.repeat) h += '<div class="mt-rail-verdict is-ng"><b>' + esc('この経由だと同じ区間を2回通ります') + '</b><br>' + esc('同じ区間を重ねて通る経路は、1枚の乗車券として通しで計算できません（第68条第4項）。キロと判定は参考です。区域内の折り返しは第160条の3の特例があります。') + '</div>';
+    if(J.r.repeat) h += '<span class="mt-rail-verdict mt-v-ng"><b>' + esc('この経由だと同じ区間を2回通ります') + '</b><br>' + esc('同じ区間を重ねて通る経路は、1枚の乗車券として通しで計算できません（第68条第4項）。キロと判定は参考です。区域内の折り返しは第160条の3の特例があります。') + '</span>';
     stops.forEach(function(s){
       const x = stopAt(J, a, b, s);
-      h += '<div class="mt-rail-verdict ' + (x.ok ? 'is-ok' : 'is-ng') + '"><b>' + esc(N.st[s]) + 'で途中下車：' + (x.ok ? 'できます' : (x.off ? '経路の外です' : 'できません')) + '</b><br>' + esc(x.why) + '</div>';
+      h += '<span class="mt-rail-verdict ' + (x.ok ? 'mt-v-ok' : 'mt-v-ng') + '"><b>' + esc(N.st[s]) + 'で途中下車：' + (x.ok ? 'できます' : (x.off ? '経路の外です' : 'できません')) + '</b><br>' + esc(x.why) + '</span>';
     });
-    h += '<span class="mt-h">乗り方（主な列車）</span>' + legsHTML(J, a, b, L);
+    h += '<span class="mt-h">ルート（主な列車・時刻は目安）</span>' + legsHTML(J, a, b, L, t0);
     h += '<span class="mt-h">乗車券</span><ul class="mt-acts">'
       + '<li>' + esc('券面：' + ticketName(J, a, b)) + '</li>'
       + (J.calcK10 !== J.total && !J.kinko ? '<li>' + esc('運賃・有効期間の計算に使うキロ：' + J.calcWhy + ' ' + km(J.calcK10) + 'km') + '</li>' : '')
@@ -7180,10 +7210,13 @@ const mtRail = (function(){
     });
     if(a >= 0 && b < 0 && plain.length) b = plain.shift();
     if(a < 0 && b >= 0 && plain.length) a = plain.shift();
+    const tn = t.replace(/[０-９]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); }).replace(/：/g, ':');
+    const tm = tn.match(/(\d{1,2})(?::|時)(\d{1,2})?分?(?:発|に出|出発|に乗)/);
+    const t0 = (tm && +tm[1] < 24 && +(tm[2] || 0) < 60) ? +tm[1] * 60 + +(tm[2] || 0) : null;
     const railish = /途中下車|下車|何キロ|何km|キロ|営業キロ|有効期間|経路|乗車券|きっぷ|切符|から|経由|列車|特急|新幹線|乗り方|行き方/.test(t);
     if(a >= 0 && b >= 0 && a !== b && railish){
       if(!stops.length && /途中下車|下車/.test(t) && plain.length) stops.push(plain[0]);
-      return answerRoute(a, b, stops, vias, mode, P);
+      return answerRoute(a, b, stops, vias, mode, P, t0);
     }
     if(/乗り換え|乗換|のりかえ|どこ|場所|位置|何線|路線|地図/.test(t) || /^[^、。]{1,12}駅[？?]?$/.test(t)){
       const nm = findAnyStation(t);
@@ -7214,16 +7247,34 @@ const mtRail = (function(){
       + '.mt-rail-f .mt-rail-mode input{width:auto;min-height:0;height:auto;padding:0;margin:0;border:0;accent-color:#1f3b5a}'
       + '.mt-rail-go{min-height:40px;padding:0 18px}'
       + '.mt-rail-verdict{margin:8px 0;padding:8px 10px;border-radius:10px;border:1px solid}'
-      + '.mt-rail-verdict.is-ok{background:#eef7f0;border-color:#9cc9a8}.mt-rail-verdict.is-ng{background:#fdf0ef;border-color:#e3a59f}'
+      + '.mt-rail-verdict.mt-v-ok{background:#eef7f0;border-color:#9cc9a8}.mt-rail-verdict.mt-v-ng{background:#fdf0ef;border-color:#e3a59f}'
       + '.mt-rail-route{margin:4px 0 6px;padding-left:1.2em}.mt-rail-map{display:inline-block;margin:6px 0}'
       + '.mt-rail-legs{margin:4px 0 6px;padding-left:1.4em}.mt-rail-legs li{margin:4px 0}.mt-rail-leg-t{margin:2px 0 0}'
       + '.mt-rail-xfer{display:block;margin:4px 0 0;font-size:.8rem;color:#8a5a12}'
-      + '.mt-rail-sum{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}'
-      + '.mt-rail-sum>div{background:#f3f7fb;border:1px solid #cfdceb;border-radius:10px;padding:6px 10px;min-width:0}'
-      + '.mt-rail-sum span{display:block;font-size:.72rem;color:#4b6178}'
-      + '.mt-rail-sum b{display:block;font-size:1.05rem;color:#1f3b5a;line-height:1.4;overflow-wrap:anywhere}'
-      + '.mt-rail-sum small{display:block;font-size:.75rem;color:#4b6178}'
-      + '.mt-rail-sum .mt-rail-sum-w{grid-column:1/-1}.mt-rail-sum .mt-rail-sum-w b{font-size:.95rem}'
+      + '.mt-rt{border:1px solid #d6e0ea;border-radius:12px;overflow:hidden;margin:8px 0;background:#fff}'
+      + '.mt-rt-head{padding:10px 12px;border-bottom:1px solid #e3e9f0}'
+      + '.mt-rt,.mt-rt-head,.mt-rt-rail,.mt-rt-info,.mt-rt-tr,.mt-rt-dir,.mt-rt-meta,.mt-rt-alt,.mt-rail-verdict{display:block}'
+      + '.mt-k-s{--c:#0d3c8f}.mt-k-t{--c:#1a6fd1}.mt-k-r{--c:#2f8fe0}.mt-k-l{--c:#5aa9e6}.mt-k-o{--c:#9aa3ad}'
+      + '.mt-a-s{--a:#0d3c8f}.mt-a-t{--a:#1a6fd1}.mt-a-r{--a:#2f8fe0}.mt-a-l{--a:#5aa9e6}.mt-a-o{--a:#9aa3ad}.mt-a-n{--a:transparent}'
+      + '.mt-b-s{--b:#0d3c8f}.mt-b-t{--b:#1a6fd1}.mt-b-r{--b:#2f8fe0}.mt-b-l{--b:#5aa9e6}.mt-b-o{--b:#9aa3ad}.mt-b-n{--b:transparent}'
+      + '.mt-rt-head b{font-size:1.25rem;color:#1f2d3d;font-variant-numeric:tabular-nums}.mt-rt-head .mt-rt-dur{font-size:.85rem;color:#4b5563}'
+      + '.mt-rt-head .mt-rt-sub,.mt-rt-head .mt-rt-warn{display:block;font-size:.85rem;color:#374151;margin-top:2px}.mt-rt-head .mt-rt-warn{font-size:.72rem;color:#8a5a12}'
+      + '.mt-rt-st,.mt-rt-lg{display:grid;grid-template-columns:72px 24px minmax(0,1fr);align-items:stretch}'
+      + '.mt-rt-st{background:#f2f4f7}'
+      + '.mt-rt-tm{display:flex;flex-direction:column;justify-content:center;align-items:flex-end;padding:8px 4px;line-height:1.3;font-variant-numeric:tabular-nums}'
+      + '.mt-rt-tm b{color:#1565c0;font-size:.95rem;white-space:nowrap}.mt-rt-tm .mt-rt-arr{display:block;color:#4b5563;font-size:.76rem;white-space:nowrap}'
+      + '.mt-rt-rail{position:relative;min-height:12px}'
+      + '.mt-rt-rail::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:6px;margin-left:-3px;background:linear-gradient(var(--a) 50%,var(--b) 50%)}'
+      + '.mt-rt-dot{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:18px;height:18px;border-radius:50%;background:#fff;border:4px solid var(--b);box-sizing:border-box}'
+      + '.mt-rt-tag{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#4b5563;color:#fff;font-size:.72rem;font-weight:700;font-style:normal;border-radius:4px;padding:2px 3px;line-height:1.2}'
+      + '.mt-rt-nm{display:flex;align-items:center;padding:10px;font-weight:700;font-size:1.1rem;color:#1565c0;min-width:0;overflow-wrap:anywhere}'
+      + '.mt-rt-cnt{display:flex;align-items:center;justify-content:center;padding:8px 0}'
+      + '.mt-rt-cnt span{display:flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;border:1px solid #d0d7e2;background:#fff;color:var(--c);font-weight:700;font-size:.78rem;line-height:1.1;text-align:center}'
+      + '.mt-rt-info{padding:10px 10px 12px;min-width:0}'
+      + '.mt-rt-tr i{color:var(--c);margin-right:2px}'
+      + '.mt-rt-tr{font-size:1rem;color:#1f2d3d;overflow-wrap:anywhere}.mt-rt-dir{font-size:.85rem;color:#4b5563;margin-top:2px}'
+      + '.mt-rt-meta{font-size:.8rem;color:#374151;margin-top:4px}.mt-rt-alt{font-size:.76rem;color:#6b7280;margin-top:2px}'
+      + '.mt-rail-t{flex:0 0 118px}'
       + '@media (max-width:640px){.mt-rail-f{grid-template-columns:minmax(0,1fr) auto}.mt-rail-f .mt-rail-b{grid-column:1/-1}}';
     document.head.appendChild(st);
     const dl = '<datalist id="mt-rail-dl">' + N.st.map(function(n){ return '<option value="' + esc(n) + '">'; }).join('') + '</datalist>';
@@ -7237,13 +7288,17 @@ const mtRail = (function(){
       + '<div class="mt-rail-b">' + inp('mt-rail-b', '到着', '例：東京') + '</div>'
       + '<div class="mt-rail-vias" id="mt-rail-vias"><button type="button" class="mt-rail-add" id="mt-rail-add"><i class="fa-solid fa-plus"></i> 経由</button></div>'
       + '<div class="mt-rail-row2"><div class="mt-rail-s">' + inp('mt-rail-s', '途中下車したい駅（任意）', '例：新大阪') + '</div>'
+      + '<div class="mt-rail-t"><label for="mt-rail-t">出発時刻</label><input type="time" id="mt-rail-t" step="300"></div>'
       + '<div class="mt-rail-mode" role="radiogroup" aria-label="券面の経由">券面の経由：'
       + '<label><input type="radio" name="mt-rail-mode" value="shin" checked> 新幹線経由</label>'
       + '<label><input type="radio" name="mt-rail-mode" value="zai"> 在来線経由</label></div>'
       + '<button type="button" class="btn btn-primary btn-sm mt-rail-go" id="mt-rail-go">調べる</button></div>'
       + '</div>';
     quick.parentNode.insertBefore(box, quick);
-    const viasBox = $('mt-rail-vias'), addBtn = $('mt-rail-add');
+    const viasBox = $('mt-rail-vias'), addBtn = $('mt-rail-add'), tIn = $('mt-rail-t');
+    const setNow = function(){ const m = nowRound() % 1440; tIn.value = ('0' + Math.floor(m / 60)).slice(-2) + ':' + ('0' + (m % 60)).slice(-2); };
+    setNow();
+    tIn.addEventListener('input', function(){ tIn.dataset.touched = '1'; });
     let vn = 0;
     const addVia = function(){
       const rows = viasBox.querySelectorAll('.mt-rail-v');
@@ -7269,8 +7324,10 @@ const mtRail = (function(){
       const V = [].map.call(viasBox.querySelectorAll('.mt-rail-v input'), g).filter(Boolean);
       const md = (box.querySelector('input[name="mt-rail-mode"]:checked') || {}).value;
       if(!A || !B){ (A ? $('mt-rail-b') : $('mt-rail-a')).focus(); return; }
+      if(!tIn.dataset.touched || !tIn.value) setNow();
+      const T0 = tIn.value ? '、' + tIn.value.replace(/^0(\d)/, '$1') + '発' : '';
       if(window.innerWidth <= 640) box.open = false;
-      mtSend(A + 'から' + B + 'まで' + (V.length ? '、' + V.join('・') + '経由' : '') + (md === 'zai' ? '、在来線経由' : '')
+      mtSend(A + 'から' + B + 'まで' + (V.length ? '、' + V.join('・') + '経由' : '') + (md === 'zai' ? '、在来線経由' : '') + T0
         + (Sv ? '、' + Sv + 'で途中下車できる？' : '。乗り方と営業キロ・途中下車は？'));
     });
   }
