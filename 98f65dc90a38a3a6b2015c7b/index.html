@@ -7399,7 +7399,11 @@ const mtRail = (function(){
     if(!quick || $('mt-rail')) return;
     const st = document.createElement('style');
     st.textContent = '.mt-rail{margin:0 0 8px;border:1px solid var(--amber-line,#e5c98a);border-radius:12px;background:#fffdf7;padding:8px 10px}'
-      + '.mt-rail>summary{cursor:pointer;font-weight:700;color:#6b4a12}'
+      + '.mt-rail>summary{cursor:pointer;font-weight:700;color:#6b4a12;list-style:none;display:flex;align-items:center;gap:8px}'
+      + '.mt-rail>summary::-webkit-details-marker{display:none}'
+      + '.mt-rail-ttl{flex:1;min-width:0}'
+      + '.mt-rail-tog{flex:0 0 auto;display:inline-flex;align-items:center;gap:4px;border:1px solid #d9cfb8;border-radius:999px;background:#fff;padding:3px 10px;font-size:.78rem;font-weight:600;color:#6b4a12}'
+      + '.mt-rail>summary:hover .mt-rail-tog{background:#fbe9c9}'
       + '.mt-rail-f{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:6px 8px;margin-top:8px;align-items:end}'
       + '.mt-rail-f label{font-size:.72rem;color:#6b5a3a;display:block}'
       + '.mt-rail-f input{width:100%;box-sizing:border-box;min-height:38px;border:1px solid #d9cfb8;border-radius:8px;padding:6px 8px;font-size:.95rem}'
@@ -7451,8 +7455,11 @@ const mtRail = (function(){
     const dl = '<datalist id="mt-rail-dl">' + N.st.map(function(n){ return '<option value="' + esc(n) + '">'; }).join('') + '</datalist>';
     const inp = function(id, lab, ph){ return '<div><label for="' + id + '">' + lab + '</label><input id="' + id + '" list="mt-rail-dl" placeholder="' + ph + '" autocomplete="off"></div>'; };
     const box = document.createElement('details');
-    box.className = 'mt-rail'; box.id = 'mt-rail'; box.open = true;
-    box.innerHTML = '<summary>きっぷと経路を調べる（営業キロ・途中下車・有効期間・主な列車）</summary>' + dl
+    box.className = 'mt-rail'; box.id = 'mt-rail';
+    let open0 = true;
+    try{ open0 = localStorage.getItem('mtRailOpen') !== '0'; }catch(e){}
+    box.open = open0;
+    box.innerHTML = '<summary><span class="mt-rail-ttl">きっぷと経路を調べる（営業キロ・運賃・途中下車・主な列車）</span><span class="mt-rail-tog" id="mt-rail-tog"></span></summary>' + dl
       + '<div class="mt-rail-f">'
       + inp('mt-rail-a', '出発', '例：古高松南')
       + '<button type="button" class="mt-rail-swap" id="mt-rail-swap" aria-label="出発と到着を入れ替える" title="出発と到着を入れ替える"><i class="fa-solid fa-right-left"></i></button>'
@@ -7466,6 +7473,10 @@ const mtRail = (function(){
       + '<button type="button" class="btn btn-primary btn-sm mt-rail-go" id="mt-rail-go">調べる</button></div>'
       + '</div>';
     quick.parentNode.insertBefore(box, quick);
+    const tog = $('mt-rail-tog');
+    const drawTog = function(){ tog.innerHTML = box.open ? '<i class="fa-solid fa-chevron-up"></i> たたむ' : '<i class="fa-solid fa-chevron-down"></i> ひらく'; };
+    drawTog();
+    box.addEventListener('toggle', function(){ drawTog(); if(box.dataset.auto){ delete box.dataset.auto; return; } try{ localStorage.setItem('mtRailOpen', box.open ? '1' : '0'); }catch(e){} });
     const viasBox = $('mt-rail-vias'), addBtn = $('mt-rail-add'), tIn = $('mt-rail-t');
     const setNow = function(){ const m = nowRound() % 1440; tIn.value = ('0' + Math.floor(m / 60)).slice(-2) + ':' + ('0' + (m % 60)).slice(-2); };
     setNow();
@@ -7497,7 +7508,7 @@ const mtRail = (function(){
       if(!A || !B){ (A ? $('mt-rail-b') : $('mt-rail-a')).focus(); return; }
       if(!tIn.dataset.touched || !tIn.value) setNow();
       const T0 = tIn.value ? '、' + tIn.value.replace(/^0(\d)/, '$1') + '発' : '';
-      if(window.innerWidth <= 640) box.open = false;
+      box.dataset.auto = '1'; box.open = false;
       mtSend(A + 'から' + B + 'まで' + (V.length ? '、' + V.join('・') + '経由' : '') + (md === 'zai' ? '、在来線経由' : '') + T0
         + (Sv ? '、' + Sv + 'で途中下車できる？' : '。乗り方と営業キロ・途中下車は？'));
     });
