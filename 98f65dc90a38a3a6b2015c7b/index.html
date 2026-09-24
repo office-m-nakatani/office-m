@@ -6964,9 +6964,15 @@ const mtRail = (function(){
     });
   }
   function bare(n){ return n.replace(/\(.*\)$/, ''); }
-  function yahooURL(a, b, vias){
-    return 'https://transit.yahoo.co.jp/search/result?from=' + encodeURIComponent(bare(N.st[a])) + '&to=' + encodeURIComponent(bare(N.st[b]))
+  function yahooURL(a, b, vias, t0){
+    let q = 'https://transit.yahoo.co.jp/search/result?from=' + encodeURIComponent(bare(N.st[a])) + '&to=' + encodeURIComponent(bare(N.st[b]))
       + vias.slice(0, 3).map(function(v){ return '&via=' + encodeURIComponent(bare(N.st[v])); }).join('');
+    if(t0 !== null && t0 !== undefined){
+      const d = new Date(), m = t0 % 60;
+      q += '&y=' + d.getFullYear() + '&m=' + ('0' + (d.getMonth() + 1)).slice(-2) + '&d=' + ('0' + d.getDate()).slice(-2)
+        + '&hh=' + Math.floor(t0 / 60) % 24 + '&m1=' + Math.floor(m / 10) + '&m2=' + (m % 10) + '&type=1';
+    }
+    return q;
   }
   const LOCAL_V = { '予土線':35, '東海道本線':55, '山陽本線':55, '鹿児島本線':55 };
   const XFER_MIN = 10;
@@ -7156,6 +7162,7 @@ const mtRail = (function(){
   function timelineHTML(J, a, b, L, t0){
     const given = t0 !== null && t0 !== undefined;
     if(!given) t0 = nowRound();
+    t0 = t0 % 1440;
     const T = tripTime(L);
     const stRow = function(v, cls, tm, ca, cb, tag){
       return '<span class="mt-rt-st ' + cls + '"><span class="mt-rt-tm">' + tm + '</span>'
@@ -7163,7 +7170,6 @@ const mtRail = (function(){
         + (tag ? '<i class="mt-rt-tag">' + tag + '</i>' : '<i class="mt-rt-dot"></i>') + '</span>'
         + '<span class="mt-rt-nm">' + esc(N.st[v]) + '</span></span>';
     };
-    let cur = t0;
     const F = fareOf(J, a, b), C = chargesOf(L), SS = seasonToday();
     let fareLine = '';
     if(F){
@@ -7175,11 +7181,12 @@ const mtRail = (function(){
         + (F.other ? '<span class="mt-rt-fare-d">' + esc('土佐くろしお鉄道の区間の運賃は含みません') + '</span>' : '')
         + '</span>';
     }
-    let h = '<span class="mt-rt"><span class="mt-rt-head"><b>' + clk(t0) + ' → ' + clk(t0 + T.m) + '</b> <span class="mt-rt-dur">（約' + esc(hm(T.m)) + '）</span>'
+    let h = '<span class="mt-rt"><span class="mt-rt-head"><b>所要 約' + esc(hm(T.m)) + '</b> <span class="mt-rt-dur">（目安）</span>'
       + '<span class="mt-rt-sub">' + esc((T.xfer ? '乗り換え' + T.xfer + '回' : '乗り換えなし') + '　' + km(J.total) + 'km' + (J.r.other ? '（ほかにJR以外 ' + km(J.all - J.total) + 'km）' : '')) + '</span>'
       + fareLine
-      + '<span class="mt-rt-warn">' + esc((given ? clk(t0) + 'に出発' : 'いま出発') + 'した場合の目安です。時刻表の時刻ではありません' + (t0 + T.m >= 1440 ? '。日付をまたぐので、実際にはその日のうちに乗り継げる列車がないことがあります（夜行のサンライズ瀬戸をのぞく）' : '')) + '</span></span>';
-    h += stRow(a, 'mt-rt-is-start', '<b>' + clk(cur) + '</b>', null, legCol(L[0]), '発');
+      + '<span class="mt-rt-warn">' + esc('列車の時刻は、時刻表のデータが入っていないので出していません。所要時間は列車ごとの平均の速さから出した目安です（乗り換えは1回' + XFER_MIN + '分で計算）。') + '</span>'
+      + '<a class="mt-rt-yj" href="' + yahooURL(a, b, J.vias, t0) + '" target="_blank" rel="noopener">' + esc((given ? clk(t0) + '発' : 'いまから') + 'の実際の列車と時刻を Yahoo!乗換案内で見る') + '</a></span>';
+    h += stRow(a, 'mt-rt-is-start', '', null, legCol(L[0]), '発');
     L.forEach(function(g, n){
       const f = legFast(g), col = legCol(g);
       const isLocal = !g.trains.length || f.t.k === '普通';
@@ -7195,12 +7202,10 @@ const mtRail = (function(){
         + (alt.length ? '<span class="mt-rt-alt">' + esc('ほかに：' + alt.join('・')) + '</span>' : '')
         + (f.t && f.t.note ? '<span class="mt-rt-alt">' + esc(f.t.note) + '</span>' : '')
         + '</span></span>';
-      const arr = cur + f.m;
       if(n + 1 < L.length){
-        cur = arr + XFER_MIN;
-        h += stRow(g.to, 'mt-rt-is-mid', '<span class="mt-rt-arr">' + clk(arr) + '着</span><b>' + clk(cur) + '発</b>', col, legCol(L[n + 1]));
+        h += stRow(g.to, 'mt-rt-is-mid', '<span class="mt-rt-arr">乗り換え</span>', col, legCol(L[n + 1]));
       } else {
-        h += stRow(g.to, 'mt-rt-is-end', '<b>' + clk(arr) + '</b>', col, null, '着');
+        h += stRow(g.to, 'mt-rt-is-end', '', col, null, '着');
       }
     });
     return h + '</span>';
@@ -7212,8 +7217,8 @@ const mtRail = (function(){
     if(th.length && L.length > 1) h += '<span class="mt-note">' + esc('乗り換えなしで行く列車もあります：' + th.map(function(t){ return t.n + (t.note ? '（' + t.note + '）' : ''); }).join('／') + '（在来線経由）') + '</span>';
     if(J.mode === 'zai' && J.r.edges.some(function(k){ return /^(東海道本線|山陽本線)$/.test(lineName(N.e[k][3])); }))
       h += '<span class="mt-note">' + esc('券面が在来線経由でも、並行する新幹線に乗れる区間があります（選択乗車・第157条。特急券は別に必要。その区間の新幹線だけの駅では途中下車できません）。') + '</span>';
-    h += '<span class="mt-note">' + esc('時刻と時間は、列車ごとの平均の速さから出した目安です（乗り換えは1回' + XFER_MIN + '分で計算。発車を待つ時間・運転日・停車駅は含みません）。運賃と特急料金は、2026年9月時点のJR各社の公式の運賃表・料金表から計算した参考値です（大人・きっぷ。IC運賃・割引・グリーン料金は含みません。営業キロが参考値なので、帯の境目では違うことがあります）。のりば・正確な時刻は下のリンクで確かめてください。') + '</span>';
-    h += '<a class="mt-rail-map" href="' + yahooURL(a, b, J.vias) + '" target="_blank" rel="noopener">時刻・運賃・のりばを Yahoo!乗換案内で見る（この経由で開きます）</a>';
+    h += '<span class="mt-note">' + esc('所要時間は、列車ごとの平均の速さから出した目安です（乗り換えは1回' + XFER_MIN + '分で計算。発車を待つ時間・運転日・停車駅は含みません）。運賃と特急料金は、2026年9月時点のJR各社の公式の運賃表・料金表から計算した参考値です（大人・きっぷ。IC運賃・割引・グリーン料金は含みません。営業キロが参考値なので、帯の境目では違うことがあります）。のりば・正確な時刻は下のリンクで確かめてください。') + '</span>';
+    h += '<a class="mt-rail-map" href="' + yahooURL(a, b, J.vias, t0) + '" target="_blank" rel="noopener">時刻・のりばを Yahoo!乗換案内で見る（この経由・この出発時刻で開きます）</a>';
     return h;
   }
 
@@ -7446,6 +7451,8 @@ const mtRail = (function(){
       + '.mt-rt-tr{font-size:1rem;color:#1f2d3d;overflow-wrap:anywhere}.mt-rt-dir{font-size:.85rem;color:#4b5563;margin-top:2px}'
       + '.mt-rt-meta{font-size:.8rem;color:#374151;margin-top:4px}.mt-rt-alt{font-size:.76rem;color:#6b7280;margin-top:2px}'
       + '.mt-rail-t{flex:0 0 118px}'
+      + '.mt-rt-yj{display:inline-block;margin-top:6px;padding:5px 12px;border-radius:999px;background:#1f3b5a;color:#fff;font-size:.82rem;font-weight:700;text-decoration:none}'
+      + '.mt-rt-yj:hover{background:#2c5282;color:#fff}'
       + '.mt-rt-fare{display:block;margin-top:6px}.mt-rt-fare b{font-size:1.15rem;color:#b3261e}'
       + '.mt-rt-fare-d{display:block;font-size:.8rem;color:#374151}'
       + '.mt-rt-chg{display:block;font-size:.8rem;color:#1f3b5a;margin-top:2px;font-weight:600}'
