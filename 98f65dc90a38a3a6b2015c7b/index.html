@@ -6800,7 +6800,7 @@ var mtJR = (function(){
   const KEIHIN = { '東京':1, '神田':1, '秋葉原':1, '御徒町':1, '上野':1, '鶯谷':1, '日暮里':1, '西日暮里':1, '田端':1, '上中里':1, '王子':1, '東十条':1, '赤羽':1, '川口':1, '西川口':1, '蕨':1, '南浦和':1, '浦和':1, '北浦和':1, '与野':1, 'さいたま新都心':1, '大宮':1, '尾久':1 };
   function disp(ei, pa, pb){
     const L = LN[E[ei][2]], n = L[0];
-    const a = ND[E[ei][0]][0] || pa || '', b = ND[E[ei][1]][0] || pb || '';
+    const a = pa || '', b = pb || '';
     if(L[2] === 'o') return n + '（' + L[1] + '）';
     const sb = function(x){ return SETO[x] || BISAN[x]; };
     if(n === '本四備讃線' || (n === '宇野線' && sb(a) && sb(b))) return '瀬戸大橋線';
@@ -6817,12 +6817,30 @@ var mtJR = (function(){
     steps.forEach(function(s, i){ if(!s.x && ND[s.a][0]) last = ND[s.a][0]; pv[i] = last; if(!s.x && ND[s.b][0]) last = ND[s.b][0]; });
     last = '';
     for(let i = steps.length - 1; i >= 0; i--){ const s = steps[i]; if(!s.x && ND[s.b][0]) last = ND[s.b][0]; nx[i] = last; if(!s.x && ND[s.a][0]) last = ND[s.a][0]; }
-    const out = steps.map(function(s, i){ return s.x ? '' : disp(s.ei, pv[i], nx[i]); });
+    const out = steps.map(function(s, i){ return s.x ? '' : disp(s.ei, ND[s.a][0] || pv[i], ND[s.b][0] || nx[i]); });
     steps.forEach(function(s, i){
       if(s.x || i === 0 || !out[i - 1]) return;
       const a = ND[s.a][0] || pv[i], b = ND[s.b][0] || nx[i];
       if(a && a === b) out[i] = out[i - 1];
     });
+    const CORE = { '東京':1, '神田':1, '秋葉原':1, '御徒町':1, '上野':1, '鶯谷':1, '日暮里':1, '新橋':1, '有楽町':1, '西日暮里':1, '田端':1 };
+    const isTH = function(i){ return !steps[i].x && LN[E[steps[i].ei][2]][0] === '東北線' && LN[E[steps[i].ei][2]][1] === 'JR東日本'; };
+    const rawAt = function(i){ return (i >= 0 && i < steps.length && !steps[i].x) ? LN[E[steps[i].ei][2]][0] : ''; };
+    const nbr = function(i, d){ let k = i + d; while(k >= 0 && k < steps.length && steps[k].x) k += d; return rawAt(k); };
+    for(let i = 0; i < steps.length;){
+      if(!isTH(i)){ i++; continue; }
+      let j = i; while(j + 1 < steps.length && isTH(j + 1)) j++;
+      const ends = [ND[steps[i].a][0], ND[steps[j].b][0]];
+      let all = true;
+      for(let k = i; k <= j; k++){ [ND[steps[k].a][0], ND[steps[k].b][0]].forEach(function(n){ if(n && !CORE[n]) all = false; }); }
+      const nb = [nbr(i, -1), nbr(j, 1)];
+      let nm = '';
+      if(all && nb.indexOf('常磐線') >= 0) nm = '常磐線';
+      else if(all && nb.indexOf('中央線') >= 0 && ends.every(function(n){ return !n || n === '東京' || n === '神田'; })) nm = '中央本線';
+      else if(all && nb.indexOf('山手線') >= 0 && ends.every(function(n){ return !n || n === '日暮里' || n === '西日暮里' || n === '田端'; })) nm = '山手線';
+      if(nm) for(let k = i; k <= j; k++) out[k] = nm;
+      i = j + 1;
+    }
     const raw = steps.map(function(s){ return s.x ? '' : LN[E[s.ei][2]][0]; });
     const lat = function(i){ return (ND[E[steps[i].ei][0]][1] + ND[E[steps[i].ei][1]][1]) / 2e5; };
     const eligible = function(i){
@@ -6838,7 +6856,7 @@ var mtJR = (function(){
       let j = i; while(j + 1 < steps.length && eligible(j + 1)) j++;
       const ends = [ND[steps[i].a][0] || pv[i], ND[steps[j].b][0] || nx[j]];
       const touch = (i > 0 && raw[i - 1] === '東北新幹線') || (j + 1 < steps.length && raw[j + 1] === '東北新幹線')
-        || (eligible(i) === 'a' && raw[i] === '田沢湖線' && ends.indexOf('盛岡') >= 0) || (eligible(i) === 'y' && ends.indexOf('福島') >= 0 && ends.indexOf('山形') + ends.indexOf('新庄') > -2);
+        || (eligible(i) === 'a' && raw.slice(i, j + 1).indexOf('田沢湖線') >= 0 && ends.indexOf('盛岡') >= 0 && (ends.indexOf('大曲') >= 0 || raw.slice(i, j + 1).indexOf('奥羽線') >= 0)) || (eligible(i) === 'y' && ends.indexOf('福島') >= 0 && ends.indexOf('山形') + ends.indexOf('新庄') > -2);
       if(touch) for(let k = i; k <= j; k++){
         const t = eligible(k);
         out[k] = t === 'y' ? '山形新幹線（奥羽本線）' : (raw[k] === '田沢湖線' ? '秋田新幹線（田沢湖線）' : '秋田新幹線（奥羽本線）');
@@ -6937,20 +6955,51 @@ var mtJR = (function(){
     const out = [], DN = named(steps);
     let lastNamed = null, cur = null;
     steps.forEach(function(s, i){
-      if(s.x){ if(cur){ cur = null; } lastNamed = s.b; return; }
+      if(s.x){ lastNamed = s.b; if(cur) cur.xa = true; return; }
       if(ND[s.a][0]) lastNamed = s.a;
       const name = DN[i], km = E[s.ei][3] / 100;
+      const rw = LN[E[s.ei][2]][0];
       if(!cur || cur.name !== name){
-        cur = { name:name, off:official(LN[E[s.ei][2]][0]), co:LN[E[s.ei][2]][1], kind:LN[E[s.ei][2]][2], from:lastNamed !== null ? ND[lastNamed][0] : '', km:0, e:[], col:colorOf(s.ei, name) };
+        cur = { name:name, rawF:rw, at:s.a, rk:{}, co:LN[E[s.ei][2]][1], kind:LN[E[s.ei][2]][2], from:lastNamed !== null ? ND[lastNamed][0] : '', km:0, e:[], col:colorOf(s.ei, name) };
         out.push(cur);
       }
-      cur.km += km; cur.e.push(s.ei);
-      if(ND[s.b][0]){ cur.to = ND[s.b][0]; lastNamed = s.b; }
+      cur.km += km; cur.e.push(s.ei); cur.rawL = rw; cur.xa = false; cur.rk[rw] = (cur.rk[rw] || 0) + km;
+      if(ND[s.b][0]){ cur.to = ND[s.b][0]; cur.toV = s.b; lastNamed = s.b; if(cur.firstV === undefined) cur.firstV = s.b; }
     });
-    const EDGE = { '山陽新幹線|東海道新幹線':'新大阪', '九州新幹線|山陽新幹線':'博多', '北海道新幹線|東北新幹線':'新青森' };
+    out.forEach(function(g){
+      let m = '', mk = -1;
+      Object.keys(g.rk).forEach(function(r){ if(g.rk[r] > mk){ mk = g.rk[r]; m = r; } });
+      g.off = official(m);
+    });
+    const placeOf = function(v){ const n = ND[v][0]; return n ? (PL[n] || []).filter(function(p){ return p.v.indexOf(v) >= 0; })[0] : null; };
+    const serves = function(p, want){ const ls = linesAt(p); return want.every(function(w){ return ls.indexOf(w) >= 0; }); };
+    const JCT = { '千歳線|室蘭線':'沼ノ端', '函館線|千歳線':'白石', '室蘭線|日高線':'苫小牧', 'おおさか東線|片町線':'放出', '八高線|高崎線':'倉賀野',
+      '山陽新幹線|東海道新幹線':'新大阪', '九州新幹線|山陽新幹線':'博多', '北海道新幹線|東北新幹線':'新青森', '上越新幹線|東北新幹線':'大宮', '上越新幹線|北陸新幹線':'高崎' };
     for(let i = 0; i + 1 < out.length; i++){
-      const k = [out[i].name, out[i + 1].name].sort().join('|');
-      if(EDGE[k]){ out[i].to = EDGE[k]; out[i + 1].from = EDGE[k]; }
+      const want = [out[i].rawL, out[i + 1].rawF];
+      const jn = out[i].xa ? '' : JCT[want.slice().sort().join('|')];
+      if(jn && PL[jn]){ out[i].to = jn; out[i + 1].from = jn; continue; }
+      const v = out[i + 1].at;
+      if(ND[v][0]) continue;
+      const cands = [out[i].toV, out[i + 1].firstV].filter(function(c){ return c !== undefined && dkm(c, v) < 3; })
+        .sort(function(x, y){ return dkm(x, v) - dkm(y, v); });
+      let best = null;
+      cands.forEach(function(c){ const p = placeOf(c); if(!best && p && serves(p, want)) best = ND[c][0]; });
+      if(!best){
+        let bd = 3;
+        NAMES.forEach(function(n){ PL[n].forEach(function(p){ const d = dkm(p.v[0], v); if(d < bd && serves(p, want)){ bd = d; best = n; } }); });
+      }
+      if(!best && cands.length) best = ND[cands[0]][0];
+      if(best){ out[i].to = best; out[i + 1].from = best; }
+    }
+    for(let i = out.length - 1; i >= 0; i--){
+      const g = out[i];
+      if(out.length > 1 && ((g.km < 0.5 && !g.to) || (g.km < 3 && g.from && g.from === g.to))) out.splice(i, 1);
+    }
+    out.forEach(function(g, i){ if(!g.to && out[i + 1]) g.to = out[i + 1].from; });
+    for(let i = out.length - 1; i > 0; i--){
+      const g = out[i], f = out[i - 1];
+      if(g.km < 3 && !f.xa && f.off === g.off && f.kind === g.kind){ f.to = g.to; f.km += g.km; f.e = f.e.concat(g.e); f.xa = g.xa; out.splice(i, 1); }
     }
     return out;
   }
@@ -6984,6 +7033,12 @@ var mtJR = (function(){
       if(!best || min < best.min) best = { steps:steps, min:min };
     });
     if(!best) return null;
+    best.steps = best.steps.map(function(s, i, a){
+      if(s.x) return s;
+      const na = ND[s.a][0], nb = ND[s.b][0];
+      const edge = i === 0 || i === a.length - 1 || a[i - 1].x || a[i + 1].x;
+      return (na && na === nb && edge && E[s.ei][3] < 100) ? { x:1, a:s.a, b:s.b } : s;
+    });
     const legs = legsOf(best.steps);
     return { steps:best.steps, legs:legs, min:best.min, km:legs.reduce(function(s, g){ return s + g.km; }, 0), xf:transfersOf(best.steps), names:names };
   }
@@ -7004,7 +7059,7 @@ var mtJR = (function(){
   function legsListHTML(R){
     return '<ul class="mt-rv-legs">' + R.legs.map(function(g){
       return '<li><span class="mt-rv-c mt-rv-' + (g.kind === 's' ? 's' : 'c') + '">' + esc2(g.name) + '</span> '
-        + esc2((g.from || '') + ' → ' + (g.to || '') + '　約' + Math.round(g.km) + 'km' + (g.name !== g.off ? '（' + g.off + '）' : '')) + '</li>';
+        + esc2((g.from || '') + ' → ' + (g.to || '') + '　' + (g.km < 0.5 ? '1km未満' : '約' + Math.round(g.km) + 'km') + (g.name.indexOf(g.off) < 0 ? '（' + g.off + '）' : '')) + '</li>';
     }).join('') + '</ul>';
   }
 
