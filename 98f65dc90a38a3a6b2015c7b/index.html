@@ -7449,16 +7449,25 @@ var mtJR = (function(){
   }
   const ORD = ['山手線', '京浜東北線', '東海道本線', '中央本線', '総武本線', '東北本線', '常磐線'];
   const ordOf = function(n){ const i = ORD.indexOf(tagName(n)); return i < 0 ? 50 : i; };
-  function octPath(p, q, mode){
+  function octPath(p, q, mode, hf){
     const dx = q[0] - p[0], dy = q[1] - p[1], ax = Math.abs(dx), ay = Math.abs(dy);
     if(ax < 7 || ay < 7 || Math.abs(ax - ay) < 7) return [p, q];
     const sx = dx < 0 ? -1 : 1, sy = dy < 0 ? -1 : 1, dg = Math.min(ax, ay), st = Math.max(ax, ay) - dg;
-    const h = mode === 1 ? 0 : mode === 2 ? st : st / 2, m1 = ax > ay ? [p[0] + sx * h, p[1]] : [p[0], p[1] + sy * h];
+    const h = mode === 1 ? 0 : mode === 2 ? st : st * (hf === undefined ? .5 : hf), m1 = ax > ay ? [p[0] + sx * h, p[1]] : [p[0], p[1] + sy * h];
     if(mode === 1) return [p, [p[0] + sx * dg, p[1] + sy * dg], q];
     if(mode === 2) return [p, m1, q];
     const m2 = [m1[0] + sx * dg, m1[1] + sy * dg];
     return [p, m1, m2, q];
   }
+  function altPath(p, q, md){
+    const dx = q[0] - p[0], dy = q[1] - p[1], ax = Math.abs(dx), ay = Math.abs(dy), sx = dx < 0 ? -1 : 1, sy = dy < 0 ? -1 : 1, dg = Math.min(ax, ay), mi = dg * md[1];
+    const hor = ax < ay;
+    const s1 = hor ? [sx * mi, 0] : [0, sy * mi], s2 = [sx * (dg - mi), sy * (dg - mi)];
+    if(md[0] === 3){ const a1 = [p[0] + s1[0], p[1] + s1[1]], a2 = [a1[0] + s2[0], a1[1] + s2[1]]; return [p, a1, a2, q]; }
+    const b1 = [q[0] - s1[0], q[1] - s1[1]], b2 = [b1[0] - s2[0], b1[1] - s2[1]]; return [p, b2, b1, q];
+  }
+  const SHAPES = (function(){ const m = [[1], [2]]; for(let k = 1; k < 20; k++) m.push([0, k / 20]); for(let k = 1; k < 8; k++){ m.push([3, k / 8]); m.push([4, k / 8]); } return m; })();
+  const shapeOf = function(p, q, md){ return md[0] >= 3 ? altPath(p, q, md) : octPath(p, q, md[0], md[1]); };
   function offPoly(p, d){
     if(!d) return p;
     const nv = [];
@@ -8057,13 +8066,13 @@ var mtJR = (function(){
     return bs;
   }
   const REGIONS = [
-    { key:'tokyo', c:[35.6860, 139.7330], km:15, r0:5.2, out:.5, loopLine:'山手線', loop:'東京 有楽町 新橋 浜松町 田町 高輪ゲートウェイ 品川 大崎 五反田 目黒 恵比寿 渋谷 原宿 代々木 新宿 新大久保 高田馬場 目白 池袋 大塚 巣鴨 駒込 田端 西日暮里 日暮里 鶯谷 上野 御徒町 秋葉原 神田'.split(' ') },
+    { key:'tokyo', c:[35.6860, 139.7330], km:44, pick:12, r0:5.2, out:.5, loopLine:'山手線', loop:'東京 有楽町 新橋 浜松町 田町 高輪ゲートウェイ 品川 大崎 五反田 目黒 恵比寿 渋谷 原宿 代々木 新宿 新大久保 高田馬場 目白 池袋 大塚 巣鴨 駒込 田端 西日暮里 日暮里 鶯谷 上野 御徒町 秋葉原 神田'.split(' ') },
     { key:'osaka', c:[34.6800, 135.5100], km:9, r0:3.4, out:.8, anchor:6, loopLine:'大阪環状線', loop:'大阪 天満 桜ノ宮 京橋 大阪城公園 森ノ宮 玉造 鶴橋 桃谷 寺田町 天王寺 新今宮 今宮 芦原橋 大正 弁天町 西九条 野田 福島'.split(' ') }
   ];
   const BIGST = setOf('名古屋 京都 三ノ宮 神戸 博多 札幌 仙台 広島 横浜 大宮 千葉 岡山 小倉 新潟 金沢 静岡');
   const kmOf = function(v, c){ return Math.hypot((lon(v) - c[1]) * Math.cos(c[0] * Math.PI / 180) * 111.32, (lat(v) - c[0]) * 110.54); };
   function regionOf(st){
-    for(let i = 0; i < REGIONS.length; i++) if(kmOf(st.v, REGIONS[i].c) <= REGIONS[i].km * .8) return REGIONS[i];
+    for(let i = 0; i < REGIONS.length; i++) if(kmOf(st.v, REGIONS[i].c) <= (REGIONS[i].pick || REGIONS[i].km * .8)) return REGIONS[i];
     if(BIGST[st.name]) return { key:'st:' + st.name, c:[lat(st.v), lon(st.v)], km:7, r0:1.6, out:.6 };
     return null;
   }
@@ -8338,6 +8347,36 @@ var mtJR = (function(){
       const p = PT[B.a], q = PT[B.b], dx = q[0] - p[0], dy = q[1] - p[1], sx = dx < 0 ? -1 : 1, sy = dy < 0 ? -1 : 1, dg = Math.min(Math.abs(dx), Math.abs(dy));
       BS.set(B, ca ? [p, [p[0] + sx * dg, p[1] + sy * dg], q] : [p, [q[0] - sx * dg, q[1] - sy * dg], q]);
     });
+    const NM = Object.keys(PT).filter(function(id){ return VX[id] && VX[id].name; });
+    const sdist = function(r, a, b){ const dx = b[0] - a[0], dy = b[1] - a[1], l2 = dx * dx + dy * dy || 1, t = Math.max(0, Math.min(1, ((r[0] - a[0]) * dx + (r[1] - a[1]) * dy) / l2)); return Math.hypot(r[0] - a[0] - dx * t, r[1] - a[1] - dy * t); };
+    const clr = function(B, b, need){
+      let m = need;
+      const x0 = Math.min(PT[B.a][0], PT[B.b][0]) - need, x1 = Math.max(PT[B.a][0], PT[B.b][0]) + need, y0 = Math.min(PT[B.a][1], PT[B.b][1]) - need, y1 = Math.max(PT[B.a][1], PT[B.b][1]) + need;
+      NM.forEach(function(id){
+        if(id === B.a || id === B.b) return;
+        const r = PT[id]; if(r[0] < x0 || r[0] > x1 || r[1] < y0 || r[1] > y1) return;
+        for(let i = 1; i < b.length; i++) m = Math.min(m, sdist(r, b[i - 1], b[i]));
+      });
+      return m;
+    };
+    bl.forEach(function(B){
+      const b = BS.get(B); if(B.path || b.length < 3) return;
+      const need = 11 + (B.L.length - 1) * GAP / 2, c0 = clr(B, b, need);
+      if(c0 >= need) return;
+      let best = b, bc = c0;
+      const MD = SHAPES;
+      const nb0 = b.length, cur = clash(B, B.a, ang(b[0], b[1])) || clash(B, B.b, ang(b[nb0 - 1], b[nb0 - 2]));
+      [false, true].forEach(function(okClash){
+        if(okClash && bc >= need) return;
+        MD.forEach(function(md){
+          const cb = shapeOf(PT[B.a], PT[B.b], md), n = cb.length;
+          const cl = clash(B, B.a, ang(cb[0], cb[1])) || clash(B, B.b, ang(cb[n - 1], cb[n - 2]));
+          if(cl !== okClash) return;
+          const c = clr(B, cb, need); if(c > bc + 2 && (!cl || cur || c >= need)){ bc = c; best = cb; }
+        });
+      });
+      BS.set(B, best);
+    });
     Object.keys(dirs).forEach(function(v){ delete dirs[v]; });
     bl.forEach(function(B){ const b = BS.get(B), n = b.length; (dirs[B.a] = dirs[B.a] || []).push([B, ang(b[0], b[1])]); (dirs[B.b] = dirs[B.b] || []).push([B, ang(b[n - 1], b[n - 2])]); });
     const lenOf = function(b){ let t = 0; for(let i = 1; i < b.length; i++) t += Math.hypot(b[i][0] - b[i - 1][0], b[i][1] - b[i - 1][1]); return t; };
@@ -8520,7 +8559,24 @@ var mtJR = (function(){
         });
       }
     }
-    const bl = Object.keys(BD).map(function(k){ return BD[k]; }).filter(function(B){ return PT[B.a] && PT[B.b]; });
+    let bl = Object.keys(BD).map(function(k){ return BD[k]; }).filter(function(B){ return PT[B.a] && PT[B.b]; });
+    const keyOf = function(u, v){ return Object.keys(nbr[u] || {}).filter(function(k){ return (BD[k].a === u ? BD[k].b : BD[k].a) === v; })[0]; };
+    bl.slice().forEach(function(B){
+      if(VX[B.a].name || VX[B.b].name || bl.indexOf(B) < 0) return;
+      const has = function(k){ return k && B.L.every(function(x){ return BD[k].L.some(function(y){ return y.nm === x.nm; }); }); };
+      const w = Object.keys(nbr[B.a]).map(function(k){ return BD[k].a === B.a ? BD[k].b : BD[k].a; }).filter(function(w){ return w !== B.b && VX[w].name && has(keyOf(B.a, w)) && has(keyOf(B.b, w)); })[0];
+      if(!w) return;
+      const kB = keyOf(B.a, B.b);
+      delete nbr[B.a][kB]; delete nbr[B.b][kB]; bl.splice(bl.indexOf(B), 1);
+      [B.a, B.b].forEach(function(v){
+        B.L.forEach(function(x){
+          const ks = Object.keys(nbr[v]).filter(function(k){ return BD[k].L.some(function(y){ return y.nm === x.nm; }); });
+          if(ks.length !== 1) return;
+          const C = BD[ks[0]]; C.L = C.L.filter(function(y){ return y.nm !== x.nm; });
+          if(!C.L.length){ delete nbr[C.a][ks[0]]; delete nbr[C.b][ks[0]]; bl.splice(bl.indexOf(C), 1); }
+        });
+      });
+    });
     const named = ids.filter(function(id){ return VX[id].name; });
     const LMIN = 30, RMIN = 26, Q = Math.PI / 4;
     const SIDE = {}, LD = {};
@@ -8697,7 +8753,11 @@ var mtJR = (function(){
       }
       if(!best) return;
       const g1 = Math.hypot(GEO[id][0] - GEO[best.A][0], GEO[id][1] - GEO[best.A][1]), g2 = Math.hypot(GEO[id][0] - GEO[best.B][0], GEO[id][1] - GEO[best.B][1]);
-      const f = Math.max(.15, Math.min(.85, g1 / (g1 + g2 || 1))), pa = PT[best.A], pb = PT[best.B], np = [pa[0] + (pb[0] - pa[0]) * f, pa[1] + (pb[1] - pa[1]) * f];
+      const pa = PT[best.A], pb = PT[best.B], ln = Math.hypot(pb[0] - pa[0], pb[1] - pa[1]) || 1;
+      const jl = {}; ks.forEach(function(k){ BD[k].L.forEach(function(x){ jl[x.nm] = 1; }); });
+      const foreign = function(s){ const sl = {}; Object.keys(nbr[s] || {}).forEach(function(k){ BD[k].L.forEach(function(x){ sl[x.nm] = 1; }); }); return Object.keys(jl).some(function(n){ return !sl[n]; }); };
+      const mA = foreign(best.A) ? Math.min(.45, Math.max(.15, 16 / ln)) : .15, mB = foreign(best.B) ? Math.min(.45, Math.max(.15, 16 / ln)) : .15;
+      const f = Math.max(mA, Math.min(1 - mB, g1 / (g1 + g2 || 1))), np = [pa[0] + (pb[0] - pa[0]) * f, pa[1] + (pb[1] - pa[1]) * f];
       if(Math.hypot(np[0] - PT[id][0], np[1] - PT[id][1]) > 30) return;
       PT[id] = np;
     });
@@ -8760,6 +8820,214 @@ var mtJR = (function(){
       if(Math.min(turn(o[0], np), turn(o[1], np)) <= Math.min(d, turn(o[0], p), turn(o[1], p))) return;
       PT[id] = np;
     });
+    (function(){
+      const oth = function(k, v){ return BD[k].a === v ? BD[k].b : BD[k].a; };
+      const sdq = function(r, a, b){ const dx = b[0] - a[0], dy = b[1] - a[1], l2 = dx * dx + dy * dy || 1, t = Math.max(0, Math.min(1, ((r[0] - a[0]) * dx + (r[1] - a[1]) * dy) / l2)); return Math.hypot(r[0] - a[0] - dx * t, r[1] - a[1] - dy * t); };
+      named.forEach(function(v){
+        if(PIN[v]) return;
+        const ks = Object.keys(nbr[v] || {}); if(ks.length !== 2) return;
+        const o = ks.map(function(k){ return oth(k, v); });
+        if(!PT[o[0]] || !PT[o[1]]) return;
+        if(!BD[ks[0]].L.some(function(x){ return BD[ks[1]].L.some(function(y){ return y.nm === x.nm; }); })) return;
+        let e =Math.abs(Math.atan2(PT[o[0]][1] - PT[v][1], PT[o[0]][0] - PT[v][0]) - Math.atan2(PT[o[1]][1] - PT[v][1], PT[o[1]][0] - PT[v][0])); if(e > Math.PI) e = 2 * Math.PI - e;
+        const walk = function(prev, cur){
+          const path = [];
+          for(let g = 0; g < 6; g++){
+            const kk = Object.keys(nbr[cur] || {});
+            if(VX[cur].name || PIN[cur] || kk.length !== 2) return { path:path, end:cur };
+            path.push(cur);
+            const nx = oth(kk[0], cur) === prev ? oth(kk[1], cur) : oth(kk[0], cur); prev = cur; cur = nx;
+          }
+          return null;
+        };
+        const w1 = walk(v, o[0]), w2 = walk(v, o[1]); if(!w1 || !w2 || !PT[w1.end] || !PT[w2.end]) return;
+        const dev = function(P, a, b){ let d = Math.abs(Math.atan2(P[v][1] - P[a][1], P[v][0] - P[a][0]) - Math.atan2(P[b][1] - P[a][1], P[b][0] - P[a][0])); return d > Math.PI ? 2 * Math.PI - d : d; };
+        const off = Math.max(dev(PT, w1.end, w2.end), dev(PT, w2.end, w1.end)) > Math.PI * .3 && Math.max(dev(GEO0, w1.end, w2.end), dev(GEO0, w2.end, w1.end)) < Math.PI / 6;
+        if(e >= Math.PI * .5 && !off) return;
+        const ch =[w1.end].concat(w1.path.slice().reverse(), [v], w2.path, [w2.end]);
+        const cum = [0]; for(let i = 1; i < ch.length; i++) cum.push(cum[i - 1] + Math.hypot(GEO0[ch[i]][0] - GEO0[ch[i - 1]][0], GEO0[ch[i]][1] - GEO0[ch[i - 1]][1]));
+        const tot = cum[cum.length - 1] || 1, P0 = PT[ch[0]], P1 = PT[ch[ch.length - 1]];
+        const np = ch.map(function(id, i){ return i === 0 || i === ch.length - 1 ? PT[id] : [P0[0] + (P1[0] - P0[0]) * cum[i] / tot, P0[1] + (P1[1] - P0[1]) * cum[i] / tot]; });
+        const inC = {}; ch.forEach(function(id){ inC[id] = 1; });
+        const bad = named.some(function(j){
+          if(inC[j]) return false;
+          const r = PT[j];
+          for(let i = 1; i < np.length; i++) if(sdq(r, np[i - 1], np[i]) < 12) return true;
+          return false;
+        });
+        if(bad) return;
+        ch.forEach(function(id, i){ if(i && i < ch.length - 1) PT[id] = np[i]; });
+      });
+      const byE = {}, ALN = {};
+      ids.forEach(function(id){ if(!VX[id].pseudo || !VX[id].anc || !PT[VX[id].anc] || PIN[id]) return; const m = id.split(':'); (byE[m[1]] = byE[m[1]] || []).push([+m[2], id]); });
+      Object.keys(byE).forEach(function(e){
+        const L = byE[e].sort(function(x, y){ return x[0] - y[0]; }).map(function(x){ return x[1]; });
+        const runs = []; let cur = [L[0]];
+        const lnOf = function(u, w){ const k = keyOf(u, w); return k ? BD[k].L.map(function(x){ return x.nm; }) : []; };
+        for(let i = 1; i < L.length; i++){
+          const a0 = VX[L[i - 1]].anc, a1 = VX[L[i]].anc;
+          if(!keyOf(a0, a1)){ runs.push(cur); cur = [L[i]]; continue; }
+          if(cur.length >= 2){ const pl = lnOf(VX[cur[cur.length - 2]].anc, a0), nl = lnOf(a0, a1); if(!pl.some(function(n){ return nl.indexOf(n) >= 0; })){ runs.push(cur); cur = [L[i]]; continue; } }
+          cur.push(L[i]);
+        }
+        runs.push(cur);
+        for(let pass = 0; pass < 2; pass++) runs.forEach(function(r){
+          if(r.length < 2) return;
+          const A = r.map(function(id){ return VX[id].anc; });
+          const inR = {}; r.forEach(function(id){ inR[id] = 1; });
+          const ext = function(id){ return Object.keys(nbr[id] || {}).map(function(k){ return oth(k, id); }).filter(function(x){ return !inR[x] && PT[x]; })[0]; };
+          const e0 = ext(r[0]), e1 = ext(r[r.length - 1]);
+          const pA = e0 && keyOf(e0, A[0]) ? e0 : A[0], nA = e1 && keyOf(e1, A[A.length - 1]) ? e1 : A[A.length - 1];
+          const dirAt = function(P, i){ const a = P[i > 0 ? A[i - 1] : pA], b = P[i < A.length - 1 ? A[i + 1] : nA], dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1; return [dx / l, dy / l]; };
+          let sg = 0, sc = 0;
+          r.forEach(function(id, i){ const d = dirAt(GEO0, i), g = GEO0[A[i]], q = GEO0[id]; sg += d[0] * (q[1] - g[1]) - d[1] * (q[0] - g[0]); const d2 = dirAt(PT, i), g2 = PT[A[i]], q2 = PT[id]; sc += d2[0] * (q2[1] - g2[1]) - d2[1] * (q2[0] - g2[0]); });
+          const s = (Math.abs(sg) > 1e-6 ? sg : sc) > 0 ? 1 : -1;
+          const room = function(i, nx, ny){
+            const g = PT[A[i]]; let best = 99;
+            bl.forEach(function(Bx){
+              if(Bx.a === A[i] || Bx.b === A[i] || inR[Bx.a] || inR[Bx.b] || !PT[Bx.a] || !PT[Bx.b]) return;
+              const a1 = PT[Bx.a], b1 = PT[Bx.b], ex = b1[0] - a1[0], ey = b1[1] - a1[1], den = nx * ey - ny * ex;
+              if(Math.abs(den) < 1e-9) return;
+              const t = ((a1[0] - g[0]) * ey - (a1[1] - g[1]) * ex) / den, u = ((a1[0] - g[0]) * ny - (a1[1] - g[1]) * nx) / den;
+              if(t > 0 && u >= 0 && u <= 1) best = Math.min(best, t - (Bx.L.length - 1) * GAP / 2);
+            });
+            return best;
+          };
+          const place = function(sd, w, ad){ return r.map(function(id, i){ const d = dirAt(PT, i), g = PT[A[i]], nx = -d[1] * sd, ny = d[0] * sd, ww = ad ? Math.min(w, Math.max(11, room(i, nx, ny) / 2)) : w; return [g[0] + nx * ww, g[1] + ny * ww]; }); };
+          const legClr = function(a, b){
+            let best = 0;
+            SHAPES.forEach(function(md){
+              const sh = shapeOf(a, b, md); let m = 99;
+              named.forEach(function(j){ if(j === e0 || j === e1 || m < best) return; const r0 = PT[j]; if(Math.abs(r0[0] - a[0]) > 400 && Math.abs(r0[0] - b[0]) > 400) return; for(let i = 1; i < sh.length; i++) m = Math.min(m, sdq(r0, sh[i - 1], sh[i])); });
+              best = Math.max(best, m);
+            });
+            return best;
+          };
+          const viol = function(ps){
+            let v = 0;
+            for(let i = 1; i < ps.length; i++) if(legClr(ps[i - 1], ps[i]) < 7) v++;
+            if(e0 && legClr(PT[e0], ps[0]) < 7) v++;
+            if(e1 && legClr(ps[ps.length - 1], PT[e1]) < 7) v++;
+            const own = {}; r.forEach(function(id){ own[id] = 1; }); if(e0) own[e0] = 1; if(e1) own[e1] = 1;
+            const sq = (e0 ? [PT[e0]] : []).concat(ps, e1 ? [PT[e1]] : []);
+            const X2 = function(p1, p2, p3, p4){ const d = (p2[0] - p1[0]) * (p4[1] - p3[1]) - (p2[1] - p1[1]) * (p4[0] - p3[0]); if(Math.abs(d) < 1e-9) return false; const t = ((p3[0] - p1[0]) * (p4[1] - p3[1]) - (p3[1] - p1[1]) * (p4[0] - p3[0])) / d, u = ((p3[0] - p1[0]) * (p2[1] - p1[1]) - (p3[1] - p1[1]) * (p2[0] - p1[0])) / d; return t > .02 && t < .98 && u > .02 && u < .98; };
+            bl.forEach(function(Bx){
+              if(own[Bx.a] || own[Bx.b] || !PT[Bx.a] || !PT[Bx.b]) return;
+              const a1 = PT[Bx.a], b1 = PT[Bx.b]; let n = 0;
+              for(let i = 1; i < sq.length; i++){
+                if(Math.max(a1[0], b1[0]) < Math.min(sq[i - 1][0], sq[i][0]) || Math.min(a1[0], b1[0]) > Math.max(sq[i - 1][0], sq[i][0]) || Math.max(a1[1], b1[1]) < Math.min(sq[i - 1][1], sq[i][1]) || Math.min(a1[1], b1[1]) > Math.max(sq[i - 1][1], sq[i][1])) continue;
+                if(X2(sq[i - 1], sq[i], a1, b1)) n++;
+              }
+              if(n >= 2) v += n;
+            });
+            for(let i = 1; i < sq.length; i++){
+              const shs = [[sq[i - 1], sq[i]], octPath(sq[i - 1], sq[i], 0)];
+              const hit = shs.some(function(sh){
+                for(let m = 1; m < sh.length; m++){
+                  const p0 = sh[m - 1], p1 = sh[m], lx = p1[0] - p0[0], ly = p1[1] - p0[1], ll = Math.hypot(lx, ly); if(ll < 8) continue;
+                  const found = bl.some(function(Bx){
+                    if(own[Bx.a] || own[Bx.b] || !PT[Bx.a] || !PT[Bx.b]) return false;
+                    const a1 = PT[Bx.a], b1 = PT[Bx.b], mx = b1[0] - a1[0], my = b1[1] - a1[1], ml = Math.hypot(mx, my); if(ml < 1) return false;
+                    if(Math.abs(lx * my - ly * mx) / (ll * ml) > .26) return false;
+                    let c = 0; for(let k = 0; k <= 4; k++){ const t = k / 4, r0 = [p0[0] + lx * t, p0[1] + ly * t]; if(sdq(r0, a1, b1) < 6) c++; }
+                    return c >= 2;
+                  });
+                  if(found) return true;
+                }
+                return false;
+              });
+              if(hit) v++;
+            }
+            const seq = (e0 ? [PT[e0]] : []).concat(ps, e1 ? [PT[e1]] : []);
+            for(let i = 1; i + 1 < seq.length; i++){ let e = Math.abs(Math.atan2(seq[i - 1][1] - seq[i][1], seq[i - 1][0] - seq[i][0]) - Math.atan2(seq[i + 1][1] - seq[i][1], seq[i + 1][0] - seq[i][0])); if(e > Math.PI) e = 2 * Math.PI - e; if(e < Math.PI * .45) v++; }
+            return v;
+          };
+          const cand = [place(s, 18), place(s, 18, 1), place(s, 13), place(-s, 18), place(-s, 18, 1), place(-s, 13), r.map(function(id){ return PT[id]; })];
+          let bi = 0, bv = Infinity;
+          cand.forEach(function(ps, i){ const v = viol(ps); if(v < bv){ bv = v; bi = i; } });
+          r.forEach(function(id, i){ PT[id] = cand[bi][i].slice(); if(bi < 6) ALN[id] = 1; });
+        });
+      });
+      ids.forEach(function(id){
+        const X = VX[id]; if(!X.pseudo || !X.anc || PIN[id] || !PT[X.anc]) return;
+        const an = X.anc, c = PT[an];
+        const nbs = Object.keys(nbr[id] || {}).map(function(k){ return oth(k, id); }).filter(function(x){ return PT[x]; });
+        const abl = Object.keys(nbr[an] || {}).map(function(k){ return oth(k, an); }).filter(function(x){ return PT[x]; });
+        const near = named.filter(function(j){ const r = PT[j]; return j !== an && Math.abs(r[0] - c[0]) < 260 && Math.abs(r[1] - c[1]) < 260; });
+        const leg = function(q, nb){
+          let best = 0;
+          SHAPES.forEach(function(md){ const sh = shapeOf(q, PT[nb], md); let m = 99; near.concat([an]).forEach(function(j){ if(j === nb || m <= best) return; for(let i = 1; i < sh.length; i++) m = Math.min(m, sdq(PT[j], sh[i - 1], sh[i])); }); best = Math.max(best, m); });
+          return best;
+        };
+        const score = function(q){
+          let m = 99;
+          near.forEach(function(j){ const r = PT[j]; m = Math.min(m, Math.hypot(r[0] - q[0], r[1] - q[1]) - 5); });
+          abl.forEach(function(o){ m = Math.min(m, sdq(q, c, PT[o]) + 3); });
+          nbs.forEach(function(nb){ if(m > 0) m = Math.min(m, leg(q, nb)); });
+          if(nbs.length === 2){
+            const X3 = function(p1, p2, p3, p4){ const d = (p2[0] - p1[0]) * (p4[1] - p3[1]) - (p2[1] - p1[1]) * (p4[0] - p3[0]); if(Math.abs(d) < 1e-9) return false; const t = ((p3[0] - p1[0]) * (p4[1] - p3[1]) - (p3[1] - p1[1]) * (p4[0] - p3[0])) / d, u = ((p3[0] - p1[0]) * (p2[1] - p1[1]) - (p3[1] - p1[1]) * (p2[0] - p1[0])) / d; return t > .02 && t < .98 && u > .02 && u < .98; };
+            const lnX = function(nb){ const o = {}; bl.forEach(function(Bx){ if(Bx.a === id || Bx.b === id || Bx.a === nb || Bx.b === nb || !PT[Bx.a] || !PT[Bx.b]) return; if(X3(q, PT[nb], PT[Bx.a], PT[Bx.b])) Bx.L.forEach(function(x){ o[x.nm] = 1; }); }); return o; };
+            const x0 = lnX(nbs[0]), x1 = lnX(nbs[1]);
+            if(Object.keys(x0).some(function(n){ return x1[n]; })) m = Math.min(m, -1);
+          }
+          if(nbs.length === 2){ let e = Math.abs(Math.atan2(PT[nbs[0]][1] - q[1], PT[nbs[0]][0] - q[0]) - Math.atan2(PT[nbs[1]][1] - q[1], PT[nbs[1]][0] - q[0])); if(e > Math.PI) e = 2 * Math.PI - e; if(e < Math.PI * .45) m = Math.min(m, -1); }
+          nbs.forEach(function(nb){
+            const kq = keyOf(id, nb); if(!kq) return;
+            const ln = {}; BD[kq].L.forEach(function(x){ ln[x.nm] = 1; });
+            Object.keys(nbr[nb] || {}).forEach(function(k){
+              if(k === kq || !BD[k].L.some(function(x){ return ln[x.nm]; })) return;
+              const w = PT[oth(k, nb)]; if(!w) return;
+              let e = Math.abs(Math.atan2(q[1] - PT[nb][1], q[0] - PT[nb][0]) - Math.atan2(w[1] - PT[nb][1], w[0] - PT[nb][0])); if(e > Math.PI) e = 2 * Math.PI - e;
+              if(e < Math.PI * .45) m = Math.min(m, -1);
+            });
+          });
+          return m;
+        };
+        const s0 = score(PT[id]); if(s0 >= (ALN[id] ? 7 : 11)) return;
+        let best = null, bs = s0 + 1;
+        [18, 26, 34].forEach(function(rr){ for(let k = 0; k < 16; k++){ const t = k * Math.PI / 8, q = [c[0] + Math.cos(t) * rr, c[1] + Math.sin(t) * rr], sc = score(q); if(sc > bs){ bs = sc; best = q; } } });
+        if(best) PT[id] = best;
+      });
+    })();
+    (function(){
+      const sdq = function(r, a, b){ const dx = b[0] - a[0], dy = b[1] - a[1], l2 = dx * dx + dy * dy || 1, t = Math.max(0, Math.min(1, ((r[0] - a[0]) * dx + (r[1] - a[1]) * dy) / l2)); return Math.hypot(r[0] - a[0] - dx * t, r[1] - a[1] - dy * t); };
+      const angAt = function(v, a, b){ let e = Math.abs(Math.atan2(PT[a][1] - PT[v][1], PT[a][0] - PT[v][0]) - Math.atan2(PT[b][1] - PT[v][1], PT[b][0] - PT[v][0])); return e > Math.PI ? 2 * Math.PI - e : e; };
+      const lineNb = function(v, ln){ return Object.keys(nbr[v] || {}).filter(function(k){ return BD[k].L.some(function(x){ return x.nm === ln; }); }).map(function(k){ return BD[k].a === v ? BD[k].b : BD[k].a; }).filter(function(o){ return PT[o]; }); };
+      const okAt = function(w, np, ends){
+        return !named.some(function(j){
+          if(j === w) return false;
+          const r = PT[j]; if(Math.hypot(r[0] - np[0], r[1] - np[1]) < 16) return true;
+          return ends.some(function(e){ return e !== j && sdq(r, PT[e], np) < 12; });
+        });
+      };
+      ids.forEach(function(v){
+        const lines = {}; Object.keys(nbr[v] || {}).forEach(function(k){ BD[k].L.forEach(function(x){ lines[x.nm] = 1; }); });
+        Object.keys(lines).forEach(function(ln){
+          const o = lineNb(v, ln); if(o.length !== 2 || angAt(v, o[0], o[1]) >= Math.PI * .45) return;
+          if(!VX[v].name && !PIN[v] && Object.keys(nbr[v]).length === 2){
+            const A = PT[o[0]], B = PT[o[1]];
+            [.5, .35, .65, .2, .8].some(function(f){ const np = [A[0] + (B[0] - A[0]) * f, A[1] + (B[1] - A[1]) * f]; if(!okAt(v, np, o)) return false; PT[v] = np; return true; });
+            return;
+          }
+          o.some(function(w){
+            if(VX[w].name || PIN[w] || Object.keys(nbr[w]).length !== 2) return false;
+            const u = o[0] === w ? o[1] : o[0], d = Math.hypot(PT[w][0] - PT[v][0], PT[w][1] - PT[v][1]);
+            const a0 = Math.atan2(PT[w][1] - PT[v][1], PT[w][0] - PT[v][0]), au = Math.atan2(PT[u][1] - PT[v][1], PT[u][0] - PT[v][0]);
+            const nx = lineNb(w, ln).filter(function(x){ return x !== v; })[0];
+            let best = null, bd = Infinity;
+            for(let k = -4; k < 4; k++){
+              const t = k * Q; if(adiff(t, au) < Math.PI * .49) continue;
+              const np = [PT[v][0] + Math.cos(t) * d, PT[v][1] + Math.sin(t) * d];
+              if(!okAt(w, np, nx ? [v, nx] : [v])) continue;
+              if(nx){ const sv = PT[w]; PT[w] = np; const e = angAt(w, v, nx); PT[w] = sv; if(e < Math.PI * .5) continue; }
+              const dd = adiff(t, a0); if(dd < bd){ bd = dd; best = np; }
+            }
+            if(!best) return false;
+            PT[w] = best; return true;
+          });
+        });
+      });
+    })();
     const BP = bandPolys(bl, PT, VX);
     let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
     named.forEach(function(id){ if(!inside[id]) return; const p = PT[id]; x0 = Math.min(x0, p[0]); y0 = Math.min(y0, p[1]); x1 = Math.max(x1, p[0]); y1 = Math.max(y1, p[1]); });
