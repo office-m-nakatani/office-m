@@ -9799,9 +9799,10 @@ const mtRail = (function(){
     });
   }
   function bare(n){ return n.replace(/\(.*\)$/, ''); }
-  function yahooURL(a, b, vias, t0){
+  function yjOpt(local, zai){ return '&ticket=normal&expkind=2&ws=3&s=0&al=0&shin=' + (local || zai ? 0 : 1) + '&ex=' + (local ? 0 : 1) + '&hb=0&lb=0&sr=0'; }
+  function yahooURL(a, b, vias, t0, local, zai){
     let q = 'https://transit.yahoo.co.jp/search/result?from=' + encodeURIComponent(bare(N.st[a])) + '&to=' + encodeURIComponent(bare(N.st[b]))
-      + vias.slice(0, 3).map(function(v){ return '&via=' + encodeURIComponent(bare(N.st[v])); }).join('');
+      + vias.slice(0, 3).map(function(v){ return '&via=' + encodeURIComponent(bare(N.st[v])); }).join('') + yjOpt(local, zai);
     if(t0 !== null && t0 !== undefined){
       const d = new Date(), m = t0 % 60;
       q += '&y=' + d.getFullYear() + '&m=' + ('0' + (d.getMonth() + 1)).slice(-2) + '&d=' + ('0' + d.getDate()).slice(-2)
@@ -10157,7 +10158,7 @@ const mtRail = (function(){
       + '<span class="mt-rt-sub">' + esc((T.xfer ? '乗り換え' + T.xfer + '回' : '乗り換えなし') + '　' + km(J.total) + 'km' + (J.r.other ? '（ほかにJR以外 ' + km(J.all - J.total) + 'km）' : '')) + '</span>'
       + fareLine
       + '<span class="mt-rt-warn">' + esc('列車の時刻は、時刻表のデータが入っていないので出していません。乗車時間は、乗り物ごとの平均の速さから出した目安です。') + '</span>'
-      + '<a class="mt-rt-yj" href="' + yahooURL(a, b, J.vias, t0) + '" target="_blank" rel="noopener">' + esc((given ? clk(t0) + '発' : 'いまから') + 'の実際の列車と時刻を Yahoo!乗換案内で見る') + '</a></span>';
+      + '<a class="mt-rt-yj" href="' + yahooURL(a, b, J.vias, t0, false, J.mode === 'zai') + '" target="_blank" rel="noopener">' + esc((given ? clk(t0) + '発' : 'いまから') + 'の実際の列車と時刻を Yahoo!乗換案内で見る') + '</a></span>';
     h += stRow(a, 'mt-rt-is-start', '', null, legCol(L[0]), '発');
     L.forEach(function(g, n){
       const f = legFast(g), col = legCol(g);
@@ -10190,7 +10191,7 @@ const mtRail = (function(){
     if(J.mode === 'zai' && J.r.edges.some(function(k){ return /^(東海道本線|山陽本線)$/.test(lineName(N.e[k][3])); }))
       h += '<span class="mt-note">' + esc('券面が在来線経由でも、並行する新幹線に乗れる区間があります（選択乗車・第157条。特急券は別に必要。その区間の新幹線だけの駅では途中下車できません）。') + '</span>';
     h += '<span class="mt-note">' + esc('乗車時間は、乗り物ごとの平均の速さから出した目安です（乗り換えの時間・発車を待つ時間・運転日・停車駅は含みません）。運賃と特急料金は、2026年9月時点のJR各社の公式の運賃表・料金表から計算した参考値です（大人・きっぷ。IC運賃・割引・グリーン料金は含みません。営業キロが参考値なので、帯の境目では違うことがあります）。のりば・正確な時刻は下のリンクで確かめてください。') + '</span>';
-    h += '<a class="mt-rail-map" href="' + yahooURL(a, b, J.vias, t0) + '" target="_blank" rel="noopener">時刻・のりばを Yahoo!乗換案内で見る（この経由・この出発時刻で開きます）</a>';
+    h += '<a class="mt-rail-map" href="' + yahooURL(a, b, J.vias, t0, false, J.mode === 'zai') + '" target="_blank" rel="noopener">時刻・のりばを Yahoo!乗換案内で見る（この経由・この出発時刻で開きます）</a>';
     return h;
   }
 
@@ -10259,7 +10260,7 @@ const mtRail = (function(){
   }
   function yahooN(an, bn, vn, t0){
     let q = 'https://transit.yahoo.co.jp/search/result?from=' + encodeURIComponent(an) + '&to=' + encodeURIComponent(bn)
-      + vn.slice(0, 3).map(function(v){ return '&via=' + encodeURIComponent(v); }).join('');
+      + vn.slice(0, 3).map(function(v){ return '&via=' + encodeURIComponent(v); }).join('') + yjOpt(false);
     if(t0 !== null && t0 !== undefined){
       const d = new Date(), m = t0 % 60;
       q += '&y=' + d.getFullYear() + '&m=' + ('0' + (d.getMonth() + 1)).slice(-2) + '&d=' + ('0' + d.getDate()).slice(-2)
@@ -10328,7 +10329,7 @@ const mtRail = (function(){
     if(J.r.other) notes += '<span class="mt-note">' + esc('JR以外の線（土佐くろしお鉄道 窪川〜若井）をはさむ経路です。前後のJR線のキロを通算して扱います（通過連絡運輸・第68条）。取り扱いの細部は連絡運輸の規定で確かめてください。') + '</span>';
     notes += '<span class="mt-note">' + esc('※営業キロは Wikipedia の駅一覧から集計した参考値です（出典：Wikipedia（CC BY-SA 4.0））。主な列車は運転区間の目安で、運転日・停車駅・時刻は含みません。正式な営業キロ表・旅客営業規則・取扱基準・時刻表で必ず確かめてください。入っている路線：JR四国全線と、岡山〜新大阪〜東京・岡山〜博多の幹線。') + '</span>';
     h += fold('<i class="fa-solid fa-circle-info"></i> 注意書き・出典', notes);
-    h += '<a class="mt-rail-map" href="' + yahooURL(a, b, J.vias, t0) + '" target="_blank" rel="noopener">時刻・のりばを Yahoo!乗換案内で見る</a>';
+    h += '<a class="mt-rail-map" href="' + yahooURL(a, b, J.vias, t0, false, J.mode === 'zai') + '" target="_blank" rel="noopener">時刻・のりばを Yahoo!乗換案内で見る</a>';
     return h;
   }
 
@@ -10517,7 +10518,7 @@ const mtRail = (function(){
       return { J:J, a:a, b:b, vias:vias || [], mode:J.mode, total:J.total, all:J.all, calcK10:J.calcK10, calcWhy:J.calcWhy, days:J.days, kinko:J.kinko, zones:J.zones,
         noStop:J.noStop, fare:F, legs:lg, time:T, season:SS, notes:notes, plans:plans, plan:PP.slow ? 'slow' : 'fast', rideZai:RR === J.rz && J.rz.edges.join() !== J.r.edges.join(), through:L.length > 1 ? through(J.rz).map(function(t){ return t.n; }) : [],
         split:splitBest(J, a, b), tickets:ticketRows(J, a, b, L), ticket:ticketName(J, a, b),
-        route:segs(J.r).map(function(s1){ return { ln:lineName(s1.ln), from:s1.from, to:s1.to, k10:s1.k10 }; }), nodes:J.r.nodes.slice(), yahoo:yahooURL(a, b, J.vias, opt.t0) };
+        route:segs(J.r).map(function(s1){ return { ln:lineName(s1.ln), from:s1.from, to:s1.to, k10:s1.k10 }; }), nodes:J.r.nodes.slice(), yahoo:yahooURL(a, b, J.vias, opt.t0, !!PP.slow, J.mode === 'zai') };
     } finally { DAY = null; }
   }
   function mount(){
