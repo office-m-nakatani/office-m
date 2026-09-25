@@ -7353,7 +7353,6 @@ var mtJR = (function(){
     ptsOf(ei).forEach(function(q){ if(q[0] < a) a = q[0]; if(q[0] > b) b = q[0]; if(q[1] < c) c = q[1]; if(q[1] > d) d = q[1]; });
     return (EB[ei] = [a, b, c, d]);
   }
-  const ptsAB = function(ei, a){ const p = ptsOf(ei); return E[ei][0] === a ? p : p.slice().reverse(); };
   const wx = function(lo, z){ return (lo + 180) / 360 * 256 * Math.pow(2, z); };
   const wy = function(la, z){ const s = Math.sin(la * Math.PI / 180); return (0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI)) * 256 * Math.pow(2, z); };
   const KMS = [1, 1.5, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 64];
@@ -7370,150 +7369,265 @@ var mtJR = (function(){
     return KMS.length - 1;
   }
   const tagName = function(n){ const m = String(n).match(/^(.+?)（(.+?)(など)?）$/); return m ? (m[3] ? m[2] : m[1]) : n; };
+  const YM_S = { '東京':1, '有楽町':1, '新橋':1, '浜松町':1, '田町':1, '高輪ゲートウェイ':1, '品川':1 };
+  const YM_N = { '東京':1, '神田':1, '秋葉原':1, '御徒町':1, '上野':1, '鶯谷':1, '日暮里':1, '西日暮里':1, '田端':1 };
+  function servicesOf(ei, a, b){
+    const L = LN[E[ei][2]];
+    if(L[1] === 'JR東日本' && L[0] === '東海道線' && YM_S[a] && YM_S[b]) return ['山手線', '京浜東北線', '東海道本線'];
+    if(L[1] === 'JR東日本' && L[0] === '東北線' && YM_N[a] && YM_N[b]) return ['山手線', '京浜東北線'];
+    return [disp(ei, a, b)];
+  }
+  const ORD = ['山手線', '京浜東北線', '東海道本線', '中央本線', '総武本線', '東北本線', '常磐線'];
+  const ordOf = function(n){ const i = ORD.indexOf(tagName(n)); return i < 0 ? 50 : i; };
+  function octPath(p, q){
+    const dx = q[0] - p[0], dy = q[1] - p[1], ax = Math.abs(dx), ay = Math.abs(dy);
+    if(ax < 7 || ay < 7 || Math.abs(ax - ay) < 7) return [p, q];
+    const sx = dx < 0 ? -1 : 1, sy = dy < 0 ? -1 : 1, dg = Math.min(ax, ay), st = Math.max(ax, ay) - dg;
+    const h = st / 2, m1 = ax > ay ? [p[0] + sx * h, p[1]] : [p[0], p[1] + sy * h];
+    const m2 = [m1[0] + sx * dg, m1[1] + sy * dg];
+    return [p, m1, m2, q];
+  }
+  function offPoly(p, d){
+    if(!d) return p;
+    const nv = [];
+    for(let i = 1; i < p.length; i++){ const dx = p[i][0] - p[i - 1][0], dy = p[i][1] - p[i - 1][1], L = Math.hypot(dx, dy) || 1; nv.push([-dy / L, dx / L]); }
+    return p.map(function(q, i){
+      const a = nv[Math.max(0, i - 1)], b = nv[Math.min(nv.length - 1, i)];
+      const dot = a[0] * b[0] + a[1] * b[1], k = d / Math.max(.35, 1 + dot);
+      return [q[0] + (a[0] + b[0]) * k, q[1] + (a[1] + b[1]) * k];
+    });
+  }
+  const pathD = function(p){ return p.map(function(q, i){ return (i ? 'L' : 'M') + q[0].toFixed(1) + ' ' + q[1].toFixed(1); }).join(''); };
   function stationMap(stage, st, R, ki){
     const bs = stopBranches(st);
     stage.innerHTML = '';
-    const W = stage.clientWidth || 320, nar = W < 440, H = Math.round(nar ? Math.max(340, Math.min(460, W * 1.35)) : Math.max(320, Math.min(440, W * .52)));
+    const W = stage.clientWidth || 320, nar = W < 440, H = Math.round(nar ? Math.max(380, Math.min(500, W * 1.35)) : Math.max(380, Math.min(540, W * .7)));
     stage.classList.toggle('nar', nar);
     stage.style.height = H + 'px';
     const v = st.v, la0 = lat(v), lo0 = lon(v), km = KMS[ki];
     const mpp = km * 1000 / (Math.min(W, H) / 2);
     const Z = Math.log(156543.03 * Math.cos(la0 * Math.PI / 180) / mpp) / Math.LN2, WZ = 256 * Math.pow(2, Z);
     const X0 = wx(lo0, Z) - W / 2, Y0 = wy(la0, Z) - H / 2;
-    const P = function(q){ return [wx(q[1], Z) - X0, wy(q[0], Z) - Y0]; };
-    const PV = function(u){ return P([lat(u), lon(u)]); };
-    const zi = Math.max(5, Math.min(18, Math.floor(Z))), ts = 256 * Math.pow(2, Z - zi);
-    const tl = document.createElement('div'); tl.className = 'mt-rz-tiles';
-    for(let tx = Math.floor(X0 / ts); tx * ts < X0 + W; tx++) for(let ty = Math.floor(Y0 / ts); ty * ts < Y0 + H; ty++){
-      const im = document.createElement('img'); im.alt = ''; im.decoding = 'async';
-      im.src = 'https://cyberjapandata.gsi.go.jp/xyz/pale/' + zi + '/' + tx + '/' + ty + '.png';
-      im.style.cssText = 'left:' + (tx * ts - X0).toFixed(1) + 'px;top:' + (ty * ts - Y0).toFixed(1) + 'px;width:' + (ts + .5).toFixed(1) + 'px;height:' + (ts + .5).toFixed(1) + 'px';
-      im.onerror = function(){ im.style.visibility = 'hidden'; };
-      tl.appendChild(im);
-    }
-    stage.appendChild(tl);
+    const PV = function(u){ return [wx(lon(u), Z) - X0, wy(lat(u), Z) - Y0]; };
     const ilon = function(x){ return x / WZ * 360 - 180; };
     const ilat = function(y){ return Math.atan(Math.sinh(Math.PI * (1 - 2 * y / WZ))) * 180 / Math.PI; };
-    const bb = [ilat(Y0 + H + 30), ilat(Y0 - 30), ilon(X0 - 30), ilon(X0 + W + 30)];
-    const inView = function(ei){ const b = boxOf(ei); return !(b[1] < bb[0] || b[0] > bb[1] || b[3] < bb[2] || b[2] > bb[3]); };
+    const mx = W * .6, my = H * .6;
+    const bb = [ilat(Y0 + H + my), ilat(Y0 - my), ilon(X0 - mx), ilon(X0 + W + mx)];
+    const inExt = function(ei){ const b = boxOf(ei); return !(b[1] < bb[0] || b[0] > bb[1] || b[3] < bb[2] || b[2] > bb[3]); };
     const inside = function(p, m){ return p[0] >= m && p[0] <= W - m && p[1] >= m && p[1] <= H - m; };
 
-    const CELL = 5, occ = {};
-    const samples = function(lines){
-      const out = [];
-      lines.forEach(function(p){
-        for(let i = 1; i < p.length; i++){
-          const dx = p[i][0] - p[i - 1][0], dy = p[i][1] - p[i - 1][1], L = Math.hypot(dx, dy), n = Math.max(1, Math.ceil(L / 2.5));
-          const nx = L ? -dy / L : 0, ny = L ? dx / L : 0;
-          for(let k = 0; k < n; k++){ const x = p[i - 1][0] + dx * k / n, y = p[i - 1][1] + dy * k / n; if(x > -10 && x < W + 10 && y > -10 && y < H + 10) out.push([x, y, nx, ny]); }
-        }
-      });
-      return out;
-    };
-    const key = function(x, y){ return Math.floor(x / CELL) + ',' + Math.floor(y / CELL); };
-    const place = function(lines, id, fixed){
-      const sm = samples(lines);
-      let best = 0, bc = 2;
-      if(!fixed) [0, 5, -5, 10, -10, 15, -15].some(function(d){
-        let hit = 0; sm.forEach(function(s){ const o = occ[key(s[0] + s[2] * d, s[1] + s[3] * d)]; if(o && o !== id) hit++; });
-        const c = sm.length ? hit / sm.length : 0;
-        if(c < bc - 1e-9){ bc = c; best = d; }
-        return c < .15;
-      });
-      sm.forEach(function(s){ occ[key(s[0] + s[2] * best, s[1] + s[3] * best)] = id; });
+    const VX = {}, vidOf = {};
+    const near = function(u){   /* 名前のない点が駅のすぐそば（線路で400m以内）なら、その駅の点 */
+      let best = null, bd = 40;
+      adj[u].forEach(function(ei){ const w = E[ei][0] === u ? E[ei][1] : E[ei][0]; if(ND[w][0] && !NSV[w] && E[ei][3] < bd){ bd = E[ei][3]; best = w; } });
       return best;
     };
-    const shift = function(p, d){
-      if(!d) return p;
-      return p.map(function(q, i){
-        const a = p[Math.max(0, i - 1)], b = p[Math.min(p.length - 1, i + 1)];
-        const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1;
-        return [q[0] - dy / L * d, q[1] + dx / L * d];
-      });
+    const vid = function(u){
+      if(vidOf[u] !== undefined) return vidOf[u];
+      if(!(ND[u][0] && !NSV[u])){ const w = near(u); if(w !== null){ const id0 = vid(w); VX[id0].nodes.push(u); return (vidOf[u] = id0); } }
+      const pl = !NSV[u] && ND[u][0] ? placeOfV(u) : null;
+      const id = pl ? 'p:' + pl.name + '|' + PL[pl.name].indexOf(pl) : 'n:' + u;
+      if(!VX[id]) VX[id] = { id:id, name:pl ? pl.name : '', nodes:[], me:pl ? pl.v.indexOf(v) >= 0 : false };
+      VX[id].nodes.push(u);
+      return (vidOf[u] = id);
     };
-    const pathD = function(p){ return p.map(function(q, i){ return (i ? 'L' : 'M') + q[0].toFixed(1) + ' ' + q[1].toFixed(1); }).join(''); };
+    const rset = {}, ecol = {};
+    R.legs.forEach(function(g){ g.e.forEach(function(ei){ ecol[ei] = g.col; }); });
+    R.steps.forEach(function(s){ if(s.x) return; rset[s.ei] = 1; });
+    const BD = {}, nbr = {}, eToB = {};
+    const bkey = function(a, b){ return a < b ? a + '~' + b : b + '~' + a; };
+    for(let ei = 0; ei < E.length; ei++){
+      if(!inExt(ei)) continue;
+      const u = E[ei][0], w = E[ei][1];
+      const a = vid(u), b = vid(w);
+      if(a === b) continue;
+      const na = VX[a].name, nb = VX[b].name;
+      const k = bkey(a, b);
+      const B = BD[k] || (BD[k] = { a:a, b:b, L:[] });
+      servicesOf(ei, na || ND[u][0], nb || ND[w][0]).forEach(function(nm){
+        let x = B.L.filter(function(y){ return y.nm === nm; })[0];
+        if(!x){ x = { nm:nm, col:colorOf(ei, nm), route:false, eis:[] }; B.L.push(x); }
+        x.eis.push(ei); eToB[ei] = k;
+        if(rset[ei] && (nm === disp(ei, na || ND[u][0], nb || ND[w][0]))) x.route = true;
+      });
+      (nbr[a] = nbr[a] || {})[k] = 1; (nbr[b] = nbr[b] || {})[k] = 1;
+    }
+    const sameSet = function(x, y){ const p = x.L.map(function(z){ return z.nm; }).sort().join(), q = y.L.map(function(z){ return z.nm; }).sort().join(); return p === q; };
+    for(let pass = 0; pass < 6; pass++){
+      let ch = false;
+      Object.keys(VX).forEach(function(id){
+        const X = VX[id]; if(X.name || !nbr[id]) return;
+        const ks = Object.keys(nbr[id]); if(ks.length !== 2) return;
+        const B1 = BD[ks[0]], B2 = BD[ks[1]]; if(!B1 || !B2 || !sameSet(B1, B2)) return;
+        const o1 = B1.a === id ? B1.b : B1.a, o2 = B2.a === id ? B2.b : B2.a;
+        if(o1 === o2) return;
+        const k = bkey(o1, o2); if(BD[k]) return;
+        BD[k] = { a:o1, b:o2, L:B1.L.map(function(z){ const z2 = B2.L.filter(function(y){ return y.nm === z.nm; })[0]; return { nm:z.nm, col:z.col, route:z.route || (z2 && z2.route), eis:z.eis.concat(z2 ? z2.eis : []) }; }) };
+        BD[k].L.forEach(function(z){ z.eis.forEach(function(ei){ eToB[ei] = k; }); });
+        delete BD[ks[0]]; delete BD[ks[1]];
+        delete nbr[o1][ks[0]]; delete nbr[o2][ks[1]]; nbr[o1][k] = 1; nbr[o2][k] = 1;
+        delete nbr[id]; delete VX[id];
+        ch = true;
+      });
+      if(!ch) break;
+    }
+    const ids = Object.keys(VX).filter(function(id){ return nbr[id] && Object.keys(nbr[id]).length; });
+    const PT = {}, GEO = {};
+    ids.forEach(function(id){
+      let sx = 0, sy = 0;
+      VX[id].nodes.forEach(function(u){ const q = PV(u); sx += q[0]; sy += q[1]; });
+      GEO[id] = [sx / VX[id].nodes.length, sy / VX[id].nodes.length];
+      PT[id] = GEO[id].slice();
+    });
+    const meId = ids.filter(function(id){ return VX[id].me; })[0];
+    const center = [W / 2, H / 2];
+    if(meId){ PT[meId] = center.slice(); GEO[meId] = center.slice(); }
+    const bl = Object.keys(BD).map(function(k){ return BD[k]; }).filter(function(B){ return PT[B.a] && PT[B.b]; });
+    const LMIN = nar ? 24 : 28, RMIN = nar ? 20 : 24, Q = Math.PI / 4;
+    const named = ids.filter(function(id){ return VX[id].name; });
+    for(let it = 0; it < 260; it++){
+      const k = it < 200 ? .35 : .6;
+      bl.forEach(function(B){
+        const p = PT[B.a], q = PT[B.b], dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy) || 1;
+        const t = Math.round(Math.atan2(dy, dx) / Q) * Q, Ld = Math.max(L, (VX[B.a].name && VX[B.b].name) ? LMIN : 6);
+        const kk = k * Math.min(1, 70 / L);
+        const cx = (Math.cos(t) * Ld - dx) * kk / 2, cy = (Math.sin(t) * Ld - dy) * kk / 2;
+        const fa = B.a === meId, fb = B.b === meId;
+        if(!fa){ p[0] -= fb ? cx * 2 : cx; p[1] -= fb ? cy * 2 : cy; }
+        if(!fb){ q[0] += fa ? cx * 2 : cx; q[1] += fa ? cy * 2 : cy; }
+      });
+      if(it % 2 === 0){
+        const cell = {}, cs = RMIN;
+        named.forEach(function(id){ const p = PT[id], c = Math.floor(p[0] / cs) + ',' + Math.floor(p[1] / cs); (cell[c] = cell[c] || []).push(id); });
+        named.forEach(function(id){
+          const p = PT[id], gx = Math.floor(p[0] / cs), gy = Math.floor(p[1] / cs);
+          for(let i = -1; i <= 1; i++) for(let j = -1; j <= 1; j++) (cell[(gx + i) + ',' + (gy + j)] || []).forEach(function(o){
+            if(o <= id) return;
+            const q = PT[o], dx = q[0] - p[0], dy = q[1] - p[1], d = Math.hypot(dx, dy);
+            if(d >= RMIN || d < .01) return;
+            const f = (RMIN - d) / d * .25;
+            if(id !== meId){ p[0] -= dx * f; p[1] -= dy * f; }
+            if(o !== meId){ q[0] += dx * f; q[1] += dy * f; }
+          });
+        });
+      }
+      const g = it < 200 ? .02 : .005;
+      ids.forEach(function(id){ if(id === meId) return; PT[id][0] += (GEO[id][0] - PT[id][0]) * g; PT[id][1] += (GEO[id][1] - PT[id][1]) * g; });
+    }
 
-    const ecol = {}; R.legs.forEach(function(g){ g.e.forEach(function(ei){ ecol[ei] = g.col; }); });
-    const rset = {}, runs = [];
+    const GAP = 6.2, LW = 5.2;
+    const endAt = {};
+    const addEnd = function(id, q){ (endAt[id] = endAt[id] || []).push(q); };
+    const dirOf = {};
+    bl.forEach(function(B){
+      const base = octPath(PT[B.a], PT[B.b]);
+      const dx = PT[B.b][0] - PT[B.a][0], dy = PT[B.b][1] - PT[B.a][1];
+      const flip = dx < -.5 || (Math.abs(dx) <= .5 && dy < 0);
+      const L = B.L.slice().sort(function(x, y){ return ordOf(x.nm) - ordOf(y.nm) || (x.nm < y.nm ? -1 : 1); });
+      const n = L.length;
+      B.polys = L.map(function(x, i){
+        const d = (i - (n - 1) / 2) * GAP * (flip ? -1 : 1);
+        const p = offPoly(base, d);
+        addEnd(B.a, p[0]); addEnd(B.b, p[p.length - 1]);
+        return { x:x, p:p };
+      });
+      B.n = n;
+      const s0 = base[1], s1 = base[base.length - 2];
+      if(!dirOf[B.a]) dirOf[B.a] = [s0[0] - base[0][0], s0[1] - base[0][1]];
+      if(!dirOf[B.b]) dirOf[B.b] = [base[base.length - 1][0] - s1[0], base[base.length - 1][1] - s1[1]];
+    });
+    let svg = '';
+    bl.forEach(function(B){ B.polys.forEach(function(o){ if(!o.x.route) svg += '<path d="' + pathD(o.p) + '" stroke="' + o.x.col + '" stroke-width="' + LW + '"/>'; }); });
+    const runs = [];
     let run = null;
     R.steps.forEach(function(s){
       if(s.x){ run = null; return; }
-      rset[s.ei] = 1;
-      if(!inView(s.ei)){ run = null; return; }
-      const p = ptsAB(s.ei, s.a).map(P);
+      const k = eToB[s.ei], B = k ? BD[k] : null;
+      if(!B || !B.polys){ run = null; return; }
+      const last = run && run.segs[run.segs.length - 1];
+      if(last && last.k === k) return;
+      const a = vidOf[s.a], b = vidOf[s.b];
+      const fwd = a === B.a || b === B.b ? true : a === B.b || b === B.a ? false : !(last && last.end === B.b);
+      const o = B.polys.filter(function(z){ return z.x.col === ecol[s.ei]; })[0] || B.polys.filter(function(z){ return z.x.route; })[0] || B.polys[0];
+      const p = fwd ? o.p : o.p.slice().reverse();
       if(!run){ run = { segs:[] }; runs.push(run); }
-      run.segs.push({ p:p, col:ecol[s.ei] || '#1f3b5a' });
+      run.segs.push({ p:p, col:ecol[s.ei] || o.x.col, k:k, end:fwd ? B.b : B.a });
     });
-    runs.forEach(function(r){ place(r.segs.map(function(x){ return x.p; }), 'r', true); });
-
-    const used = {};
-    const groups = [];
-    bs.forEach(function(b, i){
-      if(!b.seq || b.syn) return;
-      const lines = [];
-      b.seq.forEach(function(s){ if(rset[s.ei] || used[s.ei] || !inView(s.ei)) return; used[s.ei] = 1; lines.push(ptsAB(s.ei, s.a).map(P)); });
-      if(lines.length) groups.push({ id:'b' + i, lines:lines, col:b.col, w:4.5 });
-    });
-    const others = {};
-    for(let ei = 0; ei < E.length; ei++){
-      if(rset[ei] || used[ei] || !inView(ei)) continue;
-      const nm = disp(ei, ND[E[ei][0]][0], ND[E[ei][1]][0]), k = E[ei][2] + '|' + nm;
-      (others[k] = others[k] || { id:'o' + k, lines:[], col:colorOf(ei, nm), w:3.2, o:1 }).lines.push(ptsOf(ei).map(P));
-    }
-    Object.keys(others).forEach(function(k){ groups.push(others[k]); });
-    let svg = '';
-    groups.forEach(function(g){
-      const d = place(g.lines, g.id, false);
-      g.lines.forEach(function(p){
-        const q = pathD(shift(p, d));
-        svg += '<path d="' + q + '" stroke="#fff" stroke-width="' + (g.w + 2.5) + '" opacity=".85"/>'
-          + '<path d="' + q + '" stroke="' + g.col + '" stroke-width="' + g.w + '"' + (g.o ? ' opacity=".8"' : '') + '/>';
-      });
-    });
+    runs.forEach(function(r){ r.segs.forEach(function(s){ svg += '<path d="' + pathD(s.p) + '" stroke="#1f2937" stroke-width="' + (LW + 5) + '"/>'; }); });
     runs.forEach(function(r){
-      r.segs.forEach(function(s){ svg += '<path d="' + pathD(s.p) + '" stroke="#1f2937" stroke-width="11"/>'; });
-    });
-    runs.forEach(function(r){
-      r.segs.forEach(function(s){ svg += '<path d="' + pathD(s.p) + '" stroke="' + s.col + '" stroke-width="7"/>'; });
-      let acc = 34;
+      r.segs.forEach(function(s){ svg += '<path d="' + pathD(s.p) + '" stroke="' + s.col + '" stroke-width="' + (LW + 1.6) + '"/>'; });
+      let acc = 30;
       r.segs.forEach(function(s){
         const p = s.p;
         for(let i = 1; i < p.length; i++){
           const dx = p[i][0] - p[i - 1][0], dy = p[i][1] - p[i - 1][1], L = Math.hypot(dx, dy);
           let t = 0;
-          while(acc + (L - t) >= 64){
-            t += 64 - acc; acc = 0;
+          while(acc + (L - t) >= 56){
+            t += 56 - acc; acc = 0;
             const x = p[i - 1][0] + dx * t / L, y = p[i - 1][1] + dy * t / L;
-            if(inside([x, y], 10)) svg += '<path d="M-3 -3.5L2 0L-3 3.5" transform="translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ') rotate(' + (Math.atan2(dy, dx) * 180 / Math.PI).toFixed(0) + ')" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/>';
+            if(inside([x, y], 10)) svg += '<path d="M-2.6 -3L1.8 0L-2.6 3" transform="translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ') rotate(' + (Math.atan2(dy, dx) * 180 / Math.PI).toFixed(0) + ')" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>';
           }
           acc += L - t;
         }
       });
     });
 
-    const places = [], seenP = {};
-    const center = PV(v);
-    ND.forEach(function(n, i){
-      if(!n[0] || NSV[i] || !adj[i].length) return;
-      if(ND[i][1] / 1e5 < bb[0] || ND[i][1] / 1e5 > bb[1] || ND[i][2] / 1e5 < bb[2] || ND[i][2] / 1e5 > bb[3]) return;
-      const pl = placeOfV(i); if(!pl) return;
-      const id = n[0] + '|' + PL[n[0]].indexOf(pl);
-      if(seenP[id]) return; seenP[id] = 1;
-      let sx = 0, sy = 0, c = 0;
-      pl.v.forEach(function(u){ if(!NSV[u] && adj[u].length){ const q = PV(u); sx += q[0]; sy += q[1]; c++; } });
-      if(!c) return;
-      const q = [sx / c, sy / c];
-      if(!inside(q, 3)) return;
-      places.push({ name:n[0], p:q, hub:linesAt(pl).length, me:pl.v.indexOf(v) >= 0 });
+    const OC = 4, occ = {};
+    const mark = function(p){
+      for(let i = 1; i < p.length; i++){
+        const dx = p[i][0] - p[i - 1][0], dy = p[i][1] - p[i - 1][1], L = Math.hypot(dx, dy), n = Math.max(1, Math.ceil(L / 2));
+        for(let k = 0; k <= n; k++){ const x = p[i - 1][0] + dx * k / n, y = p[i - 1][1] + dy * k / n; if(x > -8 && x < W + 8 && y > -8 && y < H + 8) occ[Math.floor(x / OC) + ',' + Math.floor(y / OC)] = 1; }
+      }
+    };
+    bl.forEach(function(B){ B.polys.forEach(function(o){ mark(o.p); }); });
+    const onLines = function(b){
+      let c = 0;
+      for(let x = Math.floor(b[0] / OC); x <= Math.floor(b[2] / OC); x++) for(let y = Math.floor(b[1] / OC); y <= Math.floor(b[3] / OC); y++) if(occ[x + ',' + y]) c++;
+      return c;
+    };
+    const rNames = {}; R.legs.forEach(function(g){ if(g.from) rNames[g.from] = 1; if(g.to) rNames[g.to] = 1; });
+    const nexts = {}; bs.forEach(function(b){ if(b.next) nexts[b.next] = 1; });
+    const places = [];
+    named.forEach(function(id){
+      const p = PT[id]; if(!inside(p, 4)) return;
+      const X = VX[id], ks = Object.keys(nbr[id] || {}), ln = {};
+      ks.forEach(function(k){ (BD[k] ? BD[k].L : []).forEach(function(z){ ln[z.nm] = 1; }); });
+      const pl = placeOfV(X.nodes[0]);
+      places.push({ id:id, name:X.name, p:p, me:X.me, hub:pl ? linesAt(pl).length : Object.keys(ln).length, ks:ks, nl:Object.keys(ln).length });
     });
+    places.forEach(function(s){
+      s.pr = s.me ? 0 : rNames[s.name] ? 1 : nexts[s.name] ? 2 : MAJOR[s.name] ? 3 : s.hub >= 2 ? 4 : 5;
+      s.d = Math.hypot(s.p[0] - center[0], s.p[1] - center[1]);
+    });
+    places.sort(function(a, b){ return a.pr - b.pr || a.d - b.d; });
+    let dots = '';
     const boxes = [];
+    places.forEach(function(s){
+      const pts = endAt[s.id] || [s.p];
+      let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      pts.forEach(function(q){ x0 = Math.min(x0, q[0]); y0 = Math.min(y0, q[1]); x1 = Math.max(x1, q[0]); y1 = Math.max(y1, q[1]); });
+      const big = s.me || s.pr === 1, pad = s.me ? 6.5 : big ? 5.5 : 4.2;
+      if(s.nl >= 2 || s.hub >= 2 || big){
+        const w = Math.max(x1 - x0 + pad * 2, pad * 2), h = Math.max(y1 - y0 + pad * 2, pad * 2);
+        const bx = (x0 + x1) / 2 - w / 2, by = (y0 + y1) / 2 - h / 2;
+        dots += '<rect x="' + bx.toFixed(1) + '" y="' + by.toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="' + Math.min(w, h, 14) / 2 + '" fill="#fff" stroke="' + (s.me ? '#0f2a44' : '#1f2937') + '" stroke-width="' + (s.me ? 3.2 : big ? 2.4 : 1.8) + '"/>';
+        s.box = [bx, by, bx + w, by + h];
+      } else {
+        const d = dirOf[s.id] || [1, 0], L = Math.hypot(d[0], d[1]) || 1, nx = -d[1] / L, ny = d[0] / L;
+        const x = s.p[0], y = s.p[1], r = 4.2;
+        dots += '<path d="M' + (x - nx * r).toFixed(1) + ' ' + (y - ny * r).toFixed(1) + 'L' + (x + nx * r).toFixed(1) + ' ' + (y + ny * r).toFixed(1) + '" stroke="#fff" stroke-width="2.4" stroke-linecap="butt"/>';
+        s.box = [x - 4, y - 4, x + 4, y + 4];
+      }
+      boxes.push(s.box);
+    });
+
     const hit = function(b){ return b[0] < 2 || b[1] < 2 || b[2] > W - 2 || b[3] > H - 2 || boxes.some(function(o){ return b[0] < o[2] && b[2] > o[0] && b[1] < o[3] && b[3] > o[1]; }); };
-    const tagsEl = [];
     const exitOf = function(pts){
       if(!pts.length) return null;
       for(let i = 1; i < pts.length; i++){
         if(!inside(pts[i], 8)){
           const a = pts[i - 1], b = pts[i];
+          if(!inside(a, 8)) return { p:[Math.max(8, Math.min(W - 8, a[0])), Math.max(8, Math.min(H - 8, a[1]))], out:true };
           let lo = 0, hi = 1;
           for(let k = 0; k < 12; k++){ const m = (lo + hi) / 2, q = [a[0] + (b[0] - a[0]) * m, a[1] + (b[1] - a[1]) * m]; if(inside(q, 8)) lo = m; else hi = m; }
           return { p:[a[0] + (b[0] - a[0]) * lo, a[1] + (b[1] - a[1]) * lo], out:true };
@@ -7521,7 +7635,11 @@ var mtJR = (function(){
       }
       return { p:pts[pts.length - 1], out:false };
     };
-    const seqPts = function(seq){ const o = []; (seq || []).forEach(function(s){ ptsAB(s.ei, s.a).forEach(function(q){ o.push(P(q)); }); }); return o; };
+    const seqPts = function(seq){
+      const o = [];
+      (seq || []).forEach(function(s){ [s.a, s.b].forEach(function(u){ const id = vidOf[u]; if(id !== undefined && PT[id]){ const q = PT[id]; const l = o[o.length - 1]; if(!l || l[0] !== q[0] || l[1] !== q[1]) o.push(q); } }); });
+      return o;
+    };
     const seen = {};
     const tagList = [];
     bs.forEach(function(b){
@@ -7530,6 +7648,7 @@ var mtJR = (function(){
         const via = bs.filter(function(o){ return o !== b && o.seq && !o.xtra && o.seq.some(function(s){ return ND[s.b][0] === b.via0; }); })[0];
         pts = via ? seqPts(via.seq) : [];
       }
+      if(pts.length && meId && (pts[0][0] !== PT[meId][0] || pts[0][1] !== PT[meId][1])) pts.unshift(PT[meId]);
       const ex = exitOf(pts);
       if(!ex) return;
       const txt = b.label + '|' + b.dir;
@@ -7551,41 +7670,21 @@ var mtJR = (function(){
       else { const dx = p[0] - center[0], dy = p[1] - center[1]; side = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 'l' : 'r') : (dy < 0 ? 't' : 'b'); }
       t.side = side;
       t.x = side === 'l' ? 4 : side === 'r' ? W - t.w - 4 : p[0] - t.w / 2;
-      t.y = side === 't' ? 4 : side === 'b' ? H - t.h - 22 : p[1] - t.h / 2;
-      if(!t.ex.out){ t.x = p[0] + (side === 'l' ? -t.w - 6 : side === 'r' ? 6 : -t.w / 2); t.y = p[1] + (side === 't' ? -t.h - 6 : side === 'b' ? 6 : -t.h / 2); }
+      t.y = side === 't' ? 4 : side === 'b' ? H - t.h - 4 : p[1] - t.h / 2;
+      if(!t.ex.out){ t.x = p[0] + (side === 'l' ? -t.w - 8 : side === 'r' ? 8 : -t.w / 2); t.y = p[1] + (side === 't' ? -t.h - 8 : side === 'b' ? 8 : -t.h / 2); }
     });
-    const zoomBox = [W - 44, 0, W, 84];
-    for(let it = 0; it < 60; it++){
-      let moved = false;
-      tagList.forEach(function(t){ t.x = Math.max(4, Math.min(W - t.w - 4, t.x)); t.y = Math.max(4, Math.min(H - t.h - 22, t.y)); });
-      for(let i = 0; i < tagList.length; i++){
-        const A = tagList[i];
-        const zo = Math.min(A.x + A.w, zoomBox[2]) - Math.max(A.x, zoomBox[0]), zv = Math.min(A.y + A.h, zoomBox[3]) - Math.max(A.y, zoomBox[1]);
-        if(zo > 0 && zv > 0){ if(A.side === 'r' || A.side === 'l') A.y = zoomBox[3] + 2; else A.x = zoomBox[0] - A.w - 2; moved = true; }
-        for(let j = i + 1; j < tagList.length; j++){
-          const B = tagList[j];
-          const ox = Math.min(A.x + A.w, B.x + B.w) - Math.max(A.x, B.x) + 4, oy = Math.min(A.y + A.h, B.y + B.h) - Math.max(A.y, B.y) + 4;
-          if(ox <= 0 || oy <= 0) continue;
-          moved = true;
-          const vert = (A.side === 'l' || A.side === 'r') && (B.side === 'l' || B.side === 'r') ? true : (A.side === 't' || A.side === 'b') && (B.side === 't' || B.side === 'b') ? false : oy < ox;
-          if(vert){ const s = (A.y + A.h / 2) <= (B.y + B.h / 2) ? -1 : 1; A.y += s * oy / 2; B.y -= s * oy / 2; }
-          else { const s = (A.x + A.w / 2) <= (B.x + B.w / 2) ? -1 : 1; A.x += s * ox / 2; B.x -= s * ox / 2; }
-        }
-      }
-      if(!moved) break;
-    }
+    const zoomBox = [W - 58, 0, W, 112];
     const ovl = function(a, b){ return a.x < b.x + b.w + 3 && b.x < a.x + a.w + 3 && a.y < b.y + b.h + 3 && b.y < a.y + a.h + 3; };
     const zbx = { x:zoomBox[0], y:zoomBox[1], w:zoomBox[2] - zoomBox[0], h:zoomBox[3] - zoomBox[1] };
     const kept = [];
-    const rNm = {}; R.legs.forEach(function(g){ if(g.from) rNm[g.from] = 1; if(g.to) rNm[g.to] = 1; });
-    places.forEach(function(q){ if(q.me || rNm[q.name]){ const r = q.me ? 16 : 9; kept.push({ x:q.p[0] - r, y:q.p[1] - r, w:r * 2, h:r * 2, fixed:true }); } });
+    places.forEach(function(q){ if(q.me || rNames[q.name]){ const b = q.box; kept.push({ x:b[0] - 2, y:b[1] - 2, w:b[2] - b[0] + 4, h:b[3] - b[1] + 4, fixed:true }); } });
     tagList.sort(function(a, b){ return (b.b.syn ? 1 : 0) - (a.b.syn ? 1 : 0); });
     tagList.forEach(function(t){
-      t.x = Math.max(2, Math.min(W - t.w - 2, t.x)); t.y = Math.max(2, Math.min(H - t.h - 20, t.y));
-      const fits = function(){ return t.x >= 2 && t.y >= 2 && t.x + t.w <= W - 2 && t.y + t.h <= H - 20 && !ovl(t, zbx) && !kept.some(function(k){ return ovl(t, k); }); };
+      t.x = Math.max(2, Math.min(W - t.w - 2, t.x)); t.y = Math.max(2, Math.min(H - t.h - 2, t.y));
+      const fits = function(){ return t.x >= 2 && t.y >= 2 && t.x + t.w <= W - 2 && t.y + t.h <= H - 2 && !ovl(t, zbx) && !kept.some(function(k){ return ovl(t, k); }); };
       if(!fits()){
         const x0 = t.x, y0 = t.y; let ok = false;
-        for(let d = 6; d <= 260 && !ok; d += 6) for(let g = 0; g < 2 && !ok; g++){
+        for(let d = 6; d <= 300 && !ok; d += 6) for(let g = 0; g < 2 && !ok; g++){
           const sg = g ? -1 : 1;
           if(t.side === 'l' || t.side === 'r'){ t.x = x0; t.y = y0 + sg * d; } else { t.y = y0; t.x = x0 + sg * d; }
           ok = fits();
@@ -7594,7 +7693,6 @@ var mtJR = (function(){
       }
       if(t.hide) t.el.style.display = 'none'; else kept.push(t);
     });
-    for(let q = kept.length - 1; q >= 0; q--) if(kept[q].fixed) kept.splice(q, 1);
     let lead = '';
     tagList.forEach(function(t){
       if(t.hide) return;
@@ -7604,59 +7702,71 @@ var mtJR = (function(){
       if(Math.hypot(cx - p[0], cy - p[1]) > 10) lead += '<path d="M' + p[0].toFixed(1) + ' ' + p[1].toFixed(1) + 'L' + cx.toFixed(1) + ' ' + cy.toFixed(1) + '" stroke="' + t.b.col + '" stroke-width="1.5" stroke-dasharray="3 3"/>';
     });
     boxes.push(zoomBox);
-    const rNames = {}; R.legs.forEach(function(g){ if(g.from) rNames[g.from] = 1; if(g.to) rNames[g.to] = 1; });
-    const nexts = {}; bs.forEach(function(b){ if(b.next) nexts[b.next] = 1; });
+
+    let labels = '', shown = 0;
     places.forEach(function(s){
-      s.pr = s.me ? 0 : rNames[s.name] ? 1 : nexts[s.name] ? 2 : MAJOR[s.name] ? 3 : s.hub >= 2 ? 4 : 5;
-      s.d = Math.hypot(s.p[0] - center[0], s.p[1] - center[1]);
-    });
-    places.sort(function(a, b){ return a.pr - b.pr || a.d - b.d; });
-    let dots = '', labels = '';
-    if(places.length > 70){ for(let q = places.length - 1; q >= 0; q--) if(places[q].pr > 4 || (places[q].pr === 4 && places.length > 160 && places[q].hub < 3)) places.splice(q, 1); }
-    places.forEach(function(s){
-      const r = s.me ? 9 : s.hub >= 2 ? 5 : 3.6;
-      dots += '<circle cx="' + s.p[0].toFixed(1) + '" cy="' + s.p[1].toFixed(1) + '" r="' + r + '" fill="#fff" stroke="' + (s.me ? '#1f3b5a' : '#374151') + '" stroke-width="' + (s.me ? 3.5 : s.hub >= 2 ? 2 : 1.6) + '"/>';
-    });
-    places.forEach(function(s){ const r = s.me ? 9 : 4; boxes.push([s.p[0] - r, s.p[1] - r, s.p[0] + r, s.p[1] + r]); });
-    let shown = 0;
-    places.forEach(function(s){
-      if(!s.me && shown > (W < 560 ? 18 : 30)) return;
-      const fs = s.me ? 15 : s.pr <= 3 ? 12 : 11, w = s.name.length * fs + 4, h = fs + 4, r = s.me ? 11 : 6;
-      const x = s.p[0], y = s.p[1];
-      const cand = [[x + r, y - h / 2], [x - r - w, y - h / 2], [x - w / 2, y - r - h], [x - w / 2, y + r], [x + r - 2, y - r - h + 2], [x - r - w + 2, y - r - h + 2], [x + r - 2, y + r - 2], [x - r - w + 2, y + r - 2]];
+      if(!s.me && shown > (W < 560 ? 22 : 36)) return;
+      const fs = s.me ? 14 : s.pr <= 1 ? 12.5 : s.pr <= 3 ? 12 : 11, w = s.name.length * fs + (s.me ? 14 : 4), h = fs + (s.me ? 10 : 4);
+      const b0 = s.box, x = (b0[0] + b0[2]) / 2, y = (b0[1] + b0[3]) / 2, rx = (b0[2] - b0[0]) / 2 + 3, ry = (b0[3] - b0[1]) / 2 + 3;
+      const cand = [[x + rx, y - h / 2], [x - rx - w, y - h / 2], [x - w / 2, y - ry - h], [x - w / 2, y + ry], [x + rx - 2, y - ry - h + 3], [x - rx - w + 2, y - ry - h + 3], [x + rx - 2, y + ry - 3], [x - rx - w + 2, y + ry - 3]];
+      let c = null, best = Infinity;
       for(let i = 0; i < cand.length; i++){
-        const c = cand[i], b = [c[0], c[1], c[0] + w, c[1] + h];
+        const b = [cand[i][0], cand[i][1], cand[i][0] + w, cand[i][1] + h];
         if(hit(b)) continue;
+        const sc = onLines(b) * (s.me ? 4 : 1) + i * .3;
+        if(sc < best){ best = sc; c = cand[i]; }
+      }
+      if(c){
+        const b = [c[0], c[1], c[0] + w, c[1] + h];
         boxes.push(b); shown++;
-        labels += '<text x="' + (c[0] + 2).toFixed(1) + '" y="' + (c[1] + h - 4).toFixed(1) + '" font-size="' + fs + '"' + (s.me ? ' font-weight="800" fill="#1f3b5a"' : s.pr <= 3 ? ' font-weight="700" fill="#1f2937"' : ' fill="#374151"') + '>' + esc2(s.name) + '</text>';
+        if(s.me) labels += '<rect x="' + c[0].toFixed(1) + '" y="' + c[1].toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + h + '" rx="5" fill="#0f2a44"/><text x="' + (c[0] + 7).toFixed(1) + '" y="' + (c[1] + h - 6).toFixed(1) + '" class="nb" font-size="' + fs + '" font-weight="800" fill="#fff">' + esc2(s.name) + '</text>';
+        else labels += '<text x="' + (c[0] + 2).toFixed(1) + '" y="' + (c[1] + h - 4).toFixed(1) + '" font-size="' + fs + '"' + (s.pr <= 1 ? ' font-weight="800" fill="#0f172a"' : s.pr <= 3 ? ' font-weight="700" fill="#1f2937"' : ' fill="#374151"') + ' stroke="#fff" stroke-width="3" paint-order="stroke">' + esc2(s.name) + '</text>';
+      }
+    });
+    const inTags = {}; tagList.forEach(function(t){ if(!t.hide) inTags[tagName(t.b.label)] = 1; });
+    const longest = {};
+    bl.forEach(function(B){ B.polys.forEach(function(o){
+      const nm = tagName(o.x.nm); if(inTags[nm]) return;
+      const p = o.p, a = p[0], b = p[p.length - 1], L = Math.hypot(b[0] - a[0], b[1] - a[1]);
+      const m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+      if(!inside(m, 20)) return;
+      if(!longest[nm] || L > longest[nm].L) longest[nm] = { L:L, m:m, col:o.x.col, d:[b[0] - a[0], b[1] - a[1]] };
+    }); });
+    let pills = '', np = 0;
+    Object.keys(longest).sort(function(x, y){ return longest[y].L - longest[x].L; }).forEach(function(nm){
+      if(np >= (nar ? 4 : 8)) return;
+      const o = longest[nm], fs = 10.5, w = nm.length * fs + 10, h = fs + 7;
+      const L = Math.hypot(o.d[0], o.d[1]) || 1, nx = -o.d[1] / L, ny = o.d[0] / L;
+      for(let k = 0; k < 2; k++){
+        const sg = k ? -1 : 1, cx = o.m[0] + nx * sg * (h / 2 + 7), cy = o.m[1] + ny * sg * (h / 2 + 7);
+        const b = [cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2];
+        if(hit(b) || onLines(b) > 2) continue;
+        boxes.push(b); np++;
+        pills += '<rect x="' + b[0].toFixed(1) + '" y="' + b[1].toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + h + '" rx="4" fill="' + o.col + '"/><text x="' + cx.toFixed(1) + '" y="' + (b[3] - 5).toFixed(1) + '" class="nb" font-size="' + fs + '" font-weight="700" text-anchor="middle" fill="' + textOn(o.col) + '">' + esc2(nm) + '</text>';
         return;
       }
     });
-    const nice = [0.2, 0.5, 1, 2, 5, 10, 20, 50].filter(function(k){ return k * 1000 / mpp <= W * .28; }).pop() || 0.2;
-    const sl = nice * 1000 / mpp;
-    const scale = '<g transform="translate(8 ' + (H - 10) + ')"><path d="M0 -5V0H' + sl.toFixed(1) + 'V-5" stroke="#1f2937" stroke-width="1.6" fill="none"/><text x="' + (sl + 5).toFixed(1) + '" y="0" font-size="11" fill="#1f2937">' + (nice < 1 ? nice * 1000 + 'm' : nice + 'km') + '</text></g>';
     const sv = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     sv.setAttribute('width', W); sv.setAttribute('height', H); sv.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
     sv.innerHTML = '<g fill="none" stroke-linecap="round" stroke-linejoin="round">' + svg + lead + '</g>' + dots
-      + '<g class="mt-rz-lab">' + labels + '</g>' + scale;
-    stage.insertBefore(sv, tl.nextSibling);
-    const at = document.createElement('a'); at.className = 'mt-rz-at'; at.href = 'https://maps.gsi.go.jp/development/ichiran.html'; at.target = '_blank'; at.rel = 'noopener'; at.textContent = '地理院タイル';
-    stage.appendChild(at);
+      + '<g class="mt-rz-lab">' + pills + labels + '</g>';
+    stage.insertBefore(sv, stage.firstChild);
     return bs;
   }
+  const baseKi = function(v){ return Math.min(KMS.length - 1, autoKi(v) + 1); };
   function mountMind(wrap, R){
     const stops = stopsOf(R);
     if(!stops.length) return;
     wrap.innerHTML = '';
     const h = document.createElement('div'); h.className = 'mt-xm-h';
-    h.textContent = '地図の上に、線路の形のまま路線の色で描いた路線図です（北が上）。太い線と矢印が今回のルートです。ボタンで駅を切り替えられます。';
+    h.textContent = '駅のまわりの路線図です（だいたい北が上）。黒いふちの太い線と矢印が今回のルート、白い枠は乗り換えできる駅です。ボタンで駅を切り替えられます。';
     const tabs = document.createElement('div'); tabs.className = 'mt-xm-tabs';
     const stage = document.createElement('div'); stage.className = 'mt-rz';
     const zb = document.createElement('div'); zb.className = 'mt-rz-z';
     const cap = document.createElement('div'); cap.className = 'mt-xm-cap';
     const list = document.createElement('div'); list.className = 'mt-xm-list';
     const note = document.createElement('div'); note.className = 'mt-xm-note';
-    note.textContent = 'JRの線（と土佐くろしお鉄道の中村線・宿毛線）だけです。私鉄・地下鉄は入っていません。駅名が多い所は一部だけ出しています。線路の位置：国土数値情報（鉄道データ）を加工／背景：地理院タイル（淡色地図）。';
+    note.textContent = 'JRの線（と土佐くろしお鉄道の中村線・宿毛線）だけです。私鉄・地下鉄は入っていません。見やすさのため線を縦・横・斜めにそろえ、駅の位置を動かしてあります（実際の距離・方角とは違います）。駅名が多い所は一部だけ出しています。線路と駅：国土数値情報（鉄道データ）を加工して作成。';
     const box = document.createElement('div'); box.className = 'mt-rz-box';
     box.appendChild(stage); box.appendChild(zb);
     [h, tabs, box, cap, list, note].forEach(function(x){ wrap.appendChild(x); });
@@ -7665,20 +7775,21 @@ var mtJR = (function(){
     const btns = stops.map(function(s, i){
       const b = document.createElement('button'); b.type = 'button'; b.className = 'mt-xm-tab';
       b.innerHTML = '<span>' + esc2(s.role) + '</span>' + esc2(s.name);
-      b.addEventListener('click', function(ev){ ev.preventDefault(); ev.stopPropagation(); cur = i; ki = autoKi(stops[cur].v); show(); });
+      b.addEventListener('click', function(ev){ ev.preventDefault(); ev.stopPropagation(); cur = i; ki = baseKi(stops[cur].v); show(); });
       tabs.appendChild(b); return b;
     });
     const zbtn = function(ic, lab, d){
       const b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-label', lab); b.title = lab;
       b.innerHTML = '<i class="fa-solid ' + ic + '"></i>';
       b.addEventListener('click', function(ev){ ev.preventDefault(); ev.stopPropagation(); ki = Math.max(0, Math.min(KMS.length - 1, ki + d)); show(); });
-      zb.appendChild(b);
+      zb.appendChild(b); b.dataset.d = d;
     };
     zbtn('fa-plus', '近くを大きく', -1); zbtn('fa-minus', '広い範囲を見る', 1);
-    ki = autoKi(stops[cur].v);
+    ki = baseKi(stops[cur].v);
     let lastW = 0;
     function show(){
       btns.forEach(function(b, i){ b.classList.toggle('on', i === cur); });
+      [].forEach.call(zb.querySelectorAll('button'), function(b){ const d = +b.dataset.d; b.disabled = d < 0 ? ki <= 0 : ki >= KMS.length - 1; });
       const st = stops[cur];
       const bs = stationMap(stage, st, R, ki);
       lastW = stage.clientWidth;
@@ -7873,10 +7984,10 @@ var mtJR = (function(){
       + '.mt-xm-tab span{font-size:.68rem;color:#6b7280;margin-right:5px;font-weight:600}'
       + '.mt-xm-tab.on{background:#1f3b5a;color:#fff;border-color:#1f3b5a}.mt-xm-tab.on span{color:#cfe0f0}'
       + '.mt-rz-box{position:relative;margin-top:4px}'
-      + '.mt-rz{position:relative;width:100%;overflow:hidden;border:1px solid #d5dee8;border-radius:10px;background:#eef1f4}'
+      + '.mt-rz{position:relative;width:100%;overflow:hidden;border:1px solid #d5dee8;border-radius:10px;background:#fff}'
       + '.mt-rz-tiles{position:absolute;inset:0;filter:grayscale(1) brightness(1.06);opacity:.5}.mt-rz-tiles img{position:absolute;max-width:none;user-select:none;pointer-events:none}'
       + '.mt-rz svg{position:absolute;left:0;top:0;z-index:1;pointer-events:none}'
-      + '.mt-rz-lab text{paint-order:stroke;stroke:#fff;stroke-width:3.5px;stroke-linejoin:round}'
+      + '.mt-rz-lab text:not(.nb){paint-order:stroke;stroke:#fff;stroke-width:3.5px;stroke-linejoin:round}'
       + '.mt-rz-tag{position:absolute;z-index:2;background:#fff;border:2px solid #999;border-radius:8px;padding:2px 7px 3px;font-size:.7rem;line-height:1.35;max-width:46%;box-shadow:0 1px 4px rgba(0,0,0,.18);color:#1f2937}'
       + '.mt-rz-tag b{display:block;font-size:.76rem}.mt-rz-tag span{display:block;font-weight:600}'
       + '.mt-rz-tag.rt{border-color:#1f2937!important;box-shadow:0 2px 8px rgba(0,0,0,.3)}'
@@ -7885,6 +7996,7 @@ var mtJR = (function(){
       + '.mt-rz-at{position:absolute;right:4px;bottom:3px;z-index:3;font-size:10px;color:#374151;background:rgba(255,255,255,.8);padding:0 4px;border-radius:3px;text-decoration:none}'
       + '.mt-rz-z{position:absolute;right:6px;top:6px;z-index:3;display:flex;flex-direction:column;gap:4px}'
       + '.mt-rz-z button{width:34px;height:34px;border-radius:8px;border:1px solid #bcc8d6;background:#fff;color:#1f3b5a;box-shadow:0 1px 3px rgba(0,0,0,.15);cursor:pointer}'
+      + '.mt-rz-z button:disabled{opacity:.35;cursor:default}'
       + '.mt-xm-cap{margin-top:6px;font-size:.88rem;line-height:1.6;color:#1f2937}.mt-xm-cap b{color:#1f3b5a}'
       + '.mt-xm-list{font-size:.8rem;color:#374151;line-height:1.5;margin-top:2px}'
       + '.mt-xm-note{font-size:.7rem;color:#6b7280;margin-top:4px;line-height:1.5}'
