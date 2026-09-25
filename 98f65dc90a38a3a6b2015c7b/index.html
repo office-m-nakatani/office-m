@@ -6773,6 +6773,11 @@ var mtJR = (function(){
   GR.forEach(function(g){ g.forEach(function(v){ grp[v] = g; }); });
   const esc2 = function(s){ return String(s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); };
   const lat = function(v){ return ND[v][1] / 1e5; }, lon = function(v){ return ND[v][2] / 1e5; };
+  const NOSTOP = { '福島|東海道線':1 };
+  const nsE = function(u, ei){ return ND[u][0] && NOSTOP[ND[u][0] + '|' + LN[E[ei][2]][0]]; };
+  const NSV = {};
+  ND.forEach(function(n, v){ if(n[0] && adj[v].length && adj[v].every(function(ei){ return NOSTOP[n[0] + '|' + LN[E[ei][2]][0]]; })) NSV[v] = 1; });
+
   function dkm(p, q){
     const r = Math.PI / 180, la = (lat(p) + lat(q)) / 2 * r;
     return Math.hypot((lon(q) - lon(p)) * Math.cos(la) * 111.32, (lat(q) - lat(p)) * 110.54);
@@ -6866,13 +6871,50 @@ var mtJR = (function(){
     return out;
   }
   const COL = { 'JR北海道':'#2e9e5b', 'JR東日本':'#1f8f3a', 'JR東海':'#e67e00', 'JR西日本':'#2f6fc9', 'JR四国':'#11a2dc', 'JR九州':'#d6262f', '土佐くろしお鉄道':'#8a6d3b' };
+  const LC = {
+    '山手線':'#80c241', '京浜東北線':'#00b2e5', '埼京線':'#00ac9a', '川越線':'#00ac9a', '京葉線':'#c9252f', '武蔵野線':'#f15a22',
+    '南武線':'#ffd400', '横浜線':'#80c241', '根岸線':'#00b2e5', '青梅線':'#f15a22', '五日市線':'#f15a22', '鶴見線':'#ffd400', '相模線':'#009793', '八高線':'#a8a39d',
+    '常磐線':'#00b261', '宇都宮線・高崎線':'#f68b1e', '宇都宮線':'#f68b1e', '横須賀線':'#0067c0', '高崎線':'#f68b1e', '仙山線':'#72bc4a', '仙石線':'#00b2e5', '上越線':'#00b2e5', '羽越本線':'#00b2e5', '白新線':'#f19ec2', '奥羽本線':'#f68b1e',
+    '大阪環状線':'#e73042', '関西本線':'#009a3e', '阪和線':'#f39800', '奈良線':'#a0522d', '湖西線':'#00a7db', '草津線':'#7fb539', 'おおさか東線':'#6e87a7', '福知山線':'#ffc20e',
+    '片町線':'#e95a9a', 'JR東西線':'#e95a9a', '加古川線':'#20b2aa', '播但線':'#8b1c32', '姫新線':'#e83820', '舞鶴線':'#f5b200', '桜島線':'#0b3a6e', '関西空港線':'#0072ba',
+    '津山線':'#f5a200', '吉備線':'#f09199', '伯備線':'#009944', '呉線':'#d7c447', '可部線':'#00a3a6', '芸備線':'#a87cc0', '境線':'#0072ba', '因美線':'#a0522d',
+    '予讃線':'#f39800', '内子線':'#f39800', '土讃線':'#e25885', '高徳線':'#99cc00', '徳島線':'#1f3c88', '予土線':'#009944', '鳴門線':'#a2427c', '牟岐線':'#3bb4e5',
+    '瀬戸大橋線':'#00a0e9', '本四備讃線':'#00a0e9', '宇野線':'#00a0e9',
+    '東海道新幹線':'#1e50a2', '山陽新幹線':'#1e50a2', '九州新幹線':'#d6262f', '西九州新幹線':'#d6262f', '東北新幹線':'#1f8f3a', '上越新幹線':'#1f8f3a', '北陸新幹線':'#1e50a2', '北海道新幹線':'#1f8f3a'
+  };
+  function lineColor(n, co){
+    n = String(n || '');
+    if(/秋田新幹線/.test(n)) return '#e4007f';
+    if(/山形新幹線/.test(n)) return '#f39800';
+    if(/京浜東北線/.test(n)) return LC['京浜東北線'];
+    const b = n.replace(/（.*）$/, '').replace(/^土佐くろしお鉄道\s*/, '');
+    if(/土佐くろしお/.test(n + co)) return COL['土佐くろしお鉄道'];
+    if(LC[b]) return LC[b];
+    if(b === '東海道本線') return /西日本/.test(co) ? '#0072ba' : '#f68b1e';
+    if(b === '山陽本線' || b === '北陸本線') return '#0072ba';
+    if(b === '中央本線') return /東海/.test(co) ? '#f0831e' : '#f15a22';
+    if(b === '総武本線') return '#0067c0';
+    if(b === '東北本線') return '#f68b1e';
+    if(b === '山陰本線' && /西日本/.test(co)) return '#8f76b4';
+    return COL[co] || COL[String(co).split('・')[0]] || '#777';
+  }
   function colorOf(ei, name){
     const L = LN[E[ei][2]];
-    if(L[2] === 's') return '#1b2a6b';
-    if(name === '埼京線') return '#00a58d';
-    if(name === '瀬戸大橋線') return '#f0a500';
-    return COL[L[1]] || '#777';
+    return lineColor(name || official(L[0]), L[1]);
   }
+  function colorFor(n, st){
+    let co = '';
+    const want = String(n).replace(/（.*）$/, '').replace(/本線$/, '線').replace(/^土佐くろしお鉄道\s*/, '');
+    (PL[st] || []).slice(0, 1).forEach(function(p){ p.v.forEach(function(v){ adj[v].forEach(function(ei){ const L = LN[E[ei][2]]; if(!co && L[0] === want) co = L[1]; }); }); });
+    return lineColor(n, co || (/土佐くろしお/.test(n) ? '土佐くろしお鉄道' : ''));
+  }
+  const hexOf = function(c){ return String(c).replace('#', '').toLowerCase(); };
+  const lum = function(c){ const h = hexOf(c); const f = function(i){ const x = parseInt(h.substr(i, 2), 16) / 255; return x <= .03928 ? x / 12.92 : Math.pow((x + .055) / 1.055, 2.4); }; return .2126 * f(0) + .7152 * f(2) + .0722 * f(4); };
+  const contrast = function(a, b){ const la = lum(a), lb = lum(b); return (Math.max(la, lb) + .05) / (Math.min(la, lb) + .05); };
+  const textOn = function(c){ return contrast(c, '#ffffff') >= contrast(c, '#1f2937') ? '#fff' : '#1f2937'; };
+  const darken = function(c, k){ const h = hexOf(c); return '#' + [0, 2, 4].map(function(i){ return ('0' + Math.round(parseInt(h.substr(i, 2), 16) * k).toString(16)).slice(-2); }).join(''); };
+  const inkOf = function(c){ let x = c, k = 1; while(contrast(x, '#ffffff') < 4.5 && k > .2){ k -= .06; x = darken(c, k); } return x; };
+  const lcClass = function(c){ return 'mt-lc-' + hexOf(c); };
 
   const SHIN_V = { '東海道新幹線':220, '山陽新幹線':220, '九州新幹線':200, '西九州新幹線':160, '東北新幹線':210, '北海道新幹線':190, '上越新幹線':170, '北陸新幹線':165 };
   const FAST = {};
@@ -6882,10 +6924,11 @@ var mtJR = (function(){
     if(L[0] === '函館線') return 50;
     return FAST[L[0]] ? 85 : 55;
   }
-  const MINI = { '盛岡':{ '東北新幹線|田沢湖線':1 }, '福島':{ '東北新幹線|奥羽線':1 }, '大曲':{ '田沢湖線|奥羽線':1 } };
+  const MINI = { '盛岡':{ '東北新幹線|田沢湖線':1 }, '福島':{ '東北新幹線|奥羽線':1 }, '大曲':{ '田沢湖線|奥羽線':1 }, '若井':{ '予土線|中村線':1 } };
   const mini = function(st, x, y){ const m = MINI[st]; return !!(m && (m[x + '|' + y] || m[y + '|' + x])); };
   const THRU = { '東海道新幹線|山陽新幹線':1, '山陽新幹線|九州新幹線':1, '東北新幹線|北海道新幹線':1, '東北新幹線|上越新幹線':1, '上越新幹線|北陸新幹線':1 };
   const thru = function(x, y){ return THRU[x + '|' + y] || THRU[y + '|' + x]; };
+  const NOXF = { '宇多津':1 };
   function Heap(){ this.a = []; }
   Heap.prototype.push = function(x){ const a = this.a; a.push(x); let i = a.length - 1; while(i > 0){ const p = (i - 1) >> 1; if(a[p][0] <= a[i][0]) break; const t = a[p]; a[p] = a[i]; a[i] = t; i = p; } };
   Heap.prototype.pop = function(){ const a = this.a, top = a[0], last = a.pop(); if(a.length){ a[0] = last; let i = 0; for(;;){ const l = i * 2 + 1, r = l + 1; let m = i; if(l < a.length && a[l][0] < a[m][0]) m = l; if(r < a.length && a[r][0] < a[m][0]) m = r; if(m === i) break; const t = a[m]; a[m] = a[i]; a[i] = t; i = m; } } return top; };
@@ -6901,13 +6944,13 @@ var mtJR = (function(){
   const inDir = function(ein, u){ const d = dirOf(ein); return E[ein][1] === u ? d[1] : [-d[0][0], -d[0][1]]; };
   const outDir = function(eo, u){ const d = dirOf(eo); return E[eo][0] === u ? d[0] : [-d[1][0], -d[1][1]]; };
   function search(from, to, ok){
-    const goal = {}; to.v.forEach(function(v){ goal[v] = 1; });
+    const goal = {}; to.v.forEach(function(v){ if(!NSV[v]) goal[v] = 1; });
     const dist = {}, prev = {}, H = new Heap();
-    from.v.forEach(function(v){ dist[v + ',-1'] = 0; H.push([0, v, -1]); });
+    from.v.forEach(function(v){ if(NSV[v]) return; dist[v + ',-1'] = 0; H.push([0, v, -1]); });
     while(H.a.length){
       const x = H.pop(), d = x[0], u = x[1], ein = x[2], k = u + ',' + ein;
       if(d > dist[k]) continue;
-      if(goal[u]){
+      if(goal[u] && !(ein >= 0 && nsE(u, ein))){
         const path = []; let s = k;
         while(prev[s]){ path.unshift(prev[s][1]); s = prev[s][0]; }
         return { min:d, path:path, from:from, to:to };
@@ -6917,7 +6960,7 @@ var mtJR = (function(){
         if(dist[nk] === undefined || d + c < dist[nk]){ dist[nk] = d + c; prev[nk] = [k, step]; H.push([d + c, v, ne]); }
       };
       if(ein !== -1 && grp[u]) grp[u].forEach(function(v){
-        if(v === u) return;
+        if(v === u || NSV[u] || NSV[v] || nsE(u, ein)) return;
         relax(v, -1, 12, { x:1, a:u, b:v });
         const A0 = LN[E[ein][2]][0];
         adj[v].forEach(function(ej){
@@ -6927,11 +6970,11 @@ var mtJR = (function(){
           relax(w, ej, 1 + E[ej][3] / 100 / 90 * 60, { ei:ej, a:v, b:w });
         });
       });
-      if(ein !== -1 && ND[u][0]) relax(u, -1, 12, { x:1, a:u, b:u });
+      if(ein !== -1 && ND[u][0] && !nsE(u, ein)) relax(u, -1, 12, { x:1, a:u, b:u });
       const A = ein >= 0 ? LN[E[ein][2]] : null;
       adj[u].forEach(function(ei){
         if(ok && !ok(ei)) return;
-        if(ei === ein) return;
+        if(ei === ein || (ein === -1 && nsE(u, ei))) return;
         const e = E[ei], L = LN[e[2]], v = e[0] === u ? e[1] : e[0];
         const M1 = A && mini(ND[u][0], A[0], L[0]);
         let c = e[3] / 100 / (M1 || L[0] === '田沢湖線' ? 90 : speedOf(L)) * 60;
@@ -6973,7 +7016,7 @@ var mtJR = (function(){
     });
     const placeOf = function(v){ const n = ND[v][0]; return n ? (PL[n] || []).filter(function(p){ return p.v.indexOf(v) >= 0; })[0] : null; };
     const serves = function(p, want){ const ls = linesAt(p); return want.every(function(w){ return ls.indexOf(w) >= 0; }); };
-    const JCT = { '千歳線|室蘭線':'沼ノ端', '函館線|千歳線':'白石', '室蘭線|日高線':'苫小牧', 'おおさか東線|片町線':'放出', '八高線|高崎線':'倉賀野',
+    const JCT = { '大阪環状線|東海道線':'大阪', '東海道線|大阪環状線':'大阪', '千歳線|室蘭線':'沼ノ端', '函館線|千歳線':'白石', '室蘭線|日高線':'苫小牧', 'おおさか東線|片町線':'放出', '八高線|高崎線':'倉賀野',
       '山陽新幹線|東海道新幹線':'新大阪', '九州新幹線|山陽新幹線':'博多', '北海道新幹線|東北新幹線':'新青森', '上越新幹線|東北新幹線':'大宮', '上越新幹線|北陸新幹線':'高崎' };
     for(let i = 0; i + 1 < out.length; i++){
       const want = [out[i].rawL, out[i + 1].rawF];
@@ -7028,6 +7071,17 @@ var mtJR = (function(){
         let r = search(places[i], places[i + 1], oks ? oks[i] : null);
         if(!r && oks && combos.length === 1) r = search(places[i], places[i + 1], null);
         if(!r) return;
+        const pl = steps.filter(function(s0){ return !s0.x; }).pop(), nf = r.path.filter(function(s0){ return !s0.x; })[0];
+        if(pl && nf && !r.path[0].x){
+          const A = LN[E[pl.ei][2]], B = LN[E[nf.ei][2]], at = pl.b, nm = ND[at][0];
+          let need = pl.b !== nf.a && (!nm || nm !== ND[nf.a][0]);
+          if(!need && A[0] !== B[0] && !mini(nm, A[0], B[0])){
+            if(A[2] !== B[2]) need = true;
+            else if(A[2] === 's' && !thru(A[0], B[0])) need = true;
+          }
+          if(!need && nm && !NOXF[nm]){ const di = inDir(pl.ei, at), dout = outDir(nf.ei, nf.a); if(di[0] * dout[0] + di[1] * dout[1] < -0.2) need = true; }
+          if(need) steps.push({ x:1, a:pl.b, b:nf.a });
+        }
         steps = steps.concat(r.path); min += r.min;
       }
       if(!best || min < best.min) best = { steps:steps, min:min };
@@ -7051,16 +7105,334 @@ var mtJR = (function(){
     const vs = viaText(R);
     let h = '<span class="mt-rv"><span class="mt-rv-t">' + esc2(vs.join('、') + ' 経由') + '</span><span class="mt-rv-chips">'
       + R.legs.filter(function(g, i){ return !i || R.legs[i - 1].name !== g.name; }).map(function(g, i){
-          return (i ? '<i class="fa-solid fa-chevron-right mt-rv-ar"></i>' : '') + '<span class="mt-rv-c mt-rv-' + (g.kind === 's' ? 's' : 'c') + '">' + esc2(g.name) + '</span>';
+          return (i ? '<i class="fa-solid fa-chevron-right mt-rv-ar"></i>' : '') + '<span class="mt-rv-c ' + lcClass(g.col) + '">' + esc2(g.name) + '</span>';
         }).join('') + '</span></span>';
     h += '<span class="mt-rmap-slot">' + esc2(spec) + '</span>';
     return h;
   }
   function legsListHTML(R){
     return '<ul class="mt-rv-legs">' + R.legs.map(function(g){
-      return '<li><span class="mt-rv-c mt-rv-' + (g.kind === 's' ? 's' : 'c') + '">' + esc2(g.name) + '</span> '
+      return '<li><span class="mt-rv-c ' + lcClass(g.col) + '">' + esc2(g.name) + '</span> '
         + esc2((g.from || '') + ' → ' + (g.to || '') + '　' + (g.km < 0.5 ? '1km未満' : '約' + Math.round(g.km) + 'km') + (g.name.indexOf(g.off) < 0 ? '（' + g.off + '）' : '')) + '</li>';
     }).join('') + '</ul>';
+  }
+
+  function nodesOfStation(v){
+    const set = {}, n = ND[v][0];
+    const pl = n ? (PL[n] || []).filter(function(p){ return p.v.indexOf(v) >= 0; })[0] : null;
+    (pl ? pl.v : [v]).forEach(function(x){ set[x] = 1; (grp[x] || []).forEach(function(y){ set[y] = 1; }); });
+    return Object.keys(set).map(Number);
+  }
+  const placeOfV = function(v){ const n = ND[v][0]; return n ? (PL[n] || []).filter(function(q){ return q.v.indexOf(v) >= 0; })[0] : null; };
+  const hubCount = function(v){ const p = placeOfV(v); return p ? linesAt(p).length : 0; };
+  const ang = function(u, w){ const la = (lat(u) + lat(w)) / 2 * Math.PI / 180; return Math.atan2((lon(w) - lon(u)) * Math.cos(la), lat(w) - lat(u)); };
+  const MAJOR = {};
+  ('札幌 函館 旭川 釧路 帯広 小樽 苫小牧 東室蘭 岩見沢 稚内 網走 青森 新青森 八戸 盛岡 秋田 仙台 山形 福島 郡山 いわき 新潟 長岡 '
+   + '宇都宮 高崎 水戸 土浦 大宮 東京 上野 新宿 池袋 品川 横浜 千葉 銚子 八王子 立川 小田原 熱海 甲府 松本 塩尻 長野 静岡 浜松 豊橋 名古屋 岐阜 亀山 '
+   + '金沢 富山 福井 敦賀 米原 近江今津 京都 大阪 新大阪 天王寺 神戸 三ノ宮 姫路 奈良 和歌山 岡山 福山 三原 広島 岩国 新山口 下関 新見 米子 松江 出雲市 鳥取 '
+   + '高松 松山 宇和島 高知 徳島 阿波池田 中村 宿毛 博多 小倉 熊本 鹿児島中央 大分 宮崎 長崎 佐賀').split(' ').forEach(function(n){ MAJOR[n] = 1; });
+  const TERMFIX = { '羽前千歳':'山形', '近江塩津':'敦賀', '河原田':'亀山', '松岸':'銚子', '備中神代':'新見', '日暮里':'上野' };
+  const sameLine = function(li, lj){ return LN[li][0] === LN[lj][0] && LN[li][2] === LN[lj][2] && (LN[li][2] === 's' || LN[li][1] === LN[lj][1]); };
+  function aheadCount(u, ei){
+    const li = E[ei][2];
+    let prev = u, e = ei, km = 0, n = 0; const seen = {}; seen[u] = 1;
+    for(let k = 0; k < 400 && km < 30; k++){
+      const v = E[e][0] === prev ? E[e][1] : E[e][0];
+      km += E[e][3] / 100;
+      if(seen[v]) break; seen[v] = 1;
+      if(ND[v][0]) n++;
+      const di = inDir(e, v);
+      let best = -1, bs = -0.6;
+      adj[v].forEach(function(ej){ if(ej === e || !sameLine(li, E[ej][2])) return; const d = outDir(ej, v), dot = di[0] * d[0] + di[1] * d[1]; if(dot > bs){ bs = dot; best = ej; } });
+      if(best < 0) break;
+      prev = v; e = best;
+    }
+    return n;
+  }
+  function walkLine(u, ei, S, stSet){
+    const li = E[ei][2], seq = [], seen = {};
+    let prev = u, e = ei, km = 0, loop = false; seen[u] = 1;
+    for(let k = 0; k < 3000; k++){
+      const v = E[e][0] === prev ? E[e][1] : E[e][0];
+      seq.push({ ei:e, a:prev, b:v });
+      km += E[e][3] / 100;
+      if(k > 0 && stSet && stSet[v]){ loop = true; break; }
+      if(seen[v] || km > 1500) break;
+      seen[v] = 1;
+      const cs = adj[v].filter(function(ej){ return ej !== e && sameLine(li, E[ej][2]); });
+      if(!cs.length) break;
+      let best = -1;
+      if(cs.length === 1) best = cs[0];
+      else {
+        const di = inDir(e, v);
+        let bsc = -1, bdot = -9;
+        cs.forEach(function(ej){
+          const d = outDir(ej, v), dot = di[0] * d[0] + di[1] * d[1];
+          if(dot < -0.6) return;
+          const sc = aheadCount(v, ej);
+          if(sc > bsc || (sc === bsc && dot > bdot)){ bsc = sc; bdot = dot; best = ej; }
+        });
+      }
+      if(best < 0) break;
+      prev = v; e = best;
+    }
+    const nxn = []; let last = '';
+    for(let i = seq.length - 1; i >= 0; i--){ if(ND[seq[i].b][0]) last = ND[seq[i].b][0]; nxn[i] = last; if(ND[seq[i].a][0]) last = ND[seq[i].a][0]; }
+    let pvn = S;
+    const lab = seq.map(function(st, i){ const a = ND[st.a][0] || pvn, b = ND[st.b][0] || nxn[i]; if(ND[st.b][0]) pvn = ND[st.b][0]; return disp(st.ei, a, b); });
+    let cut = seq.length;
+    for(let i = 1; i < seq.length; i++) if(lab[i] !== lab[0]){ cut = i; break; }
+    const L = LN[E[ei][2]];
+    let next = '', term = '', tv = -1, hub = '', hubN = -1, bv = -1, sum = 0, maj = '', dM = 0, dT = 0, dH = 0, majL = '';
+    const loopHubs = [];
+    for(let i = 0; i < cut; i++){
+      const st = seq[i]; sum += E[st.ei][3] / 100;
+      if(bv < 0 && sum >= 5) bv = st.b;
+      const n = nsE(st.b, st.ei) ? '' : ND[st.b][0];
+      if(!n || n === S) continue;
+      if(!next) next = n;
+      term = n; tv = st.b; dT = sum;
+      if(MAJOR[n] && !(n === '郡山' && lat(st.b) < 36)){ if(!maj){ maj = n; dM = sum; } majL = n; }
+      if(sum <= 150){ const c = hubCount(st.b); if(c >= hubN){ hubN = c; hub = n; dH = sum; } }
+      if(loop && loopHubs.length < 2 && n !== next && hubCount(st.b) >= 2 && loopHubs.indexOf(n) < 0) loopHubs.push(n);
+    }
+    if(!term || term === S) return null;
+    if(bv < 0) bv = tv;
+    let dir = (TERMFIX[term] && TERMFIX[term] !== S) ? TERMFIX[term] : term, dF = dT;
+    if(L[2] !== 's' && hub && hubN > hubCount(tv) && !TERMFIX[term]){ dir = hub; dF = dH; }
+    if(L[2] === 'c' && lab[0].indexOf('京浜東北線') >= 0 && term === '神田') dir = '東京';
+    if(L[2] !== 's' && maj && majL && majL !== maj) dir = maj + '・' + majL;
+    else if(L[2] !== 's' && maj && maj !== dir && dir.indexOf(maj) < 0) dir = dM >= dF ? maj : maj + '・' + dir;
+    if(loop) dir = loopHubs.length ? loopHubs.join('・') : (maj || next);
+    const t = ang(u, bv), south = Math.abs(t) > Math.PI / 2;
+    if(lab[0] === '瀬戸大橋線') dir = south ? '児島・四国' : '岡山';
+    else if(lab[0] === '埼京線') dir = south ? '池袋・新宿' : '大宮・川越';
+    else if(lab[0].indexOf('京浜東北線') >= 0) dir = dir.replace('神田', '東京');
+    return { label:lab[0], raw:L[0], col:colorOf(ei, lab[0]), kind:L[2], dir:dir, next:next, t:t, bv:bv, tv:tv, eis:[ei] };
+  }
+  const XTRA = {
+    '東京':[['中央線', '神田', '中央本線', '新宿・高尾', '神田'], ['常磐線', '日暮里', '常磐線', '上野・水戸', '上野'], ['山手線', '品川', '山手線', '品川・渋谷', '有楽町'], ['山手線', '田端', '山手線', '上野・池袋', '神田']],
+    '上野':[['常磐線', '日暮里', '常磐線', '取手・水戸', '日暮里'], ['東北線', '尾久', '宇都宮線・高崎線', '大宮・宇都宮・高崎', '尾久'], ['山手線', '田端', '山手線', '池袋・新宿', '鶯谷'], ['山手線', '品川', '山手線', '東京・品川', '御徒町']],
+    '札幌':[['千歳線', '白石', '千歳線', '新千歳空港・苫小牧', '苗穂'], ['札沼線', '桑園', '学園都市線', '石狩当別', '桑園']],
+    '山形':[['仙山線', '羽前千歳', '仙山線', '仙台', '北山形'], ['左沢線', '北山形', '左沢線', '左沢', '北山形']],
+    '京都':[['湖西線', '山科', '湖西線', '近江今津・敦賀', '山科']],
+    '郡山':[['水郡線', '安積永盛', '水郡線', '水戸', '安積永盛']],
+    '鹿児島中央':[['日豊線', '鹿児島', '日豊本線', '国分・宮崎', '鹿児島']]
+  };
+  function branchesAt(v){
+    const nodes = nodesOfStation(v), S = ND[v][0], out = [], key = {}, stSet = {};
+    nodes.forEach(function(x){ stSet[x] = 1; });
+    const add = function(b, eiKey){
+      const k1 = b.label + '|' + b.dir, k2 = b.label + '|>' + b.next;
+      const hit = key[k1] !== undefined ? key[k1] : key[k2];
+      if(hit !== undefined){ out[hit].eis.push(eiKey); return; }
+      key[k1] = key[k2] = out.length; out.push(b);
+    };
+    nodes.forEach(function(u){
+      adj[u].forEach(function(ei){
+        const b = walkLine(u, ei, S, stSet);
+        if(!b) return;
+        const pn = (PL[b.next] || []).filter(function(p){ return linesAt(p).indexOf(b.raw) >= 0; });
+        if(!pn.length || NOSTOP[b.next + '|' + b.raw]) return;
+        if(S === '上野' && b.dir === '日暮里') return;
+        add(b, ei);
+      });
+    });
+    (XTRA[S] || []).forEach(function(x){
+      let done = false;
+      (PL[x[1]] || []).forEach(function(p){ p.v.forEach(function(u){ adj[u].forEach(function(ei){
+        if(done || LN[E[ei][2]][0] !== x[0]) return;
+        const b = walkLine(u, ei, x[1], null);
+        if(!b || b.next === S || b.dir === S) return;
+        if(dkm(u, v) > 30) return;
+        b.label = x[2]; b.dir = x[3]; b.next = x[4]; b.col = colorOf(ei, x[2]); b.t = ang(v, b.bv);
+        b.xtra = true; done = true; add(b, ei);
+      }); }); });
+    });
+    return out;
+  }
+  function stopsOf(R){
+    const out = [], G = R.legs;
+    if(!G.length) return out;
+    const real = R.steps.filter(function(s){ return !s.x; });
+    const rideFrom = function(k){ const r = []; for(let i = k; i < G.length; i++){ r.push(G[i]); if(G[i].xa) break; } return r; };
+    const rideTo = function(k){ const r = [G[k]]; for(let i = k - 1; i >= 0 && !G[i].xa; i--) r.unshift(G[i]); return r; };
+    out.push({ role:'出発', name:G[0].from || R.names[0], v:real[0].a, depR:rideFrom(0) });
+    G.forEach(function(g, i){ if(g.xa && G[i + 1] && g.toV !== undefined) out.push({ role:'乗り換え', name:g.to, v:g.toV, arrR:rideTo(i), depR:rideFrom(i + 1) }); });
+    out.push({ role:'到着', name:G[G.length - 1].to || R.names[R.names.length - 1], v:real[real.length - 1].b, arrR:rideTo(G.length - 1) });
+    return out;
+  }
+  function synth(ride, isDep, st, set){
+    let es = [];
+    ride.forEach(function(g){ es = es.concat(g.e); });
+    if(!isDep) es = es.slice().reverse();
+    if(!es.length) return null;
+    const S = st.name, e0 = es[0];
+    let cur = set[E[e0][0]] ? E[e0][0] : (set[E[e0][1]] ? E[e0][1] : (dkm(E[e0][0], st.v) <= dkm(E[e0][1], st.v) ? E[e0][0] : E[e0][1]));
+    const v0 = cur;
+    let next = '', sum = 0, bv = -1;
+    es.forEach(function(e){
+      const far = E[e][0] === cur ? E[e][1] : (E[e][1] === cur ? E[e][0] : (dkm(E[e][0], v0) > dkm(E[e][1], v0) ? E[e][0] : E[e][1]));
+      sum += E[e][3] / 100;
+      if(bv < 0 && sum >= 5) bv = far;
+      const n = ND[far][0];
+      if(!next && n && n !== S && !NOSTOP[n + '|' + LN[E[e][2]][0]]) next = n;
+      cur = far;
+    });
+    if(bv < 0) bv = cur;
+    let g0 = isDep ? ride[0] : ride[ride.length - 1];
+    const adj0 = g0.name;
+    if(g0.km < 10){
+      const served = {};
+      nodesOfStation(st.v).forEach(function(x){ adj[x].forEach(function(ei){ served[official(LN[E[ei][2]][0])] = 1; }); });
+      const direct = function(g){ return served[g.off] || (XTRA[st.name] || []).some(function(x){ return x[2] === g.name; }); };
+      ride.forEach(function(g){ if(g.km > g0.km && direct(g)) g0 = g; });
+    }
+    if({ '高松':1, '坂出':1, '宇多津':1 }[st.name]) ride.forEach(function(g){ if(g.name === '瀬戸大橋線') g0 = g; });
+    const base = function(n){ return n.split('（')[0]; };
+    const via = [];
+    ride.forEach(function(g){ if(base(g.name) !== base(g0.name) && via.indexOf(g.name) < 0) via.push(g.name); });
+    const onRide = {}; es.forEach(function(e){ onRide[E[e][0]] = 1; onRide[E[e][1]] = 1; });
+    ride.forEach(function(g){ if(g.from) onRide[g.from] = 1; if(g.to) onRide[g.to] = 1; });
+    const end = isDep ? (ride[ride.length - 1].to || '') : (ride[0].from || '');
+    const xt = (XTRA[st.name] || []).filter(function(x){ return x[2] === g0.name; });
+    if(isDep && xt.length === 1) next = xt[0][4];
+    return { label:g0.name, col:g0.col, dir:end, end:end, next:next, t:ang(st.v, bv), eis:es.slice(0, 3), onRide:onRide, via:via, adj:adj0, isDep:isDep, isArr:!isDep, syn:true };
+  }
+  function stopBranches(st){
+    const set = {}; nodesOfStation(st.v).forEach(function(x){ set[x] = 1; });
+    let bs = branchesAt(st.v);
+    const syn = [];
+    if(st.depR){ const d = synth(st.depR, true, st, set); if(d) syn.push(d); }
+    if(st.arrR){ const a = synth(st.arrR, false, st, set); if(a) syn.push(a); }
+    syn.forEach(function(y){
+      bs = bs.filter(function(b){
+        let dt = Math.abs(b.t - y.t) % (2 * Math.PI); if(dt > Math.PI) dt = 2 * Math.PI - dt;
+        if(b.xtra && dt < 1.0 && (b.label === y.label || b.label === y.adj || y.via.indexOf(b.label) >= 0)) return false;
+        if(b.label !== y.label && b.label !== y.adj) return true;
+        const shared = b.eis.some(function(e){ return y.eis.indexOf(e) >= 0; }) || dt < 0.5;
+        if(!shared) return true;
+        if(y.via.length){ if(b.tv >= 0 && (y.onRide[b.tv] || y.onRide[ND[b.tv][0]])) return false; return b.dir !== y.dir; }
+        if(y.isDep && !y.same && b.next === y.next && !(b.tv >= 0 && (y.onRide[b.tv] || y.onRide[ND[b.tv][0]]))) y.same = b;
+        return false;
+      });
+      if(y.same && y.same.dir && y.same.dir !== y.end && y.same.dir.split('・').indexOf(y.end) < 0){ y.dir = y.same.dir; y.upto = y.end; }
+    });
+    return syn.concat(bs);
+  }
+  function mindLayout(stage, st){
+    const bs = stopBranches(st);
+    stage.innerHTML = '';
+    const W = stage.clientWidth || 320;
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    stage.appendChild(svg);
+    const c = document.createElement('div'); c.className = 'mt-xm-c'; c.textContent = st.name;
+    stage.appendChild(c);
+    const nb = document.createElement('div'); nb.className = 'mt-xm-n'; nb.innerHTML = '<i class="fa-solid fa-arrow-up"></i> 北'; stage.appendChild(nb);
+    bs.forEach(function(b){
+      const d = document.createElement('div');
+      d.className = 'mt-xm-l' + (b.isDep ? ' dep' : '') + (b.isArr ? ' arr' : '') + (!b.isDep && !b.isArr ? ' oth' : '');
+      d.style.borderColor = b.col;
+      const light = textOn(b.col) !== '#fff';
+      if(b.isDep){ d.style.background = b.col; d.style.color = textOn(b.col); if(light) d.classList.add('lt'); }
+      d.innerHTML = (b.isDep ? '<span class="mt-xm-bdg">今回 乗る</span>' : (b.isArr ? '<span class="mt-xm-bdg arr">今回 着いた線</span>' : ''))
+        + '<b style="color:' + (b.isDep ? (light ? '#1f2937' : '#fff') : inkOf(b.col)) + '">' + esc2(b.label) + '</b>'
+        + '<span class="d">' + esc2(b.dir ? (b.isArr ? b.dir + '方面から' : b.dir + '方面') : '') + '</span>'
+        + (b.via && b.via.length ? '<small>' + esc2('（' + b.via.join('・') + 'も通る）') + '</small>' : '')
+        + (b.upto ? '<small>' + esc2(b.isArr ? '今回は ' + b.upto + 'から' : '今回は ' + b.upto + 'まで') + '</small>' : '')
+        + (b.next && b.next !== b.dir ? '<small>' + esc2((b.isArr ? '前は ' : '次は ') + b.next) + '</small>' : '');
+      stage.appendChild(d); b.el = d;
+    });
+    const n = bs.length;
+    bs.sort(function(x, y){ return x.t - y.t; });
+    if(n > 1){
+      const sep = Math.min(0.8, 2 * Math.PI / n * 0.95);
+      for(let it = 0; it < 120; it++) for(let i = 0; i < n; i++){
+        const j = (i + 1) % n; let d = bs[j].t - bs[i].t; if(j === 0) d += 2 * Math.PI;
+        if(d < sep){ const p = (sep - d) / 2; bs[i].t -= p; bs[j].t += p; }
+      }
+    }
+    const cw = c.offsetWidth || 90, ch = c.offsetHeight || 36;
+    const H0 = Math.min(460, 250 + Math.max(0, n - 4) * 30);
+    const box = bs.map(function(b){
+      const w = b.el.offsetWidth || 100, h = b.el.offsetHeight || 44;
+      const rx = Math.max(60, W / 2 - w / 2 - 2), ry = H0 / 2 - h / 2;
+      return { b:b, w:w, h:h, x:W / 2 + rx * Math.sin(b.t) - w / 2, y:H0 / 2 - ry * Math.cos(b.t) - h / 2 };
+    });
+    const cb = { x:W / 2 - cw / 2, y:H0 / 2 - ch / 2, w:cw, h:ch, fixed:true };
+    const all = box.concat([cb]);
+    for(let it = 0; it < 80; it++){
+      let moved = false;
+      for(let i = 0; i < all.length; i++) for(let j = i + 1; j < all.length; j++){
+        const A = all[i], B = all[j];
+        const ox = Math.min(A.x + A.w, B.x + B.w) - Math.max(A.x, B.x) + 6, oy = Math.min(A.y + A.h, B.y + B.h) - Math.max(A.y, B.y) + 6;
+        if(ox <= 0 || oy <= 0) continue;
+        moved = true;
+        const sy = (A.y + A.h / 2) <= (B.y + B.h / 2) ? -1 : 1, sx = (A.x + A.w / 2) <= (B.x + B.w / 2) ? -1 : 1;
+        const useY = oy < ox || W < 420;
+        const mA = A.fixed ? 0 : (B.fixed ? 1 : .5), mB = 1 - mA;
+        if(useY){ A.y += sy * oy * mA; B.y -= sy * oy * mB; }
+        else { A.x += sx * ox * mA; B.x -= sx * ox * mB; }
+      }
+      box.forEach(function(q){ q.x = Math.max(0, Math.min(W - q.w, q.x)); });
+      if(!moved) break;
+    }
+    let minY = cb.y, maxY = cb.y + cb.h;
+    box.forEach(function(q){ minY = Math.min(minY, q.y); maxY = Math.max(maxY, q.y + q.h); });
+    const off = 18 - minY;
+    stage.style.height = (maxY - minY + 26) + 'px';
+    c.style.left = cb.x + 'px'; c.style.top = (cb.y + off) + 'px';
+    const cx = W / 2, cy = H0 / 2 + off;
+    let lines = '';
+    box.forEach(function(q){
+      q.b.el.style.left = q.x + 'px'; q.b.el.style.top = (q.y + off) + 'px';
+      const lx = q.x + q.w / 2, ly = q.y + off + q.h / 2;
+      const hi = q.b.isDep || q.b.isArr;
+      lines += '<path d="M' + cx + ' ' + cy + ' Q ' + ((cx + lx) / 2) + ' ' + ly + ' ' + lx + ' ' + ly + '" fill="none" stroke="' + q.b.col + '" stroke-width="' + (hi ? 6 : 2.5) + '" stroke-linecap="round" opacity="' + (hi ? 1 : .6) + '"' + (q.b.isArr ? ' stroke-dasharray="2 9"' : '') + '/>';
+    });
+    svg.innerHTML = lines;
+    return bs;
+  }
+  function mountMind(wrap, R){
+    const stops = stopsOf(R);
+    if(!stops.length) return;
+    wrap.innerHTML = '';
+    const h = document.createElement('div'); h.className = 'mt-xm-h';
+    h.textContent = '線の向きは地図と同じ（北が上）。ボタンで駅を切り替えられます。';
+    const tabs = document.createElement('div'); tabs.className = 'mt-xm-tabs';
+    const stage = document.createElement('div'); stage.className = 'mt-xm-stage';
+    const cap = document.createElement('div'); cap.className = 'mt-xm-cap';
+    const list = document.createElement('div'); list.className = 'mt-xm-list';
+    const note = document.createElement('div'); note.className = 'mt-xm-note';
+    note.textContent = 'JRの線（と土佐くろしお鉄道の中村線・宿毛線）だけを出しています。私鉄・地下鉄は入っていません。今回乗る線・着いた線はルートから、そのほかの線の「方面」は線路の形から、主な駅や終点を書いています。';
+    [h, tabs, stage, cap, list, note].forEach(function(x){ wrap.appendChild(x); });
+    let cur = 0;
+    stops.forEach(function(s, i){ if(!cur && s.role === '乗り換え') cur = i; });
+    const btns = stops.map(function(s, i){
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'mt-xm-tab';
+      b.innerHTML = '<span>' + esc2(s.role) + '</span>' + esc2(s.name);
+      b.addEventListener('click', function(ev){ ev.preventDefault(); ev.stopPropagation(); cur = i; show(); });
+      tabs.appendChild(b); return b;
+    });
+    let lastW = 0;
+    function show(){
+      btns.forEach(function(b, i){ b.classList.toggle('on', i === cur); });
+      const st = stops[cur];
+      const bs = mindLayout(stage, st);
+      lastW = stage.clientWidth;
+      const dep = bs.filter(function(b){ return b.isDep; })[0], arr = bs.filter(function(b){ return b.isArr; })[0];
+      const depT = dep ? dep.label + '（' + dep.dir + '方面）に乗って、' + (dep.via.length ? dep.via.join('・') + 'も通って ' : '') + dep.end + 'まで' : '';
+      cap.innerHTML = '<b>今回のルート：</b>' + esc2(
+        st.role === '出発' ? 'ここから ' + depT
+        : st.role === '乗り換え' ? (arr ? arr.label : '') + 'で着いて、' + depT
+        : (arr ? arr.label : '') + 'で着いておしまいです');
+      const ls = {}; bs.forEach(function(b){ ls[b.label] = 1; });
+      list.textContent = st.name + 'を通るJRの線：' + Object.keys(ls).join('・');
+    }
+    show();
+    if('ResizeObserver' in window){
+      new ResizeObserver(function(){ const w = stage.clientWidth; if(w && Math.abs(w - lastW) > 4) show(); }).observe(wrap);
+    }
   }
 
   let LL = null, waiting = [];
@@ -7110,7 +7482,7 @@ var mtJR = (function(){
       R.steps.forEach(function(s){ if(s.x) pin(s.a, false, ND[s.a][0] + '（乗り換え）'); });
       if(first) pin(first.a, true, ND[first.a][0] || R.names[0]);
       if(last) pin(last.b, true, ND[last.b][0] || R.names[R.names.length - 1]);
-      if(all.length) m.fitBounds(L.latLngBounds(all), { padding:[18, 18] });
+      if(all.length){ el._mtB = L.latLngBounds(all); m.fitBounds(el._mtB, { padding:[18, 18] }); }
       el._mtMap = m;
     });
   }
@@ -7123,6 +7495,37 @@ var mtJR = (function(){
     }
     return null;
   }
+  function refreshFolds(){
+    const all = [].slice.call(document.querySelectorAll('details.mt-fold-key'));
+    if(!all.length) return;
+    const lastBub = all[all.length - 1].closest('.chat-msg') || all[all.length - 1].parentNode;
+    all.forEach(function(d){
+      if(d.dataset.user) return;
+      const want = lastBub.contains(d);
+      if(d.open !== want){ d.dataset.prog = '1'; d.open = want; }
+    });
+  }
+  const FOLD_H = [
+    [/^もっと詳しく聞きたいとき/, 'fa-user-tie', 'もっと詳しく聞きたいとき（担当の窓口）'],
+    [/^乗り換える駅/, 'fa-shuffle'], [/^線ごとの区間/, 'fa-route'], [/^ルート/, 'fa-train'], [/^乗車券/, 'fa-ticket'],
+    [/^もっと安く/, 'fa-tags'], [/^経路（線ごと/, 'fa-route'], [/^この駅で乗り換えられる路線/, 'fa-shuffle'], [/^近くの別の駅/, 'fa-person-walking'],
+    [/^気をつけること/, 'fa-triangle-exclamation'], [/^あわせて伝えたいこと/, 'fa-lightbulb'], [/^旅好き/, 'fa-lightbulb']
+  ];
+  function foldTails(){
+    [].forEach.call(document.querySelectorAll('.chat-bubble > .mt-h'), function(h){
+      const t = (h.textContent || '').trim();
+      const r = FOLD_H.filter(function(x){ return x[0].test(t); })[0];
+      if(!r) return;
+      const d = document.createElement('details'); d.className = 'mt-fold';
+      const su = document.createElement('summary'); su.innerHTML = '<i class="fa-solid ' + r[1] + '"></i> ' + esc2(r[2] || t); d.appendChild(su);
+      const b = document.createElement('div'); b.className = 'mt-fold-b'; d.appendChild(b);
+      const parts = []; let x = h.nextSibling;
+      while(x && !(x.nodeType === 1 && x.classList && (x.classList.contains('mt-h') || x.classList.contains('mt-fold') || x.classList.contains('mt-rail-map')))){ parts.push(x); x = x.nextSibling; }
+      h.parentNode.insertBefore(d, h);
+      parts.forEach(function(n){ b.appendChild(n); });
+      h.remove();
+    });
+  }
   function mountSlots(){
     const slots = document.querySelectorAll('.mt-rmap-slot:not(.mt-rmap-on)');
     [].forEach.call(slots, function(sl){
@@ -7130,17 +7533,45 @@ var mtJR = (function(){
       const R = specRoute(sl.textContent || '');
       sl.textContent = '';
       if(!R){ sl.style.display = 'none'; return; }
+      const bub = sl.closest('.chat-bubble') || sl.parentNode;
+      [].forEach.call(bub.querySelectorAll('.mt-rv-c'), function(ch){
+        if(/mt-lc-/.test(ch.className)) return;
+        const g = R.legs.filter(function(x){ return x.name === ch.textContent; })[0];
+        if(g){ ch.classList.remove('mt-rv-s'); ch.classList.add(lcClass(g.col)); }
+      });
+      const fold = function(title){
+        const d = document.createElement('details'); d.className = 'mt-fold mt-fold-key';
+        const su = document.createElement('summary'); su.innerHTML = title; d.appendChild(su);
+        const body = document.createElement('div'); body.className = 'mt-fold-b'; d.appendChild(body);
+        d.addEventListener('toggle', function(){ if(!d.dataset.prog) d.dataset.user = '1'; delete d.dataset.prog; });
+        sl.appendChild(d); return { d:d, b:body };
+      };
+      const F1 = fold('<i class="fa-solid fa-map-location-dot"></i> 地図（ルートの線）');
       const box = document.createElement('div'); box.className = 'mt-rmap';
       box.innerHTML = '<div class="mt-rmap-load">地図を読み込んでいます…</div>';
-      sl.appendChild(box);
+      F1.b.appendChild(box);
       const cap = document.createElement('div'); cap.className = 'mt-rmap-cap';
-      cap.textContent = '線路の位置：国土数値情報（鉄道データ）を加工／地図：地理院タイル。線の色は会社（紺＝新幹線）。';
-      sl.appendChild(cap);
+      cap.textContent = '線路の位置：国土数値情報（鉄道データ）を加工／地図：地理院タイル。線の色は路線の色（決まっていない線は会社の色）。';
+      F1.b.appendChild(cap);
+      const stops = stopsOf(R);
+      const F2 = fold('<i class="fa-solid fa-diagram-project"></i> 乗り換え駅の路線マップ（' + esc2(stops.filter(function(x){ return x.role === '乗り換え'; }).map(function(x){ return x.name; }).join('・') || stops.map(function(x){ return x.name; }).join('・')) + '）');
+      const xm = document.createElement('div'); xm.className = 'mt-xm';
+      F2.b.appendChild(xm);
+      let xmDone = false;
+      const drawXm = function(){ if(xmDone || !F2.d.open) return; xmDone = true; try{ mountMind(xm, R); }catch(e){ xm.textContent = '路線マップを出せませんでした。'; } };
+      F2.d.addEventListener('toggle', drawXm);
       let done = false;
-      const go = function(){ if(done) return; done = true; draw(box, R); };
+      const go = function(){ if(done || !F1.d.open) return; done = true; draw(box, R); };
+      F1.d.addEventListener('toggle', function(){
+        if(!F1.d.open) return;
+        if(!done) go();
+        else if(box._mtMap){ box._mtMap.invalidateSize(); if(box._mtB) box._mtMap.fitBounds(box._mtB, { padding:[18, 18] }); }
+      });
+      refreshFolds();
+      drawXm();
       if('IntersectionObserver' in window){
         const io = new IntersectionObserver(function(en){ if(en.some(function(x){ return x.isIntersecting; })){ io.disconnect(); go(); } }, { rootMargin:'200px' });
-        io.observe(box);
+        io.observe(F1.d);
         setTimeout(function(){ io.disconnect(); go(); }, 2500);
       } else go();
     });
@@ -7160,10 +7591,53 @@ var mtJR = (function(){
       + '.mt-rmap-load{padding:12px;font-size:.85rem;color:#6b7280}'
       + '.mt-rmap-cap{font-size:.72rem;color:#6b7280;margin-top:4px;line-height:1.5}'
       + '.mt-rv-tip{font-weight:700;font-size:.8rem}'
-      + '@media (max-width:640px){.mt-rmap{height:240px}}';
+      + '.mt-fold{display:block;margin:6px 0;border:1px solid #dfe5ec;border-radius:10px;background:#fff}'
+      + '.mt-fold>summary{cursor:pointer;list-style:none;padding:7px 10px;font-weight:700;color:#1f3b5a;display:flex;align-items:center;gap:8px;min-height:36px;font-size:.9rem;line-height:1.4}'
+      + '.mt-fold>summary::-webkit-details-marker{display:none}'
+      + '.mt-fold>summary::before{content:"";flex:0 0 auto;width:7px;height:7px;border-right:2px solid #6b7280;border-bottom:2px solid #6b7280;transform:rotate(-45deg);transition:transform .15s;margin:0 2px}'
+      + '.mt-fold[open]>summary::before{transform:rotate(45deg)}'
+      + '.mt-fold>summary i{color:#11a2dc}'
+      + '.mt-fold-n{font-weight:600;color:#4b5563;font-size:.82rem}'
+      + '.mt-fold-b{display:block;padding:0 10px 8px}'
+      + '.mt-sum{display:block;margin:6px 0;padding:8px 10px;border-radius:10px;background:#f3f7fb;border:1px solid #d6e0ea;font-size:.92rem;line-height:1.6}.mt-sum b{color:#b3261e}'
+      + '.mt-xm{margin-top:4px}'
+      + '.mt-xm-h{color:#4b5563;font-size:.78rem;line-height:1.5}'
+      + '.mt-xm-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 4px}'
+      + '.mt-xm-tab{border:1px solid #bcd6ee;background:#fff;border-radius:999px;padding:5px 12px;min-height:36px;font-size:.84rem;font-weight:700;color:#1f3b5a;cursor:pointer;font-family:inherit}'
+      + '.mt-xm-tab span{font-size:.68rem;color:#6b7280;margin-right:5px;font-weight:600}'
+      + '.mt-xm-tab.on{background:#1f3b5a;color:#fff;border-color:#1f3b5a}.mt-xm-tab.on span{color:#cfe0f0}'
+      + '.mt-xm-stage{position:relative;width:100%;min-height:200px;margin-top:4px}'
+      + '.mt-xm-stage svg{position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;overflow:visible;pointer-events:none}'
+      + '.mt-xm-c{position:absolute;z-index:3;background:#1f3b5a;color:#fff;font-weight:700;border-radius:999px;padding:8px 16px;font-size:1rem;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.18)}'
+      + '.mt-xm-n{position:absolute;right:2px;top:0;font-size:.72rem;color:#6b7280;z-index:1}'
+      + '.mt-xm-l{position:absolute;z-index:2;background:#fff;border:2px solid #ccc;border-radius:10px;padding:4px 8px 5px;max-width:124px;font-size:.76rem;line-height:1.35;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.08)}'
+      + '.mt-xm-l b{display:block;font-size:.8rem}'
+      + '.mt-xm-l .d{display:block;color:#1f2937;font-weight:700}'
+      + '.mt-xm-l small{display:block;color:#6b7280;font-size:.68rem}'
+      + '.mt-xm-l.dep{box-shadow:0 3px 10px rgba(0,0,0,.22)}.mt-xm-l.dep .d,.mt-xm-l.dep small{color:#fff}'
+      + '.mt-xm-l.dep.lt .d,.mt-xm-l.dep.lt small{color:#1f2937}'
+      + '.mt-xm-l.arr{border-width:3px;border-style:dashed}'
+      + '.mt-xm-l.oth{opacity:.9}'
+      + '.mt-xm-bdg{display:inline-block;background:#fff;color:#1f3b5a;border-radius:999px;padding:0 7px;font-size:.66rem;font-weight:700;margin-bottom:1px}'
+      + '.mt-xm-bdg.arr{background:#b45309;color:#fff}'
+      + '.mt-xm-cap{margin-top:6px;font-size:.88rem;line-height:1.6;color:#1f2937}.mt-xm-cap b{color:#1f3b5a}'
+      + '.mt-xm-list{font-size:.8rem;color:#374151;line-height:1.5;margin-top:2px}'
+      + '.mt-xm-note{font-size:.7rem;color:#6b7280;margin-top:4px;line-height:1.5}'
+      + '@media (max-width:640px){.mt-rmap{height:240px}.mt-xm-l{max-width:112px;font-size:.72rem}}';
+    const cols = {};
+    Object.keys(LC).forEach(function(k){ cols[LC[k]] = 1; });
+    Object.keys(COL).forEach(function(k){ cols[COL[k]] = 1; });
+    ['#e4007f', '#f39800', '#0072ba', '#f68b1e', '#f0831e', '#f15a22', '#0067c0', '#8f76b4', '#777'].forEach(function(c){ cols[c] = 1; });
+    st.textContent += Object.keys(cols).map(function(c){
+      const h = hexOf(c);
+      return '.mt-rv-c.mt-lc-' + h + '{background:' + c + ';border-color:' + c + ';color:' + textOn(c) + '}'
+        + '.mt-k-lc' + h + '{--c:' + inkOf(c) + '}.mt-a-lc' + h + '{--a:' + c + '}.mt-b-lc' + h + '{--b:' + c + '}';
+    }).join('');
     document.head.appendChild(st);
     mountSlots();
-    new MutationObserver(function(){ mountSlots(); }).observe(document.body, { childList:true, subtree:true });
+    refreshFolds();
+    foldTails();
+    new MutationObserver(function(){ mountSlots(); refreshFolds(); foldTails(); }).observe(document.body, { childList:true, subtree:true });
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 
@@ -7180,7 +7654,7 @@ var mtJR = (function(){
     });
     return out.sort(function(x, y){ return x.p - y.p; });
   }
-  return { find:find, has:function(n){ return !!PL[n]; }, places:function(n){ return PL[n] || []; }, linesAt:linesAt, route:routeNames, viaHTML:viaHTML, legsHTML:legsListHTML, viaText:viaText, names:function(){ return Object.keys(PL); }, official:official };
+  return { find:find, has:function(n){ return !!PL[n]; }, places:function(n){ return PL[n] || []; }, linesAt:linesAt, route:routeNames, viaHTML:viaHTML, legsHTML:legsListHTML, viaText:viaText, names:function(){ return Object.keys(PL); }, official:official, branchesAt:branchesAt, stopsOf:stopsOf, stopBranches:stopBranches, colorFor:colorFor, hexOf:hexOf };
 })();
 
 function mtRailAnswer(q, P){ return (typeof mtRail !== 'undefined' && mtRail) ? mtRail.answer(q, P) : ''; }
@@ -7695,7 +8169,11 @@ const mtRail = (function(){
     return res;
   }
   const KCLS = { '新幹線':'s', '特急':'t', '快速':'r', '普通':'l' };
-  function legCol(g){ return g.trains.length ? (KCLS[legFast(g).t.k] || 'l') : (g.other ? 'o' : 'l'); }
+  function legCol(g){
+    const M = (typeof mtJR !== 'undefined' && mtJR) ? mtJR : null;
+    if(M && M.colorFor) return 'lc' + M.hexOf(M.colorFor(g.line, bare(N.st[g.from])));
+    return g.trains.length ? (KCLS[legFast(g).t.k] || 'l') : (g.other ? 'o' : 'l');
+  }
   function clk(m){ const d = Math.floor(m / 1440), x = ((m % 1440) + 1440) % 1440; return (d > 0 ? '翌' : '') + Math.floor(x / 60) + ':' + ('0' + (x % 60)).slice(-2); }
   function toward(g){
     if(g.trains.length){
@@ -7794,6 +8272,9 @@ const mtRail = (function(){
     return '';
   }
 
+  function fold(title, body, key){
+    return '<details class="mt-fold' + (key ? ' mt-fold-key' : '') + '"><summary>' + title + '</summary><span class="mt-fold-b">' + body + '</span></details>';
+  }
   function routeHTML(J){
     return '<ul class="mt-rail-route">' + segs(J.r).map(function(s){
       return '<li><b>' + esc(lineName(s.ln)) + '</b>　' + esc(N.st[s.from]) + ' → ' + esc(N.st[s.to]) + '　<span class="mt-src">' + km(s.k10) + 'km</span></li>';
@@ -7847,13 +8328,15 @@ const mtRail = (function(){
     if(!R) return '<span class="mt-h">答え</span>' + esc(an + 'から' + bn + 'までを、JR線だけでつなぐ経路が見つかりませんでした（JR以外の線を通らないと行けない区間かもしれません）。');
     let h = '<span class="mt-h">答え</span><b>' + esc(an) + ' → ' + esc(bn) + '</b>' + (vn.length ? '（' + esc(vn.join('・')) + '経由）' : '')
       + '　<span class="mt-src">地図の上の長さ 約' + Math.round(R.km) + 'km（営業キロではありません）</span><br>';
+    h += '<span class="mt-sum">' + esc(R.xf.length ? '乗り換え ' + R.xf.length + '回（' + R.xf.map(function(x){ return x.at; }).join('・') + '）' : '乗り換えなし') + '</span>';
     h += M.viaHTML(R, 'n|' + an + '|' + bn + '|' + vn.join(','));
-    if(R.xf.length) h += '<span class="mt-h mt-h-act">乗り換える駅</span><ul class="mt-acts">' + R.xf.map(function(x){
-      return '<li>' + esc(x.at + '：' + (x.from || '') + ' → ' + (x.to || '')) + '</li>'; }).join('') + '</ul>';
-    h += '<span class="mt-h mt-h-act">線ごとの区間</span>' + M.legsHTML(R);
+    h += fold('<i class="fa-solid fa-route"></i> 線ごとの区間' + (R.xf.length ? '・乗り換える駅' : ''),
+      (R.xf.length ? '<span class="mt-h mt-h-act">乗り換える駅</span><ul class="mt-acts">' + R.xf.map(function(x){
+        return '<li>' + esc(x.at + '：' + (x.from || '') + ' → ' + (x.to || '')) + '</li>'; }).join('') + '</ul>' : '')
+      + '<span class="mt-h mt-h-act">線ごとの区間</span>' + M.legsHTML(R));
     const dup = [an, bn].concat(vn).filter(function(n){ return M.places(n).length > 1; });
     if(dup.length) h += '<span class="mt-note">' + esc('同じ名前の駅がほかにもあります（' + dup.join('・') + '）。違う駅のときは、経由の駅を足して調べ直してください。') + '</span>';
-    h += '<span class="mt-note">' + esc('※経路は、乗り物の目安の速さ（新幹線は線ごとに160〜220km/h・特急の走る在来線85km/h・そのほか55km/h）と乗り換えの手間（1回12分）から選んだ「早く着きそうな経路」で、JR線（と特急が乗り入れる土佐くろしお鉄道の中村線・宿毛線）だけを通ります。営業キロ・運賃・途中下車・有効期間の判定は、JR四国と岡山〜新大阪〜東京・岡山〜博多の幹線の中だけで計算しているため、この区間では出していません。線の名前は正式な線名で、よく使う呼び名（瀬戸大橋線・埼京線など）はそちらで書いています。線路の位置は国土数値情報（鉄道データ）N02-25（国土交通省）を加工したものです。') + '</span>';
+    h += fold('<i class="fa-solid fa-circle-info"></i> 注意書き・出典', '<span class="mt-note">' + esc('※経路は、乗り物の目安の速さ（新幹線は線ごとに160〜220km/h・特急の走る在来線85km/h・そのほか55km/h）と乗り換えの手間（1回12分）から選んだ「早く着きそうな経路」で、JR線（と特急が乗り入れる土佐くろしお鉄道の中村線・宿毛線）だけを通ります。営業キロ・運賃・途中下車・有効期間の判定は、JR四国と岡山〜新大阪〜東京・岡山〜博多の幹線の中だけで計算しているため、この区間では出していません。線の名前は正式な線名で、よく使う呼び名（瀬戸大橋線・埼京線など）はそちらで書いています。線路の位置は国土数値情報（鉄道データ）N02-25（国土交通省）を加工したものです。') + '</span>');
     h += '<a class="mt-rail-map" href="' + yahooN(an, bn, vn, t0) + '" target="_blank" rel="noopener">実際の列車・時刻・運賃を Yahoo!乗換案内で見る（この経由で開きます）</a>';
     return h;
   }
@@ -7864,7 +8347,7 @@ const mtRail = (function(){
       + (J.r.other ? '（JR線の合計。ほかに JR以外の線 ' + km(J.all - J.total) + 'km）' : '')
       + (vias.length ? '（' + esc(vias.map(function(v){ return N.st[v]; }).join('・')) + '経由）' : '（最短の経路）')
       + '　<span class="mt-src">券面：' + (J.mode === 'shin' ? '新幹線経由' : '在来線経由') + '</span><br>';
-    h += mapViaHTML(a, b, vias, J.mode);
+    const mapV = mapViaHTML(a, b, vias, J.mode);
     const L = legs(J.r);
     if(J.r.repeat) h += '<span class="mt-rail-verdict mt-v-ng"><b>' + esc('この経由だと同じ区間を2回通ります') + '</b><br>' + esc('同じ区間を重ねて通る経路は、1枚の乗車券として通しで計算できません（第68条第4項）。キロと判定は参考です。区域内の折り返しは第160条の3の特例があります。') + '</span>';
     stops.forEach(function(s){
@@ -7872,10 +8355,14 @@ const mtRail = (function(){
       h += '<span class="mt-rail-verdict ' + (x.ok ? 'mt-v-ok' : 'mt-v-ng') + '"><b>' + esc(N.st[s]) + 'で途中下車：' + (x.ok ? 'できます' : (x.off ? '経路の外です' : 'できません')) + '</b><br>' + esc(x.why) + '</span>';
     });
     const cheap = splitHTML(J, a, b) + ticketsHTML(J, a, b, L);
-    const cheapH = cheap ? '<span class="mt-h">もっと安く・おトクに行くなら</span>' + cheap : '';
+    const cheapH = cheap ? fold('<i class="fa-solid fa-tags"></i> もっと安く・おトクに行くなら', cheap, cheapFirst) : '';
+    const T = tripTime(L), F0 = fareOf(J, a, b), C0 = chargesOf(L);
+    const rs0 = C0.reduce(function(s1, c){ return s1 + (c && !c.merged ? c.r : 0); }, 0);
+    const sumH = '<span class="mt-sum">' + esc('乗車時間 約' + hm(T.m) + '（目安）・' + (T.xfer ? '乗り換え' + T.xfer + '回' : '乗り換えなし')) + (F0 ? '・運賃' + (rs0 ? '＋特急料金' : '') + ' <b>' + yen(F0.fare + rs0) + '円</b>' + (rs0 ? esc('（指定席）') : '') : '') + '</span>';
+    h += sumH + mapV;
     if(cheapFirst) h += cheapH;
-    h += '<span class="mt-h">ルート（主な列車・時刻は目安）</span>' + legsHTML(J, a, b, L, t0);
-    h += '<span class="mt-h">乗車券</span><ul class="mt-acts">'
+    h += fold('<i class="fa-solid fa-train"></i> ルート（主な列車・乗車時間の目安）', legsHTML(J, a, b, L, t0));
+    h += fold('<i class="fa-solid fa-ticket"></i> 乗車券（' + esc('有効期間 ' + J.days + '日' + (F0 ? '・運賃 ' + yen(F0.fare) + '円' : '')) + '）', '<ul class="mt-acts">'
       + '<li>' + esc('券面：' + ticketName(J, a, b)) + '</li>'
       + (function(){ const F = fareOf(J, a, b); if(!F) return '';
           return '<li>' + esc('運賃（大人・片道）：' + yen(F.fare) + '円（こども ' + yen(Math.floor(F.fare / 20) * 10) + '円）・' + F.why + (F.parts.length ? '：' + F.parts.join('＋') : '') + (F.other ? '。土佐くろしお鉄道の区間は別' : '')) + '</li>'; })()
@@ -7884,16 +8371,19 @@ const mtRail = (function(){
       + '<li>' + esc(J.kinko ? '途中下車：区間内のどの駅でもできません。券面と違う経路でも、区間内なら乗れます（第157条第2項）。'
         : J.noStop === 'short' ? '途中下車：できません（営業キロ100km以下・第156条第1号）。'
         : '途中下車：券面の経路の、着駅以外の駅でできます' + (J.zones.length ? '。ただし ' + J.zones.map(function(z){ return z.name; }).join('・') + ' の駅を除きます' : '') + '（第156条）。') + '</li>'
-      + '</ul>';
+      + '</ul>');
     if(!cheapFirst) h += cheapH;
-    h += '<span class="mt-h">経路（線ごと・営業キロ）</span>' + routeHTML(J);
+    h += fold('<i class="fa-solid fa-route"></i> 経路（線ごと・営業キロ）', routeHTML(J));
     const names = segs(J.r).map(function(s){ return lineName(s.ln); });
+    let notes = '';
     if(names.some(function(n){ return /東海道新幹線|山陽新幹線|東海道本線|山陽本線/.test(n); }))
-      h += '<span class="mt-note">' + esc('東海道新幹線の熱海〜新神戸と山陽新幹線は、並行する在来線と同じ線路とみなして営業キロを計算します（第16条の2）。2026年3月14日の改正で、東海道新幹線の東京〜熱海は在来線と別の線路の扱いになりました（ここではキロを改正前と同じ値で計算しています・要確認）。新大阪〜西明石・三島〜静岡などの途中の駅（新神戸など）を発着や乗り換えにするときは、別の線路として扱います（同条第2項）。') + '</span>';
+      notes += '<span class="mt-note">' + esc('東海道新幹線の熱海〜新神戸と山陽新幹線は、並行する在来線と同じ線路とみなして営業キロを計算します（第16条の2）。2026年3月14日の改正で、東海道新幹線の東京〜熱海は在来線と別の線路の扱いになりました（ここではキロを改正前と同じ値で計算しています・要確認）。新大阪〜西明石・三島〜静岡などの途中の駅（新神戸など）を発着や乗り換えにするときは、別の線路として扱います（同条第2項）。') + '</span>';
     if(names.indexOf('岩徳線') >= 0)
-      h += '<span class="mt-note">' + esc('岩国〜櫛ケ浜は、営業キロの短い岩徳線経由で計算しています。柳井経由の山陽本線に乗っても運賃は同じです（経路の特定区間・第69条／う回乗車・第158条）。') + '</span>';
-    if(J.r.other) h += '<span class="mt-note">' + esc('JR以外の線（土佐くろしお鉄道 窪川〜若井）をはさむ経路です。前後のJR線のキロを通算して扱います（通過連絡運輸・第68条）。取り扱いの細部は連絡運輸の規定で確かめてください。') + '</span>';
-    h += '<span class="mt-note">' + esc('※営業キロは Wikipedia の駅一覧から集計した参考値です（出典：Wikipedia（CC BY-SA 4.0））。主な列車は運転区間の目安で、運転日・停車駅・時刻は含みません。正式な営業キロ表・旅客営業規則・取扱基準・時刻表で必ず確かめてください。入っている路線：JR四国全線と、岡山〜新大阪〜東京・岡山〜博多の幹線。') + '</span>';
+      notes += '<span class="mt-note">' + esc('岩国〜櫛ケ浜は、営業キロの短い岩徳線経由で計算しています。柳井経由の山陽本線に乗っても運賃は同じです（経路の特定区間・第69条／う回乗車・第158条）。') + '</span>';
+    if(J.r.other) notes += '<span class="mt-note">' + esc('JR以外の線（土佐くろしお鉄道 窪川〜若井）をはさむ経路です。前後のJR線のキロを通算して扱います（通過連絡運輸・第68条）。取り扱いの細部は連絡運輸の規定で確かめてください。') + '</span>';
+    notes += '<span class="mt-note">' + esc('※営業キロは Wikipedia の駅一覧から集計した参考値です（出典：Wikipedia（CC BY-SA 4.0））。主な列車は運転区間の目安で、運転日・停車駅・時刻は含みません。正式な営業キロ表・旅客営業規則・取扱基準・時刻表で必ず確かめてください。入っている路線：JR四国全線と、岡山〜新大阪〜東京・岡山〜博多の幹線。') + '</span>';
+    h += fold('<i class="fa-solid fa-circle-info"></i> 注意書き・出典', notes);
+    h += '<a class="mt-rail-map" href="' + yahooURL(a, b, J.vias, t0) + '" target="_blank" rel="noopener">時刻・のりばを Yahoo!乗換案内で見る</a>';
     return h;
   }
 
@@ -8064,7 +8554,7 @@ const mtRail = (function(){
       + '.mt-rt{border:1px solid #d6e0ea;border-radius:12px;overflow:hidden;margin:8px 0;background:#fff}'
       + '.mt-rt-head{padding:10px 12px;border-bottom:1px solid #e3e9f0}'
       + '.mt-rt,.mt-rt-head,.mt-rt-rail,.mt-rt-info,.mt-rt-tr,.mt-rt-dir,.mt-rt-meta,.mt-rt-alt,.mt-rail-verdict{display:block}'
-      + '.mt-k-s{--c:#0d3c8f}.mt-k-t{--c:#1a6fd1}.mt-k-r{--c:#2f8fe0}.mt-k-l{--c:#5aa9e6}.mt-k-o{--c:#9aa3ad}'
+      + '.mt-k-s{--c:#0d3c8f}.mt-k-t{--c:#1a6fd1}.mt-k-r{--c:#1d6fa5}.mt-k-l{--c:#4a6d8c}.mt-k-o{--c:#9aa3ad}'
       + '.mt-a-s{--a:#0d3c8f}.mt-a-t{--a:#1a6fd1}.mt-a-r{--a:#2f8fe0}.mt-a-l{--a:#5aa9e6}.mt-a-o{--a:#9aa3ad}.mt-a-n{--a:transparent}'
       + '.mt-b-s{--b:#0d3c8f}.mt-b-t{--b:#1a6fd1}.mt-b-r{--b:#2f8fe0}.mt-b-l{--b:#5aa9e6}.mt-b-o{--b:#9aa3ad}.mt-b-n{--b:transparent}'
       + '.mt-rt-head b{font-size:1.25rem;color:#1f2d3d;font-variant-numeric:tabular-nums}.mt-rt-head .mt-rt-dur{font-size:.85rem;color:#4b5563}'
@@ -8092,7 +8582,13 @@ const mtRail = (function(){
       + '.mt-rt-fare-d{display:block;font-size:.8rem;color:#374151}'
       + '.mt-rt-chg{display:block;font-size:.8rem;color:#1f3b5a;margin-top:2px;font-weight:600}'
       + '.mt-quick .mt-quick-track{animation-duration:280s}.mt-quick-flow:hover .mt-quick-track{animation-play-state:paused}'
-      + '@media (max-width:640px){.mt-rail-f{grid-template-columns:minmax(0,1fr) auto}.mt-rail-f .mt-rail-b{grid-column:1/-1}}';
+      + '.mt-dock{display:flex;flex-wrap:wrap;gap:6px;align-items:flex-start;margin:0 0 6px}'
+      + '.mt-dock>.mt-rail{flex:1 1 180px;margin:0;padding:5px 10px}.mt-dock>.mt-rail[open]{flex-basis:100%;padding:8px 10px}'
+      + '.mt-rail>summary{min-height:34px}.mt-rail-ttl i{color:#b07a1a;margin-right:4px}'
+      + '.mt-qtog{flex:0 0 auto;min-height:44px;border:1px solid var(--amber-line,#e5c98a);border-radius:12px;background:#fffdf7;color:#6b4a12;font-weight:700;font-size:.85rem;padding:0 12px;cursor:pointer;font-family:inherit}'
+      + '.mt-qtog i{color:#b07a1a}.mt-qtog:hover{background:#fbe9c9}'
+      + '.mt-q-closed>#mt-quick,.mt-q-closed>#mt-quick-more,.mt-q-closed>#mt-quick-all{display:none!important}'
+      + '@media (max-width:640px){.mt-rail-f{grid-template-columns:minmax(0,1fr) auto}.mt-rail-f .mt-rail-b{grid-column:1/-1}.mt-rail-sub{display:none}.mt-qtog{min-height:44px;padding:0 10px;font-size:.8rem}.mt-q-l,.mt-tog-t,.mt-rail-ttl i{display:none}.mt-rail-tog{padding:3px 9px}.mt-rail-ttl{font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}';
     document.head.appendChild(st);
     const dlNames = N.st.slice(0);
     if(JRM()){ const seen = {}; N.st.forEach(function(n){ seen[bare(n)] = 1; }); JRM().names().forEach(function(n){ if(!seen[n]){ seen[n] = 1; dlNames.push(n); } }); }
@@ -8100,10 +8596,10 @@ const mtRail = (function(){
     const inp = function(id, lab, ph){ return '<div><label for="' + id + '">' + lab + '</label><input id="' + id + '" list="mt-rail-dl" placeholder="' + ph + '" autocomplete="off"></div>'; };
     const box = document.createElement('details');
     box.className = 'mt-rail'; box.id = 'mt-rail';
-    let open0 = true;
-    try{ open0 = localStorage.getItem('mtRailOpen') !== '0'; }catch(e){}
+    let open0 = false;
+    try{ open0 = localStorage.getItem('mtRailOpen') === '1'; }catch(e){}
     box.open = open0;
-    box.innerHTML = '<summary><span class="mt-rail-ttl">きっぷと経路を調べる（営業キロ・運賃・途中下車・主な列車）</span><span class="mt-rail-tog" id="mt-rail-tog"></span></summary>' + dl
+    box.innerHTML = '<summary><span class="mt-rail-ttl"><i class="fa-solid fa-magnifying-glass"></i> きっぷと経路を調べる<span class="mt-rail-sub">（営業キロ・運賃・途中下車・主な列車）</span></span><span class="mt-rail-tog" id="mt-rail-tog"></span></summary>' + dl
       + '<div class="mt-rail-f">'
       + inp('mt-rail-a', '出発', '例：古高松南')
       + '<button type="button" class="mt-rail-swap" id="mt-rail-swap" aria-label="出発と到着を入れ替える" title="出発と到着を入れ替える"><i class="fa-solid fa-right-left"></i></button>'
@@ -8116,9 +8612,23 @@ const mtRail = (function(){
       + '<label><input type="radio" name="mt-rail-mode" value="zai"> 在来線経由</label></div>'
       + '<button type="button" class="btn btn-primary btn-sm mt-rail-go" id="mt-rail-go">調べる</button></div>'
       + '</div>';
-    quick.parentNode.insertBefore(box, quick);
+    const dock = document.createElement('div'); dock.className = 'mt-dock';
+    quick.parentNode.insertBefore(dock, quick);
+    dock.appendChild(box);
+    const qtog = document.createElement('button'); qtog.type = 'button'; qtog.className = 'mt-qtog'; qtog.id = 'mt-qtog';
+    dock.appendChild(qtog);
+    const qhost = quick.parentNode;
+    let qOpen = false;
+    try{ qOpen = localStorage.getItem('mtQuickOpen') === '1'; }catch(e){}
+    const drawQ = function(){
+      qhost.classList.toggle('mt-q-closed', !qOpen);
+      qtog.innerHTML = '<i class="fa-regular fa-lightbulb"></i> <span class="mt-q-l">相談の</span>きっかけ <i class="fa-solid fa-chevron-' + (qOpen ? 'up' : 'down') + '"></i>';
+      qtog.setAttribute('aria-expanded', qOpen ? 'true' : 'false');
+    };
+    drawQ();
+    qtog.addEventListener('click', function(){ qOpen = !qOpen; drawQ(); try{ localStorage.setItem('mtQuickOpen', qOpen ? '1' : '0'); }catch(e){} });
     const tog = $('mt-rail-tog');
-    const drawTog = function(){ tog.innerHTML = box.open ? '<i class="fa-solid fa-chevron-up"></i> たたむ' : '<i class="fa-solid fa-chevron-down"></i> ひらく'; };
+    const drawTog = function(){ tog.innerHTML = box.open ? '<i class="fa-solid fa-chevron-up"></i><span class="mt-tog-t"> たたむ</span>' : '<i class="fa-solid fa-chevron-down"></i><span class="mt-tog-t"> ひらく</span>'; };
     drawTog();
     box.addEventListener('toggle', function(){ drawTog(); if(box.dataset.auto){ delete box.dataset.auto; return; } try{ localStorage.setItem('mtRailOpen', box.open ? '1' : '0'); }catch(e){} });
     const viasBox = $('mt-rail-vias'), addBtn = $('mt-rail-add'), tIn = $('mt-rail-t');
