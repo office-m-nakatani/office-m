@@ -320,7 +320,9 @@ body.vc-dock-on .chat-fab{ display:none !important; }
 .mt-bub li > b{ color:#14533a; font-size:1.04em; }
 .mt-bub .mt-src{ display:block; margin-top:5px; font-size:.8rem; color:#66756e; letter-spacing:.02em; font-weight:400; }
 .mt-bub .mt-senjin{ display:block; margin:8px 0 14px; }
-.mt-bub .mt-senjin > b{ display:block; margin-bottom:2px; }
+.mt-bub .mt-senjin > b{ display:block; margin-bottom:3px; }
+.mt-bub .mt-senjin-row{ display:block; margin-top:3px; }
+.mt-bub .mt-senjin-lab{ display:inline-block; margin-right:7px; padding:0 7px; border:1px solid #c9d3da; border-radius:4px; font-size:.78rem; font-weight:700; color:#3d4c57; background:#f3f6f8; line-height:1.6; vertical-align:1px; }
 .mt-bub .mt-note{ display:block; margin-top:6px; font-size:.9rem; color:#4f5f58; line-height:1.7; }
 .mt-bub ul.mt-acts{ list-style:none; margin:8px 0 0; padding:0; counter-reset:mtact; display:flex; flex-direction:column; gap:8px; }
 .mt-bub ul.mt-acts > li{ position:relative; margin:0; padding:10px 14px 10px 56px; min-height:48px; counter-increment:mtact;
@@ -6703,6 +6705,15 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       const i = h.lastIndexOf('<span class="mt-say">');
       return i >= 0 ? h.slice(0, i) + block + h.slice(i) : h + block;
     }
+    /* ★一語だけで遠い原則を拾う広い語（2026-09-26 実測）。「変額保険の仕組み」に「判断を仕組みに落とす」、
+       「考えておきます」に「頭は人の100倍使え」、「どうやって頼めば」に「丸ごと任せる」が出ていた。1点ではなく0.4点に数える */
+    const MT_SENJIN_WEAK = ['仕組み', '考え', '判断', '情報', '説明', '経営', '提案', '頼め', '決め', '理由', '方法', 'できない', '何から'];
+    /* 相談の言い方を、原則の判定語の言い方に寄せる（mtAlias で揃わないものだけ） */
+    const MT_SENJIN_SYN = [[/考えて?おき|考えさせ|検討させ|持ち帰らせ|また連絡し/, ' 検討します 考えます 持ち帰']];
+    function mtSenjinKw(t, kws){
+      let n = 0; (kws || []).forEach(function(k){ if(k && t.indexOf(mtNorm(k)) >= 0) n += (MT_SENJIN_WEAK.indexOf(k) >= 0 ? 0.4 : 1); });
+      return n;
+    }
     function mtSenjinBi(t){
       const s = String(t || ''), out = [];
       for(let i = 0; i + 1 < s.length; i++){
@@ -6711,18 +6722,22 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       }
       return out;
     }
-    function mtSenjinAll(t, ctx, avoid, lifeMode){
-      const out = [], bis = mtSenjinBi(ctx ? t + ' ' + ctx.name : t), ck = ctx ? mtNorm(ctx.kw) : '';
+    function mtSenjinAll(t0, ctx, avoid, lifeMode){
+      let t = t0 + ' ' + mtAlias(t0);
+      MT_SENJIN_SYN.forEach(function(x){ if(x[0].test(t0)) t += x[1]; });
+      const out = [], bis = mtSenjinBi(ctx ? t0 + ' ' + ctx.name : t0), ck = ctx ? mtNorm(ctx.kw) : '';
       (typeof MT_BOOKS !== 'undefined' ? MT_BOOKS : []).forEach(function(b){
         (b.principles || []).forEach(function(pr){
           if(avoid.indexOf(pr.key) >= 0) return;
           const body = [pr.name, pr.gist, lifeMode ? pr.lifegist : pr.sales].join(' ');
           let ov = 0; bis.forEach(function(bi){ if(body.indexOf(bi) >= 0) ov++; });
           /* 相談の文に当たった語は1点、相談の型の判定語にだけ当たった語は0.4点（型の判定語は広いので） */
-          const hitT = mtHasKw(t, pr.kw), hitC = ck ? Math.max(0, mtHasKw(t + ' ' + ck, pr.kw) - hitT) : 0;
+          const hitT = mtSenjinKw(t, pr.kw), hitC = ck ? Math.max(0, mtSenjinKw(t + ' ' + ck, pr.kw) - hitT) : 0;
           let sc = hitT + hitC * 0.4 + Math.min(ov, 3) * 0.25;
+          if(MT_SENJIN_CORE.indexOf(b.key) >= 0) sc += 0.05;   /* 6冊は、同じくらい近いときに少し先に出すだけ（2026-09-26 に「必ず」を外した） */
           if(mtSenjinRecent.indexOf(pr.key) >= 0) sc *= 0.4;   /* 直近に出した考え方は4割に落として、毎回同じにしない */
           out.push({ bk:b.key, key:pr.key, axis:pr.axis || '', name:pr.name, gist:pr.gist, lifegist:pr.lifegist, lines:pr.lines || [],
+                     sales:pr.sales || '', mgmt:pr.mgmt || '', life:pr.life || '',
                      src:(typeof MT_BOOK_SRC !== 'undefined' && MT_BOOK_SRC[b.key]) || b.src, sc:sc, core:MT_SENJIN_CORE.indexOf(b.key) >= 0 });
         });
       });
@@ -6748,35 +6763,56 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       const use = fresh.length ? fresh : c;
       return use.length ? use[mtSenjinSeed(t) % use.length] : null;
     }
-    /* ctx＝師匠が選んだ相談の型（名前＋判定語）。mode＝'know'（調べもの）のときだけ渡す。暮らしは lifeMode で決まる */
-    function mtSenjinHTML(t, tone, lifeMode, avoid, prefer, ctx, mode){
+    /* ctx＝師匠が選んだ相談の型（名前＋判定語）。mode＝'know'（調べもの）のときだけ渡す。暮らしは lifeMode で決まる。
+       opt.near＝師匠が答えを選ぶときの「近さ順」の知識（mtKnowledge の上位3本＋次点24本）。opt.mgmt＝部下・チームの相談
+       ★★選び方（2026-09-26 ユーザー指示「必ず入れてくださいと言いましたが、さすがに質問とかけ離れている引用のことがある。
+         一番近いものを引用してください」）＝近さが先。6冊を必ず入れる縛りは外した。
+         ①opt.near の中の本の原則で、相談の文に判定語が直接当たっているものを近い順に（別の本で2冊）
+         ②足りなければ mtSenjinAll の点（0.9点以上）③それでも無ければ受け皿（MT_SENJIN_FB） */
+    function mtSenjinHTML(t, tone, lifeMode, avoid, prefer, ctx, mode, opt){
       avoid = (avoid || []).filter(Boolean);
+      opt = opt || {};
       mode = lifeMode ? 'life' : (mode || 'work');
       const all = mtSenjinAll(t, ctx, avoid, lifeMode);
+      /* 営業の相談（暮らし・部下の相談でない）では、営業の場面に当てた原則を同点のときに少し先に
+         （「経営者に提案したい」の1冊目が「固定費を上げない」になっていた） */
+      if(!lifeMode && !opt.mgmt) all.forEach(function(x){ if(x.axis === 'eigyo') x.sc += 0.1; });
       const fit = function(x){ return !lifeMode || x.axis !== 'eigyo'; };
-      let one = mtSenjinBest(all.filter(function(x){ return x.core && fit(x); }), t);
-      if(!one || one.sc < 0.9) one = mtSenjinFallback(all, mode, t, '') || one;   /* 相談の文の判定語に当たらない弱い当たりは使わず受け皿へ */
+      const byKey = {}; all.forEach(function(x){ byKey[x.key] = x; });
+      const near = [];
+      [].concat(prefer && prefer.kind === 'book' ? [prefer] : [], opt.near || [], (opt.near && opt.near.more) || []).forEach(function(k){
+        if(!k || k.kind !== 'book' || !byKey[k.key] || near.indexOf(byKey[k.key]) >= 0) return;
+        if(byKey[k.key].sc < 0.9 || !fit(byKey[k.key])) return;   /* 相談の文に当たっているものだけ（広い語1つ・型の語だけの当たりは遠い） */
+        near.push(byKey[k.key]);
+      });
+      near.forEach(function(x, i){ x._ord = i; });
+      near.sort(function(a, b){ return (b.sc - a.sc) || (a._ord - b._ord); });
+      const pick = function(notBk){
+        const n = near.filter(function(x){ return x.bk !== notBk; })[0];
+        if(n) return n;
+        const b = mtSenjinBest(all.filter(function(x){ return x.bk !== notBk && fit(x); }), t);
+        if(b && b.sc >= 0.9) return b;
+        return mtSenjinFallback(all, mode, t, notBk) || mtSenjinBest(all.filter(function(x){ return x.core && x.bk !== notBk; }), t);
+      };
+      const one = pick('');
       if(!one) return '';
-      let two = null;
-      if(prefer && prefer.kind === 'book' && prefer.bk !== one.bk && avoid.indexOf(prefer.key) < 0){
-        two = { bk:prefer.bk, key:prefer.key, name:prefer.name, gist:prefer.gist, lifegist:prefer.lifegist, lines:prefer.lines || [], src:prefer.src };
-      }
-      if(!two){
-        const near = mtSenjinBest(all.filter(function(x){ return x.bk !== one.bk && fit(x); }), t);
-        two = (near && near.sc >= 1) ? near
-            : (mtSenjinFallback(all, mode, t, one.bk) || mtSenjinBest(all.filter(function(x){ return x.core && x.bk !== one.bk; }), t));
-      }
+      const two = pick(one.bk);
       const picks = [one, two].filter(Boolean);
       mtSenjinRecent = picks.map(function(x){ return x.key; }).concat(mtSenjinRecent).slice(0, 12);
+      /* ★★見せ方（2026-09-26 ユーザー指示「言葉プラス、なぜこの言葉が大事かを、現場・お客様のことを
+         イケてる営業マンのリアルなイメージできる言葉で説明してください」）
+         ＝言葉（原則名・太字）→ なぜ大事か（要旨）→ イケてる営業マンは（sales＝現場での動き）→ 小さく出典。
+         部下・チームの相談は「イケてる管理職は」（mgmt）。暮らしの相談は営業の場面を出さず「暮らしでは」（life）。
+         ★「一冊目」の札・題名を頭に置かない／出典に原則名を重ねない／師匠の言い回しはこの欄に入れない */
       let h = '<span class="mt-h">' + esc('先人の言葉を、考え方の軸に') + '</span>';
-      /* 見せ方（2026-09-26 ユーザー指示「一冊目『』ではなく、結論の一言。そして内容を書いてその下に小さく出典を記載」）
-         ＝結論の一言（原則名・太字）→ 内容（要旨）→ 小さく出典（著者『題名』より）。
-         ★「一冊目」「二冊目」の札と題名を頭に置かない。★出典に原則名を重ねない（すぐ上の太字と同じ文になるため）。
-         ★師匠の言い回しはこの欄に入れない（出典の上に置くと本の文に見え、下に置くと出典が最後にならない） */
       picks.forEach(function(x){
-        const body = (lifeMode && x.lifegist) ? x.lifegist : mtShort(x.gist, 96);
+        const why = (lifeMode && x.lifegist) ? x.lifegist : mtShort(x.gist, 72);
+        const scene = lifeMode ? (x.life || '') : (opt.mgmt && x.mgmt) ? x.mgmt : x.sales;
+        const lab = lifeMode ? '暮らしでは' : (opt.mgmt && x.mgmt) ? 'イケてる管理職は' : 'イケてる営業マンは';
         const src = (typeof MT_BOOK_SRC !== 'undefined' && MT_BOOK_SRC[x.bk]) || x.src;
-        h += '<span class="mt-senjin"><b>' + esc(x.name) + '</b>' + esc(body)
+        h += '<span class="mt-senjin"><b>' + esc(x.name) + '</b>'
+           + '<span class="mt-senjin-row"><span class="mt-senjin-lab">' + esc('なぜ大事か') + '</span>' + esc(why) + '</span>'
+           + (scene ? '<span class="mt-senjin-row"><span class="mt-senjin-lab">' + esc(lab) + '</span>' + esc(mtShort(scene, 96)) + '</span>' : '')
            + '<span class="mt-src">— ' + esc(src) + '</span></span>';
       });
       return h;
@@ -6997,7 +7033,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
               mtPickOpts(t, intents, false), { kind:'pick', title:'続けて聞く', head:'pick_head' });
           }
           /* SENJIN ★社内規定の答えでは出さない。それ以外の質問には、2冊の先人の言葉を軸として添える */
-          if(!kiteiStop && !brief) h += mtSenjinHTML(t, tone, lifeMode, [ansQ.key || ''], null, mtSenjinCtx(intents), 'know');
+          if(!kiteiStop && !brief) h += mtSenjinHTML(t, tone, lifeMode, [ansQ.key || ''], null, mtSenjinCtx(intents), 'know', { near:know, mgmt:useMgmt });
           h += closeHere;
           mtLast = { text:String(q).slice(0, 160), name:(ansQ.kind === 'fp' ? ansQ.fp.name : ''), at:Date.now() };
           return h;
@@ -7119,7 +7155,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
              + '<span class="mt-src">— ' + esc(cite.src) + '</span>'
              + (line ? esc('師匠の言い方で：') + '「' + esc(line) + '」' : '');
         }
-        h += mtSenjinHTML(t, tone, lifeMode, [ansKey, keyFromKnow], cite, mtSenjinCtx(intents)); senjinDone = true;
+        h += mtSenjinHTML(t, tone, lifeMode, [ansKey, keyFromKnow], cite, mtSenjinCtx(intents), '', { near:know, mgmt:useMgmt }); senjinDone = true;
 /* KATA-LINE-BEGIN ★社長の口ぐせを、結論のすぐ下に必ず1行置く（2026-09-17）。もともと締めに50%でしか出ていなかった。これがカタツギの中核なので、書いてあれば毎回出す。★赤は増やさない。青い引用として1行だけ */
         try{ var _kt = (P.lines || []).filter(Boolean);
           if(_kt.length) h += mtSayHTML(mtFill(mtFreshLine(_kt), P), '社長の口ぐせ');
@@ -7131,7 +7167,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
          結論・事例・答え・現場で使うなら…と10ブロック全部乗ると1,700字を超えて読まれない。
          ★消さないこと。答えの中身（知識カードの名前・出典）は、開けば読める */
       /* SENJIN ★結論を出さなかった返事でも、2冊は必ず添える（つらさ・暴力の相談は除く） */
-      if(!senjinDone && !brief) h += mtSenjinHTML(t, tone, lifeMode, [ansKey], null, mtSenjinCtx(intents));
+      if(!senjinDone && !brief) h += mtSenjinHTML(t, tone, lifeMode, [ansKey], null, mtSenjinCtx(intents), '', { near:know, mgmt:useMgmt });
       if(ansBlock){
         h += keyUsed
           ? '<details class="mt-lock"><summary>' + esc(tone === 'zsedai' ? 'もう少し詳しく読む' : 'もうちょい詳しく') + '</summary>' + ansBlock + '</details>'
