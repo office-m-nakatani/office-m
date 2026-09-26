@@ -319,6 +319,8 @@ body.vc-dock-on .chat-fab{ display:none !important; }
 .mt-bub li{ margin:8px 0; }
 .mt-bub li > b{ color:#14533a; font-size:1.04em; }
 .mt-bub .mt-src{ display:block; margin-top:5px; font-size:.8rem; color:#66756e; letter-spacing:.02em; font-weight:400; }
+.mt-bub .mt-senjin{ display:block; margin:8px 0 14px; }
+.mt-bub .mt-senjin > b{ display:block; margin-bottom:2px; }
 .mt-bub .mt-note{ display:block; margin-top:6px; font-size:.9rem; color:#4f5f58; line-height:1.7; }
 .mt-bub ul.mt-acts{ list-style:none; margin:8px 0 0; padding:0; counter-reset:mtact; display:flex; flex-direction:column; gap:8px; }
 .mt-bub ul.mt-acts > li{ position:relative; margin:0; padding:10px 14px 10px 56px; min-height:48px; counter-increment:mtact;
@@ -6767,14 +6769,15 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       const picks = [one, two].filter(Boolean);
       mtSenjinRecent = picks.map(function(x){ return x.key; }).concat(mtSenjinRecent).slice(0, 12);
       let h = '<span class="mt-h">' + esc('先人の言葉を、考え方の軸に') + '</span>';
-      picks.forEach(function(x, i){
-        const lab = (typeof MT_BOOK_LABELS !== 'undefined' && MT_BOOK_LABELS[x.bk]) ? MT_BOOK_LABELS[x.bk] : '本から';
+      /* 見せ方（2026-09-26 ユーザー指示「一冊目『』ではなく、結論の一言。そして内容を書いてその下に小さく出典を記載」）
+         ＝結論の一言（原則名・太字）→ 内容（要旨）→ 小さく出典（著者『題名』より）。
+         ★「一冊目」「二冊目」の札と題名を頭に置かない。★出典に原則名を重ねない（すぐ上の太字と同じ文になるため）。
+         ★師匠の言い回しはこの欄に入れない（出典の上に置くと本の文に見え、下に置くと出典が最後にならない） */
+      picks.forEach(function(x){
         const body = (lifeMode && x.lifegist) ? x.lifegist : mtShort(x.gist, 96);
-        const src = (typeof mtSrcWith === 'function') ? mtSrcWith(x.src, x.name) : x.src;
-        const line = (i === 0 && x.lines.length) ? mtFreshLine(x.lines) : '';
-        h += (i ? '<br>' : '') + '<b>' + esc((i ? '二冊目　' : '一冊目　') + lab) + '</b>　' + esc(x.name) + '<br>' + esc(body)
-           + '<span class="mt-src">— ' + esc(src) + '</span>'
-           + (line ? esc('師匠の言い方で：') + '「' + esc(line) + '」' : '');
+        const src = (typeof MT_BOOK_SRC !== 'undefined' && MT_BOOK_SRC[x.bk]) || x.src;
+        h += '<span class="mt-senjin"><b>' + esc(x.name) + '</b>' + esc(body)
+           + '<span class="mt-src">— ' + esc(src) + '</span></span>';
       });
       return h;
     }
