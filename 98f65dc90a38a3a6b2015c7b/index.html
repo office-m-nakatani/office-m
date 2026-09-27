@@ -7076,6 +7076,64 @@ var mtJR = (function(){
     });
     return out;
   }
+  function legSt(g){ const o = {}; g.e.forEach(function(ei){ [E[ei][0], E[ei][1]].forEach(function(v){ if(ND[v][0]) o[ND[v][0]] = 1; }); }); return o; }
+  const KISHU = { '京橋':1, '桜ノ宮':1, '天満':1, '大阪':1, '福島':1, '野田':1, '西九条':1, '弁天町':1, '大正':1, '芦原橋':1, '今宮':1, '新今宮':1 };
+  function svcFix(legs){
+    const isL = function(g, n){ return !!(g && g.rk && g.rk[n] !== undefined); };
+    const ring = function(g){ return isL(g, '大阪環状線'); };
+    for(let i = 0; i + 1 < legs.length; i++){
+      const a = legs[i], b = legs[i + 1];
+      if(a.to === '大阪' && a.kind === b.kind && ((isL(a, '東海道線') && ring(b)) || (ring(a) && isL(b, '東海道線')))) a.xa = true;
+      if(a.to === '天王寺' && ((ring(a) && isL(b, '阪和線')) || (isL(a, '阪和線') && ring(b)))){
+        const R0 = ring(a) ? a.from : b.to;
+        if(KISHU[R0]) a.xa = false;
+      }
+      if(a.to === '天王寺' && ((isL(a, '関西線') && a.from === '新今宮' && isL(b, '阪和線')) || (isL(a, '阪和線') && isL(b, '関西線') && b.to === '新今宮'))) a.xa = false;
+      if(a.to === '和歌山' && a.kind === b.kind && ((isL(a, '阪和線') && isL(b, '紀勢線')) || (isL(a, '紀勢線') && isL(b, '阪和線')))) a.xa = true;
+    }
+    const XS = {};
+    legs.forEach(function(g, i){ if(g.xa && legs[i + 1]) XS[g.to] = 1; });
+    const KL = function(g){ return isL(g, '東海道線') || ring(g) || isL(g, '阪和線') || isL(g, '紀勢線') || isL(g, '関西空港線'); };
+    const START = { '新大阪':1, '京都':1, '高槻':1 }, FROM = { '新大阪':1, '京都':1, '高槻':1, '大阪':1, '天王寺':1, '和歌山':1 };
+    const exp = [];
+    const tryDir = function(L){
+      for(let i = 0; i < L.length; i++){
+        const a = L[i];
+        if(!KL(a) || !FROM[a.from]) continue;
+        if(isL(a, '東海道線') && (!START[a.from] || a.to !== '大阪')) continue;
+        let j = i;
+        while(j + 1 < L.length && KL(L[j + 1]) && !isL(L[j + 1], '東海道線')) j++;
+        const run = L.slice(i, j + 1);
+        let end = -1, train = '';
+        const ka = run.map(function(g){ return isL(g, '関西空港線'); }).lastIndexOf(true);
+        const ki = run.map(function(g){ return isL(g, '紀勢線'); }).lastIndexOf(true);
+        const hw = run.map(function(g){ return isL(g, '阪和線') && g.to === '和歌山'; }).lastIndexOf(true);
+        if(ka >= 0 && run[ka].to === '関西空港'){ end = ka; train = '特急はるか'; }
+        else if(ki >= 0){ end = ki; train = '特急くろしお'; }
+        else if(hw >= 0){ end = hw; train = '特急くろしお'; }
+        else if(isL(run[0], '東海道線') && run[1] && ring(run[1]) && run[1].to === '天王寺' && run.length === 2){ end = 1; train = '特急はるか・くろしお'; }
+        if(end < 0) continue;
+        const ats = run.slice(0, end).map(function(g){ return g.to; }).filter(function(n){ return XS[n]; });
+        if(ats.length) exp.push({ train:train, from:a.from, to:run[end].to, ats:ats, at:ats[0] });
+        i = i + end;
+      }
+    };
+    tryDir(legs);
+    const rv = legs.slice().reverse().map(function(g){ return { rk:g.rk, from:g.to, to:g.from }; });
+    const n0 = exp.length;
+    tryDir(rv);
+    exp.slice(n0).forEach(function(x){ const f = x.from; x.from = x.to; x.to = f; x.ats.reverse(); x.at = x.ats[0]; x.up = true; });
+    return exp;
+  }
+  function xfOfLegs(legs, orig){
+    const out = [];
+    legs.forEach(function(g, i){
+      if(!g.xa || !legs[i + 1]) return;
+      const o = (orig || []).filter(function(x){ return x.at === g.to; })[0];
+      out.push(o || { at:g.to, from:g.name, to:legs[i + 1].name });
+    });
+    return out;
+  }
   function routeNames(names, oks){
     if(names.some(function(n){ return !PL[n]; })) return null;
     let combos = [[]];
@@ -7114,6 +7172,7 @@ var mtJR = (function(){
       return (na && na === nb && edge && E[s.ei][3] < 100) ? { x:1, a:s.a, b:s.b } : s;
     });
     const legs = legsOf(best.steps), ek = ekmOf(best.steps, legs);
+    const exp = svcFix(legs);
     const stations = [];
     best.steps.forEach(function(s0, i){ [i === 0 ? s0.a : null, s0.b].forEach(function(v){ if(v !== null && v !== undefined && ND[v][0] && stations[stations.length - 1] !== ND[v][0]) stations.push(ND[v][0]); }); });
     const turns = {};
@@ -7124,7 +7183,7 @@ var mtJR = (function(){
       if(prevL !== null && L !== prevL && at && !NOXF[at] && !(T[2] === 's' && prevT === 's')) turns[at] = 1;
       prevL = L; prevT = T[2];
     });
-    return { steps:best.steps, legs:legs, min:best.min, km:legs.reduce(function(s, g){ return s + g.km; }, 0), ek:ek, xf:transfersOf(best.steps), names:names, stations:stations, turns:turns };
+    return { steps:best.steps, legs:legs, min:best.min, km:legs.reduce(function(s, g){ return s + g.km; }, 0), ek:ek, xf:xfOfLegs(legs, transfersOf(best.steps)), exp:exp, names:names, stations:stations, turns:turns };
   }
   const EKX = {};
   if(typeof MT_RAIL_EKM !== 'undefined') Object.keys(MT_RAIL_EKM.L).forEach(function(l){
@@ -11329,8 +11388,11 @@ var mtStaff = (function(){
         + G.map(function(g){ return lineChip(g.name, g.col, codeOfRun([g.from, g.to])); }).filter(function(x, k, a){ return a.indexOf(x) === k; }).join('') + '</div>'
         + '<div class="mtw-tl-dir">' + esc((g0.from || '') + ' → ' + (gz.to || '') + '　' + ekOfGroup(G)) + '</div></div></li>'
         + '<li class="mtw-tl-st ' + (i + 1 < GR.length ? 'mtw-tl-x' : 'mtw-tl-b') + '"><span class="mtw-tl-dot"></span><div><b>' + esc(gz.to || '') + '</b>' + numChips(gz.to || '')
-        + (i + 1 < GR.length ? '<em>乗り換え</em>' : '<em>着</em>') + '</div></li>';
-    }).join('') + '</ol>');
+        + (i + 1 < GR.length ? '<em>乗り換え</em>' : '<em>着</em>')
+        + (R.exp || []).filter(function(x){ return x.ats[0] === gz.to && i + 1 < GR.length; }).map(function(x){ return '<small class="mtw-tl-exp">' + esc(x.train + 'なら、' + x.from + 'から乗り換えなしで' + x.to + 'まで行けます') + '</small>'; }).join('')
+        + '</div></li>';
+    }).join('') + '</ol>'
+      + (R.exp || []).map(function(x){ return '<p class="mtw-tl-expn"><i class="fa-solid fa-circle-info"></i>' + esc(expText(x)) + '</p>'; }).join(''));
     h += tokureiCard(R);
     const nmOf = function(G){ return G ? G.map(function(g){ return g.name; }) : []; };
     h += stLinesCard([[S.from, nmOf(GR[0])]].concat(GR.slice(0, -1).map(function(G, i){ return [G[G.length - 1].to, nmOf(G).concat(nmOf(GR[i + 1]))]; }), [[S.to, nmOf(GR[GR.length - 1])]]));
@@ -11518,7 +11580,7 @@ var mtStaff = (function(){
           const g0 = G[0], gz = G[G.length - 1];
           return '<li><span class="mtw-sh-no">' + (i + 1) + '</span><div><small>' + esc(g0.from) + (i ? 'で乗り換え' : 'から') + '</small><b>' + nwJoin(custLines(G.map(function(g){ return { ln:g.name }; }))) + '</b>'
             + '<span class="mtw-sh-ln" style="border-color:' + g0.col + '"></span><em>' + esc(gz.to + 'まで') + '</em></div></li>';
-        }).join('') + '</ol><p class="mtw-sh-n">運賃・時刻は係員がお調べします。</p></div>';
+        }).join('') + '</ol>' + (R.exp || []).map(function(x){ return '<p class="mtw-sh-n mtw-sh-exp"><i class="fa-solid fa-circle-info"></i> ' + esc(expText(x)) + '</p>'; }).join('') + '<p class="mtw-sh-n">運賃・時刻は係員がお調べします。</p></div>';
     }
     s.hidden = false; s.querySelector('[data-a="sclose"]').focus();
   }
@@ -11528,6 +11590,19 @@ var mtStaff = (function(){
     const out = [];
     names.forEach(function(n){ const m = seto && (n === '本四備讃線' || n === '宇野線') ? '瀬戸大橋線' : n; if(out.indexOf(m) < 0) out.push(m); });
     return out.join('・');
+  }
+  function expText(x){
+    const up = !!x.up, osk = x.ats.indexOf('大阪') >= 0;
+    const far = x.train === '特急くろしお' && x.to !== '和歌山' && x.from !== '和歌山' && (up ? x.from : x.to) !== '和歌山';
+    const kise = (up ? x.from : x.to) + (up ? 'から和歌山まで' : '') ;
+    let why = '';
+    if(x.train === '特急はるか') why = up ? '関西空港から大阪へは関空快速が直通' : '大阪から関西空港へは関空快速が直通';
+    else if(x.train === '特急くろしお'){
+      const k1 = osk ? (up ? '和歌山から大阪までは紀州路快速などが直通' : '大阪から和歌山までは紀州路快速などが直通') : '';
+      const k2 = far ? (up ? kise + 'は紀勢本線の普通列車で、途中で乗り継ぐことがあります' : '和歌山から先は紀勢本線の普通列車で、途中でさらに乗り継ぐことがあります') : '';
+      why = (up ? [k2, k1] : [k1, k2]).filter(Boolean).join('。');
+    } else why = up ? '天王寺から大阪へは大阪環状線' : '大阪から天王寺へは大阪環状線';
+    return x.from + '〜' + x.to + 'は、' + x.train + 'なら乗り換えなしの直通です（特急券が要ります）。普通・快速は' + x.ats.join('・') + 'で乗り換えます' + (why ? '（' + why + '）' : '') + '。';
   }
   function nwJoin(s){ return String(s).split('・').map(function(x){ return '<span class="mtw-nw">' + esc(x) + '</span>'; }).join('・'); }
   function sheetHead(t, extra){
@@ -11640,6 +11715,7 @@ var mtStaff = (function(){
       '.mtw-sl-ops{margin:0;padding:0 12px 10px;display:grid;grid-template-columns:minmax(0,max-content) minmax(0,1fr);gap:6px 10px;align-items:start}.mtw-sl-ops dt{font-size:.8em;font-weight:700;color:#475569;padding-top:4px;max-width:7.5em}.mtw-sl-ops dd{margin:0;display:flex;flex-wrap:wrap;min-width:0}.mtw-sl-ops dd .mtw-ln{white-space:normal;min-width:0}',
       '.mtw-nw{white-space:nowrap;display:inline-block}',
       '.mtw-tkr li span{display:block;font-size:.8em;color:#0b4f8a;font-weight:700}.mtw-tkr li small{display:block;margin-top:2px}',
+      '.mtw-tl-exp{display:block;font-size:.8em;color:#0b4f8a;font-weight:700;margin-top:2px}.mtw-tl-expn{margin:8px 0 0;padding:8px 10px;border-radius:8px;background:#eef6fc;color:#0b3a5e;font-size:.9em;line-height:1.6}.mtw-tl-expn i{margin-right:6px;color:#0b4f8a}',
       '.mtw-tkm{margin-top:6px}.mtw-tkm>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:700;color:#0b4f8a}',
       '.mtw-ln-o{border:1px solid #cbd5e1;border-radius:6px;padding:0 6px;font-weight:600;color:#334155}',
       '.mtw-sl-nr{padding:0 12px 10px}.mtw-sl-nr ul{margin:0;padding:0;list-style:none;display:grid;gap:4px}.mtw-sl-nr li{display:flex;flex-wrap:wrap;gap:4px 8px;font-size:.9em}.mtw-sl-nr li span{color:#334155}.mtw-sl-nr li small{color:#64748b}',
