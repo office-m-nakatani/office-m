@@ -423,6 +423,122 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
 })();
 </script>
 <!-- OMGATE-END -->
+<!-- OMLOG-BEGIN ★学習の記録（量だけ）。正本は hoken-gate-src/katalog.html。ページ側を直接編集しないこと（apply_gate.py で入れ直すと消える） -->
+<script>
+/* ============================================================
+   学習の記録（2026-09-29 ユーザー指示）
+   「教育の記録を1枚の紙に」「使われているかが社長に見える」
+   「社長には内容が見えないようにだけして従業員のプライベートを守ってください」
+
+   ★記録するのは「量」だけ。中身は記録しない（記録していないものは、誰にも見せようがない）
+     残すもの   ＝ その日に1分以上ひらいた学習資料・社内ツールの id と題名／
+                  教材の問題を最後まで解いた id／資格の問題に答えた数／
+                  AI師匠への仕事の相談の回数（AI師匠の側が omLog('m') を呼ぶ）
+     残さないもの＝ 相談の文・返事・正解か不正解か・点数・時刻・どこを読んだか
+   ★置き場所はこの端末の localStorage 'officem.kataLog.v1' だけ。外へ送らない。
+     社長に届くのは、本人が管理画面で中身を見てから書き出して渡したときだけ
+   ★記録するのは「管理画面の合言葉を通した端末」（社員の端末）だけ。
+     お客様や共有リンクで開いた人の端末には何も残さない
+   ★日付は「日」まで。時刻は持たない。社長に渡るのは月ごとの合計（管理画面が作る）
+   ============================================================ */
+(function () {
+  if (window.omLog) return;                       /* 1ページに2回入っても1回だけ動く */
+  var KEY = 'officem.kataLog.v1';
+  var AUTH = 'officem.hokenHub.auth';
+  var KEEP_DAYS = 430;                            /* 13か月と少し。古い日は消す */
+  var OPEN_MS = 60000;                            /* 1分以上ひらいたら「ひらいた」と数える */
+  var TOOLS = /^hoken-(training|shiharai|kirikaeshi|compliance|shikaku|sales|gyakusan|calendar|mentor)$/;
+
+  function read(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } }
+  function staff() {
+    var a = read(AUTH);
+    return !!(a && typeof a.e === 'number' && a.e > Date.now() && /^[0-9a-f]{64}$/.test(String(a.h || '')));
+  }
+  function z(n) { return (n < 10 ? '0' : '') + n; }
+  function day(t) { var d = t ? new Date(t) : new Date(); return d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()); }
+  function load() {
+    var o = read(KEY);
+    if (!o || typeof o !== 'object' || o.v !== 1 || !o.d || typeof o.d !== 'object') o = { v: 1, d: {}, t: {} };
+    if (!o.t || typeof o.t !== 'object') o.t = {};
+    return o;
+  }
+  function save(o) {
+    var cut = day(Date.now() - KEEP_DAYS * 86400000);
+    Object.keys(o.d).forEach(function (k) { if (k < cut) delete o.d[k]; });
+    try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) { /* 残せなくても画面は止めない */ }
+  }
+  function pageId() {
+    var p = String(location.pathname).replace(/\/+$/, '');
+    return p.slice(p.lastIndexOf('/') + 1).replace(/\.html$/i, '');
+  }
+  function cleanTitle(s) {
+    s = String(s || '').replace(/\s+/g, ' ').replace(/[｜|].*$/, '').trim();
+    return s.slice(0, 60);
+  }
+
+  /* 記録の入口。kind：'p'＝ひらいた／'q'＝教材の問題を解き終えた（id）／'s'＝資格の問題（数）／'m'＝AI師匠への仕事の相談（数） */
+  function omLog(kind, id, n) {
+    if (!staff()) return;
+    if (!/^[pqsm]$/.test(kind)) return;
+    var o = load(), d = day(), r = o.d[d] || (o.d[d] = {});
+    if (kind === 'p' || kind === 'q') {
+      id = String(id || '').replace(/[^a-z0-9-]/g, '').slice(0, 64);
+      if (!id) return;
+      r[kind] = r[kind] || {};
+      r[kind][id] = 1;
+      if (kind === 'p' && document.title) o.t[id] = cleanTitle(document.title);
+    } else {
+      n = Math.max(1, Math.min(500, Math.round(+n || 1)));
+      r[kind] = (r[kind] || 0) + n;
+    }
+    save(o);
+  }
+  window.omLog = omLog;
+
+  var id = pageId();
+  var mine = /-check$/.test(id) || TOOLS.test(id);
+  if (!mine) return;
+
+  /* 1分以上ひらいたら「ひらいた」。画面が裏に回っている時間は数えない */
+  var seen = 0, done = false, tick = 5000;
+  var iv = setInterval(function () {
+    if (document.visibilityState && document.visibilityState !== 'visible') return;
+    seen += tick;
+    if (!done && seen >= OPEN_MS) { done = true; omLog('p', id); clearInterval(iv); }
+  }, tick);
+
+  /* 教材：問題を最後まで解くと #quizDone に .show が付く（kyozai-template.html）。
+     ★正解の数は見ない。「最後まで解いた」だけ */
+  function watchQuiz() {
+    var q = document.getElementById('quizDone');
+    if (!q || !window.MutationObserver) return;
+    var hit = false;
+    var mo = new MutationObserver(function () {
+      if (!hit && q.classList.contains('show')) { hit = true; omLog('q', id); mo.disconnect(); }
+    });
+    mo.observe(q, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  /* 資格試験対策ツール：通算の問題数（officem.shikaku.v1 の total）の増えた分だけ数える。
+     ★どの問題を解いたか・正解したかは見ない */
+  function shikakuTotal() { var s = read('officem.shikaku.v1'); return s && +s.total >= 0 ? +s.total : 0; }
+  if (id === 'hoken-shikaku') {
+    var base = shikakuTotal();
+    var flush = function () {
+      var cur = shikakuTotal();
+      if (cur > base) omLog('s', null, cur - base);
+      base = cur;
+    };
+    setInterval(flush, 15000);
+    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') flush(); });
+    window.addEventListener('pagehide', flush);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', watchQuiz);
+  else watchQuiz();
+})();
+</script>
+<!-- OMLOG-END -->
 
 
 <header class="hero">
