@@ -817,9 +817,24 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
   --tot-num:linear-gradient(135deg,#c2452a,#a8601a);
   --tot-mark:linear-gradient(transparent 62%,#ffd9a8 62%);
 }
-/* --- 掴み（ヘッダー）。地・社名の行はページのもとの .hero のまま --- */
-.hero.tot-hero{padding:22px 0 46px;}
-.tot-hero .hero-flex{align-items:center;}
+/* --- 掴み（ヘッダー）。地・社名の行はページのもとの .hero のまま ---
+   2026-10-01 ユーザー指示「空白も気になるし縦長2つの配置ではなく、横にしてください」
+   → PC は「上の段＝見出し（左）と絵（右）／下の段＝種明かしと最初のひと言を同じ幅で横に並べる／その下に目次」。
+     左の列に縦に積み、右に絵を1枚置く形（右の絵の上下が空く）には戻さない。携帯は縦に積む */
+.hero.tot-hero{padding:22px 0 40px;}
+.tot-pair{display:grid;gap:14px;}
+@media(min-width:768px){
+  .tot-hero .hero-flex{
+    display:grid;grid-template-columns:minmax(0,1fr) 300px;
+    column-gap:28px;row-gap:0;align-items:center;
+  }
+  .tot-hero .hero-copy{display:contents;}
+  .tot-hero h1{grid-column:1;grid-row:1;}
+  .tot-hero .hero-scene{grid-column:2;grid-row:1;flex:none;width:auto;max-width:none;margin:16px 0 20px;align-self:center;}
+  /* 幅の配分はページごと（apply_tot.py の pair_cols が文の量から選んで --tot-cols に書く）＝高さを揃えて下の空きを作らない */
+  .tot-pair{grid-column:1/-1;grid-row:2;grid-template-columns:var(--tot-cols,1fr 1fr);gap:16px;align-items:stretch;}
+  .tot-hero .tot-nav{grid-column:1/-1;grid-row:3;}
+}
 .tot-hero h1{
   font-family:var(--tot-m);font-weight:800;color:var(--navy,#1b3f5e);
   font-size:clamp(1.82rem,7.4vw,3.05rem);line-height:1.4;letter-spacing:.02em;
@@ -831,7 +846,7 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
   background:#fff;border-radius:30px;padding:12px;
   box-shadow:var(--shadow,0 6px 20px rgba(130,100,80,.09));
 }
-@media(max-width:699px){ .tot-hero .hero-scene{display:none;} }
+@media(max-width:767px){ .tot-hero .hero-scene{display:none;} }
 .tot-lab{
   display:inline-block;flex:0 0 auto;font-family:var(--tot-m);
   font-size:.82rem;font-weight:800;letter-spacing:.08em;line-height:1.5;
@@ -842,7 +857,7 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
   display:flex;flex-direction:column;gap:8px;align-items:flex-start;
   background:rgba(255,255,255,.88);border:1px solid var(--line,#efe2d8);
   border-left:5px solid var(--coral,#f0846a);border-radius:14px;
-  padding:14px 16px;margin:0 0 14px;max-width:40em;
+  padding:14px 16px;margin:0;
   font-size:1.02rem;line-height:1.85;color:var(--text,#33404d);
   box-shadow:var(--shadow-sm,0 3px 10px rgba(130,100,80,.07));
 }
@@ -850,7 +865,7 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
 .tot-answer strong{color:var(--navy,#1b3f5e);background:var(--tot-mark);}
 .tot-first{
   background:#fff;color:var(--navy,#1b3f5e);border-radius:18px;border:1px solid var(--line,#efe2d8);
-  padding:14px 18px 15px;max-width:40em;box-shadow:var(--shadow,0 6px 20px rgba(130,100,80,.09));
+  padding:14px 18px 15px;box-shadow:var(--shadow,0 6px 20px rgba(130,100,80,.09));
 }
 .tot-first .tot-lab{background:var(--sky-bg,#e8f4fb);color:var(--sky,#24729f);border-color:var(--sky-border,#c6e2f2);}
 .tot-first-q{
@@ -891,7 +906,8 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
 .tot-flow{border:2px solid var(--line,#efe2d8);border-radius:18px;padding:16px;}
 .tot-flow-cap{font-family:var(--tot-m);font-weight:800;color:var(--navy,#1b3f5e);margin-bottom:10px;}
 .tot-flow ol{list-style:none;display:grid;gap:10px;grid-template-columns:1fr;}
-@media(min-width:760px){ .tot-flow ol{grid-template-columns:repeat(4,1fr);} }
+/* PC は2段×2列（2026-10-01 スキル design-readability で測り直し。4列だと1行9字前後に細り、4段目だけ縦に長くなった） */
+@media(min-width:760px){ .tot-flow ol{grid-template-columns:repeat(2,1fr);} }
 .tot-flow li{background:#fff;border-radius:14px;padding:12px 14px;box-shadow:var(--shadow-sm,0 3px 10px rgba(0,0,0,.06));}
 .tot-flow li b{display:flex;align-items:center;gap:8px;font-family:var(--tot-m);font-weight:800;color:var(--navy,#1b3f5e);margin-bottom:2px;}
 .tot-flow li b i{
@@ -920,7 +936,7 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
 .tot-who{font-size:.8rem;line-height:1.6;color:var(--muted,#5c6874);}
 .tot-more{
   margin-top:auto;padding-top:6px;font-family:var(--tot-m);font-size:.84rem;font-weight:800;
-  color:var(--coral-text,#c2451f);white-space:nowrap;
+  color:#c2451f;white-space:nowrap; /* ページの --coral-text は明るいページがある（終身保険で白地に 4.0）。字は濃い朱に揃える */
 }
 .gyaku .tot-more{color:var(--green,#2c7a4b);}
 .tot-note{font-size:.84rem;line-height:1.75;color:var(--muted,#5c6874);margin-top:16px;max-width:44em;}
@@ -982,7 +998,7 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
   background:var(--tot-num);color:#fff;font-weight:800;font-size:.9rem;
   display:flex;align-items:center;justify-content:center;
 }
-.tot-toi-foot{font-size:.86rem;line-height:1.75;color:var(--muted,#5c6874);margin-top:12px;}
+.tot-toi-foot{font-size:.86rem;line-height:1.75;color:var(--muted,#5c6874);margin-top:12px;max-width:40em;}
 @media print{ .tot-nav,.tot-modal{display:none !important;} .tot-body[hidden]{display:block !important;} }
 </style>
 <!-- TOT-CSS-END -->
@@ -1292,8 +1308,10 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
       <div class="hero-copy">
         <!-- TOT-HERO-BEGIN ★TOT流の掴み。正本は hoken-newtools-src/tot/hokengaisha-hatan-check.json（apply_tot.py で入れ直す） -->
         <h1>マンションの管理会社が<br>倒れたら、部屋ごと<br><span class="accent">消えますか</span>。</h1>
+        <div class="tot-pair" style="--tot-cols:5fr 4fr">
         <div class="tot-answer"><span class="tot-lab">種明かし</span><p>消えません。保険も同じで、保険会社が破綻しても、<strong>契約は救済する会社などへ引き継がれて続く</strong>のが原則です。ただ、管理会社が替われば管理費が変わることがあるように、<strong>予定利率の引き下げなどで、受け取る金額が変わる</strong>ことがあります。生命保険で守られる目安は、<strong>保険金額ではなく、積み立てられている責任準備金等</strong>に対する割合です。</p></div>
         <div class="tot-first"><span class="tot-lab">面談の最初のひと言</span><p class="tot-first-q">「お持ちの保険と共済、証券に書かれた発行元を、一緒に確かめてもいいですか。」</p><p class="tot-first-note">特定の会社の経営の話はしません。どの契約がどの制度の対象かを、証券の会社名から整理するところから始めます。</p></div>
+        </div>
         <nav class="tot-nav" aria-label="ページ内メニュー"><a href="#tot-core">30秒の核心</a><a href="#aru">現場あるある</a><a href="#gyaku">逆転劇場</a><a href="#toi">明日の3つの問い</a><a href="#sec1">3本の線</a><a href="#sec3">何に対する割合か</a><a href="#sec6">割合は3つ</a><a href="#matome">守られ方チェック</a></nav>
         <!-- TOT-HERO-END -->
       </div>
