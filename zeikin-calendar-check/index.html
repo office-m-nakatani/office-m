@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow, noarchive">
-<meta name="description" content="所得税・住民税・個人事業税・社会保険料が、いつ、どの順番で来るのかを確認できる啓発ツール。独立1年目より2年目のほうが重くなりやすい理由、予定納税や中間申告のしくみ、個人と法人でどう違うのかまで。株式会社Office-M作成の情報提供資料。">
-<title>独立して苦しいのは1年目ではなく2年目｜税金カレンダーチェック｜株式会社Office-M</title>
+<meta name="description" content="所得税・住民税・個人事業税・社会保険料が、いつ、どの順番で来るのかを、面談での返し方まで整理した学習ツール。独立1年目より2年目のほうが重くなりやすい理由、予定納税や中間申告のしくみ、個人と法人でどう違うのかまで。株式会社Office-M作成の情報提供資料。">
+<title>川の水がいちばん高いのは、雨の最中ですか——税金カレンダーチェック｜株式会社Office-M</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='6' y='10' width='52' height='48' rx='10' fill='%2363b8dd'/%3E%3Cpath d='M6 26h52M20 4v12M44 4v12' fill='none' stroke='%23fff' stroke-width='5' stroke-linecap='round'/%3E%3Crect x='16' y='34' width='12' height='10' rx='3' fill='%23fff'/%3E%3Crect x='36' y='34' width='12' height='10' rx='3' fill='%23f7c34e'/%3E%3C/svg%3E">
 <style>
 :root{
@@ -806,6 +806,210 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
 /* 使いみちの色分け（出ていくお金／戻るお金） */
 .tl-fill.back{background:linear-gradient(90deg,var(--mint),var(--green));}
 </style>
+<!-- TOT-CSS-BEGIN ★TOT流の部品。正本は hoken-newtools-src/tot/tot-parts.html -->
+<style>
+/* ===== TOT流の部品（.tot- で始まるものだけ。ページの既存の決まりは触らない） =====
+   2026-10-01 ユーザー指示「入ってすぐが暗くて見にくい。以前のように明るい入りに。下のHPと喧嘩をしない色合い・書体に。基本的に明朝体に」
+   → 入口の地はページのもとの明るい地（.hero）のまま。紺の地は使わない。見出しと強調は明朝体、本文はページの本文の書体を受け継ぐ */
+:root{
+  --tot-ink:#1b3f5e;
+  --tot-m:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho",YuMincho,"游明朝体","游明朝","Noto Serif JP","Noto Serif CJK JP","MS PMincho","ＭＳ Ｐ明朝",serif;
+  --tot-num:linear-gradient(135deg,#c2452a,#a8601a);
+  --tot-mark:linear-gradient(transparent 62%,#ffd9a8 62%);
+}
+/* --- 掴み（ヘッダー）。地・社名の行はページのもとの .hero のまま ---
+   2026-10-01 ユーザー指示「空白も気になるし縦長2つの配置ではなく、横にしてください」
+   → PC は「上の段＝見出し（左）と絵（右）／下の段＝種明かしと最初のひと言を同じ幅で横に並べる／その下に目次」。
+     左の列に縦に積み、右に絵を1枚置く形（右の絵の上下が空く）には戻さない。携帯は縦に積む */
+.hero.tot-hero{padding:22px 0 40px;}
+.tot-pair{display:grid;gap:14px;}
+@media(min-width:768px){
+  .tot-hero .hero-flex{
+    display:grid;grid-template-columns:minmax(0,1fr) 300px;
+    column-gap:28px;row-gap:0;align-items:center;
+  }
+  .tot-hero .hero-copy{display:contents;}
+  .tot-hero h1{grid-column:1;grid-row:1;}
+  .tot-hero .hero-scene{grid-column:2;grid-row:1;flex:none;width:auto;max-width:none;margin:16px 0 20px;align-self:center;}
+  /* 幅の配分はページごと（apply_tot.py の pair_cols が文の量から選んで --tot-cols に書く）＝高さを揃えて下の空きを作らない */
+  .tot-pair{grid-column:1/-1;grid-row:2;grid-template-columns:var(--tot-cols,1fr 1fr);gap:16px;align-items:stretch;}
+  .tot-hero .tot-nav{grid-column:1/-1;grid-row:3;}
+}
+.tot-hero h1{
+  font-family:var(--tot-m);font-weight:800;color:var(--navy,#1b3f5e);
+  font-size:clamp(1.82rem,7.4vw,3.05rem);line-height:1.4;letter-spacing:.02em;
+  margin:24px 0 18px;
+}
+@media(min-width:768px){ .tot-hero h1{font-size:clamp(2.2rem,3.6vw,2.7rem);} }
+.tot-hero h1 .accent{background:var(--tot-mark);color:inherit;padding:0 2px;}
+.tot-hero .hero-scene{
+  background:#fff;border-radius:30px;padding:12px;
+  box-shadow:var(--shadow,0 6px 20px rgba(130,100,80,.09));
+}
+@media(max-width:767px){ .tot-hero .hero-scene{display:none;} }
+/* --- 本文に共通する「年代別のカード」（.age-cards）。直す前から、タブレット・小さめのPCで横にはみ出していた（2026-10-01 実測。
+   金額の太字が折り返さず、3列の箱を押し広げていた）。960px 未満は1列、金額の行は折り返してよいことにする --- */
+.age-cards{grid-template-columns:minmax(0,1fr);}
+@media(min-width:700px){ .age-cards{grid-template-columns:minmax(0,1fr);} }
+@media(min-width:960px){ .age-cards{grid-template-columns:repeat(3,minmax(0,1fr));} }
+.age-card{min-width:0;}
+.age-card .row{flex-wrap:wrap;}
+.age-card .row b{white-space:normal;}   /* 3列のとき長い文がはみ出した（相続放棄のページ・1024px） */
+.tot-lab{
+  display:inline-block;flex:0 0 auto;font-family:var(--tot-m);
+  font-size:.82rem;font-weight:800;letter-spacing:.08em;line-height:1.5;
+  padding:3px 12px;border-radius:999px;background:var(--amber-bg,#fdf3e2);color:var(--amber-deep,#a85c12);
+  border:1px solid var(--amber-border,#f2dcae);
+}
+.tot-answer{
+  display:flex;flex-direction:column;gap:8px;align-items:flex-start;
+  background:rgba(255,255,255,.88);border:1px solid var(--line,#efe2d8);
+  border-left:5px solid var(--coral,#f0846a);border-radius:14px;
+  padding:14px 16px;margin:0;
+  font-size:1.02rem;line-height:1.85;color:var(--text,#33404d);
+  box-shadow:var(--shadow-sm,0 3px 10px rgba(130,100,80,.07));
+}
+.tot-answer p{font-size:1rem;line-height:1.85;}
+.tot-answer strong{color:var(--navy,#1b3f5e);background:var(--tot-mark);}
+.tot-first{
+  background:#fff;color:var(--navy,#1b3f5e);border-radius:18px;border:1px solid var(--line,#efe2d8);
+  padding:14px 18px 15px;box-shadow:var(--shadow,0 6px 20px rgba(130,100,80,.09));
+}
+.tot-first .tot-lab{background:var(--sky-bg,#e8f4fb);color:var(--sky,#24729f);border-color:var(--sky-border,#c6e2f2);}
+.tot-first-q{
+  font-family:var(--tot-m);font-weight:800;color:var(--navy,#1b3f5e);
+  font-size:clamp(1.1rem,4.5vw,1.4rem);line-height:1.65;margin-top:8px;
+}
+.tot-first-note{font-size:.86rem;line-height:1.75;color:var(--muted,#5c6874);margin-top:6px;}
+.tot-nav{display:flex;flex-wrap:wrap;gap:9px;margin-top:18px;}
+.tot-nav a{
+  display:inline-flex;align-items:center;min-height:44px;padding:9px 17px;
+  border-radius:999px;background:#fff;border:2px solid #fff;box-shadow:var(--shadow-sm,0 3px 10px rgba(130,100,80,.07));
+  color:var(--navy,#1b3f5e);text-decoration:none;font-family:var(--tot-m);font-weight:700;font-size:.92rem;
+}
+.tot-nav a:hover,.tot-nav a:active{background:#fff4e9;}
+.tot-nav a:focus-visible{outline:2px solid var(--coral,#f0846a);outline-offset:2px;}
+
+/* --- 節の頭 --- */
+.tot-kicker{
+  display:inline-block;font-family:var(--tot-m);font-weight:800;font-size:.8rem;letter-spacing:.12em;
+  color:#8a5c0e;background:#fdf3e2;padding:4px 13px;border-radius:999px;margin-bottom:10px;
+}
+.tot-sec h2,.tot-core h2{font-family:var(--tot-m);font-weight:800;}
+.tot-lead{margin-top:6px;max-width:40em;}
+
+/* --- 30秒の核心 --- */
+.tot-lines{list-style:none;counter-reset:tl;margin:18px 0 26px;display:grid;gap:12px;}
+.tot-lines li{
+  counter-increment:tl;display:grid;grid-template-columns:46px 1fr;gap:2px 14px;align-items:start;
+  background:var(--bg,#fff8f2);border-radius:16px;padding:14px 16px;
+}
+.tot-lines li::before{
+  content:counter(tl);grid-row:span 2;width:44px;height:44px;border-radius:50%;
+  background:var(--tot-num);color:#fff;font-family:var(--tot-m);font-weight:800;font-size:1.25rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.tot-lines b{font-family:var(--tot-m);font-weight:800;font-size:clamp(1.06rem,4.2vw,1.28rem);line-height:1.55;color:var(--navy,#1b3f5e);}
+.tot-lines span{font-size:.95rem;line-height:1.8;color:var(--muted,#5c6874);}
+.tot-flow{border:2px solid var(--line,#efe2d8);border-radius:18px;padding:16px;}
+.tot-flow-cap{font-family:var(--tot-m);font-weight:800;color:var(--navy,#1b3f5e);margin-bottom:10px;}
+.tot-flow ol{list-style:none;display:grid;gap:10px;grid-template-columns:1fr;}
+/* PC は2段×2列（2026-10-01 スキル design-readability で測り直し。4列だと1行9字前後に細り、4段目だけ縦に長くなった） */
+@media(min-width:760px){ .tot-flow ol{grid-template-columns:repeat(2,1fr);} }
+.tot-flow li{background:#fff;border-radius:14px;padding:12px 14px;box-shadow:var(--shadow-sm,0 3px 10px rgba(0,0,0,.06));}
+.tot-flow li b{display:flex;align-items:center;gap:8px;font-family:var(--tot-m);font-weight:800;color:var(--navy,#1b3f5e);margin-bottom:2px;}
+.tot-flow li b i{
+  font-style:normal;flex:0 0 26px;width:26px;height:26px;border-radius:50%;
+  background:var(--tot-num);color:#fff;font-size:.85rem;
+  display:inline-flex;align-items:center;justify-content:center;
+}
+.tot-flow li span{display:block;font-size:.92rem;line-height:1.75;}
+.tot-flow li.last{background:var(--amber-bg,#fdf3e2);}
+
+/* --- 劇場のカード --- */
+.tot-grid{display:grid;gap:14px;grid-template-columns:1fr;margin-top:18px;}
+@media(min-width:700px){ .tot-grid{grid-template-columns:repeat(2,1fr);} }
+.tot-card{
+  width:100%;height:100%;text-align:left;background:#fff;border:none;border-radius:20px;
+  padding:18px 18px 16px;box-shadow:var(--shadow,0 6px 20px rgba(0,0,0,.08));cursor:pointer;
+  font-family:inherit;color:inherit;display:flex;flex-direction:column;gap:6px;transition:transform .12s;
+}
+.tot-card:active{transform:scale(.985);}
+.tot-chip{
+  align-self:flex-start;font-family:var(--tot-m);font-size:.82rem;font-weight:800;letter-spacing:.06em;
+  padding:3px 11px;border-radius:999px;background:var(--red-bg,#fdeee9);color:var(--red-dark,#a63631);
+}
+.gyaku .tot-chip{background:var(--green-bg,#e8f6ef);color:var(--green,#2c7a4b);}
+.tot-say{font-family:var(--tot-m);font-weight:800;font-size:clamp(1.05rem,4vw,1.2rem);line-height:1.6;color:var(--navy,#1b3f5e);}
+.tot-who{font-size:.8rem;line-height:1.6;color:var(--muted,#5c6874);}
+.tot-more{
+  margin-top:auto;padding-top:6px;font-family:var(--tot-m);font-size:.84rem;font-weight:800;
+  color:#c2451f;white-space:nowrap; /* ページの --coral-text は明るいページがある（終身保険で白地に 4.0）。字は濃い朱に揃える */
+}
+.gyaku .tot-more{color:var(--green,#2c7a4b);}
+.tot-note{font-size:.84rem;line-height:1.75;color:var(--muted,#5c6874);margin-top:16px;max-width:44em;}
+
+/* --- 劇場の窓 --- */
+.tot-modal{position:fixed;inset:0;z-index:80;display:none;}
+.tot-modal.show{display:block;}
+.tot-modal-back{position:absolute;inset:0;background:rgba(27,63,94,.42);}
+.tot-modal-panel{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(680px,calc(100% - 24px));max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow:auto;
+  background:#fff;border-radius:22px;padding:18px 20px 24px;box-shadow:0 24px 60px rgba(27,63,94,.22);
+}
+@media(max-width:560px){
+  .tot-modal-panel{left:0;right:0;top:auto;bottom:0;transform:none;width:100%;
+    max-height:92vh;max-height:92dvh;border-radius:22px 22px 0 0;padding:14px 16px 26px;}
+}
+.tot-modal-top{position:sticky;top:-18px;background:#fff;display:flex;justify-content:flex-end;padding-top:4px;z-index:1;}
+.tot-modal-close{
+  width:44px;height:44px;border-radius:50%;border:none;background:#eef2f6;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.tot-modal-close svg{width:20px;height:20px;stroke:var(--tot-ink);}
+.tot-mtitle{font-family:var(--tot-m);font-weight:800;font-size:clamp(1.12rem,4.4vw,1.32rem);color:var(--navy,#1b3f5e);line-height:1.6;margin:8px 0 6px;}
+.tot-blk{border-radius:14px;padding:12px 14px;margin-top:10px;background:#f6f7f9;}
+.tot-blk p,.tot-blk blockquote{font-size:.98rem;line-height:1.85;}
+.tot-blk blockquote{margin:0;}
+.tot-bl{font-family:var(--tot-m);font-weight:800;font-size:.8rem !important;letter-spacing:.06em;margin-bottom:4px;line-height:1.5 !important;}
+.tot-blk.scene .tot-bl{color:#5c6874;}
+.tot-blk.scene small{display:block;margin-top:4px;color:#7a8590;font-size:.8rem;}
+.tot-blk.ng{background:#fdeee9;}
+.tot-blk.ng .tot-bl{color:#a63631;}
+.tot-blk.ng blockquote{color:#7a3a35;}
+.tot-why{font-size:.9rem !important;color:#6b4a45;margin-top:4px;}
+.tot-blk.ok,.tot-blk.key{background:#eaf1f7;border-left:5px solid var(--tot-ink);}
+.tot-blk.ok .tot-bl,.tot-blk.key .tot-bl{color:var(--tot-ink);}
+.tot-blk.ok blockquote,.tot-blk.key blockquote{font-family:var(--tot-m);font-weight:800;font-size:1.06rem;color:var(--tot-ink);}
+.tot-blk.key{background:#e8f6ef;border-left-color:#2c7a4b;}
+.tot-blk.key .tot-bl{color:#2c7a4b;}
+.tot-blk.next{background:#fdf3e2;}
+.tot-blk.next .tot-bl{color:#8f6015;}
+.tot-blk.why .tot-bl{color:#5c6874;}
+.tot-blk.guard{background:#e8f4fb;}
+.tot-blk.guard .tot-bl{color:#1b5e8a;}
+
+/* --- 明日の面談で使う問い（明るい箱。紺の地は使わない） --- */
+.tot-toi{
+  background:#fff;color:var(--navy,#1b3f5e);border:2px solid var(--amber-border,#f2dcae);
+  border-radius:22px;padding:20px 18px;margin:10px 0 22px;box-shadow:var(--shadow-sm,0 3px 10px rgba(130,100,80,.07));
+}
+.tot-toi-cap{font-family:var(--tot-m);font-weight:800;color:var(--amber-deep,#a85c12);letter-spacing:.06em;font-size:.92rem;}
+.tot-toi ol{list-style:none;counter-reset:tq;display:grid;gap:10px;margin-top:10px;}
+.tot-toi li{
+  counter-increment:tq;display:flex;gap:12px;align-items:flex-start;
+  font-family:var(--tot-m);font-weight:800;font-size:clamp(1rem,4vw,1.16rem);line-height:1.65;
+}
+.tot-toi li::before{
+  content:counter(tq);flex:0 0 30px;width:30px;height:30px;border-radius:50%;margin-top:1px;
+  background:var(--tot-num);color:#fff;font-weight:800;font-size:.9rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.tot-toi-foot{font-size:.86rem;line-height:1.75;color:var(--muted,#5c6874);margin-top:12px;max-width:40em;}
+@media print{ .tot-nav,.tot-modal{display:none !important;} .tot-body[hidden]{display:block !important;} }
+</style>
+<!-- TOT-CSS-END -->
 </head>
 <body>
 <!-- OMGATE-BEGIN ★合言葉の扉。正本は hoken-gate-src/gate.html。ページ側を直接編集しないこと（apply_gate.py で入れ直すと消える） -->
@@ -1100,7 +1304,7 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
 
 
 <!-- ================= ヒーロー ================= -->
-<header class="hero">
+<header class="hero tot-hero">
   <div class="wrap">
     <div class="brand">
       <span class="ico" aria-hidden="true">
@@ -1110,16 +1314,14 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
     </div>
     <div class="hero-flex">
       <div class="hero-copy">
-        <h1><span class="nowrap">資金がいちばん</span><span class="nowrap">苦しくなりやすいのは、</span><br><span class="nowrap">独立1年目ではありません。</span><span class="nowrap"><span class="accent">2年目</span>です。</span></h1>
-        <p class="lead">「独立して1年目を乗り切ったから、あとは大丈夫」「儲かった分の税金は、3月に払えば終わり」——どちらも、正確ではありません。税金と社会保険料は、種類ごとに<strong>担当する役所も、来る月も、計算のもとになる年も違います</strong>。しかも多くの負担が<strong>前の年の所得をもとに、後から来る</strong>。だから、独立や法人設立のあと、いちばん資金が苦しくなりやすいのは1年目ではなく2年目です。このページでは、①いつ来るのか、②なぜ2年目なのか、③個人と法人で何が違うのか、を整理します。クイズは3分、全部読んでも10分ほどです。</p>
-        <nav class="hero-nav" aria-label="ページ内メニュー">
-          <a href="#sec1"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h9"/></svg>3つの線引き</a>
-          <a href="#sec2"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/></svg>○×ワナクイズ</a>
-          <a href="#sec3"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="16" r="3"/><path d="M18 6 6 18"/></svg>2年目を解剖</a>
-          <a href="#sec4"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0-3.3 11 3 3 0 0 1 1.1 1.9l.03.35h4.34l.03-.35a3 3 0 0 1 1.1-1.9A6 6 0 0 0 12 3Z"/><path d="M9.8 19.2h4.4M10.7 21.7h2.6"/></svg>あるある劇場</a>
-          <a href="#sec5"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="8" width="17" height="12.5" rx="2.5"/><path d="M3.5 12h17M12 8v12.5"/></svg>逆転劇場</a>
-          <a href="#sec6"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5h16M7 16V9.5M12 16V5.5M17 16v-4"/></svg>数字の話</a>
-        </nav>
+        <!-- TOT-HERO-BEGIN ★TOT流の掴み。正本は hoken-newtools-src/tot/zeikin-calendar-check.json（apply_tot.py で入れ直す） -->
+        <h1>川の水が<br>いちばん高いのは、<br><span class="accent">雨の最中</span>ですか。</h1>
+        <div class="tot-pair" style="--tot-cols:6fr 5fr">
+        <div class="tot-answer"><span class="tot-lab">種明かし</span><p>いいえ。上流に降った雨は、あとから下流に集まります。<strong>独立したあとの税金も同じ</strong>です。住民税・個人事業税・国民健康保険料は<strong>前の年の所得をもとに後から来て</strong>、予定納税も重なります。資金がいちばん苦しくなりやすいのは、<strong>1年目ではなく2年目</strong>です。</p></div>
+        <div class="tot-first"><span class="tot-lab">面談の最初のひと言</span><p class="tot-first-q">「独立されて、今年は何年目ですか。」</p><p class="tot-first-note">2年目は、前の年の所得をもとにした支払いが重なる年です。法人なら、決算月を伺います。保険料の話は、その月を並べてからにします。</p></div>
+        </div>
+        <nav class="tot-nav" aria-label="ページ内メニュー"><a href="#tot-core">30秒の核心</a><a href="#aru">現場あるある</a><a href="#gyaku">逆転劇場</a><a href="#toi">明日の3つの問い</a><a href="#sec1">3本の線</a><a href="#sec3">2年目を解剖</a><a href="#matome">カレンダーチェック</a></nav>
+        <!-- TOT-HERO-END -->
       </div>
       <div class="hero-scene" aria-hidden="true">
         <svg viewBox="0 0 360 212">
@@ -1140,6 +1342,18 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
     </div>
   </div>
 </header>
+
+<!-- TOT-CORE-BEGIN ★30秒の核心。正本は hoken-newtools-src/tot/zeikin-calendar-check.json -->
+<section id="tot-core" class="band round-top tot-core">
+  <div class="wrap">
+    <span class="tot-kicker">30秒の核心</span>
+    <h2>お客様に伝えるのは、<span class="nowrap">この3行だけ。</span></h2>
+    <p class="sec-lead tot-lead">独立した方や社長との面談は、保障の大きさより先に「いつお金が出ていくか」から始めます。この3行を渡し、納める額の見込みは、顧問の税理士や税務署・自治体で確かめていただきます。</p>
+    <ol class="tot-lines"><li><b>独立して苦しいのは、1年目ではなく2年目。</b><span>住民税・個人事業税・国民健康保険料は前の年の所得をもとに後から来て、予定納税も重なります。1年目が順調なほど、2年目の6月から11月の山は高くなります。</span></li><li><b>1年目の口座の残高には、2年目に出ていくお金が混ざっている。</b><span>1年目の残高を見て保険料を決めると、2年目の山の月に引き落としが重なります。法人なら、決算月の2か月後に納付が来ます。年払いの引き落とし月が、納付の月と同じになっていないかも見ます。</span></li><li><b>だから、保険料より先に、来年の暦を並べる。</b><span>個人なら3月から11月の納付の月、法人なら決算月と納付の月。そこに保険料の引き落とし月を重ねてから、続けられる形を考えます。決算の直前に保険の話をしません。</span></li></ol>
+    <div class="tot-flow"><p class="tot-flow-cap">面談の流れ（この順で話すと、押さずに進みます）</p><ol><li><b><i>1</i>聞く</b><span>独立して何年目か、法人なら決算月がいつかを伺う。</span></li><li><b><i>2</i>並べる</b><span>来年の納付の月と、保険料の引き落とし月を一枚の暦に重ねる。</span></li><li><b><i>3</i>つなぐ</b><span>納める額の見込みは、顧問の税理士か税務署・自治体で確かめていただく。</span></li><li class="last"><b><i>4</i>持ち帰る</b><span>その場で決めていただく必要はありません。暦を持ち帰って、ゆっくり考えていただく。</span></li></ol></div>
+  </div>
+</section>
+<!-- TOT-CORE-END -->
 
 <!-- ================= セクション1：3本の線引き ================= -->
 <section id="sec1">
@@ -1288,77 +1502,16 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
   </div>
 </section>
 
-<!-- ================= セクション2：○×クイズ ================= -->
-<section id="sec2" class="band round-top">
-  <div class="wrap">
-    <div class="sec-head">
-      <div><span class="step-pill"><i>2</i><span>思い込みをチェック</span></span>
-      <h2>いつ来る？　<span class="nowrap">納期の</span>ワナクイズ8問</h2></div>
-      <div class="spot"><span class="spot-circle" data-art="spotQuiz" aria-hidden="true"></span></div>
-    </div>
-    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">ここからは8問のクイズです。どれも実際の決まりごとがモデルで、独立した方や会社を作った方が本当につまずくところばかりを選びました。間違えても大丈夫、間違えた問題こそ「カレンダーに書き込んでおきたいことリスト」になります。気楽にどうぞ。</p></div>
-    <div class="quiz-shell">
-      <div id="quizPlay">
-        <div class="q-top">
-          <div class="q-count">質問 <span id="qNum">1</span> ／ 8</div>
-          <div class="dots" id="qDots" aria-hidden="true"></div>
-        </div>
-        <div class="q-body">
-          <div class="icon" id="qIcon" aria-hidden="true"></div>
-          <p id="qText"></p>
-        </div>
-        <div class="ans-row">
-          <button type="button" class="ans-btn yes" id="btnYes">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/></svg>
-            <span id="lblYes">知っている</span>
-          </button>
-          <button type="button" class="ans-btn no" id="btnNo">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
-            <span id="lblNo">知らない</span>
-          </button>
-        </div>
-        <div class="verdict" id="verdict" aria-live="polite">
-          <div class="verdict-head">
-            <span class="verdict-answer" id="vAnswer"></span>
-            <span class="result-chip" id="vChip"></span>
-          </div>
-          <p class="expl" id="vExpl"></p>
-          <div class="kv kv-wana"><b>ワナの正体：</b><span id="vWana"></span></div>
-          <div class="kv"><b>確認ポイント：</b><span id="vCheck"></span></div>
-        </div>
-        <button type="button" class="btn-primary" id="btnNext" style="display:none;">
-          次の質問へ
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </button>
-        <button type="button" class="btn-ghost" id="btnStopHere" style="display:none;">ここまでの結果を見る（残りはあとでも大丈夫です）</button>
-      </div>
-
-      <div class="quiz-done" id="quizDone">
-        <p class="score">クイズおつかれさまでした！　<span class="nowrap"><span id="doneTotal">8</span>問中 <span class="num" id="doneScore">0</span> 問正解</span></p>
-        <p class="cmt" id="doneCmt"></p>
-        <div class="wrong-list" id="wrongList" style="display:none;"></div>
-        <div data-cta-mini></div>
-        <button type="button" class="btn-ghost" id="btnMailSelf">この結果を自分（またはご家族）に送る</button>
-        <button type="button" class="btn-ghost" id="btnPrint">印刷して通帳・納付書と一緒に保管する</button>
-        <button type="button" class="btn-ghost" id="btnRetry">もう一度挑戦する</button>
-      </div>
-
-    <div class="note">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
-      <span>ここでの答えは、いずれも一般的な取扱いを前提とした例です。納期や金額の基準は、制度改正や自治体の条例、個別の事情によって変わることがあります。気になった問題があったら、そこが手元の納付書と通帳を出すタイミングです。</span>
-    </div>
-  </div>
-</section>
 
 <!-- ================= セクション3：2年目を解剖 ================= -->
 <section id="sec3" class="band-sky round-top">
   <div class="wrap">
     <div class="sec-head">
-      <div><span class="step-pill"><i>3</i><span>いちばん多い誤解</span></span>
+      <div><span class="step-pill"><i>2</i><span>いちばん多い誤解</span></span>
       <h2>「1年目を越えたら安心」を<span class="nowrap">解剖する</span></h2></div>
       <div class="spot"><span class="spot-circle" data-art="spotCalc" aria-hidden="true"></span></div>
     </div>
-    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">独立や法人設立のご相談で、いちばん多い誤解がこれです。1年目を無事に乗り切ると、山は越えたと感じます。ところが実際の資金の山は、2年目の3月から11月にかけて来ます。しかも、1年目がうまくいった方ほど高くなる。まず表で並べ、次にシミュレーターで数えてみましょう。</p></div>
+    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">独立や法人設立のご相談で、いちばん多い誤解がこれです。1年目を無事に乗り切ると、山は越えたと感じます。ところが実際の資金の山は、2年目の3月から11月にかけて来ます。しかも、1年目がうまくいった方ほど高くなる。まず表で並べてみましょう。</p></div>
     <p class="sec-lead">会社員から独立した個人事業の方について、1年目と2年目に何が来るかを並べてみます。</p>
     <div class="type-table-box">
       <table class="type-table" aria-label="会社員から独立した個人事業主について、独立1年目と2年目に来る税金と社会保険料の違いを比べた表">
@@ -1374,33 +1527,7 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
       </table>
       <p class="venn-cap">※会社を辞めた時期、前職の給与の額、国民健康保険と任意継続のどちらを選んだか、扶養に入ったかどうかで実際の姿は変わります。表は最も多い形を並べた一例です。</p>
     </div>
-    <p class="sec-lead">では、2年目に出ていく金額を、ご自身の数字で数えてみましょう。入力を動かすと、答えがその場で変わります。</p>
-    <div class="sim-box">
-      <h3>「2年目の山、いくら？」</h3>
-      <p class="sub">1年目の事業所得を入れると、2年目の1年間に出ていく税と社会保険料の合計の目安が出ます。このページの説明用に単純化した概算です。</p>
-      <div class="sim-ctrl">
-        <label for="simA">1年目の事業所得<output id="simAOut">500万円</output></label>
-        <input type="number" id="simA" value="500" min="0" max="5000" step="10" inputmode="numeric" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;">
-        <p style="font-size:.8rem;color:#5c6874;margin-top:5px;">単位は万円。売上から必要経費を引いたあと、青色申告特別控除を引く前の金額を入れてください。</p>
-      </div>
-      <div class="sim-ctrl"><label for="simB">ご家族の状況</label>
-        <select id="simB" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;"><option value="1" selected>おひとり</option><option value="2">配偶者がいる（収入なし）</option><option value="4">配偶者と子ども2人（15歳以下）</option></select></div>
-      <div class="sim-ctrl"><label for="simE">個人事業税の対象になる業種か</label>
-        <select id="simE" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;"><option value="1" selected>対象になる業種</option><option value="0">対象外の業種</option></select></div>
-      <label class="sim-check"><input type="checkbox" id="simC" checked>青色申告特別控除65万円を使っている</label>
-      <div class="timeline" aria-hidden="true"><div class="tl-track"><div class="tl-fill" id="tlFill" style="width:2%;"></div>
-          <div class="tl-goal" style="left:50%;">所得の3割<br>ここを超えると重い</div></div>
-        <div class="tl-labels"><span>0％</span><span>所得に対する割合</span><span>6割</span></div></div>
-      <div class="sim-results" aria-live="polite">
-        <div class="sim-r" id="simR1"><h4>所得税<small>3月・7月・11月</small></h4><span class="r-chip" id="simR1Chip"></span><p id="simR1Txt"></p></div>
-        <div class="sim-r" id="simR2"><h4>住民税と個人事業税<small>6月・8月・10月・11月・1月</small></h4><span class="r-chip" id="simR2Chip"></span><p id="simR2Txt"></p></div>
-        <div class="sim-r" id="simR3"><h4>国民年金と国民健康保険<small>ほぼ毎月</small></h4><span class="r-chip" id="simR3Chip"></span><p id="simR3Txt"></p></div>
-      </div>
-      <div class="sim-total">
-        <span class="lead" id="simTotalLead">この条件なら</span>
-        <span class="big" id="simTotalBig"></span><span class="sub2" id="simTotalSub"></span></div>
-      <p class="venn-cap" style="margin-top:10px;">※所得控除は基礎控除など主なものだけを簡略化して置いた概算です。国民健康保険料は所得割を10％、均等割を1人あたり5万円と仮置きした目安で、実際の率と額は自治体ごとに大きく異なります。復興特別所得税、消費税、介護保険料、住宅ローン控除などの税額控除、他の所得は考慮していません。実際の税額・保険料は税理士および各自治体にご確認ください。</p>
-    </div>
+    <p class="sec-lead">ご自身の場合に2年目にいくら出ていくかは、去年の申告書を持って、税理士か税務署・お住まいの自治体で確かめてください。金額より先に、来る月を並べておくことが大切です。</p>
     <div class="mikane" style="margin-top:26px;">
       <h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>2年目の山が高くなる、3つの理由</h3>
       <ol>
@@ -1414,49 +1541,45 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
   </div>
 </section>
 
-<!-- ================= セクション4：あるある劇場 ================= -->
-<section id="sec4" class="band-blush round-top">
+<!-- TOT-GEKI-BEGIN ★現場あるある・逆転劇場・明日の問い。正本は hoken-newtools-src/tot/zeikin-calendar-check.json -->
+<section id="aru" class="band-blush round-top tot-sec">
   <div class="wrap">
-    <div class="sec-head">
-      <div><span class="step-pill"><i>4</i><span>実話がモデルの寸劇集</span></span>
-      <h2>税金カレンダーあるある劇場</h2></div>
-      <div class="spot"><span class="spot-circle" data-art="spotTheater" aria-hidden="true"></span></div>
+    <span class="tot-kicker">現場あるある</span>
+    <h2>そのひと言、<span class="nowrap">どう返しますか。</span></h2>
+    <p class="sec-lead tot-lead">独立した方や社長との面談でよく出る、お金が出ていく時期にまつわるひと言と、やりがちな返し、トップ営業の返しを並べました。カードを押すと、返し方と次の一手が出ます。</p>
+    <div class="tot-grid">
+      <article class="tot-case aru" data-title="「独立1年目を乗り切ったので、そろそろ保障をしっかりしたいです。」"><button type="button" class="tot-card"><span class="tot-chip">1年目を越えた</span><span class="tot-say">「独立1年目を乗り切ったので、そろそろ保障をしっかりしたいです。」</span><span class="tot-who">30代・個人事業主。1年目の売上が思ったより伸びた</span><span class="tot-more">返し方を見る</span></button><div class="tot-body" hidden><div class="tot-blk scene"><p class="tot-bl">場面</p><p>30代・個人事業主。1年目の売上が思ったより伸びた</p></div><div class="tot-blk ng"><p class="tot-bl">やりがちな返し</p><blockquote>「順調ですね。いまの残高なら、手厚い保障も続けられますよ。」</blockquote><p class="tot-why">1年目の残高には、2年目に届く住民税・個人事業税・国民健康保険料・予定納税の分が混ざっています。山の月に保険料が重なると、続けられなくなります。</p></div><div class="tot-blk ok"><p class="tot-bl">トップ営業の返し</p><blockquote>「順調で何よりです。保障の前に一つだけ、2年目は前の年の所得をもとにした支払いが重なる年なんです。来年の6月から11月に何が届くか、先に暦に並べてみませんか。」</blockquote></div><div class="tot-blk next"><p class="tot-bl">次の一手</p><p>来年の納付の月を一枚の暦に書き、保険料の引き落とし月を重ねる。納める額の見込みは、税理士か税務署・自治体で確かめていただく。</p></div><div class="tot-blk guard"><p class="tot-bl">線引き</p><p>税額と保険料の見込みは、税理士・税務署・自治体で確かめます。担当者が金額を言い切らないこと。</p></div></div></article>
+      <article class="tot-case aru" data-title="「3月に払ったのに、7月にまた税務署から納付書が来たんです。」"><button type="button" class="tot-card"><span class="tot-chip">7月の納付書</span><span class="tot-say">「3月に払ったのに、7月にまた税務署から納付書が来たんです。」</span><span class="tot-who">40代・自営業。独立して2年目の夏</span><span class="tot-more">返し方を見る</span></button><div class="tot-body" hidden><div class="tot-blk scene"><p class="tot-bl">場面</p><p>40代・自営業。独立して2年目の夏</p></div><div class="tot-blk ng"><p class="tot-bl">やりがちな返し</p><blockquote>「それは何かの間違いかもしれませんね。」</blockquote><p class="tot-why">予定納税は、前の年の所得税をもとにした今年の分の前払いです。間違いと言ってしまうと、納付が遅れることがあります。</p></div><div class="tot-blk ok"><p class="tot-bl">トップ営業の返し</p><blockquote>「驚きますよね。それは予定納税といって、今年の分の前払いなんです。届いた納付書を一緒に見て、次に来る月と、保険料の引き落とし月も暦に書いておきませんか。」</blockquote></div><div class="tot-blk next"><p class="tot-bl">次の一手</p><p>納付書の種類と期限を確かめ、次の納付の月と保険料の引き落とし月を暦に書く。業績が落ちている年なら、見直しの手続きができるかを税務署か税理士で確かめていただく。</p></div><div class="tot-blk guard"><p class="tot-bl">線引き</p><p>予定納税の額と見直しの手続きは、税務署・税理士の領分です。</p></div></div></article>
+      <article class="tot-case aru" data-title="「会社を作るので、決算月はとりあえず3月にしようかと。」"><button type="button" class="tot-card"><span class="tot-chip">決算月はとりあえず</span><span class="tot-say">「会社を作るので、決算月はとりあえず3月にしようかと。」</span><span class="tot-who">40代・法人の代表。個人事業から会社にする準備中</span><span class="tot-more">返し方を見る</span></button><div class="tot-body" hidden><div class="tot-blk scene"><p class="tot-bl">場面</p><p>40代・法人の代表。個人事業から会社にする準備中</p></div><div class="tot-blk ng"><p class="tot-bl">やりがちな返し</p><blockquote>「3月決算が一般的なので、それでいいと思いますよ。」</blockquote><p class="tot-why">決算月の2か月後に、法人税や消費税の納付が来ます。繁忙期や入金の時期と重なると、納める月に現金が足りなくなることがあります。</p></div><div class="tot-blk ok"><p class="tot-bl">トップ営業の返し</p><blockquote>「大事な決めごとですね。決算月の2か月後に納付が来るので、入金が多い時期と忙しい時期を先に並べておきませんか。決め方は、顧問の税理士の先生と相談されるのがいちばんです。」</blockquote></div><div class="tot-blk next"><p class="tot-bl">次の一手</p><p>1年の入金の多い月と繁忙期を書き出し、決算月の候補ごとに納付の月を並べる。決めるのは社長と顧問の税理士。保険料の引き落とし月も、同じ暦に書いておく。</p></div><div class="tot-blk guard"><p class="tot-bl">線引き</p><p>決算月の決め方と税の扱いは、税理士の領分です。担当者が決算月を勧めないこと。</p></div></div></article>
+      <article class="tot-case aru" data-title="「今期は利益が出そうだから、決算の前に保険で何とかできないかな。」"><button type="button" class="tot-card"><span class="tot-chip">決算前に保険で</span><span class="tot-say">「今期は利益が出そうだから、決算の前に保険で何とかできないかな。」</span><span class="tot-who">50代・法人の代表。決算まであと1か月</span><span class="tot-more">返し方を見る</span></button><div class="tot-body" hidden><div class="tot-blk scene"><p class="tot-bl">場面</p><p>50代・法人の代表。決算まであと1か月</p></div><div class="tot-blk ng"><p class="tot-bl">やりがちな返し</p><blockquote>「でしたら、決算までに保険に入れば、利益を抑えられますよ。」</blockquote><p class="tot-why">決算の直前に税の効果を先に言って保険を決めると、目的と出口の無い積み立てになり、顧問の税理士の判断も飛ばします。税の扱いを言い切るのは、税理士の業務を代わりにすることです。</p></div><div class="tot-blk ok"><p class="tot-bl">トップ営業の返し</p><blockquote>「利益が出たのは何よりです。保険の話の前に、この利益を、いつ・何に使いたいかを伺えますか。税の扱いは顧問の先生のご判断なので、申告が落ち着いたら、三人で話す場を作りませんか。」</blockquote></div><div class="tot-blk next"><p class="tot-bl">次の一手</p><p>手元に残るお金の使い道（借入の返済・設備・退職金・従業員）と時期を書き出していただく。決算の直前には決めず、申告のあとに顧問の税理士と三者で相談する段取りを組む。</p></div><div class="tot-blk guard"><p class="tot-bl">線引き</p><p>税の扱いの判断は、税理士の業務です。決算の直前に保険で利益を消す話にしないこと。</p></div></div></article>
+      <article class="tot-case aru" data-title="「国民健康保険料が去年よりずいぶん上がって、保険どころじゃないです。」"><button type="button" class="tot-card"><span class="tot-chip">国保が上がった</span><span class="tot-say">「国民健康保険料が去年よりずいぶん上がって、保険どころじゃないです。」</span><span class="tot-who">30代・個人事業主。独立して2年目の夏</span><span class="tot-more">返し方を見る</span></button><div class="tot-body" hidden><div class="tot-blk scene"><p class="tot-bl">場面</p><p>30代・個人事業主。独立して2年目の夏</p></div><div class="tot-blk ng"><p class="tot-bl">やりがちな返し</p><blockquote>「でしたら、いまの保険も見直して減らしましょう。」</blockquote><p class="tot-why">2年目に上がるのは、前の年の所得をもとに計算されるためです。山の月だけを見て保障を外すと、要るものまで手放すことがあります。</p></div><div class="tot-blk ok"><p class="tot-bl">トップ営業の返し</p><blockquote>「2年目は、前の年の所得をもとにした支払いが一度に来るんです。いま外すかどうかの前に、この先の月ごとの支払いを並べて、山がいつ越えるかを見てみませんか。」</blockquote></div><div class="tot-blk next"><p class="tot-bl">次の一手</p><p>国民健康保険料・住民税・予定納税の残りの月を暦に並べる。保険料が続かない月があれば、払い方を変えられるかを保険会社で確かめる。納付が苦しいときは、期限の前に自治体や税務署に相談していただく。</p></div><div class="tot-blk guard"><p class="tot-bl">線引き</p><p>保険料の額と納め方は自治体、税の猶予や分割は税務署で確かめます。担当者は結論を言わないこと。</p></div></div></article>
     </div>
-    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">ここからは、独立した方や会社を作った方が実際につまずいた場面を、6つの寸劇にしました。どれも「知らなかった」だけで起きています。逆にいえば、知っていれば起きません。気になる演目をタップしてご覧ください。</p></div>
-    <div class="case-grid" id="caseGrid"></div>
-    <div class="note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>各演目は一般的な内容をもとにした創作例で、実在の個人・事案とは関係ありません。納期や税額は、業種・所得の額・自治体・事業年度の設定によって変わります。</span></div>
+    <p class="tot-note">場面は、面談でよく伺うお話をもとにした創作例です。取り扱いは保険会社・商品・ご契約により異なります。</p>
   </div>
 </section>
+<section id="gyaku" class="band-mint round-top tot-sec">
+  <div class="wrap">
+    <span class="tot-kicker">逆転劇場</span>
+    <h2>流れを変えた、<span class="nowrap">ひと言。</span></h2>
+    <p class="sec-lead tot-lead">「いくらの保障か」で始めず、「いつお金が出ていくか」を並べる話に変えた場面です。カードを押すと、そのひと言と、なぜ効いたのかが出ます。</p>
+    <div class="tot-grid">
+      <article class="tot-case gyaku" data-title="保険料の引き落とし月を、2年目の山からずらせた"><button type="button" class="tot-card"><span class="tot-chip">暦に重ねた</span><span class="tot-say">保険料の引き落とし月を、2年目の山からずらせた</span><span class="tot-who">30代・個人事業主</span><span class="tot-more">流れを変えたひと言を見る</span></button><div class="tot-body" hidden><div class="tot-blk scene"><p class="tot-bl">場面</p><p>独立1年目の終わりに、保障を考えはじめた方。担当者は商品の話の前に、来年の3月から11月に届くものを一枚の暦に書き出してもらいました。そこに年払いの保険料の引き落とし月を重ねると、予定納税の月と重なると分かりました。ご本人は保険会社に払い方を確かめ、山を避ける形を選びました。<small>——30代・個人事業主（脚色あり）</small></p></div><div class="tot-blk key"><p class="tot-bl">流れを変えたひと言</p><blockquote>「保険料の話の前に、来年届く支払いを一枚の暦に並べてみませんか。」</blockquote></div><div class="tot-blk why"><p class="tot-bl">なぜ効いたか</p><p>保険の話が、「いくらの保障か」ではなく「いつ出ていくか」から始まりました。山の月が見えたことで、続けられる形をご本人が選べました。</p></div><div class="tot-blk next"><p class="tot-bl">現場での使い方</p><p>独立1年目・2年目の方には、納付の月と保険料の引き落とし月を一枚の暦に重ねていただく。払い方の変更は保険会社、納める額は税理士で確かめていただく。</p></div><div class="tot-blk guard"><p class="tot-bl">線引き</p><p>納める額と時期は、税理士・税務署・自治体で確かめます。</p></div></div></article>
+      <article class="tot-case gyaku" data-title="決算の直前ではなく、申告のあとに三人で話せた"><button type="button" class="tot-card"><span class="tot-chip">申告のあとに三人で</span><span class="tot-say">決算の直前ではなく、申告のあとに三人で話せた</span><span class="tot-who">50代・法人の代表</span><span class="tot-more">流れを変えたひと言を見る</span></button><div class="tot-body" hidden><div class="tot-blk scene"><p class="tot-bl">場面</p><p>決算の1か月前、「利益が出そうだから保険で」と話された社長。担当者はその場で商品を出さず、手元に残るお金をいつ・何に使いたいかを伺いました。借入の完済と、数年後の退任。社長の了承を得て、目的と出口の時期を一枚にまとめて顧問の税理士に先にお渡しし、申告が落ち着いてから三人で話す場を組みました。<small>——50代・法人の代表（脚色あり）</small></p></div><div class="tot-blk key"><p class="tot-bl">流れを変えたひと言</p><blockquote>「この利益を、いつ・何に使いたいかを先に伺えますか。税の扱いは、先生に確かめていただきましょう。」</blockquote></div><div class="tot-blk why"><p class="tot-bl">なぜ効いたか</p><p>「税金を減らしたい」が「手元のお金をいつ何に使うか」に置き換わり、保険はその予定のどこかを支える道具として最後に出てきました。顧問の税理士を飛ばさなかったことで、三者で同じ紙を見て決められました。</p></div><div class="tot-blk next"><p class="tot-bl">現場での使い方</p><p>決算前の相談は、その場で決めず、使い道と時期を書き出していただく。社長の了承を得て、顧問の税理士へ一枚の資料を先に渡し、三者の相談は申告のあとに組む。</p></div><div class="tot-blk guard"><p class="tot-bl">線引き</p><p>税の扱いの判断は、税理士の業務です。決算の直前に保険で利益を消す話にしないこと。</p></div></div></article>
+      <article class="tot-case gyaku" data-title="会社を作る前に、決算月と納付の月を並べられた"><button type="button" class="tot-card"><span class="tot-chip">決算月を並べた</span><span class="tot-say">会社を作る前に、決算月と納付の月を並べられた</span><span class="tot-who">40代・法人の代表</span><span class="tot-more">流れを変えたひと言を見る</span></button><div class="tot-body" hidden><div class="tot-blk scene"><p class="tot-bl">場面</p><p>個人事業から会社にする準備をしていた方。担当者は、1年の入金の多い月と繁忙期を書き出してもらい、決算月の候補ごとに納付の月を並べた紙を作りました。ご本人はその紙を持って顧問の税理士と相談し、納付の月に現金がある形で決算月を決めました。<small>——40代・法人の代表（脚色あり）</small></p></div><div class="tot-blk key"><p class="tot-bl">流れを変えたひと言</p><blockquote>「決算月は、あとから変えると手間がかかります。入金の多い月と並べてから、先生と決めませんか。」</blockquote></div><div class="tot-blk why"><p class="tot-bl">なぜ効いたか</p><p>決算月を「とりあえず」で決めず、入金と納付の月を並べたことで、社長が自分で選べました。担当者が決算月を勧めず、並べる材料だけをそろえたのが効きました。</p></div><div class="tot-blk next"><p class="tot-bl">現場での使い方</p><p>法人を作る方には、入金の多い月・繁忙期・納付の月を並べた紙を作り、顧問の税理士と決めていただく。保険料の引き落とし月も、同じ紙に書く。</p></div><div class="tot-blk guard"><p class="tot-bl">線引き</p><p>決算月の決め方と税の扱いは、税理士の領分です。</p></div></div></article>
+      <article class="tot-case gyaku" data-title="納付が苦しいと分かった時点で、解約より先に相談できた"><button type="button" class="tot-card"><span class="tot-chip">解約の前に相談</span><span class="tot-say">納付が苦しいと分かった時点で、解約より先に相談できた</span><span class="tot-who">40代・自営業</span><span class="tot-more">流れを変えたひと言を見る</span></button><div class="tot-body" hidden><div class="tot-blk scene"><p class="tot-bl">場面</p><p>取引先の事情で入金が遅れ、納付の時期に現金が足りなくなりそうだった方。「保険を解約して払うしかない」と話すご本人に、担当者は、解約の前に税務署や自治体へ期限の前に相談する道があることを伝えました。ご本人は早めに相談して手続きを整え、保険は払い方を変えて続けられるかを保険会社で確かめました。<small>——40代・自営業（脚色あり）</small></p></div><div class="tot-blk key"><p class="tot-bl">流れを変えたひと言</p><blockquote>「解約は、元に戻せません。その前に、期限の前に相談できる窓口があります。」</blockquote></div><div class="tot-blk why"><p class="tot-bl">なぜ効いたか</p><p>「解約するしかない」という一本道が、「相談してから決める」に変わりました。担当者が猶予の結論を言わず、相談の順番だけを渡したことで、ご本人が早く動けました。</p></div><div class="tot-blk next"><p class="tot-bl">現場での使い方</p><p>納付が苦しいと伺ったら、解約の前に、税務署・自治体への期限前の相談と、保険の払い方の変更を確かめていただく。</p></div><div class="tot-blk guard"><p class="tot-bl">線引き</p><p>猶予や分割ができるかは、税務署・自治体の判断です。払い方を変えられるかは、保険会社で確かめます。</p></div></div></article>
+    </div>
+    <p class="tot-note">各話は一般的な内容をもとにした創作例（脚色あり）で、実在の個人・法人・事案とは関係ありません。取り扱いは保険会社・商品・ご契約により異なります。</p>
+    <div class="tot-toi" id="toi"><p class="tot-toi-cap">明日の面談で使う3つの問い</p><ol><li>独立されて、今年は何年目ですか。法人なら、決算月はいつですか。</li><li>来年の6月から11月に、何が届くか書き出してありますか。</li><li>保険料の引き落とし月は、納付の月と重なっていませんか。</li></ol><p class="tot-toi-foot">答えがすぐに出なくて構いません。その場で決めていただく必要はありません。書面を一緒に開き、次回までにご家族と話していただくところまでが、今日の面談のゴールです。</p></div>
+  </div>
+</section>
+<!-- TOT-GEKI-END -->
 
-<!-- ================= セクション5：逆転劇場 ================= -->
-<section id="sec5" class="band-mint round-top">
-  <div class="wrap">
-    <div class="sec-head">
-      <div><span class="step-pill"><i>5</i><span>知って得する側の話</span></span>
-      <h2>逆転劇場〜こんな制度が、<span class="nowrap">味方します〜</span></h2></div>
-      <div class="spot"><span class="spot-circle" data-art="spotGift" aria-hidden="true"></span></div>
-    </div>
-    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">ここからは反対の話です。知っていたおかげで、山を越えられた、あるいは山を低くできたという8つの場面を集めました。税額そのものを大きく減らす話は多くありませんが、来る時期をずらす、事務を軽くする、そして早めに相談する。この3つだけでも景色は変わります。</p></div>
-    <div class="model-note"><strong>このページの「2年目の負担」の目安</strong><span class="mn-row">1年目の事業所得500万円・おひとり・青色申告特別控除65万円・個人事業税の対象業種というモデルで、2年目に出ていくのは合計およそ130万円としています</span>
-      <span class="mn-note">※実際の金額は、所得の額・家族の状況・お住まいの自治体・業種によって変わります。手続の期限や申請の要件は、それぞれ別に定められています。</span></div>
-    <div class="case-grid" id="goodGrid"></div>
-    <div class="rule3-box">
-      <h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg>納期に振り回されないための「3か条」</h3>
-      <ol>
-        <li><strong>金額より先に、日付を並べる。</strong>3月・6月・7月・8月・10月・11月・1月。個人の場合、この7つの月に何かが来ます。まずカレンダーに印をつけるところから始めてください。</li>
-        <li><strong>入金のたびに、先に分けておく。</strong>納税用の口座を1つ作り、入金のたびに一定割合を移します。年末にまとめて用意しようとすると、大抵間に合いません。</li>
-        <li><strong>苦しくなったら、期限前に相談する。</strong>納付が難しいときのために、猶予や分割の制度が用意されています。ただし、いずれも期限や要件があり、遅れてからでは選べる手が減ります。</li>
-      </ol>
-      <p class="rule3-note">※金額はいずれも一例です。適用の可否は要件と事実関係により異なります。手続の期限は個別にご確認ください。</p>
-    </div>
-  </div>
-</section>
 
 <!-- ================= セクション6：数字の話 ================= -->
 <section id="sec6" class="band-sky round-top">
   <div class="wrap">
     <div class="sec-head">
-      <div><span class="step-pill"><i>6</i><span>数字の話を一つだけ</span></span>
+      <div><span class="step-pill"><i>3</i><span>数字の話を一つだけ</span></span>
       <h2>2年目の山を<span class="nowrap">数えます</span></h2></div>
       <div class="spot"><span class="spot-circle" data-art="spotCal" aria-hidden="true"></span></div>
     </div>
@@ -1515,8 +1638,6 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
       <div class="spot"><span class="spot-circle" data-art="spotCheck" aria-hidden="true"></span></div>
     </div>
     <p class="sec-lead">最後に、いまの状況を確認してみましょう。あてはまるもの・できたものをタップ（クリック）してください。</p>
-    <div class="score-box"><h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/></svg>クイズの結果</h3>
-      <div id="sumScore"><p>まだクイズに挑戦していません。<a href="#sec2">②の○×クイズ</a>で、思い込みをチェックしてみてください。</p></div></div>
     <div class="checklist" id="checklist">
       <p class="chk-group">今日、紙を見れば分かること</p>
       <label class="chk"><input type="checkbox"><span class="art" data-art="chkPdf" aria-hidden="true"></span><span><strong>去年の申告書がどこにあるか分かる</strong>来年の見通しは、ほとんどこの1部から読み取れます。まず在りかの確認から。</span></label>
@@ -1565,51 +1686,10 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
 
 <!-- 募集文書審査：未了。委託先保険会社の承認番号の要否を確認のうえ公開すること -->
 <footer class="disclaimer">
-  <p>本資料は、株式会社Office-Mが税金・社会保険料の納期の一般的なしくみをご理解いただくために作成した情報提供資料です。記載内容は2026年8月時点の法令等にもとづく一般的な取扱いであり、個別の事案への当てはめは、所得の額・業種・家族構成・お住まいの自治体・事業年度の設定などによって結論が変わります。納期・税率・基準額は、制度改正や自治体の条例により変わることがあります。シミュレーターの結果はいずれも簡易な概算であり、実際の税額・保険料を示すものではありません。実際の判断にあたっては、必ず税理士・所轄の税務署・お住まいの自治体にご確認ください。<strong>個別具体的な税務相談・税務書類の作成・税務代理は、税理士が対応します。</strong>本資料の内容によって生じた結果について、当社は責任を負いかねます。</p>
+  <p>本資料は、株式会社Office-Mが税金・社会保険料の納期の一般的なしくみをご理解いただくために作成した情報提供資料です。記載内容は2026年8月時点の法令等にもとづく一般的な取扱いであり、個別の事案への当てはめは、所得の額・業種・家族構成・お住まいの自治体・事業年度の設定などによって結論が変わります。納期・税率・基準額は、制度改正や自治体の条例により変わることがあります。本ページの金額の例やたとえはいずれも簡易な概算・しくみのイメージであり、実際の税額・保険料を示すものではありません。実際の判断にあたっては、必ず税理士・所轄の税務署・お住まいの自治体にご確認ください。<strong>個別具体的な税務相談・税務書類の作成・税務代理は、税理士が対応します。</strong>本資料の内容によって生じた結果について、当社は責任を負いかねます。</p>
   <p style="margin-top:10px;">主な根拠：所得税法（確定申告・予定納税・源泉徴収）、地方税法（個人住民税・個人事業税・法人住民税の均等割）、法人税法（申告期限・中間申告）、消費税法（納税義務の判定・中間申告）、国税通則法および国税徴収法（納期限・猶予）。国民年金保険料および国民健康保険料の水準は概数で、年度・自治体により異なります。制度は改正されることがあります。最新の内容は国税庁、お住まいの自治体、日本年金機構のページでご確認ください。</p>
   <p style="margin-top:10px;">作成：株式会社Office-M（2026年8月）</p>
 </footer>
-<!-- ================= 演目詳細モーダル ================= -->
-<div class="cmodal" id="caseModal" aria-hidden="true">
-  <div class="cmodal-back" id="caseModalBack"></div>
-  <div class="cmodal-panel" role="dialog" aria-modal="true" aria-labelledby="caseModalTitle">
-    <div class="cmodal-head" id="caseModalHead">
-      <button type="button" class="cmodal-close" id="caseModalClose" aria-label="閉じる">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
-      </button>
-      <div class="cmodal-ico" id="caseModalIco" aria-hidden="true"></div>
-      <div>
-        <span class="cmodal-chip" id="caseModalChip"></span>
-        <h3 class="cmodal-title" id="caseModalTitle"></h3>
-      </div>
-    </div>
-    <div class="cmodal-body">
-      <div class="cmodal-block">
-        <div class="cmodal-label lb-blue">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 15.5a2 2 0 0 1-2 2H8l-4 3.5v-15a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"/></svg>
-          <span id="caseModalLbl1">ご相談で伺ったお話（脚色あり）</span>
-        </div>
-        <blockquote class="cmodal-quote" id="caseModalStory"></blockquote>
-      </div>
-      <div class="cmodal-block">
-        <div class="cmodal-label lb-red" id="caseModalLbl2Wrap">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
-          <span id="caseModalLbl2">何が起きたのか</span>
-        </div>
-        <div id="caseModalWhat"></div>
-      </div>
-      <div class="cmodal-block">
-        <div class="cmodal-label lb-green">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
-          <span id="caseModalLbl3">こう確認すれば防げます</span>
-        </div>
-        <div id="caseModalHow"></div>
-      </div>
-      <div data-cta-mini></div>
-      <p class="cmodal-note">※演目は一般的な内容をもとにした創作例で、実在の個人・法人・事案とは関係ありません。税務の取扱いは事実関係により異なります。実際の判断は、顧問税理士または所轄の税務署にご確認ください。</p>
-    </div>
-  </div>
-
 <script>
 (function(){
 'use strict';
@@ -1964,437 +2044,6 @@ var CTA_MINI =
   '無料で相談してみる</a></div>';
 document.querySelectorAll('[data-cta-mini]').forEach(function(el){ el.innerHTML = CTA_MINI; });
 
-/* ---------- セクション2：○×クイズ ---------- */
-/* a: true = 知っている（○が正解）, false = 知らない（×が正解） */
-var QUIZ = [
-  {
-    icon:'icCal2', a:true, yes:'前年の所得', no:'今年の所得',
-    q:'個人の住民税は、いま稼いでいる所得ではなく、前の年の所得をもとに計算される。',
-    expl:'前年の所得がもとになります。個人の住民税は、前年1月から12月の所得をもとに計算され、通知が届くのは6月ごろ。給与から引かれる場合は6月から翌年5月までの12回、自分で納める場合は年4回に分けるのが一般的です。この時間差があるため、収入が大きく落ちた年こそ、前年の水準で計算された住民税が届くことになります。逆に、独立した直後の1年目は、前職の給与をもとにした住民税が続くという形になります。',
-    wana:'給与から自動的に引かれているうちは、いつの所得に対する税なのかを意識する機会がまったくないためです。',
-    check:'手元の住民税の通知書に、どの年の所得をもとにした金額かが書かれています。確認してみてください。'
-  },
-  {
-    icon:'icNouki', a:false, yes:'全員にかかる', no:'かからない人もいる',
-    q:'個人事業税は、事業で所得のある人ならだれにでもかかる。',
-    expl:'かからない人もいます。個人事業税は都道府県の税で、法律で定められた業種にあたる事業を営んでいる場合にかかります。業種に当てはまらない事業は対象外です。また、年290万円の事業主控除があるため、所得がこの金額以下であれば納める税額は生じません。納期は8月と11月の年2回が原則で、確定申告をしていれば別途の申告は不要とされるのが一般的です。存在自体を知らないまま、8月に届く納付書におどろく方がとても多い税金です。',
-    wana:'所得税や住民税と違って全員にかかるわけではないため、周りの人から話を聞く機会が少ないためです。',
-    check:'ご自身の事業が、都道府県の定める課税対象の業種にあたるかどうかを確認してください。'
-  },
-  {
-    icon:'qYen', a:true, yes:'一定額以上だけ', no:'だれにでも来る',
-    q:'所得税の予定納税は、前の年の税額が一定額以上だった人にだけ来る。',
-    expl:'一定額以上の人にだけ来ます。前年分から計算した予定納税基準額が15万円以上になると、その年の所得税の一部を前もって納めることになります。納期は原則として7月と11月の2回で、それぞれ基準額の3分の1ずつ。年の途中で業績が大きく落ちる見込みのときは、減額の申請ができる制度も用意されています。前払いした分は確定申告で精算されるので、二重に取られるわけではありません。ただし、その年の資金繰りには確実に影響します。',
-    wana:'まだ確定していない年の税金を先に納めるという発想がないため、通知が届いて初めて存在を知る方が多いためです。',
-    check:'前年の確定申告書の、納める所得税額がいくらだったかを確認してください。'
-  },
-  {
-    icon:'icWave', a:true, yes:'2年目が重い', no:'1年目が重い',
-    q:'会社員から独立した場合、税と社会保険の負担は1年目より2年目のほうが重くなりやすい。',
-    expl:'2年目のほうが重くなりやすいのが一般的です。1年目は、住民税も国民健康保険料も前職の給与をもとに計算されているうえ、事業に対する所得税の申告はまだ先。ところが2年目になると、1年目の事業所得をもとにした所得税の申告、6月からの住民税、8月と11月の個人事業税、そして前年の所得で計算し直された国民健康保険料が、一斉に来ます。さらに条件を満たせば予定納税も加わります。1年目が順調だった方ほど、2年目の山が高くなるという構造です。',
-    wana:'1年目を無事に乗り切ると、いちばん大変な時期は終わったと感じてしまい、翌年の準備をしなくなるためです。',
-    check:'独立してからの年数と、来年の6月から11月にかけての資金の見通しを確認してください。'
-  },
-  {
-    icon:'icHojin', a:false, yes:'1円も出ない', no:'出るものがある',
-    q:'会社を作ったが赤字だった。この場合、法人の税金は1円も出ない。',
-    expl:'出るものがあります。利益に対してかかる法人税は生じませんが、法人住民税の均等割は赤字でも納めるのが原則です。金額は資本金等の額と従業者数で決まり、小さな会社では年7万円程度が目安とされています。休眠状態にしていても、所定の届出をしていなければ請求は続きます。さらに、消費税は利益ではなく取引をもとに計算されるため、赤字でも納付が生じることがあります。会社は、動かしているだけで最低限の固定費がかかると考えておくのが安全です。',
-    wana:'税金は儲かったときに払うもの、という理解が定着していて、利益と関係なくかかるものがあると想像しにくいためです。',
-    check:'法人住民税の均等割が、お住まいの自治体でいくらになるかを確認してください。'
-  },
-  {
-    icon:'qInvoice', a:true, yes:'一定額を超えたら', no:'毎期必ず',
-    q:'法人税の中間申告は、前の事業年度の税額が一定額を超えた会社だけに必要になる。',
-    expl:'一定額を超えた場合に必要になります。前の事業年度の法人税額が20万円を超えると、事業年度の開始から6か月を経過した日から2か月以内に中間申告と納付が必要とされています。消費税にも中間申告があり、こちらは前の課税期間の税額に応じて年1回、年3回、年11回と回数が変わります。設立して間もない時期は中間申告がなく、業績が伸びた翌期からいきなり始まるため、資金繰りの見落としになりやすいところです。',
-    wana:'1期目に中間申告がなかった経験から、決算のときだけ納めればよいという印象が残ってしまうためです。',
-    check:'前の事業年度の法人税額と消費税額が、それぞれいくらだったかを確認してください。'
-  },
-  {
-    icon:'icShain', a:true, yes:'翌月10日', no:'年に1回',
-    q:'従業員の給与から預かった所得税は、原則として翌月10日までに納める。',
-    expl:'原則は翌月10日までです。給与や報酬から預かった所得税は、支払った月の翌月10日が納期限とされています。これは会社のお金ではなく預かっているお金なので、納付が遅れると不納付加算税や延滞税の対象になることがあります。ただし、給与を支払う人数が常時10人未満であれば、納期の特例を申請して年2回にまとめることができます。この場合の納期は7月10日と翌年1月20日が原則。事務は軽くなりますが、1回あたりの金額は当然大きくなります。',
-    wana:'自分の税金ではなく預かっているお金なので、支払うという実感が持ちにくく、後回しになりやすいためです。',
-    check:'源泉所得税の納期の特例を申請しているかどうか、そして次の納期がいつかを確認してください。'
-  },
-  {
-    icon:'icPiggy', a:false, yes:'1年目から', no:'あとから来る',
-    q:'消費税は、事業を始めた年からすぐに納めることになる。',
-    expl:'すぐに来るとは限りません。消費税を納める義務があるかどうかは、原則として2年前の課税売上高などをもとに判定されます。そのため、事業を始めた時点では判定のもとになる期間がなく、しばらくしてから納税義務が生じるという流れになるのが一般的です。ただし、インボイスの登録をした場合は、売上の規模にかかわらず課税事業者になります。また、特定の期間の売上や給与の額による判定もあります。来る時期を先に知っておくと、後からの資金繰りが楽になります。',
-    wana:'売上に上乗せして預かっている感覚があるため、その年のうちに納めるものだと思われやすいためです。',
-    check:'インボイスの登録をしているか、そして課税事業者になるのが何年目からかを確認してください。'
-  }
-];
-
-var qIdx = 0, qScore = 0, qAnswered = false, qAnsweredCount = 0;
-var wrongItems = [];
-
-var elNum   = document.getElementById('qNum');
-var elDots  = document.getElementById('qDots');
-var elIcon  = document.getElementById('qIcon');
-var elText  = document.getElementById('qText');
-var btnYes  = document.getElementById('btnYes');
-var btnNo   = document.getElementById('btnNo');
-var lblYes  = document.getElementById('lblYes');
-var lblNo   = document.getElementById('lblNo');
-var elVerd  = document.getElementById('verdict');
-var elVAns  = document.getElementById('vAnswer');
-var elVChip = document.getElementById('vChip');
-var elVExpl = document.getElementById('vExpl');
-var elVWana = document.getElementById('vWana');
-var elVChk  = document.getElementById('vCheck');
-var btnNext = document.getElementById('btnNext');
-var btnStop = document.getElementById('btnStopHere');
-var quizPlay = document.getElementById('quizPlay');
-var quizDone = document.getElementById('quizDone');
-
-function renderDots(){
-  var html = '';
-  for(var i = 0; i < QUIZ.length; i++){
-    html += '<i class="' + (i < qIdx ? 'done' : (i === qIdx ? 'now' : '')) + '"></i>';
-  }
-  elDots.innerHTML = html;
-}
-
-function renderQ(){
-  var item = QUIZ[qIdx];
-  elNum.textContent = qIdx + 1;
-  elIcon.innerHTML = ARTS[item.icon] || '';
-  elText.textContent = item.q;
-  lblYes.textContent = item.yes || '知っている';
-  lblNo.textContent = item.no || '知らない';
-  btnYes.disabled = false;
-  btnNo.disabled = false;
-  qAnswered = false;
-  elVerd.classList.remove('show');
-  btnNext.style.display = 'none';
-  btnStop.style.display = 'none';
-  renderDots();
-}
-
-function answer(ansYes){
-  if(qAnswered) return;
-  qAnswered = true;
-  qAnsweredCount++;
-  btnYes.disabled = true;
-  btnNo.disabled = true;
-  var item = QUIZ[qIdx];
-  var correct = (ansYes === item.a);
-  if(correct) qScore++;
-  else wrongItems.push(item);
-  elVAns.textContent = '正解は「' + (item.a ? (item.yes || '知っている') : (item.no || '知らない')) + '」';
-  elVChip.textContent = correct ? 'ご名答！' : 'ざんねん、ここがワナ';
-  elVChip.className = 'result-chip ' + (correct ? 'correct' : 'wrong');
-  elVExpl.textContent = item.expl;
-  elVWana.textContent = item.wana;
-  elVChk.textContent = item.check;
-  elVerd.classList.add('show');
-  btnNext.style.display = 'flex';
-  if(qIdx >= QUIZ.length - 1){
-    btnNext.innerHTML = '結果を見る <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
-  } else if(qIdx >= 2){
-    btnStop.style.display = 'block';
-  }
-}
-
-function doneComment(score, total){
-  var full = (total === QUIZ.length);
-  if(score === total && full){
-    return '全問正解です。あなたはもう、納付書を見て驚く側ではなく、先に用意しておける側の人。あとは、その知識をご自身の1年に当てはめて、どの月にいくら来るかを数えるだけです。数えた結果が気になったら、いつでもお声がけください。';
-  }
-  var r = score / total;
-  if(r >= 0.75){
-    return 'かなりの好成績です。ただ、クイズで間違えても失うのは1問ですが、納期の見落としで失うのは、そのときの現金と平穏。惜しかった問題こそ、ご自身の通帳と納付書で答え合わせをしてみてください。';
-  }
-  if(r >= 0.4){
-    return '半分ほどワナにかかりました。ご安心ください、ご相談でお会いする方もだいたい同じです。税金と社会保険は、種類ごとに担当する役所が違い、来る時期もばらばら。つまり、普通に働いていると全体像が見えないようにできています。だからこそ、一度だけ並べてみる価値があります。';
-  }
-  return 'ワナに気持ちよくかかりました。でも、それが普通です。むしろクイズで引っかかっておけば、来年の6月や8月に届く封筒の前で引っかからずに済みます。今日が、納期にいちばん詳しい日。この勢いで、来年のカレンダーに印をつけるところまでいきましょう。';
-}
-
-function showDone(){
-  quizPlay.style.display = 'none';
-  quizDone.classList.add('show');
-  document.getElementById('doneTotal').textContent = qAnsweredCount;
-  document.getElementById('doneScore').textContent = qScore;
-  document.getElementById('doneCmt').textContent = doneComment(qScore, qAnsweredCount);
-  var wl = document.getElementById('wrongList');
-  if(wrongItems.length){
-    var html = '<h4>ワナにかかった問題（＝カレンダーに書き込みたい項目）</h4>';
-    for(var i = 0; i < wrongItems.length; i++){
-      html += '<div class="w-item"><strong>' + wrongItems[i].q + '</strong><br>確認ポイント：' + wrongItems[i].check + '</div>';
-    }
-    wl.innerHTML = html;
-    wl.style.display = 'block';
-  } else {
-    wl.style.display = 'none';
-  }
-  var sum = document.getElementById('sumScore');
-  sum.innerHTML = '<p>○×クイズの結果：<strong>' + qAnsweredCount + '問中 ' + qScore + '問正解</strong>でした。' +
-    (wrongItems.length ? '間違えた問題は、そのまま「カレンダーに書き込んでおきたいことリスト」になります。' : 'この調子で、下のチェックリストもどうぞ。') + '</p>';
-}
-
-btnYes.addEventListener('click', function(){ answer(true); });
-btnNo.addEventListener('click', function(){ answer(false); });
-btnNext.addEventListener('click', function(){
-  if(qIdx >= QUIZ.length - 1){ showDone(); return; }
-  qIdx++;
-  renderQ();
-  var shell = document.querySelector('.quiz-shell');
-  if(shell.getBoundingClientRect().top < 0) shell.scrollIntoView({behavior:'smooth'});
-});
-btnStop.addEventListener('click', showDone);
-document.getElementById('btnRetry').addEventListener('click', function(){
-  qIdx = 0; qScore = 0; qAnsweredCount = 0; wrongItems = [];
-  quizDone.classList.remove('show');
-  quizPlay.style.display = 'block';
-  btnNext.innerHTML = '次の質問へ <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
-  renderQ();
-});
-document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
-document.getElementById('btnMailSelf').addEventListener('click', function(){
-  var body = '「税金がいつ来るかチェック」の結果メモ\n\n' +
-    '○×クイズ：' + qAnsweredCount + '問中 ' + qScore + '問正解\n\n';
-  if(wrongItems.length){
-    body += '【確認したいこと】\n';
-    for(var i = 0; i < wrongItems.length; i++){
-      body += '・' + wrongItems[i].check + '\n';
-    }
-  }
-  body += '\n（このメモを通帳や納付書と一緒に保管しておくと、来年の資金の山を先に見つけるのに役立ちます）\n';
-  location.href = 'mailto:?subject=' + encodeURIComponent('税金がいつ来るかの知っている・知らないチェック結果') + '&body=' + encodeURIComponent(body);
-});
-
-renderQ();
-
-/* ---------- セクション3：シミュレーター ---------- */
-var simA = document.getElementById('simA'), simB = document.getElementById('simB'),
-    simC = document.getElementById('simC'), simE = document.getElementById('simE');
-function man(x){ return Math.round(x).toLocaleString('ja-JP') + '万円'; }
-function pct(n){ return (Math.round(n * 1000) / 10) + '%'; }
-function setR(id, ok, chipTxt, txt){
-  document.getElementById(id).className = 'sim-r ' + (ok ? 'ok' : 'ng');
-  document.getElementById(id + 'Chip').textContent = chipTxt;
-  document.getElementById(id + 'Txt').textContent = txt;
-}
-/* 所得税の速算表（単位：万円） */
-function shotokuzei(t){
-  if(t <= 0) return 0;
-  if(t <= 195) return t * 0.05;
-  if(t <= 330) return t * 0.10 - 9.75;
-  if(t <= 695) return t * 0.20 - 42.75;
-  if(t <= 900) return t * 0.23 - 63.6;
-  if(t <= 1800) return t * 0.33 - 153.6;
-  if(t <= 4000) return t * 0.40 - 279.6;
-  return t * 0.45 - 479.6;
-}
-function simUpdate(){
-  var p = +simA.value || 0;                     /* 1年目の事業所得（青色控除前） */
-  var nin = +simB.value || 1;                   /* 世帯人数 */
-  var jigyoOn = +simE.value;                    /* 個人事業税の対象業種か */
-  var ao = simC.checked ? 65 : 0;               /* 青色申告特別控除 */
-  document.getElementById('simAOut').textContent = p.toLocaleString('ja-JP') + '万円';
-  var shotoku = Math.max(0, p - ao);            /* 所得金額 */
-  var haigu = nin >= 2 ? 1 : 0;                 /* 配偶者がいるか */
-  var nenkin = 21 * (haigu ? 2 : 1);            /* 国民年金（1人あたり年約21万円） */
-  var kokuho = Math.min(Math.max(0, shotoku - 43) * 0.10 + 5 * nin, 109);
-  var shakai = nenkin + kokuho;
-  var kojoI = 58 + shakai + (haigu ? 38 : 0);   /* 所得税の所得控除（簡略） */
-  var kojoJ = 43 + shakai + (haigu ? 33 : 0);   /* 住民税の所得控除（簡略） */
-  var zei = shotokuzei(Math.max(0, shotoku - kojoI));
-  var juumin = Math.max(0, shotoku - kojoJ) * 0.10 + 0.5;
-  var jigyo = jigyoOn ? Math.max(0, p - 290) * 0.05 : 0;
-  var total = zei + juumin + jigyo + shakai;
-  var rate = p > 0 ? total / p : 0;
-  document.getElementById('tlFill').style.width = Math.max(2, Math.min(100, rate / 0.6 * 100)) + '%';
-  setR('simR1', zei < 15, zei >= 15 ? '予定納税あり' : '3月にまとめて',
-       zei >= 15
-         ? '所得税は約' + man(zei) + 'です。前年分から計算した基準額が15万円以上になると、7月と11月にも前払いが来ます。'
-         : '所得税は約' + man(zei) + 'です。この水準なら、原則として予定納税は生じず、3月の納付だけで済みます。');
-  setR('simR2', jigyo <= 0, jigyo > 0 ? '事業税もあり' : '住民税のみ',
-       jigyo > 0
-         ? '住民税が約' + man(juumin) + '、個人事業税が約' + man(jigyo) + '。事業税は8月と11月の2回に分かれて来ます。'
-         : '住民税が約' + man(juumin) + '。対象外の業種なので個人事業税は生じません。住民税は6月から始まります。');
-  setR('simR3', shakai < 60, shakai >= 60 ? '負担が大きい' : '毎月の固定費',
-       '国民年金と国民健康保険料で年に約' + man(shakai) + '。国民健康保険料は前年の所得で決まるため、2年目に大きく変わります。');
-  var big = document.getElementById('simTotalBig'), sub = document.getElementById('simTotalSub');
-  if(total <= 0){
-    big.innerHTML = '2年目に出ていくのは <b>ほぼ0円</b>';
-    sub.textContent = '入力された所得では、税と社会保険料がほとんど生じない計算になります。ただし国民年金の保険料は所得に関係なくかかります。';
-  } else {
-    big.innerHTML = '2年目の1年間で <b>約' + man(total) + '</b>';
-    sub.textContent = '1年目の事業所得の ' + pct(rate) + ' にあたる金額が、翌年の3月から11月を中心に出ていく計算です。';
-  }
-}
-simA.addEventListener('input', simUpdate);
-simB.addEventListener('change', simUpdate);
-simE.addEventListener('change', simUpdate);
-simC.addEventListener('change', simUpdate);
-simUpdate();
-
-/* ---------- セクション4：あるある劇場 ---------- */
-var CASES = [
-  {
-    art:'icWave', cls:'c-red', chip:'第一幕：2年目の山',
-    title:'1年目が好調で、2年目の夏に資金が尽きかけた',
-    story:'「独立1年目が思いのほかうまくいって、これならやっていけると思っていました。ところが2年目、3月に所得税を納めて、6月に住民税の通知が来て、7月に予定納税、8月に個人事業税。おまけに国民健康保険料が去年の倍近くになっていて。<b>入金は普通にあるのに、口座が空になっていく</b>という感覚は、あのとき初めて味わいました」<small>——香川県の30代自営業 Aさん（脚色あり）</small>',
-    what:'<p class="cmodal-p">住民税・個人事業税・国民健康保険料は、いずれも<strong>前の年の所得をもとに計算されます</strong>。独立1年目の所得が確定するのが2年目の3月なので、そこから一斉に立ち上がります。</p><p class="cmodal-p">さらに、条件を満たせば7月と11月に予定納税が加わります。つまり2年目は、<strong>1年目の分と2年目の分を同じ年に払う</strong>ことになります。</p>',
-    how:'<p class="cmodal-p">防ぐ方法は単純で、<strong>入金のたびに一定割合を別の口座へ分ける</strong>ことです。割合は業種や所得によりますが、まずは概算で計算して、その金額を12で割ってみてください。</p><p class="cmodal-p">今日できるのは、来年の6月から11月に何が来るかを紙に書き出すこと。金額が分からなくても、種類と月が分かるだけで準備の質は変わります。</p>'
-  },
-  {
-    art:'icNouki', cls:'c-amber', chip:'第二幕：予定納税',
-    title:'7月に届いた納付書を、二重請求だと思った',
-    story:'「3月にきちんと所得税を納めたのに、7月にまた税務署から納付書が届きました。金額を見ると、3月に納めた額の3分の1くらい。<b>間違って二重に請求されている</b>と思って電話したんです。予定納税という制度だと説明されて、来年の分の前払いだと知りました。制度を知らないと、こちらの落ち度がなくても混乱します」<small>——香川県の40代自営業 Bさん（脚色あり）</small>',
-    what:'<p class="cmodal-p">予定納税は、前年分から計算した予定納税基準額が15万円以上のときに生じます。納期は原則として<strong>7月と11月の2回、それぞれ基準額の3分の1ずつ</strong>です。</p><p class="cmodal-p">前払いした分は、翌年の確定申告で精算されます。納めすぎになっていれば戻ってくるので、二重に取られるわけではありません。ただし、その年の現金は確実に減ります。</p>',
-    how:'<p class="cmodal-p">前年の確定申告書で<strong>納める所得税額が15万円を超えていないか</strong>を見れば、予定納税が来るかどうかはおおよそ見当がつきます。</p><p class="cmodal-p">なお、その年の業績が大きく落ちる見込みのときは、減額を申請できる制度があります。申請には期限がありますので、見込みが立った時点で税理士にご相談ください。</p>'
-  },
-  {
-    art:'icCal2', cls:'c-berry', chip:'第三幕：個人事業税',
-    title:'8月に届いた見慣れない封筒を放置していた',
-    story:'「県から届いた封筒だったので、何かの案内だと思って置いていました。よく見たら納付書で、しかも納期が過ぎていて。<b>個人事業税という税金があること自体を知りませんでした</b>。確定申告はしていたので、申告漏れではないのですが、納付が遅れた分の延滞金がついてしまって。知らなかったで済まないのが、税金のこわいところですね」<small>——香川県の40代自営業 Cさん（脚色あり）</small>',
-    what:'<p class="cmodal-p">個人事業税は都道府県の税で、法律で定められた業種にあたる事業を営んでいる場合にかかります。納期は<strong>8月と11月の年2回</strong>が原則です。</p><p class="cmodal-p">年290万円の事業主控除があるため、所得がこれ以下なら税額は生じません。逆にいえば、事業が軌道に乗った翌年から、突然始まる税金でもあります。</p>',
-    how:'<p class="cmodal-p">確認しておきたいのは<strong>ご自身の事業が課税対象の業種にあたるか</strong>、そして<strong>所得が290万円を超えそうか</strong>の2点です。どちらも事前に分かります。</p><p class="cmodal-p">役所から届く封筒は、開けてから捨てる。当たり前のようですが、これで防げるものがかなりあります。納期が過ぎてしまったら、放置せず早めに相談してください。</p>'
-  },
-  {
-    art:'icHojin', cls:'c-blue', chip:'第四幕：赤字でも来る',
-    title:'赤字の会社に、しっかり請求が届いた',
-    story:'「勢いで会社を作ったものの、初年度は赤字。税金は利益に対してかかるものだと思っていたので、何も来ないつもりでいました。ところが<b>法人住民税の均等割の納付書が届いて</b>。金額としては7万円ほどですが、赤字の会社にとっては軽くありません。会社は持っているだけで固定費がかかると、あのとき理解しました」<small>——香川県の30代法人代表 Dさん（脚色あり）</small>',
-    what:'<p class="cmodal-p">法人住民税の均等割は、<strong>利益が出ていなくても納める</strong>のが原則です。資本金等の額と従業者数で決まり、小さな会社では年7万円程度が目安とされています。</p><p class="cmodal-p">また、消費税は利益ではなく取引をもとに計算されるため、赤字でも納付が生じることがあります。会社を動かす以上、最低限の固定費があると考えておくのが安全です。</p>',
-    how:'<p class="cmodal-p">法人を作る前に、<strong>赤字でも毎年かかる金額</strong>を先に把握しておきます。均等割の額は自治体によって異なるため、事前に確認できます。</p><p class="cmodal-p">なお、事業を休んでいる場合の取扱いは自治体ごとに手続きが定められています。会社を残すか、たたむかの判断は税金以外の影響も大きいので、税理士にご相談ください。</p>'
-  },
-  {
-    art:'icShain', cls:'c-green', chip:'第五幕：預かった税金',
-    title:'源泉所得税の納付を、半年ためてしまった',
-    story:'「初めて人を雇ったとき、給与計算のほうに気を取られていました。源泉所得税を預かっているのは分かっていたのですが、<b>いつ納めるかを調べないまま数か月</b>。会計を見てもらったときに指摘されて、まとめて納付しました。加算税と延滞税がついて、金額よりも、自分の管理の甘さのほうがこたえました」<small>——香川県の40代法人代表 Eさん（脚色あり）</small>',
-    what:'<p class="cmodal-p">給与や報酬から預かった所得税は、原則として<strong>支払った月の翌月10日まで</strong>に納めます。これは会社のお金ではなく、預かっているお金です。</p><p class="cmodal-p">納付が遅れると不納付加算税や延滞税の対象になることがあります。金額が小さくても回数が重なると無視できません。</p>',
-    how:'<p class="cmodal-p">給与を支払う人数が常時10人未満なら、<strong>納期の特例を申請して年2回にまとめる</strong>ことができます。事務は軽くなりますが、1回あたりの金額は大きくなります。</p><p class="cmodal-p">どちらを選ぶにしても、<strong>納期をカレンダーに固定する</strong>のが先です。人を雇うと決めた時点で、給与計算と納付のセットで段取りを組んでおいてください。</p>'
-  },
-  {
-    art:'qInvoice', cls:'c-red', chip:'第六幕：重なる月',
-    title:'決算月と繁忙期が重なって、身動きが取れなかった',
-    story:'「会社を作るとき、決算月を深く考えずに決めました。結果として、いちばん忙しい時期の2か月後に決算と納付が来る形に。<b>売上の入金前に、法人税と消費税をまとめて納める</b>ことになって、その年は本当にきつかったです。決算月は自分で選べると知っていたら、まったく違う設計にしていました」<small>——香川県の50代法人代表 Fさん（脚色あり）</small>',
-    what:'<p class="cmodal-p">法人税・地方法人税・法人住民税・法人事業税、そして消費税は、原則として<strong>事業年度終了の日の翌日から2か月以内</strong>に申告と納付をします。つまり同じ月に集中します。</p><p class="cmodal-p">決算月は設立時に自分で決めるものなので、繁忙期や資金の谷と重ならないように設計する余地があります。</p>',
-    how:'<p class="cmodal-p">設立前に確認したいのは<strong>年間の入金と支出の波</strong>です。売上の入金が厚い時期の少しあとに納付が来るように置ければ、資金繰りは楽になります。</p><p class="cmodal-p">決算月はあとから変更することもできますが、手続きと影響の範囲が広くなります。設立の前に一度、税理士に相談しておくのが確実です。</p>'
-  }
-];
-
-/* ---------- セクション5：逆転劇場 ---------- */
-var GOOD_CASES = [
-  {
-    art:'icPiggy', cls:'c-green', chip:'第一話：納税用の口座', amt:'2年目を無傷で',
-    title:'先に分けておいたので、2年目の夏が平穏だった',
-    story:'「独立するときに、先輩から<b>『2年目が本番だから、入金の3割は別の口座に移しておけ』</b>と言われました。半信半疑でしたが、そのとおりにしていたら、2年目の6月から11月にかけて次々に納付書が届いても、まったく慌てずに済みました。移していなかったらどうなっていたか、想像するとぞっとします」<small>——香川県の30代自営業 Gさん（脚色あり）</small>',
-    what:'<p class="cmodal-p">2年目には、1年目の所得をもとにした所得税・住民税・個人事業税・国民健康保険料が一斉に来ます。<strong>入金があった時点では、そのお金の一部は既に自分のものではない</strong>と考えるのが実態に近い形です。</p><p class="cmodal-p">先に分けておけば、資金繰りの判断がぶれません。使えるお金の残高が、そのまま見えるようになるからです。</p>',
-    how:'<p class="cmodal-p">条件は、<strong>割合を先に決めること</strong>だけです。業種や所得によって適切な割合は変わりますが、一度概算を出しておけば、あとは同じ作業の繰り返しになります。</p><p class="cmodal-p">口座を分けるのが難しければ、通帳に月ごとの予定額をメモするだけでも効果があります。大事なのは、残高を見たときに「使えるお金」と「預かっているお金」が区別できることです。</p>'
-  },
-  {
-    art:'icNouki', cls:'c-blue', chip:'第二話：予定納税の減額申請', amt:'その年の負担を調整',
-    title:'業績が落ちた年に、前払いの額を見直せた',
-    story:'「前の年が良かったので、7月に予定納税の通知が来ました。ところがその年は取引先の事情で売上が半分近くまで落ちていて、去年の水準で前払いするのはどう考えても無理でした。相談したところ<b>減額の申請ができる</b>と教わって。期限内に手続きしたおかげで、その年の資金繰りが持ちこたえました」<small>——香川県の40代自営業 Hさん（脚色あり）</small>',
-    what:'<p class="cmodal-p">予定納税は、あくまで前年の実績をもとにした前払いです。その年の状況が大きく変わっている場合に、<strong>申告納税見積額をもとに減額を申請できる制度</strong>が用意されています。</p><p class="cmodal-p">前払いを減らしても、最終的な税額が変わるわけではありません。それでも、現金が手元に残る期間が延びること自体に意味があります。</p>',
-    how:'<p class="cmodal-p">条件は、<strong>その年の所得や税額が前年より減ると見込まれること</strong>、そして<strong>定められた期限内に申請すること</strong>です。見積りの根拠となる資料も必要になります。</p><p class="cmodal-p">期限を過ぎると使えません。売上が落ちていると感じた時点で、決算を待たずに早めに税理士へご相談ください。</p>'
-  },
-  {
-    art:'icShain', cls:'c-amber', chip:'第三話：納期の特例', amt:'事務が年2回に',
-    title:'源泉の納付を年2回にして、事務が軽くなった',
-    story:'「従業員は3人ですが、毎月10日までに源泉所得税を納めるのが地味に負担でした。<b>納期の特例という制度があると聞いて</b>申請したところ、年2回にまとめられるようになって。事務の手間が目に見えて減りました。ただ、1回の金額が大きくなるので、そのぶんは毎月積んでおくようにしています」<small>——香川県の40代法人代表 Iさん（脚色あり）</small>',
-    what:'<p class="cmodal-p">給与を支払う人数が常時10人未満であれば、源泉所得税の納付を<strong>年2回にまとめる特例</strong>を申請できます。納期は7月10日と翌年1月20日が原則です。</p><p class="cmodal-p">毎月の事務がなくなるぶん、うっかりによる遅延も起きにくくなります。小さな事業所には効きやすい制度です。</p>',
-    how:'<p class="cmodal-p">条件は<strong>給与の支給人員が常時10人未満であること</strong>と、<strong>あらかじめ申請書を提出すること</strong>です。人数が増えれば特例は使えなくなります。</p><p class="cmodal-p">注意点は、1回あたりの納付額が半年分にまとまることです。使ってしまわないよう、毎月積み立てておく運用とセットにしてください。</p>'
-  },
-  {
-    art:'icCal2', cls:'c-berry', chip:'第四話：振替納税', amt:'約1か月の余裕',
-    title:'引き落としにしたら、資金繰りに一息ついた',
-    story:'「所得税の納付を、窓口で払うのをやめて口座からの引き落としに変えました。<b>引き落としの日が1か月ほど後になる</b>と知って、それだけの理由です。たった1か月ですが、3月末の資金が苦しい業種なので、この差はとても大きい。納め忘れもなくなって、二重に助かりました」<small>——香川県の30代自営業 Jさん（脚色あり）</small>',
-    what:'<p class="cmodal-p">所得税の確定申告分について口座振替を利用すると、<strong>引き落としの日が納期限より後になる</strong>のが一般的な取扱いです。予定納税についても振替の日が別に定められています。</p><p class="cmodal-p">納める金額は変わりませんが、支払いの日が動くだけで資金繰りは楽になります。納め忘れによる延滞を防げる点も見逃せません。</p>',
-    how:'<p class="cmodal-p">条件は、<strong>あらかじめ手続きをしておくこと</strong>です。申告のたびに手続きが必要なわけではありませんが、口座を変えた場合などは届出が要ります。</p><p class="cmodal-p">注意点は、引き落とし日に残高が足りないと延滞になることです。日付が後ろにずれるぶん、うっかり使ってしまわないようご注意ください。</p>'
-  },
-  {
-    art:'icPiggy', cls:'c-green', chip:'第五話：青色申告の届出', amt:'期限内が絶対条件',
-    title:'開業してすぐ届出を出しておいて助かった',
-    story:'「開業のときに、いろいろな届出をまとめて出しました。正直、内容はよく分かっていませんでした。あとで<b>青色申告の承認申請には期限があって、過ぎると翌年からになる</b>と知って青ざめました。出しておいたおかげで、1年目から控除が使えて、赤字を翌年に繰り越すこともできました。あのときの自分に感謝しています」<small>——香川県の30代自営業 Kさん（脚色あり）</small>',
-    what:'<p class="cmodal-p">青色申告の承認申請には期限があります。新たに事業を開始した場合は、<strong>開業の日から2か月以内</strong>が原則です。期限を過ぎると、その年は白色申告になります。</p><p class="cmodal-p">青色申告には、特別控除のほか、赤字を翌年以後に繰り越せる制度などがあります。1年目が赤字になりやすい事業では、この繰越が効いてきます。</p>',
-    how:'<p class="cmodal-p">条件は<strong>期限内に申請書を出すこと</strong>と、<strong>帳簿を備えて記録すること</strong>です。控除の額によって求められる帳簿や申告の方法が変わります。</p><p class="cmodal-p">法人の場合も、設立から一定の期間内に申請が必要です。開業や設立のときは、届出の一覧を作って一度に片づけるのが確実です。何が必要かは税理士にご確認ください。</p>'
-  },
-  {
-    art:'icHojin', cls:'c-blue', chip:'第六話：決算月の設計', amt:'山をずらせた',
-    title:'決算月をずらして、納付と繁忙期を分けた',
-    story:'「会社を作るときに、決算月をどうするか相談しました。うちは年度末が繁忙期で、入金は5月ごろにまとまって入ります。そこで<b>決算月を入金の少しあとに置く</b>形にしました。おかげで、納付の時期には現金がある状態を作れています。あとから変えるのは大変だと聞いたので、最初に決めておいてよかったです」<small>——香川県の40代法人代表 Lさん（脚色あり）</small>',
-    what:'<p class="cmodal-p">法人の申告と納付は、原則として<strong>事業年度終了の日の翌日から2か月以内</strong>です。決算月を選ぶということは、納付の月を選ぶということでもあります。</p><p class="cmodal-p">入金の厚い時期の少しあとに納付が来るように設計できれば、同じ税額でも資金繰りの苦しさはまったく違ってきます。</p>',
-    how:'<p class="cmodal-p">条件は、<strong>設立の前に年間の入金と支出の波を把握しておくこと</strong>です。過去の実績がなければ、同業の一般的な流れからでも見当はつきます。</p><p class="cmodal-p">注意点として、決算月の選び方は消費税の判定や事務の集中とも関係します。税金だけで決めず、事業全体を見て判断してください。判断に迷うときは税理士にご相談ください。</p>'
-  },
-  {
-    art:'icWave', cls:'c-amber', chip:'第七話：3年目の消費税', amt:'先に知っていた',
-    title:'消費税が来る年を、2年前から知っていた',
-    story:'「売上が1年目から順調に伸びていたので、いずれ消費税が来るとは思っていました。<b>いつから来るのかを先に計算してもらって</b>、その年の分は毎月積み立てるようにしました。実際に納付書が来たときには、既に用意ができている状態。周りの同業には、来た年に慌てて借入をした人もいたので、差を感じました」<small>——香川県の40代自営業 Mさん（脚色あり）</small>',
-    what:'<p class="cmodal-p">消費税を納める義務があるかどうかは、原則として<strong>2年前の課税売上高など</strong>をもとに判定されます。つまり、来る年は前もって分かる場合が多いということです。</p><p class="cmodal-p">預かった消費税は自分の売上ではありません。先に分けておけば、納付の月に慌てずに済みます。</p>',
-    how:'<p class="cmodal-p">条件は、<strong>売上の推移を把握していること</strong>です。判定には特定の期間による基準もあり、インボイスの登録をしている場合は売上の規模にかかわらず課税事業者になります。</p><p class="cmodal-p">簡易な計算方法や特例の適用可否によって、納める額は変わります。どの方法が使えるかは事業の内容によりますので、税理士にご確認ください。</p>'
-  },
-  {
-    art:'icDenwa', cls:'c-red', chip:'第八話：早めの相談', amt:'選べる手が残った',
-    title:'払えないと分かった時点で、先に相談した',
-    story:'「取引先の急な事情で、納付の時期に現金が用意できないことが分かりました。黙っていても仕方がないので、期限より前に相談に行ったんです。事情を説明したら、<b>分割で納める方法があると教えてもらえて</b>、書類を整えて手続きしました。逃げていたらもっと悪くなっていたと思います。早く動いてよかったです」<small>——香川県の50代自営業 Nさん（脚色あり）</small>',
-    what:'<p class="cmodal-p">納付が困難な場合に備えて、<strong>猶予や分割納付といった制度</strong>が用意されています。要件を満たせば、延滞税の一部が軽減される取扱いもあります。</p><p class="cmodal-p">大事なのは、放置しないことです。連絡がないまま期限を過ぎると、選べる手段が減り、負担も増えていきます。</p>',
-    how:'<p class="cmodal-p">条件は、<strong>要件を満たすこと</strong>と<strong>申請の期限内に手続きすること</strong>、そして<strong>資金の状況を示す資料をそろえること</strong>です。誰でも自動的に使えるものではありません。</p><p class="cmodal-p">まずは、いつ・いくら足りないのかを数字にすること。そのうえで、期限より前に税務署や自治体、そして税理士へご相談ください。動くのが早いほど、選べる手は多く残ります。</p>'
-  }
-];
-
-var modal = document.getElementById('caseModal');
-var CASE_LBL = {
-  bad:['よく伺うお話をもとにした創作例（脚色あり）', '何が起きたのか', 'こう確認すれば防げます'],
-  good:['よくある、うれしい誤算（創作例・脚色あり）', 'なぜ助かるのか', '使うための条件']
-};
-
-function renderCases(gridId, list, kind){
-  var grid = document.getElementById(gridId);
-  list.forEach(function(c){
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'case-card';
-    btn.innerHTML =
-      '<span class="art ' + c.cls + '">' + ARTS[c.art] + '</span>' +
-      '<span class="t"><span class="chip ' + c.cls + '">' + c.chip + '</span>' +
-      (c.amt ? '<span class="amt">' + c.amt + '</span>' : '') +
-      '<h3>' + c.title + '</h3>' +
-      '<span class="more">詳しく見る<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></span></span>';
-    btn.addEventListener('click', function(){ openCase(c, kind); });
-    grid.appendChild(btn);
-  });
-}
-
-function openCase(c, kind){
-  var lbl = CASE_LBL[kind] || CASE_LBL.bad;
-  document.getElementById('caseModalLbl1').textContent = lbl[0];
-  document.getElementById('caseModalLbl2').textContent = lbl[1];
-  document.getElementById('caseModalLbl3').textContent = lbl[2];
-  document.getElementById('caseModalLbl2Wrap').className =
-    'cmodal-label ' + (kind === 'good' ? 'lb-green' : 'lb-red');
-  document.getElementById('caseModalIco').className = 'cmodal-ico ' + c.cls;
-  document.getElementById('caseModalIco').innerHTML = ARTS[c.art];
-  document.getElementById('caseModalChip').className = 'cmodal-chip ' + c.cls;
-  document.getElementById('caseModalChip').textContent = c.chip;
-  document.getElementById('caseModalTitle').textContent = c.title;
-  document.getElementById('caseModalStory').innerHTML = c.story;
-  document.getElementById('caseModalWhat').innerHTML = c.what;
-  document.getElementById('caseModalHow').innerHTML = c.how;
-  modal.classList.add('show');
-  modal.setAttribute('aria-hidden', 'false');
-  document.body.style.overflow = 'hidden';
-  modal.querySelector('.cmodal-panel').scrollTop = 0;
-}
-
-renderCases('caseGrid', CASES, 'bad');
-renderCases('goodGrid', GOOD_CASES, 'good');
-
-function closeCase(){
-  modal.classList.remove('show');
-  modal.setAttribute('aria-hidden', 'true');
-  document.body.style.overflow = '';
-}
-document.getElementById('caseModalClose').addEventListener('click', closeCase);
-document.getElementById('caseModalBack').addEventListener('click', closeCase);
-document.addEventListener('keydown', function(e){
-  if(e.key === 'Escape' && modal.classList.contains('show')) closeCase();
-});
-
 /* ---------- まとめ：チェックリスト ---------- */
 var chkBoxes = document.querySelectorAll('#checklist input[type=checkbox]');
 var chkMsg = document.getElementById('chkMsg');
@@ -2418,5 +2067,62 @@ chkBoxes.forEach(function(c){ c.addEventListener('change', chkUpdate); });
 
 })();
 </script>
+<!-- TOT-JS-BEGIN ★劇場の窓。正本は hoken-newtools-src/tot/tot-parts.html -->
+<div class="tot-modal" id="totModal" aria-hidden="true">
+  <div class="tot-modal-back" data-tot-close></div>
+  <div class="tot-modal-panel" role="dialog" aria-modal="true" aria-labelledby="totModalTitle">
+    <div class="tot-modal-top">
+      <button type="button" class="tot-modal-close" data-tot-close aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <span class="tot-chip" id="totModalChip"></span>
+    <h3 class="tot-mtitle" id="totModalTitle"></h3>
+    <div id="totModalBody"></div>
+  </div>
+</div>
+<script>
+/* 劇場の窓（TOT流の部品）。カードの中の .tot-body を窓へ写して出すだけ */
+(function () {
+  var modal = document.getElementById('totModal');
+  if (!modal) return;
+  var chip = document.getElementById('totModalChip');
+  var title = document.getElementById('totModalTitle');
+  var body = document.getElementById('totModalBody');
+  var panel = modal.querySelector('.tot-modal-panel');
+  var last = null;
+  function open(art) {
+    last = document.activeElement;
+    var isG = art.classList.contains('gyaku');
+    modal.className = 'tot-modal show ' + (isG ? 'gyaku' : 'aru');
+    chip.textContent = art.querySelector('.tot-chip').textContent;
+    title.textContent = art.getAttribute('data-title') || art.querySelector('.tot-say').textContent;
+    body.innerHTML = art.querySelector('.tot-body').innerHTML;
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    panel.scrollTop = 0;
+    modal.querySelector('.tot-modal-close').focus();
+  }
+  function close() {
+    if (!modal.classList.contains('show')) return;
+    modal.className = 'tot-modal';
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    if (last && last.focus) last.focus();
+  }
+  var cards = document.querySelectorAll('.tot-case .tot-card');
+  for (var i = 0; i < cards.length; i++) {
+    cards[i].addEventListener('click', function () {
+      var art = this.parentNode;
+      while (art && !(art.classList && art.classList.contains('tot-case'))) art = art.parentNode;
+      if (art) open(art);
+    });
+  }
+  var cl = modal.querySelectorAll('[data-tot-close]');
+  for (var j = 0; j < cl.length; j++) cl[j].addEventListener('click', close);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+})();
+</script>
+<!-- TOT-JS-END -->
 </body>
 </html>

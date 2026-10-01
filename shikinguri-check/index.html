@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="description" content="お金は、出るほうが先に来ます。会社が止まるのは赤字になった日ではなく、支払う日にお金が足りなかった日です。黒字なのに資金が尽きるのはなぜか。入金より支払いが先に来るズレをどう測るか。手元資金は毎月出ていくお金の何か月分あればよいのか。社長がご自身の会社の資金の体力を確かめるための線引きを整理します。株式会社Office-M作成の情報提供資料。">
-<title>お金は、出るほうが先に来ます｜資金繰りの「もつ・もたない」チェック｜株式会社Office-M</title>
+<title>給料日の前に家賃の引き落としが来たら——資金繰りの「もつ・もたない」チェック｜株式会社Office-M</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 6 8 18v10c0 16 10 26 24 30 14-4 24-14 24-30V18Z' fill='%232c7a4b'/%3E%3Cpath d='M32 20v22M22 28h20M22 35h20' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
 <style>
 :root{
@@ -806,6 +806,210 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
 /* 使いみちの色分け（出ていくお金／戻るお金） */
 .tl-fill.back{background:linear-gradient(90deg,var(--mint),var(--green));}
 </style>
+<!-- TOT-CSS-BEGIN ★TOT流の部品。正本は hoken-newtools-src/tot/tot-parts.html -->
+<style>
+/* ===== TOT流の部品（.tot- で始まるものだけ。ページの既存の決まりは触らない） =====
+   2026-10-01 ユーザー指示「入ってすぐが暗くて見にくい。以前のように明るい入りに。下のHPと喧嘩をしない色合い・書体に。基本的に明朝体に」
+   → 入口の地はページのもとの明るい地（.hero）のまま。紺の地は使わない。見出しと強調は明朝体、本文はページの本文の書体を受け継ぐ */
+:root{
+  --tot-ink:#1b3f5e;
+  --tot-m:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho",YuMincho,"游明朝体","游明朝","Noto Serif JP","Noto Serif CJK JP","MS PMincho","ＭＳ Ｐ明朝",serif;
+  --tot-num:linear-gradient(135deg,#c2452a,#a8601a);
+  --tot-mark:linear-gradient(transparent 62%,#ffd9a8 62%);
+}
+/* --- 掴み（ヘッダー）。地・社名の行はページのもとの .hero のまま ---
+   2026-10-01 ユーザー指示「空白も気になるし縦長2つの配置ではなく、横にしてください」
+   → PC は「上の段＝見出し（左）と絵（右）／下の段＝種明かしと最初のひと言を同じ幅で横に並べる／その下に目次」。
+     左の列に縦に積み、右に絵を1枚置く形（右の絵の上下が空く）には戻さない。携帯は縦に積む */
+.hero.tot-hero{padding:22px 0 40px;}
+.tot-pair{display:grid;gap:14px;}
+@media(min-width:768px){
+  .tot-hero .hero-flex{
+    display:grid;grid-template-columns:minmax(0,1fr) 300px;
+    column-gap:28px;row-gap:0;align-items:center;
+  }
+  .tot-hero .hero-copy{display:contents;}
+  .tot-hero h1{grid-column:1;grid-row:1;}
+  .tot-hero .hero-scene{grid-column:2;grid-row:1;flex:none;width:auto;max-width:none;margin:16px 0 20px;align-self:center;}
+  /* 幅の配分はページごと（apply_tot.py の pair_cols が文の量から選んで --tot-cols に書く）＝高さを揃えて下の空きを作らない */
+  .tot-pair{grid-column:1/-1;grid-row:2;grid-template-columns:var(--tot-cols,1fr 1fr);gap:16px;align-items:stretch;}
+  .tot-hero .tot-nav{grid-column:1/-1;grid-row:3;}
+}
+.tot-hero h1{
+  font-family:var(--tot-m);font-weight:800;color:var(--navy,#1b3f5e);
+  font-size:clamp(1.82rem,7.4vw,3.05rem);line-height:1.4;letter-spacing:.02em;
+  margin:24px 0 18px;
+}
+@media(min-width:768px){ .tot-hero h1{font-size:clamp(2.2rem,3.6vw,2.7rem);} }
+.tot-hero h1 .accent{background:var(--tot-mark);color:inherit;padding:0 2px;}
+.tot-hero .hero-scene{
+  background:#fff;border-radius:30px;padding:12px;
+  box-shadow:var(--shadow,0 6px 20px rgba(130,100,80,.09));
+}
+@media(max-width:767px){ .tot-hero .hero-scene{display:none;} }
+/* --- 本文に共通する「年代別のカード」（.age-cards）。直す前から、タブレット・小さめのPCで横にはみ出していた（2026-10-01 実測。
+   金額の太字が折り返さず、3列の箱を押し広げていた）。960px 未満は1列、金額の行は折り返してよいことにする --- */
+.age-cards{grid-template-columns:minmax(0,1fr);}
+@media(min-width:700px){ .age-cards{grid-template-columns:minmax(0,1fr);} }
+@media(min-width:960px){ .age-cards{grid-template-columns:repeat(3,minmax(0,1fr));} }
+.age-card{min-width:0;}
+.age-card .row{flex-wrap:wrap;}
+.age-card .row b{white-space:normal;}   /* 3列のとき長い文がはみ出した（相続放棄のページ・1024px） */
+.tot-lab{
+  display:inline-block;flex:0 0 auto;font-family:var(--tot-m);
+  font-size:.82rem;font-weight:800;letter-spacing:.08em;line-height:1.5;
+  padding:3px 12px;border-radius:999px;background:var(--amber-bg,#fdf3e2);color:var(--amber-deep,#a85c12);
+  border:1px solid var(--amber-border,#f2dcae);
+}
+.tot-answer{
+  display:flex;flex-direction:column;gap:8px;align-items:flex-start;
+  background:rgba(255,255,255,.88);border:1px solid var(--line,#efe2d8);
+  border-left:5px solid var(--coral,#f0846a);border-radius:14px;
+  padding:14px 16px;margin:0;
+  font-size:1.02rem;line-height:1.85;color:var(--text,#33404d);
+  box-shadow:var(--shadow-sm,0 3px 10px rgba(130,100,80,.07));
+}
+.tot-answer p{font-size:1rem;line-height:1.85;}
+.tot-answer strong{color:var(--navy,#1b3f5e);background:var(--tot-mark);}
+.tot-first{
+  background:#fff;color:var(--navy,#1b3f5e);border-radius:18px;border:1px solid var(--line,#efe2d8);
+  padding:14px 18px 15px;box-shadow:var(--shadow,0 6px 20px rgba(130,100,80,.09));
+}
+.tot-first .tot-lab{background:var(--sky-bg,#e8f4fb);color:var(--sky,#24729f);border-color:var(--sky-border,#c6e2f2);}
+.tot-first-q{
+  font-family:var(--tot-m);font-weight:800;color:var(--navy,#1b3f5e);
+  font-size:clamp(1.1rem,4.5vw,1.4rem);line-height:1.65;margin-top:8px;
+}
+.tot-first-note{font-size:.86rem;line-height:1.75;color:var(--muted,#5c6874);margin-top:6px;}
+.tot-nav{display:flex;flex-wrap:wrap;gap:9px;margin-top:18px;}
+.tot-nav a{
+  display:inline-flex;align-items:center;min-height:44px;padding:9px 17px;
+  border-radius:999px;background:#fff;border:2px solid #fff;box-shadow:var(--shadow-sm,0 3px 10px rgba(130,100,80,.07));
+  color:var(--navy,#1b3f5e);text-decoration:none;font-family:var(--tot-m);font-weight:700;font-size:.92rem;
+}
+.tot-nav a:hover,.tot-nav a:active{background:#fff4e9;}
+.tot-nav a:focus-visible{outline:2px solid var(--coral,#f0846a);outline-offset:2px;}
+
+/* --- 節の頭 --- */
+.tot-kicker{
+  display:inline-block;font-family:var(--tot-m);font-weight:800;font-size:.8rem;letter-spacing:.12em;
+  color:#8a5c0e;background:#fdf3e2;padding:4px 13px;border-radius:999px;margin-bottom:10px;
+}
+.tot-sec h2,.tot-core h2{font-family:var(--tot-m);font-weight:800;}
+.tot-lead{margin-top:6px;max-width:40em;}
+
+/* --- 30秒の核心 --- */
+.tot-lines{list-style:none;counter-reset:tl;margin:18px 0 26px;display:grid;gap:12px;}
+.tot-lines li{
+  counter-increment:tl;display:grid;grid-template-columns:46px 1fr;gap:2px 14px;align-items:start;
+  background:var(--bg,#fff8f2);border-radius:16px;padding:14px 16px;
+}
+.tot-lines li::before{
+  content:counter(tl);grid-row:span 2;width:44px;height:44px;border-radius:50%;
+  background:var(--tot-num);color:#fff;font-family:var(--tot-m);font-weight:800;font-size:1.25rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.tot-lines b{font-family:var(--tot-m);font-weight:800;font-size:clamp(1.06rem,4.2vw,1.28rem);line-height:1.55;color:var(--navy,#1b3f5e);}
+.tot-lines span{font-size:.95rem;line-height:1.8;color:var(--muted,#5c6874);}
+.tot-flow{border:2px solid var(--line,#efe2d8);border-radius:18px;padding:16px;}
+.tot-flow-cap{font-family:var(--tot-m);font-weight:800;color:var(--navy,#1b3f5e);margin-bottom:10px;}
+.tot-flow ol{list-style:none;display:grid;gap:10px;grid-template-columns:1fr;}
+/* PC は2段×2列（2026-10-01 スキル design-readability で測り直し。4列だと1行9字前後に細り、4段目だけ縦に長くなった） */
+@media(min-width:760px){ .tot-flow ol{grid-template-columns:repeat(2,1fr);} }
+.tot-flow li{background:#fff;border-radius:14px;padding:12px 14px;box-shadow:var(--shadow-sm,0 3px 10px rgba(0,0,0,.06));}
+.tot-flow li b{display:flex;align-items:center;gap:8px;font-family:var(--tot-m);font-weight:800;color:var(--navy,#1b3f5e);margin-bottom:2px;}
+.tot-flow li b i{
+  font-style:normal;flex:0 0 26px;width:26px;height:26px;border-radius:50%;
+  background:var(--tot-num);color:#fff;font-size:.85rem;
+  display:inline-flex;align-items:center;justify-content:center;
+}
+.tot-flow li span{display:block;font-size:.92rem;line-height:1.75;}
+.tot-flow li.last{background:var(--amber-bg,#fdf3e2);}
+
+/* --- 劇場のカード --- */
+.tot-grid{display:grid;gap:14px;grid-template-columns:1fr;margin-top:18px;}
+@media(min-width:700px){ .tot-grid{grid-template-columns:repeat(2,1fr);} }
+.tot-card{
+  width:100%;height:100%;text-align:left;background:#fff;border:none;border-radius:20px;
+  padding:18px 18px 16px;box-shadow:var(--shadow,0 6px 20px rgba(0,0,0,.08));cursor:pointer;
+  font-family:inherit;color:inherit;display:flex;flex-direction:column;gap:6px;transition:transform .12s;
+}
+.tot-card:active{transform:scale(.985);}
+.tot-chip{
+  align-self:flex-start;font-family:var(--tot-m);font-size:.82rem;font-weight:800;letter-spacing:.06em;
+  padding:3px 11px;border-radius:999px;background:var(--red-bg,#fdeee9);color:var(--red-dark,#a63631);
+}
+.gyaku .tot-chip{background:var(--green-bg,#e8f6ef);color:var(--green,#2c7a4b);}
+.tot-say{font-family:var(--tot-m);font-weight:800;font-size:clamp(1.05rem,4vw,1.2rem);line-height:1.6;color:var(--navy,#1b3f5e);}
+.tot-who{font-size:.8rem;line-height:1.6;color:var(--muted,#5c6874);}
+.tot-more{
+  margin-top:auto;padding-top:6px;font-family:var(--tot-m);font-size:.84rem;font-weight:800;
+  color:#c2451f;white-space:nowrap; /* ページの --coral-text は明るいページがある（終身保険で白地に 4.0）。字は濃い朱に揃える */
+}
+.gyaku .tot-more{color:var(--green,#2c7a4b);}
+.tot-note{font-size:.84rem;line-height:1.75;color:var(--muted,#5c6874);margin-top:16px;max-width:44em;}
+
+/* --- 劇場の窓 --- */
+.tot-modal{position:fixed;inset:0;z-index:80;display:none;}
+.tot-modal.show{display:block;}
+.tot-modal-back{position:absolute;inset:0;background:rgba(27,63,94,.42);}
+.tot-modal-panel{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(680px,calc(100% - 24px));max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow:auto;
+  background:#fff;border-radius:22px;padding:18px 20px 24px;box-shadow:0 24px 60px rgba(27,63,94,.22);
+}
+@media(max-width:560px){
+  .tot-modal-panel{left:0;right:0;top:auto;bottom:0;transform:none;width:100%;
+    max-height:92vh;max-height:92dvh;border-radius:22px 22px 0 0;padding:14px 16px 26px;}
+}
+.tot-modal-top{position:sticky;top:-18px;background:#fff;display:flex;justify-content:flex-end;padding-top:4px;z-index:1;}
+.tot-modal-close{
+  width:44px;height:44px;border-radius:50%;border:none;background:#eef2f6;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.tot-modal-close svg{width:20px;height:20px;stroke:var(--tot-ink);}
+.tot-mtitle{font-family:var(--tot-m);font-weight:800;font-size:clamp(1.12rem,4.4vw,1.32rem);color:var(--navy,#1b3f5e);line-height:1.6;margin:8px 0 6px;}
+.tot-blk{border-radius:14px;padding:12px 14px;margin-top:10px;background:#f6f7f9;}
+.tot-blk p,.tot-blk blockquote{font-size:.98rem;line-height:1.85;}
+.tot-blk blockquote{margin:0;}
+.tot-bl{font-family:var(--tot-m);font-weight:800;font-size:.8rem !important;letter-spacing:.06em;margin-bottom:4px;line-height:1.5 !important;}
+.tot-blk.scene .tot-bl{color:#5c6874;}
+.tot-blk.scene small{display:block;margin-top:4px;color:#7a8590;font-size:.8rem;}
+.tot-blk.ng{background:#fdeee9;}
+.tot-blk.ng .tot-bl{color:#a63631;}
+.tot-blk.ng blockquote{color:#7a3a35;}
+.tot-why{font-size:.9rem !important;color:#6b4a45;margin-top:4px;}
+.tot-blk.ok,.tot-blk.key{background:#eaf1f7;border-left:5px solid var(--tot-ink);}
+.tot-blk.ok .tot-bl,.tot-blk.key .tot-bl{color:var(--tot-ink);}
+.tot-blk.ok blockquote,.tot-blk.key blockquote{font-family:var(--tot-m);font-weight:800;font-size:1.06rem;color:var(--tot-ink);}
+.tot-blk.key{background:#e8f6ef;border-left-color:#2c7a4b;}
+.tot-blk.key .tot-bl{color:#2c7a4b;}
+.tot-blk.next{background:#fdf3e2;}
+.tot-blk.next .tot-bl{color:#8f6015;}
+.tot-blk.why .tot-bl{color:#5c6874;}
+.tot-blk.guard{background:#e8f4fb;}
+.tot-blk.guard .tot-bl{color:#1b5e8a;}
+
+/* --- 明日の面談で使う問い（明るい箱。紺の地は使わない） --- */
+.tot-toi{
+  background:#fff;color:var(--navy,#1b3f5e);border:2px solid var(--amber-border,#f2dcae);
+  border-radius:22px;padding:20px 18px;margin:10px 0 22px;box-shadow:var(--shadow-sm,0 3px 10px rgba(130,100,80,.07));
+}
+.tot-toi-cap{font-family:var(--tot-m);font-weight:800;color:var(--amber-deep,#a85c12);letter-spacing:.06em;font-size:.92rem;}
+.tot-toi ol{list-style:none;counter-reset:tq;display:grid;gap:10px;margin-top:10px;}
+.tot-toi li{
+  counter-increment:tq;display:flex;gap:12px;align-items:flex-start;
+  font-family:var(--tot-m);font-weight:800;font-size:clamp(1rem,4vw,1.16rem);line-height:1.65;
+}
+.tot-toi li::before{
+  content:counter(tq);flex:0 0 30px;width:30px;height:30px;border-radius:50%;margin-top:1px;
+  background:var(--tot-num);color:#fff;font-weight:800;font-size:.9rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.tot-toi-foot{font-size:.86rem;line-height:1.75;color:var(--muted,#5c6874);margin-top:12px;max-width:40em;}
+@media print{ .tot-nav,.tot-modal{display:none !important;} .tot-body[hidden]{display:block !important;} }
+</style>
+<!-- TOT-CSS-END -->
 </head>
 <body>
 <!-- OMGATE-BEGIN ★合言葉の扉。正本は hoken-gate-src/gate.html。ページ側を直接編集しないこと（apply_gate.py で入れ直すと消える） -->
@@ -1099,22 +1303,20 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
 <!-- OMLOG-END -->
 
 
-<header class="hero">
+<header class="hero tot-hero">
   <div class="wrap">
     <div class="brand"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg></span>
       <span>株式会社Office-M<small>会計を母体に、数字の「小さな字」まで読み解いてご案内します</small></span></div>
     <div class="hero-flex">
       <div class="hero-copy">
-        <h1>お金は、<br><span class="nowrap"><span class="accent">出るほう</span>が</span><span class="nowrap">先に来ます</span></h1>
-        <p class="lead">「赤字にさえならなければ、資金は回る」「売上さえ増えれば、資金繰りは楽になる」——どちらも、正確ではありません。会社が止まるのは赤字になった日ではなく、<strong>支払う日にお金が足りなかった日</strong>です。そして売上が伸びた会社ほど、仕入や人件費が先に出ていき、資金は先に細ります。このページでは、①黒字なのに資金が尽きるしくみ、②入金と出金のズレの測り方、③手元資金は毎月出ていくお金の何か月分あればよいのか、の3つに絞ってご説明します。<strong>クイズは3分、全部読んでも10分</strong>ほどです。</p>
-        <nav class="hero-nav" aria-label="ページ内メニュー">
-          <a href="#sec1"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h9"/></svg>3本の線引き</a>
-          <a href="#sec2"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/></svg>○×ワナクイズ</a>
-          <a href="#sec3"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="16" r="3"/><path d="M18 6 6 18"/></svg>売上が増えれば楽？</a>
-          <a href="#sec4"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0-3.3 11 3 3 0 0 1 1.1 1.9l.03.35h4.34l.03-.35a3 3 0 0 1 1.1-1.9A6 6 0 0 0 12 3Z"/><path d="M9.8 19.2h4.4M10.7 21.7h2.6"/></svg>あるある劇場</a>
-          <a href="#sec5"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="8" width="17" height="12.5" rx="2.5"/><path d="M3.5 12h17M12 8v12.5"/></svg>逆転劇場</a>
-          <a href="#sec6"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5h16M7 16V9.5M12 16V5.5M17 16v-4"/></svg>数字の話</a>
-        </nav></div>
+        <!-- TOT-HERO-BEGIN ★TOT流の掴み。正本は hoken-newtools-src/tot/shikinguri-check.json（apply_tot.py で入れ直す） -->
+        <h1>給料日の前に、<br>家賃の引き落としが<br><span class="accent">来たらどうしますか</span>。</h1>
+        <div class="tot-pair" style="--tot-cols:6fr 5fr">
+        <div class="tot-answer"><span class="tot-lab">種明かし</span><p>会社も同じで、<strong>お金は出るほうが先に来ます</strong>。仕入・外注・給料は納品の前に出ていき、売上の代金が入るのは1〜2か月あと。しかも<strong>借入の元本返済は、決算書の利益のどこにも出てきません</strong>。会社が止まるのは赤字の日ではなく、<strong>支払う日にお金が足りなかった日</strong>です。だから資金は金額ではなく、<strong>毎月出ていくお金の何か月分か</strong>で見ます。</p></div>
+        <div class="tot-first"><span class="tot-lab">面談の最初のひと言</span><p class="tot-first-q">「明日から入金が止まったら、御社は何か月もちますか。」</p><p class="tot-first-note">月数で即答できる社長は多くありません。責めずに、通帳の残高と返済予定表を並べ、毎月出ていくお金を一緒に足し算するところから始めます。</p></div>
+        </div>
+        <nav class="tot-nav" aria-label="ページ内メニュー"><a href="#tot-core">30秒の核心</a><a href="#aru">現場あるある</a><a href="#gyaku">逆転劇場</a><a href="#toi">明日の3つの問い</a><a href="#sec1">3本の線</a><a href="#sec3">売上と資金</a><a href="#sec6">何か月分か</a><a href="#matome">資金繰りチェック</a></nav>
+        <!-- TOT-HERO-END --></div>
       <div class="hero-scene" aria-hidden="true">
         <svg viewBox="0 0 360 212">
           <circle cx="310" cy="38" r="32" fill="#ffd9a8" opacity=".45"/><circle cx="310" cy="38" r="21" fill="#f7c34e"/><ellipse cx="60" cy="32" rx="26" ry="10" fill="#fff" opacity=".95"/>
@@ -1129,6 +1331,18 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
         </svg></div>
     </div></div>
 </header>
+
+<!-- TOT-CORE-BEGIN ★30秒の核心。正本は hoken-newtools-src/tot/shikinguri-check.json -->
+<section id="tot-core" class="band-sky round-top tot-core">
+  <div class="wrap">
+    <span class="tot-kicker">30秒の核心</span>
+    <h2>社長に渡すのは、<span class="nowrap">この3行だけ。</span></h2>
+    <p class="sec-lead tot-lead">保険の話を「いくら入るか」から始めると、社長の頭の中の資金繰りと結びつきません。先にこの3行で、保険を会社のお金の流れの中に置きます。</p>
+    <ol class="tot-lines"><li><b>借入の元本返済は、利益の表に出てこない。</b><span>元本の返済は費用ではないので、損益計算書には載りません。利益に減価償却費を足した額より返済が大きいと、黒字でも現金は減り続けます。この二つを並べるのが出発点です。</span></li><li><b>年払いの保険料も、資金繰りの「山」の一つになる。</b><span>賞与・納税・社会保険料・返済と同じ月に年払いの保険料が重なると、その月だけ資金が細ります。払い方と払う月は、保険料の額と同じくらい大事な設計です。社長の支払いカレンダーに書き込んでから決めます。</span></li><li><b>だから最初に聞くのは「何か月もつか」。</b><span>固定費と元本返済を足した「毎月出ていくお金」で手元資金を割ると、月数で言えます。社長に万一があったとき、銀行への返済の話を誰がするか、その間を何か月つなげばよいかも、この物差しで話せます。保障の大きさは、その後で並べます。</span></li></ol>
+    <div class="tot-flow"><p class="tot-flow-cap">面談の流れ（この順で話すと、押さずに進みます）</p><ol><li><b><i>1</i>足す</b><span>固定費と毎月の元本返済を足して、「毎月出ていくお金」を出す。</span></li><li><b><i>2</i>割る</b><span>通帳の残高の合計をその額で割り、手元資金を月数で言えるようにする。</span></li><li><b><i>3</i>書き込む</b><span>賞与・納税・返済・年払いの保険料を、1年のカレンダーに並べる。</span></li><li class="last"><b><i>4</i>持ち帰る</b><span>その場で決めていただく必要はありません。経理の方や顧問の先生と話していただく。</span></li></ol></div>
+  </div>
+</section>
+<!-- TOT-CORE-END -->
 
 <section id="sec1">
   <div class="wrap">
@@ -1256,69 +1470,10 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
     <div class="note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>3本の線に共通しているのは、資金繰りは「予測」ではなく「日付と金額の記録」だということです。分かっている支払いを、分かっている日付に並べるだけで、驚くほど先が見えます。なお、納税の時期や金額の見込みは資金繰りに大きく効きます。<strong>個別の税額計算・申告については税理士にご確認ください。</strong></span></div>
   </div></section>
 
-<!-- ================= セクション2：○×クイズ ================= -->
-<section id="sec2" class="band round-top">
-  <div class="wrap">
-    <div class="sec-head"><div><span class="step-pill"><i>2</i><span>思い込みをチェック</span></span>
-      <h2>うちの資金繰り、　<span class="nowrap">もつ？</span>クイズ8問</h2></div>
-      <div class="spot"><span class="spot-circle" data-art="spotQuiz" aria-hidden="true"></span></div></div>
-    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">前半は会社の場面を読んで「もつ」か「もたない」か、後半は資金繰りの考え方が「そうだ」か「違う」かを選んでください。全て、実際によくある形がモデルです。引っかかっても大丈夫、そのための8問です。</p></div>
-    <div class="quiz-shell">
-      <div id="quizPlay">
-        <div class="q-top">
-          <div class="q-count">質問 <span id="qNum">1</span> ／ 8</div>
-          <div class="dots" id="qDots" aria-hidden="true"></div>
-        </div>
-        <div class="q-body">
-          <div class="icon" id="qIcon" aria-hidden="true"></div>
-          <p id="qText"></p>
-        </div>
-        <div class="ans-row">
-          <button type="button" class="ans-btn yes" id="btnYes">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/></svg>
-            <span id="lblYes">もつ</span>
-          </button>
-          <button type="button" class="ans-btn no" id="btnNo">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
-            <span id="lblNo">もたない</span>
-          </button>
-        </div>
-        <div class="verdict" id="verdict" aria-live="polite">
-          <div class="verdict-head">
-            <span class="verdict-answer" id="vAnswer"></span>
-            <span class="result-chip" id="vChip"></span>
-          </div>
-          <p class="expl" id="vExpl"></p>
-          <div class="kv kv-wana"><b>ワナの正体：</b><span id="vWana"></span></div>
-          <div class="kv"><b>確認ポイント：</b><span id="vCheck"></span></div>
-        </div>
-        <button type="button" class="btn-primary" id="btnNext" style="display:none;">
-          次の質問へ
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </button>
-        <button type="button" class="btn-ghost" id="btnStopHere" style="display:none;">ここまでの結果を見る（残りはあとでも大丈夫です）</button>
-      </div>
-
-      <div class="quiz-done" id="quizDone">
-        <p class="score">クイズおつかれさまでした！　<span class="nowrap"><span id="doneTotal">8</span>問中 <span class="num" id="doneScore">0</span> 問正解</span></p>
-        <p class="cmt" id="doneCmt"></p>
-        <div class="wrong-list" id="wrongList" style="display:none;"></div>
-        <div data-cta-mini></div>
-        <button type="button" class="btn-ghost" id="btnMailSelf">この結果を自分（またはご家族）に送る</button>
-        <button type="button" class="btn-ghost" id="btnPrint">印刷して通帳と返済予定表と一緒に置く</button>
-        <button type="button" class="btn-ghost" id="btnRetry">もう一度挑戦する</button>
-      </div>
-
-    <div class="note">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
-      <span>ここでの説明は、一般的な取扱いを前提にした例です。実際の資金の動きは、業種・取引条件・借入の条件によって変わります。気になる問題が1つでもあったら、それが通帳と返済予定表を出すタイミングです。</span>
-    </div>
-  </div>
-</section>
 
 <section id="sec3" class="band-sky round-top">
   <div class="wrap">
-    <div class="sec-head"><div><span class="step-pill"><i>3</i><span>いちばん多い誤解</span></span>
+    <div class="sec-head"><div><span class="step-pill"><i>2</i><span>いちばん多い誤解</span></span>
       <h2>「売上が増えれば楽になる」を<span class="nowrap">解剖します</span></h2></div>
       <div class="spot"><span class="spot-circle" data-art="spotCalc" aria-hidden="true"></span></div></div>
     <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">売上が増えて資金が楽になるのは、代金が入ってきた後の話です。それまでの数か月は、むしろ苦しくなります。ここでは、売上が2倍になったときに必要な資金がどう変わるかを、数字で並べてみます。</p></div>
@@ -1333,41 +1488,7 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
           <tr><td>必要な<br>立替資金</td><td>約1,300万円</td><td><span class="mark-ok">約2,600万円</span></td></tr>
         </tbody></table>
       <p class="venn-cap">※金額はこのページの説明用に置いた例です。回収サイト2か月、支払サイト1か月、粗利率30％という前提で単純化しています。在庫の増減、設備投資、消費税の納付などは含めていません。</p></div>
-    <p class="sec-lead">では、ご自身の会社の数字を入れてみてください。入金が止まったとして、あと何か月もつのかが分かります。</p>
-    <div class="sim-box">
-      <h3>「うちの現金、あと何か月もつ？」</h3>
-      <p class="sub">手元の現預金と、毎月の粗利・固定費・元本返済を入れると、もちこたえられる月数と、毎月の出入りの目安が出ます。このページの説明用に単純化した概算です。</p>
-      <div class="sim-ctrl">
-        <label for="simA">手元の現預金（全口座の合計）<output id="simAOut">600万円</output></label>
-        <input type="number" id="simA" value="600" min="0" max="100000" step="10" inputmode="numeric" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;">
-        <p style="font-size:.8rem;color:#5c6874;margin-top:5px;">単位は万円。通帳の残高の合計です（例：600）。すぐに使えないお金は除いてください。</p></div>
-      <div class="sim-ctrl">
-        <label for="simD">毎月の粗利（売上から仕入・外注を引いた額）<output id="simDOut">300万円</output></label>
-        <input type="number" id="simD" value="300" min="0" max="100000" step="10" inputmode="numeric" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;">
-        <p style="font-size:.8rem;color:#5c6874;margin-top:5px;">単位は万円。月商1,000万円で粗利率30％なら300です。</p></div>
-      <div class="sim-ctrl">
-        <label for="simE">毎月の固定費（人件費・家賃・リースなど）<output id="simEOut">280万円</output></label>
-        <input type="number" id="simE" value="280" min="0" max="100000" step="10" inputmode="numeric" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;">
-        <p style="font-size:.8rem;color:#5c6874;margin-top:5px;">単位は万円。売上が減っても出ていき続けるお金です（例：280）。</p></div>
-      <div class="sim-ctrl">
-        <label for="simF">毎月の借入元本返済<output id="simFOut">40万円</output></label>
-        <input type="number" id="simF" value="40" min="0" max="100000" step="5" inputmode="numeric" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;">
-        <p style="font-size:.8rem;color:#5c6874;margin-top:5px;">単位は万円。返済予定表の元本部分の月額です（例：40）。</p></div>
-      <div class="sim-ctrl"><label for="simB">これから3か月の売上の見込み（ご自身の想定で）</label>
-        <select id="simB" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;"><option value="100">いまと変わらない</option><option value="90">1割ほど減りそう</option><option value="80">2割ほど減りそう</option><option value="110">1割ほど増えそう</option></select></div>
-      <label class="sim-check"><input type="checkbox" id="simC">3か月以内に、賞与や納税などまとまった支出がある（200万円として計算します）</label>
-      <div class="timeline" aria-hidden="true"><div class="tl-track"><div class="tl-fill" id="tlFill" style="width:2%;"></div>
-          <div class="tl-goal" style="left:50%;">3か月分<br>一つの目安</div></div>
-        <div class="tl-labels"><span>0か月</span><span>3か月分</span><span>6か月分</span></div></div>
-      <div class="sim-results" aria-live="polite">
-        <div class="sim-r" id="simR1"><h4>毎月の出入り<small>粗利－固定費－返済</small></h4><span class="r-chip" id="simR1Chip"></span><p id="simR1Txt"></p></div>
-        <div class="sim-r" id="simR2"><h4>毎月出ていくお金<small>固定費＋元本返済</small></h4><span class="r-chip" id="simR2Chip"></span><p id="simR2Txt"></p></div>
-        <div class="sim-r" id="simR3"><h4>まとまった支出の影響<small>賞与・納税など</small></h4><span class="r-chip" id="simR3Chip"></span><p id="simR3Txt"></p></div>
-      </div>
-      <div class="sim-total">
-        <span class="lead" id="simTotalLead">入金が止まったとしたら</span>
-        <span class="big" id="simTotalBig"></span><span class="sub2" id="simTotalSub"></span></div>
-      <p class="venn-cap" style="margin-top:10px;">※入金が完全に止まる前提の、いちばん厳しい見立てです。売掛金の回収、在庫の増減、新たな借入による入金、消費税の納付は考慮していません。納税額の見込みや税務上の取扱いは、税理士にご確認ください。</p></div>
+    <p class="sec-lead">ご自身の会社で何か月もつかは、毎月出ていくお金（固定費＋元本返済）で手元の現預金を割ると、月数で出せます。</p>
     <div class="mikane" style="margin-top:26px;">
       <h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>本当に怖いのは、売上でも赤字でもなく「日付」</h3>
       <ol><li><strong>出るほうが先に来る。</strong>材料・外注・給料は納品前に出ていき、代金が入るのは1〜2か月後です。この順番は、大抵の商売で変えられません。</li>
@@ -1377,25 +1498,45 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
     <div class="note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>ここまでが「売上が増えれば楽になる」の正体です。売上は結果として資金を厚くしますが、その前に必ず立て替えの期間があります。順番さえ分かっていれば、伸びる時期を怖がる必要はありません。</span></div>
   </div></section>
 
-<section id="sec4" class="band-blush round-top">
+<!-- TOT-GEKI-BEGIN ★現場あるある・逆転劇場・明日の問い。正本は hoken-newtools-src/tot/shikinguri-check.json -->
+<section id="aru" class="band-blush round-top tot-sec">
   <div class="wrap">
-    <div class="sec-head"><div><span class="step-pill"><i>4</i><span>よく伺うお話がモデルの寸劇集</span></span>
-      <h2>資金繰りあるある劇場</h2></div>
-      <div class="spot"><span class="spot-circle" data-art="spotTheater" aria-hidden="true"></span></div></div>
-    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">ここからは6つの演目です。どれも、日付と金額を書き出していれば防げた話ばかり。気になる題名をタップして、中をのぞいてみてください。</p></div>
-    <div class="case-grid" id="caseGrid"></div>
-    <div class="note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>各演目は一般的な内容をもとにした創作例で、実在の個人・法人・事案とは関係ありません。資金の動きや税務の取扱いは、業種・取引条件・契約内容によって変わります。</span></div>
-  </div></section>
+    <span class="tot-kicker">現場あるある</span>
+    <h2>社長のひと言、<span class="nowrap">どう返しますか。</span></h2>
+    <p class="sec-lead tot-lead">資金繰りの話でよく出る社長のひと言と、やりがちな返し、トップ営業の返しを並べました。カードを押すと、返し方と次の一手が出ます。</p>
+    <div class="tot-grid">
+      <article class="tot-case aru" data-title="「うちは黒字だから、資金繰りは心配ないですよ。」"><button type="button" class="tot-card"><span class="tot-chip">黒字だから</span><span class="tot-say">「うちは黒字だから、資金繰りは心配ないですよ。」</span><span class="tot-who">50代・製造業の社長。設備の借入を返済中</span><span class="tot-more">返し方を見る</span></button><div class="tot-body" hidden><div class="tot-blk scene"><p class="tot-bl">場面</p><p>50代・製造業の社長。設備の借入を返済中</p></div><div class="tot-blk ng"><p class="tot-bl">やりがちな返し</p><blockquote>「黒字なら安心ですね。」</blockquote><p class="tot-why">元本の返済は利益の表に出てきません。黒字でも、返済と先払いの支払いで現金が減り続けることがあります。</p></div><div class="tot-blk ok"><p class="tot-bl">トップ営業の返し</p><blockquote>「黒字を続けておられるのは何よりです。一つだけ確かめさせてください。利益に減価償却費を足した額と、年間の元本返済、どちらが大きいでしょうか。返済予定表と並べてみませんか。」</blockquote></div><div class="tot-blk next"><p class="tot-bl">次の一手</p><p>返済予定表から年間の元本返済を出し、決算書の利益と減価償却費の合計と並べる。読み方の判断は顧問の税理士にお願いする。</p></div><div class="tot-blk guard"><p class="tot-bl">線引き</p><p>決算書の読み方の判断や税の扱いは、税理士の業務です。こちらは数字を並べるところまで。</p></div></div></article>
+      <article class="tot-case aru" data-title="「保険料は年払いのほうが安いなら、年払いにしておいて。」"><button type="button" class="tot-card"><span class="tot-chip">年払いでいい</span><span class="tot-say">「保険料は年払いのほうが安いなら、年払いにしておいて。」</span><span class="tot-who">40代・建設業の社長。賞与は夏と冬</span><span class="tot-more">返し方を見る</span></button><div class="tot-body" hidden><div class="tot-blk scene"><p class="tot-bl">場面</p><p>40代・建設業の社長。賞与は夏と冬</p></div><div class="tot-blk ng"><p class="tot-bl">やりがちな返し</p><blockquote>「承知しました。年払いで手続きしますね。」</blockquote><p class="tot-why">払う月に、賞与や納税、返済が重なっていないかを見ていません。安さだけで決めると、資金繰りの山を一つ高くすることがあります。</p></div><div class="tot-blk ok"><p class="tot-bl">トップ営業の返し</p><blockquote>「負担を抑えたいお気持ち、よく分かります。その前に一つ。年払いの月に、賞与や納税など、ほかの大きな支払いが重なっていないか、1年のカレンダーで確かめませんか。」</blockquote></div><div class="tot-blk next"><p class="tot-bl">次の一手</p><p>賞与・納税・社会保険料・返済・保険料を1年のカレンダーに書き込み、山の月を見つける。払い方と払う月は、山と重ならない形を社長に選んでいただく。</p></div><div class="tot-blk guard"><p class="tot-bl">線引き</p><p>払い方による保険料の違いは商品で異なります。設計書で確かめます。</p></div></div></article>
+      <article class="tot-case aru" data-title="「創業以来いちばん大きな注文が入ったんです。忙しくなりますよ。」"><button type="button" class="tot-card"><span class="tot-chip">大口の受注</span><span class="tot-say">「創業以来いちばん大きな注文が入ったんです。忙しくなりますよ。」</span><span class="tot-who">40代・設備工事業の社長。支払条件は検収の翌々月</span><span class="tot-more">返し方を見る</span></button><div class="tot-body" hidden><div class="tot-blk scene"><p class="tot-bl">場面</p><p>40代・設備工事業の社長。支払条件は検収の翌々月</p></div><div class="tot-blk ng"><p class="tot-bl">やりがちな返し</p><blockquote>「おめでとうございます。売上が増えれば、資金も楽になりますね。」</blockquote><p class="tot-why">売上が増えるほど、材料や外注に先に払う額が増え、入金までの立て替えが大きくなります。ここで頷くと、資金を手当てする時期を逃します。</p></div><div class="tot-blk ok"><p class="tot-bl">トップ営業の返し</p><blockquote>「大きな受注、おめでとうございます。入金は検収の翌々月とのことなので、それまでに給料日と支払日が何回来るかを、一緒に数えてみませんか。」</blockquote></div><div class="tot-blk next"><p class="tot-bl">次の一手</p><p>受注から入金までの日付を書き出し、立て替える期間の支払いを並べる。足りない月が見えたら、余裕のあるうちに金融機関や顧問の税理士に相談していただく。</p></div></div></article>
+      <article class="tot-case aru" data-title="「私に何かあっても、銀行はしばらく待ってくれるでしょう。」"><button type="button" class="tot-card"><span class="tot-chip">銀行は待つ</span><span class="tot-say">「私に何かあっても、銀行はしばらく待ってくれるでしょう。」</span><span class="tot-who">60代・卸売業の社長。借入の連帯保証人</span><span class="tot-more">返し方を見る</span></button><div class="tot-body" hidden><div class="tot-blk scene"><p class="tot-bl">場面</p><p>60代・卸売業の社長。借入の連帯保証人</p></div><div class="tot-blk ng"><p class="tot-bl">やりがちな返し</p><blockquote>「そうですね、銀行も事情は分かってくれますよ。」</blockquote><p class="tot-why">待ってもらえるかどうかは、銀行と会社の状況で決まります。担当者が見通しを言い切ると、社長は備えを考える機会を失います。</p></div><div class="tot-blk ok"><p class="tot-bl">トップ営業の返し</p><blockquote>「銀行とのお付き合いを大切にしてこられたのですね。もしものとき、銀行への返済の話をどなたがするか、その間を何か月つなげばよいかを、一度書き出しておきませんか。」</blockquote></div><div class="tot-blk next"><p class="tot-bl">次の一手</p><p>返済予定表・毎月出ていくお金・手元資金を一枚に並べ、社長に万一があったときに銀行と話す人を書く。保障の大きさは、つなぎたい月数を物差しにして並べる。</p></div><div class="tot-blk guard"><p class="tot-bl">線引き</p><p>借入の条件や返済の相談は、金融機関の判断です。保障の大きさと税の扱いは、顧問の税理士とも確かめます。</p></div></div></article>
+      <article class="tot-case aru" data-title="「苦しくなったら、保険を解約すればいいと思っています。」"><button type="button" class="tot-card"><span class="tot-chip">解約すれば</span><span class="tot-say">「苦しくなったら、保険を解約すればいいと思っています。」</span><span class="tot-who">50代・小売業の社長。加入から数年の法人契約</span><span class="tot-more">返し方を見る</span></button><div class="tot-body" hidden><div class="tot-blk scene"><p class="tot-bl">場面</p><p>50代・小売業の社長。加入から数年の法人契約</p></div><div class="tot-blk ng"><p class="tot-bl">やりがちな返し</p><blockquote>「そうですね、解約すれば戻りがありますから。」</blockquote><p class="tot-why">解約すると保障も無くなり、時期によっては払った額を下回ることがあります。ほかの道を並べないまま、引き出し口を一つにしてしまいます。</p></div><div class="tot-blk ok"><p class="tot-bl">トップ営業の返し</p><blockquote>「いざのときの引き出し口を考えておられるのは大事です。解約のほかに、契約者貸付や減額といった道があるかもしれません。いまの契約で何が使えるか、先に確かめておきませんか。」</blockquote></div><div class="tot-blk next"><p class="tot-bl">次の一手</p><p>保険会社に、いまの解約返戻金・契約者貸付の限度と利息・減額の可否を問い合わせ、一枚に並べて資金繰り表のそばに置く。</p></div><div class="tot-blk guard"><p class="tot-bl">線引き</p><p>貸付には利息がかかります。手続きの可否は約款と保険会社で確かめます。決めるのは社長です。</p></div></div></article>
+    </div>
+    <p class="tot-note">場面は、面談でよく伺うお話をもとにした創作例です。取り扱いは保険会社・商品・ご契約により異なります。</p>
+  </div>
+</section>
+<section id="gyaku" class="band round-top tot-sec">
+  <div class="wrap">
+    <span class="tot-kicker">逆転劇場</span>
+    <h2>流れを変えた、<span class="nowrap">ひと言。</span></h2>
+    <p class="sec-lead tot-lead">「いくら入るか」で終わらせず、日付と月数の話に変えた場面です。カードを押すと、そのひと言と、なぜ効いたのかが出ます。</p>
+    <div class="tot-grid">
+      <article class="tot-case gyaku" data-title="年払いの月を選び直して、夏の山を低くできた"><button type="button" class="tot-card"><span class="tot-chip">山の月</span><span class="tot-say">年払いの月を選び直して、夏の山を低くできた</span><span class="tot-who">40代・建設業の社長</span><span class="tot-more">流れを変えたひと言を見る</span></button><div class="tot-body" hidden><div class="tot-blk scene"><p class="tot-bl">場面</p><p>決算と賞与と年払いの保険料が、毎年同じ月に重なっていた会社。担当者は保険の見直しの面談で、保障の話の前に1年の支払いカレンダーを社長と一緒に書きました。山の月が一目で分かり、社長は保険料の払う月と払い方を、山と重ならない形に選び直しました。<small>——40代・建設業の社長（脚色あり）</small></p></div><div class="tot-blk key"><p class="tot-bl">流れを変えたひと言</p><blockquote>「保険料の話の前に、1年の支払いを一枚のカレンダーに並べてみませんか。」</blockquote></div><div class="tot-blk why"><p class="tot-bl">なぜ効いたか</p><p>保険の都合ではなく、会社の支払いの山から入ったので、社長が払い方を自分で選べました。保障の中身は変えずに、資金の細る月を和らげられました。</p></div><div class="tot-blk next"><p class="tot-bl">現場での使い方</p><p>法人の契約では、払い方と払う月を決める前に、賞与・納税・社会保険料・返済のカレンダーと並べる。</p></div><div class="tot-blk guard"><p class="tot-bl">線引き</p><p>払い方を変えられるか、保険料がどう変わるかは、商品と保険会社で確かめます。</p></div></div></article>
+      <article class="tot-case gyaku" data-title="保障の大きさを、金額ではなく月数で決められた"><button type="button" class="tot-card"><span class="tot-chip">月数で話す</span><span class="tot-say">保障の大きさを、金額ではなく月数で決められた</span><span class="tot-who">50代・卸売業の社長</span><span class="tot-more">流れを変えたひと言を見る</span></button><div class="tot-body" hidden><div class="tot-blk scene"><p class="tot-bl">場面</p><p>「いくら入っておけばいいのか」と迷っていた社長に、担当者は保険の資料をしまい、毎月出ていくお金を電卓で一緒に出しました。手元資金が何か月分あるかを出したうえで、もしものとき次の体制が整うまで何か月つなぎたいかを伺いました。社長はその月数を物差しに、顧問の税理士とも相談して保障の大きさを決めました。<small>——50代・卸売業の社長（脚色あり）</small></p></div><div class="tot-blk key"><p class="tot-bl">流れを変えたひと言</p><blockquote>「もしものとき、会社を何か月つなげれば、次の体制が整いますか。」</blockquote></div><div class="tot-blk why"><p class="tot-bl">なぜ効いたか</p><p>「いくら」という答えにくい問いが、「何か月」という社長が答えられる問いに変わりました。保障の大きさに根拠が生まれ、社長が自分で決められました。</p></div><div class="tot-blk next"><p class="tot-bl">現場での使い方</p><p>事業の保障を考えるときは、固定費と元本返済から毎月出ていくお金を出し、つなぎたい月数を伺ってから保障の大きさを並べる。</p></div><div class="tot-blk guard"><p class="tot-bl">線引き</p><p>必要な保障の大きさを担当者が言い切らない。税の扱いは顧問の税理士と確かめます。</p></div></div></article>
+      <article class="tot-case gyaku" data-title="大口の受注の日に、立て替えの期間を数えられた"><button type="button" class="tot-card"><span class="tot-chip">受注の日に</span><span class="tot-say">大口の受注の日に、立て替えの期間を数えられた</span><span class="tot-who">40代・設備工事業の社長</span><span class="tot-more">流れを変えたひと言を見る</span></button><div class="tot-body" hidden><div class="tot-blk scene"><p class="tot-bl">場面</p><p>創業以来いちばん大きな注文が入ったと喜ぶ社長に、担当者は入金までの日付を一緒に書き出しました。検収の翌々月まで、給料日と支払日が何度も来ることが見え、社長はまだ余裕のある時期に、資金繰り表を持って金融機関へ相談しました。<small>——40代・設備工事業の社長（脚色あり）</small></p></div><div class="tot-blk key"><p class="tot-bl">流れを変えたひと言</p><blockquote>「入金までに、給料日と支払日が何回来るか、一緒に数えてみませんか。」</blockquote></div><div class="tot-blk why"><p class="tot-bl">なぜ効いたか</p><p>喜びに水を差さず、日付を数えるだけの問いにしたので、社長が自分で立て替えの大きさに気づきました。困る前に動けたので、選べる手段が多く残りました。</p></div><div class="tot-blk next"><p class="tot-bl">現場での使い方</p><p>大きな受注や売上の伸びを伺ったら、受注から入金までの日付と、その間の支払いを並べる。</p></div><div class="tot-blk guard"><p class="tot-bl">線引き</p><p>借入や条件の相談の結果は、金融機関の判断です。</p></div></div></article>
+      <article class="tot-case gyaku" data-title="契約の中身を知っていたので、落ち着いて相談できた"><button type="button" class="tot-card"><span class="tot-chip">引き出し口</span><span class="tot-say">契約の中身を知っていたので、落ち着いて相談できた</span><span class="tot-who">50代・小売業の社長</span><span class="tot-more">流れを変えたひと言を見る</span></button><div class="tot-body" hidden><div class="tot-blk scene"><p class="tot-bl">場面</p><p>資金の相談を受けた担当者は、新しい提案の前に、いまの保険の契約を一緒に確かめることを勧めました。解約したときに戻るお金、契約者貸付の限度と利息、減額の可否を一枚に並べ、資金繰り表のそばに置きました。そのときは使いませんでしたが、社長は選べる道を持って金融機関と話せました。<small>——50代・小売業の社長（脚色あり）</small></p></div><div class="tot-blk key"><p class="tot-bl">流れを変えたひと言</p><blockquote>「いまの保険に、資金の面で使える仕組みがあるか、先に確かめておきませんか。」</blockquote></div><div class="tot-blk why"><p class="tot-bl">なぜ効いたか</p><p>新しい商品ではなく、既にある契約の確認から入ったので、社長が担当者を相談相手として受け取りました。選べる道を知っていることが、判断の余裕になりました。</p></div><div class="tot-blk next"><p class="tot-bl">現場での使い方</p><p>資金の相談を受けたら、まず既にある契約の解約返戻金・契約者貸付・減額の可否を保険会社に確かめ、一枚にまとめる。</p></div><div class="tot-blk guard"><p class="tot-bl">線引き</p><p>貸付には利息がかかり、保障や将来の受取額に影響します。手続きの可否は約款と保険会社で確かめます。</p></div></div></article>
+    </div>
+    <p class="tot-note">各話は一般的な内容をもとにした創作例（脚色あり）で、実在の個人・法人・事案とは関係ありません。取り扱いは保険会社・商品・ご契約により異なります。</p>
+    <div class="tot-toi" id="toi"><p class="tot-toi-cap">明日の面談で使う3つの問い</p><ol><li>明日から入金が止まったら、何か月もちますか。</li><li>年払いの保険料の月に、賞与や納税は重なっていませんか。</li><li>もしものとき、銀行への返済の話をどなたがしますか。</li></ol><p class="tot-toi-foot">答えがすぐに出なくて構いません。その場で決めていただく必要はありません。書面を一緒に開き、次回までにご家族と話していただくところまでが、今日の面談のゴールです。</p></div>
+  </div>
+</section>
+<!-- TOT-GEKI-END -->
 
 <section id="sec5" class="band-mint round-top">
   <div class="wrap">
-    <div class="sec-head"><div><span class="step-pill"><i>5</i><span>知って得する側の話</span></span>
-      <h2>逆転劇場〜こんな備えが、<span class="nowrap">味方します〜</span></h2></div>
+    <div class="sec-head"><div><span class="step-pill"><i>3</i><span>取りこぼさない</span></span>
+      <h2>取りこぼさないための<span class="nowrap">「3か条」</span></h2></div>
       <div class="spot"><span class="spot-circle" data-art="spotGift" aria-hidden="true"></span></div></div>
-    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">ここからは、備えていたおかげで助かった話を8つ。どれも特別な資金力の話ではありません。日付を先に知っていた、制度を知っていた、それだけの違いです。</p></div>
-    <div class="model-note"><strong>このページの「増える・残る金額」の目安</strong><span class="mn-row">月商1,000万円、粗利率30％（毎月の粗利300万円）、固定費280万円、借入の元本返済が月40万円、手元資金600万円という中小企業のモデルで計算しています。</span>
-      <span class="mn-note">※実際の効果は、業種・取引条件・借入の条件・季節変動によって変わります。金額はいずれも一例です。制度の要件や期限は個別にご確認ください。</span></div>
-    <div class="case-grid" id="goodGrid"></div>
+    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">現場の場面で見たことを、3つの約束にまとめました。どれも特別な資金力の話ではありません。<strong>日付を先に知っている</strong>こと、それだけの違いです。</p></div>
     <div class="rule3-box">
       <h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg>取りこぼさないための「資金繰りの3か条」</h3>
       <ol><li><strong>分かっている支払いを、先に書く。</strong>給与・賞与・納税・社会保険料・返済・年払いの保険料。日付と金額が決まっているものを並べるだけで、山の月が見えます。</li>
@@ -1406,7 +1547,7 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
 
 <section id="sec6" class="band-sky round-top">
   <div class="wrap">
-    <div class="sec-head"><div><span class="step-pill"><i>6</i><span>数字の話を一つだけ</span></span>
+    <div class="sec-head"><div><span class="step-pill"><i>4</i><span>数字の話を一つだけ</span></span>
       <h2>手元資金は固定費の<span class="nowrap">何か月分</span></h2></div>
       <div class="spot"><span class="spot-circle" data-art="spotCal" aria-hidden="true"></span></div></div>
     <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">ここでは統計ではなく、1社分の計算をします。固定費280万円、元本返済40万円の会社なら、毎月出ていくのは320万円。この金額を基準にすると、手元資金の意味が金額から月数に変わります。</p></div>
@@ -1453,8 +1594,6 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
       <h2>あなたの資金繰りチェック</h2></div>
       <div class="spot"><span class="spot-circle" data-art="spotCheck" aria-hidden="true"></span></div></div>
     <p class="sec-lead">最後に、いまの状況を確認してみましょう。あてはまるもの・できたものをタップ（クリック）してください。</p>
-    <div class="score-box"><h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/></svg>クイズの結果</h3>
-      <div id="sumScore"><p>まだクイズに挑戦していません。<a href="#sec2">②の○×クイズ</a>で、思い込みをチェックしてみてください。</p></div></div>
     <div class="checklist" id="checklist">
       <p class="chk-group">今日、電卓と通帳でできること</p>
       <label class="chk"><input type="checkbox"><span class="art" data-art="chkBank" aria-hidden="true"></span><span><strong>手元の現預金を合計した</strong>全口座の残高を足して、すぐに使えるお金がいくらかを1つの数字にします。</span></label>
@@ -1496,51 +1635,10 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
 
 <!-- 募集文書審査：未了。委託先保険会社の承認番号の要否を確認のうえ公開すること -->
 <footer class="disclaimer">
-  <p>本資料は、株式会社Office-Mが資金繰りの一般的なしくみをご理解いただくために作成した情報提供資料です。記載内容は2026年8月時点の法令等にもとづく一般的な取扱いであり、個別の事案への当てはめは業種・取引条件・借入の条件・事実関係によって結論が変わります。シミュレーターの結果はいずれも簡易な概算であり、実際の資金の増減や税額を示すものではありません。借入・条件変更・制度の利用が必ず認められることを示すものでもありません。実際の判断にあたっては、必ず税理士・所轄の税務署・お取引の金融機関にご確認ください。<strong>個別具体的な税務相談・税務書類の作成・税務代理は、税理士が対応します。</strong>本資料の内容によって生じた結果について、当社は責任を負いかねます。</p>
+  <p>本資料は、株式会社Office-Mが資金繰りの一般的なしくみをご理解いただくために作成した情報提供資料です。記載内容は2026年8月時点の法令等にもとづく一般的な取扱いであり、個別の事案への当てはめは業種・取引条件・借入の条件・事実関係によって結論が変わります。本ページの金額の例はいずれも簡易な概算であり、実際の資金の増減や税額を示すものではありません。借入・条件変更・制度の利用が必ず認められることを示すものでもありません。実際の判断にあたっては、必ず税理士・所轄の税務署・お取引の金融機関にご確認ください。<strong>個別具体的な税務相談・税務書類の作成・税務代理は、税理士が対応します。</strong>本資料の内容によって生じた結果について、当社は責任を負いかねます。</p>
   <p style="margin-top:10px;">主な根拠：法人税法第31条（減価償却資産の償却費の計算）、法人税法第74条（確定申告の期限）、中小企業倒産防止共済法（経営セーフティ共済の貸付限度・掛金・解約手当金）、公正取引委員会および中小企業庁による下請代金の支払手段に関する運用（2024年11月以降）。金額の例は当社が説明用に置いたモデル計算であり、統計ではありません。制度は改正されることがあります。最新の内容は、国税庁・中小企業庁・独立行政法人中小企業基盤整備機構の公表資料でご確認ください。</p>
   <p style="margin-top:10px;">作成：株式会社Office-M（2026年8月）</p>
 </footer>
-<!-- ================= 演目詳細モーダル ================= -->
-<div class="cmodal" id="caseModal" aria-hidden="true">
-  <div class="cmodal-back" id="caseModalBack"></div>
-  <div class="cmodal-panel" role="dialog" aria-modal="true" aria-labelledby="caseModalTitle">
-    <div class="cmodal-head" id="caseModalHead">
-      <button type="button" class="cmodal-close" id="caseModalClose" aria-label="閉じる">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
-      </button>
-      <div class="cmodal-ico" id="caseModalIco" aria-hidden="true"></div>
-      <div>
-        <span class="cmodal-chip" id="caseModalChip"></span>
-        <h3 class="cmodal-title" id="caseModalTitle"></h3>
-      </div>
-    </div>
-    <div class="cmodal-body">
-      <div class="cmodal-block">
-        <div class="cmodal-label lb-blue">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 15.5a2 2 0 0 1-2 2H8l-4 3.5v-15a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"/></svg>
-          <span id="caseModalLbl1">ご相談で伺ったお話（脚色あり）</span>
-        </div>
-        <blockquote class="cmodal-quote" id="caseModalStory"></blockquote>
-      </div>
-      <div class="cmodal-block">
-        <div class="cmodal-label lb-red" id="caseModalLbl2Wrap">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
-          <span id="caseModalLbl2">何が起きたのか</span>
-        </div>
-        <div id="caseModalWhat"></div>
-      </div>
-      <div class="cmodal-block">
-        <div class="cmodal-label lb-green">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
-          <span id="caseModalLbl3">こう確認すれば防げます</span>
-        </div>
-        <div id="caseModalHow"></div>
-      </div>
-      <div data-cta-mini></div>
-      <p class="cmodal-note">※演目は一般的な内容をもとにした創作例で、実在の個人・法人・事案とは関係ありません。税務の取扱いは事実関係により異なります。実際の判断は、顧問税理士または所轄の税務署にご確認ください。</p>
-    </div>
-  </div>
-
 <script>
 (function(){
 'use strict';
@@ -1879,422 +1977,6 @@ var CTA_MINI =
   '無料で相談してみる</a></div>';
 document.querySelectorAll('[data-cta-mini]').forEach(function(el){ el.innerHTML = CTA_MINI; });
 
-/* ---------- セクション2：○×クイズ ---------- */
-/* a: true = もつ（○が正解）, false = もたない（×が正解） */
-var QUIZ = [
-  {
-    icon:'icTsuucho', a:false,
-    q:'3期連続で黒字。ただし年間の元本返済額が、当期純利益に減価償却費を足した金額を上回っている。この会社の資金繰りは、このままでもつだろうか。',
-    expl:'このままでは、もちません。当期純利益に減価償却費を足した金額は、その年に事業が生んだおおよその現金です。これより年間の元本返済が大きければ、差額の分だけ毎年確実に手元の現金が減っていきます。黒字であることは、この事実を止めてくれません。しかも元本返済は損益計算書に出てこないため、決算書だけを見ている限り気づけません。返済期間の見直しや借換えは、資金がまだ残っているうちのほうが相談しやすくなります。',
-    wana:'黒字であることが安全の証明だと感じてしまうからです。利益は成績、通帳の残高は命綱で、別ものです。',
-    check:'当期純利益に減価償却費を足した金額と、返済予定表の年間元本返済額を並べて比べる'
-  },
-  {
-    icon:'icShukkin', a:false,
-    q:'大口の受注が入り、売上は前年の2倍になる見込み。材料は前払い、入金は納品の3か月後。手元資金は月商の1か月分ある。この会社の資金繰りは、もつだろうか。',
-    expl:'このままでは、もちません。売上が2倍になれば、先に出ていく材料費や外注費、人件費も2倍近くに増えます。入金は3か月後ですから、その間の支払いは会社が立て替えることになります。必要な運転資金はおおむね売上に比例して増えるため、月商1か月分の手元資金では足りなくなる可能性が高い場面です。受注が決まった時点で、入金までの資金をどう手当てするかを先に決めておく必要があります。',
-    wana:'受注が増えたことは良い知らせなので、資金の心配と結びつけにくいからです。伸びる時期ほど資金は細ります。',
-    check:'大口案件について、入金予定日と、それまでに支払う金額を月ごとに書き出す'
-  },
-  {
-    icon:'icSaifu', a:true,
-    q:'毎月の粗利が、固定費と借入の元本返済の合計をわずかに上回っている。手元資金は、毎月出ていくお金の3か月分あり、賞与と納税の分も別に確保している。この会社の資金繰りは、もつだろうか。',
-    expl:'この条件なら、もちます。毎月の出入りがわずかでもプラスであれば、手元資金は少しずつ厚くなっていきます。そのうえで3か月分の備えがあり、年に数回のまとまった支出も別に確保できているなら、入金の遅れが1回あっても対応できます。ただし油断は禁物で、大口先の条件変更や、原材料の値上がりで粗利が薄くなると、この均衡は簡単に崩れます。月に一度、同じ数字を更新して確かめる習慣が効いてきます。',
-    wana:'わずかなプラスでは不安に感じますが、資金繰りで大事なのは幅よりも向きと備えの厚さです。',
-    check:'毎月の粗利、固定費、元本返済の3つを書き出して、差がプラスかマイナスかを確かめる'
-  },
-  {
-    icon:'icNyukin', a:true, yes:'そうだ', no:'違う',
-    q:'赤字が続いている会社より、売上が急に伸びた会社のほうが、先に資金に詰まることがある。',
-    expl:'そのとおりです。売上が伸びると、仕入や外注費、人件費が先に増え、入金はそのあとに来ます。売掛金と在庫も同時に膨らむため、その分の資金が寝てしまいます。これを増加運転資金といい、成長している会社が資金に詰まるいちばん多い原因です。赤字の会社は支出も縮んでいくため、意外にも資金の減り方は緩やかなことがあります。伸びているときこそ、資金の手当てを先に考える必要があります。',
-    wana:'資金繰りの苦しさは業績の悪さと結びついていると思い込むからです。実際は成長そのものが資金を食います。',
-    check:'売掛金と棚卸資産の残高が前期からいくら増えたかを、貸借対照表で確認する'
-  },
-  {
-    icon:'icJikan', a:false, yes:'そうだ', no:'違う',
-    q:'仕入代金の支払いが翌月末、売上代金の入金が翌々月末という条件の違いは、年間の利益が同じなら資金繰りには関係しない。',
-    expl:'関係します。利益が同じでも、支払いが先で入金が後なら、その差の期間だけ会社が資金を立て替えることになります。月商1,000万円の会社で回収が1か月遅くなれば、常に1,000万円ほどが外に出たままという状態になります。逆に、回収を早め、支払いを無理のない範囲で遅らせることができれば、売上を増やさずに手元資金を厚くできます。資金繰りは金額だけでなく、日付の順番で決まります。',
-    wana:'決算書には日付の条件が現れないため、条件の違いが数字に効いていることに気づきにくいからです。',
-    check:'主な取引先ごとに、締め日・入金日・支払日を一覧にして、ズレの日数を数える'
-  },
-  {
-    icon:'icSaifu', a:true, yes:'そうだ', no:'違う',
-    q:'手元資金がいくらあれば安心かは、売上高の大きさではなく、毎月確実に出ていくお金の大きさで決まる。',
-    expl:'そのとおりです。入金が止まっても出ていき続けるのは、人件費・家賃・リース料・保険料といった固定費と、借入の元本返済です。手元の現預金をこの合計で割れば、何か月もちこたえられるかが月数で出ます。売上が大きくても固定費が重ければ、もつ月数は短くなります。目安として3か月分程度という考え方がよく使われますが、季節変動や入金サイトによって必要な水準は変わります。自社の変動幅から決めるのが実際的です。',
-    wana:'年商の何パーセントという言い方をよく聞くため、売上を基準に考えてしまうからです。',
-    check:'固定費の月額と毎月の元本返済を足し、手元の現預金を割って月数を出す'
-  },
-  {
-    icon:'icTsuucho', a:false, yes:'そうだ', no:'違う',
-    q:'金融機関への相談は、資金が本当に足りなくなってからでも、余裕があるうちでも、受け止められ方は変わらない。',
-    expl:'変わります。資金に余裕がある段階なら、返済期間の見直しや新たな借入について、選べる手段が複数あります。資金が尽きかけてからでは、判断のための資料をそろえる時間も、検討してもらう時間も足りません。相談に持っていくものは、試算表、資金繰り表、返済予定表の3つが基本です。なお、どのような相談でも必ず希望どおりになるとは限りません。だからこそ、時間の余裕を持って動くことが手段の幅につながります。',
-    wana:'困っていないのに相談するのは気が引ける、と感じてしまうからです。実際は元気なうちの相談ほど通りやすくなります。',
-    check:'直近の試算表・資金繰り表・返済予定表がそろっているかを確かめる'
-  },
-  {
-    icon:'icKyosai', a:true, yes:'そうだ', no:'違う',
-    q:'中小企業倒産防止共済、いわゆる経営セーフティ共済は、取引先が倒産したときに、それまで納めた掛金の総額の10倍まで無担保無保証で借入ができる制度である。',
-    expl:'そのとおりです。取引先事業者の倒産により売掛金などの回収が困難になった場合に、掛金総額の10倍、上限8,000万円の範囲で共済金の貸付けが受けられます。ただし不利益な点もあります。共済金の貸付けを受けると、借入額の10分の1に相当する掛金がなくなる扱いになります。また納付月数が12か月未満の解約では解約手当金が受け取れず、40か月未満では掛金総額を下回ります。掛金の税務上の取扱いには要件や近年の改正があるため、個別の税額計算・申告については税理士にご確認ください。',
-    wana:'名前が知られていない制度のため、対象になる場面でも使えることに気づかないまま終わるからです。',
-    check:'加入しているか、加入しているなら掛金総額が今いくらになっているかを確かめる'
-  }
-];
-
-var qIdx = 0, qScore = 0, qAnswered = false, qAnsweredCount = 0;
-var wrongItems = [];
-
-var elNum   = document.getElementById('qNum');
-var elDots  = document.getElementById('qDots');
-var elIcon  = document.getElementById('qIcon');
-var elText  = document.getElementById('qText');
-var btnYes  = document.getElementById('btnYes');
-var btnNo   = document.getElementById('btnNo');
-var lblYes  = document.getElementById('lblYes');
-var lblNo   = document.getElementById('lblNo');
-var elVerd  = document.getElementById('verdict');
-var elVAns  = document.getElementById('vAnswer');
-var elVChip = document.getElementById('vChip');
-var elVExpl = document.getElementById('vExpl');
-var elVWana = document.getElementById('vWana');
-var elVChk  = document.getElementById('vCheck');
-var btnNext = document.getElementById('btnNext');
-var btnStop = document.getElementById('btnStopHere');
-var quizPlay = document.getElementById('quizPlay');
-var quizDone = document.getElementById('quizDone');
-
-function renderDots(){
-  var html = '';
-  for(var i = 0; i < QUIZ.length; i++){
-    html += '<i class="' + (i < qIdx ? 'done' : (i === qIdx ? 'now' : '')) + '"></i>';
-  }
-  elDots.innerHTML = html;
-}
-
-function renderQ(){
-  var item = QUIZ[qIdx];
-  elNum.textContent = qIdx + 1;
-  elIcon.innerHTML = ARTS[item.icon] || '';
-  elText.textContent = item.q;
-  lblYes.textContent = item.yes || 'もつ';
-  lblNo.textContent = item.no || 'もたない';
-  btnYes.disabled = false;
-  btnNo.disabled = false;
-  qAnswered = false;
-  elVerd.classList.remove('show');
-  btnNext.style.display = 'none';
-  btnStop.style.display = 'none';
-  renderDots();
-}
-
-function answer(ansYes){
-  if(qAnswered) return;
-  qAnswered = true;
-  qAnsweredCount++;
-  btnYes.disabled = true;
-  btnNo.disabled = true;
-  var item = QUIZ[qIdx];
-  var correct = (ansYes === item.a);
-  if(correct) qScore++;
-  else wrongItems.push(item);
-  elVAns.textContent = '正解は「' + (item.a ? (item.yes || 'もつ') : (item.no || 'もたない')) + '」';
-  elVChip.textContent = correct ? 'ご名答！' : 'ざんねん、ここがワナ';
-  elVChip.className = 'result-chip ' + (correct ? 'correct' : 'wrong');
-  elVExpl.textContent = item.expl;
-  elVWana.textContent = item.wana;
-  elVChk.textContent = item.check;
-  elVerd.classList.add('show');
-  btnNext.style.display = 'flex';
-  if(qIdx >= QUIZ.length - 1){
-    btnNext.innerHTML = '結果を見る <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
-  } else if(qIdx >= 2){
-    btnStop.style.display = 'block';
-  }
-}
-
-function doneComment(score, total){
-  var full = (total === QUIZ.length);
-  if(score === total && full){
-    return '全問正解です。資金繰りの考え方は、もうお持ちです。あとはご自身の会社の数字を当てはめるだけ。手元の現預金と、毎月出ていくお金の合計を並べて、何か月分あるかを計算するところから始めてみてください。';
-  }
-  var r = score / total;
-  if(r >= 0.75){
-    return 'よく分かっていらっしゃいます。惜しかった問題は、そのまま自社の弱点になりやすい論点です。通帳と返済予定表を出して、その場で答え合わせをしておくと安心です。';
-  }
-  if(r >= 0.4){
-    return '半分前後というのは、社長の多くが通る道です。資金繰りは、教わる機会がほとんどないまま、経験だけで覚えていく分野だからです。引っかかった問題を先に潰しておけば、繁忙期の慌ただしさが変わります。';
-  }
-  return 'ここで引っかかったから、本番で引っかからずに済みます。資金繰りは、頭の良し悪しではなく、数字を書き出したかどうかで決まります。まずは、手元の現預金と毎月出ていくお金、この2つを紙に書くところからで十分です。';
-}
-
-function showDone(){
-  quizPlay.style.display = 'none';
-  quizDone.classList.add('show');
-  document.getElementById('doneTotal').textContent = qAnsweredCount;
-  document.getElementById('doneScore').textContent = qScore;
-  document.getElementById('doneCmt').textContent = doneComment(qScore, qAnsweredCount);
-  var wl = document.getElementById('wrongList');
-  if(wrongItems.length){
-    var html = '<h4>ワナにかかった問題（＝次に通帳と資金繰り表で確かめたいこと）</h4>';
-    for(var i = 0; i < wrongItems.length; i++){
-      html += '<div class="w-item"><strong>' + wrongItems[i].q + '</strong><br>確認ポイント：' + wrongItems[i].check + '</div>';
-    }
-    wl.innerHTML = html;
-    wl.style.display = 'block';
-  } else {
-    wl.style.display = 'none';
-  }
-  var sum = document.getElementById('sumScore');
-  sum.innerHTML = '<p>○×クイズの結果：<strong>' + qAnsweredCount + '問中 ' + qScore + '問正解</strong>でした。' +
-    (wrongItems.length ? '間違えた問題は、そのまま「確認したいことリスト」になります。' : 'この調子で、下のチェックリストもどうぞ。') + '</p>';
-}
-
-btnYes.addEventListener('click', function(){ answer(true); });
-btnNo.addEventListener('click', function(){ answer(false); });
-btnNext.addEventListener('click', function(){
-  if(qIdx >= QUIZ.length - 1){ showDone(); return; }
-  qIdx++;
-  renderQ();
-  var shell = document.querySelector('.quiz-shell');
-  if(shell.getBoundingClientRect().top < 0) shell.scrollIntoView({behavior:'smooth'});
-});
-btnStop.addEventListener('click', showDone);
-document.getElementById('btnRetry').addEventListener('click', function(){
-  qIdx = 0; qScore = 0; qAnsweredCount = 0; wrongItems = [];
-  quizDone.classList.remove('show');
-  quizPlay.style.display = 'block';
-  btnNext.innerHTML = '次の質問へ <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
-  renderQ();
-});
-document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
-document.getElementById('btnMailSelf').addEventListener('click', function(){
-  var body = '「資金繰りのもつ・もたないチェック」の結果メモ\n\n' +
-    '○×クイズ：' + qAnsweredCount + '問中 ' + qScore + '問正解\n\n';
-  if(wrongItems.length){
-    body += '【資金繰りで確認したいこと】\n';
-    for(var i = 0; i < wrongItems.length; i++){
-      body += '・' + wrongItems[i].check + '\n';
-    }
-  }
-  body += '\n（このメモを通帳と借入金の返済予定表と一緒に置いておくと、次の相談が早く終わります）\n';
-  location.href = 'mailto:?subject=' + encodeURIComponent('資金繰りの「もつ・もたない」チェックの結果メモ') + '&body=' + encodeURIComponent(body);
-});
-
-renderQ();
-
-/* ---------- セクション3：シミュレーター ---------- */
-var simA = document.getElementById('simA'), simB = document.getElementById('simB'), simC = document.getElementById('simC');
-var simD = document.getElementById('simD'), simE = document.getElementById('simE'), simF = document.getElementById('simF');
-function man(x){ return Math.round(x).toLocaleString('ja-JP') + '万円'; }
-function tsuki(x){ return (Math.round(x * 10) / 10) + 'か月'; }
-function setR(id, ok, chipTxt, txt){
-  document.getElementById(id).className = 'sim-r ' + (ok ? 'ok' : 'ng');
-  document.getElementById(id + 'Chip').textContent = chipTxt;
-  document.getElementById(id + 'Txt').textContent = txt;
-}
-function simUpdate(){
-  var teoto = +simA.value || 0, arari = +simD.value || 0, kotei = +simE.value || 0, hensai = +simF.value || 0;
-  var mikomi = (+simB.value || 100) / 100, matome = simC.checked ? 200 : 0;
-  document.getElementById('simAOut').textContent = teoto.toLocaleString('ja-JP') + '万円';
-  document.getElementById('simDOut').textContent = arari.toLocaleString('ja-JP') + '万円';
-  document.getElementById('simEOut').textContent = kotei.toLocaleString('ja-JP') + '万円';
-  document.getElementById('simFOut').textContent = hensai.toLocaleString('ja-JP') + '万円';
-  var deru = kotei + hensai;                        /* 毎月確実に出ていくお金 */
-  var deiri = arari * mikomi - deru;                /* 毎月の出入り */
-  var nokori = Math.max(0, teoto - matome);         /* まとまった支出を引いた手元資金 */
-  var tsukisu = deru > 0 ? nokori / deru : 0;       /* 入金が止まった場合にもつ月数 */
-  document.getElementById('tlFill').style.width = Math.max(0, Math.min(100, tsukisu / 6 * 100)) + '%';
-  setR('simR1', deiri >= 0, (deiri >= 0 ? '毎月ふえる ' : '毎月へる ') + man(Math.abs(deiri)),
-    deiri >= 0 ? '入金が続くかぎり、手元資金は毎月' + man(deiri) + 'ずつ厚くなっていく計算です。'
-               : '入金が続いても、毎月' + man(Math.abs(deiri)) + 'ずつ手元資金が減っていく計算です。粗利を増やすか、固定費か返済のどちらかを見直す場面です。');
-  setR('simR2', tsukisu >= 3, '毎月 ' + man(deru),
-    '固定費' + man(kotei) + 'と元本返済' + man(hensai) + 'の合計です。売上が止まっても出ていき続けるのは、この金額です。');
-  setR('simR3', matome === 0, matome === 0 ? 'まとまった支出なし' : '手元から ' + man(matome),
-    matome === 0 ? '賞与や納税の予定を入れていない状態です。予定があるなら、チェックを入れて確かめてください。'
-                 : 'まとまった支出200万円を引くと、使える手元資金は' + man(nokori) + 'になります。山の月が分かっているなら、前もって寄せておくと安心です。');
-  var big = document.getElementById('simTotalBig'), sub = document.getElementById('simTotalSub');
-  if(deru <= 0){
-    big.innerHTML = '毎月出ていくお金を <b>入力してください</b>';
-    sub.textContent = '固定費と元本返済が0のままでは、もつ月数を計算できません。';
-  } else if(tsukisu >= 3){
-    big.innerHTML = '手元資金は <b>約' + tsuki(tsukisu) + '分</b> あります';
-    sub.textContent = '一つの目安とされる3か月分は超えています。季節変動の大きい商売では、もう少し厚めに持つ考え方もあります。';
-  } else if(tsukisu >= 1){
-    big.innerHTML = 'もちこたえられるのは <b>約' + tsuki(tsukisu) + '分</b>';
-    sub.textContent = '3か月分にするには、あと約' + man(deru * 3 - nokori) + 'が必要な計算です。資金繰り表を先に作っておくと、相談が早く進みます。';
-  } else {
-    big.innerHTML = 'もちこたえられるのは <b>約' + tsuki(tsukisu) + '分</b>';
-    sub.textContent = '入金が1回遅れるだけで支払いに影響しかねない水準です。資金がまだ残っているうちに、金融機関や専門家に相談する場面です。';
-  }
-}
-simA.addEventListener('input', simUpdate); simD.addEventListener('input', simUpdate);
-simE.addEventListener('input', simUpdate); simF.addEventListener('input', simUpdate);
-simB.addEventListener('change', simUpdate); simC.addEventListener('change', simUpdate);
-simUpdate();
-
-/* ---------- セクション4：あるある劇場 ---------- */
-var CASES = [
-  {
-    art:'icShukkin', cls:'c-red', chip:'第一幕：黒字倒産の一歩手前',
-    title:'いちばん大きな受注が、いちばん危ない受注だった',
-    story:'「創業以来いちばん大きな注文が入りました。金額は通常の3か月分。喜んで受けたんです。材料の手当てで先に払い、応援の人手も入れました。ところが先方の支払条件は、検収の翌々月末。つまり入金は4か月先でした。その間に給料日が4回、支払日が4回来ます。途中で気づいて銀行に走りましたが、資料をそろえるのに時間がかかって、実際に借りられたのはぎりぎりでした。決算は過去最高の黒字。中身は綱渡りでした」<small>——香川県の金属加工業・50代の社長（脚色あり）</small>',
-    what:'<p class="cmodal-p">利益は納品した月に立ちますが、現金が入るのは条件どおりの日です。<strong>売上が大きいほど、先に出ていく材料費と人件費も大きくなります</strong>。この会社は、受注金額の大きさと立て替える期間の長さが重なり、手元資金では足りない期間ができました。決算書には黒字としか出てきませんから、後から見ても危なさは分かりません。</p>',
-    how:'<p class="cmodal-p">大口の受注が決まった日に、<strong>入金予定日と、それまでに出ていく金額を月ごとに書き出す</strong>ことです。不足する月が1か月でもあれば、その時点で資金の手当てを始めます。着手金や中間金を相談する、支払時期を調整する、借入枠を先に用意しておく。<strong>選べる手段は、資金が残っているうちほど多くなります。</strong></p>'
-  },
-  {
-    art:'icZeimusho', cls:'c-amber', chip:'第二幕：山が重なった月',
-    title:'賞与と納税と保険料の年払いが、同じ月に来た',
-    story:'「7月が地獄でした。夏の賞与を出して、決算の法人税を納めて、そのうえ保険料の年払いが重なったんです。どれも分かっていたはずの支払いなのに、頭の中で足し算をしていなかった。慌てて短期の借入を申し込んで、なんとか間に合わせました。翌年からは、年間の支払いカレンダーを作って、山の月の3か月前から少しずつ寄せておくようにしています。それだけで、7月の胃の痛さがなくなりました」<small>——香川県の建設業・40代の社長（脚色あり）</small>',
-    what:'<p class="cmodal-p">賞与、法人税や消費税の納付、社会保険料、保険料の年払い、決算関連の支払い。<strong>いずれも日付も金額もあらかじめ分かっている支出</strong>です。それでも重なると手元資金を一気に削ります。法人税の申告と納付は、原則として事業年度終了の日の翌日から2か月以内とされているため、決算月から逆算すれば時期は読めます。</p>',
-    how:'<p class="cmodal-p">1年分の支払いカレンダーを1枚作ってください。月ごとに、給与・賞与・納税・社会保険料・保険料・大きなリース料を書き出すだけです。山の月が見えたら、<strong>3か月前から毎月少しずつ別口座に寄せる</strong>。納税の見込み額は、期末の2〜3か月前に試算してもらえます。<strong>個別の税額計算・申告については税理士にご確認ください。</strong></p>'
-  },
-  {
-    art:'icJikan', cls:'c-berry', chip:'第三幕：条件を知らなかった',
-    title:'いちばん大切な取引先が、いちばん入金の遅い先だった',
-    story:'「売上の4割を占める取引先がありました。長い付き合いで、条件を確かめたのは契約したときが最後です。資金が苦しい原因を探していて、改めて確認したら、その先だけ検収の翌々月末払いになっていました。他の先より1か月遅い。売上の4割ですから、常に月商1か月分近くが余計に外に出ていた計算です。言いにくかったのですが、事情を説明して相談したところ、翌年度から締め日を変えてもらえました」<small>——香川県の卸売業・50代の社長（脚色あり）</small>',
-    what:'<p class="cmodal-p">回収が1か月遅い条件の取引が売上の4割あれば、<strong>月商のおよそ4割にあたる資金が、常に外に出たまま</strong>になります。月商1,000万円の会社なら400万円前後です。しかも売上が伸びれば、その金額も一緒に増えていきます。条件は、契約したときのまま何年も見直されていないことが少なくありません。</p>',
-    how:'<p class="cmodal-p">取引先ごとに<strong>締め日・入金日・平均の月商</strong>を一覧にしてください。1枚にすると、どこで資金が寝ているかが見えます。相手のある話ですから、条件の変更に必ず応じてもらえるわけではありません。契約更新や新規取引の開始は、条件を整えるよい機会になります。</p>'
-  },
-  {
-    art:'icBuild', cls:'c-blue', chip:'第四幕：補助金の落とし穴',
-    title:'補助金が決まったので発注したら、入金は1年後だった',
-    story:'「設備の補助金が採択されたと聞いて、すぐ発注しました。補助率のことばかり考えていて、いつお金が入るのかを確かめていなかったんです。実際は、設備の代金を全額支払って、報告書を出して、検査を受けて、それから入金でした。1年近く先です。その間、支払いは全部こちらの資金。慌てて銀行に相談して、つなぎの資金を借りました。制度が悪いのではなく、私が順番を知らなかっただけです」<small>——香川県の食品製造業・40代の社長（脚色あり）</small>',
-    what:'<p class="cmodal-p">多くの補助金は<strong>後払い（精算払い）</strong>です。先に自社で全額を支払い、実績報告と検査を経てから入金されます。つまり補助金が決まった時点で必要なのは、補助金の額ではなく<strong>設備代金の全額を立て替える資金</strong>です。ここを取り違えると、良い話が資金の谷を作ります。</p>',
-    how:'<p class="cmodal-p">申請の前に、①支払いはいつ、いくら必要か、②入金はいつごろか、③その間の資金をどう手当てするか、の3点を確認してください。つなぎ資金の相談は、<strong>採択の連絡が来た時点</strong>が最も動きやすいタイミングです。補助金の経理処理や税務上の取扱いについては、税理士にご確認ください。</p>'
-  },
-  {
-    art:'icTsuucho', cls:'c-red', chip:'第五幕：急いで借りた代償',
-    title:'目先をしのぐつもりの資金調達が、翌年の重荷になった',
-    story:'「支払日まで1週間しかなくて、とにかく間に合わせなければと焦りました。手数料の条件をよく読まないまま、すぐ資金化できるという話に飛びついたんです。その月は乗り切れました。でも翌月からの資金繰りは、その分だけ確実に苦しくなっていました。結局、同じことを繰り返して、抜け出すのに1年以上かかりました。あのとき、もう少し早く動いていればと今でも思います」<small>——香川県のサービス業・50代の社長（脚色あり）</small>',
-    what:'<p class="cmodal-p">短期間で資金を用意できる手段には、<strong>手数料や利息の負担が重いものがあります</strong>。その月の穴は埋まっても、翌月に入ってくるはずだった資金が先に減っているため、翌月の穴はさらに大きくなりがちです。急いでいるときほど条件を読む時間がなく、条件を読む時間がないときほど負担の重い手段を選びやすくなります。</p>',
-    how:'<p class="cmodal-p">大切なのは、<strong>不足が分かる時期を早めること</strong>です。3か月先まで資金繰り表を作っていれば、選択肢を比べる時間が生まれます。手数料や利息は、必ず年率に直して比べてください。<strong>どの手段でも必ず借りられるとは限りません。</strong>資金がまだ残っているうちに、取引金融機関へ相談することが最も基本の一手です。</p>'
-  },
-  {
-    art:'icSaifu', cls:'c-green', chip:'第六幕：見える化が遅れた',
-    title:'資金繰り表がなく、銀行に相談したのが遅すぎた',
-    story:'「経理は通帳の残高を見て、足りそうかどうかを判断していました。私も、月末に残っていれば大丈夫だと思っていたんです。売上が落ちた月が続いて、さすがにおかしいと銀行へ行ったとき、まず資金繰り表を見せてくださいと言われました。作っていませんでした。慌てて作り始めたら、3か月後にはっきり足りない月があることが分かった。もっと早く作っていれば、もっと早く相談できていたはずです」<small>——香川県の運送業・60代の社長（脚色あり）</small>',
-    what:'<p class="cmodal-p">通帳の残高は今日の結果であって、<strong>来月や再来月の予定は写っていません</strong>。資金繰り表は、決まっている入金と支払いを日付順に並べた表にすぎませんが、それだけで数か月先の不足が見えます。相談を受ける側も、この表がないと状況を判断できません。作っていないこと自体が、相談を遅らせます。</p>',
-    how:'<p class="cmodal-p">最初は手書きでも表計算ソフトでも構いません。<strong>月ごとに、入金・支払い・月末残高の3行</strong>があれば足ります。まず3か月先まで作り、慣れたら6か月先まで伸ばします。会計事務所に依頼すれば、試算表をもとに形を整えてもらえることもあります。作った表は、金融機関との相談でそのまま使えます。</p>'
-  }
-];
-
-/* ---------- セクション5：逆転劇場 ---------- */
-var GOOD_CASES = [
-  {
-    art:'icTsuucho', cls:'c-blue', chip:'第一話：資金繰り表', amt:'半年先が見える',
-    title:'6か月先まで表を作っていたから、繁忙期の前に手を打てた',
-    story:'「経理と相談して、資金繰り表を6か月先まで作るようにしました。表計算ソフトで、入金・支払い・月末残高の3行だけです。作ってみると、秋の繁忙期の前に材料の仕入が膨らんで、9月の残高がかなり薄くなることが分かりました。まだ7月でしたから、余裕をもって銀行に相談できました。数字と表を持っていったので、話は早かったです。結果として、繁忙期を資金の心配なしに迎えられました」<small>——香川県の食品製造業・40代の社長（脚色あり）</small>',
-    what:'<p class="cmodal-p">資金繰り表は予測ではなく、<strong>決まっている入金と支払いを日付順に並べた記録</strong>です。それだけで数か月先の不足月が見えます。不足が事前に分かれば、相談する時期を選べます。<strong>同じ相談でも、余裕のある時期のほうが検討してもらう時間があり、選べる手段も多くなります。</strong></p>',
-    how:'<p class="cmodal-p">必要なのは、通帳・返済予定表・主要な取引先の入金予定です。月ごとに、入金・支払い・月末残高の3行から始めます。まず3か月先まで、慣れたら6か月先まで。会計事務所に頼めば、試算表をもとに形を整えてもらえることもあります。<strong>相談すれば必ず借入ができるわけではありません</strong>が、資料がそろっているほど話は具体的になります。</p>'
-  },
-  {
-    art:'icNyukin', cls:'c-green', chip:'第二話：回収サイト', amt:'月商20日分',
-    title:'回収を20日早めてもらえて、毎月の窮屈さが消えた',
-    story:'「主要な取引先の入金が、他より1か月遅いことに気づきました。長い付き合いでしたが、資金繰り表を見せながら、うちの支払いがこの時期に集中していることを説明したんです。すると担当の方が社内に持ち帰ってくれて、翌年度から締め日を変えて20日ほど早めてもらえることになりました。売上は1円も増えていないのに、毎月の資金の窮屈さがかなり和らぎました」<small>——香川県の卸売業・40代の社長（脚色あり）</small>',
-    what:'<p class="cmodal-p">外に出たままの売上代金は、<strong>回収までの日数と月商の掛け算</strong>でおおよそ決まります。月商1,000万円の会社で回収が20日早くなれば、およそ600万円強の資金が手元に戻る計算です。<strong>売上を増やさずに手元資金を厚くできる、数少ない方法の一つ</strong>です。しかも一度整えれば、効果は毎月続きます。</p>',
-    how:'<p class="cmodal-p">取引先ごとに締め日・入金日・月商を一覧にし、遅い先から相談します。<strong>相手のある話なので、必ず応じてもらえるわけではありません。</strong>関係を損なわないよう、まずは事情の説明からです。契約更新や新規取引の開始が、条件を整える機会になります。あわせて、自社の支払条件も無理のない範囲か見直してみてください。</p>'
-  },
-  {
-    art:'icSaifu', cls:'c-blue', chip:'第三話：目標月数', amt:'3か月分を確保',
-    title:'手元資金の目標を月数で決めたら、貯まりはじめた',
-    story:'「いくら貯めればいいのか分からないまま、なんとなく残っている状態が続いていました。毎月出ていくお金が320万円だと計算して、その3か月分の960万円を目標にすると決めたんです。金額に意味が生まれると、判断が変わりました。使うかどうか迷った支出について、これは960万円より優先かと考えるようになった。2年ほどで目標に届いて、いまは値引きの要請にも落ち着いて対応できています」<small>——香川県のサービス業・50代の社長（脚色あり）</small>',
-    what:'<p class="cmodal-p">手元資金は金額で見ると多いか少ないか分かりませんが、<strong>毎月出ていくお金の何か月分かで見ると意味がはっきり</strong>します。固定費280万円と元本返済40万円の会社なら、1か月分は320万円。3か月分という目安がよく使われますが、<strong>季節変動や入金サイトによって必要な水準は変わります。</strong>目標を決めること自体が、判断の基準になります。</p>',
-    how:'<p class="cmodal-p">計算に必要なのは、固定費の月額と毎月の元本返済だけです。目標を決めたら、毎月の入金から一定額を別口座に移す形にすると残りやすくなります。<strong>必要な投資まで止めて資金だけを厚くすると、将来の利益を削ります。</strong>目標の月数は、業種と変動の大きさから決めてください。</p>'
-  },
-  {
-    art:'icKyosai', cls:'c-amber', chip:'第四話：経営セーフティ共済', amt:'掛金総額の10倍',
-    title:'取引先の倒産に、制度を知っていたから対応できた',
-    story:'「同業の社長に勧められて、中小企業倒産防止共済に加入していました。月々の掛金を払っていただけで、正直、忘れかけていたんです。ところが数年後、取引先の1社が倒産して売掛金が回収できなくなりました。そのとき、この制度のことを思い出して問い合わせたところ、共済金の貸付けを受けられました。回収できなかった金額をそのまま被るのと、そうでないのとでは、資金の傷み方がまったく違いました」<small>——香川県の建設業・50代の社長（脚色あり）</small>',
-    what:'<p class="cmodal-p">中小企業倒産防止共済（経営セーフティ共済）は、取引先事業者の倒産により売掛金などの回収が困難になった場合に、<strong>掛金総額の10倍、上限8,000万円の範囲で無担保無保証の貸付け</strong>が受けられる制度です。掛金は月5,000円から20万円の範囲で、掛金総額は800万円が上限とされています。回収不能という、自社の努力では避けにくい事態に備える仕組みです。</p>',
-    how:'<p class="cmodal-p">加入には要件があり、業種ごとの規模の条件などを満たす必要があります。<strong>不利益な点も必ず確認してください。</strong>共済金の貸付けを受けると、借入額の10分の1に相当する掛金がなくなる扱いになります。納付月数が12か月未満の解約では解約手当金がなく、40か月未満の解約では掛金総額を下回ります。掛金の税務上の取扱いには要件と近年の改正があるため、<strong>個別の税額計算・申告については税理士にご確認ください。</strong></p>'
-  },
-  {
-    art:'icHoken', cls:'c-blue', chip:'第五話：借入枠の準備', amt:'必要な月だけ',
-    title:'平時に枠を作っておいたから、急な出費に慌てなかった',
-    story:'「取引先の入金が1か月遅れると連絡が来たときのことです。以前なら青くなっていたと思いますが、そのときは落ち着いていられました。資金に余裕のある時期に、当座貸越の枠を作らせてもらっていたからです。使わなければ利息はほとんどかかりません。結局、その月だけ一時的に使って、翌月の入金で戻しました。枠があるということ自体が、これほど気持ちを楽にするとは思いませんでした」<small>——香川県の運送業・50代の社長（脚色あり）</small>',
-    what:'<p class="cmodal-p">必要になってから借入を申し込むと、審査や書類の準備に時間がかかります。<strong>あらかじめ枠を用意しておけば、必要な月だけ使って戻すことができます</strong>。会社の状態が良い時期のほうが、条件の相談もしやすくなります。資金の余裕そのものが、判断の余裕になります。</p>',
-    how:'<p class="cmodal-p">取引金融機関に、決算書・試算表・資金繰り表を持って相談します。<strong>枠の設定が必ず認められるとは限らず、手数料や保証料などの費用がかかる場合があります。</strong>また、使えば当然に利息が発生し、返済も必要です。枠があることに安心して使いすぎないよう、使う条件を社内で決めておくことが大切です。</p>'
-  },
-  {
-    art:'icZeimusho', cls:'c-green', chip:'第六話：支払いカレンダー', amt:'山の月を平準化',
-    title:'1年分の支払いを1枚にしたら、慌てる月がなくなった',
-    story:'「賞与、納税、社会保険料、保険料の年払い。ばらばらに頭に入っていたものを、1枚のカレンダーにまとめました。すると、7月と11月に山があることがはっきり見えたんです。3か月前から毎月一定額を別口座に寄せるようにしたら、その月が来ても普通に払えるようになりました。やったことは、紙に書いて足し算をしただけです。それだけで、社長業の不安が一つ減りました」<small>——香川県の小売業・40代の社長（脚色あり）</small>',
-    what:'<p class="cmodal-p">賞与や納税は、<strong>日付も金額もあらかじめおおよそ分かっている支出</strong>です。分かっているのに慌てるのは、書き出していないからです。1枚にまとめると山の月が見え、3か月前から少しずつ寄せておけば、山は平らになります。<strong>法人税の申告と納付は、原則として事業年度終了の日の翌日から2か月以内</strong>とされているため、決算月から逆算できます。</p>',
-    how:'<p class="cmodal-p">月ごとに、給与・賞与・納税・社会保険料・保険料・大きなリース料を書き出します。納税額の見込みは、期末の2〜3か月前に試算してもらえます。あくまで見込みであり、期末までの業績によって変わります。<strong>個別の税額計算・申告については税理士にご確認ください。</strong>なお、一時に納付が難しい場合の猶予の制度もありますが、要件があり、延滞税等の取扱いも異なります。所轄の税務署または税理士にご相談ください。</p>'
-  },
-  {
-    art:'icZaiko', cls:'c-berry', chip:'第七話：寝ている資金', amt:'在庫を1か月分圧縮',
-    title:'倉庫の在庫を見直したら、資金が戻ってきた',
-    story:'「資金が足りないと感じたとき、まず売上を増やすことを考えていました。会計事務所の担当者に、倉庫を見せてもらえますかと言われて一緒に見たら、何年も動いていない商品が並んでいたんです。仕入れたときに払ったお金が、そのまま棚で眠っていたわけです。値下げして処分したものもありますが、発注の基準を決めてからは、在庫が1か月分ほど軽くなりました。その分、通帳の残高が厚くなりました」<small>——香川県の卸売業・50代の社長（脚色あり）</small>',
-    what:'<p class="cmodal-p">在庫は、<strong>お金を商品の形で持っている状態</strong>です。売れるまで資金は戻ってきません。売掛金も同じで、外に出たままのお金です。この2つは、売上を増やさなくても資金を生み出せる場所であり、しかも自社の判断だけで動かせる数少ない項目です。<strong>ただし、在庫を減らしすぎると欠品や機会損失につながります。</strong></p>',
-    how:'<p class="cmodal-p">まず、動いていない在庫を品目ごとに洗い出します。処分する場合、評価損の税務上の取扱いには要件があるため、<strong>個別の税額計算・申告については税理士にご確認ください。</strong>そのうえで、発注の基準と適正な在庫水準を決めます。月末の在庫残高を毎月記録するだけでも、増えすぎに早く気づけるようになります。</p>'
-  },
-  {
-    art:'icHoken', cls:'c-amber', chip:'第八話：いざのときの引き出し口', amt:'選択肢が1つ増える',
-    title:'契約の中身を把握していたから、選択肢を持って相談できた',
-    story:'「資金の相談をしたとき、いま入っている保険の内容を確認してみましょうと言われました。何年も前に入ったきりで、正直、中身を覚えていなかったんです。調べてみると、解約した場合に戻ってくるお金や、契約者貸付という仕組みがあることが分かりました。結局そのときは使いませんでしたが、いざとなればここも見られる、と分かっているだけで気持ちが違いました。使う前に不利益な点も全部説明してもらえたのも良かったです」<small>——香川県の製造業・50代の社長（脚色あり）</small>',
-    what:'<p class="cmodal-p">契約の種類によっては、解約した場合に戻るお金があったり、その範囲内で貸付けを受けられる仕組みがあったりします。<strong>使う使わないは別として、自社が持っている選択肢を把握しておくこと</strong>に意味があります。資金の手当てを考えるとき、選べる道が1つ増えるからです。</p>',
-    how:'<p class="cmodal-p"><strong>不利益な点を必ず先に確認してください。</strong>貸付けには利息がかかり、返さないまま利息が積み上がると契約が効力を失うことがあります。解約すれば保障はなくなり、時期によっては払った金額を下回ります。契約の内容によっては、そもそもこうした仕組みがないものもあります。<strong>経理処理や税務上の取扱いは契約の内容と時期によって異なるため、個別の税額計算・申告については税理士にご確認ください。</strong></p>'
-  }
-];
-
-var modal = document.getElementById('caseModal');
-var CASE_LBL = {
-  bad:['よく伺うお話をもとにした創作例（脚色あり）', '何が起きたのか', 'こう確認すれば防げます'],
-  good:['よくある、うれしい誤算（創作例・脚色あり）', 'なぜ効いたのか', '備えるための条件']
-};
-
-function renderCases(gridId, list, kind){
-  var grid = document.getElementById(gridId);
-  list.forEach(function(c){
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'case-card';
-    btn.innerHTML =
-      '<span class="art ' + c.cls + '">' + ARTS[c.art] + '</span>' +
-      '<span class="t"><span class="chip ' + c.cls + '">' + c.chip + '</span>' +
-      (c.amt ? '<span class="amt">' + c.amt + '</span>' : '') +
-      '<h3>' + c.title + '</h3>' +
-      '<span class="more">詳しく見る<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></span></span>';
-    btn.addEventListener('click', function(){ openCase(c, kind); });
-    grid.appendChild(btn);
-  });
-}
-
-function openCase(c, kind){
-  var lbl = CASE_LBL[kind] || CASE_LBL.bad;
-  document.getElementById('caseModalLbl1').textContent = lbl[0];
-  document.getElementById('caseModalLbl2').textContent = lbl[1];
-  document.getElementById('caseModalLbl3').textContent = lbl[2];
-  document.getElementById('caseModalLbl2Wrap').className =
-    'cmodal-label ' + (kind === 'good' ? 'lb-green' : 'lb-red');
-  document.getElementById('caseModalIco').className = 'cmodal-ico ' + c.cls;
-  document.getElementById('caseModalIco').innerHTML = ARTS[c.art];
-  document.getElementById('caseModalChip').className = 'cmodal-chip ' + c.cls;
-  document.getElementById('caseModalChip').textContent = c.chip;
-  document.getElementById('caseModalTitle').textContent = c.title;
-  document.getElementById('caseModalStory').innerHTML = c.story;
-  document.getElementById('caseModalWhat').innerHTML = c.what;
-  document.getElementById('caseModalHow').innerHTML = c.how;
-  modal.classList.add('show');
-  modal.setAttribute('aria-hidden', 'false');
-  document.body.style.overflow = 'hidden';
-  modal.querySelector('.cmodal-panel').scrollTop = 0;
-}
-
-renderCases('caseGrid', CASES, 'bad');
-renderCases('goodGrid', GOOD_CASES, 'good');
-
-function closeCase(){
-  modal.classList.remove('show');
-  modal.setAttribute('aria-hidden', 'true');
-  document.body.style.overflow = '';
-}
-document.getElementById('caseModalClose').addEventListener('click', closeCase);
-document.getElementById('caseModalBack').addEventListener('click', closeCase);
-document.addEventListener('keydown', function(e){
-  if(e.key === 'Escape' && modal.classList.contains('show')) closeCase();
-});
-
 /* ---------- まとめ：チェックリスト ---------- */
 var chkBoxes = document.querySelectorAll('#checklist input[type=checkbox]');
 var chkMsg = document.getElementById('chkMsg');
@@ -2318,5 +2000,62 @@ chkBoxes.forEach(function(c){ c.addEventListener('change', chkUpdate); });
 
 })();
 </script>
+<!-- TOT-JS-BEGIN ★劇場の窓。正本は hoken-newtools-src/tot/tot-parts.html -->
+<div class="tot-modal" id="totModal" aria-hidden="true">
+  <div class="tot-modal-back" data-tot-close></div>
+  <div class="tot-modal-panel" role="dialog" aria-modal="true" aria-labelledby="totModalTitle">
+    <div class="tot-modal-top">
+      <button type="button" class="tot-modal-close" data-tot-close aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <span class="tot-chip" id="totModalChip"></span>
+    <h3 class="tot-mtitle" id="totModalTitle"></h3>
+    <div id="totModalBody"></div>
+  </div>
+</div>
+<script>
+/* 劇場の窓（TOT流の部品）。カードの中の .tot-body を窓へ写して出すだけ */
+(function () {
+  var modal = document.getElementById('totModal');
+  if (!modal) return;
+  var chip = document.getElementById('totModalChip');
+  var title = document.getElementById('totModalTitle');
+  var body = document.getElementById('totModalBody');
+  var panel = modal.querySelector('.tot-modal-panel');
+  var last = null;
+  function open(art) {
+    last = document.activeElement;
+    var isG = art.classList.contains('gyaku');
+    modal.className = 'tot-modal show ' + (isG ? 'gyaku' : 'aru');
+    chip.textContent = art.querySelector('.tot-chip').textContent;
+    title.textContent = art.getAttribute('data-title') || art.querySelector('.tot-say').textContent;
+    body.innerHTML = art.querySelector('.tot-body').innerHTML;
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    panel.scrollTop = 0;
+    modal.querySelector('.tot-modal-close').focus();
+  }
+  function close() {
+    if (!modal.classList.contains('show')) return;
+    modal.className = 'tot-modal';
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    if (last && last.focus) last.focus();
+  }
+  var cards = document.querySelectorAll('.tot-case .tot-card');
+  for (var i = 0; i < cards.length; i++) {
+    cards[i].addEventListener('click', function () {
+      var art = this.parentNode;
+      while (art && !(art.classList && art.classList.contains('tot-case'))) art = art.parentNode;
+      if (art) open(art);
+    });
+  }
+  var cl = modal.querySelectorAll('[data-tot-close]');
+  for (var j = 0; j < cl.length; j++) cl[j].addEventListener('click', close);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+})();
+</script>
+<!-- TOT-JS-END -->
 </body>
 </html>

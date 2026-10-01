@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow, noarchive">
-<meta name="description" content="メールで届いた請求書。印刷して綴じた紙は、原本ではありません。メール添付のPDF、紙のレシート、Webからダウンロードした領収書。どれを捨ててよく、どれを残すのかを、電子帳簿保存法の3本の線引きで整理します。7年後に机に残る紙の枚数を出す試算付き。株式会社Office-M作成の情報提供資料。">
-<title>印刷して綴じた紙は、原本ではありません｜領収書を「捨てられる・捨てられない」チェック｜株式会社Office-M</title>
+<meta name="description" content="メールで届いた請求書。印刷して綴じた紙は、原本ではありません。メール添付のPDF、紙のレシート、Webからダウンロードした領収書。どれを捨ててよく、どれを残すのかを、電子帳簿保存法の3本の線引きで整理し、面談での返し方までまとめた学習ツールです。株式会社Office-M作成の情報提供資料。">
+<title>鍵の写真を撮ったら、本物の鍵を捨てますか——電子で届いた書類の保存｜株式会社Office-M</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 6 8 18v10c0 16 10 26 24 30 14-4 24-14 24-30V18Z' fill='%2324729f'/%3E%3Cpath d='M32 20v22M22 28h20M22 35h20' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
 <style>
 :root{
@@ -806,6 +806,210 @@ footer.disclaimer p{font-size:.8rem;color:var(--muted);line-height:1.9;}
 /* 使いみちの色分け（出ていくお金／戻るお金） */
 .tl-fill.back{background:linear-gradient(90deg,var(--mint),var(--green));}
 </style>
+<!-- TOT-CSS-BEGIN ★TOT流の部品。正本は hoken-newtools-src/tot/tot-parts.html -->
+<style>
+/* ===== TOT流の部品（.tot- で始まるものだけ。ページの既存の決まりは触らない） =====
+   2026-10-01 ユーザー指示「入ってすぐが暗くて見にくい。以前のように明るい入りに。下のHPと喧嘩をしない色合い・書体に。基本的に明朝体に」
+   → 入口の地はページのもとの明るい地（.hero）のまま。紺の地は使わない。見出しと強調は明朝体、本文はページの本文の書体を受け継ぐ */
+:root{
+  --tot-ink:#1b3f5e;
+  --tot-m:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho",YuMincho,"游明朝体","游明朝","Noto Serif JP","Noto Serif CJK JP","MS PMincho","ＭＳ Ｐ明朝",serif;
+  --tot-num:linear-gradient(135deg,#c2452a,#a8601a);
+  --tot-mark:linear-gradient(transparent 62%,#ffd9a8 62%);
+}
+/* --- 掴み（ヘッダー）。地・社名の行はページのもとの .hero のまま ---
+   2026-10-01 ユーザー指示「空白も気になるし縦長2つの配置ではなく、横にしてください」
+   → PC は「上の段＝見出し（左）と絵（右）／下の段＝種明かしと最初のひと言を同じ幅で横に並べる／その下に目次」。
+     左の列に縦に積み、右に絵を1枚置く形（右の絵の上下が空く）には戻さない。携帯は縦に積む */
+.hero.tot-hero{padding:22px 0 40px;}
+.tot-pair{display:grid;gap:14px;}
+@media(min-width:768px){
+  .tot-hero .hero-flex{
+    display:grid;grid-template-columns:minmax(0,1fr) 300px;
+    column-gap:28px;row-gap:0;align-items:center;
+  }
+  .tot-hero .hero-copy{display:contents;}
+  .tot-hero h1{grid-column:1;grid-row:1;}
+  .tot-hero .hero-scene{grid-column:2;grid-row:1;flex:none;width:auto;max-width:none;margin:16px 0 20px;align-self:center;}
+  /* 幅の配分はページごと（apply_tot.py の pair_cols が文の量から選んで --tot-cols に書く）＝高さを揃えて下の空きを作らない */
+  .tot-pair{grid-column:1/-1;grid-row:2;grid-template-columns:var(--tot-cols,1fr 1fr);gap:16px;align-items:stretch;}
+  .tot-hero .tot-nav{grid-column:1/-1;grid-row:3;}
+}
+.tot-hero h1{
+  font-family:var(--tot-m);font-weight:800;color:var(--navy,#1b3f5e);
+  font-size:clamp(1.82rem,7.4vw,3.05rem);line-height:1.4;letter-spacing:.02em;
+  margin:24px 0 18px;
+}
+@media(min-width:768px){ .tot-hero h1{font-size:clamp(2.2rem,3.6vw,2.7rem);} }
+.tot-hero h1 .accent{background:var(--tot-mark);color:inherit;padding:0 2px;}
+.tot-hero .hero-scene{
+  background:#fff;border-radius:30px;padding:12px;
+  box-shadow:var(--shadow,0 6px 20px rgba(130,100,80,.09));
+}
+@media(max-width:767px){ .tot-hero .hero-scene{display:none;} }
+/* --- 本文に共通する「年代別のカード」（.age-cards）。直す前から、タブレット・小さめのPCで横にはみ出していた（2026-10-01 実測。
+   金額の太字が折り返さず、3列の箱を押し広げていた）。960px 未満は1列、金額の行は折り返してよいことにする --- */
+.age-cards{grid-template-columns:minmax(0,1fr);}
+@media(min-width:700px){ .age-cards{grid-template-columns:minmax(0,1fr);} }
+@media(min-width:960px){ .age-cards{grid-template-columns:repeat(3,minmax(0,1fr));} }
+.age-card{min-width:0;}
+.age-card .row{flex-wrap:wrap;}
+.age-card .row b{white-space:normal;}   /* 3列のとき長い文がはみ出した（相続放棄のページ・1024px） */
+.tot-lab{
+  display:inline-block;flex:0 0 auto;font-family:var(--tot-m);
+  font-size:.82rem;font-weight:800;letter-spacing:.08em;line-height:1.5;
+  padding:3px 12px;border-radius:999px;background:var(--amber-bg,#fdf3e2);color:var(--amber-deep,#a85c12);
+  border:1px solid var(--amber-border,#f2dcae);
+}
+.tot-answer{
+  display:flex;flex-direction:column;gap:8px;align-items:flex-start;
+  background:rgba(255,255,255,.88);border:1px solid var(--line,#efe2d8);
+  border-left:5px solid var(--coral,#f0846a);border-radius:14px;
+  padding:14px 16px;margin:0;
+  font-size:1.02rem;line-height:1.85;color:var(--text,#33404d);
+  box-shadow:var(--shadow-sm,0 3px 10px rgba(130,100,80,.07));
+}
+.tot-answer p{font-size:1rem;line-height:1.85;}
+.tot-answer strong{color:var(--navy,#1b3f5e);background:var(--tot-mark);}
+.tot-first{
+  background:#fff;color:var(--navy,#1b3f5e);border-radius:18px;border:1px solid var(--line,#efe2d8);
+  padding:14px 18px 15px;box-shadow:var(--shadow,0 6px 20px rgba(130,100,80,.09));
+}
+.tot-first .tot-lab{background:var(--sky-bg,#e8f4fb);color:var(--sky,#24729f);border-color:var(--sky-border,#c6e2f2);}
+.tot-first-q{
+  font-family:var(--tot-m);font-weight:800;color:var(--navy,#1b3f5e);
+  font-size:clamp(1.1rem,4.5vw,1.4rem);line-height:1.65;margin-top:8px;
+}
+.tot-first-note{font-size:.86rem;line-height:1.75;color:var(--muted,#5c6874);margin-top:6px;}
+.tot-nav{display:flex;flex-wrap:wrap;gap:9px;margin-top:18px;}
+.tot-nav a{
+  display:inline-flex;align-items:center;min-height:44px;padding:9px 17px;
+  border-radius:999px;background:#fff;border:2px solid #fff;box-shadow:var(--shadow-sm,0 3px 10px rgba(130,100,80,.07));
+  color:var(--navy,#1b3f5e);text-decoration:none;font-family:var(--tot-m);font-weight:700;font-size:.92rem;
+}
+.tot-nav a:hover,.tot-nav a:active{background:#fff4e9;}
+.tot-nav a:focus-visible{outline:2px solid var(--coral,#f0846a);outline-offset:2px;}
+
+/* --- 節の頭 --- */
+.tot-kicker{
+  display:inline-block;font-family:var(--tot-m);font-weight:800;font-size:.8rem;letter-spacing:.12em;
+  color:#8a5c0e;background:#fdf3e2;padding:4px 13px;border-radius:999px;margin-bottom:10px;
+}
+.tot-sec h2,.tot-core h2{font-family:var(--tot-m);font-weight:800;}
+.tot-lead{margin-top:6px;max-width:40em;}
+
+/* --- 30秒の核心 --- */
+.tot-lines{list-style:none;counter-reset:tl;margin:18px 0 26px;display:grid;gap:12px;}
+.tot-lines li{
+  counter-increment:tl;display:grid;grid-template-columns:46px 1fr;gap:2px 14px;align-items:start;
+  background:var(--bg,#fff8f2);border-radius:16px;padding:14px 16px;
+}
+.tot-lines li::before{
+  content:counter(tl);grid-row:span 2;width:44px;height:44px;border-radius:50%;
+  background:var(--tot-num);color:#fff;font-family:var(--tot-m);font-weight:800;font-size:1.25rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.tot-lines b{font-family:var(--tot-m);font-weight:800;font-size:clamp(1.06rem,4.2vw,1.28rem);line-height:1.55;color:var(--navy,#1b3f5e);}
+.tot-lines span{font-size:.95rem;line-height:1.8;color:var(--muted,#5c6874);}
+.tot-flow{border:2px solid var(--line,#efe2d8);border-radius:18px;padding:16px;}
+.tot-flow-cap{font-family:var(--tot-m);font-weight:800;color:var(--navy,#1b3f5e);margin-bottom:10px;}
+.tot-flow ol{list-style:none;display:grid;gap:10px;grid-template-columns:1fr;}
+/* PC は2段×2列（2026-10-01 スキル design-readability で測り直し。4列だと1行9字前後に細り、4段目だけ縦に長くなった） */
+@media(min-width:760px){ .tot-flow ol{grid-template-columns:repeat(2,1fr);} }
+.tot-flow li{background:#fff;border-radius:14px;padding:12px 14px;box-shadow:var(--shadow-sm,0 3px 10px rgba(0,0,0,.06));}
+.tot-flow li b{display:flex;align-items:center;gap:8px;font-family:var(--tot-m);font-weight:800;color:var(--navy,#1b3f5e);margin-bottom:2px;}
+.tot-flow li b i{
+  font-style:normal;flex:0 0 26px;width:26px;height:26px;border-radius:50%;
+  background:var(--tot-num);color:#fff;font-size:.85rem;
+  display:inline-flex;align-items:center;justify-content:center;
+}
+.tot-flow li span{display:block;font-size:.92rem;line-height:1.75;}
+.tot-flow li.last{background:var(--amber-bg,#fdf3e2);}
+
+/* --- 劇場のカード --- */
+.tot-grid{display:grid;gap:14px;grid-template-columns:1fr;margin-top:18px;}
+@media(min-width:700px){ .tot-grid{grid-template-columns:repeat(2,1fr);} }
+.tot-card{
+  width:100%;height:100%;text-align:left;background:#fff;border:none;border-radius:20px;
+  padding:18px 18px 16px;box-shadow:var(--shadow,0 6px 20px rgba(0,0,0,.08));cursor:pointer;
+  font-family:inherit;color:inherit;display:flex;flex-direction:column;gap:6px;transition:transform .12s;
+}
+.tot-card:active{transform:scale(.985);}
+.tot-chip{
+  align-self:flex-start;font-family:var(--tot-m);font-size:.82rem;font-weight:800;letter-spacing:.06em;
+  padding:3px 11px;border-radius:999px;background:var(--red-bg,#fdeee9);color:var(--red-dark,#a63631);
+}
+.gyaku .tot-chip{background:var(--green-bg,#e8f6ef);color:var(--green,#2c7a4b);}
+.tot-say{font-family:var(--tot-m);font-weight:800;font-size:clamp(1.05rem,4vw,1.2rem);line-height:1.6;color:var(--navy,#1b3f5e);}
+.tot-who{font-size:.8rem;line-height:1.6;color:var(--muted,#5c6874);}
+.tot-more{
+  margin-top:auto;padding-top:6px;font-family:var(--tot-m);font-size:.84rem;font-weight:800;
+  color:#c2451f;white-space:nowrap; /* ページの --coral-text は明るいページがある（終身保険で白地に 4.0）。字は濃い朱に揃える */
+}
+.gyaku .tot-more{color:var(--green,#2c7a4b);}
+.tot-note{font-size:.84rem;line-height:1.75;color:var(--muted,#5c6874);margin-top:16px;max-width:44em;}
+
+/* --- 劇場の窓 --- */
+.tot-modal{position:fixed;inset:0;z-index:80;display:none;}
+.tot-modal.show{display:block;}
+.tot-modal-back{position:absolute;inset:0;background:rgba(27,63,94,.42);}
+.tot-modal-panel{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(680px,calc(100% - 24px));max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow:auto;
+  background:#fff;border-radius:22px;padding:18px 20px 24px;box-shadow:0 24px 60px rgba(27,63,94,.22);
+}
+@media(max-width:560px){
+  .tot-modal-panel{left:0;right:0;top:auto;bottom:0;transform:none;width:100%;
+    max-height:92vh;max-height:92dvh;border-radius:22px 22px 0 0;padding:14px 16px 26px;}
+}
+.tot-modal-top{position:sticky;top:-18px;background:#fff;display:flex;justify-content:flex-end;padding-top:4px;z-index:1;}
+.tot-modal-close{
+  width:44px;height:44px;border-radius:50%;border:none;background:#eef2f6;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.tot-modal-close svg{width:20px;height:20px;stroke:var(--tot-ink);}
+.tot-mtitle{font-family:var(--tot-m);font-weight:800;font-size:clamp(1.12rem,4.4vw,1.32rem);color:var(--navy,#1b3f5e);line-height:1.6;margin:8px 0 6px;}
+.tot-blk{border-radius:14px;padding:12px 14px;margin-top:10px;background:#f6f7f9;}
+.tot-blk p,.tot-blk blockquote{font-size:.98rem;line-height:1.85;}
+.tot-blk blockquote{margin:0;}
+.tot-bl{font-family:var(--tot-m);font-weight:800;font-size:.8rem !important;letter-spacing:.06em;margin-bottom:4px;line-height:1.5 !important;}
+.tot-blk.scene .tot-bl{color:#5c6874;}
+.tot-blk.scene small{display:block;margin-top:4px;color:#7a8590;font-size:.8rem;}
+.tot-blk.ng{background:#fdeee9;}
+.tot-blk.ng .tot-bl{color:#a63631;}
+.tot-blk.ng blockquote{color:#7a3a35;}
+.tot-why{font-size:.9rem !important;color:#6b4a45;margin-top:4px;}
+.tot-blk.ok,.tot-blk.key{background:#eaf1f7;border-left:5px solid var(--tot-ink);}
+.tot-blk.ok .tot-bl,.tot-blk.key .tot-bl{color:var(--tot-ink);}
+.tot-blk.ok blockquote,.tot-blk.key blockquote{font-family:var(--tot-m);font-weight:800;font-size:1.06rem;color:var(--tot-ink);}
+.tot-blk.key{background:#e8f6ef;border-left-color:#2c7a4b;}
+.tot-blk.key .tot-bl{color:#2c7a4b;}
+.tot-blk.next{background:#fdf3e2;}
+.tot-blk.next .tot-bl{color:#8f6015;}
+.tot-blk.why .tot-bl{color:#5c6874;}
+.tot-blk.guard{background:#e8f4fb;}
+.tot-blk.guard .tot-bl{color:#1b5e8a;}
+
+/* --- 明日の面談で使う問い（明るい箱。紺の地は使わない） --- */
+.tot-toi{
+  background:#fff;color:var(--navy,#1b3f5e);border:2px solid var(--amber-border,#f2dcae);
+  border-radius:22px;padding:20px 18px;margin:10px 0 22px;box-shadow:var(--shadow-sm,0 3px 10px rgba(130,100,80,.07));
+}
+.tot-toi-cap{font-family:var(--tot-m);font-weight:800;color:var(--amber-deep,#a85c12);letter-spacing:.06em;font-size:.92rem;}
+.tot-toi ol{list-style:none;counter-reset:tq;display:grid;gap:10px;margin-top:10px;}
+.tot-toi li{
+  counter-increment:tq;display:flex;gap:12px;align-items:flex-start;
+  font-family:var(--tot-m);font-weight:800;font-size:clamp(1rem,4vw,1.16rem);line-height:1.65;
+}
+.tot-toi li::before{
+  content:counter(tq);flex:0 0 30px;width:30px;height:30px;border-radius:50%;margin-top:1px;
+  background:var(--tot-num);color:#fff;font-weight:800;font-size:.9rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.tot-toi-foot{font-size:.86rem;line-height:1.75;color:var(--muted,#5c6874);margin-top:12px;max-width:40em;}
+@media print{ .tot-nav,.tot-modal{display:none !important;} .tot-body[hidden]{display:block !important;} }
+</style>
+<!-- TOT-CSS-END -->
 </head>
 <body>
 <!-- OMGATE-BEGIN ★合言葉の扉。正本は hoken-gate-src/gate.html。ページ側を直接編集しないこと（apply_gate.py で入れ直すと消える） -->
@@ -1099,22 +1303,20 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
 <!-- OMLOG-END -->
 
 
-<header class="hero">
+<header class="hero tot-hero">
   <div class="wrap">
     <div class="brand"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg></span>
       <span>株式会社Office-M<small>会計を母体に、数字の「小さな字」まで読み解いてご案内します</small></span></div>
     <div class="hero-flex">
       <div class="hero-copy">
-        <h1>メールで届いた請求書。<br><span class="nowrap">印刷して綴じた紙は、</span><span class="nowrap"><span class="accent">原本</span>ではありません。</span></h1>
-        <p class="lead">「印刷して綴じてあるから大丈夫」。「スキャンしてクラウドに入れたから、紙は捨てていい」。どちらも、そのままでは正確ではありません。いま書類を分けている線は、<strong>紙で受け取ったか、データで受け取ったか</strong>という一本目の線と、<strong>捨ててよい形で保存できているか</strong>という二本目の線でできています。このページでは、①受け取り方で決まる原本の話、②紙を捨てるための条件、③あとから探せる形にする話、の3つを整理します。○×クイズは3分、全部読んでも10分ほどです。</p>
-        <nav class="hero-nav" aria-label="ページ内メニュー">
-          <a href="#sec1"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h9"/></svg>3本の線引き</a>
-          <a href="#sec2"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/></svg>○×ワナクイズ</a>
-          <a href="#sec3"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="16" r="3"/><path d="M18 6 6 18"/></svg>誤解を解剖する</a>
-          <a href="#sec4"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0-3.3 11 3 3 0 0 1 1.1 1.9l.03.35h4.34l.03-.35a3 3 0 0 1 1.1-1.9A6 6 0 0 0 12 3Z"/><path d="M9.8 19.2h4.4M10.7 21.7h2.6"/></svg>あるある劇場</a>
-          <a href="#sec5"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="8" width="17" height="12.5" rx="2.5"/><path d="M3.5 12h17M12 8v12.5"/></svg>逆転劇場</a>
-          <a href="#sec6"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5h16M7 16V9.5M12 16V5.5M17 16v-4"/></svg>年数の話</a>
-        </nav></div>
+        <!-- TOT-HERO-BEGIN ★TOT流の掴み。正本は hoken-newtools-src/tot/denshichoubo-check.json（apply_tot.py で入れ直す） -->
+        <h1>鍵の写真を撮ったら、<br>本物の鍵を<br><span class="accent">捨てますか</span>。</h1>
+        <div class="tot-pair" style="--tot-cols:6fr 5fr">
+        <div class="tot-answer"><span class="tot-lab">種明かし</span><p>メールやサイトで受け取った請求書・見積書は、<strong>データそのものが原本</strong>です。印刷して綴じた紙は、鍵の写真と同じで控えにすぎません。データを消せば、原本は残りません。<strong>保険会社からのお知らせや、担当者がメールで送る見積書も、受け取った会社では同じ線に乗ることがあります</strong>。</p></div>
+        <div class="tot-first"><span class="tot-lab">面談の最初のひと言</span><p class="tot-first-q">「保険会社からの書類は、どなたのアドレスに届いていますか。」</p><p class="tot-first-note">経理の方が替わっても、届く先が昔のままのことがあります。保存の話より先に、届く先と置き場所を一緒に確かめます。</p></div>
+        </div>
+        <nav class="tot-nav" aria-label="ページ内メニュー"><a href="#tot-core">30秒の核心</a><a href="#aru">現場あるある</a><a href="#gyaku">逆転劇場</a><a href="#toi">明日の3つの問い</a><a href="#sec1">3本の線引き</a><a href="#sec3">誤解を解剖</a><a href="#sec6">年数の話</a><a href="#matome">書類チェック</a></nav>
+        <!-- TOT-HERO-END --></div>
       <div class="hero-scene" aria-hidden="true">
         <svg viewBox="0 0 360 212">
           <circle cx="310" cy="38" r="32" fill="#ffd9a8" opacity=".45"/><circle cx="310" cy="38" r="21" fill="#f7c34e"/><ellipse cx="60" cy="32" rx="26" ry="10" fill="#fff" opacity=".95"/>
@@ -1128,6 +1330,18 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
         </svg></div>
     </div></div>
 </header>
+
+<!-- TOT-CORE-BEGIN ★30秒の核心。正本は hoken-newtools-src/tot/denshichoubo-check.json -->
+<section id="tot-core" class="band round-top tot-core">
+  <div class="wrap">
+    <span class="tot-kicker">30秒の核心</span>
+    <h2>社長に伝えるのは、<span class="nowrap">この3行だけ。</span></h2>
+    <p class="sec-lead tot-lead">電子帳簿の話を制度の説明から始めると、社長の手は止まります。先にこの3行を渡し、細かい要件と年数は顧問の税理士につなぎます。</p>
+    <ol class="tot-lines"><li><b>受け取り方で、原本が決まる。</b><span>紙で届いたものは紙が、メールやサイトで届いたものはデータが原本です。印刷して綴じても、データを消せば原本は残りません。</span></li><li><b>担当者が送る見積書も、お客様の会社の書類になる。</b><span>保険会社からの払込みのお知らせや、メールでお送りする見積書も、データで受け取れば電子取引の書類にあたることがあります。どれが当たるか、何年残すかは顧問の税理士に確かめます。</span></li><li><b>最初に聞くのは、届く先と置き場所。</b><span>保険の書類がどのアドレスに届き、どこに残っているか。担当の方が替わっても見つかる形かを、一緒に確かめます。</span></li></ol>
+    <div class="tot-flow"><p class="tot-flow-cap">面談の流れ（この順で話すと、押さずに進みます）</p><ol><li><b><i>1</i>聞く</b><span>保険会社からの書類が、紙とデータのどちらで、どなたのアドレスに届いているかを伺う。</span></li><li><b><i>2</i>確かめる</b><span>登録のアドレスと送付先が今の担当の方になっているかを、保険会社で確かめる。</span></li><li><b><i>3</i>そろえる</b><span>契約ごとの一覧と書類の置き場所を1枚にし、社長から顧問の税理士へ渡していただく。</span></li><li class="last"><b><i>4</i>持ち帰る</b><span>その場で決めていただく必要はありません。保存の決まりは、顧問の税理士と社内で決めていただく。</span></li></ol></div>
+  </div>
+</section>
+<!-- TOT-CORE-END -->
 
 <section id="sec1">
   <div class="wrap">
@@ -1247,72 +1461,13 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
     <div class="note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>3本の線に共通しているのは、書類の中身ではなく<strong>受け取り方と保存の形</strong>で扱いが決まる、ということです。なお、書類の保存は法人税・所得税・消費税それぞれの取扱いに関わります。どの書類を何年残すか、消費税の仕入税額控除との関係はどうかといった個別の税額計算・申告については税理士にご確認ください。</span></div>
   </div></section>
 
-<!-- ================= セクション2：○×クイズ ================= -->
-<section id="sec2" class="band round-top">
-  <div class="wrap">
-    <div class="sec-head"><div><span class="step-pill"><i>2</i><span>思い込みをチェック</span></span>
-      <h2>捨てる前に、<span class="nowrap">○×クイズ</span>8問</h2></div>
-      <div class="spot"><span class="spot-circle" data-art="spotQuiz" aria-hidden="true"></span></div></div>
-    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">ここからは8問の○×クイズです。全て、実在する決まりごとがモデルになっています。半分くらい間違えるのが普通なので、気楽にどうぞ。大事なのは点数ではなく、間違えた問題が「次に開くフォルダ」を教えてくれることです。</p></div>
-    <div class="quiz-shell">
-      <div id="quizPlay">
-        <div class="q-top">
-          <div class="q-count">質問 <span id="qNum">1</span> ／ 8</div>
-          <div class="dots" id="qDots" aria-hidden="true"></div>
-        </div>
-        <div class="q-body">
-          <div class="icon" id="qIcon" aria-hidden="true"></div>
-          <p id="qText"></p>
-        </div>
-        <div class="ans-row">
-          <button type="button" class="ans-btn yes" id="btnYes">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/></svg>
-            <span id="lblYes">捨てられる</span>
-          </button>
-          <button type="button" class="ans-btn no" id="btnNo">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
-            <span id="lblNo">捨てられない</span>
-          </button>
-        </div>
-        <div class="verdict" id="verdict" aria-live="polite">
-          <div class="verdict-head">
-            <span class="verdict-answer" id="vAnswer"></span>
-            <span class="result-chip" id="vChip"></span>
-          </div>
-          <p class="expl" id="vExpl"></p>
-          <div class="kv kv-wana"><b>ワナの正体：</b><span id="vWana"></span></div>
-          <div class="kv"><b>確認ポイント：</b><span id="vCheck"></span></div>
-        </div>
-        <button type="button" class="btn-primary" id="btnNext" style="display:none;">
-          次の質問へ
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </button>
-        <button type="button" class="btn-ghost" id="btnStopHere" style="display:none;">ここまでの結果を見る（残りはあとでも大丈夫です）</button>
-      </div>
-
-      <div class="quiz-done" id="quizDone">
-        <p class="score">クイズおつかれさまでした！　<span class="nowrap"><span id="doneTotal">8</span>問中 <span class="num" id="doneScore">0</span> 問正解</span></p>
-        <p class="cmt" id="doneCmt"></p>
-        <div class="wrong-list" id="wrongList" style="display:none;"></div>
-        <div data-cta-mini></div>
-        <button type="button" class="btn-ghost" id="btnMailSelf">この結果を自分（または経理の担当者）に送る</button>
-        <button type="button" class="btn-ghost" id="btnPrint">印刷して、会計ソフトの取扱説明書と一緒に保管する</button>
-        <button type="button" class="btn-ghost" id="btnRetry">もう一度挑戦する</button>
-      </div>
-
-    <div class="note">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
-      <span>各問は一般的な取扱いを前提とした例です。実際の結論は、契約内容・受け渡しの経路・事業の規模などの事実関係によって変わります。ひっかかった問題があったら、それが手元の書類を出してみるタイミングです。</span>
-    </div>
-  </div>
-</section>
 
 <section id="sec3" class="band-sky round-top">
   <div class="wrap">
-    <div class="sec-head"><div><span class="step-pill"><i>3</i><span>いちばん多い誤解</span></span>
+    <div class="sec-head"><div><span class="step-pill"><i>2</i><span>いちばん多い誤解</span></span>
       <h2>「スキャンしてる」を<span class="nowrap">解剖します</span></h2></div>
       <div class="spot"><span class="spot-circle" data-art="spotCalc" aria-hidden="true"></span></div></div>
-    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">「うちはスキャンしてクラウドに入れてるから大丈夫」。よく伺う言葉です。でも、この一言には3つの別々の話が混ざっています。原本はどちらか、捨ててよい形か、探せるか。混ざったままだと判断できないので、ここで数字と表に置き換えて解剖します。</p></div>
+    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">「うちはスキャンしてクラウドに入れてるから大丈夫」。よく伺う言葉です。でも、この一言には3つの別々の話が混ざっています。原本はどちらか、捨ててよい形か、探せるか。混ざったままだと判断できないので、ここで表に置き換えて解剖します。</p></div>
     <p class="sec-lead">受け取り方ごとに、紙とデータのどちらを残すのかを並べたのが次の表です。行ごとに答えが違う、というところを見てください。</p>
     <div class="type-table-box">
       <table class="type-table" aria-label="受け取り方ごとに、紙の原本とデータのどちらを保存すべきかを比べた表">
@@ -1324,72 +1479,53 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
           <tr><td>紙で受領（条件が未整備）</td><td>捨てられません</td><td>控えとして自由</td></tr>
         </tbody></table>
       <p class="venn-cap">※この表は、電子取引データ保存とスキャナ保存の一般的な取扱いを単純化したものです。実際には書類の種類（重要書類か一般書類か）や、使っているシステムの仕様によって結論が変わることがあります。</p></div>
-    <p class="sec-lead">では、いまの運用のままだと、何年後に机の上に何枚の紙が残るのでしょうか。数字にしてみます。</p>
-    <div class="sim-box">
-      <h3>「何年後に、紙は何枚残る？」</h3>
-      <p class="sub">月に受け取る紙の枚数と、いまの運用を入れると、保存し続ける紙の枚数が出ます。このページの説明用に単純化した概算です。</p>
-      <div class="sim-ctrl">
-        <label for="simA">月に受け取る紙の領収書・請求書<output id="simAOut">30枚</output></label>
-        <input type="number" id="simA" value="30" min="0" max="3000" step="5" inputmode="numeric" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;">
-        <p style="font-size:.8rem;color:#5c6874;margin-top:5px;">単位は枚。レジのレシートも1枚と数えてください（例：30）</p></div>
-      <div class="sim-ctrl"><label for="simB">紙のいまの扱い</label>
-        <select id="simB" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;"><option value="1">条件を満たしてスキャナ保存している</option><option value="2" selected>スキャンはしているが条件は未確認</option><option value="3">紙のまま綴じて保管している</option></select></div>
-      <div class="sim-ctrl">
-        <label for="simD">月に受け取る電子データ（メール・Web）<output id="simDOut">20件</output></label>
-        <input type="number" id="simD" value="20" min="0" max="3000" step="5" inputmode="numeric" style="width:100%;padding:11px 13px;border:2px solid #efe2d8;border-radius:12px;font-size:1.05rem;font-family:inherit;background:#fff;color:#33404d;">
-        <p style="font-size:.8rem;color:#5c6874;margin-top:5px;">単位は件。PDFの請求書、サイトの領収書など（例：20）</p></div>
-      <label class="sim-check"><input type="checkbox" id="simC">欠損金が生じた事業年度がある（保存期間が長くなります）</label>
-      <div class="timeline" aria-hidden="true"><div class="tl-track"><div class="tl-fill" id="tlFill" style="width:2%;"></div>
-          <div class="tl-goal" style="left:50%;">段ボール10箱<br>だいたいこのあたり</div></div>
-        <div class="tl-labels"><span>0箱</span><span>10箱</span><span>20箱</span></div></div>
-      <div class="sim-results" aria-live="polite">
-        <div class="sim-r" id="simR1"><h4>紙の原本<small>捨ててよいか</small></h4><span class="r-chip" id="simR1Chip"></span><p id="simR1Txt"></p></div>
-        <div class="sim-r" id="simR2"><h4>保存する年数<small>いつまで置くか</small></h4><span class="r-chip" id="simR2Chip"></span><p id="simR2Txt"></p></div>
-        <div class="sim-r" id="simR3"><h4>電子データ<small>枚数とは別の話</small></h4><span class="r-chip" id="simR3Chip"></span><p id="simR3Txt"></p></div>
-      </div>
-      <div class="sim-total">
-        <span class="lead" id="simTotalLead">この条件なら</span>
-        <span class="big" id="simTotalBig"></span><span class="sub2" id="simTotalSub"></span></div>
-      <p class="venn-cap" style="margin-top:10px;">※保存年数は、法人の帳簿書類の保存期間の原則7年と、欠損金が生じた事業年度の10年をもとにした概算です。個人事業の場合や、書類の種類による違い、会社法にもとづく保存は考慮していません。段ボール1箱は約2,500枚として計算しています。どの書類を何年残すかという個別の判断や、実際の税額計算・申告については税理士にご確認ください。</p></div>
+    <p class="sec-lead">では、いちばん気をつけたいのは何でしょうか。紙の枚数ではありません。</p>
     <div class="mikane" style="margin-top:26px;">
       <h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>本当に怖いのは、紙が増えることではありません</h3>
       <ol><li><strong>データを消してしまうこと。</strong>紙は場所を取るだけですが、消えたデータは戻りません。メールの自動削除、退職者のアカウント停止、サービスの解約が三大原因です。</li>
         <li><strong>探せないこと。</strong>保存してあっても出てこなければ、調査の場では説明ができません。置き場所とファイル名を決めるだけで、この不安はほぼ消えます。</li>
         <li><strong>決めていないこと。</strong>誰がいつどこに保存するかが決まっていないと、担当者が替わった瞬間に運用が止まります。制度より先に、社内の約束事です。</li></ol>
       <p class="caution"><strong>いちばん多い失敗は、紙とデータの二重保存です。</strong>どちらも残しておけば安心、と両方を保存した結果、<b>どちらが原本か分からなくなり</b>、金額を直した版と直す前の版が別々の場所に残ってしまう。整理のつもりが、かえって説明しにくい状態を作ってしまいます。控えを残すこと自体は自由ですが、<b>原本はこちら</b>と決めた置き場所を1つだけ作ってください。</p></div>
-    <div class="note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>数字にしてみると、紙の枚数そのものより「決めていない時間の長さ」がきいてくることが分かります。まず今月の1か月分だけ、決めた場所に入れてみるところから始めてみてください。</span></div>
+    <div class="note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>並べてみると、紙の枚数そのものより「決めていない時間の長さ」がきいてくることが分かります。まず今月の1か月分だけ、決めた場所に入れてみるところから始めてみてください。</span></div>
   </div></section>
 
-<section id="sec4" class="band-blush round-top">
+<!-- TOT-GEKI-BEGIN ★現場あるある・逆転劇場・明日の問い。正本は hoken-newtools-src/tot/denshichoubo-check.json -->
+<section id="aru" class="band-blush round-top tot-sec">
   <div class="wrap">
-    <div class="sec-head"><div><span class="step-pill"><i>4</i><span>実話がモデルの寸劇集</span></span>
-      <h2>書類まわりのあるある劇場</h2></div>
-      <div class="spot"><span class="spot-circle" data-art="spotTheater" aria-hidden="true"></span></div></div>
-    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">ここからは6つの寸劇です。どれも、真面目にやっていた人がつまずいた話ばかり。気になる演目をタップして開いてみてください。</p></div>
-    <div class="case-grid" id="caseGrid"></div>
-    <div class="note"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>各演目は一般的な内容をもとにした創作例で、実在の個人・事案とは関係ありません。実際の取扱いは、受け渡しの経路・書類の種類・使っているシステムによって変わります。</span></div>
-  </div></section>
+    <span class="tot-kicker">現場あるある</span>
+    <h2>社長のひと言、<span class="nowrap">どう返しますか。</span></h2>
+    <p class="sec-lead tot-lead">書類の保存の話でよく出る社長や経理の方のひと言と、やりがちな返し、トップ営業の返しを並べました。カードを押すと、返し方と次の一手が出ます。</p>
+    <div class="tot-grid">
+      <article class="tot-case aru" data-title="「保険会社のお知らせは、全部印刷してファイルに綴じてありますよ。」"><button type="button" class="tot-card"><span class="tot-chip">印刷して綴じた</span><span class="tot-say">「保険会社のお知らせは、全部印刷してファイルに綴じてありますよ。」</span><span class="tot-who">50代・建設業の社長。奥様が経理を担当</span><span class="tot-more">返し方を見る</span></button><div class="tot-body" hidden><div class="tot-blk scene"><p class="tot-bl">場面</p><p>50代・建設業の社長。奥様が経理を担当</p></div><div class="tot-blk ng"><p class="tot-bl">やりがちな返し</p><blockquote>「それなら安心ですね。」</blockquote><p class="tot-why">データで受け取ったものは、データのほうが原本です。紙がそろっていても、メールが消えれば原本は残りません。ここで頷くと、消える日まで誰も気づきません。</p></div><div class="tot-blk ok"><p class="tot-bl">トップ営業の返し</p><blockquote>「きちんと綴じていらっしゃいますね。一つだけ、元のメールが今も残っているかを見せていただけますか。データで届いたものは、データのほうが原本になることがあります。」</blockquote></div><div class="tot-blk next"><p class="tot-bl">次の一手</p><p>受信箱を保険会社の名前で検索し、古いメールが残っているかと、自動で消える設定になっていないかを一緒に確かめる。</p></div><div class="tot-blk guard"><p class="tot-bl">線引き</p><p>どの書類が電子取引にあたるか、何年残すかの判断は税理士の領分です。こちらは保険の書類の届き方をそろえるところまで。</p></div></div></article>
+      <article class="tot-case aru" data-title="「前の経理が辞めてから、保険のメールがどこに届いているのか分からなくて。」"><button type="button" class="tot-card"><span class="tot-chip">辞めた経理の方</span><span class="tot-say">「前の経理が辞めてから、保険のメールがどこに届いているのか分からなくて。」</span><span class="tot-who">40代・運送業の社長。経理の担当が替わって半年</span><span class="tot-more">返し方を見る</span></button><div class="tot-body" hidden><div class="tot-blk scene"><p class="tot-bl">場面</p><p>40代・運送業の社長。経理の担当が替わって半年</p></div><div class="tot-blk ng"><p class="tot-bl">やりがちな返し</p><blockquote>「では、新しいご担当の方のアドレスに登録し直しましょう。」</blockquote><p class="tot-why">届く先を変えるだけでは、前の方の受信箱に残っている過去のお知らせが戻りません。アカウントを止めた日に、一緒に見られなくなります。</p></div><div class="tot-blk ok"><p class="tot-bl">トップ営業の返し</p><blockquote>「よくあるご相談です。届く先を直す前に、前の方のアカウントが今も残っているかを確かめさせてください。止める前なら、過去のお知らせを会社の置き場所へ移せます。」</blockquote></div><div class="tot-blk next"><p class="tot-bl">次の一手</p><p>前の方のアカウントの扱いを社内の担当の方に確かめていただく。届く先は、契約者の手続きで会社の共通のアドレスに変える。</p></div><div class="tot-blk guard"><p class="tot-bl">線引き</p><p>アカウントの扱いは御社の決まりで決めていただきます。届く先の変更は、契約者からの手続きで保険会社が行います。</p></div></div></article>
+      <article class="tot-case aru" data-title="「見積書はメールでもらえれば十分です。印刷はこちらでしますから。」"><button type="button" class="tot-card"><span class="tot-chip">見積書をメールで</span><span class="tot-say">「見積書はメールでもらえれば十分です。印刷はこちらでしますから。」</span><span class="tot-who">40代・卸売業の専務。経理も兼ねている</span><span class="tot-more">返し方を見る</span></button><div class="tot-body" hidden><div class="tot-blk scene"><p class="tot-bl">場面</p><p>40代・卸売業の専務。経理も兼ねている</p></div><div class="tot-blk ng"><p class="tot-bl">やりがちな返し</p><blockquote>「承知しました。では、PDFでお送りしておきます。」</blockquote><p class="tot-why">お送りすること自体は問題ありません。ただ、受け取った会社ではデータが原本になることがあり、印刷して終わりにすると、メールを消した日に原本が無くなります。</p></div><div class="tot-blk ok"><p class="tot-bl">トップ営業の返し</p><blockquote>「ありがとうございます。お送りするPDFは、印刷した紙ではなくデータのほうを残していただけますか。こちらでファイルの名前を、探しやすい形にそろえてお送りします。」</blockquote></div><div class="tot-blk next"><p class="tot-bl">次の一手</p><p>送るファイルの名前を、日付・会社名・書類の中身の形にそろえる。保存の扱いは、顧問の税理士に確かめていただく。</p></div><div class="tot-blk guard"><p class="tot-bl">線引き</p><p>受け取った書類をどう保存するかは、お客様の会社と顧問の税理士で決めることです。こちらは送る側の形をそろえるところまで。</p></div></div></article>
+      <article class="tot-case aru" data-title="「証券も全部スキャンしたので、紙は捨ててもいいですよね。」"><button type="button" class="tot-card"><span class="tot-chip">スキャンしたから</span><span class="tot-say">「証券も全部スキャンしたので、紙は捨ててもいいですよね。」</span><span class="tot-who">30代・IT企業の社長。オフィスの移転の前</span><span class="tot-more">返し方を見る</span></button><div class="tot-body" hidden><div class="tot-blk scene"><p class="tot-bl">場面</p><p>30代・IT企業の社長。オフィスの移転の前</p></div><div class="tot-blk ng"><p class="tot-bl">やりがちな返し</p><blockquote>「データがあれば大丈夫だと思いますよ。」</blockquote><p class="tot-why">紙で受け取ったものを捨てられるのは、条件を満たした保存ができてからです。証券が保険の手続きで求められることもあります。こちらが「大丈夫」と言える話ではありません。</p></div><div class="tot-blk ok"><p class="tot-bl">トップ営業の返し</p><blockquote>「移転の前は、すっきりさせたくなりますよね。捨てる前に二つだけ。紙を捨ててよい保存になっているかは顧問の先生に、証券が要る手続きは保険会社に、それぞれ確かめませんか。」</blockquote></div><div class="tot-blk next"><p class="tot-bl">次の一手</p><p>証券の一覧を作り、紙の保管場所を決める。スキャンの保存が条件を満たしているかは顧問の税理士に、証券が要る手続きは保険会社に確かめる。</p></div><div class="tot-blk guard"><p class="tot-bl">線引き</p><p>紙を捨ててよいかの判断は税理士、手続きに証券が要るかは保険会社で確かめます。</p></div></div></article>
+      <article class="tot-case aru" data-title="「保険料の払込みの証明は、要るときにサイトから落とせばいいでしょう。」"><button type="button" class="tot-card"><span class="tot-chip">サイトの証明書</span><span class="tot-say">「保険料の払込みの証明は、要るときにサイトから落とせばいいでしょう。」</span><span class="tot-who">50代・設計事務所の社長。マイページを使っている</span><span class="tot-more">返し方を見る</span></button><div class="tot-body" hidden><div class="tot-blk scene"><p class="tot-bl">場面</p><p>50代・設計事務所の社長。マイページを使っている</p></div><div class="tot-blk ng"><p class="tot-bl">やりがちな返し</p><blockquote>「そうですね、いつでも見られますから。」</blockquote><p class="tot-why">サイトに載っている期間には限りがあることがあります。要るときに落とす運用だと、見られなくなっている年が出ます。</p></div><div class="tot-blk ok"><p class="tot-bl">トップ営業の返し</p><blockquote>「いつでも見られると安心ですよね。ただ、載っている期間に限りがあることもあります。年に一度、書類を落として会社の置き場所へ入れる日を決めておきませんか。」</blockquote></div><div class="tot-blk next"><p class="tot-bl">次の一手</p><p>保険会社のマイページで、書類が見られる期間を確かめる。落とす書類を一覧にし、ファイルの名前の付け方を経理の方と決める。</p></div><div class="tot-blk guard"><p class="tot-bl">線引き</p><p>どの書類を残すべきか、何年残すかは顧問の税理士に確かめます。マイページで見られる期間は保険会社ごとに違います。</p></div></div></article>
+    </div>
+    <p class="tot-note">場面は、面談でよく伺うお話をもとにした創作例です。取り扱いは保険会社・商品・ご契約により異なります。</p>
+  </div>
+</section>
+<section id="gyaku" class="band-mint round-top tot-sec">
+  <div class="wrap">
+    <span class="tot-kicker">逆転劇場</span>
+    <h2>流れを変えた、<span class="nowrap">ひと言。</span></h2>
+    <p class="sec-lead tot-lead">書類の整理という社長の困りごとを、保険の書類の届く先と置き場所の話につなげた場面です。カードを押すと、そのひと言と、なぜ効いたのかが出ます。</p>
+    <div class="tot-grid">
+      <article class="tot-case gyaku" data-title="辞める方の受信箱から、過去のお知らせを移せた"><button type="button" class="tot-card"><span class="tot-chip">届く先を直した</span><span class="tot-say">辞める方の受信箱から、過去のお知らせを移せた</span><span class="tot-who">50代・社長と経理の方</span><span class="tot-more">流れを変えたひと言を見る</span></button><div class="tot-body" hidden><div class="tot-blk scene"><p class="tot-bl">場面</p><p>経理の方が辞めると聞いた月、担当者は年に一度の契約の確認の席で、届く先を一つだけ尋ねました。保険会社からのお知らせは、全てその方の会社のアドレスに届いていました。アカウントを止める前だったので、過去のお知らせを会社の共通の置き場所へ移せました。<small>——50代・社長と経理の方（脚色あり）</small></p></div><div class="tot-blk key"><p class="tot-bl">流れを変えたひと言</p><blockquote>「保険会社からのお知らせは、どなたのアドレスに届いていますか。」</blockquote></div><div class="tot-blk why"><p class="tot-bl">なぜ効いたか</p><p>保険の中身ではなく、書類の届く先から入ったことで、社長が自分の会社の話として動けました。アカウントを止める前だったことが分かれ目でした。</p></div><div class="tot-blk next"><p class="tot-bl">現場での使い方</p><p>担当の方が替わると聞いたら、保険会社の登録のアドレスと送付先を確かめ、届く先を会社の共通のアドレスへ変える手続きを案内する。</p></div><div class="tot-blk guard"><p class="tot-bl">線引き</p><p>アカウントの扱いは御社の決まりで、保存の扱いは顧問の税理士と決めていただきます。</p></div></div></article>
+      <article class="tot-case gyaku" data-title="決算書の一行を、社長が自分の言葉で話せた"><button type="button" class="tot-card"><span class="tot-chip">一枚の一覧</span><span class="tot-say">決算書の一行を、社長が自分の言葉で話せた</span><span class="tot-who">60代・製造業の社長</span><span class="tot-more">流れを変えたひと言を見る</span></button><div class="tot-body" hidden><div class="tot-blk scene"><p class="tot-bl">場面</p><p>決算の打ち合わせで保険積立金の中身を聞かれ、答えられなかった社長。担当者は次の訪問で、契約ごとの一覧を1枚にして持って行きました。書類の置き場所の欄も付けて。社長はその紙を、そのまま顧問の先生に渡しました。<small>——60代・製造業の社長（脚色あり）</small></p></div><div class="tot-blk key"><p class="tot-bl">流れを変えたひと言</p><blockquote>「この一行の中身を、契約ごとに1枚に並べてきました。書類の置き場所も書いてあります。」</blockquote></div><div class="tot-blk why"><p class="tot-bl">なぜ効いたか</p><p>保険の担当者が持っている情報を、顧問の税理士が使える形にして渡したことで、三者の話が同じ紙の上でできるようになりました。</p></div><div class="tot-blk next"><p class="tot-bl">現場での使い方</p><p>法人の契約は、契約日・保険料・払込みの方法・書類の置き場所を並べた一覧を年に一度作り、社長から顧問の税理士へ渡していただく。</p></div><div class="tot-blk guard"><p class="tot-bl">線引き</p><p>決算書の数字との照らし合わせや勘定科目の扱いは、税理士の業務です。こちらは保険の情報をそろえるところまで。</p></div></div></article>
+      <article class="tot-case gyaku" data-title="移転の前の大掃除で、紙を捨てる順番を守れた"><button type="button" class="tot-card"><span class="tot-chip">捨てる前に</span><span class="tot-say">移転の前の大掃除で、紙を捨てる順番を守れた</span><span class="tot-who">40代・IT企業の社長</span><span class="tot-more">流れを変えたひと言を見る</span></button><div class="tot-body" hidden><div class="tot-blk scene"><p class="tot-bl">場面</p><p>オフィスの移転を前に、段ボールの書類を全てスキャンして処分しようとしていた社長。担当者は、捨てる前に二か所へ確かめることを提案しました。顧問の先生からは、条件がそろうまで紙は残しておくように、と返事がありました。<small>——40代・IT企業の社長（脚色あり）</small></p></div><div class="tot-blk key"><p class="tot-bl">流れを変えたひと言</p><blockquote>「捨てる前に、顧問の先生と保険会社の二か所に、一つずつ確かめませんか。」</blockquote></div><div class="tot-blk why"><p class="tot-bl">なぜ効いたか</p><p>捨てる・捨てないを担当者が決めず、確かめる先を二つ示したことで、社長が自分で順番を守れました。</p></div><div class="tot-blk next"><p class="tot-bl">現場での使い方</p><p>書類を処分すると聞いたら、紙を捨ててよいかは顧問の税理士に、証券が要る手続きは保険会社に確かめる段取りを先に組む。</p></div><div class="tot-blk guard"><p class="tot-bl">線引き</p><p>紙を捨ててよいかの判断は税理士の領分です。</p></div></div></article>
+      <article class="tot-case gyaku" data-title="年に一度の「書類を落とす日」が、契約を確かめる日になった"><button type="button" class="tot-card"><span class="tot-chip">書類を落とす日</span><span class="tot-say">年に一度の「書類を落とす日」が、契約を確かめる日になった</span><span class="tot-who">50代・設計事務所の社長</span><span class="tot-more">流れを変えたひと言を見る</span></button><div class="tot-body" hidden><div class="tot-blk scene"><p class="tot-bl">場面</p><p>払込みの証明を、要るときにだけサイトから落としていた社長。担当者は申告が終わった月に、マイページから書類を落として会社の置き場所に入れる日を一緒に決めました。その日が、毎年の契約を確かめる日にもなりました。<small>——50代・設計事務所の社長（脚色あり）</small></p></div><div class="tot-blk key"><p class="tot-bl">流れを変えたひと言</p><blockquote>「申告が終わった月に一度、書類を落とす日を決めておきませんか。その日に、契約も一緒に確かめましょう。」</blockquote></div><div class="tot-blk why"><p class="tot-bl">なぜ効いたか</p><p>書類の整理という社長の困りごとに、契約の確認を重ねたことで、売り込みではなく年に一度の段取りになりました。</p></div><div class="tot-blk next"><p class="tot-bl">現場での使い方</p><p>法人のお客様とは、申告が終わった月に「書類を落として置き場所に入れる日」を決め、契約の一覧の確認を同じ日に行う。</p></div><div class="tot-blk guard"><p class="tot-bl">線引き</p><p>決算の前に保険で利益を減らす話にはしません。税の扱いは顧問の税理士と確かめます。</p></div></div></article>
+    </div>
+    <p class="tot-note">各話は一般的な内容をもとにした創作例（脚色あり）で、実在の個人・法人・事案とは関係ありません。取り扱いは保険会社・商品・ご契約により異なります。</p>
+    <div class="tot-toi" id="toi"><p class="tot-toi-cap">明日の面談で使う3つの問い</p><ol><li>保険会社からの書類は、紙とデータのどちらで、どなたのアドレスに届いていますか。</li><li>その書類は、担当の方が替わっても見つかる場所に置いてありますか。</li><li>契約ごとの一覧を、顧問の税理士の先生にお渡ししたことはありますか。</li></ol><p class="tot-toi-foot">答えがすぐに出なくて構いません。その場で決めていただく必要はありません。書面を一緒に開き、次回までにご家族と話していただくところまでが、今日の面談のゴールです。</p></div>
+  </div>
+</section>
+<!-- TOT-GEKI-END -->
 
-<section id="sec5" class="band-mint round-top">
-  <div class="wrap">
-    <div class="sec-head"><div><span class="step-pill"><i>5</i><span>知って得する側の話</span></span>
-      <h2>逆転劇場〜こんな制度が、<span class="nowrap">味方します〜</span></h2></div>
-      <div class="spot"><span class="spot-circle" data-art="spotGift" aria-hidden="true"></span></div></div>
-    <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">ここまでは気をつける話が続きました。ここからは切り替えます。この分野には、負担を減らすための仕組みがいくつも用意されていて、しかもその多くは<strong>お金をかけずに使えます</strong>。知っているかどうかだけで、手間がまるごと変わる8つを並べました。</p></div>
-    <div class="model-note"><strong>この章の前提</strong><span class="mn-row">年商5,000万円前後・従業員数名の会社で、電子で届く請求書が月20件ほど、というモデルで書いています。</span>
-      <span class="mn-note">※実際に使えるかどうかは、売上高・書類の種類・使っているシステムによって変わります。届出が必要なもの、あらかじめ準備しておかないと使えないものがあります。</span></div>
-    <div class="case-grid" id="goodGrid"></div>
-    <div class="rule3-box">
-      <h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7 4.5 5.6v5.2c0 4.7 3.2 8.6 7.5 9.8 4.3-1.2 7.5-5.1 7.5-9.8V5.6L12 2.7Z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg>取りこぼさないための「書類保存の3か条」</h3>
-      <ol><li><strong>消さない。</strong>迷ったら残す。保存しすぎて怒られる制度ではありません。自動削除の設定と、退職時のアカウント停止だけは先に手を打ってください。</li>
-        <li><strong>置き場所を1つに。</strong>年ごとのフォルダを1本だけ作って、電子で届いたものは全部そこへ。分類の工夫より、<strong>迷わない場所</strong>のほうが続きます。</li>
-        <li><strong>名前を決める。</strong>日付・取引先・金額をつなげた名前に統一するだけで、検索の条件はほぼ片づきます。無料でできて、効果がいちばん大きい一手です。</li></ol>
-      <p class="rule3-note">※使える制度や緩和の内容は、売上規模・書類の種類・事業年度によって異なります。届出や規程の備付けが必要なものもあります。適用の可否は個別にご確認ください。</p></div>
-  </div></section>
 
 <section id="sec6" class="band-sky round-top">
   <div class="wrap">
-    <div class="sec-head"><div><span class="step-pill"><i>6</i><span>数字の話を一つだけ</span></span>
+    <div class="sec-head"><div><span class="step-pill"><i>3</i><span>数字の話を一つだけ</span></span>
       <h2>捨てられるまでの<span class="nowrap">年数の話</span></h2></div>
       <div class="spot"><span class="spot-circle" data-art="spotCal" aria-hidden="true"></span></div></div>
     <div class="guide"><span class="guide-ava" data-guide aria-hidden="true"></span><p class="guide-msg">この分野で覚えておく数字は、そう多くありません。保存する年数、検索の3項目、そして売上高の基準。この3つだけで、だいたいの判断がつきます。まずは、いつまで置いておくのかという年数から見ていきましょう。</p></div>
@@ -1436,8 +1572,6 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
       <h2>あなたの書類整理チェック</h2></div>
       <div class="spot"><span class="spot-circle" data-art="spotCheck" aria-hidden="true"></span></div></div>
     <p class="sec-lead">最後に、いまの状況を確認してみましょう。あてはまるもの・できたものをタップ（クリック）してください。</p>
-    <div class="score-box"><h3><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.9 9a2.6 2.6 0 0 1 5.1.7c0 1.7-2.6 2.6-2.6 2.6M12.4 16h.01"/></svg>クイズの結果</h3>
-      <div id="sumScore"><p>まだクイズに挑戦していません。<a href="#sec2">②の○×クイズ</a>で、思い込みをチェックしてみてください。</p></div></div>
     <div class="checklist" id="checklist">
       <p class="chk-group">今日、パソコンとキャビネットで数えられること</p>
       <label class="chk"><input type="checkbox"><span class="art" data-art="chkPdf" aria-hidden="true"></span><span><strong>メールで届く請求書・領収書の件数を数えた</strong>先月分の受信箱を「請求書」で検索して、何件あるかを見ます。</span></label>
@@ -1473,51 +1607,10 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
 
 <!-- 募集文書審査：未了。委託先保険会社の承認番号の要否を確認のうえ公開すること -->
 <footer class="disclaimer">
-  <p>本資料は、株式会社Office-Mが帳簿書類の保存に関する一般的なしくみをご理解いただくために作成した情報提供資料です。記載内容は2026年8月時点の法令等にもとづく一般的な取扱いであり、個別の事案への当てはめは、受け渡しの経路・書類の種類・事業の規模・使用しているシステムによって結論が変わります。シミュレーターの結果はいずれも簡易な概算であり、実際に保存すべき書類の範囲や年数を示すものではありません。実際の判断にあたっては、必ず税理士または所轄の税務署にご確認ください。<strong>個別具体的な税務相談・税務書類の作成・税務代理は、税理士が対応します。</strong>本資料の内容によって生じた結果について、当社は責任を負いかねます。</p>
+  <p>本資料は、株式会社Office-Mが帳簿書類の保存に関する一般的なしくみをご理解いただくために作成した情報提供資料です。記載内容は2026年8月時点の法令等にもとづく一般的な取扱いであり、個別の事案への当てはめは、受け渡しの経路・書類の種類・事業の規模・使用しているシステムによって結論が変わります。本ページの「鍵の写真」のたとえや年数の例は、しくみのイメージをつかむためのもので、実際に保存すべき書類の範囲や年数を示すものではありません。実際の判断にあたっては、必ず税理士または所轄の税務署にご確認ください。<strong>個別具体的な税務相談・税務書類の作成・税務代理は、税理士が対応します。</strong>本資料の内容によって生じた結果について、当社は責任を負いかねます。</p>
   <p style="margin-top:10px;">主な根拠：電子計算機を使用して作成する国税関係帳簿書類の保存方法等の特例に関する法律（電子帳簿保存法）第4条・第5条・第7条、同法施行規則第2条・第4条・第5条、法人税法施行規則、所得税法施行規則、会社法第432条第2項。数値・要件はいずれも概要であり、詳細は国税庁が公表する電子帳簿保存法関係の一問一答等でご確認ください。制度は改正されることがあります。最新の内容は国税庁のページでご確認ください。</p>
   <p style="margin-top:10px;">作成：株式会社Office-M（2026年8月）</p>
 </footer>
-<!-- ================= 演目詳細モーダル ================= -->
-<div class="cmodal" id="caseModal" aria-hidden="true">
-  <div class="cmodal-back" id="caseModalBack"></div>
-  <div class="cmodal-panel" role="dialog" aria-modal="true" aria-labelledby="caseModalTitle">
-    <div class="cmodal-head" id="caseModalHead">
-      <button type="button" class="cmodal-close" id="caseModalClose" aria-label="閉じる">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
-      </button>
-      <div class="cmodal-ico" id="caseModalIco" aria-hidden="true"></div>
-      <div>
-        <span class="cmodal-chip" id="caseModalChip"></span>
-        <h3 class="cmodal-title" id="caseModalTitle"></h3>
-      </div>
-    </div>
-    <div class="cmodal-body">
-      <div class="cmodal-block">
-        <div class="cmodal-label lb-blue">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 15.5a2 2 0 0 1-2 2H8l-4 3.5v-15a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"/></svg>
-          <span id="caseModalLbl1">ご相談で伺ったお話（脚色あり）</span>
-        </div>
-        <blockquote class="cmodal-quote" id="caseModalStory"></blockquote>
-      </div>
-      <div class="cmodal-block">
-        <div class="cmodal-label lb-red" id="caseModalLbl2Wrap">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
-          <span id="caseModalLbl2">何が起きたのか</span>
-        </div>
-        <div id="caseModalWhat"></div>
-      </div>
-      <div class="cmodal-block">
-        <div class="cmodal-label lb-green">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
-          <span id="caseModalLbl3">こう確認すれば防げます</span>
-        </div>
-        <div id="caseModalHow"></div>
-      </div>
-      <div data-cta-mini></div>
-      <p class="cmodal-note">※演目は一般的な内容をもとにした創作例で、実在の個人・法人・事案とは関係ありません。税務の取扱いは事実関係により異なります。実際の判断は、顧問税理士または所轄の税務署にご確認ください。</p>
-    </div>
-  </div>
-
 <script>
 (function(){
 'use strict';
@@ -1859,428 +1952,6 @@ var CTA_MINI =
   '無料で相談してみる</a></div>';
 document.querySelectorAll('[data-cta-mini]').forEach(function(el){ el.innerHTML = CTA_MINI; });
 
-/* ---------- セクション2：○×クイズ ---------- */
-/* a: true = 捨てられる（○が正解）, false = 捨てられない（×が正解） */
-var QUIZ = [
-  {
-    icon:'icMailDoc', a:false,
-    q:'メールに添付されて届いたPDFの請求書は、印刷して紙で綴じておけば、もとのPDFデータは消してよい。',
-    yes:'消してよい', no:'消せない',
-    expl:'メールやWebでやりとりした請求書・領収書・注文書などは電子取引にあたり、データそのものが原本です。令和6年1月1日以後の取引分では、印刷した紙だけを残してデータを消す扱いは認められていません。それまで2年間認められていた宥恕措置は令和5年12月31日で終わっています。紙に出すこと自体は自由ですが、それは社内で見やすくするための控えであって、保存したことにはなりません。メールソフトの自動削除設定にも注意してください。',
-    wana:'紙に出すと仕事が終わった気持ちになるからです。手が動いたぶん、保存が済んだ感覚になります。',
-    check:'メールソフトの自動削除の設定と、添付ファイルの保存先フォルダが決まっているかを見てください。',
-    icon2:''
-  },
-  {
-    icon:'icStampTime', a:true,
-    q:'紙で受け取った領収書は、決められた条件を満たしてスキャナ保存をすれば、原本の紙を捨ててよい。',
-    expl:'紙の書類をデータにして原本を廃棄できる仕組みがスキャナ保存です。一定の解像度とカラーでの読み取り、受領からおおむね決められた期間内のタイムスタンプまたは訂正削除の履歴が残るシステムでの保存、検索できること、規程や説明書の備付けといった条件を満たすことが前提になります。令和6年1月1日以後の保存分からは、解像度などの情報を保存する要件と入力者等の確認要件がなくなり、以前より取り組みやすくなっています。',
-    wana:'スキャナ保存は義務だと思い込み、条件のほうを読まずに始めてしまう人が多いためです。',
-    check:'使っている会計ソフトやクラウドが、スキャナ保存の要件に対応していると説明しているかを確認します。'
-  },
-  {
-    icon:'icDoc2', a:true,
-    q:'電子帳簿保存法の3つの区分のうち、義務なのは電子取引データの保存で、帳簿の電子保存とスキャナ保存は任意である。',
-    yes:'そのとおり', no:'違う',
-    expl:'電子帳簿保存法には、帳簿や決算書類を電子データで保存する電子帳簿等保存、紙の書類をスキャンして保存するスキャナ保存、メールやWebでやりとりしたデータを保存する電子取引データ保存の3つがあります。前の2つは希望する事業者が選んで行うもので、行わなくても差し支えありません。義務として全事業者に関係するのは電子取引データ保存だけです。ここを分けて理解しておくと、必要のない負担を抱え込まずに済みます。',
-    wana:'3つとも同時に説明されることが多く、まとめて義務化されたと受け取られやすいためです。',
-    check:'自社がいまどの区分に取り組んでいるのか、経理の担当者と紙に書き出して整理してみてください。'
-  },
-  {
-    icon:'qYen', a:true,
-    q:'基準期間の売上高が5,000万円以下なら、電子取引データの検索機能が不要になる場合がある。',
-    yes:'ある', no:'ない',
-    expl:'令和6年1月1日以後、検索機能が不要とされる売上高の基準は、基準期間の売上高5,000万円以下に広がりました。それ以前は1,000万円以下でした。基準期間は原則として2事業年度前を指します。ただし不要になるのは検索機能であって、データの保存そのものは変わらず必要です。また、税務調査でデータのダウンロードを求められたときに応じられることが前提になっています。出力書面を日付と取引先ごとに整理して提示できる場合にも、検索機能は不要とされています。',
-    wana:'検索が不要という言葉が、保存しなくてよい、と略されて伝わってしまうためです。',
-    check:'2事業年度前の決算書を出して、売上高が5,000万円以下かどうかを一度だけ見ておきましょう。'
-  },
-  {
-    icon:'icShred', a:false,
-    q:'電子取引データを保存していなかったら、その事業年度の青色申告の承認は必ず取り消される。',
-    yes:'必ず取り消される', no:'そうとは限らない',
-    expl:'国税庁が公表している一問一答では、保存要件を満たさない電子取引データがあったことをもって、直ちに青色申告の承認が取り消されたり、経費として認められなくなったりするものではない、という考え方が示されています。ただし、これは何もしなくてよいという意味ではありません。ほかの書類や取引の実態と合わせて総合的に判断されますし、隠したり書き換えたりしていた場合には重い扱いになります。慌てず、しかし放置せず、順番に整えるのが正解です。',
-    wana:'不安をあおる言い方が広まっているためです。正確な出どころにあたると印象が変わります。',
-    check:'国税庁が公表している電子帳簿保存法の一問一答を、目次だけでも見ておくと落ち着きます。'
-  },
-  {
-    icon:'icCloudSave', a:false,
-    q:'通販サイトの購入履歴からいつでも領収書を落とせるなら、必要になったときに落とせばよく、いまは保存しなくてよい。',
-    yes:'落とせばよい', no:'いま保存する',
-    expl:'サイトからダウンロードできる領収書も電子取引にあたり、受け取った時点で保存の対象になります。さらに実務上大きいのは、サイト側の掲載期間です。数か月から1年程度で表示されなくなる例があり、あとから取りに行っても手に入りません。退会したり、担当者のアカウントが使えなくなったりすれば、なおさらです。買った月のうちに落として、決めた場所に置く。この一手間だけで、数年後の手間が大きく変わります。',
-    wana:'いつでも取れるという安心感が、保存の義務そのものを忘れさせてしまうからです。',
-    check:'よく使う通販・宿泊予約サイトの領収書が、いつまで表示されるかを利用規約かヘルプで確認します。'
-  },
-  {
-    icon:'icJikan', a:true,
-    q:'スキャナ保存でタイムスタンプを付ける期限は、社内で事務処理規程を定めれば、原則より長い期間まで認められる。',
-    yes:'認められる', no:'認められない',
-    expl:'原則は、受け取ってからおおむね7営業日以内です。ただし、業務の処理にかかる期間を定めた事務処理規程を備え付けている場合には、その期間を経過したあとおおむね7営業日以内まで認められる形になっています。月末にまとめて処理する会社では、この規程があるかどうかで運用のしやすさがまったく違います。なお、訂正や削除の履歴が残るシステムに保存する場合には、タイムスタンプそのものが不要とされる取扱いがあります。',
-    wana:'7営業日という数字だけが独り歩きし、月次でまとめる会社は無理だと諦めてしまうためです。',
-    check:'事務処理規程を作っているか、作っているならスキャンの期限を何日と書いたかを確かめてください。'
-  },
-  {
-    icon:'qShield', a:true,
-    q:'電子取引データやスキャナ保存のデータを書き換えて隠していた場合、重加算税が上乗せされることがある。',
-    yes:'ある', no:'ない',
-    expl:'保存されたデータに関して隠蔽や仮装があった場合、重加算税が10パーセント加重される取扱いが設けられています。うっかり保存を忘れていた場合と、意図的に書き換えた場合とでは、扱いがはっきり分けられているということです。逆にいえば、まじめに保存しようとしている限り、この加重は関係のない話になります。データは消さない、直したら履歴を残す。この2つを守っていれば、心配する必要はありません。',
-    wana:'保存漏れと改ざんが同じ重さで語られがちで、必要以上に怖い制度だと思われているためです。',
-    check:'データを直せる人が誰か、直した記録が残る仕組みになっているかを、担当者と確認しておきます。'
-  }
-];
-
-var qIdx = 0, qScore = 0, qAnswered = false, qAnsweredCount = 0;
-var wrongItems = [];
-
-var elNum   = document.getElementById('qNum');
-var elDots  = document.getElementById('qDots');
-var elIcon  = document.getElementById('qIcon');
-var elText  = document.getElementById('qText');
-var btnYes  = document.getElementById('btnYes');
-var btnNo   = document.getElementById('btnNo');
-var lblYes  = document.getElementById('lblYes');
-var lblNo   = document.getElementById('lblNo');
-var elVerd  = document.getElementById('verdict');
-var elVAns  = document.getElementById('vAnswer');
-var elVChip = document.getElementById('vChip');
-var elVExpl = document.getElementById('vExpl');
-var elVWana = document.getElementById('vWana');
-var elVChk  = document.getElementById('vCheck');
-var btnNext = document.getElementById('btnNext');
-var btnStop = document.getElementById('btnStopHere');
-var quizPlay = document.getElementById('quizPlay');
-var quizDone = document.getElementById('quizDone');
-
-function renderDots(){
-  var html = '';
-  for(var i = 0; i < QUIZ.length; i++){
-    html += '<i class="' + (i < qIdx ? 'done' : (i === qIdx ? 'now' : '')) + '"></i>';
-  }
-  elDots.innerHTML = html;
-}
-
-function renderQ(){
-  var item = QUIZ[qIdx];
-  elNum.textContent = qIdx + 1;
-  elIcon.innerHTML = ARTS[item.icon] || '';
-  elText.textContent = item.q;
-  lblYes.textContent = item.yes || '捨てられる';
-  lblNo.textContent = item.no || '捨てられない';
-  btnYes.disabled = false;
-  btnNo.disabled = false;
-  qAnswered = false;
-  elVerd.classList.remove('show');
-  btnNext.style.display = 'none';
-  btnStop.style.display = 'none';
-  renderDots();
-}
-
-function answer(ansYes){
-  if(qAnswered) return;
-  qAnswered = true;
-  qAnsweredCount++;
-  btnYes.disabled = true;
-  btnNo.disabled = true;
-  var item = QUIZ[qIdx];
-  var correct = (ansYes === item.a);
-  if(correct) qScore++;
-  else wrongItems.push(item);
-  elVAns.textContent = '正解は「' + (item.a ? (item.yes || '捨てられる') : (item.no || '捨てられない')) + '」';
-  elVChip.textContent = correct ? 'ご名答！' : 'ざんねん、ここがワナ';
-  elVChip.className = 'result-chip ' + (correct ? 'correct' : 'wrong');
-  elVExpl.textContent = item.expl;
-  elVWana.textContent = item.wana;
-  elVChk.textContent = item.check;
-  elVerd.classList.add('show');
-  btnNext.style.display = 'flex';
-  if(qIdx >= QUIZ.length - 1){
-    btnNext.innerHTML = '結果を見る <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
-  } else if(qIdx >= 2){
-    btnStop.style.display = 'block';
-  }
-}
-
-function doneComment(score, total){
-  var full = (total === QUIZ.length);
-  if(score === total && full){
-    return '全問正解、おみごとです。線引きはもう頭に入っています。あとはご自身の受信箱とキャビネットに当てはめるだけ。今月届いた請求書を1件だけ選んで、紙かデータかを言い当ててみてください。';
-  }
-  var r = score / total;
-  if(r >= 0.75){
-    return 'ほとんど正解です。惜しかった問題こそ、手元の書類で答え合わせをする価値があります。間違えた問いに出てきた種類の書類を1枚だけ探し出して、いまどこに保存されているか見てみましょう。';
-  }
-  if(r >= 0.4){
-    return '半分前後の方がいちばん多い設問です。制度が数年おきに変わってきたので、ここで迷うのはごく自然なこと。早めに一度、受け取り方ごとの棚卸しをしておくと後がとても楽になります。';
-  }
-  return 'ここで引っかかっておいてよかった、という問題ばかりです。本番、つまり数年後の税務調査の場で引っかかるより、ずっと安上がりです。責める話ではありません。順番に整えていけば大丈夫です。';
-}
-
-function showDone(){
-  quizPlay.style.display = 'none';
-  quizDone.classList.add('show');
-  document.getElementById('doneTotal').textContent = qAnsweredCount;
-  document.getElementById('doneScore').textContent = qScore;
-  document.getElementById('doneCmt').textContent = doneComment(qScore, qAnsweredCount);
-  var wl = document.getElementById('wrongList');
-  if(wrongItems.length){
-    var html = '<h4>ワナにかかった問題（＝次に開くべきフォルダの手がかり）</h4>';
-    for(var i = 0; i < wrongItems.length; i++){
-      html += '<div class="w-item"><strong>' + wrongItems[i].q + '</strong><br>確認ポイント：' + wrongItems[i].check + '</div>';
-    }
-    wl.innerHTML = html;
-    wl.style.display = 'block';
-  } else {
-    wl.style.display = 'none';
-  }
-  var sum = document.getElementById('sumScore');
-  sum.innerHTML = '<p>○×クイズの結果：<strong>' + qAnsweredCount + '問中 ' + qScore + '問正解</strong>でした。' +
-    (wrongItems.length ? '間違えた問題は、そのまま「確認したいことリスト」になります。' : 'この調子で、下のチェックリストもどうぞ。') + '</p>';
-}
-
-btnYes.addEventListener('click', function(){ answer(true); });
-btnNo.addEventListener('click', function(){ answer(false); });
-btnNext.addEventListener('click', function(){
-  if(qIdx >= QUIZ.length - 1){ showDone(); return; }
-  qIdx++;
-  renderQ();
-  var shell = document.querySelector('.quiz-shell');
-  if(shell.getBoundingClientRect().top < 0) shell.scrollIntoView({behavior:'smooth'});
-});
-btnStop.addEventListener('click', showDone);
-document.getElementById('btnRetry').addEventListener('click', function(){
-  qIdx = 0; qScore = 0; qAnsweredCount = 0; wrongItems = [];
-  quizDone.classList.remove('show');
-  quizPlay.style.display = 'block';
-  btnNext.innerHTML = '次の質問へ <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
-  renderQ();
-});
-document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
-document.getElementById('btnMailSelf').addEventListener('click', function(){
-  var body = '「領収書を捨てられる・捨てられないチェック」の結果メモ\n\n' +
-    '○×クイズ：' + qAnsweredCount + '問中 ' + qScore + '問正解\n\n';
-  if(wrongItems.length){
-    body += '確認したいこと（間違えた問題より）：\n';
-    for(var i = 0; i < wrongItems.length; i++){
-      body += '・' + wrongItems[i].check + '\n';
-    }
-  }
-  body += '\n（このメモは、会計ソフトの契約書類や、経理の引き継ぎメモと一緒に保管すると役立ちます）\n';
-  location.href = 'mailto:?subject=' + encodeURIComponent('領収書を捨てられる・捨てられないチェックの結果メモ') + '&body=' + encodeURIComponent(body);
-});
-
-renderQ();
-
-/* ---------- セクション3：シミュレーター ---------- */
-var simA = document.getElementById('simA'), simB = document.getElementById('simB'),
-    simC = document.getElementById('simC'), simD = document.getElementById('simD');
-function mai(x){ return Math.round(x).toLocaleString('ja-JP') + '枚'; }
-function ken(x){ return Math.round(x).toLocaleString('ja-JP') + '件'; }
-function setR(id, ok, chipTxt, txt){
-  document.getElementById(id).className = 'sim-r ' + (ok ? 'ok' : 'ng');
-  document.getElementById(id + 'Chip').textContent = chipTxt;
-  document.getElementById(id + 'Txt').textContent = txt;
-}
-function simUpdate(){
-  var a = Math.max(0, +simA.value || 0), b = +simB.value,
-      c = simC.checked, d = Math.max(0, +simD.value || 0);
-  document.getElementById('simAOut').textContent = a.toLocaleString('ja-JP') + '枚';
-  document.getElementById('simDOut').textContent = d.toLocaleString('ja-JP') + '件';
-  var years = c ? 10 : 7;
-  var kamiPerYear = (b === 1) ? 0 : a * 12;
-  var kami = kamiPerYear * years;
-  var data = d * 12 * years;
-  var hako = kami / 2500;
-  var rate = hako / 20;
-  document.getElementById('tlFill').style.width = Math.min(100, Math.max(2, rate * 100)) + '%';
-  if(b === 1){
-    setR('simR1', true, '捨てられます', '条件を満たしたスキャナ保存ができていれば、読み取ったあとの紙の原本は廃棄できます。ただし読み取りの期限と検索の条件は守り続ける必要があります。');
-  } else if(b === 2){
-    setR('simR1', false, 'まだ捨てられません', 'スキャンしてあっても、時刻の証拠や訂正削除の履歴、検索の条件がそろっていなければ、紙が原本のままです。条件を確かめる前に捨てないでください。');
-  } else {
-    setR('simR1', false, '紙のまま保存します', '紙のまま綴じて保存する運用は、それ自体は何も問題ありません。ただし枚数は毎年積み上がっていくので、置き場所を先に決めておく必要があります。');
-  }
-  setR('simR2', !c, years + '年', c
-    ? '欠損金が生じた事業年度があるため、帳簿書類の保存期間は10年として計算しています。会社法にもとづく帳簿の保存はまた別に定めがあります。'
-    : '法人の帳簿書類の保存期間は原則7年です。欠損金が生じた事業年度は10年になります。上のチェックを入れると10年で計算します。');
-  setR('simR3', false, ken(data) + ' は消せません',
-    '電子で受け取ったデータは、紙の枚数とは関係なく、データのまま保存し続ける必要があります。' + years + '年分でおよそ ' + ken(data) + '。置き場所を1か所に決めてください。');
-  var big = document.getElementById('simTotalBig'), sub = document.getElementById('simTotalSub');
-  document.getElementById('simTotalLead').textContent = 'この条件なら、' + years + '年後に';
-  if(kami <= 0){
-    big.innerHTML = '残る紙は <b>0枚</b>';
-    sub.textContent = '紙は廃棄できますが、電子データ およそ' + ken(data) + ' は保存し続けます。';
-  } else {
-    big.innerHTML = '机に残る紙は <b>約' + mai(kami) + '</b>';
-    sub.textContent = '段ボールにしておよそ' + (Math.round(hako * 10) / 10) + '箱。あわせて電子データ およそ' + ken(data) + ' も保存が必要です。';
-  }
-}
-simA.addEventListener('input', simUpdate); simD.addEventListener('input', simUpdate);
-simB.addEventListener('change', simUpdate); simC.addEventListener('change', simUpdate);
-simUpdate();
-
-/* ---------- セクション4：あるある劇場 ---------- */
-var CASES = [
-  {
-    art:'icMailDoc', cls:'c-red', chip:'第一幕：印刷して安心',
-    title:'綴じた紙は完璧、でも元データが無い',
-    story:'「毎月、取引先からメールで届く請求書を印刷して、日付順にファイルに綴じていました。背表紙もきれいに貼って、見た目は完璧です。ところがある日、メールソフトが古いメールを自動で消す設定になっていたと分かりまして。三年前の添付ファイルを開こうとしたら、もう受信箱にないんです。印刷した紙はあるのに、原本のデータだけがきれいに消えていました」<small>——香川県の50代 建設業 Aさん（脚色あり）</small>',
-    what:'<p class="cmodal-p">メールに添付されて届いた請求書は<strong>電子取引</strong>にあたり、データそのものが原本です。印刷した紙は、あくまで見やすくするための控え。令和6年1月1日以後の取引分では、紙だけを残してデータを消す扱いは認められていません。<strong>自動削除の設定は、善意のかたまり</strong>です。容量を空けるための機能が、原本を消してしまう機能にもなります。</p>',
-    how:'<p class="cmodal-p">今日できるのは3つです。一つ、メールソフトの自動削除の設定を開いて、期間を確認する。ふたつ、添付ファイルの保存先フォルダを1か所だけ決める。みっつ、届いたら<strong>その日のうちに保存する</strong>担当を決める。フォルダの名前は年ごとでかまいません。凝った仕組みより、続く仕組みのほうが強いです。</p>'
-  },
-  {
-    art:'icShred', cls:'c-amber', chip:'第二幕：白紙のレシート',
-    title:'半年後に開いたら、真っ白でした',
-    story:'「レジでもらう細長いレシートを、月ごとに封筒に入れて置いていました。決算のときにまとめて処理しようと思って、半年ぶりに封筒を開けたんです。そうしたら、上のほうの何枚かが、うっすらとしか読めない。窓際の棚に置いていたのがいけなかったようで。金額の桁が読めないものが十枚ほど出てきて、取引先に再発行をお願いして回りました」<small>——香川県の40代 飲食業 Bさん（脚色あり）</small>',
-    what:'<p class="cmodal-p">レジのレシートの多くは感熱紙で、熱と光に弱い性質があります。<strong>保存が必要な年数は7年から10年</strong>。物理的に、その期間まで読める状態が続くとは限りません。紙で受け取ったものは紙のまま保存すればよい、という原則は変わりませんが、<strong>読めなくなった紙は保存していないのと同じ</strong>という現実的な問題が残ります。</p>',
-    how:'<p class="cmodal-p">条件を満たしたスキャナ保存に切り替えれば、読み取ったあとの紙は廃棄できます。すぐに切り替えられない場合でも、月末にまとめて撮影して控えを残しておくだけで、いざというときの手がかりになります。保管場所を<strong>窓際と暖房の近くから外す</strong>だけでも、だいぶ違います。</p>'
-  },
-  {
-    art:'icFindDoc', cls:'c-berry', chip:'第三幕：請求書.pdf が200個',
-    title:'保存はしてある。でも、出てこない',
-    story:'「電子で届いた請求書は、ちゃんとフォルダに保存していました。義務だと聞いていたので、そこは守っていたつもりです。でも、税務調査で三年前のある月の一件を見せてくださいと言われて、固まりました。ファイル名が全部請求書.pdf と 請求書(2).pdf で、二百個近くあったんです。一つずつ開いて探して、その場で三十分いただきました」<small>——香川県の30代 小売業 Cさん（脚色あり）</small>',
-    what:'<p class="cmodal-p">電子取引データの保存には、<strong>取引年月日・取引金額・取引先で探せること</strong>という検索の条件が原則として求められます。保存しているのに探せない状態は、条件を満たしていないだけでなく、調査の現場で余計な時間と不信感を生みます。実務上、いちばんもったいない失敗です。</p>',
-    how:'<p class="cmodal-p">専用ソフトを買わなくても対応できます。ファイル名を<strong>20260401_カガワ商事_110000</strong> のように、日付・取引先・金額をつなげた形に統一するだけ。枚数が多いなら、連番と一覧表（索引簿）を使う方法もあり、国税庁からサンプルが公表されています。過去分をさかのぼるより、<strong>まず今月分から</strong>始めてください。</p>'
-  },
-  {
-    art:'icHitori', cls:'c-blue', chip:'第四幕：退職と一緒に消えた',
-    title:'担当者の受信箱ごと、無くなった',
-    story:'「経理を一人で見てくれていた社員が、家庭の事情で辞めることになりました。引き継ぎもきちんとしてくれて、感謝していたんです。ところが数か月後、取引先からの請求書を探すことになって気づきました。電子の請求書は、全部その社員の会社メール宛に届いていて、アカウントを止めたときに一緒に見られなくなっていたんです」<small>——香川県の60代 製造業 Dさん（脚色あり）</small>',
-    what:'<p class="cmodal-p">電子取引データが<strong>個人のメールアカウントの中だけ</strong>にある状態は、いちばん壊れやすい保存です。退職、異動、パスワードの失念、端末の故障。どれか一つ起きるだけで届かなくなります。しかも、無くなったことに何か月も気づけません。属人化が保存のリスクに直結する、という点が電子ならではのところです。</p>',
-    how:'<p class="cmodal-p">請求書の宛先を<strong>会社共通のアドレスに変えてもらう</strong>のがいちばん効きます。取引先に一度お願いするだけで済みます。それが難しければ、担当者が受け取ったデータを共有フォルダへ移すルールを決めてください。あわせて、引き継ぎのチェックリストに「電子で届く書類の一覧」を1行足しておきましょう。</p>'
-  },
-  {
-    art:'icCloudSave', cls:'c-red', chip:'第五幕：クラウドに入れたつもり',
-    title:'解約した月に、まとめて消えました',
-    story:'「無料で使えるクラウドに領収書を上げていました。容量がいっぱいになったので、別のサービスに乗り換えることにして、古いほうを解約したんです。移し替えたつもりでいたのですが、後で見たら二年分ほどが抜けていました。解約から三十日で完全に削除される仕組みだったと、あとから利用規約に書いてあるのを見つけました」<small>——香川県の40代 サービス業 Eさん（脚色あり）</small>',
-    what:'<p class="cmodal-p">クラウドは便利ですが、<strong>保存の責任まで預かってくれるわけではありません</strong>。無料プランの保存期間、解約後の削除、サービス自体の終了。どれも規約に書かれていることが多く、知らなかったでは戻せません。とくに移行のタイミングは、いちばんデータが消えやすい瞬間です。</p>',
-    how:'<p class="cmodal-p">乗り換えるときは、<strong>古いほうを解約する前に</strong>件数を数えて突き合わせてください。年ごとのフォルダで、何件あったかをメモしておくだけで確認できます。あわせて、保存に使うサービスが電子帳簿保存法の要件に対応していると説明しているかを、販売元の資料で確かめておきましょう。</p>'
-  },
-  {
-    art:'icBoxPaper', cls:'c-green', chip:'第六幕：捨ててから気づく',
-    title:'条件を満たす前に、原本を処分',
-    story:'「複合機に取り込みの機能がついていたので、これでスキャナ保存ができると思っていました。段ボール三箱ぶんの領収書を読み取って、思い切って処分したんです。すっきりしました。あとで会計事務所に話したら、時刻の証拠と検索の条件が要りますと言われまして。読み取った画像はあるのですが、原本はもうありません」<small>——香川県の50代 卸売業 Fさん（脚色あり）</small>',
-    what:'<p class="cmodal-p">スキャナ保存は、条件を満たして初めて<strong>原本の紙を廃棄できる</strong>制度です。読み取ること自体は誰でもできますが、いつ読み取ったかの証拠と、あとから直せない仕組み、そして探せる形。この3点がそろっていないと、紙が原本のままです。順番を逆にすると、取り返しがつきません。</p>',
-    how:'<p class="cmodal-p">合言葉は<strong>先に条件、あとから廃棄</strong>です。使っている機器やソフトが要件に対応していると説明されているかを、まず販売元の資料で確認してください。そのうえで、社内の事務処理規程を用意し、最初の1か月は原本も残して並行運用する。<strong>捨てるのはいちばん最後</strong>で構いません。</p>'
-  }
-];
-
-/* ---------- セクション5：逆転劇場 ---------- */
-var GOOD_CASES = [
-  {
-    art:'icStampTime', cls:'c-blue', chip:'第一話：猶予措置', amt:'条件が大きく軽く',
-    title:'間に合わなくても、道は残されていた',
-    story:'「システムの入れ替えが決算に重なって、電子取引の保存にとても手が回らない時期がありました。もう間に合わない、罰を受けるしかないと思っていたんです。会計事務所に相談したら、相当の理由があると認められる場合には、当面のあいだ他の条件が問われない扱いがありますと教えてもらいました。データさえ残してあれば、そこから整えていけると聞いて、ようやく眠れました」<small>——香川県の40代 卸売業 Gさん（脚色あり）</small>',
-    what:'<p class="cmodal-p">令和6年1月1日以後、システムや社内体制が間に合わないことについて<strong>相当の理由がある</strong>と認められる場合に、検索の条件や真実性を確保するための措置が問われない猶予の取扱いが設けられています。期限を区切らない形で用意されているのが特徴で、いきなり完璧を求められる制度ではない、ということです。</p>',
-    how:'<p class="cmodal-p">条件が2つあります。一つ、<strong>データそのものは保存しておくこと</strong>。ここが抜けると猶予の対象になりません。ふたつ、税務調査でデータのダウンロードを求められたときと、出力書面の提示を求められたときに応じられること。つまり「保存はしてある、整理がまだ」という状態を救う仕組みです。整理を後回しにしてよい、という意味ではありません。</p>'
-  },
-  {
-    art:'qYen', cls:'c-green', chip:'第二話：売上高による免除', amt:'検索の条件が不要に',
-    title:'2事業年度前の決算書で、宿題が減った',
-    story:'「検索できるようにしなさいと聞いて、専用のソフトを入れる見積もりを取っていました。年間で十数万円。小さな会社にはなかなかの金額です。ところが、2事業年度前の売上高しだいでは検索の機能そのものが要らないと聞いて、決算書を引っぱり出しました。うちは基準を下回っていて、そのままで大丈夫でした。見積書は、ありがたくお蔵入りです」<small>——香川県の50代 サービス業 Hさん（脚色あり）</small>',
-    what:'<p class="cmodal-p">基準期間（原則として2事業年度前）の売上高が<strong>5,000万円以下</strong>である場合、電子取引データの検索機能が不要とされる取扱いがあります。この基準は令和6年1月1日以後、1,000万円以下から引き上げられました。対象になる会社の範囲がかなり広がった改正です。</p>',
-    how:'<p class="cmodal-p">条件は、税務調査で<strong>データのダウンロードの求めに応じられること</strong>です。また、不要になるのは検索の機能であって、データの保存そのものは変わらず必要です。売上高は年によって上下しますから、毎年決算のときに確認する習慣にしてください。判定の基準期間の考え方や、消費税の取扱いとの関係については税理士にご確認ください。</p>'
-  },
-  {
-    art:'icDoc2', cls:'c-berry', chip:'第三話：出力書面での整理', amt:'紙の整理でも足りる',
-    title:'いつもの綴じ方が、そのまま条件を満たした',
-    story:'「パソコンの操作が得意な社員がいないので、検索という言葉だけで気が重くなっていました。ただ、うちは昔から請求書を取引先ごとに、日付順で綴じる習慣があるんです。その話をしたら、出力した書面を取引年月日と取引先ごとに整理して提示できるなら、検索の機能は要らない扱いがありますよ、と。長年やってきた綴じ方が、そのまま条件になっていました」<small>——香川県の60代 建設業 Iさん（脚色あり）</small>',
-    what:'<p class="cmodal-p">令和6年1月1日以後、電子取引データの<strong>出力書面を取引年月日その他の日付および取引先ごとに整理された形で提示・提出できる</strong>場合には、検索機能が不要とされる取扱いが設けられています。パソコン上の検索が苦手な事業者にとって、実務にそのまま乗せやすい道です。</p>',
-    how:'<p class="cmodal-p">こちらも、<strong>元のデータを保存していること</strong>と、ダウンロードの求めに応じられることが前提です。紙に出して整理しておけばデータは要らない、という意味ではありません。あくまで、データは残したうえで、探すための手段として紙の整理を認める、という組み立てです。順番を間違えないでください。</p>'
-  },
-  {
-    art:'icShain', cls:'c-blue', chip:'第四話：事務処理規程', amt:'追加費用ゼロ',
-    title:'紙一枚の規程で、要件がそろった',
-    story:'「タイムスタンプというものを付けないといけないと聞いて、年間の費用を調べていました。うちの取扱量だとそれなりの額になります。ところが、訂正や削除についての事務処理規程を定めて備え付けておけば、真実性を確保する方法として認められると教わりました。国税庁がサンプルを公表していて、それをもとに社名と日付を入れるところから始めました」<small>——香川県の30代 小売業 Jさん（脚色あり）</small>',
-    what:'<p class="cmodal-p">電子取引データについて真実性を確保する方法はいくつかあり、その一つが<strong>訂正削除の防止に関する事務処理規程を定めて運用すること</strong>です。タイムスタンプの付与や、訂正削除の履歴が残るシステムの利用と並ぶ選択肢として認められています。国税庁からサンプルが公表されており、費用をかけずに整えられます。</p>',
-    how:'<p class="cmodal-p">条件は、<strong>定めるだけでなく、そのとおりに運用すること</strong>です。作って引き出しにしまったままでは意味がありません。誰が保存するか、直すときは誰の承認をとるか、その記録をどこに残すか。自社の実情に合わない条文はサンプルのまま使わず、書き換えてください。スキャナ保存でも、読み取りの期限を定める規程が同じように役立ちます。</p>'
-  },
-  {
-    art:'qShield', cls:'c-green', chip:'第五話：優良な電子帳簿', amt:'加算税が5%軽減',
-    title:'進んで整えた分が、返ってきた形に',
-    story:'「せっかくやるなら、と帳簿のほうも電子で保存する形に整えました。訂正や削除の履歴が残る設定にして、帳簿どうしのつながりも確認できるようにして。あとから、あらかじめ届出をしておけば、万一の申告漏れのときに過少申告加算税が軽くなる仕組みがあると知りました。届出を出しておいてよかった、というのが率直な感想です」<small>——香川県の40代 製造業 Kさん（脚色あり）</small>',
-    what:'<p class="cmodal-p">一定の要件を満たす<strong>優良な電子帳簿</strong>として保存し、あらかじめ届出書を提出している場合、その帳簿に関して修正申告等があったときの過少申告加算税が5パーセント軽減される取扱いがあります。訂正削除の履歴の確保、帳簿間の相互関連性、検索機能の確保などが要件です。</p>',
-    how:'<p class="cmodal-p">条件でいちばん大事なのは<strong>あらかじめ届出書を提出しておくこと</strong>です。あとから遡って適用することはできません。また、隠蔽や仮装があった場合は対象外です。要件を満たすかどうかは使っている会計ソフトの機能によりますので、販売元の説明資料をご確認ください。届出の要否や具体的な手続については税理士にご確認ください。</p>'
-  },
-  {
-    art:'icShred', cls:'c-amber', chip:'第六話：スキャナ保存の緩和', amt:'条件が3つ減った',
-    title:'前に断念した会社が、今度は続いた',
-    story:'「数年前に一度、紙を減らそうとしてスキャナ保存に挑戦したことがあります。そのときは、解像度の情報を残すとか、誰が読み取ったか分かるようにするとか、条件が細かくて続きませんでした。最近になって、そのあたりの要件が無くなったと聞いて再挑戦したんです。今度はすんなり回りました。段ボールが確実に減っています」<small>——香川県の50代 卸売業 Lさん（脚色あり）</small>',
-    what:'<p class="cmodal-p">令和6年1月1日以後に保存する分から、スキャナ保存の要件が減りました。<strong>解像度・階調・大きさに関する情報の保存</strong>、<strong>入力者等の情報の確認</strong>という要件がなくなり、帳簿との相互関連性の確保も重要書類に限られています。過去に断念した会社ほど、いま試す価値があります。</p>',
-    how:'<p class="cmodal-p">残っている条件は、一定の解像度とカラーでの読み取り、決められた期間内のタイムスタンプまたは訂正削除の履歴が残るシステムでの保存、検索できること、規程や説明書の備付けなどです。見積書や注文書といった一般書類はグレースケールでの保存が認められるなど条件が軽く、<strong>そこから慣らしていく</strong>のがおすすめです。</p>'
-  },
-  {
-    art:'icFindDoc', cls:'c-berry', chip:'第七話：ダウンロードの求め', amt:'検索の作り込み不要',
-    title:'凝った検索を作らなくてよかった',
-    story:'「検索の条件と聞いて、範囲を指定して探せるようにとか、二つの項目を組み合わせて探せるようにとか、そこまで作り込まないといけないのかと頭を抱えていました。相談したら、税務調査でデータのダウンロードの求めに応じられるなら、そこまでの機能は要りませんと。日付と金額と取引先で探せる形にしておけば足りると分かって、一気に肩の力が抜けました」<small>——香川県の30代 IT関連 Mさん（脚色あり）</small>',
-    what:'<p class="cmodal-p">検索機能の要件は本来、取引年月日・取引金額・取引先での検索に加えて、<strong>日付や金額の範囲を指定した検索</strong>、<strong>二つ以上の項目を組み合わせた検索</strong>まで含みます。ただし、税務職員によるデータのダウンロードの求めに応じることができる場合には、この2つが不要とされています。作り込みの負担が大きく下がります。</p>',
-    how:'<p class="cmodal-p">条件は、求められたときに<strong>データをそのまま提出できる状態にしておくこと</strong>です。特殊な形式でしか開けない、パスワードが分からない、担当者しかアクセスできない、といった状態だと応じられません。保存先と鍵の管理を、担当者以外にも分かるようにしておいてください。</p>'
-  },
-  {
-    art:'icCloudSave', cls:'c-blue', chip:'第八話：公表されたひな形', amt:'サンプルは無料',
-    title:'ゼロから作らずに済んだ',
-    story:'「規程を作れと言われても、法律の文章なんて書いたことがありません。専門家にお願いすると費用もかかりますし、後回しにしていました。ところが国税庁のページに、事務処理規程のサンプルや、索引簿の様式、ファイル名の付け方の例まで公表されているんです。うちの実情に合うように何行か書き換えるだけで、その日のうちに形になりました」<small>——香川県の40代 飲食業 Nさん（脚色あり）</small>',
-    what:'<p class="cmodal-p">国税庁は、電子帳簿保存法に関する<strong>一問一答（Q&amp;A）</strong>や、事務処理規程のサンプル、検索簿の様式、ファイル名の付け方の例などを公表しています。無料で入手でき、そのまま実務に使える水準です。ゼロから考える必要はまったくありません。</p>',
-    how:'<p class="cmodal-p">条件は、<strong>自社の実情に合わせて書き換えること</strong>です。サンプルには、自社にない役職名や、実際には行わない手順が入っていることがあります。そのまま備え付けると、規程と実際の運用が食い違ってしまいます。書き換えた規程を、誰がいつ承認したかも残しておいてください。</p>'
-  }
-];
-
-var modal = document.getElementById('caseModal');
-var CASE_LBL = {
-  bad:['よく伺うお話をもとにした創作例（脚色あり）', '何が起きたのか', 'こう確認すれば防げます'],
-  good:['よくある、うれしい誤算（創作例・脚色あり）', 'なぜ助かるのか', '使うための条件']
-};
-
-function renderCases(gridId, list, kind){
-  var grid = document.getElementById(gridId);
-  list.forEach(function(c){
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'case-card';
-    btn.innerHTML =
-      '<span class="art ' + c.cls + '">' + ARTS[c.art] + '</span>' +
-      '<span class="t"><span class="chip ' + c.cls + '">' + c.chip + '</span>' +
-      (c.amt ? '<span class="amt">' + c.amt + '</span>' : '') +
-      '<h3>' + c.title + '</h3>' +
-      '<span class="more">詳しく見る<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></span></span>';
-    btn.addEventListener('click', function(){ openCase(c, kind); });
-    grid.appendChild(btn);
-  });
-}
-
-function openCase(c, kind){
-  var lbl = CASE_LBL[kind] || CASE_LBL.bad;
-  document.getElementById('caseModalLbl1').textContent = lbl[0];
-  document.getElementById('caseModalLbl2').textContent = lbl[1];
-  document.getElementById('caseModalLbl3').textContent = lbl[2];
-  document.getElementById('caseModalLbl2Wrap').className =
-    'cmodal-label ' + (kind === 'good' ? 'lb-green' : 'lb-red');
-  document.getElementById('caseModalIco').className = 'cmodal-ico ' + c.cls;
-  document.getElementById('caseModalIco').innerHTML = ARTS[c.art];
-  document.getElementById('caseModalChip').className = 'cmodal-chip ' + c.cls;
-  document.getElementById('caseModalChip').textContent = c.chip;
-  document.getElementById('caseModalTitle').textContent = c.title;
-  document.getElementById('caseModalStory').innerHTML = c.story;
-  document.getElementById('caseModalWhat').innerHTML = c.what;
-  document.getElementById('caseModalHow').innerHTML = c.how;
-  modal.classList.add('show');
-  modal.setAttribute('aria-hidden', 'false');
-  document.body.style.overflow = 'hidden';
-  modal.querySelector('.cmodal-panel').scrollTop = 0;
-}
-
-renderCases('caseGrid', CASES, 'bad');
-renderCases('goodGrid', GOOD_CASES, 'good');
-
-function closeCase(){
-  modal.classList.remove('show');
-  modal.setAttribute('aria-hidden', 'true');
-  document.body.style.overflow = '';
-}
-document.getElementById('caseModalClose').addEventListener('click', closeCase);
-document.getElementById('caseModalBack').addEventListener('click', closeCase);
-document.addEventListener('keydown', function(e){
-  if(e.key === 'Escape' && modal.classList.contains('show')) closeCase();
-});
-
 /* ---------- まとめ：チェックリスト ---------- */
 var chkBoxes = document.querySelectorAll('#checklist input[type=checkbox]');
 var chkMsg = document.getElementById('chkMsg');
@@ -2304,5 +1975,62 @@ chkBoxes.forEach(function(c){ c.addEventListener('change', chkUpdate); });
 
 })();
 </script>
+<!-- TOT-JS-BEGIN ★劇場の窓。正本は hoken-newtools-src/tot/tot-parts.html -->
+<div class="tot-modal" id="totModal" aria-hidden="true">
+  <div class="tot-modal-back" data-tot-close></div>
+  <div class="tot-modal-panel" role="dialog" aria-modal="true" aria-labelledby="totModalTitle">
+    <div class="tot-modal-top">
+      <button type="button" class="tot-modal-close" data-tot-close aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <span class="tot-chip" id="totModalChip"></span>
+    <h3 class="tot-mtitle" id="totModalTitle"></h3>
+    <div id="totModalBody"></div>
+  </div>
+</div>
+<script>
+/* 劇場の窓（TOT流の部品）。カードの中の .tot-body を窓へ写して出すだけ */
+(function () {
+  var modal = document.getElementById('totModal');
+  if (!modal) return;
+  var chip = document.getElementById('totModalChip');
+  var title = document.getElementById('totModalTitle');
+  var body = document.getElementById('totModalBody');
+  var panel = modal.querySelector('.tot-modal-panel');
+  var last = null;
+  function open(art) {
+    last = document.activeElement;
+    var isG = art.classList.contains('gyaku');
+    modal.className = 'tot-modal show ' + (isG ? 'gyaku' : 'aru');
+    chip.textContent = art.querySelector('.tot-chip').textContent;
+    title.textContent = art.getAttribute('data-title') || art.querySelector('.tot-say').textContent;
+    body.innerHTML = art.querySelector('.tot-body').innerHTML;
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    panel.scrollTop = 0;
+    modal.querySelector('.tot-modal-close').focus();
+  }
+  function close() {
+    if (!modal.classList.contains('show')) return;
+    modal.className = 'tot-modal';
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    if (last && last.focus) last.focus();
+  }
+  var cards = document.querySelectorAll('.tot-case .tot-card');
+  for (var i = 0; i < cards.length; i++) {
+    cards[i].addEventListener('click', function () {
+      var art = this.parentNode;
+      while (art && !(art.classList && art.classList.contains('tot-case'))) art = art.parentNode;
+      if (art) open(art);
+    });
+  }
+  var cl = modal.querySelectorAll('[data-tot-close]');
+  for (var j = 0; j < cl.length; j++) cl[j].addEventListener('click', close);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+})();
+</script>
+<!-- TOT-JS-END -->
 </body>
 </html>
