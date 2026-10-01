@@ -165,15 +165,62 @@ a{color:var(--navy-2);}
 
 /* ---------- コンプライアンス（2026-10-01）── 毎日の記録4つ・確認と受け渡し・あわせて使う道具 ----------
    ★色はこのページの変数だけを使う。赤い札（.au-flag.red）は「記録の欠け」だけ。確認待ちは灰、確認済みは緑 */
-.au-tabgroups{margin-bottom:var(--sp-3);display:grid;gap:var(--sp-2);}
-.au-tg{display:grid;grid-template-columns:9.5em minmax(0,1fr);gap:var(--sp-3);align-items:center;}
-.au-tg-lab{font-size:var(--fs-xs);font-weight:700;color:var(--muted);}
-.au-tg .au-tabs{margin-bottom:0;}
-.au-tab{min-height:44px;}
+/* 2026-10-01 続きの指示「社内ツールの一覧に追加し、クリックして中を確認できるように。ごちゃごちゃしないように」
+   ふだんはこの節を隠し、カード（#kirokuBanner）を押すと body.comp-open で、この節だけの画面に切り替える */
+#auditSec{display:none;}
+body.comp-open #auditSec{display:block;margin-top:var(--sp-3);}
+body.comp-open #admin .wrap > *:not(#auditSec){display:none !important;}
+.cp-top{margin-bottom:var(--sp-3);}
+/* 1つの記録を開いているあいだは、上の説明文を畳む（携帯で本題が画面の半分より下になっていた）。印刷は前のまま */
+@media screen{ #auditSec.cp-in .sec-head p{display:none;} #auditSec.cp-in .sec-head{margin-bottom:var(--sp-2);} }
+.cp-back{display:inline-flex;align-items:center;gap:6px;background:var(--white);border:1px solid #cfe0ec;border-radius:999px;
+  padding:8px 18px 8px 12px;min-height:44px;font:inherit;font-size:var(--fs-sm);font-weight:700;color:var(--navy);cursor:pointer;}
+.cp-back svg{width:16px;height:16px;}
+.cp-back:hover{background:var(--navy-soft);}
+/* 入口の一覧（タイル）。毎日の記録4つ → 上長・社長 → 台帳4つ */
+.cp-home-h{display:flex;align-items:center;gap:var(--sp-3);font-size:var(--fs-sm);font-weight:700;color:var(--navy);letter-spacing:.06em;margin:var(--sp-5) 0 var(--sp-2);}
+.cp-home-h::after{content:"";flex:1;height:1px;background:var(--line);}
+.cp-home-h:first-child{margin-top:var(--sp-2);}
+.cp-tgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--sp-3);}
+.cp-tl{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;background:var(--white);border:1px solid #cfe0ec;border-radius:16px;
+  padding:14px 16px 16px;cursor:pointer;font:inherit;color:var(--text);min-height:44px;box-shadow:var(--shadow-sm);transition:.15s;}
+.cp-tl:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--navy-2);}
+.cp-tl:focus-visible{outline:3px solid var(--navy-2);outline-offset:2px;}
+.cp-tl-top{display:flex;align-items:center;gap:10px;width:100%;}
+.cp-tl-ico{width:36px;height:36px;flex:none;border-radius:50%;background:var(--navy-soft);display:flex;align-items:center;justify-content:center;color:var(--navy);}
+.cp-tl-ico svg{width:20px;height:20px;}
+.cp-tl b{font-size:var(--fs-md);color:var(--navy);line-height:1.4;}
+.cp-tl-d{font-size:var(--fs-sm);color:var(--muted);line-height:1.6;}
+.cp-tl-m{display:flex;flex-wrap:wrap;gap:4px 6px;margin-top:auto;padding-top:4px;font-size:var(--fs-xs);color:var(--muted);font-weight:700;align-items:center;}
+.cp-tl.wide{flex-direction:row;align-items:center;gap:var(--sp-4);width:100%;}
+.cp-tl.wide .cp-tl-top{width:auto;flex:none;}
+.cp-tl.wide .cp-tl-d{flex:1 1 auto;}
+.cp-tl.wide .cp-tl-m{margin-top:0;padding-top:0;flex:none;}
+@media(max-width:1000px){ .cp-tgrid{grid-template-columns:repeat(2,minmax(0,1fr));} }
+@media(max-width:560px){
+  .cp-tgrid{grid-template-columns:1fr;gap:var(--sp-2);}
+  .cp-tl.wide{flex-direction:column;align-items:flex-start;gap:6px;}
+  .cp-tl.wide .cp-tl-m{margin-top:2px;}
+}
+/* 1つ選んだあとの帯（一覧へ戻る・題名・この表を印刷） */
+.cp-crumb{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-2) var(--sp-4);margin:var(--sp-2) 0 var(--sp-3);}
+.cp-crumb-t{font-size:var(--fs-lg);color:var(--navy);font-family:var(--mincho);font-weight:600;letter-spacing:.04em;flex:1 1 auto;}
+/* 社内ツールのカード：緑（資格試験と同じ色。隣り合わない） */
+.training-banner.b-green{background:linear-gradient(160deg,#e8f6ef 0%,#fff8f2 70%);border-color:var(--green-border);}
+.training-banner.b-green .t-go{color:var(--green);}
+.training-banner .t-badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.training-banner .t-badges:empty{display:none;}
+/* 記録を足す：閉じているときは押すボタンの形にする */
+#auditSec details.cp-form:not([open]){border:0;background:none;padding:0;margin:var(--sp-2) 0 var(--sp-3);}
+#auditSec details.cp-form > summary{list-style:none;}
+#auditSec details.cp-form > summary::-webkit-details-marker{display:none;}
+#auditSec details.cp-form:not([open]) > summary{display:inline-flex;align-items:center;gap:8px;background:var(--coral-btn);color:#fff;border-radius:999px;
+  padding:10px 22px;min-height:44px;box-shadow:0 4px 12px rgba(176,60,26,.22);}
+#auditSec details.cp-form:not([open]) > summary::before{content:"＋";font-weight:800;}
+#auditSec details.cp-form:not([open]) > summary:hover{background:var(--coral-btn-h);}
+#auditSec details.cp-form[open] > summary::after{content:"（閉じる）";font-weight:400;color:var(--muted);font-size:var(--fs-sm);margin-left:6px;}
 .au-tab-n:not(:empty){display:inline-block;margin-left:6px;min-width:1.6em;padding:0 6px;border-radius:999px;background:var(--amber-bg);
   border:1px solid var(--amber-border);color:#7d5413;font-size:var(--fs-xs);line-height:1.6;text-align:center;}
-.au-tab[aria-selected="true"] .au-tab-n:not(:empty){background:#fff;}
-@media(max-width:640px){ .au-tg{grid-template-columns:1fr;gap:4px;} }
 .cp-whoami{font-size:var(--fs-sm);color:var(--muted);margin:-4px 0 var(--sp-2);display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;}
 .cp-whoami b{color:var(--navy);}
 .cp-link{background:none;border:0;padding:0 4px;color:var(--navy-2);text-decoration:underline;font-size:var(--fs-sm);cursor:pointer;min-height:44px;}
@@ -308,7 +355,9 @@ a{color:var(--navy-2);}
 @media print{
   body.au-print #auSelf details > ul{display:block;}
   body.au-print #admin .wrap > *:not(#auditSec){display:none !important;}
-  body.au-print #auditSec .au-tabgroups, body.au-print #auditSec .au-form, body.au-print #auditSec .au-foot,
+  body.au-print #auditSec{display:block !important;}
+  body.au-print #auditSec #auHome, body.au-print #auditSec .cp-top, body.au-print #auditSec #cpCrumb,
+  body.au-print #auditSec .au-form, body.au-print #auditSec .au-foot,
   body.au-print #auditSec .au-mini, body.au-print #auditSec .au-sum, body.au-print #auditSec .cp-whoami, body.au-print #auditSec .cp-filter,
   body.au-print #auditSec .cp-tools, body.au-print #auditSec .cp-xfer{display:none !important;}
   body.au-print #auditSec .cp-det{display:table-row !important;}
@@ -817,6 +866,16 @@ a{color:var(--navy-2);}
           <p>代理店の実務ルール100問。意向把握・比較推奨・告知・乗換募集など。監査で聞かれることと、用意しておく証拠92件の一覧つき。</p></span>
           <span class="t-go" id="compGo"></span>
         </div>
+        <!-- コンプライアンスの記録（2026-10-01 ユーザー指示「コンプライアンスは（社内ツールの一覧の）ここに追加し、クリックして中を確認できるように」）
+             ★ほかのカードと違い、別のページを開かず、この管理画面の中でコンプライアンスの画面に切り替える（記録がこの画面の保存先にあるため）。
+               配線は initAudit()。カードの下の札（#kirokuBadges）は cpRenderCommon() が描く -->
+        <div class="training-banner b-green" id="kirokuBanner" tabindex="0" role="button" aria-label="コンプライアンス（意向把握・比較推奨・書類の点検・苦情の記録と台帳）を開く">
+          <span class="t-art"><svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#e8f6ef"/><rect x="15" y="12" width="30" height="40" rx="4" fill="#fffdf8" stroke="#2c7a4b" stroke-width="2.6"/><rect x="23" y="8" width="14" height="8" rx="3" fill="#2c7a4b"/><path d="m20.5 26 3 3 5-5.5M20.5 38l3 3 5-5.5" fill="none" stroke="#2c7a4b" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M32 27h8M32 39h8" stroke="#a9d3bb" stroke-width="3" stroke-linecap="round"/><circle cx="46" cy="47" r="9" fill="#1b3f5e"/><path d="m42.2 47 2.8 2.8 5-5.4" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span class="t-body"><h3>コンプライアンス</h3>
+          <p>意向把握・比較推奨・書類の点検・苦情の記録と、研修・募集資料・資格の台帳。メンバーの記録を上長・社長が確認できます。</p>
+          <span class="t-badges" id="kirokuBadges"></span></span>
+          <span class="t-go" id="kirokuGo">開く<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></span>
+        </div>
         <div class="inhouse-group">数字と顧客を管理する</div>
         <div class="training-banner b-sales" id="salesBanner" tabindex="0" role="button" aria-label="保険営業ダッシュボードを開く">
           <span class="t-art"><svg aria-hidden="true" viewBox="0 0 64 64"><rect x="11" y="8" width="42" height="48" rx="6" fill="#fffdf8" stroke="#27587f" stroke-width="3"/><rect x="24" y="4" width="16" height="8" rx="3" fill="#1b3f5e"/><rect x="19" y="38" width="7" height="10" rx="2" fill="#c6e2f2"/><rect x="29" y="31" width="7" height="17" rx="2" fill="#63b8dd"/><rect x="39" y="24" width="7" height="24" rx="2" fill="#f0846a"/><path d="M20 27l8-5 7 3 10-8" fill="none" stroke="#2c7a4b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M38 17h7v7" fill="none" stroke="#2c7a4b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
@@ -852,68 +911,59 @@ a{color:var(--navy-2);}
 
     <!-- コンプライアンス（2026-10-01 ユーザー指示「今あるツールも含めて、コンプライアンスというコンテンツを作成し、そこで一括管理できるようにしてください。
          まず、１，２，４，５を作成してください。チームメンバーが作成したことを上長や社長が確認できるようにしてください。」）
-         もとの「監査資料」（研修台帳・募集資料台帳・資格と届出の期限・自習の記録）を「台帳」の段に入れ、
-         毎日の記録4つ（意向把握・比較推奨・書類の点検・苦情）と「確認と受け渡し」を足した。中身は initAudit() が描く。
-         ★id（auditSec・auTrain ほか）と data-au-tab の印は前のまま（学習の記録の検査 katalogchk.js が使う） -->
-    <section class="sec" id="auditSec">
+         同じ日の続きの指示「コンプライアンスは（社内ツールの一覧の）ここに追加し、クリックして中を確認できるようにしてください。
+         使いやすいように内容はごちゃごちゃしないように見た目と使いやすさ重視で」
+         → ふだんは隠しておき、社内ツールの「コンプライアンス」のカード（#kirokuBanner）を押すと、この管理画面の中で
+           この節だけの画面に切り替わる（body.comp-open。アドレスの末尾は #compliance）。「社内ツールに戻る」で戻る。
+         → 中は2段：入口の一覧（#auHome のタイル）→ 1つ選ぶとその記録だけ（#cpCrumb に「一覧へ戻る」と題名）。
+         中身は initAudit() が描く。★id（auditSec・auTrain・auSelf ほか）と data-au-tab の印は前のまま（katalogchk.js が使う） -->
+    <section class="sec" id="auditSec" aria-label="コンプライアンス">
+      <div class="cp-top"><button type="button" class="cp-back" data-cp-close><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>社内ツールに戻る</button></div>
       <div class="sec-head">
         <h2>コンプライアンス</h2>
-        <p>毎日の記録（意向把握・比較推奨・書類の点検・苦情）と、研修・募集資料・資格の台帳を、ここでまとめて管理します。メンバーが書いた記録は上長・社長に渡し、確認の印を付けられます。点検や報告を求められたときは、このまま印刷・PDFにできます。</p>
+        <p>毎日の記録と台帳を、ここでまとめて管理します。メンバーが書いた記録には、上長・社長が確認の印を付けられます。</p>
       </div>
       <div class="au-print-head" id="auPrintHead"></div>
       <p class="cp-whoami" id="cpWho"></p>
-      <div class="au-sum" id="auSum"></div>
-      <div class="au-tabgroups">
-        <div class="au-tg"><span class="au-tg-lab">毎日の記録</span>
-          <div class="au-tabs" role="tablist" aria-label="毎日の記録">
-            <button class="au-tab" role="tab" type="button" data-au-tab="iko" aria-selected="true" aria-controls="auIko">意向把握</button>
-            <button class="au-tab" role="tab" type="button" data-au-tab="hikaku" aria-selected="false" aria-controls="auHikaku">比較推奨</button>
-            <button class="au-tab" role="tab" type="button" data-au-tab="shorui" aria-selected="false" aria-controls="auShorui">書類の点検</button>
-            <button class="au-tab" role="tab" type="button" data-au-tab="kujo" aria-selected="false" aria-controls="auKujo">苦情・お申し出</button>
-          </div></div>
-        <div class="au-tg"><span class="au-tg-lab">台帳（監査資料）</span>
-          <div class="au-tabs" role="tablist" aria-label="台帳（監査資料）">
-            <button class="au-tab" role="tab" type="button" data-au-tab="train" aria-selected="false" aria-controls="auTrain">研修台帳</button>
-            <button class="au-tab" role="tab" type="button" data-au-tab="mat" aria-selected="false" aria-controls="auMat">募集資料台帳</button>
-            <button class="au-tab" role="tab" type="button" data-au-tab="limit" aria-selected="false" aria-controls="auLimit">資格・届出の期限</button>
-            <button class="au-tab" role="tab" type="button" data-au-tab="self" aria-selected="false" aria-controls="auSelf">自習の記録</button>
-          </div></div>
-        <div class="au-tg"><span class="au-tg-lab">上長・社長</span>
-          <div class="au-tabs" role="tablist" aria-label="確認と受け渡し">
-            <button class="au-tab" role="tab" type="button" data-au-tab="kakunin" aria-selected="false" aria-controls="auKakunin">確認と受け渡し<span class="au-tab-n" id="cpTabN"></span></button>
-          </div></div>
+      <div id="auHome">
+        <div class="au-sum" id="auSum"></div>
+        <div id="cpHomeTiles"></div>
+        <div class="cp-tools">
+          <h3 class="cp-tools-h">あわせて使う道具</h3>
+          <div class="cp-tool-list">
+            <button type="button" class="cp-tool" data-cpopen="inh:comp"><b>コンプライアンス100本ノック</b><span>監査で聞かれることと、用意しておく証拠の一覧</span></button>
+            <button type="button" class="cp-tool" data-cpopen="inh:mentor"><b>AI師匠</b><span>社内の決まり・内務の手続きを、何度でも聞き直せる</span></button>
+            <button type="button" class="cp-tool" data-cpopen="tool:lifeplan"><b>ライフプラン（商談記録）</b><span>商談の日付・場所・方法・ご出席を残す</span></button>
+            <button type="button" class="cp-tool" data-cpopen="inh:case"><b>支払事例トレーニング</b><span>「出ますよ」と言い過ぎないための練習</span></button>
+            <button type="button" class="cp-tool" data-cpopen="inh:cal"><b>満期・年齢到達カレンダー</b><span>更新・満期・年齢の節目の声かけ</span></button>
+            <button type="button" class="cp-tool" data-cpopen="inh:sales"><b>営業ダッシュボード</b><span>顧客カルテと面談の記録</span></button>
+          </div>
+        </div>
+        <div class="au-foot">
+          <button class="btn btn-ghost btn-sm" type="button" id="auPrint">全てを印刷・PDFにする（8つまとめて）</button>
+          <button class="btn btn-ghost btn-sm" type="button" id="auExport">控えを書き出す</button>
+          <button class="btn btn-ghost btn-sm" type="button" id="auImportBtn">控えから読み込む</button>
+          <input type="file" id="auImport" accept="application/json,.json" hidden>
+        </div>
       </div>
-      <div class="au-panel" id="auIko" role="tabpanel"></div>
-      <div class="au-panel hide" id="auHikaku" role="tabpanel"></div>
-      <div class="au-panel hide" id="auShorui" role="tabpanel"></div>
-      <div class="au-panel hide" id="auKujo" role="tabpanel"></div>
-      <div class="au-panel hide" id="auTrain" role="tabpanel"></div>
-      <div class="au-panel hide" id="auMat" role="tabpanel"></div>
-      <div class="au-panel hide" id="auLimit" role="tabpanel"></div>
-      <div class="au-panel hide" id="auSelf" role="tabpanel"></div>
-      <div class="au-panel hide" id="auKakunin" role="tabpanel"></div>
+      <div class="cp-crumb hide" id="cpCrumb">
+        <button type="button" class="cp-back" data-au-tab="home"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>一覧へ戻る</button>
+        <h3 class="cp-crumb-t" id="cpCrumbTitle"></h3>
+        <button class="btn btn-ghost btn-sm" type="button" id="auPrintOne">この表を印刷・PDFにする</button>
+      </div>
+      <div class="au-panel hide" id="auIko" role="region" aria-label="意向把握の記録"></div>
+      <div class="au-panel hide" id="auHikaku" role="region" aria-label="比較推奨の記録"></div>
+      <div class="au-panel hide" id="auShorui" role="region" aria-label="申込書類の送付前点検"></div>
+      <div class="au-panel hide" id="auKujo" role="region" aria-label="苦情・お申し出の台帳"></div>
+      <div class="au-panel hide" id="auTrain" role="region" aria-label="研修台帳"></div>
+      <div class="au-panel hide" id="auMat" role="region" aria-label="募集資料台帳"></div>
+      <div class="au-panel hide" id="auLimit" role="region" aria-label="資格・届出の期限"></div>
+      <div class="au-panel hide" id="auSelf" role="region" aria-label="自習の記録"></div>
+      <div class="au-panel hide" id="auKakunin" role="region" aria-label="確認と受け渡し"></div>
       <input type="file" id="auSelfFile" accept="application/json,.json" multiple hidden>
       <input type="file" id="cpFile" accept="application/json,.json" multiple hidden>
       <datalist id="cpNames"></datalist>
       <datalist id="cpCmps"></datalist>
-      <div class="cp-tools">
-        <h3 class="cp-tools-h">あわせて使う道具</h3>
-        <div class="cp-tool-list">
-          <button type="button" class="cp-tool" data-cpopen="inh:comp"><b>コンプライアンス100本ノック</b><span>監査で聞かれることと、用意しておく証拠の一覧</span></button>
-          <button type="button" class="cp-tool" data-cpopen="inh:mentor"><b>AI師匠</b><span>社内の決まり・内務の手続きを、何度でも聞き直せる</span></button>
-          <button type="button" class="cp-tool" data-cpopen="tool:lifeplan"><b>ライフプラン（商談記録）</b><span>商談の日付・場所・方法・ご出席を残す</span></button>
-          <button type="button" class="cp-tool" data-cpopen="inh:case"><b>支払事例トレーニング</b><span>「出ますよ」と言い過ぎないための練習</span></button>
-          <button type="button" class="cp-tool" data-cpopen="inh:cal"><b>満期・年齢到達カレンダー</b><span>更新・満期・年齢の節目の声かけ</span></button>
-          <button type="button" class="cp-tool" data-cpopen="inh:sales"><b>営業ダッシュボード</b><span>顧客カルテと面談の記録</span></button>
-        </div>
-      </div>
-      <div class="au-foot">
-        <button class="btn btn-ghost btn-sm" type="button" id="auPrintOne">いま開いている表を印刷・PDFにする</button>
-        <button class="btn btn-ghost btn-sm" type="button" id="auPrint">印刷・PDFにする（8つまとめて）</button>
-        <button class="btn btn-ghost btn-sm" type="button" id="auExport">控えを書き出す</button>
-        <button class="btn btn-ghost btn-sm" type="button" id="auImportBtn">控えから読み込む</button>
-        <input type="file" id="auImport" accept="application/json,.json" hidden>
-      </div>
       <p class="au-note">記録は<b>この端末のブラウザにだけ</b>残ります（ブラウザのデータを消すと消えます）。月に1回は「控えを書き出す」で保存してください。
         上長・社長への受け渡しはファイルで行います（「確認と受け渡し」）。<b>お客様のお名前・ご連絡先は書かず、管理番号で残してください。</b>
         記録は本人が書いたもので、書き換えを防ぐ仕組みはありません。この画面は記録の手助けで、点検・監査の結果を保証するものではありません。
@@ -1059,7 +1109,7 @@ var TOOLS = [
     id: 'josei-hoken-check', short: '妊娠・出産', cat: 'life', name: '妊娠・出産と保険の「出る・出ない」チェック',
     owner: '株式会社Office-M', local: 'josei-hoken-check/index.html',
     url: 'https://office-m-nakatani.github.io/office-m/josei-hoken-check/',
-    desc: '自動車保険で、車検の費用は出ません。普通のお産も同じで、医療保険からは原則出ません。治療になったお産・入るタイミング・公的なお金の3本の線と、お客様のひと言への返し方まで。'
+    desc: '妊婦健診の費用は、医療保険から出ません。普通のお産も同じで、原則出ません。治療になったお産・入るタイミング・公的なお金の3本の線と、お客様のひと言への返し方まで。'
   },
   {
     id: 'shugyoufunou-check', short: '就業不能', cat: 'life', name: '働けない期間の「出る・出ない」チェック',
@@ -4139,7 +4189,7 @@ var TOOL_HERO = {
   'hokenkin-zeikin-check': '同じお札でも、お給料とお年玉は同じお金ですか。',
   'uketorinin-check': '宛名が昔のままの荷物。今の家族に、届くと思いますか。',
   'ninchishou-check': '通帳も印鑑も手元にある。親の定期預金、下ろせますか。',
-  'josei-hoken-check': '自動車保険で、車検の費用まで出ると思いますか。',
+  'josei-hoken-check': '妊婦健診の費用、医療保険から出ると思いますか。',
   'kanwagata-check': '家の鍵、回してみる前に割高な鍵屋を呼びますか。',
   'kodoshougai-check': '英検1級の人は、漢検も1級だと思いますか。',
   'teiki-shuushin-check': '家が燃えなかった1年。払った火災保険料は、損でしたか。',
@@ -5554,23 +5604,11 @@ function auIssues() {
   return out;
 }
 
+/* 2026-10-01 続きの指示「ごちゃごちゃしないように」：注意の数は入口のタイル（cpRenderHome）と社内ツールのカードに出す。
+   ここは「いま注意が必要なものはありません」の一行だけ（注意があるときは空） */
 function auRenderSum() {
-  var i = auIssues(), host = document.getElementById('auSum'), fy = auFyOf(), c = cpCounts(), mgr = cpMgr();
-  var chips = [
-    /* 赤はコンプライアンスでは「記録の欠け」だけ。確認待ち・対応中は人を責める札にしないので琥珀 */
-    ['red', '記録の欠け', c.miss, c.missKind || 'iko'],
-    ['amber', mgr ? 'あなたの確認がまだの記録' : '戻された記録', mgr ? c.wait : c.back, 'kakunin'],
-    ['amber', 'まだ上長に渡していない記録', c.unsent, 'kakunin'],
-    ['amber', '対応中の苦情・お申し出', c.open, 'kujo'],
-    ['red', '期限切れ', i.expired, 'limit'], ['red', '登録番号なしの資料', i.noreg, 'mat'], ['red', '使用期限切れの資料', i.matExpired, 'mat'],
-    ['red', '届出が未確認', i.todoke, 'limit'], ['red', '期限まで90日以内', i.urgent, 'limit'], ['amber', '期限が近い', i.soon, 'limit'], ['amber', '使用期限が近い資料', i.matSoon, 'mat'],
-    ['amber', fy + '年度の継続教育（生保）が未履修', i.keizoku, 'limit'], ['amber', fy + '年度の研修記録がない人', i.notrain, 'train']
-  ].filter(function (c) { return c[2].length; });
-  host.innerHTML = chips.length
-    ? chips.map(function (c) {
-        return '<button type="button" class="au-chip ' + c[0] + '" data-au-go="' + c[3] + '" title="' + esc(c[2].join('、')) + '">' + esc(c[1]) + ' <b>' + c[2].length + '</b></button>';
-      }).join('')
-    : '<span class="au-chip ok">いま注意が必要なものはありません</span>';
+  var host = document.getElementById('auSum'), t = cpHomeData();
+  host.innerHTML = t.any ? '' : '<span class="au-chip ok">いま注意が必要なものはありません</span>';
   cpRenderCommon();
 }
 
@@ -6373,9 +6411,106 @@ function cpNamesList() {
 function cpRenderCommon() {
   var w = document.getElementById('cpWho');
   if (w) w.innerHTML = cpWhoHTML();
-  var c = cpCounts(), n = document.getElementById('cpTabN');
-  if (n) n.textContent = cpMgr() ? (c.wait.length || '') : (c.back.length || '');
+  cpRenderHome();
   cpNamesList();
+}
+
+/* ---------- 入口の一覧（タイル）と、社内ツールのカードの札（2026-10-01 続き）----------
+   ★赤い札は「記録の欠け」と台帳の期限切れ・登録番号なし・届出の未確認だけ。確認待ち・対応中は琥珀、件数は灰の文字 */
+var AU_TITLE = { iko: '意向把握の記録', hikaku: '比較推奨の記録', shorui: '申込書類の送付前点検', kujo: '苦情・お申し出の台帳',
+  train: '研修台帳', mat: '募集資料台帳', limit: '資格・届出の期限', self: '自習の記録', kakunin: '確認と受け渡し' };
+var CP_ICO = {
+  iko: '<path d="M4 5.5h16v10H9l-5 4v-14Z"/><path d="M8 9.5h8M8 12.5h5"/>',
+  hikaku: '<path d="M12 4v16M5 20h14"/><path d="M5 8h14"/><path d="m5 8-2.5 6a2.5 2.5 0 0 0 5 0L5 8ZM19 8l-2.5 6a2.5 2.5 0 0 0 5 0L19 8Z"/>',
+  shorui: '<path d="M6 3h9l4 4v14H6Z"/><path d="M15 3v4h4"/><path d="m9 13 2 2 4-4"/>',
+  kujo: '<path d="M4 5h16v11H8l-4 3.5Z"/><path d="M12 8v3.5M12 13.6v.01"/>',
+  kakunin: '<circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><path d="m15 11 2 2 4-4.5"/>',
+  train: '<path d="M3 8.5 12 4l9 4.5-9 4.5Z"/><path d="M7 10.5V15c0 1.4 2.2 2.8 5 2.8s5-1.4 5-2.8v-4.5"/>',
+  mat: '<rect x="4" y="3.5" width="16" height="17" rx="2"/><path d="M8 8h8M8 11.5h8M8 15h5"/>',
+  limit: '<circle cx="12" cy="12.5" r="8"/><path d="M12 8v4.8l3 1.8M9.5 2.8h5"/>',
+  self: '<path d="M4 19V5M4 19h16"/><path d="m7 15 4-4 3 3 5-6"/>'
+};
+var CP_TL_NAME = { iko: '意向把握', hikaku: '比較推奨', shorui: '書類の点検', kujo: '苦情・お申し出', kakunin: '確認と受け渡し',
+  train: '研修台帳', mat: '募集資料台帳', limit: '資格・届出の期限', self: '自習の記録' };
+var CP_TL_DESC = {
+  iko: '最初のご意向と申込の内容を並べて残す', hikaku: '推奨の方針・比べた商品・お勧めした理由', shorui: '申込書類を送る前に、別の人が点検',
+  kujo: '受付から再発防止まで、1件ずつ閉じる', train: '研修の計画と、実施・出席の記録', mat: '登録番号・承認日・使用期限',
+  limit: '名簿・損保一般試験・継続教育・届出', self: '社員から受け取った学習の記録（量だけ）'
+};
+function cpFlagT(cls, text, list) { return '<span class="au-flag ' + cls + '"' + (list && list.length ? ' title="' + esc(list.join('、')) + '"' : '') + '>' + esc(text) + '</span>'; }
+/* 各タイルの札。any＝どこかに注意があるか（上の一行とカードで使う） */
+function cpHomeData() {
+  var i = auIssues(), fy = auFyOf(), mgr = cpMgr(), me = au.me, out = { any: false, t: {}, card: [] };
+  var push = function (k, cls, text, list) { if (!list.length) return; (out.t[k] = out.t[k] || []).push(cpFlagT(cls, text + ' ' + list.length, list)); out.any = true; };
+  CP_KINDS.forEach(function (k) {
+    var all = au.recs.filter(function (r) { return r.kind === k; });
+    var vis = mgr ? all : all.filter(cpMine);
+    var lab = function (r) { return auFmt(r.f.date) + (r.f.no ? ' ' + r.f.no : '') + (mgr && r.owner ? '（' + r.owner + '）' : ''); };
+    out.t[k] = ['<span>記録 ' + all.length + '件</span>'];
+    push(k, 'red', '記録の欠け', vis.filter(function (r) { return cpMissing(r).length; }).map(lab));
+    if (mgr) push(k, 'amber', 'あなたの確認待ち', all.filter(cpWaitForMe).map(lab));
+    else push(k, 'wait', '確認待ち', vis.filter(function (r) { return !cpOkAny(r) && !cpBackAny(r); }).map(lab));
+    if (k === 'kujo') push(k, 'amber', '対応中', vis.filter(function (r) { return !r.f.done; }).map(lab));
+  });
+  var c = cpCounts();
+  out.t.kakunin = [];
+  if (!me.name) out.t.kakunin.push('<span>はじめに、名前と立場を入れてください</span>');
+  else out.t.kakunin.push('<span>' + esc(me.name + '（' + CP_ROLE_SHORT[me.role] + '）') + '</span>');
+  if (mgr) push('kakunin', 'amber', 'あなたの確認待ち', c.wait);
+  else { push('kakunin', 'amber', '戻された記録', c.back); push('kakunin', 'amber', 'まだ上長に渡していない', c.unsent); }
+  out.t.train = ['<span>' + fy + '年度 ' + au.trainings.filter(function (t) { return auFyOf(t.date) === fy; }).length + '回</span>'];
+  push('train', 'amber', fy + '年度の研修記録がない人', i.notrain);
+  out.t.mat = ['<span>' + au.materials.filter(function (x) { return !x.disposed; }).length + '点</span>'];
+  push('mat', 'red', '登録番号なし', i.noreg); push('mat', 'red', '使用期限切れ', i.matExpired); push('mat', 'amber', '使用期限が近い', i.matSoon);
+  out.t.limit = ['<span>名簿 ' + auActiveMembers().length + '人</span>'];
+  push('limit', 'red', '期限切れ', i.expired); push('limit', 'red', '期限まで90日以内', i.urgent); push('limit', 'red', '届出が未確認', i.todoke);
+  push('limit', 'amber', '期限が近い', i.soon); push('limit', 'amber', '継続教育（生保）が未履修', i.keizoku);
+  var ym = auIsoToday().slice(0, 7);
+  out.t.self = ['<span>今月 ' + au.selfs.filter(function (x) { return x.ym === ym; }).length + '人分</span>'];
+  /* 社内ツールのカードの札：記録の欠けと、その人がいま動くこと（確認待ち・戻された） */
+  if (c.miss.length) out.card.push(cpFlagT('red', '記録の欠け ' + c.miss.length, c.miss));
+  if (mgr && c.wait.length) out.card.push(cpFlagT('amber', 'あなたの確認待ち ' + c.wait.length, c.wait));
+  if (!mgr && c.back.length) out.card.push(cpFlagT('amber', '戻された記録 ' + c.back.length, c.back));
+  return out;
+}
+function cpTileHTML(k, d, wide) {
+  return '<button type="button" class="cp-tl' + (wide ? ' wide' : '') + '" data-au-tab="' + k + '">' +
+    '<span class="cp-tl-top"><span class="cp-tl-ico"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + CP_ICO[k] + '</svg></span>' +
+    '<b>' + esc(CP_TL_NAME[k]) + '</b></span>' +
+    '<span class="cp-tl-d">' + esc(k === 'kakunin' ? 'メンバーの記録を上長・社長が確認する。受け渡しはファイルで' : CP_TL_DESC[k]) + '</span>' +
+    '<span class="cp-tl-m">' + (d.t[k] || []).join('') + '</span></button>';
+}
+function cpRenderHome() {
+  var d = cpHomeData(), host = document.getElementById('cpHomeTiles');
+  if (host) host.innerHTML =
+    '<h3 class="cp-home-h">毎日の記録</h3><div class="cp-tgrid">' + CP_KINDS.map(function (k) { return cpTileHTML(k, d); }).join('') + '</div>' +
+    '<h3 class="cp-home-h">上長・社長</h3>' + cpTileHTML('kakunin', d, true) +
+    '<h3 class="cp-home-h">台帳（監査資料）</h3><div class="cp-tgrid">' + ['train', 'mat', 'limit', 'self'].map(function (k) { return cpTileHTML(k, d); }).join('') + '</div>';
+  var cb = document.getElementById('kirokuBadges');
+  if (cb) cb.innerHTML = d.card.join('');
+}
+/* この節だけの画面に切り替える（社内ツールのカードから）。アドレスの末尾 #compliance でブラウザの「戻る」にも合わせる */
+var cpPushed = false;
+function cpOpenView(push) {
+  if (document.body.classList.contains('comp-open')) return;
+  document.body.classList.add('comp-open');
+  if (push !== false && location.hash !== '#compliance') { try { history.pushState({ comp: 1 }, '', '#compliance'); cpPushed = true; } catch (e) {} }
+  window.scrollTo(0, 0);
+}
+function cpCloseView(fromPop) {
+  if (!document.body.classList.contains('comp-open')) return;
+  document.body.classList.remove('comp-open');
+  if (!fromPop && location.hash === '#compliance') {
+    if (cpPushed) { cpPushed = false; try { history.back(); } catch (e) {} }
+    else { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} }
+  }
+  var b = document.getElementById('kirokuBanner');
+  if (b) b.scrollIntoView({ block: 'center' });
+}
+function cpGoTab(k) {
+  cpOpenView();
+  auSetTab(k);
+  document.getElementById('auditSec').scrollIntoView({ block: 'start' });
 }
 
 /* ---------- 受け渡しのファイル ---------- */
@@ -6623,19 +6758,21 @@ function auRenderSome(keys, skip) {
 var AU_PANELS = [['iko', 'auIko'], ['hikaku', 'auHikaku'], ['shorui', 'auShorui'], ['kujo', 'auKujo'],
   ['train', 'auTrain'], ['mat', 'auMat'], ['limit', 'auLimit'], ['self', 'auSelf'], ['kakunin', 'auKakunin']];
 function auSetTab(k) {
+  if (k !== 'home' && !AU_TITLE[k]) k = 'home';
   auTab = k;
-  AU_PANELS.forEach(function (p) {
-    document.getElementById(p[1]).classList.toggle('hide', p[0] !== k);
-    var b = document.querySelector('[data-au-tab="' + p[0] + '"]');
-    if (b) b.setAttribute('aria-selected', p[0] === k ? 'true' : 'false');
-  });
+  AU_PANELS.forEach(function (p) { document.getElementById(p[1]).classList.toggle('hide', p[0] !== k); });
+  document.getElementById('auHome').classList.toggle('hide', k !== 'home');
+  document.getElementById('cpCrumb').classList.toggle('hide', k === 'home');
+  document.getElementById('cpCrumbTitle').textContent = AU_TITLE[k] || '';
+  document.getElementById('auditSec').classList.toggle('cp-in', k !== 'home');
 }
 
 function auHandle(e) {
+  if (e.target.closest('[data-cp-close]')) { cpCloseView(); return; }
   var go = e.target.closest('[data-au-go]');
-  if (go) { auSetTab(go.dataset.auGo); return; }
+  if (go) { cpGoTab(go.dataset.auGo); return; }
   var tab = e.target.closest('[data-au-tab]');
-  if (tab) { auSetTab(tab.dataset.auTab); return; }
+  if (tab) { cpGoTab(tab.dataset.auTab); return; }
   if (cpHandle(e) !== false) return;
   var del = e.target.closest('[data-au-del]');
   if (del) {
@@ -6723,8 +6860,14 @@ function initAudit() {
   cpInitFile();
   auLoad();
   try { auRenderAll(); } catch (err) { auLoadFailed = true; au = auClean(null); auRenderAll(); toast('コンプライアンスの記録を読み込めませんでした。控えから読み込んでください'); }
-  /* 上長・社長の端末で確認がまだの記録があれば、最初に「確認と受け渡し」を開く */
-  auSetTab(au.recs.some(cpWaitForMe) ? 'kakunin' : 'iko');
+  auSetTab('home');
+  var card = document.getElementById('kirokuBanner');
+  if (card) {
+    card.onclick = function () { auSetTab('home'); cpOpenView(); };
+    card.onkeydown = function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.onclick(); } };
+  }
+  window.addEventListener('popstate', function () { if (location.hash === '#compliance') cpOpenView(false); else cpCloseView(true); });
+  if (location.hash === '#compliance') cpOpenView(false);
 }
 
 /* ============================================================
@@ -6884,8 +7027,7 @@ function initStudy() {
 function auInitButtons() {
   /* one＝いま開いているタブだけ。畳んである一覧（自習の記録の題名・推奨の方針）は、紙には開いて出す（印刷が終わったら元に戻す） */
   var auPrintGo = function (one) {
-    var tabName = (document.querySelector('[data-au-tab="' + auTab + '"]') || {}).textContent || '';
-    document.getElementById('auPrintHead').textContent = (one ? 'コンプライアンス：' + tabName.replace(/\d+$/, '')
+    document.getElementById('auPrintHead').textContent = (one ? 'コンプライアンス：' + (AU_TITLE[auTab] || '')
         : 'コンプライアンス（意向把握・比較推奨・書類の点検・苦情・研修台帳・募集資料台帳・資格と届出の期限・自習の記録）') +
       (au.me.name ? '　出力した人 ' + au.me.name : '') + '　出力日 ' + auFmt(auIsoToday()) +
       '　※記録の手助けとして作成したもので、点検・監査の結果を保証するものではありません。お客様は管理番号で記録しています。';
@@ -6956,7 +7098,7 @@ function auInitButtons() {
 var UPDATES = [
   { id: '2026-10-01-comp', date: '2026-10-01', target: 'sec:auditSec',
     title: '「コンプライアンス」を追加：意向把握・比較推奨・書類の点検・苦情の記録と、上長・社長の確認',
-    body: 'これまでの監査資料（研修台帳・募集資料台帳・資格と届出の期限・自習の記録）を「コンプライアンス」にまとめ、毎日の記録を4つ足しました。意向把握の記録（最初のご意向と申込の内容、違ったときの理由）、比較推奨の記録（推奨の方針・比べた商品・お勧めした理由）、申込書類の送付前点検、苦情・お申し出の台帳です。メンバーが書いた記録はファイルで上長に渡し、上長・社長が1件ずつ「確認した」か「戻す」を付けられます。お客様のお名前は書かず、管理番号で残します。' },
+    body: 'これまでの監査資料（研修台帳・募集資料台帳・資格と届出の期限・自習の記録）を「コンプライアンス」にまとめ、毎日の記録を4つ足しました。意向把握の記録（最初のご意向と申込の内容、違ったときの理由）、比較推奨の記録（推奨の方針・比べた商品・お勧めした理由）、申込書類の送付前点検、苦情・お申し出の台帳です。メンバーが書いた記録はファイルで上長に渡し、上長・社長が1件ずつ「確認した」か「戻す」を付けられます。お客様のお名前は書かず、管理番号で残します。社内ツールの「学ぶ・鍛える」のカードから開きます。' },
   { id: '2026-09-29-study', date: '2026-09-29', target: 'sec:studySec',
     title: '学習の記録と、監査資料の「自習の記録」を追加',
     body: '学習資料・教材を1分以上ひらいた数、教材の問題を最後まで解いた数、資格の問題に答えた数、AI師匠への仕事の相談の回数を、この端末で月ごとにまとめます。社長・管理職の方に届くのは、本人が中身を確かめて書き出したときだけです。届くのは量と学習資料の題名までで、相談の中身・問題の正誤・日時は端末にも記録していません。監査資料の「自習の記録」で読み込むと、社員全員分を月ごとに1枚にできます。' },
@@ -7075,7 +7217,10 @@ function initNews() {
   btn.onclick = function () { setNewsOpen(document.getElementById('newsPanel').classList.contains('hide')); };
   document.getElementById('newsPanel').addEventListener('click', function (e) {
     var sg = e.target.closest && e.target.closest('[data-secgo]');
-    if (sg) { var el = document.getElementById(sg.dataset.secgo); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+    if (sg) {
+      if (sg.dataset.secgo === 'auditSec') { setNewsOpen(false); auSetTab('home'); cpOpenView(); return; }
+      var el = document.getElementById(sg.dataset.secgo); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); return;
+    }
     var b = e.target.closest && e.target.closest('[data-inhopen]');
     if (!b) return;
     var target = inhouseTarget(b.dataset.inhopen);
@@ -7087,6 +7232,8 @@ function initNews() {
     var h = document.querySelector('#' + INHOUSE_BANNER[key] + ' h3');
     if (h && !h.querySelector('.upd-pill')) h.insertAdjacentHTML('beforeend', updPill('inh:' + key));
   });
+  var kh = document.querySelector('#kirokuBanner h3');
+  if (kh && !kh.querySelector('.upd-pill')) kh.insertAdjacentHTML('beforeend', updPill('sec:auditSec'));
   renderNewsBadge();
 }
 
