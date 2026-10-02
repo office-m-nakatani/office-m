@@ -826,6 +826,35 @@ section .wrap .tsukami-q,section .wrap .age-note,section .wrap .caution{max-widt
 }
 .gyaku .tot-more{color:var(--green,#2c7a4b);}
 .tot-note{font-size:.9rem;line-height:1.8;color:var(--muted,#5c6874);margin-top:16px;}
+/* --- 逆転劇場のカード（2026-10-02 ユーザー指示「逆転劇場はこの見た目に統一してください」）
+   医療保険のページ（iryohoken-yami-check）の絵つきカードにそろえた：左に場面の絵／札2つ／見出し＝流れを変えたひと言／
+   ワンポイント／詳しく見る。札の色は話の順に 空・桃・琥珀・緑・朱（見本と同じ並び） */
+.tot-card.tot-gk{flex-direction:row;align-items:center;gap:14px;padding:16px;}
+.tot-art{flex:0 0 104px;width:104px;height:78px;border-radius:14px;overflow:hidden;padding:2px;display:flex;align-items:center;justify-content:center;}
+.tot-art svg{width:100%;height:auto;display:block;}
+.tot-gt{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:6px;overflow-wrap:anywhere;}
+/* 土台が word-break:auto-phrase（語句の単位で折る）のページが21ある。一続きの語句が携帯の列より長いと、
+   カードが画面の外へ広がった（法人の解約返戻金のピーク・21px）。並びの列を minmax(0,…) にし、文は語句の途中でも折れるようにする */
+.tot-grid{grid-template-columns:minmax(0,1fr);}
+.tot-case{min-width:0;}
+@media(min-width:700px){ .tot-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
+.tot-tags{display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+.tot-gk .tot-chip{font-size:.84rem;letter-spacing:.02em;padding:2px 11px;}
+.tot-gk .tot-who{font-family:var(--tot-m);font-size:.84rem;font-weight:800;line-height:1.5;padding:1px 10px;border-radius:999px;background:#fff;color:#2c7a4b;border:1.5px solid #bfe3cf;}
+.tot-gk .tot-say{font-size:clamp(1.04rem,3.9vw,1.12rem);line-height:1.6;}
+.tot-tip{display:flex;align-items:flex-start;gap:5px;font-size:.88rem;font-weight:700;line-height:1.65;color:#2c7a4b;}
+.tot-tip svg{width:15px;height:15px;flex:0 0 15px;stroke:#2c7a4b;margin-top:4px;}
+.tot-gmore{display:inline-flex;align-items:center;gap:4px;font-size:.86rem;font-weight:700;color:#c2451f;white-space:nowrap;}
+.tot-gmore svg{width:14px;height:14px;stroke:#c2451f;}
+.tot-art.tot-c-sky,.tot-mscene.tot-c-sky{background:#e8f4fb;} .tot-gk .tot-chip.tot-c-sky{background:#e8f4fb;color:#24729f;}
+.tot-art.tot-c-berry,.tot-mscene.tot-c-berry{background:#fbeef6;} .tot-gk .tot-chip.tot-c-berry{background:#fbeef6;color:#8f4574;}
+.tot-art.tot-c-amber,.tot-mscene.tot-c-amber{background:#fdf3e2;} .tot-gk .tot-chip.tot-c-amber{background:#fdf3e2;color:#8f6015;}
+.tot-art.tot-c-green,.tot-mscene.tot-c-green{background:#e8f6ef;} .tot-gk .tot-chip.tot-c-green{background:#e8f6ef;color:#2c7a4b;}
+.tot-art.tot-c-red,.tot-mscene.tot-c-red{background:#fdeee9;} .tot-gk .tot-chip.tot-c-red{background:#fdeee9;color:#a63631;}
+@media(max-width:480px){ .tot-card.tot-gk{gap:12px;padding:14px;} .tot-art{flex-basis:88px;width:88px;height:66px;} }
+.tot-mscene{border-radius:18px;padding:6px;margin:2px 0 10px;}
+.tot-mscene svg{display:block;width:100%;max-width:300px;height:auto;margin:0 auto;}
+.tot-mscene[hidden]{display:none !important;}
 
 /* --- 劇場の窓 --- */
 .tot-modal{position:fixed;inset:0;z-index:80;display:none;}
@@ -865,6 +894,7 @@ section .wrap .tsukami-q,section .wrap .age-note,section .wrap .caution{max-widt
 .tot-blk.next{background:#fdf3e2;}
 .tot-blk.next .tot-bl{color:#8f6015;}
 .tot-blk.why .tot-bl{color:#5c6874;}
+.tot-blk.turn .tot-bl{color:#2c7a4b;}  /* 逆転劇場の「どう変わったか」（もとの見出し）。見出しはひと言そのもの */
 .tot-blk.guard{background:#e8f4fb;}
 .tot-blk.guard .tot-bl{color:#1b5e8a;}
 
@@ -2916,6 +2946,7 @@ chkBoxes.forEach(function(c){ c.addEventListener('change', chkUpdate); });
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
       </button>
     </div>
+    <div class="tot-mscene" id="totModalScene" aria-hidden="true" hidden></div>
     <span class="tot-chip" id="totModalChip"></span>
     <h3 class="tot-mtitle" id="totModalTitle"></h3>
     <div id="totModalBody"></div>
@@ -2938,6 +2969,13 @@ chkBoxes.forEach(function(c){ c.addEventListener('change', chkUpdate); });
     chip.textContent = art.querySelector('.tot-chip').textContent;
     title.textContent = art.getAttribute('data-title') || art.querySelector('.tot-say').textContent;
     body.innerHTML = art.querySelector('.tot-body').innerHTML;
+    /* 逆転劇場はカードの場面の絵を窓の上にも出す（見本の医療保険のページと同じ） */
+    var pic = art.querySelector('.tot-art'), sceneEl = document.getElementById('totModalScene');
+    if (sceneEl) {
+      sceneEl.innerHTML = pic ? pic.innerHTML : '';
+      sceneEl.className = 'tot-mscene' + (pic ? ' ' + (pic.className.match(/tot-c-[a-z]+/) || [''])[0] : '');
+      sceneEl.hidden = !pic;
+    }
     modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
     panel.scrollTop = 0;
