@@ -525,6 +525,11 @@ body.vc-dock-on .chat-fab{ display:none !important; }
 .mt-quick-track{ display:flex; gap:6px; width:max-content; padding:2px 1px; animation:mtQuickFlow 72s linear infinite; }
 .mt-quick.mt-quick-hold .mt-quick-track{ animation-play-state:paused; }
 .mt-quick:has(:focus-visible) .mt-quick-track{ animation-play-state:paused; }
+/* 2026-10-03 ユーザー指示「ここにカーソルを当てた時に動きが止まるように」。
+   ★マウスのある端末だけ（hover:hover かつ pointer:fine）。指で押す端末で :hover を使うと、押したあと止まったままになる */
+@media (hover:hover) and (pointer:fine){
+.mt-quick-flow:hover .mt-quick-track{ animation-play-state:paused; }
+}
 @keyframes mtQuickFlow{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
 @media (prefers-reduced-motion: reduce){
 .mt-quick-track{ animation:none; }
@@ -535,6 +540,9 @@ body.vc-dock-on .chat-fab{ display:none !important; }
 .mt-quick-track > .mt-quick-dup{ display:none; }
 }
 .mt-quick .chat-chip{ border-color:#c9d8ce; background:#eef4f0; color:#1f3328; flex:0 0 auto; white-space:nowrap; }
+/* コンプライアンスの記録へ飛ぶ札（管理画面の #compliance/<記録>）。相談ではないので、紺の枠と飛ぶ印で見分ける */
+.mt-quick .chat-chip.mt-quick-go{ border-color:#1b5e8a; background:#eef4fa; color:#163f5e; font-weight:700; }
+.mt-quick .chat-chip.mt-quick-go .mt-go-ico{ margin-left:4px; font-size:.78em; }
 .mt-quick-all{ display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
 .mt-quick-all[hidden]{ display:none !important; }
 .mt-quick-more{ align-self:flex-start; margin:6px 0 0; padding:4px 12px; min-height:26px;
@@ -1033,6 +1041,8 @@ main.mt-main{ padding:4px 0 4px; }
 }
 #mentor-modal .mt-quick .chat-chip{ border:1px solid var(--amber-line); background:var(--yellow-pale); color:#6b4a12; border-radius:999px; padding:7px 13px; }
 #mentor-modal .mt-quick .chat-chip:hover{ background:#fbe9c9; }
+#mentor-modal .mt-quick .chat-chip.mt-quick-go{ border:1.5px solid #1b5e8a; background:#eef4fa; color:#163f5e; }   /* コンプラの記録へ飛ぶ札（相談の札と見分ける） */
+#mentor-modal .mt-quick .chat-chip.mt-quick-go:hover{ background:#dfeaf5; }
 .mt-quick-more{
   color:var(--blue-deep); border-color:var(--blue-pale2);
 }
@@ -8059,6 +8069,14 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       { q:'1on1の台本', i:'fa-clipboard-list' }, { q:'メンバー', i:'fa-id-card' }, { q:'チームの点検', i:'fa-people-roof' }, { q:'朝礼の一言', i:'fa-bullhorn' }, { q:'指示の言い換え', i:'fa-shuffle' },
       { q:'保険の仕組みを深く知りたい', i:'fa-book-open' }, { q:'お金の基本を伝えたい', i:'fa-coins' }, { q:'心理学で相手を読みたい', i:'fa-brain' }, { q:'経営者に提案したい', i:'fa-building' }, { q:'自社株と承継の話をしたい', i:'fa-sitemap' }, { q:'退職金の話を分けて伝えたい', i:'fa-hand-holding-dollar' }
     ];
+    /* コンプライアンスの記録へ飛ぶ札（2026-10-03 ユーザー指示「流れるものにコンプラについてで比較推奨商品、意向把握についてなどを追加し、ここにとべるように」）
+       ★相談ではなく、管理画面のコンプライアンスの記録を開く（go＝記録の名前）。流れる帯の中に間をあけて混ぜる
+       ★飛び先は MT_HUB_URL（公開版＝../hoken-hub/。会社フォルダでは make_agency.py が ../ に差し替える＝OMHUBURL の行） */
+    const MT_HUB_URL = '../hoken-hub/';   /* OMHUBURL */
+    const MT_QUICK_GO = [
+      { q:'コンプラ：比較推奨の記録', i:'fa-scale-balanced', go:'hikaku' }, { q:'コンプラ：意向把握の記録', i:'fa-clipboard-check', go:'iko' },
+      { q:'コンプラ：申込書類の送付前点検', i:'fa-file-circle-check', go:'shorui' }, { q:'コンプラ：苦情・お申し出の台帳', i:'fa-headset', go:'kujo' }
+    ];
     /* 暮らし・人生の相談（2026-09-10・ユーザー指示）。流れる帯には出さないが、
        「ほかの相談も見る」を開くと MT_QUICK と一緒に並ぶ（消してはいない） */
     const MT_QUICK_LIFE = [
@@ -8512,14 +8530,20 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       const sq = $('mt-self-qs'); if(sq && !sq.innerHTML) sq.innerHTML = mtSelfPanelHTML();
       const qkTrack = $('mt-quick-track');
       if(qkTrack && !qkTrack.innerHTML){
-        const mtQuickChip = function(c, dup){ return '<button type="button" class="chat-chip' + (dup ? ' mt-quick-dup' : '') + '" data-mtq="' + esc(c.q) + '"><i class="fa-solid ' + c.i + '"></i> ' + esc(c.q) + '</button>'; };
+        const mtQuickChip = function(c, dup){
+          if(c.go) return '<button type="button" class="chat-chip mt-quick-go' + (dup ? ' mt-quick-dup' : '') + '" data-mtgo="' + esc(c.go) + '" title="管理画面のコンプライアンスで開きます">' +
+            '<i class="fa-solid ' + c.i + '"></i> ' + esc(c.q) + '<i class="fa-solid fa-arrow-up-right-from-square mt-go-ico" aria-hidden="true"></i></button>';
+          return '<button type="button" class="chat-chip' + (dup ? ' mt-quick-dup' : '') + '" data-mtq="' + esc(c.q) + '"><i class="fa-solid ' + c.i + '"></i> ' + esc(c.q) + '</button>'; };
+        /* 流れる帯：保険中心のきっかけの中に、コンプライアンスの札を間をあけて混ぜる（7つ目・17つ目・27つ目・37つ目のあと） */
+        const qkFlowList = MT_QUICK.slice();
+        MT_QUICK_GO.slice().reverse().forEach(function(c, k){ qkFlowList.splice(Math.min(qkFlowList.length, 7 + (MT_QUICK_GO.length - 1 - k) * 10), 0, c); });
         /* 流すのは保険中心（MT_QUICK）だけ。継ぎ目なくループさせるため同じ並びを2周ぶん置く。
            ★2周目には mt-quick-dup を付ける（携帯では流すのをやめて横に送る形にするので、2周目を隠す）。
            ★.map(mtQuickChip) と直接渡さないこと。第2引数に添字が入って、2つ目以降が全部 dup 扱いになる */
-        qkTrack.innerHTML = MT_QUICK.map(function(c){ return mtQuickChip(c); }).join('')
-          + MT_QUICK.map(function(c){ return mtQuickChip(c, true); }).join('');
+        qkTrack.innerHTML = qkFlowList.map(function(c){ return mtQuickChip(c); }).join('')
+          + qkFlowList.map(function(c){ return mtQuickChip(c, true); }).join('');
         const qkAll = $('mt-quick-all');
-        if(qkAll) qkAll.innerHTML = MT_QUICK.concat(MT_QUICK_LIFE, MT_QUICK_KITEI).map(function(c){ return mtQuickChip(c); }).join('');
+        if(qkAll) qkAll.innerHTML = MT_QUICK.concat(MT_QUICK_LIFE, MT_QUICK_KITEI, MT_QUICK_GO).map(function(c){ return mtQuickChip(c); }).join('');
       }
       const m = $('mentor-modal'); if(m) m.hidden = false;
       mtApplyFull();
@@ -8552,7 +8576,10 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
         if(e.isComposing || e.keyCode === 229) return;
         if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); mtSend($('mt-text').value); }
       });
-      if($('mt-quick')) $('mt-quick').addEventListener('click', function(e){ const b = e.target.closest('[data-mtq]'); if(b) mtSend(b.dataset.mtq); });
+      if($('mt-quick')) $('mt-quick').addEventListener('click', function(e){
+        const g = e.target.closest('[data-mtgo]');
+        if(g){ const w = window.open(MT_HUB_URL + '#compliance/' + g.dataset.mtgo, 'katatsugi-hub'); if(w) w.focus(); return; }   /* 管理画面のコンプライアンスの記録を開く（師匠の会話はそのまま残す） */
+        const b = e.target.closest('[data-mtq]'); if(b) mtSend(b.dataset.mtq); });
       /* 「ほかの相談も見る」＝保険中心（流れている分）＋暮らし・人生の相談を、全部静的に一覧表示 */
       const qkMoreBtn = $('mt-quick-more'), qkAllEl = $('mt-quick-all');
       if(qkMoreBtn && qkAllEl) qkMoreBtn.addEventListener('click', function(){
