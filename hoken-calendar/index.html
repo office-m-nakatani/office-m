@@ -349,10 +349,6 @@ footer{margin-top:var(--sp-8);border-top:1px solid var(--line);padding:var(--sp-
 .hk-strip-t b{display:block;color:#5f48a8;font-size:var(--fs-base);}
 .hk-strip .btn,.hk-item .ev-acts .btn{min-height:44px;}
 .hk-item.hk-focus{box-shadow:0 0 0 3px rgba(95,72,168,.35),var(--shadow-sm);}
-.hk-st{display:inline-block;font-size:var(--fs-xs);font-weight:700;border-radius:999px;padding:2px 10px;border:1px solid;white-space:nowrap;}
-.hk-st-ok{color:var(--green);background:var(--green-bg);border-color:var(--green-border);}
-.hk-st-wait{color:var(--muted);background:#f4f1ee;border-color:#e3dad2;}
-.hk-st-back,.hk-st-stale{color:var(--amber);background:var(--amber-bg);border-color:var(--amber-border);}
 .hk-miss{margin-top:6px;font-size:var(--fs-sm);font-weight:700;color:var(--red-text);background:var(--red-bg);border:1px solid var(--red-border);
   border-radius:10px;padding:6px 10px;}
 .hk-kv{font-size:var(--fs-sm);color:var(--muted);margin-top:4px;}
@@ -2228,7 +2224,7 @@ function dayCount(list){
    ------------------------------------------------------------
    2026-10-03 ユーザー指示「この比較推奨に関しては、カレンダーからも確認できるように紐づけできるようにしてください」
    ★管理画面が同じ端末に書き出した要約（officem.hokenHub.calFeed.v1）を読むだけ。ここでは書き換えない
-     （記録の中身・確認・直すのは管理画面。ここに出すのは日付と要点まで）
+     （記録の中身を見る・直すのは管理画面。ここに出すのは日付と要点まで。確認の状態の札は 2026-10-04 に外した＝比較推奨は上長・社長の確認を付けない）
    ★面談日・契約日を月の表に並べ、日を押すと要点と「管理画面で記録を開く」が出る。声かけの文例・連絡済みは付けない
    ★今後の予定（声をかけるきっかけ）には混ぜない
    ★HUB_URL は公開版＝../hoken-hub/。会社フォルダでは make_agency.py が ../ に差し替える（OMHUBURL の行。形を変えない）
@@ -2241,7 +2237,7 @@ function hubHref(h){
   return (local ? encodeURI('保険ツール管理画面.html') : HUB_URL) + (h || '');
 }
 var HK_KEY = 'officem.hokenHub.calFeed.v1';
-var HK_ST = { ok:'確認済み', wait:'確認待ち', back:'戻された', stale:'確認のあとに直された' };
+/* ★確認の状態の札は出さない（2026-10-04 ユーザー指示「比較推奨に関しては上長や社長の承認はなくしてください」） */
 var hkFocus = null;
 function hkStr(v){ return typeof v === 'string' ? v : ''; }
 function hkFeed(){
@@ -2251,7 +2247,7 @@ function hkFeed(){
   return o.recs.filter(function(r){ return r && typeof r === 'object' && /^[A-Za-z0-9_-]{1,64}$/.test(hkStr(r.id)); }).map(function(r){
     return { id: r.id, no: hkStr(r.no), shu: hkStr(r.shu), owner: hkStr(r.owner), rec: hkStr(r.rec), sel: hkStr(r.sel),
       mtgs: (Array.isArray(r.mtgs) ? r.mtgs : []).filter(isYmd).sort(), kdate: isYmd(r.kdate) ? r.kdate : '',
-      st: HK_ST[r.st] ? r.st : 'wait', miss: (Array.isArray(r.miss) ? r.miss : []).map(hkStr).filter(Boolean),
+      miss: (Array.isArray(r.miss) ? r.miss : []).map(hkStr).filter(Boolean),
       birth: isYmd(r.birth) ? r.birth : '' };   /* 管理画面が生年月日を書いていれば、同じお名前の方を見分けるのに使う */
   });
 }
@@ -2278,7 +2274,6 @@ function hkCardHtml(ev, opt){
       '<span class="ev-when">' + esc(fmtMd(ev.date)) + '</span>' +
       '<span class="ev-in">' + esc(inLabel) + '</span>' +
       '<span class="badge ev-hk"><span class="dot"></span>' + esc(what) + '</span>' +
-      '<span class="hk-st hk-st-' + r.st + '">' + esc(HK_ST[r.st]) + '</span>' +
     '</div>' +
     (opt.hideName ? '' : '<div class="ev-name" style="margin-top:5px;">' + esc(r.no || '（顧客名なし）') + '</div>') +
     '<div class="ev-title">お勧め：' + esc(r.rec || '（記入なし）') + '　お客様の選択：' + esc(sel) + '</div>' +

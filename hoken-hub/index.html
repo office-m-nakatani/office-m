@@ -413,6 +413,18 @@ body.comp-open #admin .wrap > *:not(#auditSec){display:none !important;}
 .cp-cmp-list{margin:0;padding-left:1.4em;}
 .cp-cmp-list li{margin:2px 0 6px;}
 .modal-box.wide.cp-show-box{max-width:960px;}
+/* 記録票・設定の控えの窓は長いので、見出しの行を窓の上に貼り、そこにも「印刷・PDFにする」を置く
+   （2026-10-04 ユーザー指示「ここを印刷できるようにしてください」＝印刷のボタンが窓のいちばん下にしか無く、開いたところから見えなかった）
+   ★top は窓（.modal）の上の余白 22px ぶん負にする。0 だと余白のところに中身が透けて見える */
+.cp-sheet-box .modal-head{position:sticky;top:-22px;z-index:3;background:var(--white);border-radius:16px 16px 0 0;flex-wrap:wrap;row-gap:8px;}
+.cp-sheet-box .modal-head h3{min-width:7em;}
+.cp-head-print{display:inline-flex;align-items:center;gap:6px;min-height:44px;white-space:nowrap;}
+.cp-head-print svg{width:17px;height:17px;flex:none;}
+.cp-sheet-box .modal-head .x-btn{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;}
+@media (max-width:520px){   /* 携帯：1行目に題名と ×、2行目に印刷のボタンを幅いっぱい */
+  .cp-sheet-box .modal-head{padding:10px 12px 12px 16px;}
+  .cp-sheet-box .modal-head .cp-head-print{order:3;flex:1 1 100%;justify-content:center;}
+}
 .cp-show-box .modal-foot .btn,.cp-sheet-box .modal-foot .btn{min-height:44px;}   /* 窓はコンプライアンスの節の外に作られるので、44px の指定をここにも */   /* 後ろの .modal-box.wide（780px）に強さで勝つ */
 .cp-show{font-size:1.02rem;color:var(--text);line-height:var(--lh-base);}
 .cp-show-name{font-size:var(--fs-lg);font-weight:800;color:var(--navy);margin:0 0 2px;}
@@ -489,7 +501,7 @@ body.comp-open #admin .wrap > *:not(#auditSec){display:none !important;}
 .cp-kh-mk{text-align:center !important;font-weight:700;}
 .cp-kh-sub{margin:4px 0 0;font-size:var(--fs-xs);color:var(--muted);}
 .cp-kh-ul{margin:0;padding-left:1.2em;}
-.cp-kh-sign{margin-top:14px;break-inside:avoid;table-layout:fixed;}
+.cp-kh-sign{margin-top:14px;break-inside:avoid;table-layout:fixed;width:min(100%,24em);margin-left:auto;}   /* 募集人の欄だけなので、右に寄せた小さな枠（2026-10-04） */
 .cp-kh-sign thead th:first-child{width:8.5em;}
 .cp-kh-sign caption{text-align:left;font-weight:700;color:var(--navy);font-size:var(--fs-xs);padding-bottom:4px;}
 .cp-kh-sign th,.cp-kh-sign td{border:1px solid #8d9cad;padding:4px 8px;font-size:var(--fs-xs);}
@@ -518,7 +530,8 @@ body.comp-open #admin .wrap > *:not(#auditSec){display:none !important;}
   body.cp-mprint > *:not(#modalRoot){display:none !important;}
   body.cp-mprint #modalRoot .modal{position:static;background:none;padding:0;overflow:visible;display:block;}
   body.cp-mprint #modalRoot .modal-box{box-shadow:none;max-width:none;border-radius:0;margin:0;}
-  body.cp-mprint #modalRoot .x-btn, body.cp-mprint #modalRoot .modal-foot, body.cp-mprint .cp-show-pick{display:none !important;}
+  body.cp-mprint #modalRoot .x-btn, body.cp-mprint #modalRoot .modal-foot, body.cp-mprint .cp-show-pick, body.cp-mprint .cp-head-print{display:none !important;}
+  body.cp-mprint #modalRoot .cp-sheet-box .modal-head{position:static;}
   body.cp-mprint #modalRoot .modal-head{padding:0 0 6px;border-bottom:1.5px solid #333;}
   body.cp-mprint #modalRoot .modal-body{padding:10px 0 0;}
   body.cp-mprint .cp-show{font-size:10.5pt;}
@@ -6688,7 +6701,7 @@ var CP_SHU_G = [['死亡保険', ['終身保険', '定期保険', '変額保険'
 var CP_SHU = CP_SHU_G.reduce(function (a, g) { return a.concat(g[1]); }, []);
 var CP_SHU_OLD = ['生命保険', '医療・がん（第三分野）'];
 function cpShuLabel(v) {
-  for (var i = 0; i < CP_SHU_G.length - 1; i++) if (CP_SHU_G[i][1].indexOf(v) >= 0) return CP_SHU_G[i][0] + '／' + v;
+  for (var i = 0; i < CP_SHU_G.length - 1; i++) if (CP_SHU_G[i][1].indexOf(v) >= 0) return CP_SHU_G[i][0] === v ? v : CP_SHU_G[i][0] + '／' + v;   // 区分と同じ名前（損害保険）は重ねない
   return v;
 }
 var CP_DOCS = ['申込書', '告知書', '意向を確かめる書面', '重要事項説明書の受領', '本人確認の書類', '口座振替・クレジットの書類'];
@@ -6782,7 +6795,7 @@ var CP = {
   hikaku: { panel: 'auHikaku', label: '比較推奨', title: '比較推奨の記録', dateL: '面談日',
     lead: '乗合代理店で、<b>どの方針で・何と比べて・なぜお勧めしたか</b>を残します。比べた商品に「お勧め」と「お客様の選択」の印を付け、' +
       '<b>「お客様に表示する」</b>で面談の場で大きくお見せできます。社内に残す紙は<b>「記録票」</b>（保存用・1件1枚）で印刷できます。面談日と契約日は、満期・年齢到達カレンダーにも出ます。' +
-      '方針から外れてお勧めしたときは、その理由を残してください。',
+      '方針から外れてお勧めしたときは、その理由を残してください。比較推奨の記録には<b>上長・社長の確認（承認）を付けません</b>（記録は、受け渡しのファイルで上長・社長にも届きます）。',
     /* 2026-10-02 ユーザー指示「コンプライアンスのところに比較推奨の表示と選択、印刷ができるようにしてください」
        方針はカードで中身を見ながら選ぶ（polpick）／比べた商品は1行ずつの表で「お勧め」「お客様の選択」に印（cmptbl）。
        ★cmp・rcmp・rprod・scmp は表から作る写し（snap）。前の形（自由記述）の記録は表が空のまま、写しの文をそのまま読む
@@ -7001,7 +7014,12 @@ function cpMissing(r) {
 /* 確認の状態（立場ごとに、いちばん新しい印を見る）。none＝まだ／ok＝確認した／back＝戻した／stale＝印のあとに直された */
 /* 数えない印：記録した本人の名前の印／記録を書いた端末で付けた印（自分の記録を自分で確認したことになる） */
 function cpSelfMark(c, r) { return auNameKey(c.name) === auNameKey(r.owner) || (!!c.dev && !!r.dev && c.dev === r.dev); }
+/* 上長・社長の確認（承認）を付けない記録（2026-10-04 ユーザー指示「比較推奨に関しては上長や社長の承認はなくしてください」）
+   ★前に付いた印は記録に残したまま（消さない）。画面・数・記録票・カレンダーでは使わない。受け取るファイルの印も入れない */
+var CP_NOCONF = { hikaku: 1 };
+function cpNeedsConf(r) { return !CP_NOCONF[r.kind]; }
 function cpConfState(r, role) {
+  if (!cpNeedsConf(r)) return { st: 'none' };
   var last = null;
   r.conf.forEach(function (c) { if (c.role === role && !cpSelfMark(c, r) && (!last || c.ts > last.ts)) last = c; });
   if (!last) return { st: 'none' };
@@ -7011,23 +7029,26 @@ function cpConfState(r, role) {
 function cpOkAny(r) { return cpConfState(r, 'boss').st === 'ok' || cpConfState(r, 'ceo').st === 'ok'; }
 function cpBackAny(r) { return cpConfState(r, 'boss').st === 'back' || cpConfState(r, 'ceo').st === 'back'; }
 function cpStaleAny(r) { return cpConfState(r, 'boss').st === 'stale' || cpConfState(r, 'ceo').st === 'stale'; }
+/* 確認待ち（上長・社長のどちらの「確認した」も「戻す」もまだ）。確認を付けない記録は数えない */
+function cpWaitAny(r) { return cpNeedsConf(r) && !cpOkAny(r) && !cpBackAny(r); }
 /* この端末の人（上長・社長）の確認がまだの記録。自分の記録は自分で確認しない */
 function cpSameDev(r) { return !!r.dev && r.dev === au.dev; }
 function cpWaitForMe(r) {
   var role = cpMgr();
-  if (!role || cpMine(r) || cpSameDev(r)) return false;
+  if (!role || !cpNeedsConf(r) || cpMine(r) || cpSameDev(r)) return false;
   var st = cpConfState(r, role).st;
   return st === 'none' || st === 'stale';
 }
 function cpStampsHTML(r) {
   var out = [];
+  if (!cpNeedsConf(r)) return '';
   ['boss', 'ceo'].forEach(function (role) {
     var s = cpConfState(r, role), R = CP_ROLE_SHORT[role];
     if (s.st === 'ok') out.push(auFlag('ok', R + ' 確認 ' + s.c.name + ' ' + cpTsDay(s.c.ts)));
     else if (s.st === 'back') out.push('<span class="au-flag amber" title="' + esc(s.c.note) + '">' + esc(R + 'から戻し ' + s.c.name) + '</span>');
     else if (s.st === 'stale') out.push(auFlag('amber', '確認のあとに直された（' + R + '）'));
   });
-  if (!cpOkAny(r) && !cpBackAny(r)) out.push(auFlag('wait', '確認待ち'));
+  if (cpWaitAny(r)) out.push(auFlag('wait', '確認待ち'));
   return out.join('');
 }
 function cpFlagsHTML(r) {
@@ -7222,7 +7243,7 @@ function cpFormHTML(kind) {
   var h = '<details class="au-form cp-form"' + (f ? ' open' : '') + ' data-snap="cp-' + kind + '"><summary>' +
     (r ? esc('直す：' + auFmt(f.date) + ' ' + (f.no || cpCut(f.sum || '', 12))) : '記録を足す') + '</summary>';
   if (!r && f) h += '<p class="cp-warn cp-prefill">ほかの記録から顧客名・種目を写してあります。違うときは書き換えてください。</p>';
-  if (r && r.conf.length) h += '<p class="cp-warn">この記録には確認の印があります。直すと「確認のあとに直された」になり、もう一度確認を受けます（前の印は消えずに残ります）。</p>';
+  if (r && r.conf.length && cpNeedsConf(r)) h += '<p class="cp-warn">この記録には確認の印があります。直すと「確認のあとに直された」になり、もう一度確認を受けます（前の印は消えずに残ります）。</p>';
   if (kind === 'hikaku' && !au.pols.length) h += '<p class="cp-warn">推奨の方針がまだありません。上長・社長が下の「推奨の方針」に登録してください。</p>';
   var step = 0;
   h += '<div class="au-grid' + (C.f[0].t === 'head' ? ' cp-steps' : '') + '">' + C.f.map(function (d) {
@@ -7261,7 +7282,7 @@ function cpActsInner(r) {
   if (r.kind === 'hikaku') a.push('<button type="button" class="au-mini cp-btn" data-cp-act="show" data-id="' + esc(r.id) + '">表示・印刷</button>',
     '<button type="button" class="au-mini cp-btn" data-cp-act="kh" data-id="' + esc(r.id) + '">記録票</button>');
   if (mine) a.push('<button type="button" class="au-mini cp-btn" data-cp-act="edit" data-id="' + esc(r.id) + '">直す</button>');
-  if (role && !mine && !cpSameDev(r)) {
+  if (role && !mine && !cpSameDev(r) && cpNeedsConf(r)) {
     var st = cpConfState(r, role).st;
     if (st !== 'ok') a.push('<button type="button" class="au-mini cp-btn cp-ok" data-cp-act="ok" data-id="' + esc(r.id) + '">確認した</button>');
     if (st !== 'back') a.push('<button type="button" class="au-mini cp-btn" data-cp-act="back" data-id="' + esc(r.id) + '">戻す</button>');
@@ -7294,7 +7315,7 @@ function cpDetailHTML(r) {
   var nx = CP_NEXT[r.kind], tools = (nx && cpMine(r) ? '<button type="button" class="au-mini cp-btn" data-cp-act="copyTo" data-to="' + nx + '" data-id="' + esc(r.id) + '">この顧客で' + esc(CP_SH[nx]) + 'を書く</button>' : '') +
     (cpMine(r) && !r.conf.length ? '<button type="button" class="au-mini cp-btn cp-del" data-cp-act="del" data-id="' + esc(r.id) + '">この記録を消す</button>' : '');
   return '<table class="cp-det-tbl"><tbody>' + rows + '</tbody></table>' +
-    '<p class="cp-l" style="margin-top:10px">確認の記録</p>' + (hist ? '<ul class="cp-hist">' + hist + '</ul>' : '<p class="au-empty" style="padding:4px 0">まだ確認の印はありません。</p>') +
+    (cpNeedsConf(r) ? '<p class="cp-l" style="margin-top:10px">確認の記録</p>' + (hist ? '<ul class="cp-hist">' + hist + '</ul>' : '<p class="au-empty" style="padding:4px 0">まだ確認の印はありません。</p>') : '') +
     (tools ? '<p class="cp-det-tools">' + tools + '</p>' : '') +
     (r.kind === 'hikaku' ? '<p class="cp-cal-go"><button type="button" class="au-mini cp-btn" data-cp-act="cal" data-id="' + esc(r.id) + '">満期・年齢到達カレンダーで見る</button>' +
       '<span>面談日と契約日が、カレンダーにも出ます（この端末の記録）</span></p>' : '');
@@ -7314,7 +7335,7 @@ function cpTableHTML(list, withKind) {
        ['顧客名', function (r) { return esc(r.f.no || '―'); }],
        ['要点', function (r) { return esc(cpGist(r)); }]]
     : CP_COLS[kind];
-  cols = cols.concat([['状態', cpFlagsHTML], ['確認', cpStampsHTML], ['記録した人', function (r) { return esc(r.owner || '（未記入）') + (cpMine(r) ? ' <span class="cp-you">（あなた）</span>' : ''); }]]);
+  cols = cols.concat([['状態', cpFlagsHTML]], kind && CP_NOCONF[kind] ? [] : [['確認', cpStampsHTML]], [['記録した人', function (r) { return esc(r.owner || '（未記入）') + (cpMine(r) ? ' <span class="cp-you">（あなた）</span>' : ''); }]]);
   var n = cols.length + 1;
   return '<div class="au-scroll"><table class="au-table cp-table"><thead><tr>' + cols.map(function (c) { return '<th>' + esc(c[0]) + '</th>'; }).join('') + '<th></th></tr></thead><tbody>' +
     list.map(function (r) {
@@ -7330,7 +7351,7 @@ function cpFiltered(kind) {
     if (q.ym && r.f.date.slice(0, 7) !== q.ym) return false;
     if (q.who && auNameKey(r.owner) !== auNameKey(q.who)) return false;
     if (q.no && normQ(r.f.no || '').indexOf(normQ(q.no)) < 0) return false;
-    if (q.st === 'wait' && (cpOkAny(r) || cpBackAny(r))) return false;
+    if (q.st === 'wait' && !cpWaitAny(r)) return false;
     if (q.st === 'miss' && !cpMissing(r).length) return false;
     if (q.st === 'back' && !cpBackAny(r) && !cpStaleAny(r)) return false;
     if (q.st === 'open' && r.f.done) return false;
@@ -7344,7 +7365,7 @@ function cpFilterHTML(kind) {
     return '<label>' + label + '<select data-cp-filt="' + key + '" data-kind="' + kind + '"><option value="">すべて</option>' +
       opts.map(function (o) { return '<option value="' + esc(o[0]) + '"' + (q[key] === o[0] ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; }).join('') + '</select></label>';
   };
-  var sts = [['wait', '確認待ち'], ['miss', '記録の欠けがある'], ['back', '戻された・確認のあとに直された']];
+  var sts = CP_NOCONF[kind] ? [['miss', '記録の欠けがある']] : [['wait', '確認待ち'], ['miss', '記録の欠けがある'], ['back', '戻された・確認のあとに直された']];
   if (kind === 'kujo') sts.push(['open', '対応中']);
   return '<div class="cp-filter">' +
     sel('ym', '月', Object.keys(yms).sort().reverse().map(function (y) { return [y, auYmLabel(y)]; })) +
@@ -7363,8 +7384,8 @@ function cpBarRows(pairs, total, head) {
 }
 function cpStatsHTML(kind, list) {
   var miss = list.filter(function (r) { return cpMissing(r).length; }).length;
-  var wait = list.filter(function (r) { return !cpOkAny(r) && !cpBackAny(r); }).length;
-  var h = '<div class="cp-tiles">' + cpTile('記録', list.length + '件') + cpTile('記録の欠けがある', miss + '件') + cpTile('確認待ち', wait + '件');
+  var wait = list.filter(cpWaitAny).length;
+  var h = '<div class="cp-tiles">' + cpTile('記録', list.length + '件') + cpTile('記録の欠けがある', miss + '件') + (CP_NOCONF[kind] ? '' : cpTile('確認待ち', wait + '件'));
   if (kind === 'iko') h += cpTile('最初のご意向と違う申込', list.filter(function (r) { return r.f.same === '違う'; }).length + '件') + '</div>';
   else if (kind === 'hikaku') {
     h += cpTile('方針の外でお勧め', list.filter(function (r) { return r.f.off; }).length + '件') +
@@ -7500,7 +7521,8 @@ function cpRenderKakunin() {
       '<li><b>1　メンバー</b>毎日の記録を書き、「上長へ渡す」でファイルを書き出して上長に渡します。</li>' +
       '<li><b>2　上長</b>受け取ったファイルを読み込み、1件ずつ「中身」を読んで「確認した」か「戻す」を押します。確認は、記録を書いた端末とは別の端末で付けます。</li>' +
       '<li><b>3　社長へ・メンバーへ</b>全員分を社長へ、その人の分をメンバーへ返すと、確認の印と戻した理由が届きます。</li>' +
-    '</ol>';
+    '</ol>' +
+    '<p class="au-note">比較推奨の記録には、上長・社長の確認（承認）を付けません。中身を見られるよう、ほかの記録と一緒にファイルに入って届きます。</p>';
   h += '<details class="au-form" data-snap="me"' + (me.name ? '' : ' open') + '><summary>' + (me.name ? esc('あなたの名前と立場：' + me.name + '（' + CP_ROLE_SHORT[me.role] + '）— 変える') : 'はじめに、あなたの名前と立場を入れてください') + '</summary>' +
     '<div class="au-grid"><label>あなたの名前<input type="text" name="meName" list="cpNames" maxlength="40" value="' + esc(me.name) + '" placeholder="例：山田 太郎"></label>' +
     '<label>立場<select name="meRole">' + CP_ROLES.map(function (x) { return '<option value="' + x[0] + '"' + (x[0] === me.role ? ' selected' : '') + '>' + esc(x[1]) + '</option>'; }).join('') + '</select></label></div>' +
@@ -7550,7 +7572,7 @@ function cpRenderKakunin() {
   } else {
     var mineAll = au.recs.filter(cpMine);
     h += '<h3>わたしの記録の確認</h3><div class="cp-tiles">' +
-      cpTile('確認済み', mineAll.filter(cpOkAny).length + '件') + cpTile('確認待ち', mineAll.filter(function (r) { return !cpOkAny(r) && !cpBackAny(r); }).length + '件') +
+      cpTile('確認済み', mineAll.filter(cpOkAny).length + '件') + cpTile('確認待ち', mineAll.filter(cpWaitAny).length + '件') +
       cpTile('戻された（まだ直していない）', c.back.length + '件') + cpTile('まだ渡していない', c.unsent.length + '件') + '</div>';
     var backs = mineAll.filter(cpBackAny).sort(cpSort);
     if (backs.length) h += '<p class="au-lead">戻された記録は「直す」で直して保存し、もう一度「上長へ渡す」で渡してください。戻した理由は「中身」で見られます。</p>' + cpTableHTML(backs, true);
@@ -7611,7 +7633,7 @@ function cpHomeData() {
     out.t[k] = ['<span>記録 ' + all.length + '件</span>'];
     push(k, 'red', '記録の欠け', vis.filter(function (r) { return cpMissing(r).length; }).map(lab));
     if (mgr) push(k, 'amber', 'あなたの確認待ち', all.filter(cpWaitForMe).map(lab));
-    else push(k, 'wait', '確認待ち', vis.filter(function (r) { return !cpOkAny(r) && !cpBackAny(r); }).map(lab));
+    else push(k, 'wait', '確認待ち', vis.filter(cpWaitAny).map(lab));
     if (k === 'kujo') push(k, 'amber', '対応中', vis.filter(function (r) { return !r.f.done; }).map(lab));
   });
   var c = cpCounts();
@@ -7716,7 +7738,7 @@ function cpMerge(o, res) {
     var cur = by[r.id];
     if (!cur) {
       /* 新しい記録の印も1つずつ照らしてから受け取る */
-      var marks = r.conf; r.conf = [];
+      var marks = cpNeedsConf(r) ? r.conf : []; r.conf = [];   /* 確認を付けない記録（比較推奨）は、印を受け取らない */
       au.recs.push(r); by[r.id] = r; res.add++;
       marks.forEach(function (c) {
         var why = cpMarkBad(c, r);
@@ -7730,7 +7752,7 @@ function cpMerge(o, res) {
     if (!cur.dev && r.dev) cur.dev = r.dev;
     var keys = {};
     cur.conf.forEach(function (c) { keys[cpConfKey(c)] = 1; });
-    r.conf.forEach(function (c) {
+    if (cpNeedsConf(cur)) r.conf.forEach(function (c) {
       if (keys[cpConfKey(c)]) return;
       var why = cpMarkBad(c, cur);
       if (why) { res.forged.push(CP_ROLE_SHORT[c.role] + ' ' + c.name + '（' + CP[cur.kind].label + ' ' + auFmt(cur.f.date) + (cur.f.no ? ' ' + cur.f.no : '') + '）：' + why); return; }
@@ -7893,8 +7915,9 @@ function cpShowFromForm(form) {
 }
 /* ---------- 比較推奨の記録票（保存用）（2026-10-03）----------
    ユーザー指示「ここでの印刷はコンプラの面で保存しないといけない、コンプラ違反にならないように印刷できる保存資料を作成してください」
-   ★1件＝A4の1枚。記録番号・出力した日時・記録した人と日時・最後に直した日時（＝どの版か）・確認の記録・記録の欠けを必ず載せる
-   ★紙で確認するときのために、募集人・上長・社長の確認欄（日付・署名または印）を置く
+   ★1件＝A4の1枚。記録番号・出力した日時・記録した人と日時・最後に直した日時（＝どの版か）・記録の欠けを必ず載せる
+   ★紙に残すときのために、募集人（記録した人）の欄（記入した日・署名または印）を置く
+   ★2026-10-04 ユーザー指示「比較推奨に関しては上長や社長の承認はなくしてください」で、確認の記録と上長・社長の欄を外した
    ★「監査に通る」「コンプラ違反にならない」とは書かない（記録の手助けで、点検・監査の結果は保証しない）。保存の期間・方法は社内規則と所属保険会社の指示
    ★お客様のお名前が入るので、社外へ持ち出さない、の一文を短くしない */
 function cpKhRow(th, td, cls) { return '<tr' + (cls ? ' class="' + cls + '"' : '') + '><th>' + esc(th) + '</th><td>' + td + '</td></tr>'; }
@@ -7904,11 +7927,6 @@ function cpKhHTML(r, outAt) {
   var f = r.f, miss = cpMissing(r), n = 0;
   var mt = (f.mtgs || []).length ? f.mtgs.map(function (d, i) { return '<span class="cp-nw">' + (i + 1) + '回目 ' + esc(auFmt(d)) + '</span>'; }).join('　') +
     (f.mtgs.length > 1 ? '<span class="cp-nw">（全' + f.mtgs.length + '回）</span>' : '') : cpKhTxt(auFmt(f.date));
-  var who = function (c) { return esc(CP_ROLE_SHORT[c.role] + ' ' + c.name); };
-  var hist = r.conf.slice().sort(function (x, y) { return x.ts < y.ts ? -1 : 1; }).map(function (c) {
-    return '<li>' + esc(cpTsFmt(c.ts)) + '　' + who(c) + '：' + (c.ok ? '確認した' : '戻した') + (c.note ? esc('「' + c.note + '」') : '') +
-      (c.ver !== r.upd ? '<b class="cp-kh-warn">（この印のあとに中身が直されています）</b>' : '') + '</li>';
-  }).join('');
   var cmps = f.cmps || [];
   var tbl = cmps.length ? '<table class="cp-kh-cmp"><thead><tr><th>番号</th><th>保険会社</th><th>商品</th><th>お勧め</th><th>お客様の選択</th></tr></thead><tbody>' +
     cmps.map(function (x, i) {
@@ -7938,14 +7956,13 @@ function cpKhHTML(r, outAt) {
     cpKhRow('その他の理由・補足', cpKhTxt(f.reason)) +
     cpKhSec(++n, 'お伝えしたこと') +
     cpKhRow('比べた商品の概要をお見せし、お勧めの理由をお伝えした', f.c1 ? 'はい' : '<b class="cp-kh-warn">いいえ（記録なし）</b>') +
-    cpKhSec(++n, '記録と確認（管理画面）') +
+    cpKhSec(++n, '記録（管理画面）') +
     cpKhRow('記録した人', cpKhTxt(r.owner)) +
     cpKhRow('記録した日時', esc(cpTsFmt(r.cre))) +
     cpKhRow('最後に直した日時', esc(cpTsFmt(r.upd)) + (r.upd !== r.cre ? '' : '<span class="cp-kh-none">（直していない）</span>')) +
-    cpKhRow('確認の記録', hist ? '<ul class="cp-kh-ul">' + hist + '</ul>' : '<span class="cp-kh-none">まだ確認の印はありません（出力の時点）</span>') +
     '</tbody></table>' +
-    '<table class="cp-kh-sign"><caption>紙で確認するときの欄</caption><thead><tr><th></th><th>募集人（記録した人）</th><th>上長</th><th>社長</th></tr></thead><tbody>' +
-    '<tr><th>確認した日</th><td></td><td></td><td></td></tr><tr class="cp-kh-sign-h"><th>署名または印</th><td></td><td></td><td></td></tr></tbody></table>' +
+    '<table class="cp-kh-sign"><caption>紙に残すときの欄</caption><thead><tr><th></th><th>募集人（記録した人）</th></tr></thead><tbody>' +
+    '<tr><th>記入した日</th><td></td></tr><tr class="cp-kh-sign-h"><th>署名または印</th><td></td></tr></tbody></table>' +
     '<ul class="cp-kh-foot">' +
       '<li>管理画面に残した比較推奨の記録（記録番号 ' + esc(r.id) + '）を、出力した時点の内容のまま印刷したものです。記録を直したときは、印刷し直してください。</li>' +
       '<li>記録の手助けとして作成したもので、点検・監査の結果を保証するものではありません。保存の期間・方法・保管場所は、社内規則と所属保険会社の指示に従ってください。</li>' +
@@ -7964,6 +7981,18 @@ function cpKiroku(list) {
     '<button type="button" class="btn btn-ghost btn-sm" data-mclose>閉じる</button><button type="button" class="btn btn-primary btn-sm" id="cpKhPrint">印刷・PDFにする</button>', true);
   root.querySelector('.modal-box').classList.add('cp-sheet-box', 'cp-kh-box');
   document.getElementById('cpKhPrint').onclick = cpModalPrint;
+  cpHeadPrint(root);
+}
+/* 長い窓の見出しの行（窓の上に貼ってある）にも「印刷・PDFにする」を置く。下までずらさなくても押せるように（2026-10-04） */
+function cpHeadPrint(root) {
+  var head = root.querySelector('.modal-head'), x = root.querySelector('#mClose');
+  if (!head || !x) return;
+  var b = document.createElement('button');
+  b.type = 'button'; b.className = 'btn btn-primary btn-sm cp-head-print';
+  b.innerHTML = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' +
+    '<path d="M7 9V3.5h10V9"/><rect x="3.5" y="9" width="17" height="8" rx="2"/><path d="M7 14h10v6.5H7Z"/></svg>印刷・PDFにする';
+  b.onclick = cpModalPrint;
+  head.insertBefore(b, x);
 }
 function cpSheet(r) { cpKiroku([r]); }
 /* 比較推奨の設定（社内の控え）。方針・取り扱う保険会社・理由の選択肢を1枚に */
@@ -7981,6 +8010,7 @@ function cpSetSheet() {
     '<button type="button" class="btn btn-ghost btn-sm" data-mclose>閉じる</button><button type="button" class="btn btn-primary btn-sm" id="cpSetPrint">印刷・PDFにする</button>', true);
   root.querySelector('.modal-box').classList.add('cp-sheet-box');
   document.getElementById('cpSetPrint').onclick = cpModalPrint;
+  cpHeadPrint(root);
 }
 function cpModalPrint() {
   document.body.classList.add('cp-mprint');
@@ -8017,7 +8047,7 @@ function cpSave(kind, form) {
     if (JSON.stringify(r.f) === JSON.stringify(f)) { cpEdit[kind] = null; cpRenderKind(kind); toast('変わったところはありません'); return; }
     r.f = f; r.upd = now;
   } else { r = { id: auId(), kind: kind, owner: au.me.name, cre: now, upd: now, f: f, conf: [], dev: au.dev }; au.recs.push(r); cpPrefill[kind] = null; }
-  var hadConf = r.conf.length;
+  var hadConf = r.conf.length && cpNeedsConf(r);
   cpEdit[kind] = null;
   auSave(); cpRerender(form);
   var miss = cpMissing(r);
@@ -8105,12 +8135,13 @@ function cpHandle(e) {
     return;
   }
   if (act === 'del' && r) {
-    if (!cpMine(r) || r.conf.length) { toast('確認の印が付いた記録は消せません。直すときは「直す」から'); return; }
+    if (!cpMine(r) || r.conf.length) { toast(cpNeedsConf(r) ? '確認の印が付いた記録は消せません。直すときは「直す」から' : '前に上長・社長の確認の印が付いた記録なので、消せません。直すときは「直す」から'); return; }
     if (!window.confirm('この記録を消しますか？（元に戻せません）\n上長に渡したあとなら、上長の端末には残ります。')) return;
     au.recs = au.recs.filter(function (x) { return x.id !== id; });
     au.dels.push({ kind: r.kind, no: r.f.no || '', date: r.f.date || '', by: au.me.name, ts: cpNow() }); au.dels = au.dels.slice(-200);
     if (cpEdit[r.kind] === id) cpEdit[r.kind] = null;
   } else if ((act === 'ok' || act === 'back') && r) {
+    if (!cpNeedsConf(r)) { toast(CP[r.kind].label + 'の記録には、上長・社長の確認（承認）を付けません'); return; }
     var role = cpMgr();
     if (!role) { toast('確認の印を付けるのは、立場が上長・社長の端末です'); return; }
     if (cpMine(r)) { toast('ご自身の記録は、ほかの人に確認してもらってください'); return; }
@@ -8408,17 +8439,17 @@ function cpDeepLink() {
    ユーザー指示「この比較推奨に関しては、カレンダーからも確認できるように紐づけできるようにしてください」
    ★カレンダー（hoken-calendar）は同じ端末の保存先を読む。管理画面の記録の形を知らなくて済むよう、
      比較推奨の要約（CAL_FEED_KEY）をここで書き出す。記録を保存するたび（auSave）と、開いたときに書き直す
-   ★入れるのは、カレンダーに出す分だけ（顧客名・種目・面談日・契約日・お勧めと選択・記録した人・確認の状態・記録の欠け）。
+   ★入れるのは、カレンダーに出す分だけ（顧客名・種目・面談日・契約日・お勧めと選択・記録した人・記録の欠け）。
+     確認の状態は 2026-10-04 に外した（比較推奨は上長・社長の確認を付けない）
      理由・経緯・方針の中身は入れない（それは管理画面で見る） */
 var CAL_FEED_KEY = 'officem.hokenHub.calFeed.v1';
 function cpCalFeed() {
   try {
     var recs = au.recs.filter(function (r) { return r.kind === 'hikaku'; }).map(function (r) {
       var f = r.f, rc = (f.cmps || []).filter(function (x) { return x.r; })[0], sc = (f.cmps || []).filter(function (x) { return x.s; })[0];
-      var st = cpOkAny(r) ? (cpStaleAny(r) ? 'stale' : 'ok') : cpBackAny(r) ? 'back' : cpStaleAny(r) ? 'stale' : 'wait';
       return { id: r.id, no: f.no, shu: f.shu ? cpShuLabel(f.shu) : '', mtgs: (f.mtgs || []).slice(), kdate: f.kdate || '', owner: r.owner,
         rec: rc ? cpCmpName(rc) : ((f.rcmp || '') + ' ' + (f.rprod || '')).trim(), sel: sc ? cpCmpName(sc) : (f.scmp || ''),
-        st: st, miss: cpMissing(r) };
+        miss: cpMissing(r) };
     });
     localStorage.setItem(CAL_FEED_KEY, JSON.stringify({ v: 1, at: new Date().toISOString(), recs: recs }));
   } catch (e) {}
@@ -8666,6 +8697,9 @@ function auInitButtons() {
    ★お客様に見せる文言ではないが、効果の数字や断定（必ず・絶対）は書かない。
    ============================================================ */
 var UPDATES = [
+  { id: '2026-10-04-hikaku-noconf', date: '2026-10-04', target: 'sec:auditSec',
+    title: '比較推奨：上長・社長の確認を外し、記録票を窓の上からも印刷できるようにしました',
+    body: '比較推奨の記録には、上長・社長の「確認した」「戻す」を付けない形にしました。確認待ちの数や札にも入りません。記録は、これまでどおり受け渡しのファイルで上長・社長にも届くので、中身は見られます。保存用の記録票は、確認の記録と上長・社長の欄を外し、募集人（記録した人）の欄だけにしました。記録票の窓は見出しの行を窓の上に貼り、そこにも「印刷・PDFにする」を置いたので、下までずらさなくても印刷できます。前に付いた確認の印は、記録に残したまま画面には出しません。意向把握・書類の点検・苦情の記録の確認は、これまでどおりです。' },
   { id: '2026-10-04-tools', date: '2026-10-04', target: 'sec:inhouseSec',
     title: '社内ツール8個を、使いやすさと見やすさの点検に合わせて見直しました',
     body: 'どのツールも、上の帯の「管理画面へ」で戻れるようにし、携帯では全てのタブを1画面に並べました。保存できなかったときと、別の窓で記録が変わったときは帯で知らせます。控えのファイルには、どのツールのものかの印を付け、別のツールの控えは読み込みません。知識トレーニング・資格試験・支払事例・100本ノック・目標逆算には、本人が名前を入れて印刷する1枚の控えがあります。主な見直し：資格試験に生保・損保の問題を149問足し、模擬テストに残り時間・見直しの一覧・途中からの再開／切り返し辞典は現場の言い方で探せ、「一言で返すなら」を先に／支払事例は「出ない場面で出ると言う」間違いを赤で示し、問題を19件足した／100本ノックに損害保険の実務の問題、「次の問題」を画面の下に／目標逆算は答えを一番上に、部下ごとの1対1の面談の記録／営業ダッシュボードは同じお名前の方を取り違えない／満期カレンダーは期限を過ぎて連絡していない予定を一覧の先頭に残します。' },
@@ -8677,7 +8711,7 @@ var UPDATES = [
     body: '確認の印は、記録を書いた端末とは別の端末で、上長・社長ご本人が付ける形にしました。受け取ったファイルの中に、記録した本人の名前の印や、記録を書いた端末で付いた印があるときは、その印を入れずに赤い窓で知らせます（ファイルの書き換えまでは防げません）。「確認した」は、まず中身を開いてから押す形にし、記録の欠けがある記録には付けられません。推奨の方針が見本のままのときは、お客様に表示する画面を止めます（上長・社長が「この方針で決める」を押すか、御社の方針に書き換えてください）。比較推奨は2つ以上の商品を比べた記録にし、種目に損害保険（自動車保険・火災保険・賠償責任保険など）を足しました。一覧は顧客名でさがせ、消した記録は「消した記録」に残ります。台帳の印刷は、A4横で出力した期間・会社名・確認の欄が付く形にしました。' },
   { id: '2026-10-03-hikaku4', date: '2026-10-03', target: 'sec:auditSec',
     title: '比較推奨：保存用の記録票と、カレンダーでの確認',
-    body: '比較推奨の記録を、社内に残す紙「記録票」（保存用・1件1枚）で印刷できるようにしました。記録番号・顧客名・面談日・契約日・推奨の方針・比べた商品（お勧め・お客様の選択）・お勧めした理由・記録した人と日時・確認の記録が1枚に入り、紙で確認するときの欄（募集人・上長・社長）も付きます。記録の欠けがあるときは、紙にも出ます。一覧の「記録票」で1件ずつ、一覧の上のボタンで絞り込んだ分をまとめて印刷できます。保存の期間・方法は、社内規則と所属保険会社の指示に従ってください。また、比較推奨の面談日と契約日が、満期・年齢到達カレンダーにも出るようにしました（この端末の記録）。カレンダーの日を押すと記録の要点が出て、そこから管理画面の記録を開けます。比べた商品の表の「概要」の欄は、お勧めした理由の段と重なるので外しました（前に書いた概要は、そのまま残ります）。' },
+    body: '比較推奨の記録を、社内に残す紙「記録票」（保存用・1件1枚）で印刷できるようにしました。記録番号・顧客名・面談日・契約日・推奨の方針・比べた商品（お勧め・お客様の選択）・お勧めした理由・記録した人と日時が1枚に入り、紙に残すときの募集人の欄も付きます。記録の欠けがあるときは、紙にも出ます。一覧の「記録票」で1件ずつ、一覧の上のボタンで絞り込んだ分をまとめて印刷できます。保存の期間・方法は、社内規則と所属保険会社の指示に従ってください。また、比較推奨の面談日と契約日が、満期・年齢到達カレンダーにも出るようにしました（この端末の記録）。カレンダーの日を押すと記録の要点が出て、そこから管理画面の記録を開けます。比べた商品の表の「概要」の欄は、お勧めした理由の段と重なるので外しました（前に書いた概要は、そのまま残ります）。' },
   { id: '2026-10-03-hikaku3', date: '2026-10-03', target: 'sec:auditSec',
     title: '比較推奨：顧客名・契約日・これまでの面談日を残し、入力を5つの段に',
     body: '比較推奨の記録を、①お客様と日付 ②推奨の方針 ③比べた商品と、お勧め ④お勧めした理由 ⑤お伝えしたこと の5つの段に分けました。お客様は管理番号ではなく顧客名で残します（意向把握・書類の点検・苦情も同じ。ご住所・ご連絡先は書かないでください）。契約日と、これまでの面談日（面談するたびに足せます）を入れられます。比べた商品の「商品」も一覧から選べ、無いときは「その他」で書けます。保険会社を選ぶと、その行の商品に上で選んだ種目が入ります。お勧めと違う商品を選ばれた経緯・方針の外の理由の欄は、要るときだけ出ます。AI師匠の「相談のきっかけ」からも、この記録へ飛べます。前に残した記録の「面談・申込の日」は、面談日として読みます。' },
