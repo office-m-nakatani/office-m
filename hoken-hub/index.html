@@ -261,6 +261,9 @@ body.comp-open #admin .wrap > *:not(#auditSec){display:none !important;}
 #auditSec details.cp-form:not([open]) > summary::before{content:"＋";font-weight:800;}
 #auditSec details.cp-form:not([open]) > summary:hover{background:var(--coral-btn-h);}
 #auditSec details.cp-form[open] > summary::after{content:"（閉じる）";font-weight:400;color:var(--muted);font-size:var(--fs-sm);margin-left:6px;}
+/* 意向把握・比較推奨は、開いたらすぐ書く欄（2026-10-04 ユーザー指示「記録を足すを押さないでも次の画面にいけるように」）。畳まない */
+#auditSec details.cp-form.cp-direct > summary{pointer-events:none;cursor:default;}
+#auditSec details.cp-form.cp-direct[open] > summary::after{content:none;}
 .au-tab-n:not(:empty){display:inline-block;margin-left:6px;min-width:1.6em;padding:0 6px;border-radius:999px;background:var(--amber-bg);
   border:1px solid var(--amber-border);color:#7d5413;font-size:var(--fs-xs);line-height:1.6;text-align:center;}
 .cp-whoami{font-size:var(--fs-sm);color:var(--muted);margin:-4px 0 var(--sp-2);display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;}
@@ -7238,10 +7241,15 @@ function cpRead(kind, form) {
   if (kind === 'hikaku') { var P = cpPolByTitle(f.pol); f.polBody = P ? P.body : ''; f.coList = au.cos.join('、'); }
   return cpClean({ id: 'x', kind: kind, f: f }).f;
 }
+/* 開いたらすぐ書く欄を出す記録（「記録を足す」を押す一手を省く。畳まない） */
+var CP_DIRECT = { iko: 1, hikaku: 1 };
+/* 数と割合の欄・絞り込みを出さない記録（2026-10-04 ユーザー指示「情報が多すぎて使いたくなくなります」） */
+var CP_PLAIN = { hikaku: 1 };
 function cpFormHTML(kind) {
   var C = CP[kind], r = cpEdit[kind] ? cpRec(cpEdit[kind]) : null, f = r ? r.f : (cpPrefill[kind] || null);
-  var h = '<details class="au-form cp-form"' + (f ? ' open' : '') + ' data-snap="cp-' + kind + '"><summary>' +
-    (r ? esc('直す：' + auFmt(f.date) + ' ' + (f.no || cpCut(f.sum || '', 12))) : '記録を足す') + '</summary>';
+  var dir = !!CP_DIRECT[kind];
+  var h = '<details class="au-form cp-form' + (dir ? ' cp-direct' : '') + '"' + (f || dir ? ' open' : '') + ' data-snap="cp-' + kind + '"><summary' + (dir ? ' tabindex="-1"' : '') + '>' +
+    (r ? esc('直す：' + auFmt(f.date) + ' ' + (f.no || cpCut(f.sum || '', 12))) : (dir ? '新しい記録を書く' : '記録を足す')) + '</summary>';
   if (!r && f) h += '<p class="cp-warn cp-prefill">ほかの記録から顧客名・種目を写してあります。違うときは書き換えてください。</p>';
   if (r && r.conf.length && cpNeedsConf(r)) h += '<p class="cp-warn">この記録には確認の印があります。直すと「確認のあとに直された」になり、もう一度確認を受けます（前の印は消えずに残ります）。</p>';
   if (kind === 'hikaku' && !au.pols.length) h += '<p class="cp-warn">推奨の方針がまだありません。上長・社長が下の「推奨の方針」に登録してください。</p>';
@@ -7345,7 +7353,7 @@ function cpTableHTML(list, withKind) {
 }
 function cpSort(a, b) { return (a.f.date < b.f.date ? 1 : a.f.date > b.f.date ? -1 : 0) || (a.upd < b.upd ? 1 : -1); }
 function cpFiltered(kind) {
-  var q = cpFilt[kind] || {};
+  var q = CP_PLAIN[kind] ? {} : (cpFilt[kind] || {});
   return au.recs.filter(function (r) {
     if (r.kind !== kind) return false;
     if (q.ym && r.f.date.slice(0, 7) !== q.ym) return false;
@@ -7475,11 +7483,11 @@ function cpRenderKind(kind) {
   h += cpFormHTML(kind);
   if (kind === 'kujo') h += cpKujoSetHTML();
   if (all.length) {
-    h += cpFilterHTML(kind) + cpStatsHTML(kind, list) + '<h3>記録の一覧（' + list.length + '件）</h3>' +
-      (kind === 'hikaku' && list.length ? '<div class="cp-kh-all"><button type="button" class="btn btn-ghost btn-sm" data-cp-act="khAll">' + CP_ICO_PRINT + '保存用の記録票を印刷（いま表示している' + list.length + '件）</button>' +
-        '<span>1件ずつ別の紙に出ます。月や記録した人で絞ってから印刷できます。</span></div>' : '') +
+    h += (CP_PLAIN[kind] ? '' : cpFilterHTML(kind) + cpStatsHTML(kind, list)) + '<h3>記録の一覧（' + list.length + '件）</h3>' +
+      (kind === 'hikaku' && list.length ? '<div class="cp-kh-all"><button type="button" class="btn btn-ghost btn-sm" data-cp-act="khAll">' + CP_ICO_PRINT + '保存用の記録票を印刷（' + list.length + '件）</button>' +
+        '<span>1件ずつ別の紙に出ます。1件だけなら、一覧の「記録票」から。</span></div>' : '') +
       (list.length ? cpTableHTML(list) : '<p class="au-empty">この条件に合う記録はありません。</p>');
-  } else h += '<p class="au-empty">まだ記録はありません。「記録を足す」から書き始めてください。</p>';
+  } else if (!CP_DIRECT[kind]) h += '<p class="au-empty">まだ記録はありません。「記録を足す」から書き始めてください。</p>';
   host.innerHTML = h;
 }
 
@@ -8697,6 +8705,9 @@ function auInitButtons() {
    ★お客様に見せる文言ではないが、効果の数字や断定（必ず・絶対）は書かない。
    ============================================================ */
 var UPDATES = [
+  { id: '2026-10-04-cp-direct', date: '2026-10-04', target: 'sec:auditSec',
+    title: '意向把握・比較推奨は、開いたらすぐ書けるようにしました',
+    body: '意向把握と比較推奨の記録は、開いた画面にそのまま書く欄が出ます。「記録を足す」を押す一手を省きました。比較推奨の画面からは、数のタイル（記録・記録の欠け・方針の外・違う商品を選ばれた）と、保険会社・方針・理由の割合の表、月や記録した人の絞り込みを外し、記録の一覧だけにしました。記録の欠けや方針の外の札は、一覧の各行にこれまでどおり出ます。書類の点検と苦情の記録は、これまでどおり「記録を足す」から書きます。' },
   { id: '2026-10-04-hikaku-noconf', date: '2026-10-04', target: 'sec:auditSec',
     title: '比較推奨：上長・社長の確認を外し、記録票を窓の上からも印刷できるようにしました',
     body: '比較推奨の記録には、上長・社長の「確認した」「戻す」を付けない形にしました。確認待ちの数や札にも入りません。記録は、これまでどおり受け渡しのファイルで上長・社長にも届くので、中身は見られます。保存用の記録票は、確認の記録と上長・社長の欄を外し、募集人（記録した人）の欄だけにしました。記録票の窓は見出しの行を窓の上に貼り、そこにも「印刷・PDFにする」を置いたので、下までずらさなくても印刷できます。前に付いた確認の印は、記録に残したまま画面には出しません。意向把握・書類の点検・苦情の記録の確認は、これまでどおりです。' },
