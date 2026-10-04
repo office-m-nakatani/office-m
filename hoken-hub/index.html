@@ -212,6 +212,8 @@ a{color:var(--navy-2);}
 #auditSec{display:none;}
 body.comp-open #auditSec{display:block;margin-top:var(--sp-3);}
 body.comp-open #admin .wrap > *:not(#auditSec){display:none !important;}
+/* コンプライアンスの画面だけ、枠を広げる（2026-10-04 見やすさの見直し：表の列が多く、1120px の枠では語を折らずに収まらなかった。説明文は 40字前後の幅のまま） */
+body.comp-open #admin .wrap{max-width:1360px;}
 .cp-top{margin-bottom:var(--sp-3);}
 /* 1つの記録を開いているあいだは、上の説明文を畳む（携帯で本題が画面の半分より下になっていた）。印刷は前のまま */
 @media screen{ #auditSec.cp-in .sec-head p{display:none;} #auditSec.cp-in .sec-head{margin-bottom:var(--sp-2);} }
@@ -232,6 +234,24 @@ body.comp-open #admin .wrap > *:not(#auditSec){display:none !important;}
 .cp-tl-ico{width:36px;height:36px;flex:none;border-radius:50%;background:var(--navy-soft);display:flex;align-items:center;justify-content:center;color:var(--navy);}
 .cp-tl-ico svg{width:20px;height:20px;}
 .cp-tl b{font-size:var(--fs-md);color:var(--navy);line-height:1.4;}
+/* タイルの色分け（2026-10-04 ユーザー指示「意向把握や比較推奨の文字が濃い紺でゴシック体なので重く見える。他のツール同様に親しみやすい色に」
+   「ワンポイントのイラストに関しても他の色を使って見やすく」）。社内ツールのカード（.training-banner）と同じ形＝明朝体の題名・淡い色の地・色つきの絵。
+   ★色は隣り合うタイル（PC 4列・タブレット 2列・携帯 1列のどれでも）で重ねない：毎日の記録＝水色・緑・琥珀・紫／確認と受け渡し＝珊瑚／台帳＝緑・水色・紫・琥珀 */
+.cp-tl{--a:var(--navy-2);--a-bg:var(--navy-soft);--a-bd:#cfe0ec;background:linear-gradient(160deg,var(--a-bg) 0%,var(--white) 62%);border-color:var(--a-bd);}
+.cp-tl:hover{border-color:var(--a);}
+.cp-tl b{font-family:var(--mincho);font-weight:600;color:var(--a);letter-spacing:.04em;font-size:1.2rem;}
+.cp-tl-ico{width:42px;height:42px;background:var(--white);border:1.5px solid var(--a-bd);color:var(--a);box-shadow:0 2px 6px rgba(130,100,80,.08);}
+.cp-tl-ico svg{width:22px;height:22px;}
+.cp-tl.c-sky{--a:var(--sky);--a-bg:var(--sky-bg);--a-bd:var(--sky-border);}
+.cp-tl.c-green{--a:var(--green);--a-bg:var(--green-bg);--a-bd:var(--green-border);}
+.cp-tl.c-amber{--a:#8a5d12;--a-bg:var(--amber-bg);--a-bd:var(--amber-border);}
+.cp-tl.c-berry{--a:var(--berry);--a-bg:var(--berry-bg);--a-bd:var(--berry-border);}
+.cp-tl.c-coral{--a:var(--coral-text);--a-bg:var(--coral-bg);--a-bd:var(--coral-border);}
+.cp-crumb-t.c-sky{color:var(--sky);} .cp-crumb-t.c-green{color:var(--green);} .cp-crumb-t.c-amber{color:#8a5d12;}
+.cp-crumb-t.c-berry{color:var(--berry);} .cp-crumb-t.c-coral{color:var(--coral-text);}
+/* あわせて使う道具の題名も、明朝体のやわらかい紺に（太いゴシックの濃い紺は重く見える） */
+.cp-tools-h{font-family:var(--mincho);font-weight:600;letter-spacing:.04em;}
+.cp-tool b{font-family:var(--mincho);font-weight:600;color:var(--navy-2);font-size:var(--fs-base);letter-spacing:.03em;}
 .cp-tl-d{font-size:var(--fs-sm);color:var(--muted);line-height:1.6;}
 .cp-tl-m{display:flex;flex-wrap:wrap;gap:4px 6px;margin-top:auto;padding-top:4px;font-size:var(--fs-xs);color:var(--muted);font-weight:700;align-items:center;}
 .cp-tl.wide{flex-direction:row;align-items:center;gap:var(--sp-4);width:100%;}
@@ -252,7 +272,7 @@ body.comp-open #admin .wrap > *:not(#auditSec){display:none !important;}
 .training-banner.b-green .t-go{color:var(--green);}
 .training-banner .t-badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
 .training-banner .t-badges:empty{display:none;}
-/* 記録を足す：閉じているときは押すボタンの形にする */
+/* 記録を足す：閉じているときは押すボタンの形にする（2026-10-04 夜から4つの記録とも開いたまま＝cp-direct で、この形は出ない。戻すときのために残す） */
 #auditSec details.cp-form:not([open]){border:0;background:none;padding:0;margin:var(--sp-2) 0 var(--sp-3);}
 #auditSec details.cp-form > summary{list-style:none;}
 #auditSec details.cp-form > summary::-webkit-details-marker{display:none;}
@@ -262,8 +282,9 @@ body.comp-open #admin .wrap > *:not(#auditSec){display:none !important;}
 #auditSec details.cp-form:not([open]) > summary:hover{background:var(--coral-btn-h);}
 #auditSec details.cp-form[open] > summary::after{content:"（閉じる）";font-weight:400;color:var(--muted);font-size:var(--fs-sm);margin-left:6px;}
 /* 意向把握・比較推奨は、開いたらすぐ書く欄（2026-10-04 ユーザー指示「記録を足すを押さないでも次の画面にいけるように」）。畳まない */
-#auditSec details.cp-form.cp-direct > summary{pointer-events:none;cursor:default;}
-#auditSec details.cp-form.cp-direct[open] > summary::after{content:none;}
+#auditSec details.au-form.cp-direct > summary{pointer-events:none;cursor:default;list-style:none;}
+#auditSec details.au-form.cp-direct > summary::-webkit-details-marker{display:none;}
+#auditSec details.au-form.cp-direct[open] > summary::after{content:none;}
 .au-tab-n:not(:empty){display:inline-block;margin-left:6px;min-width:1.6em;padding:0 6px;border-radius:999px;background:var(--amber-bg);
   border:1px solid var(--amber-border);color:#7d5413;font-size:var(--fs-xs);line-height:1.6;text-align:center;}
 .cp-whoami{font-size:var(--fs-sm);color:var(--muted);margin:-4px 0 var(--sp-2);display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;}
@@ -301,7 +322,7 @@ body.comp-open #admin .wrap > *:not(#auditSec){display:none !important;}
 .cp-two{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:var(--sp-3) var(--sp-5);}
 .cp-table .cp-btn{min-height:44px;padding:6px 12px;font-size:var(--fs-sm);}
 .cp-table .au-flag{white-space:normal;}
-.cp-table td[data-l="状態"],.cp-table td[data-l="確認"]{min-width:10.5em;}
+.cp-table td[data-l="状態"],.cp-table td[data-l="確認"]{min-width:8em;}
 .cp-nw{white-space:nowrap;}
 .cp-acts{display:flex;flex-direction:column;gap:6px;align-items:stretch;}
 .cp-xfer-note{font-size:var(--fs-xs);color:var(--muted);}
@@ -321,6 +342,54 @@ body.comp-open #admin .wrap > *:not(#auditSec){display:none !important;}
 .cp-table .cp-det-tbl td{white-space:pre-wrap;word-break:break-word;}
 .cp-hist{margin:8px 0 0 1.2em;font-size:var(--fs-sm);}
 .cp-hist li{margin:2px 0;}
+/* ---------- 見やすさの見直し（2026-10-04 ユーザー指示「薄い線で各パートを分けて見やすく」「終身保で改行で険は見ずらい」）----------
+   ① 語の途中で折らない：見出し・表の短い欄・商品の名前は、Chrome・Edge では文節で折る（word-break:auto-phrase）。対応していない端末では、
+      表の値・札・見出し・ボタンを keep-all（空白と句読点でだけ折る）で守る。それでも入りきらないときだけ語の中で折る（overflow-wrap）
+      ★段落・手順の一覧・方針の本文・長いチェックの文には文節の折り返しを掛けない（長い文節が次の行へ送られ、行の右が大きく空く）
+      ★表の中は overflow-wrap:break-word（anywhere にすると列の最小幅が1字になり、列が細って「終身保／険」に戻る）
+   ② 表は外枠＋薄い縦線・横線で区切る（表の見出しの紺に合う薄い青灰）
+   ③ 一覧の操作ボタンは2列に並べ、1件の行の背を低くする */
+#auditSec, .cp-show-box, .cp-sheet-box{word-break:auto-phrase;overflow-wrap:anywhere;}
+#auditSec :is(p, li, .cp-polc-b, label.au-check.wide), .cp-show-box :is(p, li), .cp-sheet-box :is(p, li){word-break:normal;}
+#auditSec :is(p, li, .cp-polc-b, label.au-check.wide) :is(b, strong), .cp-show-box :is(p, li) :is(b, strong), .cp-sheet-box :is(p, li) :is(b, strong){word-break:keep-all;word-break:auto-phrase;}
+#auditSec .au-flag, #auditSec .cp-tile, #auditSec .cp-tl b, #auditSec .cp-flow li b, #auditSec .cp-l, #auditSec .cp-step,
+#auditSec .btn, #auditSec .au-mini, #auditSec .cp-filter label, #auditSec .au-table thead th, #auditSec .cp-crumb-t{word-break:keep-all;}
+/* 表の見出しは1行に固定しない（「生保の継続教育（2026年度）」「最初のご意向 → 申込の内容」が列を広げていた）。
+   空白・括弧の前でだけ折る（keep-all）。文節で折ると「記録した／人」「意向と／申込」になる */
+#auditSec .au-table > thead > tr > th{white-space:normal;word-break:keep-all;}
+/* 文の長い列が細く押し込まれない幅（意向把握の「最初のご意向 → 申込の内容」が1行9字・8行になっていた） */
+#auditSec .au-table td.cp-long{min-width:11em;}
+/* 台帳の表の「消す」「直す」なども、記録の一覧と同じ 44px の押しやすさに */
+#auditSec .au-table .au-mini{min-height:44px;padding:6px 12px;font-size:var(--fs-sm);}
+#auditSec .au-mem label{min-height:44px;}
+#auditSec .au-mem input{width:18px;height:18px;accent-color:var(--navy);}
+.cp-you, .cp-need, .cp-nw{white-space:nowrap;}
+#auditSec .au-table th, #auditSec .au-table td{overflow-wrap:break-word;}
+#auditSec .au-table td{word-break:keep-all;word-break:auto-phrase;}
+#auditSec .au-table td.cp-long{word-break:normal;word-break:auto-phrase;}
+#auditSec .au-table tr.cp-det > td, #auditSec .cp-det-tbl th, #auditSec .cp-det-tbl td{word-break:normal;word-break:auto-phrase;overflow-wrap:anywhere;}
+/* 人の名前（顧客名・記録した人・募集人・氏名）は、姓と名のあいだで折らない */
+.cp-name{white-space:nowrap;}
+#auditSec .au-scroll:has(> .au-table){border:1px solid #d5e0ea;border-radius:12px;background:var(--white);}
+#auditSec .au-table th, #auditSec .au-table td{border-bottom:1px solid #e2e9ef;}
+#auditSec .au-table > thead > tr > th{border-bottom-color:#c9d7e3;}
+#auditSec .au-table > thead > tr > th + th, #auditSec .au-table > tbody > tr > td + td{border-left:1px solid #e6ecf1;}
+#auditSec .au-table > tbody > tr:last-child > td{border-bottom:0;}
+#auditSec .cp-table > tbody > tr.cp-row:has(+ tr.cp-det.hide:last-child) > td{border-bottom:0;}
+/* 中身を開いた記録は、行と中身を同じ淡い地でひとまとまりに見せ、下を少し濃い線で閉じる */
+#auditSec .cp-table > tbody > tr.cp-row:has(+ tr.cp-det:not(.hide)) > td{background:#f6f9fc;}
+#auditSec .cp-table > tbody > tr.cp-det > td{background:#f6f9fc;border-bottom:1px solid #c9d7e3;padding:6px 14px 14px;}
+#auditSec .cp-table > tbody > tr.cp-det:last-child > td{border-bottom:0;}
+#auditSec .cp-det-tbl{background:var(--white);border:1px solid #dfe7ee;border-radius:10px;border-collapse:separate;border-spacing:0;overflow:hidden;}
+#auditSec .cp-det-tbl th, #auditSec .cp-det-tbl td{border-bottom:1px solid #e8edf2;padding:7px 12px;}
+#auditSec .cp-det-tbl th{background:#f8fafc;border-right:1px solid #e8edf2;}
+#auditSec .cp-det-tbl tr:last-child > th, #auditSec .cp-det-tbl tr:last-child > td{border-bottom:0;}
+.cp-table .cp-acts{display:grid;grid-template-columns:repeat(2,max-content);gap:6px;align-items:stretch;}
+.cp-table .cp-acts .cp-btn{white-space:nowrap;margin:0;}
+/* 年度・月を選ぶ欄（研修台帳・自習の記録）も、ほかの選ぶ欄と同じ形・44px に。狭い画面では「年度」の字を細らせず、選ぶ欄を次の行へ */
+#auditSec label.au-check:has(> select){flex-wrap:wrap;word-break:keep-all;overflow-wrap:normal;}
+#auditSec label.au-check > select{border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:var(--fs-base);background:#fdfaf6;color:var(--text);
+  min-height:44px;max-width:100%;font-family:inherit;font-weight:400;}
 .cp-pols{border:1px solid #cfe0ec;border-radius:12px;padding:10px 14px;margin:var(--sp-3) 0;background:#fbfdff;}
 .cp-pols summary{cursor:pointer;font-weight:700;color:var(--navy);}
 .cp-pol-list{margin:8px 0 0 1.4em;font-size:var(--fs-sm);}
@@ -561,7 +630,10 @@ body.comp-open #admin .wrap > *:not(#auditSec){display:none !important;}
   body.cp-mprint .cp-kh-foot{margin-top:6px;line-height:1.4;font-size:8pt;}
 }
 /* 携帯では、毎日の記録の表を1件ずつのカードにする（横にずらさずに読めるように） */
-@media screen and (max-width:640px){
+/* 携帯・タブレット・小さめの窓（1200px以下）では、毎日の記録の表と台帳の表を1件ずつのカードにする（横にずらさずに読めるように）
+   ★2026-10-04 見やすさの見直し：語の途中で折らなくしたぶん、表の列の最小幅が広がり、820px・1024px で表が枠から横にはみ出していた。
+     カードにする幅を 640px から 1200px に広げ、641px 以上のカードは項目を2列に並べる（1201px 以上は表。コンプライアンスの画面は枠を 1360px まで広げる） */
+@media screen and (max-width:1200px){
   .cp-table{min-width:0;}
   .cp-table thead{display:none;}
   .cp-table, .cp-table tbody, .cp-table tr, .cp-table td{display:block;width:100%;}
@@ -570,14 +642,47 @@ body.comp-open #admin .wrap > *:not(#auditSec){display:none !important;}
   .cp-table tr.cp-row > td[data-l]{display:grid;grid-template-columns:6.5em minmax(0,1fr);gap:10px;align-items:baseline;}
   .cp-table tr.cp-row > td[data-l]::before{content:attr(data-l);font-size:var(--fs-xs);color:var(--muted);font-weight:700;}
   .cp-acts{flex-direction:row;flex-wrap:wrap;margin-top:4px;}
-  .cp-xfer label{flex-direction:column;align-items:stretch;width:100%;}
-  .cp-xfer select{width:100%;}
   .cp-table tr.cp-row > td:last-child{white-space:normal;}
   .cp-table tr.cp-det{margin:-6px 0 var(--sp-3);}
   .cp-table tr.cp-det > td{border:1px solid var(--line);border-top:0;border-radius:0 0 12px 12px;}
+  /* 台帳の表も1件ずつのカードに（auCardify）。項目ごとに薄い線で区切る */
+  #auditSec .au-table.au-cards{min-width:0;}
+  #auditSec .au-table.au-cards > thead{display:none;}
+  #auditSec .au-table.au-cards, #auditSec .au-cards > tbody, #auditSec .au-cards > tbody > tr, #auditSec .au-cards > tbody > tr > td{display:block;width:100%;}
+  #auditSec .au-scroll:has(> .au-cards){border:0;border-radius:0;background:none;overflow:visible;}
+  #auditSec .au-cards > tbody > tr{border:1px solid #d5e0ea;border-radius:12px;margin-bottom:var(--sp-2);padding:4px 14px 10px;background:var(--white);}
+  #auditSec .au-cards > tbody > tr > td{border:0 !important;border-bottom:1px solid #e8edf2 !important;padding:8px 0;display:grid;grid-template-columns:7.5em minmax(0,1fr);gap:10px;align-items:baseline;white-space:normal;}
+  #auditSec .au-cards > tbody > tr > td::before{content:attr(data-l);font-size:var(--fs-xs);color:var(--muted);font-weight:700;word-break:keep-all;}
+  #auditSec .au-cards > tbody > tr > td.au-blank{display:none;}
+  #auditSec .au-cards > tbody > tr > td.au-act-td{display:block;border-bottom:0 !important;padding-top:10px;}
+  #auditSec .au-cards > tbody > tr > td.au-act-td::before{content:none;}
+  #auditSec .au-cards .au-mini{min-height:44px;padding:6px 14px;font-size:var(--fs-sm);}
+  /* 1件のカードの中も、項目ごとに薄い線で区切る */
+  #auditSec .au-scroll:has(> .cp-table){border:0;border-radius:0;background:none;overflow:visible;}
+  #auditSec .cp-table > tbody > tr > td + td{border-left:0;}
+  #auditSec .cp-table tr.cp-row{border-color:#d5e0ea;padding:4px 14px 10px;}
+  #auditSec .cp-table tr.cp-row > td{background:none !important;}
+  #auditSec .cp-table tr.cp-row > td[data-l]{border-bottom:1px solid #e8edf2;padding:8px 0;}
+  #auditSec .cp-table tr.cp-row > td.cp-act-td{border-bottom:0;padding-top:10px;}
+  #auditSec .cp-table > tbody > tr.cp-det > td{border:1px solid #d5e0ea;border-top:0;padding:10px 12px 12px;}
+  .cp-table .cp-acts{display:flex;}
+}
+@media screen and (min-width:641px) and (max-width:1200px){
+  #auditSec .cp-table tr.cp-row, #auditSec .au-cards > tbody > tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:28px;}
+  #auditSec .cp-table tr.cp-row > td, #auditSec .au-cards > tbody > tr > td{width:auto;}
+  #auditSec .cp-table tr.cp-row > td.cp-long, #auditSec .cp-table tr.cp-row > td.cp-act-td,
+  #auditSec .au-cards > tbody > tr > td.cp-long, #auditSec .au-cards > tbody > tr > td.au-act-td{grid-column:1/-1;}
+}
+@media screen and (max-width:640px){
+  .cp-xfer label{flex-direction:column;align-items:stretch;width:100%;}
+  .cp-xfer select{width:100%;}
   .cp-det-tbl th{width:auto;display:block;border-bottom:0;padding-bottom:0;}
   .cp-det-tbl td{display:block;}
   .cp-det-tbl tr{display:block;border-bottom:1px solid var(--line);}
+  #auditSec .cp-det-tbl th{border-right:0;background:none;padding:8px 10px 0;}
+  #auditSec .cp-det-tbl td{border-bottom:0;padding:2px 10px 8px;}
+  #auditSec .cp-det-tbl tr{border-bottom:1px solid #e8edf2;}
+  #auditSec .cp-det-tbl tr:last-child{border-bottom:0;}
 }
 
 /* ---------- わたしの学習の記録（2026-09-29）──社員が自分の端末で見る・書き出す ----------
@@ -6430,6 +6535,21 @@ function auRenderSum() {
 }
 
 /* ---------- 研修台帳 ---------- */
+/* 台帳の表を、携帯（640px以下）では1件ずつのカードにする（2026-10-04 見やすさの見直し。9列を横にずらして読む形で、列が細って語の途中で折れていた）
+   見出しの名前を各欄に写し、中身は1つの箱（.cp-v）に包む。PC と印刷は今までどおりの表 */
+function auCardify(host) {
+  [].forEach.call(host.querySelectorAll('table.au-table:not(.cp-table)'), function (t) {
+    var heads = [].map.call(t.querySelectorAll('thead th'), function (th) { return th.textContent.trim(); });
+    t.classList.add('au-cards');
+    [].forEach.call(t.querySelectorAll('tbody > tr'), function (tr) {
+      [].forEach.call(tr.children, function (td, i) {
+        if (heads[i]) td.setAttribute('data-l', heads[i]); else td.classList.add('au-act-td');
+        if (!td.textContent.trim() && !td.querySelector('button')) td.classList.add('au-blank');
+        td.innerHTML = '<div class="cp-v">' + td.innerHTML + '</div>';
+      });
+    });
+  });
+}
 function auRenderTrain() {
   var host = document.getElementById('auTrain');
   if (auFy === null) auFy = auFyOf();
@@ -6452,7 +6572,7 @@ function auRenderTrain() {
     '<select id="auFy">' + ys.map(function (y) { return '<option value="' + y + '"' + (y === auFy ? ' selected' : '') + '>' + y + '年度（' + y + '年4月〜' + (y + 1) + '年3月）</option>'; }).join('') + '</select></label>';
 
   h += '<h3>年間の研修計画</h3>' +
-    '<details class="au-form" id="auPlanForm"><summary>計画を足す</summary><div class="au-grid">' +
+    '<details class="au-form cp-direct" id="auPlanForm" open><summary tabindex="-1">新しい計画を書く</summary><div class="au-grid">' +
       '<label>実施する月<input type="month" name="ym" required></label>' +
       '<label class="wide">テーマ<input type="text" name="theme" placeholder="例：公的保険制度（遺族年金）／比較推奨販売の手順"></label>' +
       '<label>対象<input type="text" name="target" placeholder="例：募集人全員"></label>' +
@@ -6461,13 +6581,13 @@ function auRenderTrain() {
     plans.map(function (p) {
       var done = au.trainings.some(function (t) { return t.planId === p.id; });
       var late = !done && p.ym < auIsoToday().slice(0, 7);
-      return '<tr><td>' + esc(p.ym.replace('-', '年') + '月') + '</td><td>' + esc(p.theme) + '</td><td>' + esc(p.target || '') + '</td><td>' +
+      return '<tr><td>' + esc(p.ym.replace('-', '年') + '月') + '</td><td class="cp-long">' + esc(p.theme) + '</td><td>' + esc(p.target || '') + '</td><td>' +
         (done ? auFlag('ok', '実施済み') : late ? auFlag('red', '未実施（月が過ぎた）') : auFlag('amber', '予定')) + '</td>' +
         '<td><button type="button" class="au-mini" data-au-del="plans" data-id="' + esc(p.id) + '">消す</button></td></tr>';
     }).join('') + '</tbody></table></div>' : '<p class="au-empty">この年度の計画はまだありません。</p>';
 
   h += '<h3>研修の記録</h3>' +
-    '<details class="au-form" id="auTrainForm"><summary>記録を足す</summary><div class="au-grid">' +
+    '<details class="au-form cp-direct" id="auTrainForm" open><summary tabindex="-1">新しい研修の記録を書く</summary><div class="au-grid">' +
       '<label>実施日<input type="date" name="date"></label>' +
       '<label>種類<select name="kind">' + auOpts(AU_TRAIN_KINDS) + '</select></label>' +
       '<label class="wide">研修名・テーマ<input type="text" name="title" placeholder="例：意向把握と比較推奨の手順（2026年改正）"></label>' +
@@ -6481,10 +6601,10 @@ function auRenderTrain() {
     '</div><div class="au-actions"><button type="button" class="btn btn-primary btn-sm" data-au-act="addTrain">記録する</button></div></details>';
   h += list.length ? '<div class="au-scroll"><table class="au-table"><thead><tr><th>実施日</th><th>研修名</th><th>種類</th><th>講師・主催</th><th>時間</th><th>出席者</th><th>資料</th><th>理解度</th><th></th></tr></thead><tbody>' +
     list.map(function (t) {
-      var names = (t.members || []).map(function (id) { return memName[id] || (((t.goneNames || {})[id] || '') + '（名簿から削除）'); });
-      return '<tr><td>' + esc(auFmt(t.date)) + '</td><td>' + esc(t.title) + '</td><td>' + esc(t.kind) + '</td><td>' + esc(t.teacher || '') + '</td><td>' +
-        (t.minutes ? esc(t.minutes + '分') : '') + '</td><td>' + (names.length ? esc(names.length + '名：' + names.join('、')) : auFlag('amber', '出席者なし')) + '</td><td>' +
-        esc(t.materials || '') + '</td><td>' + esc(t.check || '') + '</td>' +
+      var names = (t.members || []).map(function (id) { return auNm(memName[id] || (((t.goneNames || {})[id] || '') + '（名簿から削除）')); });
+      return '<tr><td>' + esc(auFmt(t.date)) + '</td><td class="cp-long">' + esc(t.title) + '</td><td>' + esc(t.kind) + '</td><td>' + esc(t.teacher || '') + '</td><td>' +
+        (t.minutes ? esc(t.minutes + '分') : '') + '</td><td>' + (names.length ? names.length + '名：' + names.join('、') : auFlag('amber', '出席者なし')) + '</td><td class="cp-long">' +
+        esc(t.materials || '') + '</td><td class="cp-long">' + esc(t.check || '') + '</td>' +
         '<td><button type="button" class="au-mini" data-au-del="trainings" data-id="' + esc(t.id) + '">消す</button></td></tr>';
     }).join('') + '</tbody></table></div>' : '<p class="au-empty">この年度の記録はまだありません。</p>';
 
@@ -6495,11 +6615,12 @@ function auRenderTrain() {
         var mine = au.trainings.filter(function (t) { return auFyOf(t.date) === auFy && (t.members || []).indexOf(m.id) >= 0; });
         var min = mine.reduce(function (a, t) { return a + (+t.minutes || 0); }, 0);
         var has = function (k) { return mine.some(function (t) { return t.kind === k; }); };
-        return '<tr><td>' + esc(m.name) + '</td><td>' + (mine.length ? mine.length + '回' : auFlag('amber', '記録なし')) + '</td><td>' + (min ? min + '分' : '') + '</td><td>' +
+        return '<tr><td>' + auNm(m.name) + '</td><td>' + (mine.length ? mine.length + '回' : auFlag('amber', '記録なし')) + '</td><td>' + (min ? min + '分' : '') + '</td><td>' +
           (has('公的保険制度') ? auFlag('ok', 'あり') : auFlag('amber', 'なし')) + '</td><td>' + (has('コンプライアンス') ? auFlag('ok', 'あり') : auFlag('amber', 'なし')) + '</td></tr>';
       }).join('') + '</tbody></table></div>';
   }
   host.innerHTML = h;
+  auCardify(host);
   document.getElementById('auFy').onchange = function () { auFy = +this.value; auRenderSome(['train']); };
 }
 
@@ -6510,7 +6631,7 @@ function auRenderMat() {
   var h = '<p class="au-lead">お客様に見せる資料（<b>広告・SNSの投稿を含む</b>）を1件ずつ登録します。' +
     '保険会社から付与された<b>登録番号</b>が無いものは赤で知らせます。登録番号を載せないことを保険会社に承認されている資料は、その旨にチェックしてください（その一覧もここで管理できます）。' +
     '代理店が資料を作ってよいかどうかは、所属保険会社との取り決めに従います。</p>' +
-    '<details class="au-form"><summary>資料を登録する</summary><div class="au-grid">' +
+    '<details class="au-form cp-direct" open><summary tabindex="-1">新しい資料を登録する</summary><div class="au-grid">' +
       '<label class="wide">資料名<input type="text" name="name" placeholder="例：がん保険のご案内（自社作成）"></label>' +
       '<label>種類<select name="kind">' + auOpts(AU_MAT_KINDS) + '</select></label>' +
       '<label>保険会社<input type="text" name="company" placeholder="例：〇〇生命"></label>' +
@@ -6532,12 +6653,13 @@ function auRenderMat() {
         else if (x.expires && auDays(x.expires) <= 30) flags.push(auFlag('amber', '期限まで' + auDays(x.expires) + '日'));
         if (!flags.length) flags.push(auFlag('ok', '使用中'));
       }
-      return '<tr class="' + (x.disposed ? 'is-off' : '') + '"><td>' + esc(x.name) + '</td><td>' + esc(x.kind) + '</td><td>' + esc(x.company || '') + '</td><td>' +
-        esc(x.regNo || '') + '</td><td>' + esc(auFmt(x.approved)) + '</td><td>' + esc(auFmt(x.expires)) + '</td><td>' + esc(x.users || '') + '</td><td>' + flags.join('') + '</td><td>' +
+      return '<tr class="' + (x.disposed ? 'is-off' : '') + '"><td class="cp-long">' + esc(x.name) + '</td><td>' + esc(x.kind) + '</td><td>' + esc(x.company || '') + '</td><td>' +
+        esc(x.regNo || '') + '</td><td>' + esc(auFmt(x.approved)) + '</td><td>' + esc(auFmt(x.expires)) + '</td><td class="cp-long">' + esc(x.users || '') + '</td><td>' + flags.join('') + '</td><td>' +
         (x.disposed ? '' : '<button type="button" class="au-mini" data-au-act="dispose" data-id="' + esc(x.id) + '">廃棄した</button> ') +
         '<button type="button" class="au-mini" data-au-del="materials" data-id="' + esc(x.id) + '">消す</button></td></tr>';
     }).join('') + '</tbody></table></div>' : '<p class="au-empty">まだ資料は登録されていません。</p>';
   host.innerHTML = h;
+  auCardify(host);
 }
 
 /* ---------- 資格・届出の期限 ---------- */
@@ -6549,7 +6671,7 @@ function auRenderLimit() {
   var h = '<p class="au-lead">募集に携わる人ごとに、資格の期限・継続教育・登録の届出を管理します。' +
     '損保一般試験は単位ごとに更新が要ります（日本損害保険協会は有効期限の9か月前・3か月前・期限の月に案内を出します）。生命保険の継続教育は毎年履修します。' +
     '届出の方法と期限、更新の申込の締切は、所属保険会社と各協会の案内に従ってください。退職が決まっている人は、退職日を先に入れておけます（その日までは在籍として数えます）。</p>' +
-    '<details class="au-form"' + (auEditMember ? ' open' : '') + '><summary>' + (auEditMember ? esc((m.name || '') + ' を直す') : '人を登録する') + '</summary><div class="au-grid">' +
+    '<details class="au-form cp-direct" open><summary tabindex="-1">' + (auEditMember ? esc((m.name || '') + ' を直す') : '新しく人を登録する') + '</summary><div class="au-grid">' +
       '<label>氏名<input type="text" name="name" value="' + v('name') + '"></label>' +
       '<label>入社日<input type="date" name="join" value="' + v('join') + '"></label>' +
       '<label class="au-check"><input type="checkbox" name="joinTodoke"' + ck('joinTodoke') + '>入社のときの登録・届出が済んでいる</label>' +
@@ -6563,7 +6685,7 @@ function auRenderLimit() {
       (auEditMember ? '<button type="button" class="btn btn-ghost btn-sm" data-au-act="cancelMember">やめる</button>' : '') + '</div></details>';
   var list = au.members.slice().sort(function (a, b) { return (auLeft(a) ? 1 : 0) - (auLeft(b) ? 1 : 0) || (a.name < b.name ? -1 : 1); });
   h += list.length ? '<div class="au-scroll"><table class="au-table"><thead><tr><th>氏名</th><th>生保の継続教育（' + fy + '年度）</th>' +
-    AU_SONPO.map(function (u) { return '<th>' + esc(u[1].replace('損保一般 ', '')) + '</th>'; }).join('') + '<th>そのほか</th><th>届出</th><th></th></tr></thead><tbody>' +
+    AU_SONPO.map(function (u) { return '<th>' + esc(u[1].replace('損保一般 ', '')).replace(/単位$/, '<wbr>単位') + '</th>'; }).join('') + '<th>そのほか</th><th>届出</th><th></th></tr></thead><tbody>' +
     list.map(function (x) {
       var left = auLeft(x), manual = (x.keizoku || {})[fy], kz = auKeizokuDate(x, fy);
       var cell = function (d) { if (!d) return '―'; var f = left ? null : auLimitFlag(d); return esc(auFmt(d)) + (f ? '<br>' + auFlag(f.cls, f.text) : ''); };
@@ -6574,7 +6696,7 @@ function auRenderLimit() {
       var kzCell = !x.seiho ? '―'
         : kz ? auFlag('ok', '履修済み ' + auFmt(kz)) + (manual ? ' <button type="button" class="au-mini" data-au-act="unkeizoku" data-id="' + esc(x.id) + '">取り消す</button>' : '<br><small>研修台帳から</small>')
         : auFlag('amber', '未履修') + ' <button type="button" class="au-mini" data-au-act="keizoku" data-id="' + esc(x.id) + '">履修した</button>';
-      return '<tr class="' + (left ? 'is-off' : '') + '"><td>' + esc(x.name) + (x.leave ? '<br><small>' + (left ? '退職 ' : '退職予定 ') + esc(auFmt(x.leave)) + '</small>' : '') + '</td><td>' +
+      return '<tr class="' + (left ? 'is-off' : '') + '"><td>' + auNm(x.name) + (x.leave ? '<br><small>' + (left ? '退職 ' : '退職予定 ') + esc(auFmt(x.leave)) + '</small>' : '') + '</td><td>' +
         kzCell + '</td>' +
         AU_SONPO.map(function (u) { return '<td>' + cell(x['sp_' + u[0]]) + '</td>'; }).join('') +
         '<td>' + (x.otherName ? esc(x.otherName) + '<br>' + cell(x.otherExp) : '―') + '</td><td>' + (todoke.join('') || '―') + '</td>' +
@@ -6582,6 +6704,7 @@ function auRenderLimit() {
         '<button type="button" class="au-mini" data-au-del="members" data-id="' + esc(x.id) + '">消す</button></td></tr>';
     }).join('') + '</tbody></table></div>' : '<p class="au-empty">まだ人が登録されていません。</p>';
   host.innerHTML = h;
+  auCardify(host);
 }
 
 /* ---------- 自習の記録（2026-09-29）----------
@@ -6616,7 +6739,7 @@ function auRenderSelf() {
     h += '<div class="au-scroll"><table class="au-table"><thead><tr><th>氏名</th><th>学んだ日</th><th>学習資料・教材</th><th>教材の問題</th>' +
       '<th>資格の問題</th><th>AI師匠（仕事の相談）</th><th>使った社内ツール</th><th>書き出した日</th><th></th></tr></thead><tbody>' +
       list.map(function (x) {
-        return '<tr><td>' + esc(x.name) + (inRoll[auNameKey(x.name)] ? '' : ' ' + auFlag('amber', '名簿にない名前')) + '</td>' +
+        return '<tr><td>' + auNm(x.name) + (inRoll[auNameKey(x.name)] ? '' : ' ' + auFlag('amber', '名簿にない名前')) + '</td>' +
           '<td>' + x.days + '日</td><td>' + x.pages.length + '個</td><td>' + x.quiz.length + '本</td><td>' + x.shikaku + '問</td>' +
           '<td>' + x.mentor + '回</td><td>' + (x.tools.length ? esc(titles(x.tools).join('、')) : '') + '</td>' +
           '<td>' + esc(auFmt(x.made)) + '</td>' +
@@ -6637,6 +6760,7 @@ function auRenderSelf() {
   h += '<p class="au-note">本人の端末に残った記録を、本人が書き出したものです（自己申告）。学んだ量の記録で、理解の度合いや成果を示すものではありません。' +
     'AI師匠の回数は仕事の相談だけで、暮らし・体と心の調子・つらさの相談は数えていません。同じ人・同じ月の記録を読み込むと、新しいほうに入れ替わります。</p>';
   host.innerHTML = h;
+  auCardify(host);
   document.getElementById('auSelfYm').onchange = function () { auSelfYm = this.value; auRenderSome(['self']); };
 }
 function auInitSelfFile() {
@@ -6853,7 +6977,7 @@ var CP = {
     ] },
   kujo: { panel: 'auKujo', label: '苦情・お申し出', title: '苦情・お申し出の台帳', dateL: '受付日',
     lead: 'ご不満の表明は、迷ったら<b>苦情として</b>記録します。受付 → 初動 → 保険会社への報告 → 対応の結果 → 再発防止まで、' +
-      '<b>同じ1件を「直す」で書き足しながら閉じていきます</b>。お客様のご住所・ご連絡先は書かないでください。',
+      '<b>同じ1件を「直す」で<wbr>書き足しながら<wbr>閉じていきます</b>。お客様のご住所・ご連絡先は書かないでください。',
     f: [
       { k: 'date', t: 'date', l: '受付日', req: 1 },
       { k: 'how', t: 'select', l: '受付の方法', opts: CP_HOW, req: 1 },
@@ -7241,8 +7365,8 @@ function cpRead(kind, form) {
   if (kind === 'hikaku') { var P = cpPolByTitle(f.pol); f.polBody = P ? P.body : ''; f.coList = au.cos.join('、'); }
   return cpClean({ id: 'x', kind: kind, f: f }).f;
 }
-/* 開いたらすぐ書く欄を出す記録（「記録を足す」を押す一手を省く。畳まない） */
-var CP_DIRECT = { iko: 1, hikaku: 1 };
+/* 開いたらすぐ書く欄を出す記録（「記録を足す」を押す一手を省く。畳まない）。★台帳の入力欄（研修の計画と記録・募集資料・資格の期限）も同じ形（details.au-form.cp-direct） */
+var CP_DIRECT = { iko: 1, hikaku: 1, shorui: 1, kujo: 1 };   /* 2026-10-04 夜：書類の点検・苦情も（ユーザー指示「他にも記録を足すボタンが見つかった。削除し、そのまま記入できるように」） */
 /* 数と割合の欄・絞り込みを出さない記録（2026-10-04 ユーザー指示「情報が多すぎて使いたくなくなります」） */
 var CP_PLAIN = { hikaku: 1 };
 function cpFormHTML(kind) {
@@ -7267,18 +7391,18 @@ function cpFormHTML(kind) {
 
 /* ---------- 一覧 ---------- */
 var CP_COLS = {
-  iko: [['日付', function (r) { return esc(auFmt(r.f.date)); }], ['顧客名', function (r) { return esc(r.f.no); }], ['種目', function (r) { return esc(r.f.shu); }],
+  iko: [['日付', function (r) { return esc(auFmt(r.f.date)); }], ['顧客名', function (r) { return auNm(r.f.no); }], ['種目', function (r) { return esc(r.f.shu); }],
     ['最初のご意向 → 申込の内容', function (r) { return esc(cpCut(r.f.first, 34)) + '<br>→ ' + esc(cpCut(r.f.final, 34)); }], ['意向と申込', function (r) { return esc(r.f.same); }]],
   hikaku: [['日付', function (r) {
       var n = (r.f.mtgs || []).length;
       return '<span class="cp-nw">面談 ' + esc(auFmt(cpLastMtg(r.f)) || '―') + '</span>' + (n > 1 ? '<span class="cp-det-sub">これまで ' + n + '回</span>' : '') +
         (r.f.kdate ? '<span class="cp-det-sub cp-nw">契約 ' + esc(auFmt(r.f.kdate)) + '</span>' : '');
-    }], ['顧客名', function (r) { return esc(r.f.no); }], ['種目', function (r) { return esc(r.f.shu); }],
+    }], ['顧客名', function (r) { return auNm(r.f.no); }], ['種目', function (r) { return esc(r.f.shu); }],
     ['推奨の方針', function (r) { return esc(cpCut(r.f.pol, 26)); }], ['お勧めした先', function (r) {
       var f = r.f, rc = ((f.rcmp || '') + (f.rprod ? ' ' + f.rprod : '')).trim();
       return esc(rc || '―') + (f.scmp ? '<span class="cp-det-sub">お客様の選択：' + esc(f.scmp === rc ? '同じ' : f.scmp) + '</span>' : '');
     }]],
-  shorui: [['点検した日', function (r) { return esc(auFmt(r.f.date)); }], ['顧客名', function (r) { return esc(r.f.no); }], ['募集人', function (r) { return esc(r.f.boshu); }],
+  shorui: [['点検した日', function (r) { return esc(auFmt(r.f.date)); }], ['顧客名', function (r) { return auNm(r.f.no); }], ['募集人', function (r) { return auNm(r.f.boshu); }],
     ['点検した書類', function (r) { return esc(cpCut(r.f.docs.join('、'), 30)); }], ['送った日', function (r) { return esc(auFmt(r.f.sent)); }]],
   kujo: [['受付日', function (r) { return esc(auFmt(r.f.date)); }], ['区分', function (r) { return esc(r.f.type.replace(/（.*$/, '')); }], ['受付の方法', function (r) { return esc(r.f.how); }],
     ['お申し出の要旨', function (r) { return esc(cpCut(r.f.sum, 40)); }], ['保険会社への報告', function (r) { return esc(r.f.rep + (r.f.repDate ? ' ' + auFmt(r.f.repDate) : '')); }]]
@@ -7336,18 +7460,21 @@ function cpCmpListHTML(f) {
       (x.n ? '<span class="cp-det-sub">' + esc(x.n) + '</span>' : '') + '</li>';
   }).join('') + '</ol>';
 }
+function auNm(n) { return '<span class="cp-name">' + esc(n) + '</span>'; }
+/* 文の長い列（ふつうの文と同じに文節で折る）。ほかの列（日付・顧客名・種目・状態・記録した人）は語の途中で折らない */
+var CP_LONGCOL = { '最初のご意向 → 申込の内容': 1, '推奨の方針': 1, '点検した書類': 1, 'お申し出の要旨': 1, '要点': 1 };
 function cpTableHTML(list, withKind) {
   var kind = withKind ? null : list[0].kind;
   var cols = withKind
     ? [['種類', function (r) { return '<span class="cp-nw">' + esc(CP_SH[r.kind]) + '</span>'; }], ['日付', function (r) { return '<span class="cp-nw">' + esc(auFmt(r.f.date)) + '</span>'; }],
-       ['顧客名', function (r) { return esc(r.f.no || '―'); }],
+       ['顧客名', function (r) { return auNm(r.f.no || '―'); }],
        ['要点', function (r) { return esc(cpGist(r)); }]]
     : CP_COLS[kind];
-  cols = cols.concat([['状態', cpFlagsHTML]], kind && CP_NOCONF[kind] ? [] : [['確認', cpStampsHTML]], [['記録した人', function (r) { return esc(r.owner || '（未記入）') + (cpMine(r) ? ' <span class="cp-you">（あなた）</span>' : ''); }]]);
+  cols = cols.concat([['状態', cpFlagsHTML]], kind && CP_NOCONF[kind] ? [] : [['確認', cpStampsHTML]], [['記録した人', function (r) { return auNm(r.owner || '（未記入）') + (cpMine(r) ? ' <span class="cp-you">（あなた）</span>' : ''); }]]);
   var n = cols.length + 1;
   return '<div class="au-scroll"><table class="au-table cp-table"><thead><tr>' + cols.map(function (c) { return '<th>' + esc(c[0]) + '</th>'; }).join('') + '<th></th></tr></thead><tbody>' +
     list.map(function (r) {
-      return '<tr class="cp-row">' + cols.map(function (c) { return '<td data-l="' + esc(c[0]) + '"><div class="cp-v">' + c[1](r) + '</div></td>'; }).join('') + '<td class="cp-act-td">' + cpActsHTML(r) + '</td></tr>' +
+      return '<tr class="cp-row">' + cols.map(function (c) { return '<td data-l="' + esc(c[0]) + '"' + (CP_LONGCOL[c[0]] ? ' class="cp-long"' : '') + '><div class="cp-v">' + c[1](r) + '</div></td>'; }).join('') + '<td class="cp-act-td">' + cpActsHTML(r) + '</td></tr>' +
         '<tr class="cp-det' + (cpOpen[r.id] ? '' : ' hide') + '" data-cpd="' + esc(r.id) + '"><td colspan="' + n + '">' + cpDetailHTML(r) + '</td></tr>';
     }).join('') + '</tbody></table></div>';
 }
@@ -7567,7 +7694,7 @@ function cpRenderKakunin() {
       var cnt = function (k) { return mine.filter(function (r) { return r.kind === k; }).length; };
       var got = cpGot(n);
       var td = function (l, v) { return '<td data-l="' + l + '"><div class="cp-v">' + v + '</div></td>'; };
-      return '<tr class="cp-row">' + td('名前', esc(n)) + CP_KINDS.map(function (k) { return td(CP_SH[k], cnt(k) + '件'); }).join('') +
+      return '<tr class="cp-row">' + td('名前', auNm(n)) + CP_KINDS.map(function (k) { return td(CP_SH[k], cnt(k) + '件'); }).join('') +
         td('記録の欠け', (function (m) { return m ? auFlag('red', m + '件') : '0件'; })(mine.filter(function (r) { return cpMissing(r).length; }).length)) +
         td('あなたの確認待ち', mine.filter(cpWaitForMe).length + '件') + td('最後に受け取った日', got ? esc(auFmt(got)) : '―') + '</tr>';
     }).join('');
@@ -7665,8 +7792,9 @@ function cpHomeData() {
   if (!mgr && c.back.length) out.card.push(cpFlagT('amber', '戻された記録 ' + c.back.length, c.back));
   return out;
 }
+var CP_TL_COLOR = { iko: 'sky', hikaku: 'green', shorui: 'amber', kujo: 'berry', kakunin: 'coral', train: 'green', mat: 'sky', limit: 'berry', self: 'amber' };
 function cpTileHTML(k, d, wide) {
-  return '<button type="button" class="cp-tl' + (wide ? ' wide' : '') + '" data-au-tab="' + k + '">' +
+  return '<button type="button" class="cp-tl c-' + (CP_TL_COLOR[k] || 'sky') + (wide ? ' wide' : '') + '" data-au-tab="' + k + '">' +
     '<span class="cp-tl-top"><span class="cp-tl-ico"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + CP_ICO[k] + '</svg></span>' +
     '<b>' + esc(CP_TL_NAME[k]) + '</b></span>' +
     '<span class="cp-tl-d">' + esc(k === 'kakunin' ? 'メンバーの記録を上長・社長が確認する。受け渡しはファイルで' : CP_TL_DESC[k]) + '</span>' +
@@ -8296,7 +8424,10 @@ function auSetTab(k) {
   AU_PANELS.forEach(function (p) { document.getElementById(p[1]).classList.toggle('hide', p[0] !== k); });
   document.getElementById('auHome').classList.toggle('hide', k !== 'home');
   document.getElementById('cpCrumb').classList.toggle('hide', k === 'home');
-  document.getElementById('cpCrumbTitle').textContent = AU_TITLE[k] || '';
+  var ct = document.getElementById('cpCrumbTitle');
+  ct.textContent = AU_TITLE[k] || '';
+  var cc = CP_TL_COLOR && CP_TL_COLOR[k];
+  ct.className = 'cp-crumb-t' + (cc ? ' c-' + cc : '');   /* 開いた記録の題名は、タイルと同じ色 */
   document.getElementById('auditSec').classList.toggle('cp-in', k !== 'home');
 }
 
@@ -8705,9 +8836,12 @@ function auInitButtons() {
    ★お客様に見せる文言ではないが、効果の数字や断定（必ず・絶対）は書かない。
    ============================================================ */
 var UPDATES = [
+  { id: '2026-10-04-cp-mieyasusa', date: '2026-10-04', target: 'sec:auditSec',
+    title: 'コンプライアンスの表を見やすくし、どの記録も開いたらすぐ書けるようにしました',
+    body: '記録の一覧と台帳の表を、薄い線で列と行ごとに区切りました。「終身保／険」のように語の途中で折れないようにし、一覧の操作ボタンは2列に並べて1件の行の背を低くしました。携帯・タブレット・小さめの窓では、表を1件ずつのカードにして、横にずらさずに読めるようにしました。書類の点検・苦情・研修台帳（計画と記録）・募集資料台帳・資格と届出の期限も、「記録を足す」を押さずに、開いた画面にそのまま書く欄が出ます。' },
   { id: '2026-10-04-cp-direct', date: '2026-10-04', target: 'sec:auditSec',
     title: '意向把握・比較推奨は、開いたらすぐ書けるようにしました',
-    body: '意向把握と比較推奨の記録は、開いた画面にそのまま書く欄が出ます。「記録を足す」を押す一手を省きました。比較推奨の画面からは、数のタイル（記録・記録の欠け・方針の外・違う商品を選ばれた）と、保険会社・方針・理由の割合の表、月や記録した人の絞り込みを外し、記録の一覧だけにしました。記録の欠けや方針の外の札は、一覧の各行にこれまでどおり出ます。書類の点検と苦情の記録は、これまでどおり「記録を足す」から書きます。' },
+    body: '意向把握と比較推奨の記録は、開いた画面にそのまま書く欄が出ます。「記録を足す」を押す一手を省きました。比較推奨の画面からは、数のタイル（記録・記録の欠け・方針の外・違う商品を選ばれた）と、保険会社・方針・理由の割合の表、月や記録した人の絞り込みを外し、記録の一覧だけにしました。記録の欠けや方針の外の札は、一覧の各行にこれまでどおり出ます。' },
   { id: '2026-10-04-hikaku-noconf', date: '2026-10-04', target: 'sec:auditSec',
     title: '比較推奨：上長・社長の確認を外し、記録票を窓の上からも印刷できるようにしました',
     body: '比較推奨の記録には、上長・社長の「確認した」「戻す」を付けない形にしました。確認待ちの数や札にも入りません。記録は、これまでどおり受け渡しのファイルで上長・社長にも届くので、中身は見られます。保存用の記録票は、確認の記録と上長・社長の欄を外し、募集人（記録した人）の欄だけにしました。記録票の窓は見出しの行を窓の上に貼り、そこにも「印刷・PDFにする」を置いたので、下までずらさなくても印刷できます。前に付いた確認の印は、記録に残したまま画面には出しません。意向把握・書類の点検・苦情の記録の確認は、これまでどおりです。' },
