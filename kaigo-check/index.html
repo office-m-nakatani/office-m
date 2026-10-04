@@ -1144,6 +1144,12 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
 #omgate .og-note b{color:#5d6b7c}
 @media(max-width:420px){ #omgate .og-card{padding:28px 20px 24px} }
 @media(prefers-reduced-motion:reduce){ #omgate *{transition:none !important} }
+/* お客様が共有リンクで開いたとき（② の鍵で開いたとき）は、営業向けの部分を隠す（2026-10-04）。
+   面談の最初のひと言・ページ内の目次・30秒の核心・現場あるある・逆転劇場・明日の3つの問い。
+   解説の部分（もとの知識の節）とまとめだけが残る */
+html.omgate-cust .tot-first,html.omgate-cust .tot-nav,html.omgate-cust #tot-core,html.omgate-cust .tot-core,
+html.omgate-cust .tot-sec,html.omgate-cust #toi,html.omgate-cust .tot-toi,html.omgate-cust .tot-modal{display:none !important}
+html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
 </style>
 <div id="omgate" role="dialog" aria-modal="true" aria-labelledby="omgate-h">
   <div class="og-card">
@@ -1210,17 +1216,18 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
     var p = String(location.pathname).replace(/\/+$/, '');
     return p.slice(p.lastIndexOf('/') + 1).replace(/\.html$/i, '');
   }
+  /* どの鍵で開いたかを返す（'auth'＝管理画面・'share'＝共有リンク・'trial'＝体験版・''＝開けない） */
   function allowed() {
     try {
       var a = read(localStorage, AUTH);
-      if (live(a) && /^[0-9a-f]{64}$/.test(String(a.h || ''))) return true;
+      if (live(a) && /^[0-9a-f]{64}$/.test(String(a.h || ''))) return 'auth';
     } catch (e) {}
-    try { if (live(read(sessionStorage, SHARE))) return true; } catch (e) {}
+    try { if (live(read(sessionStorage, SHARE))) return 'share'; } catch (e) {}
     try {
       var t = read(localStorage, TRIAL);
-      if (live(t) && t.ids && t.ids.join && t.ids.indexOf(pageId()) >= 0) return true;
+      if (live(t) && t.ids && t.ids.join && t.ids.indexOf(pageId()) >= 0) return 'trial';
     } catch (e) {}
-    return false;
+    return '';
   }
   function open_() {
     R.className += ' omgate-open';
@@ -1228,7 +1235,12 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
     if (g) g.hidden = true;
   }
 
-  if (allowed()) { open_(); return; }
+  var how = allowed();
+  if (how) {
+    /* 共有リンク（お客様）で開いたときは、営業向けの部分を隠す印を付ける */
+    if (how === 'share') R.className += ' omgate-cust';
+    open_(); return;
+  }
 
   var f = document.getElementById('omgate-f');
   var inp = document.getElementById('omgate-p');

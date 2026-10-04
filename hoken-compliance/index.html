@@ -12,15 +12,23 @@
   【保存先】
   - 解答の正誤・弱点・受検日・監査チェックの状態は、この端末のブラウザ（localStorage）に
     のみ保存される。サーバーへの送信は一切ない。共有PC・貸出端末では使わないこと。
-  - 端末を変えると全部消える。★書き出し・読み込み（JSON／CSV）と記録の消去は
-    2026-09-08 のユーザー指示で廃止した。持ち出す手段は持たない。
+  - 端末を変えると全部消える。★書き出し・読み込み（JSON／CSV）は 2026-09-08 のユーザー指示で
+    廃止した。持ち出す手段（ファイル）は持たない。足さないこと。
+  - 2026-10-04 に足したもの（社内ツール共通の部品＝hoken-newtools-src/tools-common/SPEC.md）：
+    ・研修の記録として渡すのは「受講の控え」の印刷だけ（本人が名前を入れて押す。ファイルは作らない）。
+      監査の証拠チェックも印刷できる
+    ・記録の消去は「記録と受講の控え」のタブに戻した（本人が二度確かめてから）
+    ・解いている途中の回は state.run に残し、読み込み直しても続きから解ける
+    ・保存できないときは赤い帯、別の窓で記録が変わったときは琥珀の帯（読み直さずに保存するときは確かめる）
+    ・navigator.storage.persist() は呼ばない（管理画面の「データの控え」で頼む形）
+    ・損害保険の実務に触れる問題に sonpo:true（10問）。三択の選択肢は長さとそれらしさをそろえた
 
   【内容の限界（ここを読まずに使わせない）】
   - 本ツールは法令・監督指針の一般的な考え方を、代理店の実務手順に落として整理したもの。
     最終的には「保険会社と自代理店の社内規程が優先する」。両者が食い違う場合は必ず
     上席・コンプライアンス担当・所属保険会社に確認すること。
   - 条文番号は確信のあるものだけを記載している（保険業法275・276・283・294・294の2・
-    294の3・300条1項・309、保険法37・95、個人情報保護法27。全100問中24問）。
+    294の3・300条1項・309、保険法37・95、個人情報保護法27。全100問中25問）。
     300条1項は「号」まで書かず、括弧書きで禁止行為の内容を示す形にしてある（号の並びは
     改正で動きうるため）。条文番号を書いていない論点は、意図的に省いている
     （監督指針の項番、帳簿書類の条番号、個人情報保護法の要配慮個人情報・漏えい報告の
@@ -237,9 +245,9 @@ table.tbl th{background:var(--navy-soft);color:var(--navy);font-weight:700;white
 .head-action{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;}
 .sec-note{font-size:var(--fs-sm);color:var(--muted);max-width:46em;margin:var(--sp-2) 0 var(--sp-4);line-height:var(--lh-base);}
 
-/* 指で押す前提の最低サイズ（共通のボタンに高さだけ足す） */
+/* 指で押す前提の最低サイズ（共通のボタンに高さだけ足す）。小さいボタンも 44px（2026-10-04） */
 .btn{min-height:44px;}
-.btn-sm{min-height:38px;}
+.btn-sm{min-height:44px;}
 .btn-danger{background:var(--white);border:1px solid var(--red-border);color:var(--red-text);}
 .btn-danger:hover{background:var(--red-bg);}
 
@@ -381,9 +389,174 @@ footer{margin-top:var(--sp-8);padding:var(--sp-5) 16px;text-align:center;font-si
 }
 @media(max-width:420px){
   .opts.ox{flex-direction:column;}
-  .aud-q{flex-wrap:wrap;}
-  .aud-q .aq-cnt{margin-left:0;}
 }
+
+/* ============================================================
+   2026-10-04 の直し（社内ツール共通の部品 A〜F と、点検の報告 C の直し）
+   ============================================================ */
+/* ---- A. 上の帯：ツール名を h1 に。右に「管理画面へ」。データの札は管理画面の「データの控え」へのリンク ---- */
+.tb-brand h1{font-family:var(--mincho);font-size:var(--fs-lg);letter-spacing:.06em;font-weight:600;line-height:1.35;color:var(--navy);}
+.tb-brand .nw{display:inline-block;white-space:nowrap;}
+a.tb-tag{text-decoration:none;min-height:44px;}
+a.tb-tag:hover{background:#fbe9c9;}
+.tb-home{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 18px;border-radius:999px;
+  border:1px solid #cfe0ec;background:var(--white);color:var(--navy);font-size:var(--fs-sm);font-weight:700;
+  text-decoration:none;white-space:nowrap;letter-spacing:.03em;}
+.tb-home:hover{background:var(--navy-soft);}
+.tb-home svg{width:17px;height:17px;}
+.tl-s{display:none;}
+@media(max-width:600px){
+  .topbar .wrap{flex-wrap:nowrap;min-height:0;padding:10px 16px;gap:10px;}
+  .tb-brand{flex:1 1 auto;min-width:0;gap:10px;}
+  .tb-brand .tb-art,.tb-brand .tb-art svg{width:38px;height:38px;}
+  .tb-brand h1{font-size:15px;line-height:1.3;letter-spacing:0;}
+  .tb-brand small,.topbar .tb-tag{display:none;}
+  .tb-home{margin-left:auto;padding:0 12px;font-size:14px;gap:6px;}
+  .tl-l{display:none;}
+  .tl-s{display:inline;}
+}
+@media(max-width:374px){ .tb-brand h1{font-size:14px;} .tb-home{padding:0 10px;} }
+
+/* ---- B. タブ：携帯では全てのタブを1画面に（印が上・名前が下） ---- */
+@media(max-width:600px){
+  .tabs .wrap{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;padding:0 4px;overflow:visible;}
+  .tab{flex-direction:column;justify-content:center;gap:3px;min-height:56px;padding:7px 2px 6px;
+    white-space:normal;text-align:center;font-size:13px;line-height:1.25;letter-spacing:0;}
+  .tab svg{width:18px;height:18px;}
+}
+
+/* ---- C. 保存できないとき（赤）・別の窓で記録が変わったとき（琥珀）の帯。タブと一緒に上に残る ---- */
+.om-bar{font-size:var(--fs-sm);font-weight:700;line-height:1.6;}
+.om-bar .wrap{display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap;padding:8px 16px;}
+.om-bar.err{background:#fbe3e1;color:#8f2621;border-bottom:2px solid var(--red);}
+.om-bar.warn{background:var(--amber-bg);color:#6b4a10;border-bottom:2px solid #d99a24;}
+.om-bar button{min-height:44px;border-radius:999px;padding:0 16px;font-weight:700;cursor:pointer;
+  background:var(--white);border:1px solid currentColor;color:inherit;}
+
+/* ---- 出題中：帯と見出しを畳み、問題を最初の画面に入れる ---- */
+body.running .rulebar,body.running #tab-knock .sec-head{display:none;}
+/* 携帯では断りの帯を短く（最初の画面を断りで埋めない。中身の線は同じ） */
+.rb-short{display:none;}
+@media (max-width:600px){
+  .rulebar{padding:12px 14px;gap:10px;font-size:.88rem;line-height:1.65;margin-top:14px;}
+  .rulebar b{display:block;font-size:.95rem;margin-bottom:2px;}
+  .rulebar svg{width:20px;height:20px;}
+  .rb-long{display:none;} .rb-short{display:inline;}
+}
+body.running #tab-knock .sec{margin-top:var(--sp-4);}
+.q-text:focus{outline:none;}
+.q-sonpo{background:var(--berry-bg);border:1px solid var(--berry-border);color:var(--berry);
+  border-radius:999px;padding:3px 12px;font-size:var(--fs-xs);font-weight:700;}
+/* 答えたら「次の問題」を画面の下に貼る（PC でも携帯でも） */
+.run-actions{display:flex;gap:var(--sp-3);flex-wrap:wrap;align-items:center;margin-top:var(--sp-4);}
+.run-actions.answered{position:sticky;bottom:0;z-index:15;background:rgba(255,248,242,.97);
+  border-top:1px solid var(--line);box-shadow:0 -8px 18px rgba(130,100,80,.10);
+  padding:10px 0 calc(10px + env(safe-area-inset-bottom));}
+.run-actions #nextBtn{flex:1 1 220px;max-width:420px;font-size:var(--fs-md);}
+/* 選択肢の答え合わせ：色だけで言わず、印と文字も出す */
+.opt-tag{margin-left:auto;flex:none;display:inline-flex;align-items:center;gap:4px;align-self:center;
+  font-size:var(--fs-xs);font-weight:800;border-radius:999px;padding:3px 10px;letter-spacing:.04em;line-height:1.5;
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",YuGothic,Meiryo,"Noto Sans JP",sans-serif;}
+.opt-tag svg{width:14px;height:14px;}
+.opt.is-ok .opt-tag{background:var(--green);color:#fff;}
+.opt.is-ng .opt-tag{background:#a8322d;color:#fff;}
+.opt.is-ok,.opt.is-ng{border-width:2px;}
+.opts.ox .opt{flex-wrap:wrap;gap:6px 10px;}
+.opts.ox .opt .opt-tag{margin-left:0;}
+@media(max-width:600px){
+  /* 携帯では札を文の下に置く（横に並べると文が4字ずつに細る） */
+  .opts:not(.ox) .opt{flex-wrap:wrap;row-gap:8px;}
+  .opts:not(.ox) .opt > span:nth-child(2){flex:1 1 calc(100% - 40px);min-width:0;}
+  .opts:not(.ox) .opt .opt-tag{margin-left:40px;}
+  /* 下に貼る帯は1段に（「次の問題」と「中断して戻る」を横に並べる） */
+  .run-actions.answered{flex-wrap:nowrap;gap:10px;}
+  .run-actions.answered #nextBtn{flex:1 1 auto;min-width:0;max-width:none;}
+  .run-actions.answered #quitBtn{flex:none;padding-left:14px;padding-right:14px;}
+}
+/* 結果：間違えた問題の一覧 */
+.wl-item{border:1px solid var(--line);border-radius:16px;background:var(--white);padding:14px 16px;margin-top:10px;}
+.wl-item .wl-cat{font-size:var(--fs-xs);font-weight:700;color:var(--sky);}
+.wl-item .wl-q{font-family:var(--mincho);color:var(--navy);font-weight:600;line-height:var(--lh-base);margin-top:2px;}
+.wl-item .wl-a{margin-top:6px;font-size:var(--fs-sm);line-height:var(--lh-base);}
+.wl-item .wl-a b{color:var(--green);}
+.wl-item details summary{min-height:44px;display:flex;align-items:center;cursor:pointer;color:var(--navy-2);
+  font-weight:700;font-size:var(--fs-sm);}
+.wl-item details .why{margin-top:4px;}
+.resume{border:2px solid var(--coral-border);background:linear-gradient(160deg,#fdeee9 0%,#fff8f2 78%);}
+/* 受講の控え・印刷の欄 */
+.pr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--sp-3) var(--sp-4);align-items:end;}
+.pr-grid .fld{margin-bottom:0;}
+.fld input,.fld select{min-height:44px;}
+
+/* ---- 監査の想定問答：携帯では質問文を全幅に・証拠ごとに管理画面の記録へ ---- */
+.ev-btns{flex-wrap:wrap;}
+.ev-btns button{min-height:44px;padding:8px 15px;display:inline-flex;align-items:center;gap:5px;}
+.ev-btns button svg{display:none;width:14px;height:14px;}
+.ev-btns button[aria-pressed="true"] svg{display:inline-block;}
+.ev-link{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border-radius:999px;
+  border:1px solid var(--sky-border);background:var(--sky-bg);color:#1f5f86;font-size:var(--fs-xs);font-weight:700;
+  text-decoration:none;}
+.ev-link:hover{background:#d8ecf8;}
+.ev-link svg{width:14px;height:14px;}
+.ev-go{margin:6px 0 4px;}
+#knockStart .mini, .why, .auditbox{max-width:44em;}
+/* 携帯では受検の記録を1回ずつのカードにする（5列の表は横に送らないと読めない） */
+@media(max-width:640px){
+  #tab-log .tw{overflow:visible;}
+  #sessTbl{min-width:0;}
+  #sessTbl thead{display:none;}
+  #sessTbl, #sessTbl tbody, #sessTbl tr, #sessTbl td{display:block;width:100%;}
+  #sessTbl tr{border:1px solid var(--line);border-radius:14px;padding:8px 14px;margin-bottom:10px;background:var(--white);}
+  #sessTbl td{display:flex;gap:12px;justify-content:space-between;padding:6px 0;border-bottom:1px dashed var(--line);text-align:right;white-space:normal;}
+  #sessTbl td:last-child{border-bottom:none;}
+  #sessTbl td::before{content:attr(data-l);flex:none;color:var(--muted);font-weight:700;text-align:left;}
+}
+@media(max-width:640px){
+  .aud-q{flex-wrap:wrap;padding:13px 15px;}
+  .aud-q > span:nth-child(2){flex:1 1 100%;order:3;}
+  .aud-q .aq-cnt{margin-left:auto;}
+  .ev-row .ev-name{flex:1 1 100%;min-width:0;}
+  .ev-btns{flex:1 1 100%;min-width:0;}
+  .ev-link{line-height:1.4;padding:6px 14px;}
+  .aud-body{padding:var(--sp-3) var(--sp-4) var(--sp-4);}
+}
+
+/* ---- D. 印刷 ---- */
+.print-head,.print-area{display:none;}
+@media print{
+  @page{size:A4 portrait;margin:14mm 12mm;}
+  html,body{background:#fff !important;}
+  body{padding:0;font-size:10.5pt;color:#222;}
+  .topbar,.tabs,.om-bar,button,.btn,.run-actions,.head-action,.ev-btns,.ev-link,.no-print{display:none !important;}
+  .print-head{display:block;border-bottom:2px solid #1b3f5e;padding-bottom:4px;margin-bottom:10px;font-size:10pt;color:#333;}
+  .print-head b{font-size:13pt;color:#1b3f5e;font-family:var(--mincho);}
+  .card,.tile,.aud-q,.aud-body,.rulebar,.panel,.why,.auditbox,.cat-card{box-shadow:none !important;background:#fff !important;}
+  .aud-item,.card,.wl-item,.tile{break-inside:avoid;}
+  .sec{margin-top:12px;}
+  a{color:#222;text-decoration:none;}
+  /* 本人が押す「受講の控え」「証拠チェック」だけを紙に出す */
+  body.print-sheet > *:not(#printArea){display:none !important;}
+  body.print-sheet #printArea{display:block;}
+}
+.ps{font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",YuGothic,Meiryo,"Noto Sans JP",sans-serif;
+  color:#222;font-size:10.5pt;line-height:1.6;background:#fff;}
+.ps h1{font-family:var(--mincho);font-size:16pt;color:#1b3f5e;font-weight:600;border-bottom:2px solid #1b3f5e;
+  padding-bottom:4px;margin-bottom:8px;letter-spacing:.04em;}
+.ps h2{font-size:11.5pt;color:#1b3f5e;margin:12px 0 4px;}
+.ps .ps-meta{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px 12px;font-size:9.5pt;color:#444;margin-bottom:8px;}
+.ps table{width:100%;border-collapse:collapse;margin-top:4px;}
+.ps th,.ps td{border:1px solid #9aa4ad;padding:4px 7px;font-size:10pt;text-align:left;vertical-align:top;}
+.ps th{background:#eef3f7;color:#1b3f5e;white-space:nowrap;}
+.ps td.num,.ps th.num{text-align:right;white-space:nowrap;}
+.ps .ps-key th{width:9em;}
+.ps .ps-note{font-size:9pt;color:#444;margin-top:8px;line-height:1.6;}
+.ps .ps-sign{display:grid;grid-template-columns:1fr 1fr;gap:6mm;margin-top:8mm;}
+.ps .ps-sign div{border:1px solid #777;min-height:24mm;padding:2mm 3mm;font-size:9.5pt;color:#333;}
+.ps .ps-q{break-inside:avoid;border:1px solid #c3cbd2;border-radius:2mm;padding:2mm 3mm;margin-top:3mm;}
+.ps .ps-q b{color:#1b3f5e;}
+.ps .ps-q .ps-memo{font-size:9.5pt;color:#333;margin-top:1mm;white-space:pre-wrap;}
+.ps .ps-ev{display:flex;justify-content:space-between;gap:4mm;border-top:1px dotted #bbb;padding:1mm 0;font-size:9.5pt;}
+.ps .ps-ev span:last-child{white-space:nowrap;font-weight:700;}
 </style>
 </head>
 <body>
@@ -426,6 +599,12 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
 #omgate .og-note b{color:#5d6b7c}
 @media(max-width:420px){ #omgate .og-card{padding:28px 20px 24px} }
 @media(prefers-reduced-motion:reduce){ #omgate *{transition:none !important} }
+/* お客様が共有リンクで開いたとき（② の鍵で開いたとき）は、営業向けの部分を隠す（2026-10-04）。
+   面談の最初のひと言・ページ内の目次・30秒の核心・現場あるある・逆転劇場・明日の3つの問い。
+   解説の部分（もとの知識の節）とまとめだけが残る */
+html.omgate-cust .tot-first,html.omgate-cust .tot-nav,html.omgate-cust #tot-core,html.omgate-cust .tot-core,
+html.omgate-cust .tot-sec,html.omgate-cust #toi,html.omgate-cust .tot-toi,html.omgate-cust .tot-modal{display:none !important}
+html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
 </style>
 <div id="omgate" role="dialog" aria-modal="true" aria-labelledby="omgate-h">
   <div class="og-card">
@@ -492,17 +671,18 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
     var p = String(location.pathname).replace(/\/+$/, '');
     return p.slice(p.lastIndexOf('/') + 1).replace(/\.html$/i, '');
   }
+  /* どの鍵で開いたかを返す（'auth'＝管理画面・'share'＝共有リンク・'trial'＝体験版・''＝開けない） */
   function allowed() {
     try {
       var a = read(localStorage, AUTH);
-      if (live(a) && /^[0-9a-f]{64}$/.test(String(a.h || ''))) return true;
+      if (live(a) && /^[0-9a-f]{64}$/.test(String(a.h || ''))) return 'auth';
     } catch (e) {}
-    try { if (live(read(sessionStorage, SHARE))) return true; } catch (e) {}
+    try { if (live(read(sessionStorage, SHARE))) return 'share'; } catch (e) {}
     try {
       var t = read(localStorage, TRIAL);
-      if (live(t) && t.ids && t.ids.join && t.ids.indexOf(pageId()) >= 0) return true;
+      if (live(t) && t.ids && t.ids.join && t.ids.indexOf(pageId()) >= 0) return 'trial';
     } catch (e) {}
-    return false;
+    return '';
   }
   function open_() {
     R.className += ' omgate-open';
@@ -510,7 +690,12 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
     if (g) g.hidden = true;
   }
 
-  if (allowed()) { open_(); return; }
+  var how = allowed();
+  if (how) {
+    /* 共有リンク（お客様）で開いたときは、営業向けの部分を隠す印を付ける */
+    if (how === 'share') R.className += ' omgate-cust';
+    open_(); return;
+  }
 
   var f = document.getElementById('omgate-f');
   var inp = document.getElementById('omgate-p');
@@ -683,31 +868,43 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
   <div class="wrap">
     <div class="tb-brand">
       <span class="tb-art"><svg aria-hidden="true" viewBox="0 0 46 46"><circle cx="23" cy="23" r="23" fill="#fdeee9"/><path d="M23 9.5l9.4 3.4v8.4c0 6.1-3.9 10.3-9.4 11.9-5.5-1.6-9.4-5.8-9.4-11.9v-8.4L23 9.5Z" fill="#fff" stroke="#1b3f5e" stroke-width="2.3" stroke-linejoin="round"/><path d="M18.8 22.6l3 3 5.6-5.9" fill="none" stroke="#bf4123" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-      <span><b>代理店コンプライアンス100本ノック</b><small>募集の実務ルールと、監査で聞かれることへの備え</small></span>
+      <span><h1><span class="nw">代理店コンプライアンス</span><span class="nw">100本ノック</span></h1><small>募集の実務ルールと、監査で聞かれることへの備え</small></span>
     </div>
-    <span class="tb-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>データはこの端末のみ・外部送信なし</span>
+    <a class="tb-tag" id="tbBackup" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>データはこの端末だけ・控えを取る</a>
+    <a class="tb-home" id="tbHome" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></svg><span class="tl-l">管理画面へ</span><span class="tl-s">管理画面</span></a>
   </div>
 </header>
 
 <nav class="tabs" aria-label="ページ切り替え">
+  <!-- 保存できないとき・別の窓で記録が変わったときの帯（タブと一緒に上に残る） -->
+  <div class="om-bar err hide" id="omErr" role="alert"><div class="wrap">
+    <span>この端末に保存できませんでした。容量がいっぱいか、保存できない設定で開いています。いまの記録は、閉じると消えます。</span>
+    <button type="button" id="omErrBtn">受講の控えを印刷する</button>
+  </div></div>
+  <div class="om-bar warn hide" id="omStale" role="status"><div class="wrap">
+    <span id="omStaleTxt">別の窓でこのツールの記録が変わりました。</span>
+    <button type="button" id="omStaleBtn">読み直す</button>
+  </div></div>
   <div class="wrap" role="tablist">
     <button class="tab" role="tab" data-tab="knock" aria-selected="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/></svg>100本ノック</button>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/></svg><span>100本ノック</span></button>
     <button class="tab" role="tab" data-tab="cat" aria-selected="false">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></svg>分野別</button>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></svg><span>分野別</span></button>
     <button class="tab" role="tab" data-tab="audit" aria-selected="false">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.5h6M8 4.5H6.5a1.5 1.5 0 0 0-1.5 1.5v13a1.5 1.5 0 0 0 1.5 1.5h11a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H16"/><rect x="9" y="2.8" width="6" height="3.4" rx="1.1"/><path d="M8.6 12.2l1.9 1.9 4-4.2M8.6 17.2h6.8"/></svg>監査の想定問答</button>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4.5h6M8 4.5H6.5a1.5 1.5 0 0 0-1.5 1.5v13a1.5 1.5 0 0 0 1.5 1.5h11a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H16"/><rect x="9" y="2.8" width="6" height="3.4" rx="1.1"/><path d="M8.6 12.2l1.9 1.9 4-4.2M8.6 17.2h6.8"/></svg><span class="tl-l">監査の想定問答</span><span class="tl-s">監査の問答</span></button>
     <button class="tab" role="tab" data-tab="log" aria-selected="false">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg>記録</button>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg><span class="tl-l">記録と受講の控え</span><span class="tl-s">記録</span></button>
   </div>
 </nav>
 
 <main class="wrap">
 
+  <div class="print-head"><b>代理店コンプライアンス100本ノック</b>　印刷した日：<span class="ph-date"></span></div>
+
   <div class="rulebar">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5 3.8 7v5.2c0 4.9 3.4 8.4 8.2 9.3 4.8-.9 8.2-4.4 8.2-9.3V7L12 3.5Z"/><path d="M12 9v4M12 16.2v.2"/></svg>
     <span><b>保険会社と自代理店の社内規程が優先します。</b>
-    このツールは法令・監督指針の一般的な考え方を実務手順に整理したものです。所属保険会社の募集ルール・自代理店の規程と食い違う場合は、必ず規程のほうに従い、上席またはコンプライアンス担当に確認してください。</span>
+    <span class="rb-long">このツールは法令・監督指針の一般的な考え方を実務手順に整理したものです。所属保険会社の募集ルール・自代理店の規程と食い違う場合は、必ず規程のほうに従い、上席またはコンプライアンス担当に確認してください。</span><span class="rb-short">食い違うときは規程に従い、上席またはコンプライアンス担当に確かめてください。</span></span>
   </div>
 
   <!-- ================= 100本ノック ================= -->
@@ -719,15 +916,17 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
 
       <!-- 開始画面 -->
       <div id="knockStart" class="stack">
+        <div id="resumeBox"></div>
         <div class="card">
           <h3 style="color:var(--navy);margin-bottom:6px;">出題のしかたを選んでください</h3>
-          <p class="mini" style="margin-bottom:14px;">全100問。○×または三択です。答えるとすぐに解説が出ます。</p>
+          <p class="mini" style="margin-bottom:14px;">全100問。○×または三択です。答えるとすぐに解説が出ます。途中でやめても、次に開いたときに続きから解けます。</p>
           <div class="rowbtns">
             <button class="btn btn-primary" id="startAll">100問全て</button>
             <button class="btn btn-ghost" id="start20">ランダム20問</button>
-            <button class="btn btn-ghost" id="startWrong">間違えた問題だけ<span id="wrongCnt" class="mini" style="margin-left:6px;"></span></button>
+            <button class="btn btn-ghost" id="startWrong">間違えた問題だけ<span id="wrongCnt" style="font-weight:600;"></span></button>
+            <button class="btn btn-ghost" id="startSonpo">損害保険の実務の問題<span id="sonpoCnt" style="font-weight:600;"></span></button>
           </div>
-          <p class="mini" style="margin-top:14px;">この画面で解いた記録（正誤・弱点・受検日）は、この端末のブラウザにだけ残ります。外部には送信されません。</p>
+          <p class="mini" style="margin-top:14px;">この画面で解いた記録（正誤・弱点・受検日）は、この端末のブラウザにだけ残ります。外部には送信されません。研修の記録として渡すときは「記録と受講の控え」のタブから印刷します。</p>
         </div>
         <div id="lastResult"></div>
       </div>
@@ -743,14 +942,15 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
                形式は選択肢を見れば分かるし、番号は受検者には意味がない（2026-09-08・ユーザー指示） -->
           <div class="q-meta">
             <span class="q-cat" id="qCat"></span>
+            <span class="q-sonpo hide" id="qSonpo">損害保険の実務</span>
           </div>
-          <div class="q-text" id="qText"></div>
+          <div class="q-text" id="qText" tabindex="-1"></div>
           <div class="opts" id="qOpts"></div>
           <div id="qResult" class="hide"></div>
         </div>
-        <div class="rowbtns" style="margin-top:16px;">
+        <div class="run-actions" id="runActions">
           <button class="btn btn-primary hide" id="nextBtn">次の問題</button>
-          <button class="btn btn-ghost btn-sm" id="quitBtn">中断してもどる</button>
+          <button class="btn btn-ghost btn-sm" id="quitBtn">中断して戻る</button>
         </div>
       </div>
 
@@ -778,12 +978,13 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
         <div class="head-action" style="display:flex;gap:8px;flex-wrap:wrap;margin-left:auto;">
           <button class="btn btn-ghost btn-sm" id="audOpenAll">全て開く</button>
           <button class="btn btn-ghost btn-sm" id="audCloseAll">全て閉じる</button>
+          <button class="btn btn-ghost btn-sm" id="audPrint">証拠チェックを印刷</button>
         </div>
       </div>
-      <p class="sec-note">質問をタップすると、答え方の骨子と、用意しておく証拠の一覧が開きます。証拠ごとに「用意できている／まだ」を記録できます。<b>ここに挙げた帳票名は一般的な呼び方です。実際の名称・様式・保存期間は、保険会社と自代理店の社内規程が優先します。</b></p>
+      <p class="sec-note">質問を押すと、答え方の骨子と、用意しておく証拠の一覧が開きます。証拠ごとに「用意できている／まだ」を記録でき、管理画面のコンプライアンスの記録へも移れます。<b>ここに挙げた帳票名は一般的な呼び方です。実際の名称・様式・保存期間は、保険会社と自代理店の社内規程が優先します。</b></p>
       <div class="tiles" style="margin-bottom:20px;">
         <div class="tile"><div class="t-label">用意できている</div><div class="t-value" id="audOk">0<small> 件</small></div><div class="t-sub" id="audOkSub"></div></div>
-        <div class="tile"><div class="t-label">まだ</div><div class="t-value" id="audNo">0<small> 件</small></div><div class="t-sub">ここが監査で止まるところ</div></div>
+        <div class="tile"><div class="t-label">まだ</div><div class="t-value" id="audNo">0<small> 件</small></div><div class="t-sub">先に用意しておくところ</div></div>
         <div class="tile"><div class="t-label">未確認</div><div class="t-value" id="audNone">0<small> 件</small></div><div class="t-sub">まず有無を確かめる</div></div>
       </div>
       <div id="audList"></div>
@@ -794,12 +995,23 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
   <section id="tab-log" role="tabpanel" class="hide">
     <div class="sec">
       <div class="sec-head">
-        <div><h2>記録</h2><p>受検日・正答率・弱点</p></div>
+        <div><h2>記録と受講の控え</h2><p>受検日・正答率・弱い分野と、研修の記録として渡す1枚</p></div>
       </div>
       <div class="tiles" style="margin-bottom:20px;">
         <div class="tile"><div class="t-label">解いた問題（のべ）</div><div class="t-value" id="logTotal">0<small> 問</small></div><div class="t-sub" id="logTotalSub"></div></div>
         <div class="tile"><div class="t-label">通算の正答率</div><div class="t-value" id="logRate">-</div><div class="t-sub" id="logRateSub"></div></div>
         <div class="tile"><div class="t-label">まだ一度も解いていない</div><div class="t-value" id="logUnseen">100<small> 問</small></div><div class="t-sub">全100問のうち</div></div>
+      </div>
+
+      <div class="card" id="printCard" style="margin-bottom:16px;">
+        <h3 style="color:var(--navy);margin-bottom:4px;">受講の控えを印刷する</h3>
+        <p class="mini" style="margin-bottom:12px;">名前を入れて押すと、A4 縦の1枚（名前・受講日・出題の範囲・正答数・弱かった分野・確認の署名欄）を印刷します。PDF に保存して渡すこともできます。ファイルの書き出しは行いません。</p>
+        <div class="pr-grid">
+          <div class="fld"><label for="prName">受講した人の名前</label><input type="text" id="prName" maxlength="40" autocomplete="name" placeholder="例：山田 花子"></div>
+          <div class="fld"><label for="prSel">印刷する記録</label><select id="prSel"></select></div>
+          <div><button class="btn btn-primary" id="prBtn" style="width:100%;">受講の控えを印刷</button></div>
+        </div>
+        <p class="err" id="prErr" style="margin-top:8px;"></p>
       </div>
 
       <div class="card" style="margin-bottom:16px;">
@@ -810,9 +1022,18 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
 
       <div class="card" style="margin-bottom:16px;">
         <h3 style="color:var(--navy);margin-bottom:4px;">受検の記録</h3>
-        <p class="mini" style="margin-bottom:12px;">「100本ノック」「分野別」を最後まで解いたときに1行ずつ残ります。</p>
+        <p class="mini" style="margin-bottom:12px;">出題を最後まで解いたときに、1回ずつ残ります（新しい順・最新30回まで表示）。</p>
         <div class="tw"><table class="tbl" id="sessTbl"><thead><tr><th>受検日</th><th>出題</th><th class="num">正答</th><th class="num">正答率</th><th>弱かった分野</th></tr></thead><tbody id="sessBody"></tbody></table></div>
         <p class="mini" id="sessEmpty" style="margin-top:10px;">まだ記録がありません。</p>
+      </div>
+
+      <div class="card no-print" style="margin-bottom:16px;">
+        <h3 style="color:var(--navy);margin-bottom:4px;">この端末の記録</h3>
+        <p class="mini" style="margin-bottom:12px;">記録はこの端末のブラウザにだけ残ります。端末の容量が足りないときや、しばらく開かなかったときに、ブラウザが消すことがあります。研修の記録として残すものは、上の「受講の控え」で印刷しておいてください。</p>
+        <div class="rowbtns">
+          <a class="btn btn-ghost btn-sm" id="logBackup" href="#">管理画面の「データの控え」を開く</a>
+          <button class="btn btn-danger btn-sm" id="wipeBtn">この端末の記録を消す</button>
+        </div>
       </div>
 
     </div>
@@ -821,9 +1042,11 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
 </main>
 
 <footer>
-  代理店コンプライアンス100本ノック（社内利用専用）｜記録はこの端末のブラウザにのみ保存され、外部には送信されません。<br>
+  代理店コンプライアンス100本ノック（社内利用専用）｜データはこの端末だけに保存され、外部には送信されません。<br>
   記載は一般的な考え方です。<b>保険会社と自代理店の社内規程が優先します。</b>判断に迷ったら、進める前に上席・コンプライアンス担当へ。
 </footer>
+<div id="printArea" class="print-area"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
 /* ============================================================
    1. 共通ヘルパー
@@ -874,7 +1097,7 @@ var QUESTIONS = [
 
 { id:'cp002', cat:'ikou', t:'mc', a:0,
   q:'生命保険の募集で一般的とされる意向把握の進め方は。',
-  c:['お客様の意向をあらかじめ把握し、その意向に沿った設計書を提案する','まず主力商品を提案し、反応を見てから意向を聞き取る','申込書に署名をいただいた後で意向確認書を作る'],
+  c:['先にお客様の意向を把握し、その意向に沿った設計書を作って提案する','主力の設計書を先に見せ、お客様の反応から意向を絞り込んでいく','設計書を見ていただいたあと、申込みの直前に意向をまとめて聞く'],
   why:'生命保険では、事前に意向（誰のため・何に備える・いつまで・どれくらい）を把握したうえで、それに沿った設計書を出す進め方が基本とされています。損害保険では、対象となる物件や自動車から意向を推定して提案し、最終的に確認する進め方が取られることもあります。どちらで運用するかは扱う商品と社内規程によります。' },
 
 { id:'cp003', cat:'ikou', t:'ox', a:true,
@@ -884,7 +1107,7 @@ var QUESTIONS = [
 
 { id:'cp004', cat:'ikou', t:'mc', a:0,
   q:'意向把握の記録として、最も不十分なのはどれか。',
-  c:['「ご意向：医療保障」とだけ書かれた帳票','家族構成・就業状況・既契約・気にしている点まで書かれ、提案理由につながっている帳票','お客様ご自身が書いたアンケートと、募集人が聞き取った補足の両方が残っている帳票'],
+  c:['「医療保障を希望」と分野だけを書き、聞いた理由や家族の状況は書いていない帳票','家族構成・既契約・気にしている点を書き、提案の理由につながっている帳票','お客様が書いたアンケートと、募集人が聞き取った補足の両方が残っている帳票'],
   why:'商品分野の名前だけでは、なぜその保障が必要と考えたのか、なぜその金額・期間になったのかが読み取れません。第三者が記録だけを見て「意向に沿った提案だった」と分かる程度の具体性が要ります。何をどこまで書くかは自代理店の帳票様式に従ってください。' },
 
 { id:'cp005', cat:'ikou', t:'ox', a:false,
@@ -893,7 +1116,7 @@ var QUESTIONS = [
 
 { id:'cp006', cat:'ikou', t:'mc', a:0,
   q:'ご主人から相談を受けたが、契約者・被保険者は奥様になる。意向把握として適切なのは。',
-  c:['契約者・被保険者となるご本人の意向を確認する','世帯主であるご主人の意向が確認できていれば足りる','ご家族の代表者が署名すれば、本人の意向確認は不要'],
+  c:['契約者・被保険者となる奥様ご本人の意向を確かめる','相談を受けたご主人の意向を記録し、奥様には署名をいただく','ご夫婦で話し合った結果を、ご主人から聞いて記録する'],
   why:'契約するのはご本人です。ご家族の意向とご本人の意向が食い違うことは実際にあります。同席者がいる場合は、誰の発言なのかが分かるように記録を分けてください。ご本人と直接話せていない案件は、後から「本人は知らなかった」と言われたときに守れません。' },
 
 { id:'cp007', cat:'ikou', t:'ox', a:false,
@@ -902,7 +1125,7 @@ var QUESTIONS = [
 
 { id:'cp008', cat:'ikou', t:'mc', a:0,
   q:'意向把握と情報提供の関係として正しいのは。',
-  c:['意向を聞くこと（意向把握）と商品内容を伝えること（情報提供）は別の義務で、どちらも必要','意向把握帳票を作れば情報提供は省略できる','契約概要を渡せば意向把握は済んだことになる'],
+  c:['聞く義務と伝える義務で別のもの。どちらも行う必要がある','意向把握帳票に説明の欄があれば、情報提供もそれで足りる','契約概要を渡して説明すれば、意向把握も済んだことになる'],
   why:'この2つは向きが逆の義務です。意向把握はお客様から募集人へ、情報提供は募集人からお客様への流れです。片方をやったからもう片方が要らなくなることはありません。帳票が1枚にまとまっている場合でも、両方の欄が埋まっているか確認してください。',
   law:'保険業法第294条（情報の提供）・第294条の2（意向の把握等）' },
 
@@ -920,12 +1143,12 @@ var QUESTIONS = [
 
 { id:'cp011', cat:'hikaku', t:'mc', a:0,
   q:'取扱商品を自代理店の販売方針で絞り込んで勧めるとき、適切なのは。',
-  c:['絞り込みの基準（自代理店の方針によるものであることを含む）をお客様に説明し、記録に残す','お客様の意向に沿って選んだと説明する','絞り込んだこと自体は伝えない'],
+  c:['方針で絞り込んだことと、その基準をお客様に伝えて記録する','お客様の意向に沿って選んだ、と分かりやすく一言で伝える','方針は社内の事情なので、お客様には商品の特徴だけを伝える'],
   why:'商品を絞り込む基準が、お客様の意向以外の事情（自代理店の方針・体制・取扱いの都合など）にある場合は、その旨をお客様に伝えることが求められます。意向に沿って選んだかのように説明すると、実態と食い違います。具体的な取扱いは保険会社と自代理店の社内規程が優先します。' },
 
 { id:'cp012', cat:'hikaku', t:'mc', a:0,
   q:'保障内容の比較資料をお客様にお見せするとき、使ってよいのは。',
-  c:['保険会社の審査を通った募集文書（自代理店で作る場合は所定の承認を受けたもの）','自分で表計算ソフトで作った比較表','比較サイトの画面を印刷したもの'],
+  c:['保険会社の審査や、自代理店の所定の承認を通った資料','各社の公式サイトの数字だけを使い、自分で正確に作った比較表','比較サイトの画面を、出典を書き添えて印刷したもの'],
   why:'比較資料は募集文書にあたります。手作りの比較表は、条件のそろえ方や注意書きの落ち方で、意図せず誤解を招く表示になりがちです。どうしても必要な資料は、自分で配る前に会社の審査・自代理店の承認を通してください。' },
 
 { id:'cp013', cat:'hikaku', t:'ox', a:false,
@@ -935,17 +1158,18 @@ var QUESTIONS = [
 
 { id:'cp014', cat:'hikaku', t:'mc', a:0,
   q:'1社専属の代理店が商品を勧める場合に必要なのは。',
-  c:['取り扱っているのが1社の商品であることをお客様に伝える','他社と比較したうえで最も良いと伝える','比較推奨のルールは乗合代理店だけのものなので、何もしなくてよい'],
+  c:['取り扱っているのが1社の商品であることを伝える','他社の商品とも比べたうえで選んだ商品だと伝える','比較推奨の決まりは乗合代理店のものなので、特に何もしない'],
   why:'専属であっても、お客様は「たくさんの会社から選んでもらえた」と受け取ることがあります。取扱いの範囲（どの会社の商品を扱っているか）を伝えることが求められます。伝え方は自代理店の規程に従ってください。' },
 
-{ id:'cp015', cat:'hikaku', t:'ox', a:false,
-  q:'比較推奨の説明は、口頭できちんと行っていれば記録に残す必要はない。',
-  why:'説明したかどうかを後から確かめられるのは記録だけです。監査では「説明したはずです」は通りません。どの商品を候補に挙げ、どの基準で絞り、なぜこれを勧めたのかを、所定の帳票に残してください。' },
+{ id:'cp015', cat:'joho', t:'ox', a:false, sonpo:true,
+  q:'締結の代理権を持つ損害保険の代理店でも、契約が成立するのは保険会社が申込書を受け取ったあとなので、申込みの場で補償の始まる日や保険料の払い込みの期限まで伝える必要はない。',
+  why:'損害保険の代理店は、所属保険会社から締結の代理権を受けていることが多く、その場合は代理店が申込みを受けて承諾した時点で契約が成立することがあります。だからこそ申込みのその場で、補償の始まる日、保険料の払い込みの方法と期限、払い込みが遅れたときの扱いを伝え、伝えたことを記録に残します。生命保険の募集人は多くが媒介で、契約の成立は保険会社の承諾によります。自分の権限の範囲は委託契約で確かめ、具体的な扱いは所属保険会社の指示と自代理店の社内規程に従ってください。',
+  audit:'締結の代理権の範囲（委託契約）と、申込みの場で補償の始まる日・保険料の払い込みを伝えた記録を見られます。' },
 
 { id:'cp016', cat:'hikaku', t:'mc', a:0,
   q:'お客様から「一番いい保険を教えて」と言われたときの返し方として適切なのは。',
-  c:['何を一番に置くかで答えが変わることを伝え、基準を一緒に決めてから絞り込む','「これが一番です」と1つに断言する','「業界で評判が一番の会社です」と会社の評判で選ぶ'],
-  why:'「一番」は基準が決まって初めて言える言葉です。保険料か、保障範囲か、支払いの条件か、続けやすさか。基準を先に決めれば、なぜその商品なのかを説明でき、そのまま推奨理由の記録になります。会社の評判は商品の比較にはなりません。' },
+  c:['何を一番に置くかをお客様と先に決め、その基準で商品を絞り込む','加入件数の多い人気の商品を、選ばれている理由と一緒に示す','迷わせないよう、自分が最も良いと考える1つに絞って示す'],
+  why:'「一番」は基準が決まって初めて言える言葉です。保険料か、保障範囲か、支払いの条件か、続けやすさか。基準を先に決めれば、なぜその商品なのかを説明でき、そのまま推奨理由の記録になります。人気や評判は、そのお客様にとっての「一番」の基準にはなりません。1つに絞るのは、基準を決めてからです。' },
 
 /* ---------- 情報提供義務（7問） ---------- */
 { id:'cp017', cat:'joho', t:'ox', a:true,
@@ -955,16 +1179,16 @@ var QUESTIONS = [
 
 { id:'cp018', cat:'joho', t:'mc', a:0,
   q:'「契約概要」と「注意喚起情報」の関係として正しいのは。',
-  c:['契約概要は商品の主な内容、注意喚起情報はお客様に不利益となりうる事項をまとめたもの','どちらも同じ内容なので、一方を渡せばよい','注意喚起情報は高齢のお客様にだけ渡すもの'],
-  why:'契約概要は保障内容・保険期間・保険料など商品の主な内容を、注意喚起情報は申込みの撤回、告知義務、責任開始期、解約返戻金、免責事由など、お客様に不利益となりうる事項をまとめたものです。役割が違うので、両方をお渡ししてそれぞれの要点を説明します。' },
+  c:['前者は商品の主な内容、後者は不利益になりうる点をまとめたもの','内容はほぼ同じで、お客様が希望するほうを1つお渡しすればよい','契約概要は申込みの前、注意喚起情報は契約が成立したあとに渡す'],
+  why:'契約概要は保障内容・保険期間・保険料など商品の主な内容を、注意喚起情報は申込みの撤回、告知義務、責任開始期、解約返戻金、免責事由など、お客様に不利益となりうる事項をまとめたものです。役割が違うので、どちらも申込みの前にお渡しし、それぞれの要点を説明します。' },
 
-{ id:'cp019', cat:'joho', t:'ox', a:true,
+{ id:'cp019', cat:'joho', t:'ox', a:true, sonpo:true,
   q:'募集人が保険会社の「代理」なのか「媒介」なのかは、お客様に伝える必要がある。',
   why:'締結の代理権があるのか、契約成立に向けた媒介にとどまるのかで、募集人ができることが変わります。とくに媒介の場合、募集人が「これで契約は成立しました」と言うことはできません。自分の権限がどちらなのかは、所属保険会社との委託契約で必ず確認してください。' },
 
 { id:'cp020', cat:'joho', t:'mc', a:0,
   q:'申込みの撤回等（クーリング・オフ）についての説明として適切なのは。',
-  c:['法令に申込みの撤回等の定めがあるが、起算日の考え方や対象外となる場合があるので、注意喚起情報と申込書の記載で確認する','いつでも無条件で撤回できる','全ての契約で必ず使える'],
+  c:['対象外になる場合や起算日の考え方があるので、書面の記載で一緒に確かめる','法令で日数が決まっているので、日数を正確に覚えて口頭で伝える','法令上の制度なので、どの契約でも同じ条件で必ず使えると伝える'],
   why:'保険業法に申込みの撤回等の定めがあります。ただし、期間の起算日の考え方、会社が法定より長い期間を設けているかどうか、法人契約や保険期間の短い契約など対象外となる場合があるかどうかは、会社と商品によって違います。日数を暗記して口頭で答えるのではなく、書面の記載を一緒に確認してください。',
   law:'保険業法第309条（申込みの撤回等）' },
 
@@ -974,7 +1198,7 @@ var QUESTIONS = [
 
 { id:'cp022', cat:'joho', t:'mc', a:0,
   q:'分かりやすく伝えるために、募集人が自分の言葉でまとめた説明メモをお客様にお渡ししたい。',
-  c:['会社の審査・自代理店の承認を通っていない文書は渡せない','分かりやすければ渡してよい','お客様が希望すれば渡してよい'],
+  c:['会社の審査・自代理店の承認を通っていないものは、お渡ししない','承認済みの資料の内容だけを正確に要約したものなら、渡してよい','お客様からの希望で、受け取りの署名をいただけば渡してよい'],
   why:'お客様にお渡しする資料は、口頭の説明と違って手元に残り、後から根拠として持ち出されます。要約すると必ず何かが落ち、落ちた部分が不利益事項だったときに問題になります。分かりやすさは、承認済みの資料のどこを指して話すかで工夫してください。' },
 
 { id:'cp023', cat:'joho', t:'ox', a:true,
@@ -989,7 +1213,7 @@ var QUESTIONS = [
 
 { id:'cp025', cat:'korei', t:'mc', a:0,
   q:'「高齢者」として特別な手順を取る年齢の線引きは。',
-  c:['保険会社・代理店が社内規程で定める','法令で一律に定められている','募集人が案件ごとに判断してよい'],
+  c:['保険会社・代理店が社内規程で定める','法令で、全ての会社に共通の年齢が定められている','担当の募集人がお客様ごとに判断して決める'],
   why:'年齢の線引きは法令で一律に決まっているものではなく、保険会社や代理店が社内規程で定めています。商品や販売方法によって基準が違うこともあります。複数社を扱う場合は各社の基準を確認し、いちばん厳しい基準に合わせておくのが安全です。' },
 
 { id:'cp026', cat:'korei', t:'ox', a:true,
@@ -998,7 +1222,7 @@ var QUESTIONS = [
 
 { id:'cp027', cat:'korei', t:'mc', a:0,
   q:'高齢のお客様が説明中に同じ質問を何度もされる。適切な対応は。',
-  c:['理解の状況を記録し、日を改めて説明し直す。必要ならご親族の同席をお願いする','その日のうちに申込みまで済ませる','分かったとおっしゃったので、そのまま先に進める'],
+  c:['その日は進めず、日を改めて説明し直す。必要ならご親族の同席を頼む','要点を紙に書いてお渡しし、分かったと確かめてからその日に進める','理解しやすいよう、説明を短くまとめ直して最後まで進める'],
   why:'その場の「分かりました」は、理解の証明にはなりません。理解が追いついていない様子が見えたら、進めるのではなく、いったん止めて日を改めるのが原則です。止めた判断とその理由を記録しておくと、後から見たときに手順を踏んだことが分かります。' },
 
 { id:'cp028', cat:'korei', t:'ox', a:false,
@@ -1007,7 +1231,7 @@ var QUESTIONS = [
 
 { id:'cp029', cat:'korei', t:'mc', a:0,
   q:'高齢者募集で後から問題になりやすいのは。',
-  c:['ご本人の意向なのか、同席したご親族の意向なのかが記録から分からない','説明の回数が多い','ご親族が同席している'],
+  c:['誰の意向で決めたのかが、記録から読み取れない','説明に何度も日を改めたため、契約までに時間がかかった','ご親族が同席し、ご本人に代わって質問を多くされた'],
   why:'同席者がいると、話が進みやすい反面、発言が混ざります。契約するのはご本人なので、ご本人が何を望んだのかが記録から読み取れる必要があります。帳票にご本人の言葉と同席者の言葉を分けて書く、確認はご本人に向けて行う、といった工夫をしてください。' },
 
 { id:'cp030', cat:'korei', t:'ox', a:false,
@@ -1015,14 +1239,14 @@ var QUESTIONS = [
   why:'署名ができることと、契約内容を理解して意思決定できることは別です。不安がうかがえる場合は、その場で進めず、社内で定めた手順（上席への相談、ご親族への連絡、保険会社への照会）に従ってください。迷ったら止める、が原則です。止めたことで失う契約より、進めたことで失うものが大きい場面です。' },
 
 /* ---------- 告知（8問） ---------- */
-{ id:'cp031', cat:'kokuchi', t:'ox', a:false,
+{ id:'cp031', cat:'kokuchi', t:'ox', a:false, sonpo:true,
   q:'生命保険の募集人は、お客様から口頭で健康状態を聞けば、それで告知を受けたことになる。',
   why:'生命保険の募集人には、原則として告知受領権（会社に代わって告知を受け取る権限）がありません。口頭で伝えられても告知したことにはならず、告知書に書かれていなければ告知されていない扱いになります。「言いましたよね」が後の紛争のもとです。なお損害保険では代理店が締結の代理権を持つ場合があり、取扱いが異なることがあります。自分の権限は委託契約で確認してください。',
   audit:'募集人に告知受領権がないことをお客様にどう伝えているか、募集人教育の記録を見られます。' },
 
 { id:'cp032', cat:'kokuchi', t:'mc', a:0,
   q:'お客様から「この持病は書かなくても大丈夫ですよね」と聞かれた。正しい対応は。',
-  c:['告知書に事実をありのままご記入いただくよう伝え、引受けの判断は保険会社が行うと説明する','「その程度なら書かなくても大丈夫です」と答える','「書くと通らないので、次の機会に伝えましょう」と答える'],
+  c:['ありのまま書いていただき、引受けは保険会社が判断すると伝える','引受けに響く程度かどうか、自分の経験から目安をお伝えしておく','書くかどうかはお客様が決めることなので、判断はお任せする'],
   why:'告知しなくてよいと勧めることは、告知を妨げる行為・告知しないことを勧める行為として禁止されています。引受けを判断するのは保険会社です。募集人は、事実をそのまま書いていただくよう案内する立場にとどまります。',
   law:'保険業法第300条第1項（告知を妨げる行為・不告知を勧める行為の禁止）' },
 
@@ -1032,7 +1256,7 @@ var QUESTIONS = [
 
 { id:'cp034', cat:'kokuchi', t:'mc', a:0,
   q:'告知義務違反があった場合の扱いとして、一般的なものは。',
-  c:['保険会社が契約を解除できることがあるが、告知されなかった事実と保険事故に因果関係がなければ保険給付は行われる','告知義務違反があれば必ず保険金は支払われない','告知義務違反があっても契約を解除することはできない'],
+  c:['解除されることがあるが、因果関係のない事故なら給付は行われる','違反が分かった時点で、契約は始めにさかのぼって必ず無効になる','告知書を募集人が預かっていれば、違反があっても解除はされない'],
   why:'告知義務違反があると保険会社が契約を解除できる場合がありますが、解除の原因となった事実と実際に起きた保険事故との間に因果関係がなければ、保険給付は行われます（因果関係不存在の特則）。また、解除できる期間には制限があり、約款で法律より短く定めていることもあります。実際の取扱いは約款とご契約内容で確認してください。',
   law:'保険法第37条（生命保険契約の告知義務）ほか' },
 
@@ -1043,16 +1267,17 @@ var QUESTIONS = [
 
 { id:'cp036', cat:'kokuchi', t:'mc', a:0,
   q:'健康状態に不安のあるお客様への案内として適切なのは。',
-  c:['ありのまま告知していただき、引受けの可否は会社の判断を待つ。あわせて引受基準を緩やかにした商品など別の選択肢も案内する','告知が要らない商品だけを案内する','告知書の書き方を工夫して通るようにする'],
-  why:'募集人にできるのは、正しく告知していただいたうえで、通らなかったときの次の選択肢を用意しておくことです。書き方の工夫は不告知の勧奨につながります。取扱商品の中にどんな選択肢があるかを、あらかじめ整理しておいてください。' },
+  c:['ありのまま告知していただき、通らなかったときの別の道も用意しておく','審査に通りやすいよう、症状の軽い時期の様子を中心に書いていただく','告知の要らない商品なら確実なので、最初からその商品だけを案内する'],
+  why:'募集人にできるのは、正しく告知していただいたうえで、通らなかったときの次の選択肢を用意しておくことです。書き方の工夫は不告知の勧奨につながります。最初から告知の要らない商品だけに絞ると、ほかに選べた形をお客様が知らないままになります。取扱商品の中にどんな選択肢があるかを、あらかじめ整理しておいてください。' },
 
 { id:'cp037', cat:'kokuchi', t:'ox', a:false,
   q:'告知書に書ききれない内容がある場合、「あとで会社から聞かれたら答えてください」と伝えて空欄のまま提出してよい。',
   why:'書ききれないときは、会社が定めた方法（別紙、追加告知の様式、医師の診査など）で伝えていただきます。空欄のまま出して後から補うことを前提にすると、告知義務違反として扱われるおそれがあります。処理の方法が分からないときは、提出前に会社へ照会してください。' },
 
-{ id:'cp038', cat:'kokuchi', t:'ox', a:true,
-  q:'告知書の提出後、契約が成立する前に書き漏れに気づいた場合は、会社所定の方法で追加の告知をしていただく必要がある。',
-  why:'告知は契約が成立するまでの事実を対象とします。提出後に気づいたときは、そのままにせず、会社所定の方法で追加告知をしていただいてください。募集人が口頭で聞いて手元に留めておくのが、いちばん危険な形です。' },
+{ id:'cp038', cat:'kokuchi', t:'ox', a:false, sonpo:true,
+  q:'告知を受け取る権限を持つ損害保険の代理店なら、お客様から口頭で聞いた内容は、申込書の告知の欄に書かずに済ませてよい。',
+  why:'損害保険では、代理店が告知を受け取る権限を持つことが多く、代理店に伝えた内容は保険会社に伝えたものとして扱われることがあります。だからこそ、聞いた内容を申込書の告知事項（車の使い方、建物の構造や用途など）に正しく書き、お客様に確かめていただくことが欠かせません。聞いたのに書いていない案件は、後で告知の内容が争いになったとき、代理店の聞き取りと記録の扱いが問われます。生命保険の募集人は、原則として告知を受け取る権限を持ちません。手順は所属保険会社の指示と自代理店の社内規程に従ってください。',
+  audit:'申込書の告知事項を、お客様に確かめていただいた記録（確認欄・署名）を見られます。' },
 
 /* ---------- 乗換募集（7問） ---------- */
 { id:'cp039', cat:'norikae', t:'ox', a:true,
@@ -1063,7 +1288,7 @@ var QUESTIONS = [
 
 { id:'cp040', cat:'norikae', t:'mc', a:2,
   q:'乗換のときに伝えるべき「不利益となりうる事実」に含まれないのはどれか。',
-  c:['解約返戻金が、払い込んだ保険料の合計を下回ることがある','告知が改めて必要になり、健康状態によっては加入できないことがある','新しい商品では担当者が変わること'],
+  c:['解約返戻金が、払い込んだ保険料の合計を下回ることがある','告知が改めて必要になり、健康状態によっては加入できないことがある','新しい契約では、担当の募集人や連絡の窓口が変わること'],
   why:'伝えるべきなのは、責任開始期や免責の期間が新たに始まること、告知が改めて必要になること、年齢が上がることで保険料が上がること、解約返戻金が払込保険料を下回ることがあること、既契約の予定利率など今の条件が失われることなどです。担当者が誰かは、お客様の保障や金銭の不利益ではありません。' },
 
 { id:'cp041', cat:'norikae', t:'ox', a:true,
@@ -1072,16 +1297,16 @@ var QUESTIONS = [
 
 { id:'cp042', cat:'norikae', t:'mc', a:0,
   q:'転換（下取り）と、解約して新規で入り直すことについて、適切な説明は。',
-  c:['仕組みは違うが、既契約の条件が失われる点は共通なので、どちらも仕組みと不利益を並べて説明する','転換なら不利益はないので説明は不要','解約して新規に入り直すほうが必ず有利'],
+  c:['仕組みは違っても今の条件を失う点は同じで、どちらも不利益を説明する','転換は今の契約を活かす方法なので、不利益の説明は解約新規だけでよい','解約して入り直すほうが手続きが単純で、お客様の負担は必ず軽くなる'],
   why:'転換は既契約の積立部分を新しい契約に充てる仕組み、解約新規は既契約をいったん終わらせる方法で、手続きも税務上の扱いも違います。ただし、今の契約の予定利率や条件が失われる、告知と責任開始がやり直しになる、という点は共通です。どちらを選ぶ場合も不利益事項の説明が要ります。' },
 
-{ id:'cp043', cat:'norikae', t:'ox', a:true,
-  q:'乗換に該当するかどうかは、既契約の消滅と新契約の申込みの時期が近いかどうかなど、会社が定める基準で判断する。',
-  why:'どの範囲を乗換として扱うかの基準は、保険会社ごとに定められています。自分の感覚で「これは乗換ではない」と判断せず、各社の基準と自代理店の社内規程に当てはめて確認してください。基準に当たるのに帳票が作られていない案件は、監査で必ず指摘されます。' },
+{ id:'cp043', cat:'norikae', t:'ox', a:false,
+  q:'乗換に該当するかどうかは、既契約の消滅と新契約の申込みの時期を見て、募集人がその都度自分で判断すればよい。',
+  why:'どの範囲を乗換として扱うかの基準は、保険会社ごとに定められています。自分の感覚で「これは乗換ではない」と判断せず、各社の基準と自代理店の社内規程に当てはめて確認してください。基準に当たるのに帳票が作られていない案件は、監査で指摘の対象になります。' },
 
 { id:'cp044', cat:'norikae', t:'mc', a:0,
   q:'他社契約からの乗換を勧める場面で、してはいけないのは。',
-  c:['「今の会社は支払いが渋いですよ」と伝える','既契約の内容を確認したうえで、重なる保障と足りない保障を整理する','既契約はそのまま残し、不足分だけを足す案も示す'],
+  c:['「今の会社は、支払いの対応があまりよくないと聞きます」と伝える','既契約の内容を確かめ、重なる保障と足りない保障を整理する','既契約はそのまま残し、足りない分だけを足す案もあわせて示す'],
   why:'他社や他社商品を貶める言い方は、誤解させるおそれのある比較表示や誹謗中傷にあたるおそれがあります。比較するなら、条件をそろえた事実だけを並べてください。支払いの実態について根拠のない評価を口にしないことです。',
   law:'保険業法第300条第1項（保険募集に関する禁止行為）' },
 
@@ -1097,7 +1322,7 @@ var QUESTIONS = [
 
 { id:'cp047', cat:'tokubetsu', t:'mc', a:0,
   q:'契約のお礼にお客様へ商品券をお渡ししたい。適切なのは。',
-  c:['特別の利益の提供にあたるおそれがあるため渡さない','少額なら問題ない','会社の名前が入っていれば問題ない'],
+  c:['特別の利益の提供にあたるおそれがあるので、お渡ししない','金額が少なく、どのお客様にも同じものなら、渡してよい','社名入りの封筒に入れ、会社からのお礼として渡せばよい'],
   why:'契約と結びついた金品の提供は、名目が何であれ特別の利益の提供にあたるおそれがあります。金額や社名の有無で決まるものではありません。渡してよいものの範囲は会社が基準を定めているので、自分で判断せず、基準に当てはめてください。' },
 
 { id:'cp048', cat:'tokubetsu', t:'ox', a:false,
@@ -1106,16 +1331,17 @@ var QUESTIONS = [
 
 { id:'cp049', cat:'tokubetsu', t:'mc', a:0,
   q:'紹介してくださったお客様に謝礼をお渡ししたい。適切なのは。',
-  c:['紹介謝礼の取扱いは会社の規程で定められているため、規程に従い、定めがなければ渡さない','現金でなければよい','契約に至らなければ問題ない'],
+  c:['会社の規程に従い、規程に定めがなければ渡さない','現金でなく品物なら、紹介のお礼として渡してよい','紹介した方の契約が成立しなかったときだけ、渡してよい'],
   why:'紹介に対する謝礼は、契約と結びつくと特別の利益の提供にあたるおそれがあり、また、内容によっては募集行為の対価とみなされ、登録のない人が募集に関与したと評価されるおそれもあります。会社の規程に定めがあるかを確認し、無ければ渡さないでください。' },
 
-{ id:'cp050', cat:'tokubetsu', t:'ox', a:false,
-  q:'お客様に代わって募集人が保険料を現金でお預かりし、自分の口座から振り込むことは、特別の利益の提供にはあたらないので問題ない。',
-  why:'保険料の収納は会社が定めた方法だけで行います。現金の預かりは、着服や紛失、入金遅れによる失効といった事故に直結します。募集人の資金でいったん払えば立替えとなり、特別の利益の提供にもあたります。預かってしまった場合は、隠さずすぐ上席に報告してください。' },
+{ id:'cp050', cat:'taisei', t:'ox', a:false, sonpo:true,
+  q:'損害保険の代理店がお客様から受け取った保険料は、保険会社へ精算する日まで、代理店の運転資金と同じ口座に入れておいてよい。',
+  why:'代理店が受け取った保険料は、保険会社に代わってお預かりしているお金です。保険料専用の口座に分けて入れ、決められた期限までに保険会社へ精算します。代理店のお金と混ぜると、使い込み・精算の遅れ・入金の漏れにつながり、お客様の補償にも響きかねません。受け取るときは会社所定の領収証を使い、受け取った日・金額・口座に入れた日を残してください。なお生命保険では、募集人が保険料を現金で預からない運用が多く、預かってしまったときは隠さずすぐ上席に報告します。口座・期限・領収証の扱いは、所属保険会社の指示と自代理店の社内規程が優先します。',
+  audit:'保険料専用口座の入出金の記録、領収証の控え、精算の期限を守っていることが分かる記録を見られます。' },
 
 { id:'cp051', cat:'tokubetsu', t:'mc', a:0,
   q:'「他社より安くします」と言って、自分の手数料を削って保険料を下げる提案をした。これは。',
-  c:['保険料の割引にあたり禁止される','代理店の判断でできる','会社の承認があればできる'],
+  c:['保険料の割引にあたり、禁止されている','代理店の手数料の使い道なので、代理店が決めてよい','保険会社に届け出て承認を受ければ、行ってよい'],
   why:'保険料は保険会社が定めるもので、募集人や代理店が値引きできるものではありません。手数料を原資に実質的な値引きを行うことは、保険料の割引・割戻しにあたり禁止されています。会社の承認で可能になる性質のものでもありません。',
   law:'保険業法第300条第1項（特別の利益の提供の禁止）' },
 
@@ -1127,7 +1353,7 @@ var QUESTIONS = [
 
 { id:'cp053', cat:'dantei', t:'mc', a:0,
   q:'外貨建ての保険を説明するとき、適切なのは。',
-  c:['為替や運用の結果で受取額が増減し、円に換算すると払い込んだ額を下回ることがあると伝える','過去の為替水準を示して「これ以上は下がりません」と伝える','「利率が高いので損はしません」と伝える'],
+  c:['為替で受取額が変わり、円では払った額を下回ることがあると伝える','過去の為替の動きを示し、今の水準より下がりにくいと伝える','外貨での利率が高いので、円に直しても増えやすいと伝える'],
   why:'外貨建ての商品は、外貨ベースでの利率とは別に、為替の動きで円ベースの受取額が変わります。さらに為替手数料などのコストもかかります。増える可能性と減る可能性の両方を、条件とあわせて示してください。市場リスクのある商品は、販売資格や説明手順が別に定められていることが多いので、規程を確認してください。' },
 
 { id:'cp054', cat:'dantei', t:'ox', a:true,
@@ -1137,16 +1363,16 @@ var QUESTIONS = [
 
 { id:'cp055', cat:'dantei', t:'mc', a:0,
   q:'解約返戻金の推移を示した設計書をお見せするときの説明として適切なのは。',
-  c:['前提となる条件によって変わることと、途中で解約すると払い込んだ保険料を下回ることがあることを伝える','設計書の数字は確定した金額だと伝える','「この表のとおりになります」と伝える'],
+  c:['前提で数字が変わり、早い解約では払った額を下回ると伝える','会社が計算した数字なので、表のとおりの金額になると伝える','数字は目安なので、表は見せずに口頭でおおよその額を伝える'],
   why:'設計書は一定の前提を置いた試算です。前提が変われば数字も変わります。とくに早い時期の解約では、払い込んだ保険料を下回るのが一般的です。数字を見せる場面ほど、前提と注記を一緒に指してください。' },
 
-{ id:'cp056', cat:'dantei', t:'ox', a:true,
-  q:'「元本保証」という言葉は、保険商品の説明では慎重に扱うべきである。',
+{ id:'cp056', cat:'dantei', t:'ox', a:false,
+  q:'円建てで最低保証のある保険なら、途中で解約しても払い込んだ保険料を下回らないので、「元本保証」と説明してよい。',
   why:'保険は預金ではなく、預金保険の対象でもありません。円建てで最低保証のある商品でも、途中で解約すれば払い込んだ保険料を下回るのが一般的です。「保証」という言葉が、いつの・何についての保証なのかがずれると誤解を招きます。会社の承認を受けた募集文書の表現をそのまま使ってください。' },
 
 { id:'cp057', cat:'dantei', t:'mc', a:0,
   q:'お客様に「結局、増えるんですか、増えないんですか」と迫られた。適切な返しは。',
-  c:['増える場合と減る場合の両方を、どういう条件でそうなるかとあわせて示す','「増えます」と言い切って安心していただく','「減ることはまずないです」と伝える'],
+  c:['増える場合と減る場合の両方を、どんな条件でそうなるかと一緒に示す','過去の実績から、多くの場合は増えると根拠を添えて伝える','不安にさせないよう、減ることはまずないと一言で答える'],
   why:'言い切りを求められる場面がいちばん危ないところです。「減ることはまずない」も、確実であると誤解させるおそれのある言い方です。条件付きで両方を示し、それでも決めきれない場合は、変動のない商品も選択肢として出してください。' },
 
 /* ---------- 表示・広告（6問） ---------- */
@@ -1157,7 +1383,7 @@ var QUESTIONS = [
 
 { id:'cp059', cat:'hyoji', t:'mc', a:0,
   q:'保険商品の説明で、最も誤解を招きやすい表現はどれか。',
-  c:['「銀行に預けておくより有利です」','「この保障の給付条件は約款のとおりです」と説明したうえで条件を示す','「この商品は告知が必要です」'],
+  c:['「銀行に預けておくより、こちらのほうが有利です」','「給付の条件は約款のとおりで、こちらに書いてあります」','「この商品は、申込みのときに告知が必要です」'],
   why:'性質の違うものを並べて有利・不利を語ると、誤解させるおそれのある比較表示になります。預金と保険は、目的も、途中で引き出せるかどうかも、保護の仕組みも違います。比べるなら、何をそろえて比べているのかを明示してください。',
   law:'保険業法第300条第1項（保険募集に関する禁止行為）' },
 
@@ -1167,17 +1393,18 @@ var QUESTIONS = [
 
 { id:'cp061', cat:'hyoji', t:'mc', a:0,
   q:'保障内容の一部だけを強調した資料を作りたい。適切なのは。',
-  c:['会社の審査を通った募集文書をそのまま使い、抜粋や加工はしない','大事な部分だけを抜き出して見やすくする','注意書きは小さくしてよい'],
+  c:['審査を通った募集文書をそのまま使い、抜粋や加工はいっさいしない','大事な部分を抜き出し、出典の資料名を書き添えて見やすくする','注意書きも全て残したうえで、強調したい所だけ文字を大きくする'],
   why:'抜粋は、抜き出した部分ではなく、落とした部分で問題になります。給付の条件、免責、期間の制限といった注意事項が落ちると、実際より広い保障があるように見えます。強調したい点があるときは、承認済みの資料のその箇所を指して説明してください。' },
 
 { id:'cp062', cat:'hyoji', t:'ox', a:false,
   q:'お客様の体験談は、募集人が作った文章ではないので、会社の審査を受けずに紹介に使ってよい。',
   why:'体験談は、特定の事例が一般的に起こることのように受け取られやすく、支払いの条件が伝わらないまま「この保険なら出る」という印象だけが残ります。使う場合は、ご本人の同意（個人情報の取扱いを含む）と、会社の審査の両方が要ります。' },
 
-{ id:'cp063', cat:'hyoji', t:'mc', a:0,
-  q:'保険料の安さを強調する資料に必要なのは。',
-  c:['前提条件（年齢・性別・保険期間・保障内容）を、同じくらいの大きさで読める形で示す','「業界最安」とだけ大きく書く','条件は小さく書いておけばよい'],
-  why:'前提条件が読めない形でしか示されていない資料は、それだけで誤解を招く表示と評価されます。小さく書いてあれば足りる、という考え方は取られません。強調する数字と同じ画面・同じ紙面で、条件が読めるようにしてください。' },
+{ id:'cp063', cat:'hyoji', t:'mc', a:0, sonpo:true,
+  q:'自動車保険の保険料を、お客様の今の他社の契約と並べてお見せしたい。必要なのは。',
+  c:['等級や運転者の範囲などの条件をそろえ、承認された資料で示す','差がひと目で分かるよう、差額だけを大きく書いた表を作って示す','条件の違いは口頭で補うことにして、保険料だけを並べて示す'],
+  why:'自動車保険の保険料は、等級、運転する人の範囲や年齢の条件、車両保険の有無と免責金額、特約の付け方で大きく変わります。条件をそろえずに保険料だけを並べると、誤解させるおそれのある比較表示にあたるおそれがあります。口頭で補っても、紙に残るのは数字だけです。比べるときは前提の条件を保険料と同じ大きさで読める形で示し、保険会社の審査・自代理店の承認を通った資料を使ってください。',
+  law:'保険業法第300条第1項（保険募集に関する禁止行為）' },
 
 /* ---------- 募集文書の使用（6問） ---------- */
 { id:'cp064', cat:'bunsho', t:'ox', a:true,
@@ -1186,17 +1413,18 @@ var QUESTIONS = [
 
 { id:'cp065', cat:'bunsho', t:'mc', a:0,
   q:'去年承認を受けた設計書のひな型を、今年の商品説明に使いたい。適切なのは。',
-  c:['最新版かどうかを確認し、改定があれば使わない','一度承認を受けているのでそのまま使える','内容が変わっていなければ古くても使える'],
+  c:['最新版かを確かめ、改定があれば古いものは使わない','一度承認を受けているので、今年もそのまま使ってよい','商品名が変わっていなければ、版が古くても使ってよい'],
   why:'商品改定・料率改定・制度改正があると、募集文書は差し替えになります。古い版を使い続けると、誤った内容をお客様に伝えることになります。版数と改定日を確認する習慣をつけ、差し替えの連絡が来たら手元の在庫を回収してください。',
   audit:'使用中の募集文書の版数管理表と、旧版の回収記録を見られます。' },
 
-{ id:'cp066', cat:'bunsho', t:'ox', a:true,
-  q:'お客様に求められて自分で書いた手書きのメモをお渡しすることも、募集文書のルールに触れることがある。',
-  why:'手書きでも、保険契約の内容を示してお渡しすれば、お客様の手元に残る資料になります。数字や条件を書いた紙は、後から根拠として持ち出されます。書いて渡す前に、承認済みの資料で代えられないかを考えてください。' },
+{ id:'cp066', cat:'ikou', t:'ox', a:false, sonpo:true,
+  q:'自動車保険や火災保険の更改は、前年と同じ条件で続けるのが普通なので、補償の内容や保険料の変わる点をお客様に確かめなくてよい。',
+  why:'更改は、お客様の暮らしの変化を確かめる機会です。運転する人や年齢、車の使い方、建物の用途や家財が変わっていれば、前年と同じ条件では合わなくなっていることがあります。保険料や補償の内容も、商品の改定や等級の変化で前年と変わることがあります。変わる点を説明し、意向に合っているかを確かめて、その記録を残してください。更改の手続きと確認の様式は、所属保険会社の指示と自代理店の社内規程が優先します。',
+  audit:'更改の案件で、変わる点の説明と意向の確かめを、どの帳票に残しているかを見られます。' },
 
 { id:'cp067', cat:'bunsho', t:'mc', a:0,
   q:'社内の勉強用に配られた資料を、うっかりお客様にお見せしてしまった。まずすることは。',
-  c:['上席・コンプライアンス担当に報告し、会社の指示に従う','お客様に返していただければ報告は不要','問題がなさそうなら黙っておく'],
+  c:['上席・コンプライアンス担当に報告し、会社の指示に従う','その場で資料を返していただき、問題がなければ記録だけ残す','内容に誤りがないか自分で確かめ、誤りがあれば報告する'],
   why:'社内資料は、お客様に見せる前提で作られていないため、表現が断定的だったり、他社の情報が載っていたりします。見せてしまった事実は隠さず報告してください。報告が早いほど、会社として打てる手が残ります。' },
 
 { id:'cp068', cat:'bunsho', t:'ox', a:false,
@@ -1205,18 +1433,18 @@ var QUESTIONS = [
 
 { id:'cp069', cat:'bunsho', t:'mc', a:0,
   q:'募集文書の管理として適切なのは。',
-  c:['誰が・どの版を・いくつ持っているかを台帳で管理し、改定時に差し替える','各自が必要な分をそのつど印刷して手元に置く','使い終わったら各自の判断で処分する'],
+  c:['誰がどの版をいくつ持つかを台帳で管理し、改定時に差し替える','各自が最新版を会社のサイトからそのつど印刷し、手元に置いて使う','改定の連絡が来たら、各自の判断で古いものを処分してもらう'],
   why:'改定が出たときに旧版を確実に引き上げられるかどうかは、誰が何を持っているかを把握できているかで決まります。台帳がないと、回収したつもりで現場に古い版が残ります。電子ファイルも同じで、共有フォルダの旧版は削除してください。' },
 
 /* ---------- 個人情報（8問） ---------- */
-{ id:'cp070', cat:'kojin', t:'ox', a:true,
-  q:'健康状態や病歴の情報は、通常の個人情報よりも慎重な取扱いが求められる。',
+{ id:'cp070', cat:'kojin', t:'ox', a:false,
+  q:'健康状態や病歴の情報も、氏名や住所と同じ扱いでよく、取得するときにご本人の同意を特別にいただく必要はない。',
   why:'病歴などは要配慮個人情報にあたり、取得にあたって原則としてご本人の同意が必要です。保険の募集では健康状態を扱うことが避けられないので、何のために取得し、どこまで使うのかを説明したうえで同意をいただき、その記録を残してください。',
   law:'個人情報保護法（要配慮個人情報の取扱い）' },
 
 { id:'cp071', cat:'kojin', t:'mc', a:0,
   q:'顧客名簿を自分のスマートフォンで撮影して持ち歩いている。これは。',
-  c:['社内規程で認められた方法でなければ持ち出しにあたり、してはならない','自分の担当顧客なので問題ない','画面ロックをかけていれば問題ない'],
+  c:['規程で認めた方法でなければ持ち出しにあたり、してはならない','自分の担当のお客様の分だけなら、仕事の範囲として問題ない','画面のロックと指紋認証をかけていれば、持ち出しにはあたらない'],
   why:'個人データを社外に持ち出す方法は会社が定めています。私物の端末に保存すると、紛失・修理・機種変更・クラウドの自動バックアップなど、会社が管理できない経路で漏れます。便利さのために例外を作らないでください。',
   audit:'個人データの持ち出し・持ち帰りのルールと、私物端末の利用可否を定めた規程を見られます。' },
 
@@ -1227,7 +1455,7 @@ var QUESTIONS = [
 
 { id:'cp073', cat:'kojin', t:'mc', a:0,
   q:'個人データが漏れたおそれがあるとき、まずすることは。',
-  c:['社内規程に従って直ちに上席・責任者へ報告する','自分で回収できるか試してから報告する','被害がはっきりするまで様子を見る'],
+  c:['規程に従い、直ちに上席・責任者へ報告する','回収できるか自分で確かめ、その結果を添えて報告する','漏れたと確かめられてから、上席に報告して指示を受ける'],
   why:'一定の場合には、個人情報保護委員会への報告とご本人への通知が義務づけられており、報告には期限があります。現場が判断してから動くと、その期限に間に合いません。「漏れたかもしれない」の段階で、まず報告してください。',
   law:'個人情報保護法（漏えい等の報告・本人通知）' },
 
@@ -1237,7 +1465,7 @@ var QUESTIONS = [
 
 { id:'cp075', cat:'kojin', t:'mc', a:0,
   q:'喫茶店で、前のお客様の設計書を机に広げたまま次のお客様と面談していた。問題は。',
-  c:['第三者に見られるおそれがあり、安全管理の面で不適切','公共の場所での面談そのものが禁止されている','声が大きくなければ問題ない'],
+  c:['第三者に見られるおそれがあり、安全管理の面で不適切','公共の場所でお客様と面談すること自体が禁止されている','お客様の名前が見えていなければ、特に問題はない'],
   why:'社外での面談は、会話と書類の両方から情報が漏れます。使う資料は必要な分だけ出す、席を立つときは持って動く、名前が見える面を上にしない、といった基本の積み重ねです。社外での取扱いのルールは規程で確認してください。' },
 
 { id:'cp076', cat:'kojin', t:'ox', a:false,
@@ -1246,7 +1474,7 @@ var QUESTIONS = [
 
 { id:'cp077', cat:'kojin', t:'mc', a:0,
   q:'既契約者から、ご友人のお名前と連絡先を教えていただいた。適切なのは。',
-  c:['ご紹介される方の同意が得られるまでは名簿として保存・利用せず、紹介者にも伝え方を確認する','聞いた時点で自由に使ってよい','電話番号だけなら個人情報ではない'],
+  c:['ご友人の了承を紹介者から得ていただくまで、名簿に入れて使わない','紹介者の同意があるので、すぐにご友人へ連絡してよい','名前と電話番号だけなら、名簿に入れてお知らせを送ってよい'],
   why:'紹介された方から見れば、知らないうちに自分の情報が渡っています。まず紹介者から先方にお話ししていただき、連絡してよいという意思を確認するのが基本です。氏名と結びついた電話番号は個人情報です。紹介の取扱いは自代理店の規程に従ってください。' },
 
 /* ---------- 体制整備（9問） ---------- */
@@ -1258,28 +1486,28 @@ var QUESTIONS = [
 
 { id:'cp079', cat:'taisei', t:'mc', a:0,
   q:'事務職員が電話で「この特約を付けたほうがいいですよ」とお客様に伝えた。これは。',
-  c:['募集行為にあたるおそれがあり、登録を受けていなければ行えない','事務連絡なので問題ない','契約手続きまではしていないので問題ない'],
+  c:['募集行為にあたるおそれがあり、登録がなければ行えない','事務の連絡の一部なので、上席が了承していれば問題ない','申込書の手続きまでしていなければ、募集にはあたらない'],
   why:'契約の締結を勧める言動は募集行為にあたります。事務職員が行えるのは、事実の連絡や日程調整など、募集にあたらない範囲です。どこまでが事務でどこからが募集かの線引きは、自代理店の規程で明確にし、全員で共有してください。',
   law:'保険業法第275条（保険募集の制限）' },
 
-{ id:'cp080', cat:'taisei', t:'ox', a:true,
-  q:'代理店には、保険募集の業務が適切に行われるよう体制を整える義務がある。',
+{ id:'cp080', cat:'taisei', t:'ox', a:false,
+  q:'保険募集の体制を整える義務は保険会社にあり、代理店は個々の募集人が気をつけていれば足りる。',
   why:'募集人個人が気をつけるだけでなく、代理店として、募集人の教育・管理・指導を含む業務運営の体制を整えることが求められています。誰が何を確認するのか、記録はどこに残すのか、問題が起きたらどこへ上げるのかを、規程と手順書の形にしておいてください。',
   law:'保険業法第294条の3（業務運営に関する措置等）' },
 
 { id:'cp081', cat:'taisei', t:'mc', a:2,
   q:'代理店の体制整備に含まれないのはどれか。',
-  c:['募集人の教育・管理・指導','募集に関する帳簿書類の備付けと保存','販売目標の達成状況を社外に公表すること'],
+  c:['募集人の教育・管理・指導を行う仕組み','募集に関する帳簿書類を備え付けて保存すること','販売目標の達成状況を社外に公表すること'],
   why:'体制整備は、募集が適切に行われるようにするための社内の仕組みです。募集人の教育・管理・指導、帳簿書類の整備、苦情への対応、法令違反を見つけたときの報告経路などが含まれます。販売実績の社外公表は、体制整備として求められているものではありません。' },
 
 { id:'cp082', cat:'taisei', t:'ox', a:false,
   q:'募集人への教育は、実際に行っていれば、実施したことの記録までは残さなくてよい。',
-  why:'教育は「やったこと」ではなく「やったと確かめられること」が求められます。日付・対象者・内容・理解度の確認方法まで残してください。欠席者へのフォローを含めて記録がそろっていないと、体制として機能していないと見られます。',
-  audit:'年間の教育計画、実施記録（日付・対象者・内容・理解度確認）、未受講者へのフォロー記録を見られます。' },
+  why:'教育は「やったこと」ではなく「やったと確かめられること」が求められます。日付・対象者・内容・理解できたかの確かめ方まで残してください。欠席者へのフォローを含めて記録がそろっていないと、体制として機能していないと見られます。',
+  audit:'年間の教育計画、実施記録（日付・対象者・内容・理解できたかの確かめ）、未受講者へのフォロー記録を見られます。' },
 
 { id:'cp083', cat:'taisei', t:'mc', a:0,
   q:'保険募集に関する帳簿書類について正しいのは。',
-  c:['備え付けて保存することが求められている。種類・様式・保存期間は法令と会社の定めに従う','紙で残っていれば保存の期間は自由','電子データであれば保存の義務はない'],
+  c:['備付けと保存が求められ、種類や期間は法令と会社の定めによる','紙で残していれば、保存する期間は代理店が自由に決めてよい','電子データで残すものは、保存の義務の対象から外れる'],
   why:'募集に関する帳簿書類の備付けと保存は法令上求められています。何を、どの様式で、どのくらいの期間残すかは法令と会社の定めによります。保存期間は年や会社で変わるため、このツールでは数字を書いていません。自代理店の規程で確認してください。' },
 
 { id:'cp084', cat:'taisei', t:'ox', a:false,
@@ -1288,7 +1516,7 @@ var QUESTIONS = [
 
 { id:'cp085', cat:'taisei', t:'mc', a:0,
   q:'募集人が別の代理店でも登録されていることが分かった。適切なのは。',
-  c:['所属保険会社と自代理店に報告し、規程に従って解消・届出を行う','本人の副業なので関与しない','契約が取れているなら問題ない'],
+  c:['保険会社と自代理店に報告し、規程に従って届出や解消をする','本人の副業のことなので、代理店としては特に関与しなくてよい','届出は本人の責任なので、本人に任せて様子を見ればよい'],
   why:'募集人がどこに所属し、どの会社の募集を行えるかは登録の内容で決まります。届出のない兼務や二重の登録は、体制整備の不備として扱われます。分かった時点で報告し、会社の指示に従って整理してください。' },
 
 { id:'cp086', cat:'taisei', t:'ox', a:true,
@@ -1304,17 +1532,18 @@ var QUESTIONS = [
 
 { id:'cp088', cat:'kujo', t:'mc', a:0,
   q:'苦情として記録すべきか迷ったときは。',
-  c:['広めに拾って記録し、扱いの判断は上席・責任者に委ねる','お客様が「苦情」という言葉を使った場合だけ記録する','その場で解決したものは記録しない'],
+  c:['広めに記録しておき、扱いの判断は上席・責任者に任せる','お客様が「苦情です」とはっきり言った場合だけ記録する','その場で解決できたものは、記録せずに済ませてよい'],
   why:'苦情かどうかを現場で線引きすると、記録が担当者ごとにばらつきます。判断に迷うものはいったん記録して上げる運用にしておくと、集計と分析が意味を持ちます。何を苦情として扱うかの定義は、自代理店の規程で確認してください。' },
 
-{ id:'cp089', cat:'kujo', t:'ox', a:true,
+{ id:'cp089', cat:'kujo', t:'ox', a:true, sonpo:true,
   q:'保険に関する苦情・紛争は、当事者間で解決しない場合、指定紛争解決機関（金融ADR）に持ち込まれることがある。',
   why:'生命保険・損害保険それぞれに、法令に基づく指定紛争解決機関が置かれています。お客様には、社内の窓口だけでなく、こうした外部の相談・紛争解決の窓口があることを案内できるようにしておいてください。窓口の名称と連絡先は、注意喚起情報や会社の書面に記載されています。' },
 
-{ id:'cp090', cat:'kujo', t:'mc', a:0,
-  q:'苦情対応で最も避けるべきなのは。',
-  c:['担当者が一人で抱え、記録を残さないまま処理する','いったん持ち帰り、上席と対応方針を決める','事実関係を時系列で整理する'],
-  why:'その場で早く収めようとして約束をしてしまい、後で守れなくなる、という形が最悪です。持ち帰って上席と決める、事実を時系列で残す、という手順を踏んでください。時間はかかりますが、結果的に短く済みます。' },
+{ id:'cp090', cat:'kujo', t:'mc', a:0, sonpo:true,
+  q:'自動車事故の対応に不満を持ったお客様から、代理店に電話が入った。適切なのは。',
+  c:['お申し出として記録したうえで、保険会社の事故の担当にもすぐ伝える','事故の対応は保険会社の仕事なので、そちらへ電話するよう伝える','代理店の担当が、支払額の上乗せを保険会社にかけ合うと約束する'],
+  why:'代理店が受けた不満も、苦情（お申し出）として記録の対象です。「保険会社に電話してください」で終えると、お客様は同じ話を二度することになり、不満が大きくなります。代理店が受け付けて記録し、保険会社の事故の担当につなぎ、経過をお客様に伝えるところまでが代理店の役目です。支払いの可否や額は保険会社が調べて決めるので、代理店が上乗せを約束することはできません。何を苦情として扱うか、どこへ報告するかは、自代理店の規程と所属保険会社の指示が優先します。',
+  audit:'事故の対応に関するお申し出が苦情受付簿に記録され、保険会社へ伝えた日が残っているかを見られます。' },
 
 { id:'cp091', cat:'kujo', t:'ox', a:false,
   q:'苦情の記録は保存しておけば足り、再発防止のために分析して教育や手順の見直しに反映させるところまでは求められない。',
@@ -1328,7 +1557,7 @@ var QUESTIONS = [
 
 { id:'cp093', cat:'hansha', t:'mc', a:0,
   q:'面談中に、反社会的勢力とのつながりをうかがわせる話が出た。適切な対応は。',
-  c:['その場で結論を出さず、社内の定められた経路で報告する','お客様に直接確認して問いただす','気のせいかもしれないので何もしない'],
+  c:['その場では結論を出さず、見聞きした事実を定められた経路で報告する','誤解があってはいけないので、お客様にその場で直接確かめる','はっきりした根拠がないので、記録には残さずに手続きを進める'],
   why:'その場で問いただすことは、募集人本人の安全にも関わります。また、独断で断ることも、根拠が残らないため後の対応を難しくします。見聞きした事実だけを記録し、定められた経路で報告してください。判断は会社が行います。' },
 
 { id:'cp094', cat:'hansha', t:'ox', a:true,
@@ -1337,7 +1566,7 @@ var QUESTIONS = [
 
 { id:'cp095', cat:'hansha', t:'mc', a:0,
   q:'反社会的勢力への対応で、募集人がしてはいけないのは。',
-  c:['自分の判断で「大丈夫だろう」として手続きを進める','会社の照会結果を待つ','上席に相談する'],
+  c:['照会の結果を待たずに、自分の判断で手続きを先に進める','会社の照会の結果が出るまで、申込みの手続きを止めておく','判断に迷うことを、上席とコンプライアンス担当に相談する'],
   why:'ここは、現場の判断でショートカットしてはいけない手順の代表です。急いでいる、良いお客様に見える、といった事情は例外の理由になりません。照会の結果が出るまで進めないでください。' },
 
 /* ---------- 保険金請求時の対応（5問） ---------- */
@@ -1346,10 +1575,11 @@ var QUESTIONS = [
   why:'支払いの可否を判断するのは保険会社です。募集人が「それは出ません」と決めつけて案内しないと、本来受け取れたはずの給付が受け取れなくなります。判断に迷うときは、請求のご案内をしたうえで会社に照会してください。案内した記録も残します。',
   audit:'請求勧奨の記録（いつ・誰に・どの契約について案内したか）を見られます。' },
 
-{ id:'cp097', cat:'seikyu', t:'mc', a:0,
-  q:'お客様に「この請求はたぶん出ませんよ」と伝えるのは。',
-  c:['支払いの判断は会社が行うため、募集人が断定してはならない','経験上分かるので伝えてよい','お客様の手間が省けるのでよい'],
-  why:'募集人の見立ては、約款の判断ではありません。同じような事例でも、契約内容、特約の有無、加入時期、診断名の細かい違いで結論が変わります。出ないと思っても、請求のご案内はしてください。' },
+{ id:'cp097', cat:'seikyu', t:'mc', a:0, sonpo:true,
+  q:'お客様から自動車事故の連絡を受けた。代理店の対応として適切なのは。',
+  c:['状況を聞き取ってすぐ保険会社に伝え、支払いの可否や額の判断は会社に任せる','過去の似た事故から、どのくらい支払われそうかの目安をその場で伝える','相手方との話し合いは、代理店が間に入ってまとめると伝えて安心させる'],
+  why:'まず、けがの有無と安全を確かめます。そのうえで事故の日時・場所・状況を聞き取り、保険会社の事故の受付へ速やかに伝えます。支払いの対象になるか、いくら支払われるかは保険会社が調べて決めるので、代理店がその場で目安を言い切ると、後で食い違ったときの不満のもとになります。相手方との示談の交渉は、保険会社（示談交渉のサービスがある契約の場合）や弁護士が行うもので、代理店が代わりに交渉する立場にはありません。受付の手順は所属保険会社の指示が優先します。',
+  audit:'事故の受付の記録（受けた日時・内容・保険会社へ伝えた日時）を見られます。' },
 
 { id:'cp098', cat:'seikyu', t:'ox', a:true,
   q:'ご本人が請求できない状況に備えて、あらかじめ代理で請求できる仕組み（指定代理請求など）を案内しておくとよい。',
@@ -1357,7 +1587,7 @@ var QUESTIONS = [
 
 { id:'cp099', cat:'seikyu', t:'mc', a:0,
   q:'保険給付を請求する権利について正しいのは。',
-  c:['法令上、3年間行使しないと時効によって消滅すると定められている','いつまでも請求できる','会社が認めれば時効はない'],
+  c:['法令上、3年間行使しないと時効で消滅すると定められている','契約が続いている間は、何年たっても請求できると定められている','時効の期間は、保険会社ごとに約款で自由に決めてよい'],
   why:'保険給付を請求する権利などは、3年間行使しないときは時効によって消滅すると定められています。ただし、期間が過ぎているように見えても募集人が自分で判断して諦めさせないでください。事情を会社に伝えて判断を仰ぐのが正しい対応です。',
   law:'保険法第95条（消滅時効）' },
 
@@ -1405,14 +1635,14 @@ var AUDITS = [
   ev:['乗換該当の判定基準（各保険会社の基準を含む）','乗換確認書・不利益事項説明書','既契約の内容を確認した記録（証券・契約内容のお知らせ等の確認）','既契約を残す選択肢も示したことが分かる記録','乗換該当案件の一覧（期間ごと）'] },
 
 { id:'au07', cat:'特別利益の提供',
-  q:'金品の提供や保険料の立替えが起きていないことを、どのように確認していますか。',
-  a:'禁止事項を定めた規程と、認められるノベルティ等の基準を示します。保険料の収納方法を会社の定めた方法だけに限っていること、現金の授受が発生しない仕組みになっていることを説明します。',
-  ev:['特別の利益の提供の禁止を定めた社内規程','ノベルティ等の基準と配布の記録','保険料の収納方法を定めた手順書','現金の授受を行っていないことの確認記録（点検表）','紹介謝礼の取扱いを定めた規程'] },
+  q:'金品の提供や保険料の立替えが起きていないこと、受け取った保険料を正しく扱っていることを、どのように確かめていますか。',
+  a:'禁止事項を定めた規程と、認められるノベルティ等の基準を示します。保険料の受け取りを会社の定めた方法に限っていることを説明します。損害保険で代理店が保険料を受け取る場合は、保険料専用口座への入金、期限までの精算、領収証の管理の流れを示します。生命保険で現金を預からない運用にしている場合は、その決まりと点検の記録を示します。',
+  ev:['特別の利益の提供の禁止を定めた社内規程','ノベルティ等の基準と配布の記録','保険料の受け取り方を定めた手順書（領収証の扱いを含む）','保険料の扱いの点検記録（損保は専用口座への入金と精算の期限、生保は現金を預かっていないこと）','紹介謝礼の取扱いを定めた規程'] },
 
 { id:'au08', cat:'断定的判断・表示',
   q:'変額保険や外貨建て保険など、市場リスクのある商品の説明をどう管理していますか。',
-  a:'販売できる募集人を資格・研修で限定していること、説明時のチェックリストで漏れを防いでいること、お客様の理解度を確認して記録していることを答えます。苦情や照会が出たときの分析結果もあわせて示します。',
-  ev:['市場リスクのある商品を販売できる募集人の一覧と資格・研修の記録','説明時に使うチェックリスト','お客様の理解度を確認した記録','高齢のお客様に販売した場合の追加手順の記録','当該商品に関する苦情・照会の記録と分析'] },
+  a:'販売できる募集人を資格・研修で限定していること、説明時のチェックリストで漏れを防いでいること、お客様が理解できたかを確かめて記録していることを答えます。苦情や照会が出たときの分析結果もあわせて示します。',
+  ev:['市場リスクのある商品を販売できる募集人の一覧と資格・研修の記録','説明時に使うチェックリスト','お客様が理解できたかを確かめた記録','高齢のお客様に販売した場合の追加手順の記録','当該商品に関する苦情・照会の記録と分析'] },
 
 { id:'au09', cat:'募集文書の使用',
   q:'使用している募集文書の版をどう管理していますか。自作の資料はありますか。',
@@ -1426,8 +1656,8 @@ var AUDITS = [
 
 { id:'au11', cat:'体制整備（登録・教育）',
   q:'募集人の登録と教育をどのように管理していますか。未登録者が募集に関与していないことは、どう確認できますか。',
-  a:'募集人名簿で登録状況を管理していること、事務職員が行える業務の範囲を規程で明確にしていることを答えます。教育は年間計画と実施記録、理解度の確認、未受講者へのフォローまでそろえて示します。',
-  ev:['募集人名簿（登録番号・登録日・異動・廃業）','事務職員が行える業務の範囲を定めた規程','年間の教育計画','教育の実施記録（日付・対象者・内容・理解度確認）','未受講者へのフォロー記録','新任者の教育（登録前・登録後）の記録'] },
+  a:'募集人名簿で登録状況を管理していること、事務職員が行える業務の範囲を規程で明確にしていることを答えます。教育は年間計画と実施記録、理解できたかの確かめ、未受講者へのフォローまでそろえて示します。',
+  ev:['募集人名簿（登録番号・登録日・異動・廃業）','事務職員が行える業務の範囲を定めた規程','年間の教育計画','教育の実施記録（日付・対象者・内容・理解できたかの確かめ）','未受講者へのフォロー記録','新任者の教育（登録前・登録後）の記録'] },
 
 { id:'au12', cat:'体制整備（帳簿書類）',
   q:'募集に関する帳簿書類を、どのように備え付け、どのくらい保存していますか。',
@@ -1466,36 +1696,117 @@ var AUDITS = [
 ];
 
 /* ============================================================
-   5. 保存（この端末のブラウザのみ・外部送信なし）
+   5. 管理画面へ戻る道（社内ツール共通の部品 A）
+   ★次の1行は形を変えない。納品の道具（make_agency.py）が会社フォルダでは '../' に差し替える。
+     台本の中にちょうど1回だけ書くこと（2回あると道具が止まる）
+   ============================================================ */
+var HUB_URL = '../hoken-hub/';   /* OMHUBURL */
+function hubHref(h){
+  var p = location.pathname;
+  var local = /\.html$/.test(p) && !/\/index\.html$/.test(p);
+  return (local ? encodeURI('保険ツール管理画面.html') : HUB_URL) + (h || '');
+}
+
+/* ============================================================
+   6. 保存（この端末のブラウザのみ・外部送信なし）
+   ★記録の書き出し（ファイル）は 2026-09-08 のユーザー指示で外したまま。足さない。
+     研修の記録として渡すのは「受講の控え」の印刷だけ（2026-10-04）
    ============================================================ */
 var LS_KEY = 'officem.hokenCompliance.v1';
 var state = null;
+var TABS = ['knock','cat','audit','log'];
+var currentTab = 'knock';
 
 function defaultState(){
   return {
     v: 1,
-    stats: {},      /* 問題id -> {ok:回数, ng:回数, last:'YYYY-MM-DD'} */
+    stats: {},      /* 問題id -> {ok:回数, ng:回数, last:'YYYY-MM-DD', lastWrong:bool} */
     sessions: [],   /* 受検の記録 */
     audit: {},      /* 証拠id -> 'ok' | 'no' */
-    auditMemo: {}   /* 監査質問id -> メモ */
+    auditMemo: {},  /* 監査質問id -> メモ */
+    run: null,      /* 解いている途中の回（2026-10-04） */
+    lastTab: 'knock',
+    printName: '',
+    audOpen: {}
   };
 }
+function isObj(o){ return !!o && typeof o === 'object' && !Array.isArray(o); }
+function str(v, max){ return typeof v === 'string' ? v.slice(0, max || 200) : ''; }
+function int0(v){ var n = Number(v); return isFinite(n) && n >= 0 ? Math.floor(n) : 0; }
+var DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+/* 読み込むときは、知っている項目だけを形を確かめて拾う（前の版の記録もそのまま読める） */
 function load(){
-  try {
-    var o = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
-    if (!o) return defaultState();
-    var d = defaultState();
-    d.stats = o.stats || {};
-    d.sessions = o.sessions || [];
-    d.audit = o.audit || {};
-    d.auditMemo = o.auditMemo || {};
-    return d;
-  } catch (e) { return defaultState(); }
+  var d = defaultState();
+  var o = null;
+  try { o = JSON.parse(localStorage.getItem(LS_KEY) || 'null'); } catch (e) { o = null; }
+  if (!isObj(o)) return d;
+  if (isObj(o.stats)) Object.keys(o.stats).forEach(function(id){
+    var s = o.stats[id];
+    if (!qById(id) || !isObj(s)) return;
+    d.stats[id] = { ok:int0(s.ok), ng:int0(s.ng), last: DATE_RE.test(s.last) ? s.last : '', lastWrong: s.lastWrong === true };
+  });
+  if (Array.isArray(o.sessions)) d.sessions = o.sessions.filter(isObj).slice(0, 60).map(function(s){
+    var cats = {};
+    if (isObj(s.cats)) Object.keys(s.cats).forEach(function(k){
+      var v = s.cats[k];
+      if (Array.isArray(v) && v.length === 2) cats[str(k, 20)] = [int0(v[0]), int0(v[1])];
+    });
+    return { date: DATE_RE.test(s.date) ? s.date : '', label: str(s.label, 80), total: int0(s.total), ok: int0(s.ok),
+      weak: Array.isArray(s.weak) ? s.weak.filter(function(k){ return typeof k === 'string'; }).slice(0, 15) : [],
+      cats: cats, answered: s.answered == null ? null : int0(s.answered) };
+  }).filter(function(s){ return s.total > 0; });
+  if (isObj(o.audit)) Object.keys(o.audit).forEach(function(k){ if (o.audit[k] === 'ok' || o.audit[k] === 'no') d.audit[k] = o.audit[k]; });
+  if (isObj(o.auditMemo)) Object.keys(o.auditMemo).forEach(function(k){ d.auditMemo[k] = str(o.auditMemo[k], 2000); });
+  if (TABS.indexOf(o.lastTab) >= 0) d.lastTab = o.lastTab;
+  d.printName = str(o.printName, 40);
+  if (isObj(o.audOpen)) Object.keys(o.audOpen).forEach(function(k){ if (o.audOpen[k] === true) d.audOpen[k] = true; });
+  d.run = cleanRun(o.run);
+  return d;
 }
-function save(){ try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {} }
+function cleanRun(r){
+  if (!isObj(r) || !Array.isArray(r.ids)) return null;
+  var ids = r.ids.filter(function(id){ return typeof id === 'string' && qById(id); }).slice(0, QUESTIONS.length);
+  if (!ids.length || ids.length !== r.ids.length) return null;
+  var detail = Array.isArray(r.detail) ? r.detail.filter(function(x){ return isObj(x) && qById(x.id); }).slice(0, ids.length).map(function(x){
+    return { id:x.id, cat: qById(x.id).cat, ok: x.ok === true, p: (typeof x.p === 'number' || typeof x.p === 'boolean') ? x.p : null };
+  }) : [];
+  var i = Math.min(int0(r.i), ids.length);
+  return { ids: ids, i: i, ok: Math.min(int0(r.ok), i), label: str(r.label, 80) || '100本ノック',
+    detail: detail, started: DATE_RE.test(r.started) ? r.started : todayStr() };
+}
+
+/* --- C. 保存の失敗を知らせる・ほかの窓の保存を知る（社内ツール共通の部品 C） --- */
+var staleOther = false, staleHold = false;
+function save(){
+  if (staleOther) {
+    if (staleHold) return false;
+    if (!confirm('別の窓で、このツールの記録が変わっています。\nこのまま保存すると、別の窓の記録を上書きして消します。\n\n［OK］この窓の内容で上書きして保存する\n［キャンセル］保存しない（上の帯の「読み直す」で読み直せます）')) {
+      staleHold = true; showStale(); return false;
+    }
+    staleOther = false; staleHold = false; $('omStale').classList.add('hide');
+  }
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(state));
+    $('omErr').classList.add('hide');
+    return true;
+  } catch (e) {
+    $('omErr').classList.remove('hide');
+    return false;
+  }
+}
+function showStale(){
+  $('omStaleTxt').textContent = staleHold
+    ? '別の窓でこのツールの記録が変わりました。この窓の変更は、まだ保存していません。'
+    : '別の窓でこのツールの記録が変わりました。';
+  $('omStale').classList.remove('hide');
+}
+window.addEventListener('storage', function(e){
+  if (e.key === LS_KEY || e.key === null) { staleOther = true; staleHold = false; showStale(); }
+});
+$('omStaleBtn').addEventListener('click', function(){ location.reload(); });
+$('omErrBtn').addEventListener('click', function(){ showTab('log', { force:true }); var c = $('printCard'); if (c) c.scrollIntoView({ block:'start' }); $('prName').focus(); });
 
 function qById(id){ for (var i=0;i<QUESTIONS.length;i++) if (QUESTIONS[i].id===id) return QUESTIONS[i]; return null; }
-function statOf(id){ var s = state.stats[id]; return s ? s : { ok:0, ng:0, last:'' }; }
 function wrongIds(){
   var out = [];
   for (var i=0;i<QUESTIONS.length;i++){
@@ -1504,12 +1815,26 @@ function wrongIds(){
   }
   return out;
 }
+function pctOf(ok, n){ return n ? Math.round(ok / n * 100) : 0; }
+var toastTimer = null;
+function toast(msg){
+  var t = $('toast'); t.textContent = msg; t.classList.add('on');
+  clearTimeout(toastTimer); toastTimer = setTimeout(function(){ t.classList.remove('on'); }, 3200);
+}
 
 /* ============================================================
-   6. タブ切り替え
+   7. タブ切り替え（携帯では全てのタブが1画面に収まる。最後に開いたタブを覚える）
    ============================================================ */
-var TABS = ['knock','cat','audit','log'];
-function showTab(key){
+function showTab(key, opts){
+  opts = opts || {};
+  if (TABS.indexOf(key) < 0) key = 'knock';
+  if (currentTab === 'knock' && key !== 'knock' && run && !opts.force) {
+    if (!confirm('出題の途中です。ほかのタブへ移っても、ここまでの答えと続きの位置は残ります。移りますか？')) {
+      var cb = document.querySelector('.tab[data-tab="knock"]'); if (cb) cb.focus();
+      return;
+    }
+  }
+  currentTab = key;
   TABS.forEach(function(t){
     $('tab-' + t).classList.toggle('hide', t !== key);
     var btn = document.querySelector('.tab[data-tab="' + t + '"]');
@@ -1519,41 +1844,70 @@ function showTab(key){
   if (key === 'cat') renderCatGrid();
   if (key === 'audit') renderAudit();
   if (key === 'log') renderLog();
-  window.scrollTo(0, 0);
+  setRunning();
+  if (state.lastTab !== key) { state.lastTab = key; save(); }
+  if (!opts.keepScroll) window.scrollTo(0, 0);
 }
 document.querySelectorAll('.tab').forEach(function(btn){
   btn.addEventListener('click', function(){ showTab(btn.getAttribute('data-tab')); });
 });
+function setRunning(){
+  document.body.classList.toggle('running', currentTab === 'knock' && !!run && !$('knockRun').classList.contains('hide'));
+}
 
 /* ============================================================
-   7. 出題
+   8. 出題
+   ★途中の回は state.run に残す（番号の並び・何問目・正答数）。読み込み直しても続きから解ける
    ============================================================ */
-var run = null;   /* { list:[問題], i:0, ok:0, answered:false, label:'' } */
+var run = null;   /* { ids:[問題id], list:[問題], i:0, ok:0, answered:false, label:'', detail:[], started:'' } */
 
 function shuffle(arr){
   var a = arr.slice();
   for (var i=a.length-1;i>0;i--){ var j = Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; }
   return a;
 }
-
+function persistRun(){
+  state.run = run ? { ids: run.ids, i: run.answered ? run.i + 1 : run.i, ok: run.ok, label: run.label,
+    detail: run.detail, started: run.started } : null;
+}
+function runFromSaved(r){
+  return { ids: r.ids.slice(), list: r.ids.map(qById), i: r.i, ok: r.ok, answered: false, label: r.label,
+    detail: r.detail.slice(), started: r.started };
+}
 function startRun(list, label){
   if (!list.length){ alert('出題できる問題がありません。'); return; }
-  run = { list:list, i:0, ok:0, answered:false, label:label, detail:[] };
+  if (run || state.run) {
+    var r = run || state.run;
+    var at = Math.min((run ? (run.answered ? run.i + 1 : run.i) : r.i) + 1, r.ids.length);
+    if (!confirm('途中の回（' + r.label + '・' + at + '問目から）があります。\n新しく始めると、途中の回は終わりにします（ここまでの正誤は記録に残ります）。\n始めますか？')) return;
+  }
+  run = { ids: list.map(function(q){ return q.id; }), list: list, i: 0, ok: 0, answered: false, label: label, detail: [], started: todayStr() };
+  persistRun(); save();
+  openRun();
+}
+function openRun(){
   $('knockStart').classList.add('hide');
   $('knockDone').classList.add('hide');
   $('knockRun').classList.remove('hide');
-  showTab2Knock();
+  if (currentTab !== 'knock') showTab('knock', { force:true, keepScroll:true });
+  if (run.i >= run.list.length) { finishRun(); return; }
   renderQ();
+  setRunning();
+  scrollToRun();
+  focusQ();
 }
-function showTab2Knock(){
-  /* 分野別タブから始めたときも、出題は100本ノックのタブで行う */
-  TABS.forEach(function(t){
-    $('tab-' + t).classList.toggle('hide', t !== 'knock');
-    var btn = document.querySelector('.tab[data-tab="' + t + '"]');
-    if (btn) btn.setAttribute('aria-selected', t === 'knock' ? 'true' : 'false');
-  });
-  window.scrollTo(0, 0);
+/* 問題の頭へ送る（上に貼り付いたタブの高さぶんあける） */
+function scrollToRun(){
+  var tabs = document.querySelector('.tabs');
+  var th = tabs ? tabs.getBoundingClientRect().height : 0;
+  var y = $('knockRun').getBoundingClientRect().top + window.pageYOffset - th - 8;
+  window.scrollTo(0, Math.max(0, y));
 }
+function focusQ(){ try { $('qText').focus({ preventScroll: true }); } catch (e) {} }
+
+var ICO_OK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+var ICO_NG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>';
+var OPT_KEYS = 'アイウ';
 
 function renderQ(){
   var q = run.list[run.i];
@@ -1561,10 +1915,12 @@ function renderQ(){
   $('progFill').style.width = Math.round(run.i / run.list.length * 100) + '%';
   $('progTxt').textContent = (run.i + 1) + ' / ' + run.list.length + '問（正答 ' + run.ok + '）';
   $('qCat').textContent = catName(q.cat);
+  $('qSonpo').classList.toggle('hide', !q.sonpo);
   $('qText').textContent = q.q;
   $('qResult').classList.add('hide');
   $('qResult').innerHTML = '';
   $('nextBtn').classList.add('hide');
+  $('runActions').classList.remove('answered');
 
   var opts = $('qOpts');
   opts.className = 'opts' + (q.t === 'ox' ? ' ox' : '');
@@ -1579,13 +1935,13 @@ function renderQ(){
     });
   } else {
     /* 三択は毎回並べ替える。データ上は正解を先頭に書いてあるので、
-       並べ替えないと「いつもA」で当てられてしまう。
+       並べ替えないと「いつも最初」で当てられてしまう。
        run.order は「画面の並び順 → もとの選択肢の番号」の対応表 */
     run.order = shuffle(q.c.map(function(_, i){ return i; }));
     run.order.forEach(function(orig, idx){
       var b = document.createElement('button');
       b.type = 'button'; b.className = 'opt';
-      b.innerHTML = '<span class="opt-k">' + 'ABC'.charAt(idx) + '</span><span>' + esc(q.c[orig]) + '</span>';
+      b.innerHTML = '<span class="opt-k">' + OPT_KEYS.charAt(idx) + '</span><span>' + esc(q.c[orig]) + '</span>';
       b.addEventListener('click', function(){ answer(idx); });
       opts.appendChild(b);
     });
@@ -1594,140 +1950,191 @@ function renderQ(){
 
 function answer(val){
   if (run.answered) return;
-  run.answered = true;
   var q = run.list[run.i];
   /* 三択は画面の並び順で押されるので、もとの選択肢の番号に戻してから比べる */
   var picked = (q.t === 'ox') ? val : run.order[val];
   var ok = (picked === q.a);
   if (ok) run.ok++;
-  run.detail.push({ id:q.id, cat:q.cat, ok:ok });
+  run.detail.push({ id:q.id, cat:q.cat, ok:ok, p:picked });
+  run.answered = true;
 
-  /* 記録 */
+  /* 記録（途中の回も一緒に残す） */
   var s = state.stats[q.id] || { ok:0, ng:0, last:'' };
   if (ok) { s.ok++; s.lastWrong = false; } else { s.ng++; s.lastWrong = true; }
   s.last = todayStr();
   state.stats[q.id] = s;
+  persistRun();
   save();
 
-  /* 選択肢の色づけと固定 */
+  /* 選択肢の答え合わせ。色だけで言わず、印と文字（「正解」「あなたの答え」）も付ける */
   var btns = $('qOpts').querySelectorAll('.opt');
   for (var i=0;i<btns.length;i++){
     btns[i].disabled = true;
     var isCorrect = (q.t === 'ox') ? ((i === 0) === q.a) : (run.order[i] === q.a);
     var isPicked  = (q.t === 'ox') ? ((i === 0) === val) : (i === val);
-    if (isCorrect) btns[i].classList.add('is-ok');
-    else if (isPicked) btns[i].classList.add('is-ng');
+    var tag = '';
+    if (isCorrect) { btns[i].classList.add('is-ok'); tag = ICO_OK + (isPicked ? '正解・あなたの答え' : '正解'); }
+    else if (isPicked) { btns[i].classList.add('is-ng'); tag = ICO_NG + 'あなたの答え'; }
+    if (tag) btns[i].insertAdjacentHTML('beforeend', '<span class="opt-tag">' + tag + '</span>');
   }
 
   var html = '';
   html += '<div class="verdict ' + (ok ? 'ok' : 'ng') + '">';
   html += ok
-    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.2 12.4l2.6 2.6 5-5.6"/></svg>正解'
-    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>不正解';
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.2 12.4l2.6 2.6 5-5.6"/></svg>正解'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>不正解';
   html += '</div>';
   html += '<div class="why"><h4>なぜそうなるか</h4>' + esc(q.why) + '</div>';
   if (q.audit) html += '<div class="auditbox"><b>監査ではここを見られます</b>' + esc(q.audit) + '</div>';
-  if (q.law) html += '<div><span class="lawchip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16M6 8l-3 6h6l-3-6ZM18 8l-3 6h6l-3-6ZM4.5 6.5h15"/></svg>' + esc(q.law) + '</span></div>';
+  if (q.law) html += '<div><span class="lawchip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16M6 8l-3 6h6l-3-6ZM18 8l-3 6h6l-3-6ZM4.5 6.5h15"/></svg>' + esc(q.law) + '</span></div>';
   html += '<p class="mini" style="margin-top:12px;">記載は一般的な考え方です。実際の手順・様式・期間は、保険会社と自代理店の社内規程が優先します。</p>';
   var box = $('qResult');
   box.innerHTML = html;
   box.classList.remove('hide');
   $('nextBtn').classList.remove('hide');
   $('nextBtn').textContent = (run.i + 1 >= run.list.length) ? '結果を見る' : '次の問題';
-  /* キーボード操作の人のために次へ進むボタンへ焦点は移すが、画面は動かさない。
-     動かすと、答えた直後に「正解／不正解」と解説の頭が飛ばされてしまう */
+  /* 答えたら「次の問題」を画面の下に貼る。焦点はボタンへ移すが、画面は判定の頭が見える所までだけ動かす */
+  $('runActions').classList.add('answered');
   try { $('nextBtn').focus({ preventScroll: true }); } catch (e) { $('nextBtn').focus(); }
   var v = box.querySelector('.verdict');
-  if (v && v.scrollIntoView) v.scrollIntoView({ block: 'nearest' });
+  if (v) {
+    var r = v.getBoundingClientRect(), barH = $('runActions').getBoundingClientRect().height;
+    var room = window.innerHeight - barH - 12;
+    if (r.bottom > room) window.scrollBy(0, Math.min(r.bottom - room, r.top - 80));
+  }
 }
 
 $('nextBtn').addEventListener('click', function(){
+  if (!run) return;
   run.i++;
+  run.answered = false;
+  persistRun(); save();
   if (run.i >= run.list.length) finishRun();
-  else { renderQ(); window.scrollTo(0, 0); }
+  else { renderQ(); scrollToRun(); focusQ(); }
 });
+/* 中断＝ひと休み。続きは開始画面の「続きから解く」で再開できる */
 $('quitBtn').addEventListener('click', function(){
-  if (!confirm('この回の出題を中断します。ここまでの正誤は記録に残ります。よろしいですか？')) return;
+  persistRun(); save();
   run = null;
   $('knockRun').classList.add('hide');
   renderKnockStart();
-  $('knockStart').classList.remove('hide');
+  setRunning();
+  window.scrollTo(0, 0);
+  toast('ここまでを残しました。続きは「続きから解く」で再開できます');
+});
+/* 解いている途中で閉じる・戻るときは確かめる（途中の状態は保存してあるので、開き直せば続きから） */
+window.addEventListener('beforeunload', function(e){
+  if (run && run.i > 0 && run.i < run.list.length) { e.preventDefault(); e.returnValue = ''; }
 });
 
-function catScoreOfRun(){
+function catScoreOf(detail){
   var m = {};
-  run.detail.forEach(function(d){
-    if (!m[d.cat]) m[d.cat] = { ok:0, n:0 };
-    m[d.cat].n++; if (d.ok) m[d.cat].ok++;
+  detail.forEach(function(d){
+    var q = qById(d.id); var k = q ? q.cat : d.cat;
+    if (!m[k]) m[k] = { ok:0, n:0 };
+    m[k].n++; if (d.ok) m[k].ok++;
   });
   return m;
 }
-
-function finishRun(){
-  var total = run.list.length, ok = run.ok;
-  var rate = Math.round(ok / total * 100);
-  var m = catScoreOfRun();
+function weakOf(m){
   var weak = [];
   Object.keys(m).forEach(function(k){
     if (m[k].n >= 2 && m[k].ok / m[k].n < 0.8) weak.push({ k:k, r: m[k].ok / m[k].n, n:m[k].n, ok:m[k].ok });
   });
   weak.sort(function(a,b){ return a.r - b.r; });
+  return weak;
+}
+function ansText(q, p){
+  if (q.t === 'ox') return p === true ? '○ 正しい' : p === false ? '× 誤り' : '—';
+  return (typeof p === 'number' && q.c[p] != null) ? q.c[p] : '—';
+}
 
-  state.sessions.unshift({
-    date: todayStr(), label: run.label, total: total, ok: ok,
-    weak: weak.slice(0, 4).map(function(w){ return w.k; })
-  });
+function finishRun(){
+  var total = run.list.length, ok = run.ok;
+  var rate = pctOf(ok, total);
+  var m = catScoreOf(run.detail);
+  var weak = weakOf(m);
+  var cats = {};
+  Object.keys(m).forEach(function(k){ cats[k] = [m[k].ok, m[k].n]; });
+
+  var sess = { date: todayStr(), label: run.label, total: total, ok: ok,
+    weak: weak.slice(0, 4).map(function(w){ return w.k; }), cats: cats, answered: run.detail.length };
+  state.sessions.unshift(sess);
   if (state.sessions.length > 60) state.sessions.length = 60;
+  var sameIds = run.ids.slice(), label = run.label;
+  var wrongs = run.detail.filter(function(d){ return !d.ok; });
+  run = null;
+  persistRun();
   save();
 
   var html = '';
   html += '<div class="card" style="margin-bottom:16px;">';
-  html += '<h3 style="color:var(--navy);margin-bottom:10px;">' + esc(run.label) + '　結果</h3>';
+  html += '<h3 style="color:var(--navy);margin-bottom:10px;">' + esc(label) + '　結果</h3>';
   html += '<div class="tiles" style="margin-bottom:16px;">';
   html += '<div class="tile"><div class="t-label">正答</div><div class="t-value">' + ok + '<small> / ' + total + '問</small></div></div>';
-  html += '<div class="tile"><div class="t-label">正答率</div><div class="t-value">' + rate + '<small>%</small></div><div class="t-sub">' + (rate >= 90 ? '監査で聞かれても答えられる水準です' : rate >= 70 ? 'あと少し。弱い分野を解き直してください' : '分野別でもう一度やり直してください') + '</div></div>';
-  html += '<div class="tile"><div class="t-label">受検日</div><div class="t-value" style="font-size:1.3rem;">' + todayStr() + '</div><div class="t-sub">記録タブに残ります</div></div>';
+  html += '<div class="tile"><div class="t-label">正答率</div><div class="t-value">' + rate + '<small>％</small></div><div class="t-sub">' +
+    (rate >= 90 ? 'この回は9割以上の正答です。時間をおいて解き直すと定着します' : rate >= 70 ? '弱い分野を解き直すと、抜けが見つかります' : '分野別で、弱い分野から解き直してください') + '</div></div>';
+  html += '<div class="tile"><div class="t-label">受検日</div><div class="t-value" style="font-size:1.3rem;">' + todayStr() + '</div><div class="t-sub">「記録と受講の控え」に残ります</div></div>';
   html += '</div>';
 
-  html += '<h4 style="font-size:.9rem;color:var(--navy);margin-bottom:8px;">分野ごとの正答</h4>';
+  html += '<h4 style="font-size:.95rem;color:var(--navy);margin-bottom:8px;">分野ごとの正答</h4>';
   html += '<div class="tw"><table class="tbl"><thead><tr><th>分野</th><th class="num">正答</th><th class="num">正答率</th></tr></thead><tbody>';
   CATS.forEach(function(c){
     if (!m[c.k]) return;
-    var r = Math.round(m[c.k].ok / m[c.k].n * 100);
-    html += '<tr><td>' + esc(c.name) + '</td><td class="num">' + m[c.k].ok + ' / ' + m[c.k].n + '</td><td class="num">' + r + '%</td></tr>';
+    html += '<tr><td>' + esc(c.name) + '</td><td class="num">' + m[c.k].ok + ' / ' + m[c.k].n + '</td><td class="num">' + pctOf(m[c.k].ok, m[c.k].n) + '％</td></tr>';
   });
   html += '</tbody></table></div>';
 
   if (weak.length){
-    html += '<h4 style="font-size:.9rem;color:var(--navy);margin:18px 0 8px;">弱かった分野</h4>';
+    html += '<h4 style="font-size:.95rem;color:var(--navy);margin:18px 0 8px;">弱かった分野</h4>';
     html += '<div class="pill-list">';
     weak.forEach(function(w){
-      var cls = w.r < 0.5 ? 'bad' : 'mid';
-      html += '<span class="pill ' + cls + '">' + esc(catName(w.k)) + '　' + w.ok + '/' + w.n + '</span>';
+      html += '<span class="pill ' + (w.r < 0.5 ? 'bad' : 'mid') + '">' + esc(catName(w.k)) + '　' + w.ok + '/' + w.n + '</span>';
     });
     html += '</div>';
-    html += '<p class="mini" style="margin-top:10px;">分野別タブから、この分野だけを解き直せます。</p>';
   } else {
     html += '<p class="mini" style="margin-top:16px;">はっきり弱い分野はありませんでした。時間をおいてもう一度解くと定着します。</p>';
   }
   html += '<p class="mini" style="margin-top:14px;">この結果はこの端末にだけ残ります。<b>実際の運用は、保険会社と自代理店の社内規程が優先します。</b></p>';
   html += '</div>';
-  html += '<div class="rowbtns"><button class="btn btn-primary" id="againBtn">もう一度やる</button>';
+
+  html += '<div class="rowbtns" style="margin-bottom:16px;"><button class="btn btn-primary" id="againBtn">同じ問題をもう一度</button>';
+  if (wrongs.length) html += '<button class="btn btn-ghost" id="wrongAgainBtn">この回で間違えた問題だけ（' + wrongs.length + '問）</button>';
   if (weak.length) html += '<button class="btn btn-ghost" id="weakBtn">弱かった分野だけ解く</button>';
+  html += '<button class="btn btn-ghost" id="donePrintBtn">受講の控えを印刷</button>';
   html += '<button class="btn btn-ghost" id="backBtn">はじめの画面へ</button></div>';
 
+  if (wrongs.length) {
+    html += '<div class="card"><h3 style="color:var(--navy);margin-bottom:4px;">間違えた問題（' + wrongs.length + '問）</h3>';
+    html += '<p class="mini">正しい答えと、なぜそうなるかを読み直せます。</p>';
+    wrongs.forEach(function(d){
+      var q = qById(d.id); if (!q) return;
+      html += '<div class="wl-item"><div class="wl-cat">' + esc(catName(q.cat)) + '</div>' +
+        '<div class="wl-q">' + esc(q.q) + '</div>' +
+        '<div class="wl-a">正しい答え：<b>' + esc(q.t === 'ox' ? (q.a ? '○ 正しい' : '× 誤り') : q.c[q.a]) + '</b><br>あなたの答え：' + esc(ansText(q, d.p)) + '</div>' +
+        '<details><summary>なぜそうなるか</summary><div class="why">' + esc(q.why) + '</div></details></div>';
+    });
+    html += '</div>';
+  }
+
   var weakCats = weak.map(function(w){ return w.k; });
-  run = null;
+  var wrongIdsOfRun = wrongs.map(function(d){ return d.id; });
   $('knockRun').classList.add('hide');
   var done = $('knockDone');
   done.innerHTML = html;
   done.classList.remove('hide');
-  $('againBtn').addEventListener('click', function(){ done.classList.add('hide'); renderKnockStart(); $('knockStart').classList.remove('hide'); });
-  $('backBtn').addEventListener('click', function(){ done.classList.add('hide'); renderKnockStart(); $('knockStart').classList.remove('hide'); });
+  setRunning();
+  $('againBtn').addEventListener('click', function(){
+    startRun(shuffle(sameIds.map(qById).filter(Boolean)), label);
+  });
+  if ($('wrongAgainBtn')) $('wrongAgainBtn').addEventListener('click', function(){
+    startRun(shuffle(wrongIdsOfRun.map(qById)), '間違えた問題（' + wrongIdsOfRun.length + '問）');
+  });
+  $('backBtn').addEventListener('click', function(){ done.classList.add('hide'); renderKnockStart(); $('knockStart').classList.remove('hide'); window.scrollTo(0, 0); });
+  $('donePrintBtn').addEventListener('click', function(){ showTab('log'); $('prSel').value = '0'; var c = $('printCard'); if (c) c.scrollIntoView({ block:'start' }); $('prName').focus(); });
   if (weakCats.length) {
     $('weakBtn').addEventListener('click', function(){
       var list = QUESTIONS.filter(function(q){ return weakCats.indexOf(q.cat) >= 0; });
-      done.classList.add('hide');
       startRun(shuffle(list), '弱かった分野（' + weakCats.map(catName).join('・') + '）');
     });
   }
@@ -1741,22 +2148,39 @@ function renderKnockStart(){
     $('knockStart').classList.add('hide');
     $('knockDone').classList.add('hide');
     $('knockRun').classList.remove('hide');
+    setRunning();
     return;
   }
+  if (!$('knockDone').classList.contains('hide')) return;   /* 結果を見ている途中はそのまま */
   $('knockRun').classList.add('hide');
-  $('knockDone').classList.add('hide');
   $('knockStart').classList.remove('hide');
   var w = wrongIds();
-  $('wrongCnt').textContent = w.length ? '（' + w.length + '問）' : '（0問）';
+  $('wrongCnt').textContent = '（' + w.length + '問）';
   $('startWrong').disabled = !w.length;
-  $('startWrong').style.opacity = w.length ? '1' : '.5';
+  $('sonpoCnt').textContent = '（' + QUESTIONS.filter(function(q){ return q.sonpo; }).length + '問）';
+
+  /* 途中の回があれば「続きから」 */
+  var rb = $('resumeBox');
+  var r = state.run;
+  if (r) {
+    var at = Math.min(r.i + 1, r.ids.length);
+    rb.innerHTML = '<div class="card resume"><h3 style="color:var(--navy);margin-bottom:4px;">前回の続きがあります</h3>' +
+      '<p class="mini" style="margin-bottom:12px;">' + esc(r.started) + 'に始めた「' + esc(r.label) + '」。' + r.ids.length + '問のうち ' +
+      r.i + '問まで解いて、正答 ' + r.ok + '。' + (r.i >= r.ids.length ? '最後まで解いてあります。結果を出せます。' : at + '問目から続けます。') + '</p>' +
+      '<div class="rowbtns"><button class="btn btn-primary" id="resumeBtn">' + (r.i >= r.ids.length ? '結果を見る' : '続きから解く') + '</button>' +
+      '<button class="btn btn-ghost btn-sm" id="resumeDrop">この回をやめる</button></div></div>';
+    $('resumeBtn').addEventListener('click', function(){ run = runFromSaved(state.run); openRun(); });
+    $('resumeDrop').addEventListener('click', function(){
+      if (!confirm('途中の回をやめます。ここまでの正誤は記録に残ります。よろしいですか？')) return;
+      state.run = null; save(); renderKnockStart();
+    });
+  } else rb.innerHTML = '';
 
   var last = state.sessions[0];
   var box = $('lastResult');
   if (!last) { box.innerHTML = ''; return; }
-  var rate = Math.round(last.ok / last.total * 100);
   var html = '<div class="card"><h3 style="color:var(--navy);margin-bottom:6px;">前回の結果</h3>';
-  html += '<p class="mini" style="margin-bottom:10px;">' + esc(last.date) + '　' + esc(last.label || '') + '　' + last.ok + ' / ' + last.total + '問（' + rate + '%）</p>';
+  html += '<p class="mini" style="margin-bottom:10px;">' + esc(last.date) + '　' + esc(last.label || '') + '　' + last.ok + ' / ' + last.total + '問（' + pctOf(last.ok, last.total) + '％）</p>';
   if (last.weak && last.weak.length){
     html += '<div class="pill-list">';
     last.weak.forEach(function(k){ html += '<span class="pill mid">' + esc(catName(k)) + '</span>'; });
@@ -1773,9 +2197,13 @@ $('startWrong').addEventListener('click', function(){
   if (!ids.length) return;
   startRun(shuffle(ids.map(qById)), '間違えた問題（' + ids.length + '問）');
 });
+$('startSonpo').addEventListener('click', function(){
+  var list = QUESTIONS.filter(function(q){ return q.sonpo; });
+  startRun(shuffle(list), '損害保険の実務に触れる問題（' + list.length + '問）');
+});
 
 /* ============================================================
-   8. 分野別
+   9. 分野別
    ============================================================ */
 function catStats(k){
   var ok = 0, n = 0, seen = 0, all = 0;
@@ -1798,7 +2226,7 @@ function renderCatGrid(){
     b.type = 'button'; b.className = 'cat-card';
     b.innerHTML =
       '<b>' + esc(c.name) + '</b>' +
-      '<span class="cc-sub">' + st.all + '問　' + (rate === null ? 'まだ解いていません' : '正答率 ' + rate + '%（のべ ' + st.n + '回）') + '</span>' +
+      '<span class="cc-sub">' + st.all + '問　' + (rate === null ? 'まだ解いていません' : '正答率 ' + rate + '％（のべ ' + st.n + '回）') + '</span>' +
       '<span class="rate-bar"><i class="' + cls + '" style="width:' + (rate === null ? 0 : rate) + '%"></i></span>';
     b.addEventListener('click', function(){
       var list = QUESTIONS.filter(function(q){ return q.cat === c.k; });
@@ -1809,11 +2237,24 @@ function renderCatGrid(){
 }
 
 /* ============================================================
-   9. 監査の想定問答
+   10. 監査の想定問答
+   ★証拠を押したときは、その行と件数だけを書き換える（全体を描き直すと焦点が消える）
+   ★証拠ごとに、管理画面のコンプライアンスの記録へ移れる（#compliance/<記録の名前>）
    ============================================================ */
-var audOpen = {};
+var HUB_REC = { iko:'意向把握の記録', hikaku:'比較推奨の記録', shorui:'申込書類の点検', kujo:'苦情の台帳',
+  train:'研修台帳', mat:'募集資料台帳', limit:'資格・届出の期限', '':'コンプライアンス' };
+var AUD_HUB = { au01:'iko', au02:'hikaku', au03:'shorui', au04:'iko', au05:'shorui', au06:'shorui', au09:'mat', au11:'train', au13:'kujo' };
+function evHub(a, txt){
+  if (/教育|研修|受講/.test(txt)) return 'train';
+  if (/苦情/.test(txt)) return 'kujo';
+  if (/旧版|作成した資料の承認|掲載内容/.test(txt)) return 'mat';
+  if (/募集人名簿|登録の変更/.test(txt)) return 'limit';
+  return AUD_HUB[a.id] || '';
+}
+var ICO_LINK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h9v9M18 6 7 17"/></svg>';
+var ICO_CHK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 function evId(a, i){ return a.id + '-' + i; }
-function renderAudit(){
+function audCounts(){
   var ok = 0, no = 0, none = 0;
   AUDITS.forEach(function(a){
     a.ev.forEach(function(_, i){
@@ -1821,35 +2262,49 @@ function renderAudit(){
       if (v === 'ok') ok++; else if (v === 'no') no++; else none++;
     });
   });
-  var totalEv = ok + no + none;
-  $('audOk').innerHTML = ok + '<small> 件</small>';
-  $('audOkSub').textContent = '証拠の一覧 全' + totalEv + '件のうち';
-  $('audNo').innerHTML = no + '<small> 件</small>';
-  $('audNone').innerHTML = none + '<small> 件</small>';
-
+  return { ok:ok, no:no, none:none, all: ok + no + none };
+}
+function renderAudTiles(){
+  var c = audCounts();
+  $('audOk').innerHTML = c.ok + '<small> 件</small>';
+  $('audOkSub').textContent = '証拠の一覧 全' + c.all + '件のうち';
+  $('audNo').innerHTML = c.no + '<small> 件</small>';
+  $('audNone').innerHTML = c.none + '<small> 件</small>';
+}
+function audCntHTML(a){
+  var cOk = 0;
+  a.ev.forEach(function(_, i){ if (state.audit[evId(a, i)] === 'ok') cOk++; });
+  return { cls: 'aq-cnt' + (cOk === a.ev.length ? ' done' : ''), txt: '証拠 ' + cOk + '/' + a.ev.length };
+}
+function renderAudit(){
+  renderAudTiles();
   var box = $('audList');
   box.innerHTML = '';
   AUDITS.forEach(function(a){
-    var cOk = 0;
-    a.ev.forEach(function(_, i){ if (state.audit[evId(a, i)] === 'ok') cOk++; });
+    var open = !!state.audOpen[a.id];
     var wrapEl = document.createElement('div');
     wrapEl.className = 'aud-item';
 
+    var cnt = audCntHTML(a);
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'aud-q';
-    btn.setAttribute('aria-expanded', audOpen[a.id] ? 'true' : 'false');
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    btn.setAttribute('aria-controls', 'audb-' + a.id);
     btn.innerHTML = '<span class="aq-cat">' + esc(a.cat) + '</span><span>' + esc(a.q) + '</span>' +
-      '<span class="aq-cnt' + (cOk === a.ev.length ? ' done' : '') + '">証拠 ' + cOk + '/' + a.ev.length + '</span>';
+      '<span class="' + cnt.cls + '" id="aqc-' + a.id + '">' + esc(cnt.txt) + '</span>';
     wrapEl.appendChild(btn);
 
     var body = document.createElement('div');
-    body.className = 'aud-body' + (audOpen[a.id] ? '' : ' hide');
+    body.className = 'aud-body' + (open ? '' : ' hide');
+    body.id = 'audb-' + a.id;
     var h = '<div class="aud-a"><h4>答え方の骨子</h4>' + esc(a.a) + '</div>';
+    var hk0 = AUD_HUB[a.id] || '';
     h += '<div class="ev-head">用意しておく証拠（帳票・記録）</div>';
+    h += '<p class="ev-go"><a class="ev-link" href="' + esc(hubHref(hk0 ? '#compliance/' + hk0 : '#compliance')) + '">' + ICO_LINK + '管理画面の「' + esc(HUB_REC[hk0]) + '」で記録を見る</a></p>';
     h += '<div id="ev-' + a.id + '"></div>';
     h += '<div class="fld" style="margin-top:14px;"><label for="memo-' + a.id + '">自代理店のメモ（保管場所・様式名・担当者・保存期間など）</label>' +
-         '<textarea id="memo-' + a.id + '" placeholder="例：意向把握帳票は共有フォルダの「募集記録」に案件番号で保管。保存期間は自代理店規程第○条による。"></textarea></div>';
+         '<textarea id="memo-' + a.id + '" maxlength="2000" placeholder="例：意向把握帳票は共有フォルダの「募集記録」に案件番号で保管。保存期間は自代理店規程第○条による。"></textarea></div>';
     h += '<p class="mini" style="margin-top:10px;">帳票の名称は一般的な呼び方です。<b>実際の名称・様式・保存期間は、保険会社と自代理店の社内規程が優先します。</b></p>';
     body.innerHTML = h;
     wrapEl.appendChild(body);
@@ -1860,42 +2315,60 @@ function renderAudit(){
     a.ev.forEach(function(txt, i){
       var id = evId(a, i);
       var cur = state.audit[id] || '';
+      var hk = evHub(a, txt);
       var row = document.createElement('div');
       row.className = 'ev-row';
       row.innerHTML = '<span class="ev-name">' + esc(txt) + '</span>' +
         '<span class="ev-btns">' +
-        '<button type="button" class="ok" aria-pressed="' + (cur === 'ok' ? 'true' : 'false') + '">用意できている</button>' +
-        '<button type="button" class="no" aria-pressed="' + (cur === 'no' ? 'true' : 'false') + '">まだ</button>' +
+        '<button type="button" class="ok" data-v="ok" aria-pressed="' + (cur === 'ok' ? 'true' : 'false') + '">' + ICO_CHK + '用意できている</button>' +
+        '<button type="button" class="no" data-v="no" aria-pressed="' + (cur === 'no' ? 'true' : 'false') + '">' + ICO_CHK + 'まだ</button>' +
+        (hk !== hk0 ? '<a class="ev-link" href="' + esc(hubHref(hk ? '#compliance/' + hk : '#compliance')) + '">' + ICO_LINK + '管理画面の「' + esc(HUB_REC[hk]) + '」へ</a>' : '') +
         '</span>';
-      var bs = row.querySelectorAll('.ev-btns button');
-      bs[0].addEventListener('click', function(){ toggleEv(id, 'ok'); });
-      bs[1].addEventListener('click', function(){ toggleEv(id, 'no'); });
+      row.querySelectorAll('.ev-btns button').forEach(function(b){
+        b.addEventListener('click', function(){ toggleEv(a, id, b.getAttribute('data-v'), row); });
+      });
       evBox.appendChild(row);
     });
 
     /* メモ */
     var ta = body.querySelector('#memo-' + a.id);
     ta.value = state.auditMemo[a.id] || '';
-    ta.addEventListener('input', function(){ state.auditMemo[a.id] = ta.value; save(); });
+    ta.addEventListener('input', function(){ state.auditMemo[a.id] = ta.value.slice(0, 2000); save(); });
 
     btn.addEventListener('click', function(){
-      audOpen[a.id] = !audOpen[a.id];
-      body.classList.toggle('hide', !audOpen[a.id]);
-      btn.setAttribute('aria-expanded', audOpen[a.id] ? 'true' : 'false');
+      var nowOpen = !state.audOpen[a.id];
+      if (nowOpen) state.audOpen[a.id] = true; else delete state.audOpen[a.id];
+      body.classList.toggle('hide', !nowOpen);
+      btn.setAttribute('aria-expanded', nowOpen ? 'true' : 'false');
+      save();
     });
   });
 }
-function toggleEv(id, val){
+function toggleEv(a, id, val, row){
   if (state.audit[id] === val) delete state.audit[id];
   else state.audit[id] = val;
   save();
-  renderAudit();
+  var cur = state.audit[id] || '';
+  row.querySelectorAll('.ev-btns button').forEach(function(b){
+    b.setAttribute('aria-pressed', b.getAttribute('data-v') === cur ? 'true' : 'false');
+  });
+  var cnt = audCntHTML(a), c = $('aqc-' + a.id);
+  if (c) { c.className = cnt.cls; c.textContent = cnt.txt; }
+  renderAudTiles();
 }
-$('audOpenAll').addEventListener('click', function(){ AUDITS.forEach(function(a){ audOpen[a.id] = true; }); renderAudit(); });
-$('audCloseAll').addEventListener('click', function(){ audOpen = {}; renderAudit(); });
+function setAllOpen(open){
+  AUDITS.forEach(function(a){ if (open) state.audOpen[a.id] = true; else delete state.audOpen[a.id]; });
+  save();
+  document.querySelectorAll('#audList .aud-item').forEach(function(it){
+    it.querySelector('.aud-body').classList.toggle('hide', !open);
+    it.querySelector('.aud-q').setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+}
+$('audOpenAll').addEventListener('click', function(){ setAllOpen(true); });
+$('audCloseAll').addEventListener('click', function(){ setAllOpen(false); });
 
 /* ============================================================
-   10. 記録
+   11. 記録
    ============================================================ */
 function renderLog(){
   var ok = 0, n = 0, seen = 0;
@@ -1905,7 +2378,7 @@ function renderLog(){
   });
   $('logTotal').innerHTML = n + '<small> 問</small>';
   $('logTotalSub').textContent = '受検 ' + state.sessions.length + '回';
-  $('logRate').innerHTML = n ? (Math.round(ok / n * 100) + '<small>%</small>') : '-';
+  $('logRate').innerHTML = n ? (pctOf(ok, n) + '<small>％</small>') : '-';
   $('logRateSub').textContent = n ? ('正答 ' + ok + ' / のべ ' + n + '問') : 'まだ解いていません';
   $('logUnseen').innerHTML = (QUESTIONS.length - seen) + '<small> 問</small>';
 
@@ -1924,7 +2397,7 @@ function renderLog(){
       var pct = Math.round(r.r * 100);
       var cls = pct < 50 ? 'bad' : pct < 80 ? 'low' : '';
       h += '<div><div style="display:flex;justify-content:space-between;gap:10px;font-size:.9rem;margin-bottom:4px;">' +
-           '<span>' + esc(r.name) + '</span><span class="mini">' + r.ok + ' / ' + r.n + '（' + pct + '%）</span></div>' +
+           '<span>' + esc(r.name) + '</span><span class="mini">' + r.ok + ' / ' + r.n + '（' + pct + '％）</span></div>' +
            '<span class="rate-bar" style="display:block;"><i class="' + cls + '" style="width:' + pct + '%"></i></span></div>';
     });
     h += '</div>';
@@ -1936,26 +2409,129 @@ function renderLog(){
   tb.innerHTML = '';
   state.sessions.slice(0, 30).forEach(function(s){
     var tr = document.createElement('tr');
-    tr.innerHTML = '<td>' + esc(s.date) + '</td><td>' + esc(s.label || '') + '</td>' +
-      '<td class="num">' + s.ok + ' / ' + s.total + '</td>' +
-      '<td class="num">' + Math.round(s.ok / s.total * 100) + '%</td>' +
-      '<td>' + esc((s.weak || []).map(catName).join('・') || '-') + '</td>';
+    tr.innerHTML = '<td data-l="受検日">' + esc(s.date) + '</td><td data-l="出題">' + esc(s.label || '') + '</td>' +
+      '<td class="num" data-l="正答">' + s.ok + ' / ' + s.total + '</td>' +
+      '<td class="num" data-l="正答率">' + pctOf(s.ok, s.total) + '％</td>' +
+      '<td data-l="弱かった分野">' + esc((s.weak || []).map(catName).join('・') || '-') + '</td>';
     tb.appendChild(tr);
   });
   $('sessEmpty').classList.toggle('hide', state.sessions.length > 0);
-}
 
-/* ---- 書き出し・読み込み ---- */
-/* ★JSONの書き出し・読み込み、CSV、端末の記録の消去は廃止した（2026-09-08・ユーザー指示
-   「データの持ち出しや、書き出しのところ全てを削除」）。記録は端末のブラウザにだけ残り、
-   持ち出す手段は持たない。 */
+  /* 受講の控え：印刷する記録を選ぶ */
+  var sel = $('prSel'), keep = sel.value;
+  var opts = state.sessions.slice(0, 30).map(function(s, i){
+    return '<option value="' + i + '">' + esc(s.date + '　' + (s.label || '') + '　' + s.ok + '/' + s.total + '問') + '</option>';
+  });
+  if (state.sessions.length > 1) opts.push('<option value="all">受検の一覧（最新30回まで）</option>');
+  sel.innerHTML = opts.length ? opts.join('') : '<option value="">まだ記録がありません</option>';
+  if (keep && sel.querySelector('option[value="' + keep + '"]')) sel.value = keep;
+  sel.disabled = !state.sessions.length;
+  $('prBtn').disabled = !state.sessions.length;
+  $('prName').value = state.printName || '';
+}
+$('prName').addEventListener('change', function(){ state.printName = $('prName').value.trim().slice(0, 40); save(); });
 
 /* ============================================================
-   11. 起動
+   12. 印刷（受講の控え・証拠チェック）
+   ★本人が押して紙（または PDF）にするだけ。ファイルは作らない（2026-09-08 の線）
+   ============================================================ */
+var sheetPrinting = false;
+window.addEventListener('beforeprint', function(){
+  if (!sheetPrinting) document.body.classList.remove('print-sheet');   /* ふだんの印刷（Ctrl+P）では画面をそのまま出す */
+  sheetPrinting = false;
+  document.querySelectorAll('.ph-date').forEach(function(e){ e.textContent = todayStr(); });
+});
+window.addEventListener('afterprint', function(){ document.body.classList.remove('print-sheet'); });
+function printSheet(html){
+  $('printArea').innerHTML = html;
+  document.body.classList.add('print-sheet');
+  sheetPrinting = true;
+  try { window.print(); } catch (e) {}
+}
+function signHTML(){
+  return '<div class="ps-sign"><div>受講した本人の署名・日付</div><div>確認した人（上席・コンプライアンス担当）の署名・日付</div></div>';
+}
+function sheetHead(title, name){
+  return '<h1>' + esc(title) + '</h1><div class="ps-meta"><span>受講した人：<b>' + esc(name) + '</b></span><span>印刷した日：' + todayStr() + '</span></div>';
+}
+function receiptHTML(s, name){
+  var h = '<div class="ps">' + sheetHead('コンプライアンス研修　受講の控え', name);
+  h += '<table class="ps-key"><tbody>' +
+    '<tr><th>研修の名前</th><td>代理店コンプライアンス100本ノック（募集の実務ルール）</td></tr>' +
+    '<tr><th>受講日</th><td>' + esc(s.date) + '</td></tr>' +
+    '<tr><th>出題の範囲</th><td>' + esc(s.label || '') + '</td></tr>' +
+    '<tr><th>正答数</th><td>' + s.ok + ' / ' + s.total + '問（' + pctOf(s.ok, s.total) + '％）' +
+      (s.answered != null && s.answered < s.total ? '　うち答えた問題 ' + s.answered + '問' : '') + '</td></tr>' +
+    '<tr><th>弱かった分野</th><td>' + esc((s.weak || []).map(catName).join('・') || 'はっきり弱い分野はありませんでした') + '</td></tr>' +
+    '</tbody></table>';
+  var keys = CATS.filter(function(c){ return s.cats && s.cats[c.k]; });
+  if (keys.length) {
+    h += '<h2>分野ごとの正答</h2><table><thead><tr><th>分野</th><th class="num">正答</th><th class="num">正答率</th></tr></thead><tbody>';
+    keys.forEach(function(c){ var v = s.cats[c.k]; h += '<tr><td>' + esc(c.name) + '</td><td class="num">' + v[0] + ' / ' + v[1] + '</td><td class="num">' + pctOf(v[0], v[1]) + '％</td></tr>'; });
+    h += '</tbody></table>';
+  }
+  h += signHTML();
+  h += '<p class="ps-note">この控えは、受講した本人がこの端末に残った記録から印刷したものです。解いた問題の数と正誤を示すもので、理解の深さそのものを示すものとしては扱いません。実際の手順・様式は、保険会社と自代理店の社内規程が優先します。</p>';
+  return h + '</div>';
+}
+function receiptListHTML(list, name){
+  var h = '<div class="ps">' + sheetHead('コンプライアンス研修　受講の控え（一覧）', name);
+  h += '<table><thead><tr><th>受講日</th><th>出題の範囲</th><th class="num">正答</th><th class="num">正答率</th><th>弱かった分野</th></tr></thead><tbody>';
+  list.forEach(function(s){
+    h += '<tr><td>' + esc(s.date) + '</td><td>' + esc(s.label || '') + '</td><td class="num">' + s.ok + ' / ' + s.total + '</td><td class="num">' + pctOf(s.ok, s.total) + '％</td><td>' + esc((s.weak || []).map(catName).join('・') || '—') + '</td></tr>';
+  });
+  h += '</tbody></table>' + signHTML();
+  h += '<p class="ps-note">この控えは、受講した本人がこの端末に残った記録から印刷したものです。実際の手順・様式は、保険会社と自代理店の社内規程が優先します。</p>';
+  return h + '</div>';
+}
+$('prBtn').addEventListener('click', function(){
+  var name = $('prName').value.trim().slice(0, 40);
+  if (!name) { $('prErr').textContent = '受講した人の名前を入れてください。'; $('prName').focus(); return; }
+  $('prErr').textContent = '';
+  if (state.printName !== name) { state.printName = name; save(); }
+  var v = $('prSel').value;
+  if (v === 'all') printSheet(receiptListHTML(state.sessions.slice(0, 30), name));
+  else { var s = state.sessions[+v || 0]; if (s) printSheet(receiptHTML(s, name)); }
+});
+$('audPrint').addEventListener('click', function(){
+  var c = audCounts();
+  var h = '<div class="ps"><h1>監査の想定問答　証拠チェック</h1><div class="ps-meta"><span>用意できている ' + c.ok + '件／まだ ' + c.no + '件／未確認 ' + c.none + '件（全' + c.all + '件）</span><span>印刷した日：' + todayStr() + '</span></div>';
+  AUDITS.forEach(function(a){
+    h += '<div class="ps-q"><b>［' + esc(a.cat) + '］' + esc(a.q) + '</b>';
+    a.ev.forEach(function(txt, i){
+      var v = state.audit[evId(a, i)];
+      h += '<div class="ps-ev"><span>' + esc(txt) + '</span><span>' + (v === 'ok' ? '用意できている' : v === 'no' ? 'まだ' : '未確認') + '</span></div>';
+    });
+    if (state.auditMemo[a.id]) h += '<div class="ps-memo">メモ：' + esc(state.auditMemo[a.id]) + '</div>';
+    h += '</div>';
+  });
+  h += '<div class="ps-sign"><div>確かめた人の署名・日付</div><div>上席・コンプライアンス担当の署名・日付</div></div>';
+  h += '<p class="ps-note">帳票の名称は一般的な呼び方です。実際の名称・様式・保存期間は、保険会社と自代理店の社内規程が優先します。</p></div>';
+  printSheet(h);
+});
+
+/* ---- この端末の記録を消す（本人が選んだときだけ） ---- */
+$('wipeBtn').addEventListener('click', function(){
+  if (!confirm('この端末に残っている正誤・受検の記録・監査のチェックとメモを、全て消します。よろしいですか？')) return;
+  if (!confirm('本当に消しますか？ 元に戻せません。研修の記録として残すものは、先に「受講の控え」を印刷してください。')) return;
+  try { localStorage.removeItem(LS_KEY); } catch (e) {}
+  run = null;
+  state = defaultState();
+  save();
+  showTab('log', { force:true });
+  toast('この端末の記録を消しました');
+});
+
+/* ============================================================
+   13. 起動
    （合言葉は入口の管理画面で入れているので、ここでは聞かない）
    ============================================================ */
+$('tbHome').href = hubHref();
+$('tbBackup').href = hubHref('#backup');
+$('logBackup').href = hubHref('#backup');
+document.querySelectorAll('.ph-date').forEach(function(e){ e.textContent = todayStr(); });
 state = load();
-showTab('knock');
+showTab(state.lastTab || 'knock', { force:true });
 </script>
 </body>
 </html>
