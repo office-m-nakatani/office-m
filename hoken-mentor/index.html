@@ -1043,6 +1043,50 @@ main.mt-main{ padding:4px 0 4px; }
 #mentor-modal .mt-quick .chat-chip:hover{ background:#fbe9c9; }
 #mentor-modal .mt-quick .chat-chip.mt-quick-go{ border:1.5px solid #1b5e8a; background:#eef4fa; color:#163f5e; }   /* コンプラの記録へ飛ぶ札（相談の札と見分ける） */
 #mentor-modal .mt-quick .chat-chip.mt-quick-go:hover{ background:#dfeaf5; }
+/* MTMODE-CSS-BEGIN */
+/* ★2026-10-04 ユーザー指示「設定に関しては表示しないでください」「自動で読み上げや再生も削除」。
+   設定の行（今月の数字・自分で点検・会話を消す・自立の段階）も隠す（ユーザー回答「全て外す」）。
+   ★隠すだけ。消すと JS の配線（id で探している）が止まる */
+#mt-play, #mt-say, #mt-more, #mt-tools{ display:none !important; }
+/* モードの切り替え（上の帯）。顔＋名前の丸い札を3つ並べ、選んでいるものだけ緑の地と枠 */
+.mt-head .mt-modes{ display:inline-flex; align-items:center; gap:3px; padding:2px; border:1px solid var(--blue-pale2); border-radius:999px; background:#fff; flex:0 0 auto; }
+.mt-head .mt-mode{ display:inline-flex; align-items:center; gap:6px; min-height:34px; padding:2px 12px 2px 3px; border:1px solid transparent; border-radius:999px;
+  background:transparent; color:var(--ink-soft); font:inherit; font-size:.84rem; font-weight:700; letter-spacing:.02em; white-space:nowrap; cursor:pointer; }
+.mt-head .mt-mode:hover{ background:var(--blue-pale); color:var(--blue-deep); }
+.mt-head .mt-mode[aria-checked="true"]{ background:var(--blue-pale); border-color:var(--blue); color:var(--blue-deep); }
+.mt-head .mt-mode:focus-visible{ outline:2px solid var(--blue-deep); outline-offset:2px; }
+.mt-head .mt-mode-face{ width:28px; height:28px; flex:0 0 auto; display:block; border-radius:50%; overflow:hidden; background:#fff; border:1px solid var(--line); }
+.mt-head .mt-mode-face svg{ width:100%; height:100%; display:block; }
+.mt-head .mt-mode[aria-checked="true"] .mt-mode-face{ border-color:var(--blue); }
+/* 幅が足りないときは顔だけ（名前は aria-label と、切り替えたときの師匠の一言で伝える） */
+@media (max-width:760px){
+  .mt-head .mt-mode{ padding:2px; gap:0; }
+  .mt-head .mt-mode-l{ display:none; }
+}
+@media (max-width:640px){
+  .mt-head .mt-modes{ border:none; padding:0; gap:4px; background:transparent; }
+  .mt-head .mt-mode{ width:40px; height:40px; min-height:40px; justify-content:center; border-width:2px; }
+  .mt-head .mt-mode-face{ width:34px; height:34px; }
+}
+/* 相談のきっかけの札を4つに色分けする（2026-10-04 ユーザー指示「営業の話、社内規定、コンプラ、プライベートと色を変えて見やすく。薄く淡い色で」）。
+   ★地は淡く、文字は濃く（見え方 7 以上）。赤・濃い橙は使わない（師匠の返事の色の役割と混ぜない） */
+#mentor-modal .mt-quick .chat-chip.mt-qc-eigyo{ border:1px solid #efcf9f; background:#fff5e8; color:#6b4a12; }
+#mentor-modal .mt-quick .chat-chip.mt-qc-eigyo:hover{ background:#fde9cf; }
+#mentor-modal .mt-quick .chat-chip.mt-qc-kitei{ border:1px solid #b7d9bf; background:#eef7f0; color:#24563a; }
+#mentor-modal .mt-quick .chat-chip.mt-qc-kitei:hover{ background:#dff0e4; }
+#mentor-modal .mt-quick .chat-chip.mt-qc-comp{ border:1px solid #b3cde8; background:#edf4fb; color:#1d4a73; }
+#mentor-modal .mt-quick .chat-chip.mt-qc-comp:hover{ background:#dde9f6; }
+#mentor-modal .mt-quick .chat-chip.mt-qc-life{ border:1px solid #e9c2d4; background:#fcf1f6; color:#7a3357; }
+#mentor-modal .mt-quick .chat-chip.mt-qc-life:hover{ background:#f8e2ec; }
+/* 「ほかの相談も見る」の一覧は、4つの見出しで区切る（見出しの丸が札の色） */
+.mt-quick-all .mt-qc-h{ flex:0 0 100%; display:flex; align-items:center; gap:7px; margin:10px 0 0; font-size:.82rem; font-weight:700; color:var(--ink); letter-spacing:.04em; }
+.mt-quick-all .mt-qc-h:first-child{ margin-top:2px; }
+.mt-quick-all .mt-qc-h::before{ content:''; width:12px; height:12px; flex:0 0 auto; border-radius:50%; background:var(--qc-bg); border:1.5px solid var(--qc-line); }
+.mt-quick-all .mt-qc-h-eigyo{ --qc-bg:#fde9cf; --qc-line:#d9a55c; }
+.mt-quick-all .mt-qc-h-kitei{ --qc-bg:#dff0e4; --qc-line:#7fb68f; }
+.mt-quick-all .mt-qc-h-comp{ --qc-bg:#dde9f6; --qc-line:#7fa6cf; }
+.mt-quick-all .mt-qc-h-life{ --qc-bg:#f8e2ec; --qc-line:#cf8fae; }
+/* MTMODE-CSS-END */
 .mt-quick-more{
   color:var(--blue-deep); border-color:var(--blue-pale2);
 }
@@ -1503,6 +1547,12 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
           <span class="mt-who"><b id="mt-who-name">師匠</b><span id="mt-who-sub">師匠</span></span>
           <span class="mt-streak" id="mt-streak" hidden aria-live="polite"></span>
           <span class="mt-bar-r">
+            <!-- MTMODE-HTML-BEGIN --><!-- ★2026-10-04 ユーザー指示「モードは選べれるようにだけ」。顔は mtFaceSVG で描く（MTMODE-JS） -->
+            <span class="mt-modes" id="mt-modes" role="radiogroup" aria-label="師匠のモード">
+              <button type="button" class="mt-mode" role="radio" aria-checked="true" data-mtmode="shisho" aria-label="体育会系モード" title="体育会系モード"><span class="mt-mode-face" aria-hidden="true"></span><span class="mt-mode-l">体育会系</span></button>
+              <button type="button" class="mt-mode" role="radio" aria-checked="false" data-mtmode="zsedai" aria-label="褒め伸ばしモード" title="褒め伸ばしモード"><span class="mt-mode-face" aria-hidden="true"></span><span class="mt-mode-l">褒め伸ばし</span></button>
+              <button type="button" class="mt-mode" role="radio" aria-checked="false" data-mtmode="akogare" aria-label="憧れの先輩モード" title="憧れの先輩モード"><span class="mt-mode-face" aria-hidden="true"></span><span class="mt-mode-l">憧れの先輩</span></button>
+            </span><!-- MTMODE-HTML-END -->
             <button type="button" class="btn btn-ghost btn-sm" id="mt-play"><i class="fa-solid fa-play"></i> 再生</button>
             <button type="button" class="btn btn-ghost btn-sm" id="mt-say" aria-pressed="false" aria-label="返事を自動で読み上げる"><i class="fa-solid fa-volume-high"></i> 自動で読み上げ</button>
             <button type="button" class="btn btn-ghost btn-sm" id="mt-full" aria-pressed="false" title="画面いっぱいに表示する"><i class="fa-solid fa-expand"></i> 画面いっぱい</button>
@@ -3176,11 +3226,11 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
         + '</svg>';
     }
     /* 名前（誰-表情）から絵を返す。師匠は mtFaceSVG を使う（動画・帯と同じ顔。★別の顔を描かないこと） */
-    const MT_ART_WHO = { shisho:'師匠', zsedai:'先輩', kyaku:'お客様', eigyo:'営業', buka:'部下', jibun:'自分' };
+    const MT_ART_WHO = { shisho:'師匠', zsedai:'先輩', akogare:'先輩', kyaku:'お客様', eigyo:'営業', buka:'部下', jibun:'自分' };
     function mtArtSVG(name){
       const m = /^([a-z]+)-([a-z]+)$/.exec(String(name || '')); if(!m) return '';
       const who = m[1], mood = m[2];
-      if(who === 'shisho' || who === 'zsedai') return mtFaceSVG(who, /^(idle|talk|listen|kick|praise|mad|joy|sad|irk)$/.test(mood) ? mood : 'idle');
+      if(who === 'shisho' || who === 'zsedai' || who === 'akogare') return mtFaceSVG(who, /^(idle|talk|listen|kick|praise|mad|joy|sad|irk)$/.test(mood) ? mood : 'idle');
       if(who === 'kyaku' || who === 'eigyo' || who === 'buka' || who === 'jibun') return mtPersonSVG(who === 'jibun' ? 'eigyo' : who, mood);
       return '';
     }
@@ -3194,7 +3244,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       });
     }
     /* いまの師匠の絵の名前（口調で師匠／先輩が変わる） */
-    function mtArtMe(mood){ let tone = 'shisho'; try{ tone = mtTone(mtP()); }catch(e){} return tone + '-' + (mood || 'talk'); }
+    function mtArtMe(mood){ let tone = 'shisho'; try{ tone = mtFaceTone(mtTone(mtP())); }catch(e){} return tone + '-' + (mood || 'talk'); }   /* MTMODE */
     /* 漫画。panels = [{ who:'kyaku-nayami', lab:'受ける', say:'台詞', key:true, think:true, q:'問いかけの文' }]
        ★2コマか4コマが基本（ユーザー指示）。3・5コマも組めるが、多いほど1コマが小さくなる
        ★say は max（既定46字）で切る。長い台詞は本文側に残し、コマには要点だけ */
@@ -3284,6 +3334,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
        絵文字は使わない（全案件共通の原則）。インラインSVGなので外部への読み込みも無い。
        ★保存する会話の本文には入れない（mtSanitize がSVGを落とすため）。顔は吹き出しの外＝アイコンだけに出す。 */
     function mtFaceSVG(tone, mood){
+      if(tone === 'akogare') return mtFaceAkoSVG(mood || 'idle');   /* MTMODE：憧れの先輩の顔 */
       const z = (tone === 'zsedai');
       mood = mood || 'idle';
       /* 色。師匠は紺の背広＋えんじのネクタイ、褒め伸ばしは明るい紺＋水色
@@ -3592,7 +3643,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
     function mtAvaHTML(){
       let tone = 'shisho';
       try{ tone = mtTone(mtP()); }catch(e){}
-      return '<span class="chat-ava mt-ava">' + mtFaceSVG(tone) + '</span>';
+      return '<span class="chat-ava mt-ava">' + mtFaceSVG(mtFaceTone(tone)) + '</span>';   /* MTMODE */
     }
     /* いまの様子を言葉にする（横の顔の下に出す）。口調で言い方を変える */
     const MT_MOOD_WORD = {
@@ -3607,11 +3658,11 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       const el = $('mt-face');
       const P = mtP() || {};
       const tone = mtTone(P);
-      const svg = mtFaceSVG(tone, mtMood);
+      const svg = mtFaceSVG(mtFaceTone(tone), mtMood);   /* MTMODE */
       const art = $('mt-head-art');   /* 単独ページの帯にも同じ絵と表情を出す */
       if(art){ art.className = 'mt-head-art mt-mood-' + mtMood; art.innerHTML = svg; }
       const co = String(P.company || '').replace(/[（(][^）)]*[）)]/g, '').trim();
-      const sub = co + (co ? '／' : '') + (P.style === 'zsedai' ? '褒め伸ばし' : '体育会系');
+      const sub = co + (co ? '／' : '') + mtModeLabel();   /* MTMODE：体育会系・褒め伸ばし・憧れの先輩 */
       /* 会話の横の大きい顔（広い画面だけ。会話が長くなっても、ここは流れない） */
       const side = $('mt-side-art');
       if(side){
@@ -3787,8 +3838,8 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       MTV.told = true;
       const P = mtP() || {};
       mtAdd('bot', mtSanitize('<span class="mt-h">声で話す</span>' + esc(mtTone(P) === 'zsedai'
-        ? 'マイクの許可が要ります。話し終えるとそのまま送られ、返事は読み上げます。文字起こしはブラウザの機能を使うので、音声が提供元へ送られることがあります。お客様の氏名・病歴・金額は声に出さないでください。'
-        : 'マイクの許可が要る。話し終えたらそのまま送る。返事は読み上げる。文字起こしはブラウザの機能だ。音声が提供元に送られることがある。客の名前・病歴・金額は声に出すな。')), false);
+        ? 'マイクの許可が要ります。話し終えるとそのまま送られます。文字起こしはブラウザの機能を使うので、音声が提供元へ送られることがあります。お客様の氏名・病歴・金額は声に出さないでください。'
+        : 'マイクの許可が要る。話し終えたらそのまま送る。文字起こしはブラウザの機能だ。音声が提供元に送られることがある。客の名前・病歴・金額は声に出すな。')), false);
     }
     function mtListenStart(){
       if(!mtVoiceOK()) return;
@@ -3822,7 +3873,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
           };
         }
         MTV.hands = true;
-        if(mtSpeakOK()) MTV.say = true;      /* 声で話すときは、返事も読み上げる（お互いの会話にする） */
+        /* MTMODE：返事の読み上げはしない（2026-10-04 ユーザー指示「自動で読み上げや再生も削除」） */
         MTV.pending = '';
         mtVoiceNote();
         MTV.rec.start(); MTV.listening = true; mtVoicePaint(); mtMoodSet('listen');
@@ -7106,7 +7157,8 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       // 部下・チームの相談なら「上長としての当てはめ」（mgmt）を、それ以外は営業担当の行動（sales）を使う
       // 相談の型が営業側でも、文の主語が部下なら上長としての当てはめ（「部下が生前贈与の話を勝手に進めている」など）
       const useMgmt = !!(intents[0] && (intents[0].key === 'staff' || intents[0].role === 'mgmt')) || /部下|メンバー|新人|若手|うちの担当|担当者が|後輩/.test(t);
-      const K = mtKpiFromText(t, mtKpiRead()), c = mtKpiCalc(K);
+      const K = mtKpiFromText(t, {}), c = mtKpiCalc(K);   /* MTMODE：今月の数字の欄は隠れたので、相談の文に書いた数字だけで逆算する（隠れた欄の古い数字は使わない） */
+      if(c && !lifeMode){ try{ mtSnapKpi(K); }catch(eSnap){} }   /* MTMODE：相談の文に書いた数字で、その月の控え（数字の推移）を残す */
       const hasNum = /[0-9０-９]/.test(t);
       const wantsNum = intents.some(function(i){ return ['short','unit','plan','referral'].indexOf(i.key) >= 0; });
       let h = '', psyLast = null;
@@ -7416,9 +7468,9 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
         h += '<span class="mt-h">数字で言うと</span>';
         if(main && main.ask) h += (tone === 'zsedai' ? 'まず教えてほしいのはここです：' : '先に答えろ：') + esc(main.ask);
         else h += mtFill(tone === 'zsedai'
-          ? mtPick(['ここ、数字があるともっと具体的に返せます。<b>目標／今の件数／残り営業日／面談数</b>を上の「今月の数字」に入れてみてください。一緒に逆算します。',
-                    '{call}、数字を入れてもらえたら1日あたりの行動量まで出せます。「今月の数字」を開いてみてください。'])
-          : mtPick(['数字を持ってこい。<b>目標／今の件数／残り営業日／面談数</b>。それが無い相談は感想だ。上の「今月の数字」に入れてもう一回来い。',
+          ? mtPick(['ここ、数字があるともっと具体的に返せます。<b>目標／今の件数／残り営業日／面談数</b>を、相談の文にそのまま書いてみてください（例：目標10件、今3件、残り8営業日、面談12回）。一緒に逆算します。',
+                    '{call}、数字を書いてもらえたら1日あたりの行動量まで出せます。「目標10件、今3件、残り8営業日」のように書いてみてください。'])
+          : mtPick(['数字を持ってこい。<b>目標／今の件数／残り営業日／面談数</b>。それが無い相談は感想だ。「目標10件、今3件、残り8営業日」と書いてもう一回来い。',
                     '{call}、数字が無い。今月の目標と現在の件数、残りの営業日。この3つが無いと話ができん。']), P);
       }
 
@@ -7680,7 +7732,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
         + '<span class="mt-h">週の振り返り</span>' + (z ? '今週もお疲れさまでした。次の5つを数字で教えてください。良かったところも一緒に見ます。' : '次の5つを数字で答えろ。感想は要らん。')
         + '<ul><li>面談は何回やった？</li><li>紹介の依頼は何件した？</li><li>契約は何件？</li><li>返事を翌日以降に回した件数は？</li><li>時間・約束を守れなかった件数は？</li></ul>'
         + mtWeekRecordHTML(P)
-        + mtSayHTML(mtFill(z ? '数字で返してもらえたら、来週の1日あたりまで一緒に出します。上の「今月の数字」に入れてみてください。' : '数字で返せ。上の「今月の数字」に入れれば、来週の1日あたりまで出す。', P), '今日の一言');
+        + mtSayHTML(mtFill(z ? '数字で返してもらえたら、来週の1日あたりまで一緒に出します。「面談12回、紹介依頼3件、契約2件」のように、数字を並べて書いてみてください。' : '数字で返せ。「面談12回、紹介依頼3件、契約2件」と並べて書けば、来週の1日あたりまで出す。', P), '今日の一言');
     }
 
     /* ---------- 画面 ---------- */
@@ -7805,7 +7857,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       if(!K) return;
       const m = mtMonthKey();
       const S = MT.snaps = Array.isArray(MT.snaps) ? MT.snaps : [];
-      const row = { m:m, goal:+K.goal || 0, now:+K.now || 0, meet:+K.meet || 0, ask:+K.ask || 0, t:Date.now() };
+      const row = { m:m, goal:+K.goal || 0, now:+(K.now != null ? K.now : K.done) || 0, meet:+K.meet || 0, ask:+K.ask || 0, t:Date.now() };
       const i = S.findIndex(function(x){ return x.m === m; });
       if(i >= 0) S[i] = row; else S.push(row);
       if(S.length > 24) S.splice(0, S.length - 24);
@@ -7813,7 +7865,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
     function mtTrendHTML(P){
       const S = (MT.snaps || []).slice().sort(function(a, b){ return a.m < b.m ? -1 : 1; });
       if(S.length < 2) return mtOpen_(P) + '<span class="mt-h">数字の推移</span>'
-        + (mtZ(P) ? 'まだ2か月分の控えがありません。上の「今月の数字」を毎月入れると、ここに推移が出ます。' : 'まだ2か月分の控えが無い。「今月の数字」を毎月入れろ。そうすればここに推移が出る。')
+        + (mtZ(P) ? 'まだ2か月分の控えがありません。相談に「目標10件、今3件」のように数字を書くと、その月の控えが残って、ここに推移が出ます。' : 'まだ2か月分の控えが無い。相談に「目標10件、今3件」と数字を書け。月ごとに控えが残って、ここに推移が出る。')
         + (S.length ? '<span class="mt-note">いま入っている月：' + esc(S.map(function(x){ return x.m; }).join('・')) + '</span>' : '');
       const last = S.slice(-6);
       const mx = function(f){ return Math.max.apply(null, last.map(function(x){ return x[f] || 0; }).concat([1])); };
@@ -8136,6 +8188,8 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
     function mtAdd(who, html, save){
       if(!mtLog) return;
       const d = document.createElement('div'); d.className = 'chat-msg ' + who;
+      if(who === 'bot' && save !== false && mtModeNow() === 'akogare') html = String(html).replace(/僕(も|ら)/g, '私$1');   /* MTMODE：憧れの先輩の一人称は「私」 */
+      if(who === 'bot' && save !== false && mtModeNow() === 'akogare') html = String(html).replace(/僕(も|ら)/g, '私$1').replace(/師匠の(一言|言い方で)/g, '先輩の$1');   /* MTMODE：憧れの先輩の一人称は「私」、札は「先輩の〜」 */
       d.innerHTML = (who === 'bot' ? mtAvaHTML() : '') + '<div class="chat-bubble' + (who === 'bot' ? ' mt-bub' : '') + '">' + html + '</div>';
       if(who === 'bot') mtArtFill(d);   /* 漫画のコマに絵を差し込む（2026-09-11） */
       mtLog.appendChild(d);
@@ -8157,7 +8211,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       const L = MT.log[MT.active] || [];
       if(!L.length){
         const P = mtP();
-        mtAdd('bot', mtFill(P.style === 'zsedai'
+        mtAdd('bot', mtFill(mtModeNow() === 'akogare' ? MT_AKO_GREET : P.style === 'zsedai'
           ? '{call}、お疲れさまです！相談は<b>数字つき</b>だと一番具体的に返せます。目標・今の件数・残り日数があれば、1日あたりの行動量まで一緒に出しますね。相続・法人契約・年金・不動産・税金のような知識が要る話は<b>ファイナンシャルプランナーの目</b>で確かめるところを出して、4択で問い返します。下のボタンからでもOKです。'
           : '{call}、来たな。相談は<b>数字つき</b>で。目標・今の件数・残り日数があれば、1日あたりの行動量まで出す。相続・法人契約・年金・不動産・税金みたいな知識の話は<b>ファイナンシャルプランナーの目</b>で確かめるとこを出して、4択で聞き返す。下のボタンからでもいい。', P), false);
         return;
@@ -8532,7 +8586,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       const K = mtKpiRead(); MT.kpi[MT.active] = K; try{ mtSnapKpi(K); }catch(e){} mtSave(); return K;
     }
     function mtOpen(){
-      MT = mtLoad();
+      MT = mtLoad(); try{ mtModeInit(); }catch(eMode){}   /* MTMODE */
       mtRenderPersonaSelect(); mtRenderFace(); mtFillSettings(); mtFillKpi(); mtRenderLog();
       mtIdleTic();   /* 人間らしさ：何もしていないときの、たまのしぐさ（2026-09-08） */
       mtRenderStage(); mtStageBadge();
@@ -8543,9 +8597,9 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       const qkTrack = $('mt-quick-track');
       if(qkTrack && !qkTrack.innerHTML){
         const mtQuickChip = function(c, dup){
-          if(c.go) return '<button type="button" class="chat-chip mt-quick-go' + (dup ? ' mt-quick-dup' : '') + '" data-mtgo="' + esc(c.go) + '" title="管理画面のコンプライアンスで開きます">' +
+          if(c.go) return '<button type="button" class="chat-chip mt-quick-go mt-qc-comp' + (dup ? ' mt-quick-dup' : '') + '" data-mtgo="' + esc(c.go) + '" title="管理画面のコンプライアンスで開きます">' +
             '<i class="fa-solid ' + c.i + '"></i> ' + esc(c.q) + '<i class="fa-solid fa-arrow-up-right-from-square mt-go-ico" aria-hidden="true"></i></button>';
-          return '<button type="button" class="chat-chip' + (dup ? ' mt-quick-dup' : '') + '" data-mtq="' + esc(c.q) + '"><i class="fa-solid ' + c.i + '"></i> ' + esc(c.q) + '</button>'; };
+          return '<button type="button" class="chat-chip' + (c.cat ? ' mt-qc-' + c.cat : '') + (dup ? ' mt-quick-dup' : '') + '" data-mtq="' + esc(c.q) + '"><i class="fa-solid ' + c.i + '"></i> ' + esc(c.q) + '</button>'; };
         /* 流れる帯：保険中心のきっかけの中に、コンプライアンスの札を間をあけて混ぜる（7つ目・17つ目・27つ目・37つ目のあと） */
         const qkFlowList = MT_QUICK.slice();
         MT_QUICK_GO.slice().reverse().forEach(function(c, k){ qkFlowList.splice(Math.min(qkFlowList.length, 7 + (MT_QUICK_GO.length - 1 - k) * 10), 0, c); });
@@ -8555,7 +8609,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
         qkTrack.innerHTML = qkFlowList.map(function(c){ return mtQuickChip(c); }).join('')
           + qkFlowList.map(function(c){ return mtQuickChip(c, true); }).join('');
         const qkAll = $('mt-quick-all');
-        if(qkAll) qkAll.innerHTML = MT_QUICK.concat(MT_QUICK_LIFE, MT_QUICK_KITEI, MT_QUICK_GO).map(function(c){ return mtQuickChip(c); }).join('');
+        if(qkAll) qkAll.innerHTML = mtQcAllHTML(mtQuickChip);   /* MTMODE：営業の話・社内規定・コンプラ・プライベートの順に、見出しつきで並べる */
       }
       const m = $('mentor-modal'); if(m) m.hidden = false;
       mtApplyFull();
@@ -8572,6 +8626,230 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
         b.title = on ? '元の大きさに戻す' : '画面いっぱいに表示する';
       }
     }
+    /* ==== MTMODE-BEGIN ==== */
+    /* ★2026-10-04 ユーザー指示「設定に関しては表示しないでください。モードは選べれるようにだけしてください。
+       体育会系モード、褒め伸ばしモード、きれいな女性のついつい頑張ってしまうモードの3つを作成してください。デフォルトは体育会系」。
+       3つ目の名前は「憧れの先輩」（ユーザー回答）。道具は hoken-newtools-src/apply_mentor_mode.py（何度流しても同じ形）。
+       ・モードは MT.mode（shisho／zsedai／akogare）。人物の口調（P.style）はモードから決める
+       ・憧れの先輩は口調の型を褒め伸ばし（zsedai）と共有し、顔・名乗り・呼びかけ・書き出し・締め・背中押し・
+         表情の言葉・最初のあいさつ・一人称（私）だけを別に持つ（口調ごとの表の zsedai を読むときに入れ替える）
+       ・★見た目の褒め言葉・恋愛めいた言い方を書かない。成果を約束しない。不安で押さない（変えない線）。
+         「つい頑張ってしまう」は、見てくれている・報告を待ってくれている、で出す
+       ・★名前と呼びかけは、既定の言い方のときだけ差し替える（会社フォルダで社長が決めた名前は触らない） */
+    var MT_MODES = {
+      shisho:  { label:'体育会系',   style:'shisho', name:'師匠',        call:'せんぱい' },
+      zsedai:  { label:'褒め伸ばし', style:'zsedai', name:'Z世代の先輩', call:'せんぱい' },
+      akogare: { label:'憧れの先輩', style:'zsedai', name:'憧れの先輩',  call:'あなた' }
+    };
+    var MT_MODE_ORDER = ['shisho', 'zsedai', 'akogare'];
+    var MT_MODE_NAMES = ['', '師匠', 'Z世代の先輩', 'Z世代上長', '憧れの先輩'], MT_MODE_CALLS = ['', 'せんぱい', 'あなた'];
+    /* 切り替えたときの一言（会話には残さない）。顔と名前を、携帯でも言葉で伝える */
+    var MT_MODE_HELLO = {
+      shisho:  '{call}。ここからは体育会系の師匠が聞く。数字つきで話せ。',
+      zsedai:  '{call}、ここからは褒め伸ばしで聞きます。いつでもどうぞ。',
+      akogare: 'ここからは、憧れの先輩の私が相談に乗りますね。数字があれば、一緒に逆算しましょう。'
+    };
+    var MT_AKO_GREET = 'お疲れさまです。相談は<b>数字つき</b>だと、いちばん具体的に返せます。目標・今の件数・残り日数を書いてくれたら、1日あたりの行動量まで一緒に出しますね。'
+      + '相続・法人契約・年金・不動産・税金のような知識が要る話は<b>ファイナンシャルプランナーの目</b>で確かめるところを出して、4択で問い返します。下のきっかけから選んでも大丈夫です。';
+    function mtModeNow(){
+      var m = '';
+      try{ m = MT && MT.mode; }catch(e){}
+      if(m === 'shisho' || m === 'zsedai' || m === 'akogare') return m;
+      try{ var P = mtP(); return (P && P.style === 'zsedai') ? 'zsedai' : 'shisho'; }catch(e){ return 'shisho'; }
+    }
+    function mtModeLabel(){ return MT_MODES[mtModeNow()].label; }
+    /* 顔の描き分け：憧れの先輩の口調は zsedai なので、顔を描くときだけ akogare に読み替える */
+    function mtFaceTone(t){ return (t === 'zsedai' && mtModeNow() === 'akogare') ? 'akogare' : t; }
+    function mtModeApply(){
+      var M = MT_MODES[mtModeNow()];
+      Object.keys(MT.personas || {}).forEach(function(id){
+        var P = MT.personas[id]; if(!P || typeof P !== 'object') return;
+        P.style = M.style;
+        if(MT_MODE_NAMES.indexOf(String(P.name || '')) >= 0) P.name = M.name;
+        if(MT_MODE_CALLS.indexOf(String(P.call || '')) >= 0) P.call = M.call;
+      });
+    }
+    /* ★既定は体育会系。前に褒め伸ばしの人物を選んでいた端末と、社長が褒め伸ばしを選んだ会社フォルダだけ、そのまま褒め伸ばしで開く。
+       mtOpen が MT を読み直す（会社フォルダは社長の型で上書きされる）ので、そこでも呼ぶ */
+    function mtModeInit(){
+      if(!(MT.mode === 'shisho' || MT.mode === 'zsedai' || MT.mode === 'akogare')){
+        var P0 = MT.personas && MT.personas[MT.active];
+        MT.mode = (P0 && P0.style === 'zsedai') ? 'zsedai' : 'shisho';
+      }
+      mtModeApply(); mtSave(); mtModePaint();
+    }
+    /* 口調ごとの表：zsedai を読むときに、憧れの先輩なら下の言葉を返す（体育会系・褒め伸ばしは元のまま）
+       ★MT_OKURI・MT_OSHI は {call} を差し替えずに出すので、ここに {call} を書かない */
+    var MT_AKO = {
+      openers: ['お疲れさまです。話してくれて、ありがとうございます。', 'お疲れさまです。一緒に整理していきましょうね。', 'お疲れさまです。ちょうど、どうしているかなと思っていました。'],
+      closers: ['まず一つだけ、今日やってみてください。どうだったか聞かせてもらえるのを、楽しみにしています。',
+                '小さく進めば十分です。あなたが動いたことは、ちゃんと見ていますよ。',
+                '完璧でなくて大丈夫です。動いた事実を一つ作って、また聞かせてくださいね。',
+                'ここまで整理できたなら、もう半分進んでいます。続きは、報告で聞かせてください。',
+                '結果は週で、行動は今日で。今日の一歩、楽しみに待っています。'],
+      push: ['上の1つ目だけで大丈夫です。今日のうちに手をつけてみてくださいね。',
+             '全部やらなくていいんです。いちばん上の一つを、今日だけやってみましょう。',
+             '大きく変えなくて大丈夫です。小さい一手を今日動かすほうが、ちゃんと効きます。',
+             '今日はここまでで十分です。次は、やってみた結果を聞かせてください。楽しみにしています。',
+             '迷ったら、いちばん小さいものからでいいんです。動き出せば、次が見えてきます。',
+             '手が止まったら、途中のままで持ってきてください。何度でも付き合います。',
+             '今日の一手が効いてくるのは、少し先です。焦らず続けてみてくださいね。',
+             'やってみて違っていたら、それも大事な材料です。また聞かせてくださいね。'],
+      okuri: ['ここまで言葉にできたなら、もう整理は始まっています。あとは決めるだけですね。',
+              '悩むのは、それだけ大事にしているからです。そういうところ、いいと思います。',
+              '完璧に決めなくて大丈夫です。決めて、動いて、違ったら直していけばいいんです。',
+              '今日は一つだけで十分です。明日のあなたが、少し楽になります。',
+              '答えは、たぶんもうあなたの中にあります。あとは、それを認めるだけです。',
+              '人に決めてもらった道より、自分で決めた道のほうが、あとでちゃんと効いてきます。',
+              'うまくいかない日があっても、また戻ってきてくれたら大丈夫です。',
+              'よく持ちこたえていると思います。ここまで、ちゃんとやれていますよ。',
+              '小さく試してみませんか。試して分かることのほうが、悩んで分かることより、ずっと多いんです。',
+              '最悪の場合を書き出してみると、意外と戻れる道があることに気づきます。',
+              'ここまで悩めた時点で、もう止まってはいません。あとは一歩です。',
+              'やった後悔は、時間が薄めてくれます。やらなかった後悔のほうが、長く残ります。',
+              '決めたあとに、正解にしていけばいいんです。決める前に正解を探さなくて大丈夫です。',
+              '怖いのは、真剣だからです。その真剣さは、ちゃんと伝わっています。'],
+      oshi: ['決めるのは、あなたです。決まったら教えてくださいね。そこから一緒に考えます。',
+             'どちらを選んでも大丈夫です。選んだほうを、一緒に正解にしていきましょう。',
+             '答えは急がなくて大丈夫です。ただ、決めるのはあなた自身で。',
+             '最後に決めるのはあなたです。決めた道を、一緒に良くしていきましょうね。',
+             '今日決めなくても大丈夫です。ただ「決める日」だけは、今日決めてみてください。',
+             '小さく試してから決めましょう。試すのも決めるのも、あなたです。',
+             '違っていたら、直せばいいんです。直せるのも、あなただけです。'],
+      mood: { idle:'いつでも聞きますよ', talk:'話しています', listen:'聞いています', kick:'ここは大事なところです', praise:'いいと思います',
+              mad:'そこは少し気になります', joy:'うれしいです', sad:'心配しています', irk:'あれ、と思っています' },
+      safe: { line:'いまは、何も決めなくて大丈夫です。安全と、休むことが先です。', push:'一人で抱えずに、まず誰かに相談してくださいね。' }
+    };
+    function mtModeTable(T, v){
+      if(!T || !Object.prototype.hasOwnProperty.call(T, 'zsedai')) return;
+      var z = T.zsedai;
+      try{ Object.defineProperty(T, 'zsedai', { configurable:true, enumerable:true, get:function(){ return mtModeNow() === 'akogare' ? v : z; } }); }catch(e){}
+    }
+    mtModeTable(MT_OPENERS, MT_AKO.openers); mtModeTable(MT_CLOSERS, MT_AKO.closers); mtModeTable(MT_PUSH, MT_AKO.push);
+    mtModeTable(MT_OKURI, MT_AKO.okuri); mtModeTable(MT_OSHI, MT_AKO.oshi); mtModeTable(MT_MOOD_WORD, MT_AKO.mood); mtModeTable(MT_OKURI_SAFE, MT_AKO.safe);
+    /* 憧れの先輩の顔。mtFaceSVG と同じ部品の名前（mt-headg・mt-brow・mt-lid・mt-m-closed・mt-m-open・mt-anger・mt-hand）で描くので、
+       表情・まばたき・うなずき・手の出し分けはそのまま効く。★怒らせない（mad・irk・sad は困り眉と、すぼめた口）。
+       ★絵文字は使わない。外から何も読み込まない（インラインSVG） */
+    function mtFaceAkoSVG(mood){
+      mood = mood || 'idle';
+      var mad = (mood === 'mad'), joy = (mood === 'joy'), sad = (mood === 'sad'), irk = (mood === 'irk'), pr = (mood === 'praise'), ls = (mood === 'listen');
+      var worry = (mad || sad || irk);
+      var skin = '#f8dcc6', shade = '#ecc3a5', hair = '#553828', hairHi = '#8a6550';
+      var suit = '#3f5274', lapel = '#30405e', sleeve = '#4d6289', bg = '#f6e7e8', ink = '#2b1c17', lip = '#c0606c';
+      var lid = ' style="transform:scaleY(0);transform-box:fill-box;transform-origin:center top"';
+      var bY = (ls || joy) ? 24.5 : (pr ? 24.7 : 25.1);
+      var eyeRy = irk ? 2.0 : (sad ? 2.4 : 2.7), eyeCy = sad ? 31.1 : 30.7;
+      var st = function(c, w){ return ' fill="none" stroke="' + c + '" stroke-width="' + w + '" stroke-linecap="round"'; };
+      return '<svg viewBox="0 0 64 64" role="img" aria-label="憧れの先輩のイラスト">'
+        + '<rect width="64" height="64" fill="' + bg + '"/>'
+        + '<path d="M28.2 36h7.6v10.6h-7.6Z" fill="' + shade + '"/>'                                                  /* 首 */
+        + '<path d="M3 64c0-11.8 7.8-17.6 17.8-19.6h22.4C53.2 46.4 61 52.2 61 64H3Z" fill="' + suit + '"/>'        /* 肩（上着） */
+        + '<path d="M25.8 44.4 32 58l6.2-13.6-6.2-1.6-6.2 1.6Z" fill="#fbf6ef"/>'                                  /* ブラウス */
+        + '<path d="M28.6 45.2q3.4 3.4 6.8 0"' + st('#dcc89e', .7) + '/><circle cx="32" cy="48.6" r="1" fill="#f5ead1" stroke="#cbb47f" stroke-width=".4"/>'  /* 首飾り */
+        + '<path d="M25.8 44.4 20.8 46.6 27.2 64h2.6L25.8 44.4Z" fill="' + lapel + '"/>'                         /* 襟 */
+        + '<path d="M38.2 44.4 43.2 46.6 36.8 64h-2.6L38.2 44.4Z" fill="' + lapel + '"/>'
+        + '<g class="mt-headg">'
+        /* 後ろの髪（肩にかかる長さ。あごの下は空けて首を見せる） */
+        + '<path d="M15.4 46.8C14 38.4 14.2 27.4 16.4 20.6 18.8 13.2 24.8 9.2 32 9.2s13.2 4 15.6 11.4c2.2 6.8 2.4 17.8 1 26.2-2.4 1-5 .8-7-.6l.8-15.2H21.6l.8 15.2c-2 1.4-4.6 1.6-7 .6Z" fill="' + hair + '"/>'
+        + '<ellipse cx="32" cy="27.8" rx="12.2" ry="13.6" fill="' + skin + '"/>'                                    /* 顔 */
+        + '<circle cx="20.8" cy="35.2" r=".85" fill="#f7efe0" stroke="#d8c7a6" stroke-width=".35"/><circle cx="43.2" cy="35.2" r=".85" fill="#f7efe0" stroke="#d8c7a6" stroke-width=".35"/>'
+        /* 横に流した前髪（右の額は見せる。眉は前髪にかけない） */
+        + '<path d="M20.2 24.6C19.4 16.6 25 11.4 32.2 11.4S44.8 17 43.8 24.6c-.9-2.6-1.9-5-3.3-6.9-.8-.9-1.6-1.6-2.4-2.1-3.2 3.9-9.6 6.6-16.4 7.6-.6.4-1.2.9-1.5 1.4Z" fill="' + hair + '"/>'
+        + '<path d="M27 14.2c2.6-1 6-1.2 8.6-.4M36.6 16.6c-2.6 2.6-6.4 4.4-10.8 5.4"' + st(hairHi, .9) + ' opacity=".6"/>'
+        /* 眉（細く弓なり。気にしているときは困り眉） */
+        + '<g class="mt-brow">' + (worry
+            ? '<path d="M23.4 25.5c1.9-.1 3.9-.6 5.8-1.7"' + st(hair, 1.3) + '/><path d="M40.6 25.5c-1.9-.1-3.9-.6-5.8-1.7"' + st(hair, 1.3) + '/>'
+            : '<path d="M23.4 ' + bY + 'c1.7-1.3 3.9-1.5 5.8-.6"' + st(hair, 1.3) + '/><path d="M40.6 ' + bY + 'c-1.7-1.3-3.9-1.5-5.8-.6"' + st(hair, 1.3) + '/>') + '</g>'
+        /* 目。喜は笑い目（まばたきしない） */
+        + (joy
+            ? '<path d="M23.8 31.2c.9-2.1 2-3.2 3.1-3.2s2.2 1.1 3.1 3.2"' + st(ink, 1.6) + '/><path d="M34.1 31.2c.9-2.1 2-3.2 3.1-3.2s2.2 1.1 3.1 3.2"' + st(ink, 1.6) + '/>'
+            : '<ellipse cx="26.9" cy="30.6" rx="3.1" ry="' + eyeRy + '" fill="#fffdfa"/><ellipse cx="37.1" cy="30.6" rx="3.1" ry="' + eyeRy + '" fill="#fffdfa"/>'
+              + '<circle cx="27" cy="' + eyeCy + '" r="2.05" fill="#3a2a24"/><circle cx="37" cy="' + eyeCy + '" r="2.05" fill="#3a2a24"/>'
+              + '<circle cx="26.3" cy="29.9" r=".75" fill="#fff"/><circle cx="36.3" cy="29.9" r=".75" fill="#fff"/>'
+              + '<path d="M23.5 29.8c1.7-2 5-2.3 6.8-.3M23.6 29.7l-1.3-.9"' + st(ink, 1.15) + '/>'
+              + '<path d="M40.5 29.8c-1.7-2-5-2.3-6.8-.3M40.4 29.7l1.3-.9"' + st(ink, 1.15) + '/>'
+              + '<ellipse class="mt-lid" cx="26.9" cy="27.9" rx="3.3" ry="2.9" fill="' + skin + '"' + lid + '/>'
+              + '<ellipse class="mt-lid" cx="37.1" cy="27.9" rx="3.3" ry="2.9" fill="' + skin + '"' + lid + '/>')
+        + '<path d="M32.5 33.2c.4 1 .2 1.8-.6 2.2"' + st(shade, 1.1) + '/>'                                         /* 鼻 */
+        + '<circle cx="23.6" cy="35.2" r="2.3" fill="#f1a3a3" opacity="' + (joy ? .55 : .4) + '"/><circle cx="40.4" cy="35.2" r="2.3" fill="#f1a3a3" opacity="' + (joy ? .55 : .4) + '"/>'
+        /* 口。喜・褒めるは開いた笑顔、気にしているときはすぼめた口、ふだんはやわらかい笑み */
+        + '<g class="mt-m-closed">' + (worry
+            ? '<path d="M30 39.2q2-1.1 4 0"' + st(lip, 1.4) + '/>'
+            : (joy || pr)
+              ? '<path d="M28.4 37.5c1 2.5 2.3 3.8 3.6 3.8s2.6-1.3 3.6-3.8c-2.4.8-4.8.8-7.2 0Z" fill="#c25a68"/><path d="M29.4 38c1.7.4 3.5.4 5.2 0-.8.6-1.7.9-2.6.9s-1.8-.3-2.6-.9Z" fill="#fff7f4"/>'
+              : '<path d="M29 38q3 1.9 6 0"' + st(lip, 1.5) + '/><path d="M29.8 38.9q2.2 1.2 4.4 0"' + st('#e39aa3', 1) + ' opacity=".8"/>') + '</g>'
+        + '<ellipse class="mt-m-open" cx="32" cy="39" rx="2.3" ry="1.8" fill="#9e4552"/>'
+        + '<g class="mt-anger" aria-hidden="true"></g>'
+        + '</g>'
+        /* 手（話す＝指を立てる、褒める＝親指、聞く＝あごに手）。CSS で出し分ける */
+        + '<g class="mt-hand mt-hand-point"><path d="M43.6 64c-1-6.6 1-12 6-15.6l6.6 5.2c-3.2 3-4.6 6.4-4.4 10.4Z" fill="' + sleeve + '"/>'
+          + '<circle cx="52.6" cy="47.6" r="4.6" fill="' + skin + '"/><rect x="51.1" y="38.2" width="2.8" height="8.6" rx="1.4" fill="' + skin + '"/></g>'
+        + '<g class="mt-hand mt-hand-thumb"><path d="M43.6 64c-1-6.2.2-10.8 4.4-14l6.6 4.8c-2.8 2.4-4 5.2-3.8 9.2Z" fill="' + sleeve + '"/>'
+          + '<circle cx="52" cy="49.8" r="4.8" fill="' + skin + '"/><rect x="50.6" y="41.2" width="2.9" height="7.6" rx="1.45" fill="' + skin + '" transform="rotate(-16 52 45)"/></g>'
+        + '<g class="mt-hand mt-hand-think"><path d="M45 64c-1.6-7 0-12.4 4.4-16l-9.6-2.6c-3.6 3.6-5 9.4-4.4 18.6Z" fill="' + sleeve + '"/>'
+          + '<ellipse cx="36.8" cy="44.8" rx="4.6" ry="3.3" fill="' + skin + '" transform="rotate(-20 36.8 44.8)"/></g>'
+        + '</svg>';
+    }
+    /* モードの札を描く（顔は一度だけ差し込む） */
+    function mtModePaint(){
+      var m = mtModeNow();
+      [].slice.call(document.querySelectorAll('#mt-modes .mt-mode')).forEach(function(b){
+        var k = b.getAttribute('data-mtmode'), on = (k === m);
+        b.setAttribute('aria-checked', on ? 'true' : 'false');
+        b.tabIndex = on ? 0 : -1;
+        var f = b.querySelector('.mt-mode-face');
+        if(f && !f.firstChild) f.innerHTML = mtFaceSVG(k, 'idle');
+      });
+    }
+    function mtModeSet(m){
+      if(!MT_MODES[m]) return;
+      if(m === mtModeNow()){ mtModePaint(); return; }
+      MT.mode = m; mtModeApply(); mtSave(); mtModePaint();
+      try{ mtRenderFace(); }catch(e){}
+      try{ mtRenderPersonaSelect(); }catch(e){}
+      try{
+        var P = mtP() || {}, sub = $('mt-head-sub');
+        var co = String(P.company || '').replace(/[（(][^）)]*[）)]/g, '').trim() || '社内';
+        if(sub) sub.textContent = (P.name || '師匠') + '（' + co + '）に相談する　数字・断り文句・提案を、ファイナンシャルプランナーの目で見る';
+      }catch(e){}
+      try{
+        var L = MT.log[MT.active] || [];
+        if(!L.length) mtRenderLog();
+        else{ mtAdd('bot', mtFill(MT_MODE_HELLO[m], mtP()), false); var last = mtLog && mtLog.lastElementChild; if(last) mtScrollTop(last); }
+      }catch(e){}
+    }
+    (function(){
+      var box = $('mt-modes'); if(!box) return;
+      box.addEventListener('click', function(ev){ var b = ev.target && ev.target.closest ? ev.target.closest('.mt-mode') : null; if(b) mtModeSet(b.getAttribute('data-mtmode')); });
+      box.addEventListener('keydown', function(ev){
+        var k = ev.key; if(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].indexOf(k) < 0) return;
+        ev.preventDefault();
+        var n = MT_MODE_ORDER.length, i = MT_MODE_ORDER.indexOf(mtModeNow());
+        i = (k === 'Home') ? 0 : (k === 'End') ? n - 1 : (i + ((k === 'ArrowLeft' || k === 'ArrowUp') ? -1 : 1) + n) % n;
+        mtModeSet(MT_MODE_ORDER[i]);
+        var nb = box.querySelector('[data-mtmode="' + MT_MODE_ORDER[i] + '"]'); if(nb) nb.focus();
+      });
+    })();
+    mtModeInit();
+    /* 相談のきっかけの札の分類（2026-10-04 ユーザー指示「営業の話、社内規定、コンプラ、プライベートと色を変えて」）。
+       流れる帯は営業の話とコンプラ。「ほかの相談も見る」はこの順に見出しつきで並べる */
+    MT_QUICK.forEach(function(c){ if(!c.cat) c.cat = 'eigyo'; });
+    MT_QUICK_KITEI.forEach(function(c){ if(!c.cat) c.cat = 'kitei'; });
+    MT_QUICK_GO.forEach(function(c){ if(!c.cat) c.cat = 'comp'; });
+    MT_QUICK_LIFE.forEach(function(c){ if(!c.cat) c.cat = 'life'; });
+    var MT_QC_GROUPS = [
+      { k:'eigyo', l:'営業の話',     a:MT_QUICK },
+      { k:'kitei', l:'社内規定',     a:MT_QUICK_KITEI },
+      { k:'comp',  l:'コンプラ',     a:MT_QUICK_GO },
+      { k:'life',  l:'プライベート', a:MT_QUICK_LIFE }
+    ];
+    function mtQcAllHTML(chip){
+      return MT_QC_GROUPS.map(function(g){
+        return '<span class="mt-qc-h mt-qc-h-' + g.k + '" role="heading" aria-level="3">' + esc(g.l) + '</span>'
+          + g.a.map(function(c){ return chip(c); }).join('');
+      }).join('');
+    }
+    /* ==== MTMODE-END ==== */
     (function mtWire(){
       if(!$('mentor-modal')) return;
       /* 会社フォルダ版：人物設定の引き出しと師匠の切り替えを、画面から取り除く（誰も触れない）
