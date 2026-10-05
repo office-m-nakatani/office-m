@@ -1076,6 +1076,8 @@ main.mt-main{ padding:4px 0 4px; }
 #mentor-modal .mt-bub ul.mt-acts.mt-hs-list > li::before{ background:#4a5966; }
 #mentor-modal .mt-bub ul.mt-acts.mt-hs-list > li b{ font-weight:800; color:#1f2d3a; }
 .mt-bub .mt-try-b:focus-visible{ outline:3px solid #e0a46a; outline-offset:2px; }
+/* QFOLD 相談のきっかけを押したら一覧を畳む（2026-10-05）。高さと濃さを短く落とす */
+#mentor-modal .mt-quick-all.mt-qa-fold{ overflow:hidden; opacity:0; transition:max-height .24s ease, opacity .2s ease; }
 /* B5 写す（返事の右下）・会話を消す（帯の右） */
 .mt-bub .mt-copy{ display:flex; align-items:center; gap:6px; width:max-content; min-height:40px; margin:10px 0 0 auto; padding:6px 14px;
       border:1px solid #d3dbe1; border-radius:999px; background:#fff; color:#4a5c68; font:inherit; font-size:.85rem; font-weight:700; cursor:pointer; }
@@ -8314,8 +8316,8 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       const text = String(c.innerText || c.textContent || '').replace(/\n{3,}/g, '\n\n').trim();
       c.remove();
       const show = function(ok){
-        btn.innerHTML = ok ? '<i class="fa-solid fa-check" aria-hidden="true"></i> 写しました' : '写せませんでした';
-        setTimeout(function(){ btn.innerHTML = '<i class="fa-regular fa-copy" aria-hidden="true"></i> 写す'; }, 2200);
+        btn.innerHTML = ok ? '<i class="fa-solid fa-check" aria-hidden="true"></i> コピーしました' : 'コピーできませんでした';
+        setTimeout(function(){ btn.innerHTML = '<i class="fa-regular fa-copy" aria-hidden="true"></i> コピー'; }, 2200);
       };
       const old = function(){
         try{
@@ -9576,7 +9578,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
         const bb = d.querySelector('.chat-bubble');
         if(bb && !bb.querySelector('.mt-copy')){
           const cb = document.createElement('button'); cb.type = 'button'; cb.className = 'mt-copy'; cb.setAttribute('data-mtcopy', '1');
-          cb.setAttribute('aria-label', 'この返事を写す'); cb.innerHTML = '<i class="fa-regular fa-copy" aria-hidden="true"></i> 写す'; bb.appendChild(cb);
+          cb.setAttribute('aria-label', 'この返事をコピーする'); cb.innerHTML = '<i class="fa-regular fa-copy" aria-hidden="true"></i> コピー'; bb.appendChild(cb);   /* 2026-10-05 ユーザー指示「うつすではなくコピーに変更」 */
         }
       }
       mtLog.appendChild(d);
@@ -10255,7 +10257,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       if($('mt-quick')) $('mt-quick').addEventListener('click', function(e){
         const g = e.target.closest('[data-mtgo]');
         if(g){ const w = window.open(MT_HUB_URL + '#compliance/' + g.dataset.mtgo, 'katatsugi-hub'); if(w) w.focus(); return; }   /* 管理画面のコンプライアンスの記録を開く（師匠の会話はそのまま残す） */
-        const b = e.target.closest('[data-mtq]'); if(b) mtSend(b.dataset.mtq); });
+        const b = e.target.closest('[data-mtq]'); if(b){ mtQuickFold(); mtSend(b.dataset.mtq); } });
       /* 「ほかの相談も見る」＝保険中心（流れている分）＋暮らし・人生の相談を、全部静的に一覧表示 */
       const qkMoreBtn = $('mt-quick-more'), qkAllEl = $('mt-quick-all');
       if(qkMoreBtn && qkAllEl) qkMoreBtn.addEventListener('click', function(){
@@ -10264,6 +10266,26 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
         qkMoreBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
         qkMoreBtn.textContent = open ? '相談のきっかけを畳む' : 'ほかの相談も見る';
       });
+      /* QFOLD 2026-10-05 ユーザー指示「相談のきっかけをクリックすると、自然に相談の例がたたまれ、画面いっぱいにチャット画面が見えるように」
+         一覧（ほかの相談も見る）から札を押したら、一覧を短く畳んで（動きを減らす設定の端末はすぐ）、会話の欄を元の広さに戻し、返事が見える所へ送る */
+      function mtQuickFold(){
+        if(!qkAllEl || qkAllEl.hidden) return;
+        const done = function(){
+          qkAllEl.hidden = true; qkAllEl.classList.remove('mt-qa-fold'); qkAllEl.style.maxHeight = '';
+          if(qkMoreBtn){ qkMoreBtn.setAttribute('aria-expanded', 'false'); qkMoreBtn.textContent = 'ほかの相談も見る'; }
+          const body = qkAllEl.closest('.modal-body'); if(body) body.scrollTop = 0;
+          const box = $('mentor-modal'); if(box && box.scrollTop) box.scrollTop = 0;
+          if(window.scrollY) window.scrollTo(0, 0);
+          if(mtLog) mtLog.scrollTop = mtLog.scrollHeight;
+        };
+        const still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if(still){ done(); return; }
+        qkAllEl.style.maxHeight = qkAllEl.scrollHeight + 'px';
+        void qkAllEl.offsetHeight;
+        qkAllEl.classList.add('mt-qa-fold');
+        qkAllEl.style.maxHeight = '0px';
+        setTimeout(done, 260);
+      }
       /* スマホはホバーが効かないので、触れているあいだ流れを止める */
       const qkFlowEl = $('mt-quick');
       if(qkFlowEl){
