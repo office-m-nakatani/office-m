@@ -1462,7 +1462,9 @@ svg.hub-mtface{clip-path:circle(50% at 50% 50%);}
    ★読むのは同じ端末（同じ場所）の3つの保存先だけ。どれも書き換えない（顧客管理の保存先だけ、toolPatch で書く）
      ・営業ダッシュボードの契約・お客様・活動（officem.hokenSales.v1）
      ・管理画面が書き出す、コンプライアンスの記録の要約（officem.hokenHub.compFeed.v1。中身＝顧客名・日付・記録の欠けまで。苦情は対応中かどうかまで）
-     ・顧客管理の保存先（officem.hokenKokyaku.v1。手でつないだ記録・対象外の理由・変額保険かどうか・知らせの起点の日・ご高齢の方の設定と確認・上長の確認・証券番号）
+     ・顧客管理の保存先（officem.hokenKokyaku.v1。手でつないだ記録・対象外の理由・変額保険かどうか・知らせの起点の日・ご高齢の方の設定と確認・上長の確認・証券番号・
+       契約ごとの履歴 hist と、いま出ている知らせの日時 alog＝2026-10-06）
+   ★点検用の提出ファイル（2026-10-06）の中の契約・要約・保存先は、cleanK・feedFrom・toolFrom で同じ形に読み直し、compute({ contracts, feed, tool }) で同じように数える
    ★つなぎ方：①手でつないだ記録 ②管理画面で「この契約から書いた」記録（kid） ③同じ顧客名で、契約日の180日前から60日あとまでの記録（日付の近い順に1つずつ）
    ★知らせ（alerts）は「契約ごとの事実（facts）」から作る。メンバーの端末も上長の端末も同じ関数で数える（上長は報告の事実から数え直す）
      赤＝記録がまだ・記録に欠け・記録の日付が契約日より後・ご高齢の方の確認が無い／琥珀＝上長から戻された／灰＝生年月日が無い
@@ -1548,10 +1550,28 @@ var KKC = (function () {
     }).filter(Boolean);
   }
 
-  /* 管理画面が書き出す記録の要約（無ければ null＝管理画面をまだ開いていない） */
-  function feed() {
-    var o = rd(FEED_KEY);
-    if (!o || !Array.isArray(o.recs)) return null;
+  /* 点検用の提出ファイルに入った契約（contracts() と同じ形）を読み直す。形の合わないものは捨てる（2026-10-06） */
+  function cleanK(x) {
+    if (!x || typeof x !== 'object' || !idOk(x.id)) return null;
+    var name = str(x.name, 80).trim(), date = ymd(x.date);
+    if (!name) return null;
+    var mtgs = [];
+    (Array.isArray(x.mtgs) ? x.mtgs : []).slice(0, 40).forEach(function (d) { d = ymd(d); if (d && mtgs.indexOf(d) < 0) mtgs.push(d); });
+    mtgs.sort();
+    var times = Math.max(mtgs.length, Math.min(99, Math.floor(+x.times) || 0));
+    var birth = ymd(x.birth) && x.birth <= today() ? x.birth : '';
+    return { id: x.id, cid: idOk(x.cid), name: name, company: str(x.company, 120).trim(), product: str(x.product, 160).trim(),
+      pkind: str(x.pkind, 20), pname: str(x.pname, 160), pnote: str(x.pnote, 300),
+      date: date, mtgs: mtgs.slice(-12), times: times, fam: x.fam === 'mark' || x.fam === 'who' ? x.fam : '', famAct: idOk(x.famAct),
+      birth: birth, age: birth ? ageAt(birth, date) : null, actId: idOk(x.actId), insured: str(x.insured, 80), ccompany: '', kana: str(x.kana, 80).trim(),
+      amt: typeof x.amt === 'number' && isFinite(x.amt) && x.amt > 0 ? Math.round(x.amt) : 0, mode: ['m', 'h', 'y', 's'].indexOf(x.mode) >= 0 ? x.mode : '',
+      payNote: str(x.payNote, 200), pno: '' };
+  }
+
+  /* 管理画面が書き出す記録の要約（無ければ null＝管理画面をまだ開いていない）。feedFrom は提出ファイルの中の要約も同じ形で読む */
+  function feed() { return feedFrom(rd(FEED_KEY)); }
+  function feedFrom(o) {
+    if (!o || typeof o !== 'object' || !Array.isArray(o.recs)) return null;
     return { at: str(o.at, 40), me: str(o.me, 40), recs: o.recs.slice(0, 20000).filter(function (r) {
       return r && idOk(r.id) && KINDS.indexOf(r.kind) >= 0;
     }).map(function (r) {
@@ -1625,17 +1645,84 @@ var KKC = (function () {
     if (v && typeof v === 'object') Object.keys(v).slice(0, 20000).forEach(function (kid) { var p = pnoStr(v[kid]); if (idOk(kid) && p) out[kid] = p; });
     return out;
   }
-  function tool() {
-    var o = rd(TOOL_KEY) || {};
-    return { links: cleanLinks(o.links), hen: cleanHen(o.hen), since: ymd(o.since), set: cleanSet(o.set), kh: cleanKh(o.kh), checks: cleanChecks(o.checks), pno: cleanPno(o.pno) };
+  /* 契約ごとの履歴（是正の記録）：hist[契約の番号] = [{ at, by, t }]（2026-10-06 辛口評価の直し）。
+     つなぐ・外す・要らない・証券番号・変額保険などの判定・ご高齢の方の理由・上長の確認の受け取り・知らせが出た日と直った日を、誰が・いつ、で残す。
+     ★書き換えを防ぐ仕組みではない（端末の中の記録）。新しいほうから 60件まで */
+  var HIST_MAX = 60;
+  function cleanHist(v) {
+    var out = {};
+    if (!v || typeof v !== 'object') return out;
+    Object.keys(v).slice(0, 20000).forEach(function (kid) {
+      if (!idOk(kid) || !Array.isArray(v[kid])) return;
+      var a = v[kid].slice(-HIST_MAX).map(function (e) {
+        if (!e || typeof e !== 'object' || !iso(e.at) || !str(e.t, 200).trim()) return null;
+        return { at: e.at, by: str(e.by, 40).trim(), t: str(e.t, 200).trim() };
+      }).filter(Boolean);
+      if (a.length) out[kid] = a;
+    });
+    return out;
+  }
+  /* いま出ている知らせ（赤・琥珀）を、最初に出た日時とともに覚えておく：alog[契約の番号][知らせの種類] = 日時 */
+  function cleanAlog(v) {
+    var out = {};
+    if (!v || typeof v !== 'object') return out;
+    Object.keys(v).slice(0, 20000).forEach(function (kid) {
+      var x = v[kid], m = {};
+      if (!idOk(kid) || !x || typeof x !== 'object') return;
+      Object.keys(x).slice(0, 20).forEach(function (c) { if (/^[a-z\-]{1,24}$/.test(c) && iso(x[c])) m[c] = x[c]; });
+      if (Object.keys(m).length) out[kid] = m;
+    });
+    return out;
+  }
+  function histPush(o, kid, t, by) {
+    if (!idOk(kid) || !t) return;
+    o.hist = o.hist && typeof o.hist === 'object' ? o.hist : {};
+    var a = Array.isArray(o.hist[kid]) ? o.hist[kid] : [];
+    a.push({ at: new Date().toISOString(), by: str(by === undefined ? meOf(o) : by, 40).trim(), t: str(t, 200) });
+    o.hist[kid] = a.slice(-HIST_MAX);
+  }
+  /* この端末で記録する人（顧客管理の設定の名前。無ければ管理画面のコンプライアンスの名前） */
+  function meOf(o) { var n = str((o || {}).me, 40).trim(); if (n) return n; var f = rd(FEED_KEY); return f ? str(f.me, 40).trim() : ''; }
+  function tool() { return toolFrom(rd(TOOL_KEY)); }
+  function toolFrom(o) {
+    o = o && typeof o === 'object' ? o : {};
+    return { links: cleanLinks(o.links), hen: cleanHen(o.hen), since: ymd(o.since), set: cleanSet(o.set), kh: cleanKh(o.kh), checks: cleanChecks(o.checks), pno: cleanPno(o.pno),
+      hist: cleanHist(o.hist), alog: cleanAlog(o.alog), me: str(o.me, 40).trim() };
   }
   /* 顧客管理の保存先を、読み直してから一か所だけ書き換える（営業ダッシュボードの窓からも使う） */
   function toolPatch(fn) {
     var o = rd(TOOL_KEY) || { v: 1 };
-    o.links = cleanLinks(o.links); o.hen = cleanHen(o.hen); o.kh = cleanKh(o.kh); o.pno = cleanPno(o.pno);
+    o.links = cleanLinks(o.links); o.hen = cleanHen(o.hen); o.kh = cleanKh(o.kh); o.pno = cleanPno(o.pno); o.hist = cleanHist(o.hist);
     fn(o);
     try { localStorage.setItem(TOOL_KEY, JSON.stringify(o)); return true; } catch (e) { return false; }
   }
+  /* 知らせが出た日と直った日を履歴に残す（顧客管理の画面を開いたとき・描き直すときに数える）。変わったときだけ true */
+  function track(o, rows) {
+    var A = cleanAlog(o.alog), ch = false, now = new Date().toISOString();
+    rows.forEach(function (row) {
+      if (row.before) return;   /* 知らせの起点より前の契約は、出た・消えたを残さない */
+      var kid = row.k.id, cur = {}, open = A[kid] || {};
+      row.alerts.forEach(function (a) { if (a.lv === 'red' || a.lv === 'amber') cur[a.c] = a.t; });
+      Object.keys(open).forEach(function (c) {
+        if (cur[c]) return;
+        var d = dayDiff(now.slice(0, 10), open[c].slice(0, 10));
+        histPush(o, kid, '知らせが消えた：' + (TRACK_NAME[c] || c) + (d ? '（出てから' + d + '日）' : ''), '');
+        delete open[c]; ch = true;
+      });
+      Object.keys(cur).forEach(function (c) {
+        if (open[c]) return;
+        open[c] = now; ch = true;
+        histPush(o, kid, '知らせが出た：' + cur[c], '');
+      });
+      if (Object.keys(open).length) A[kid] = open; else delete A[kid];
+    });
+    if (ch) o.alog = A;
+    return ch;
+  }
+  var TRACK_NAME = { 'none-iko': '意向把握の記録がまだ', 'none-hikaku': '比較推奨の記録がまだ', 'none-tekigou': '適合性の確認の記録がまだ',
+    'miss-iko': '意向把握の記録に欠け', 'miss-hikaku': '比較推奨の記録に欠け', 'miss-tekigou': '適合性の確認の記録に欠け',
+    'odr-iko': '意向把握の日付が契約日より後', 'odr-hikaku': '比較推奨の日付が契約日より後', 'odr-tekigou': '適合性の確認の日付が契約日より後',
+    kourei: 'ご高齢の方の確認が無い', back: '上長から戻された' };
 
   function recDate(r) { return r.kind === 'hikaku' ? (r.kdate || r.date) : r.date; }
   /* 記録の日付の順番を見る日（比較推奨は最初の面談日。前の要約に無ければ記録の日付） */
@@ -1891,6 +1978,7 @@ var KKC = (function () {
 
   return { KINDS: KINDS, NAME: NAME, STATUS: STATUS, SALES_KEY: SALES_KEY, FEED_KEY: FEED_KEY, TOOL_KEY: TOOL_KEY, SET_DEF: SET_DEF, FAM_RE: FAM_RE,
     nk: nk, dayDiff: dayDiff, ageAt: ageAt, today: today, contracts: contracts, feed: feed, tool: tool,
+    cleanK: cleanK, feedFrom: feedFrom, toolFrom: toolFrom, cleanHist: cleanHist, cleanAlog: cleanAlog, histPush: histPush, meOf: meOf, track: track,
     cleanLinks: cleanLinks, cleanHen: cleanHen, cleanSet: cleanSet, cleanKh: cleanKh, cleanCheck: cleanCheck, cleanChecks: cleanChecks, cleanPno: cleanPno, pnoStr: pnoStr,
     cleanFacts: cleanFacts, sig: sig, kourei: kourei, alerts: alerts,
     toolPatch: toolPatch, compute: compute, candidates: candidates, recsByName: recsByName,
@@ -9107,7 +9195,8 @@ function cpFeedLed() {
     return { fy: fy, train: au.trainings.filter(function (t) { return auFyOf(t.date) === fy; }).length,
       plans: au.plans.filter(function (p) { return auFyOf(p.ym + '-01') === fy; }).length, members: auActiveMembers().length,
       expired: cut(is.expired), urgent: cut(is.urgent), soon: is.soon.length, keizoku: cut(is.keizoku), todoke: cut(is.todoke), notrain: cut(is.notrain),
-      polSample: !au.polsAt, kujoDays: au.cpset.kujoDays };
+      polSample: !au.polsAt, kujoDays: au.cpset.kujoDays,
+      names: cut(auActiveMembers().map(function (m) { return String(m.name || '').slice(0, 40); }).filter(Boolean)) };   // 2026-10-06 顧客管理の上長の画面で「報告をまだ読み込んでいない人」を出すため（名前だけ）
   } catch (e) { return null; }
 }
 /* 社内ツールの「顧客管理」のカードの札：直すことがある契約（書類がまだ・欠け・日付・ご高齢の方の確認）と、上長から戻された契約の数。
@@ -9395,6 +9484,9 @@ function auInitButtons() {
    ★お客様に見せる文言ではないが、効果の数字や断定（必ず・絶対）は書かない。
    ============================================================ */
 var UPDATES = [
+  { id: '2026-10-06-kokyaku100', date: '2026-10-06', target: 'inh:kokyaku',
+    title: '顧客管理：一覧を1件1行に・「やること」・点検用の記録・自主点検',
+    body: '契約の一覧を1件1行に畳み、いちばん上に「やること」（比較推奨を書く・日付を直す など）を、契約から日の経った順に並べました。契約ごとに「これまでの記録」（誰が・いつ、つないだか・理由を残したか・知らせが出た日と消えた日）が残ります。代理店点検では、担当者が書き出す「点検用の記録」を読み込むと、上長・社長の端末でも全員のお客様ファイル・担当者ごとの表・月ごとのまとめを出せます（読み込んだ記録は保存せず、閉じると消えます）。自主点検の記録も残せます。上長の返しは全員分を1つのファイルにでき、報告が古いメンバーに札が付きます。' },
   { id: '2026-10-05-tenken', date: '2026-10-05', target: 'inh:kokyaku',
     title: '顧客管理：「代理店点検」のタブを追加',
     body: '保険会社の代理店点検に備える画面です。顧客名・ふりがな・証券番号・保険会社・商品名でお客様を探し、契約・面談と活動・意向把握・比較推奨・適合性の確認・苦情の記録を1枚の「お客様ファイル」にして印刷できます。期間を選ぶと、記録がまだ・欠けている契約、日付の順番、ご高齢の方の確認、研修や資格の期限などを準備の表に並べ、直す契約へそのまま進めます。無作為に選んだ契約のお客様ファイル、点検用の契約の一覧（A4横の印刷・CSV）も作れます。証券番号は、営業ダッシュボードの契約の欄か、顧客管理の契約のカードから入れます。点検の項目・様式・記録を残す期間は、所属保険会社の指示と社内規則に従ってください。' },

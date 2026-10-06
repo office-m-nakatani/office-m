@@ -167,8 +167,7 @@ a{color:var(--navy-2);}
 .cal-cell.sample-off{background:repeating-linear-gradient(135deg,var(--white),var(--white) 7px,#f3f1f8 7px,#f3f1f8 14px);}
 /* サンプル表示中は「＋」で実際の記録を作らせない・サンプル行は編集不可にする */
 .card.sampling .cal-add,.card.sampling #dayAdd{display:none;}
-.day-row.sample-row{cursor:default;}
-.day-row.sample-row .day-go{display:none;}
+/* サンプルの行も押すと中身の窓が開く（2026-10-06） */
 
 /* ---------- 顧客一覧 ---------- */
 .toolrow{display:flex;gap:var(--sp-3);flex-wrap:wrap;align-items:center;margin-bottom:var(--sp-4);}
@@ -692,6 +691,38 @@ a.tb-tag:hover{border-color:var(--navy-2);color:var(--navy);}
 .ev-who .ew-acts{flex:1 1 100%;display:flex;gap:8px;flex-wrap:wrap;}
 .ev-who .btn{min-height:44px;}
 .ev-fam{display:inline-block;margin-left:6px;font-size:var(--fs-xs);font-weight:700;color:#1f5a1f;background:var(--green-bg);border:1px solid var(--green-border);border-radius:999px;padding:0 10px;}
+/* 中身の窓のいちばん上の要点（2026-10-06）：種類（AP アプローチ など）・お名前・日時・場所・同席 */
+.ev-sum{display:block;background:#f7f9fb;}
+.ev-sum .es-top{display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap;}
+.ev-sum .es-type{font-size:var(--fs-sm);padding:4px 12px;gap:7px;}
+.ev-sum .es-code{font-weight:800;letter-spacing:.04em;}
+.ev-sum .es-full{font-size:var(--fs-xs);color:var(--muted);font-weight:700;}
+.ev-sum .es-name{font-size:var(--fs-lg);font-weight:800;color:var(--navy);line-height:1.4;margin:8px 0 6px;overflow-wrap:anywhere;}
+.ev-sum .es-kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-size:var(--fs-base);align-items:baseline;}
+.ev-sum .es-kv dt{color:var(--muted);font-weight:700;font-size:var(--fs-sm);white-space:nowrap;}
+.ev-sum .es-kv dd{margin:0;font-weight:700;color:var(--text);overflow-wrap:anywhere;}
+.ev-sum .es-none{color:var(--muted);font-weight:600;}
+.ev-sum .es-cust{display:flex;flex-wrap:wrap;gap:2px 14px;font-size:var(--fs-sm);margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);}
+.ev-sum .es-cust a{color:var(--coral-text);font-weight:700;}
+.ev-sum .ew-note{font-size:var(--fs-sm);margin:8px 0 0;}
+.ev-sum .ew-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.ev-sum .btn{min-height:44px;}
+.ev-docs .ev-ch .ev-h{flex:none;}
+.ev-docs .ev-ch .kk-st{margin-right:auto;}
+/* 提出書類の行：PC は「名前・状態・記録の日・ボタン」を1行に、携帯は「名前と状態」「記録の日とボタン」の2段。ボタンはいつも右にそろえる */
+.ev-docs .kk-it,.ev-recs .kk-it{display:grid;grid-template-columns:minmax(6.6em,1fr) 7.6em minmax(0,11.5em) auto;grid-template-areas:"n st own btn" "why why why why";align-items:center;gap:6px 12px;}
+.ev-docs .kk-it .kk-n,.ev-recs .kk-it .kk-n{grid-area:n;white-space:nowrap;}
+.ev-docs .kk-it .kk-st,.ev-recs .kk-it .kk-st{grid-area:st;justify-self:start;}
+.ev-docs .kk-it .kk-own,.ev-recs .kk-it .kk-d{grid-area:own;font-size:var(--fs-xs);color:var(--muted);}
+.ev-docs .kk-it .btn,.ev-recs .kk-it .btn{grid-area:btn;justify-self:end;min-width:8.5em;}
+.ev-docs .kk-it .kk-why,.ev-recs .kk-it .kk-why{grid-area:why;}
+@media (max-width:760px){
+  .ev-docs .kk-it,.ev-recs .kk-it{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"n st" "own btn" "why why";}
+  .ev-docs .kk-it .kk-st,.ev-recs .kk-it .kk-st{justify-self:end;}
+}
+.ev-docs .kk-hen{margin-top:2px;}
+.ev-smp{background:#f2f4f7;border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin:0 0 var(--sp-3);font-size:var(--fs-sm);color:var(--text);}
+.ev-smp b{display:block;color:var(--navy);font-size:var(--fs-base);}
 .ev-al{border-radius:12px;padding:10px 14px;margin:0 0 10px;border:1px solid;font-size:var(--fs-sm);}
 .ev-al b{display:block;font-size:var(--fs-base);}
 .ev-al ul{margin:4px 0 0;padding-left:1.2em;}
@@ -1718,7 +1749,9 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
    ★読むのは同じ端末（同じ場所）の3つの保存先だけ。どれも書き換えない（顧客管理の保存先だけ、toolPatch で書く）
      ・営業ダッシュボードの契約・お客様・活動（officem.hokenSales.v1）
      ・管理画面が書き出す、コンプライアンスの記録の要約（officem.hokenHub.compFeed.v1。中身＝顧客名・日付・記録の欠けまで。苦情は対応中かどうかまで）
-     ・顧客管理の保存先（officem.hokenKokyaku.v1。手でつないだ記録・対象外の理由・変額保険かどうか・知らせの起点の日・ご高齢の方の設定と確認・上長の確認・証券番号）
+     ・顧客管理の保存先（officem.hokenKokyaku.v1。手でつないだ記録・対象外の理由・変額保険かどうか・知らせの起点の日・ご高齢の方の設定と確認・上長の確認・証券番号・
+       契約ごとの履歴 hist と、いま出ている知らせの日時 alog＝2026-10-06）
+   ★点検用の提出ファイル（2026-10-06）の中の契約・要約・保存先は、cleanK・feedFrom・toolFrom で同じ形に読み直し、compute({ contracts, feed, tool }) で同じように数える
    ★つなぎ方：①手でつないだ記録 ②管理画面で「この契約から書いた」記録（kid） ③同じ顧客名で、契約日の180日前から60日あとまでの記録（日付の近い順に1つずつ）
    ★知らせ（alerts）は「契約ごとの事実（facts）」から作る。メンバーの端末も上長の端末も同じ関数で数える（上長は報告の事実から数え直す）
      赤＝記録がまだ・記録に欠け・記録の日付が契約日より後・ご高齢の方の確認が無い／琥珀＝上長から戻された／灰＝生年月日が無い
@@ -1804,10 +1837,28 @@ var KKC = (function () {
     }).filter(Boolean);
   }
 
-  /* 管理画面が書き出す記録の要約（無ければ null＝管理画面をまだ開いていない） */
-  function feed() {
-    var o = rd(FEED_KEY);
-    if (!o || !Array.isArray(o.recs)) return null;
+  /* 点検用の提出ファイルに入った契約（contracts() と同じ形）を読み直す。形の合わないものは捨てる（2026-10-06） */
+  function cleanK(x) {
+    if (!x || typeof x !== 'object' || !idOk(x.id)) return null;
+    var name = str(x.name, 80).trim(), date = ymd(x.date);
+    if (!name) return null;
+    var mtgs = [];
+    (Array.isArray(x.mtgs) ? x.mtgs : []).slice(0, 40).forEach(function (d) { d = ymd(d); if (d && mtgs.indexOf(d) < 0) mtgs.push(d); });
+    mtgs.sort();
+    var times = Math.max(mtgs.length, Math.min(99, Math.floor(+x.times) || 0));
+    var birth = ymd(x.birth) && x.birth <= today() ? x.birth : '';
+    return { id: x.id, cid: idOk(x.cid), name: name, company: str(x.company, 120).trim(), product: str(x.product, 160).trim(),
+      pkind: str(x.pkind, 20), pname: str(x.pname, 160), pnote: str(x.pnote, 300),
+      date: date, mtgs: mtgs.slice(-12), times: times, fam: x.fam === 'mark' || x.fam === 'who' ? x.fam : '', famAct: idOk(x.famAct),
+      birth: birth, age: birth ? ageAt(birth, date) : null, actId: idOk(x.actId), insured: str(x.insured, 80), ccompany: '', kana: str(x.kana, 80).trim(),
+      amt: typeof x.amt === 'number' && isFinite(x.amt) && x.amt > 0 ? Math.round(x.amt) : 0, mode: ['m', 'h', 'y', 's'].indexOf(x.mode) >= 0 ? x.mode : '',
+      payNote: str(x.payNote, 200), pno: '' };
+  }
+
+  /* 管理画面が書き出す記録の要約（無ければ null＝管理画面をまだ開いていない）。feedFrom は提出ファイルの中の要約も同じ形で読む */
+  function feed() { return feedFrom(rd(FEED_KEY)); }
+  function feedFrom(o) {
+    if (!o || typeof o !== 'object' || !Array.isArray(o.recs)) return null;
     return { at: str(o.at, 40), me: str(o.me, 40), recs: o.recs.slice(0, 20000).filter(function (r) {
       return r && idOk(r.id) && KINDS.indexOf(r.kind) >= 0;
     }).map(function (r) {
@@ -1881,17 +1932,84 @@ var KKC = (function () {
     if (v && typeof v === 'object') Object.keys(v).slice(0, 20000).forEach(function (kid) { var p = pnoStr(v[kid]); if (idOk(kid) && p) out[kid] = p; });
     return out;
   }
-  function tool() {
-    var o = rd(TOOL_KEY) || {};
-    return { links: cleanLinks(o.links), hen: cleanHen(o.hen), since: ymd(o.since), set: cleanSet(o.set), kh: cleanKh(o.kh), checks: cleanChecks(o.checks), pno: cleanPno(o.pno) };
+  /* 契約ごとの履歴（是正の記録）：hist[契約の番号] = [{ at, by, t }]（2026-10-06 辛口評価の直し）。
+     つなぐ・外す・要らない・証券番号・変額保険などの判定・ご高齢の方の理由・上長の確認の受け取り・知らせが出た日と直った日を、誰が・いつ、で残す。
+     ★書き換えを防ぐ仕組みではない（端末の中の記録）。新しいほうから 60件まで */
+  var HIST_MAX = 60;
+  function cleanHist(v) {
+    var out = {};
+    if (!v || typeof v !== 'object') return out;
+    Object.keys(v).slice(0, 20000).forEach(function (kid) {
+      if (!idOk(kid) || !Array.isArray(v[kid])) return;
+      var a = v[kid].slice(-HIST_MAX).map(function (e) {
+        if (!e || typeof e !== 'object' || !iso(e.at) || !str(e.t, 200).trim()) return null;
+        return { at: e.at, by: str(e.by, 40).trim(), t: str(e.t, 200).trim() };
+      }).filter(Boolean);
+      if (a.length) out[kid] = a;
+    });
+    return out;
+  }
+  /* いま出ている知らせ（赤・琥珀）を、最初に出た日時とともに覚えておく：alog[契約の番号][知らせの種類] = 日時 */
+  function cleanAlog(v) {
+    var out = {};
+    if (!v || typeof v !== 'object') return out;
+    Object.keys(v).slice(0, 20000).forEach(function (kid) {
+      var x = v[kid], m = {};
+      if (!idOk(kid) || !x || typeof x !== 'object') return;
+      Object.keys(x).slice(0, 20).forEach(function (c) { if (/^[a-z\-]{1,24}$/.test(c) && iso(x[c])) m[c] = x[c]; });
+      if (Object.keys(m).length) out[kid] = m;
+    });
+    return out;
+  }
+  function histPush(o, kid, t, by) {
+    if (!idOk(kid) || !t) return;
+    o.hist = o.hist && typeof o.hist === 'object' ? o.hist : {};
+    var a = Array.isArray(o.hist[kid]) ? o.hist[kid] : [];
+    a.push({ at: new Date().toISOString(), by: str(by === undefined ? meOf(o) : by, 40).trim(), t: str(t, 200) });
+    o.hist[kid] = a.slice(-HIST_MAX);
+  }
+  /* この端末で記録する人（顧客管理の設定の名前。無ければ管理画面のコンプライアンスの名前） */
+  function meOf(o) { var n = str((o || {}).me, 40).trim(); if (n) return n; var f = rd(FEED_KEY); return f ? str(f.me, 40).trim() : ''; }
+  function tool() { return toolFrom(rd(TOOL_KEY)); }
+  function toolFrom(o) {
+    o = o && typeof o === 'object' ? o : {};
+    return { links: cleanLinks(o.links), hen: cleanHen(o.hen), since: ymd(o.since), set: cleanSet(o.set), kh: cleanKh(o.kh), checks: cleanChecks(o.checks), pno: cleanPno(o.pno),
+      hist: cleanHist(o.hist), alog: cleanAlog(o.alog), me: str(o.me, 40).trim() };
   }
   /* 顧客管理の保存先を、読み直してから一か所だけ書き換える（営業ダッシュボードの窓からも使う） */
   function toolPatch(fn) {
     var o = rd(TOOL_KEY) || { v: 1 };
-    o.links = cleanLinks(o.links); o.hen = cleanHen(o.hen); o.kh = cleanKh(o.kh); o.pno = cleanPno(o.pno);
+    o.links = cleanLinks(o.links); o.hen = cleanHen(o.hen); o.kh = cleanKh(o.kh); o.pno = cleanPno(o.pno); o.hist = cleanHist(o.hist);
     fn(o);
     try { localStorage.setItem(TOOL_KEY, JSON.stringify(o)); return true; } catch (e) { return false; }
   }
+  /* 知らせが出た日と直った日を履歴に残す（顧客管理の画面を開いたとき・描き直すときに数える）。変わったときだけ true */
+  function track(o, rows) {
+    var A = cleanAlog(o.alog), ch = false, now = new Date().toISOString();
+    rows.forEach(function (row) {
+      if (row.before) return;   /* 知らせの起点より前の契約は、出た・消えたを残さない */
+      var kid = row.k.id, cur = {}, open = A[kid] || {};
+      row.alerts.forEach(function (a) { if (a.lv === 'red' || a.lv === 'amber') cur[a.c] = a.t; });
+      Object.keys(open).forEach(function (c) {
+        if (cur[c]) return;
+        var d = dayDiff(now.slice(0, 10), open[c].slice(0, 10));
+        histPush(o, kid, '知らせが消えた：' + (TRACK_NAME[c] || c) + (d ? '（出てから' + d + '日）' : ''), '');
+        delete open[c]; ch = true;
+      });
+      Object.keys(cur).forEach(function (c) {
+        if (open[c]) return;
+        open[c] = now; ch = true;
+        histPush(o, kid, '知らせが出た：' + cur[c], '');
+      });
+      if (Object.keys(open).length) A[kid] = open; else delete A[kid];
+    });
+    if (ch) o.alog = A;
+    return ch;
+  }
+  var TRACK_NAME = { 'none-iko': '意向把握の記録がまだ', 'none-hikaku': '比較推奨の記録がまだ', 'none-tekigou': '適合性の確認の記録がまだ',
+    'miss-iko': '意向把握の記録に欠け', 'miss-hikaku': '比較推奨の記録に欠け', 'miss-tekigou': '適合性の確認の記録に欠け',
+    'odr-iko': '意向把握の日付が契約日より後', 'odr-hikaku': '比較推奨の日付が契約日より後', 'odr-tekigou': '適合性の確認の日付が契約日より後',
+    kourei: 'ご高齢の方の確認が無い', back: '上長から戻された' };
 
   function recDate(r) { return r.kind === 'hikaku' ? (r.kdate || r.date) : r.date; }
   /* 記録の日付の順番を見る日（比較推奨は最初の面談日。前の要約に無ければ記録の日付） */
@@ -2147,6 +2265,7 @@ var KKC = (function () {
 
   return { KINDS: KINDS, NAME: NAME, STATUS: STATUS, SALES_KEY: SALES_KEY, FEED_KEY: FEED_KEY, TOOL_KEY: TOOL_KEY, SET_DEF: SET_DEF, FAM_RE: FAM_RE,
     nk: nk, dayDiff: dayDiff, ageAt: ageAt, today: today, contracts: contracts, feed: feed, tool: tool,
+    cleanK: cleanK, feedFrom: feedFrom, toolFrom: toolFrom, cleanHist: cleanHist, cleanAlog: cleanAlog, histPush: histPush, meOf: meOf, track: track,
     cleanLinks: cleanLinks, cleanHen: cleanHen, cleanSet: cleanSet, cleanKh: cleanKh, cleanCheck: cleanCheck, cleanChecks: cleanChecks, cleanPno: cleanPno, pnoStr: pnoStr,
     cleanFacts: cleanFacts, sig: sig, kourei: kourei, alerts: alerts,
     toolPatch: toolPatch, compute: compute, candidates: candidates, recsByName: recsByName,
@@ -3199,7 +3318,8 @@ function kkPno(kid){ try { return (KKC.tool().pno || {})[kid] || ''; } catch (e)
 function kkSetPno(kid, v){
   v = KKC.pnoStr(v || '');
   if (v === kkPno(kid)) return;
-  KKC.toolPatch(function(o){ if (v) o.pno[kid] = v; else delete o.pno[kid]; });
+  var was = kkPno(kid);
+  KKC.toolPatch(function(o){ if (v) o.pno[kid] = v; else delete o.pno[kid]; KKC.histPush(o, kid, v ? (was ? '証券番号を直した：' + was + ' → ' + v : '証券番号を入れた：' + v) + '（営業ダッシュボード）' : '証券番号を消した（営業ダッシュボード）'); });
 }
 function contractCardHtml(k){
   return '<div class="card" style="margin-bottom:var(--sp-3);">' +
@@ -3353,6 +3473,16 @@ var SAMPLE_NAMES = [
   '木村工務店様','中央運送様','みどり歯科様','さくら美容室様','田村食品様'
 ];
 var SAMPLE_TYPE_POOL = ['AP','AP','FF','FF','PZ','PZ','TH','TH','CL','KY'];   /* 出現しやすさの重み付け */
+/* 2026-10-06 ユーザー指示「名前やイベントをクリックしたら下ではなく、この画面上に、詳細が出るようにしてください。名前、時間、場所、APなのかFFなのかなど。」
+   サンプルの予定にも場所・同席・契約の中身を持たせ、押すと実際の記録と同じ窓で中身を出す（保険会社の名前は見本の書き方にする） */
+var SAMPLE_CORP = /工務店|運送|歯科|美容室|食品/;
+var SAMPLE_PLACE = ['ご自宅', 'ご自宅（オンライン）', 'お勤め先の近くの喫茶店', '当社の事務所', 'ご実家'];
+var SAMPLE_PLACE_CORP = ['先方の事務所', '先方の店舗', '先方の会議室（オンライン）'];
+var SAMPLE_WHO = ['', '', 'ご主人', '奥様', 'ご家族'];
+var SAMPLE_WHO_CORP = ['社長', '社長・経理のご担当', ''];
+var SAMPLE_PRODS = [{ c:'A生命（見本）', p:'変額保険', hen:true }, { c:'B生命（見本）', p:'終身保険' }, { c:'C生命（見本）', p:'医療保険' },
+  { c:'D生命（見本）', p:'定期保険' }, { c:'E生命（見本）', p:'ガン保険' }];
+function samplePick(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
 function sampleName(){ return SAMPLE_NAMES[Math.floor(Math.random() * SAMPLE_NAMES.length)]; }
 function sampleType(){ return SAMPLE_TYPE_POOL[Math.floor(Math.random() * SAMPLE_TYPE_POOL.length)]; }
 function genSampleMonth(y, m){
@@ -3376,8 +3506,19 @@ function genSampleMonth(y, m){
   var acts = [], seq = 0;
   function pushVisit(dateStr, start, end){
     seq++;
-    acts.push({ id: 'smp' + y + m + '-' + seq, date: dateStr, type: sampleType(),
-      guest: sampleName(), start: start, end: end, place: '', who: '', memo: '' });
+    var g = sampleName(), type = sampleType(), corp = SAMPLE_CORP.test(g);
+    var o = { id: 'smp' + y + m + '-' + seq, date: dateStr, type: type,
+      guest: g, start: start, end: end, place: samplePick(corp ? SAMPLE_PLACE_CORP : SAMPLE_PLACE),
+      who: samplePick(corp ? SAMPLE_WHO_CORP : SAMPLE_WHO), memo: '' };
+    /* 契約の見本：保険会社と商品・保険料・提出書類の状態（押すと、実際の記録と同じ形で中身が出る） */
+    if (type === 'KY') {
+      var pr = samplePick(SAMPLE_PRODS);
+      o.smpK = { company: pr.c, product: pr.p, hen: !!pr.hen, amt: samplePick([3000, 5000, 8000, 12000, 20000, 30000]),
+        docs: { iko: Math.random() < 0.8 ? 'ok' : 'none',
+          hikaku: (function(r){ return r < 0.55 ? 'ok' : r < 0.85 ? 'none' : 'miss'; })(Math.random()),
+          tekigou: pr.hen ? (Math.random() < 0.5 ? 'ok' : 'none') : '' } };
+    }
+    acts.push(o);
   }
   for (var day = 1; day <= daysInMonth; day++) {
     var dateStr = ymd(new Date(y, m, day));
@@ -3467,6 +3608,7 @@ function renderCal(){
   /* 直すことがある契約（赤）・上長から戻された契約（琥珀）の記録に印を付ける */
   var kres = sampleMode ? null : kkGet(), actAl = {};
   if (kres) kres.rows.forEach(function(r){ if (!r.before && r.k.actId) { if (r.alarm) actAl[r.k.actId] = 'bad'; else if (r.back) actAl[r.k.actId] = 'bk'; } });
+  if (sampleMode) sampleActs.forEach(function(a){ if (a.smpK && smpDocsBad(a.smpK).length) actAl[a.id] = 'bad'; });
   var AL_SVG = '<svg class="ev-mk" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="8"/><path d="M8 4v5M8 11.6v.4" fill="none" stroke-width="2.2" stroke-linecap="round"/></svg>';
   var html = DOW.map(function(d, i){
     return '<div class="cal-dow' + (i === 0 ? ' sun' : i === 6 ? ' sat' : '') + '">' + d + '</div>';
@@ -3504,8 +3646,7 @@ function renderCal(){
         var al = actAl[a.id] || '', cl = 'cal-ev bg-' + a.type + (al ? ' kk-' + al : '');
         if (narrow) return '<span class="' + cl + '" aria-hidden="true"></span>';
         var inner = (al ? AL_SVG : '') + (a.start ? '<i class="ev-t">' + esc(a.start) + '</i>' : '') + esc(actName(a));
-        /* 押すと、その記録の中身（お客様・契約・コンプライアンス）。サンプルは押せない */
-        if (sampleMode) return '<span class="' + cl + '">' + inner + '</span>';
+        /* 押すと、その画面の上に中身の窓（種類・日時・お名前・場所・契約なら提出書類）。サンプル表示でも同じ窓を開く */
         return '<button type="button" class="' + cl + '" data-ev="' + esc(a.id) + '" data-evd="' + s + '" aria-label="' + esc(mdLabel + ' ' + (a.start ? a.start + ' ' : '') +
           stageLabel(a.type) + ' ' + actName(a) + (al === 'bad' ? '（直すことがあります）' : al === 'bk' ? '（上長から戻されました）' : '') + '　中身を見る') + '">' + inner + '</button>';
       }).join('') +
@@ -3566,8 +3707,8 @@ function renderDay(){
     if (a.place) meta.push('場所：' + a.place);
     if (a.who) meta.push('同席：' + a.who);
     var k = a.contractId ? contractById(a.contractId) : null;
-    var tag = sampleMode ? 'div' : 'button';
-    return '<' + tag + (sampleMode ? '' : ' type="button"') + ' class="day-row' + (sampleMode ? ' sample-row' : '') +
+    var tag = 'button';
+    return '<button type="button" class="day-row' + (sampleMode ? ' sample-row' : '') +
       '" data-e="' + esc(a.id) + '">' +
       '<span class="day-time">' + esc(timeLabel(a)) + '</span>' +
       '<span class="day-body"><span><span class="badge bg-' + a.type + '">' + esc(stageLabel(a.type)) + '</span> ' +
@@ -3576,6 +3717,7 @@ function renderDay(){
       (k ? '<span class="tl-meta" style="color:var(--tKYtx);font-weight:700;">' +
         esc([[k.company, k.product].filter(Boolean).join(' '), amtText(k)].filter(Boolean).join('　')) + '</span>' : '') +
       (k && !sampleMode ? kkLineHtml(k.id, 'span') : '') +
+      (a.smpK ? '<span class="tl-meta" style="color:var(--tKYtx);font-weight:700;">' + esc(a.smpK.company + ' ' + a.smpK.product) + '</span>' + smpLineHtml(a.smpK) : '') +
       (a.fam === true ? '<span class="tl-meta">ご家族などが同席</span>' : '') +
       '</span><span class="day-go">中身を見る</span></' + tag + '>';
   }).join('');
@@ -4188,7 +4330,7 @@ document.addEventListener('click', function(ev){
 /* 契約を記録したあと・編集の窓から：その契約の中身（コンプライアンス）を開く */
 function kkAfterContract(kid, title){
   if (typeof KKC === 'undefined' || !kid) return;
-  kkOpenContract(kid, title ? title + '。下の「この契約のコンプライアンス」で、要る記録を確かめてください。' : '');
+  kkOpenContract(kid, title ? title + '。下の「提出書類」で、要る記録を確かめてください（状態に関わらず「開く」で管理画面のその記録へ移れます）。' : '');
 }
 /* 活動が見つからない契約のときだけ使う、提出書類の窓 */
 function kkAfterContractModal(kid, title){
@@ -4219,19 +4361,23 @@ function kkDocsHtml(row, res, noHead){
   var fd = res.feed, k = row.k;
   return (noHead ? '' : '<div class="kk-k"><b class="nb">' + esc(k.name) + ' 様</b><span>' +
     esc([k.company, k.product || k.pname].filter(Boolean).join(' ')) + (k.date ? '　<span class="nb">契約日 ' + esc(fmtJpDate(k.date)) + '</span>' : '') + '</span></div>') +
-    '<label class="kk-hen"><input type="checkbox" id="kkHen" data-kid="' + esc(k.id) + '"' + (row.hen.on ? ' checked' : '') + '><span><b>変額保険など</b>（運用の成果で受け取る額が変わる保険）の契約' +
-    (row.hen.hand ? '<small>手で決めています</small>' : row.hen.auto ? '<small>' + esc(row.hen.auto) + 'から判断しました。違うときは、ここで外してください</small>' : '') + '</span></label>' +
     '<ul class="kk-list">' + row.need.map(function(kind){
-      var x = row.st[kind], s = fd ? x.s : '', act = '';
-      if (x.r) act = '<a class="btn btn-ghost btn-sm" href="' + esc(hubHref(KKC.openHash(x.r))) + '" target="katatsugi-hub">' + (s === 'miss' ? '開いて直す' : '開く') + '</a>';
-      else if (s !== 'ex') act = '<a class="btn btn-primary btn-sm" href="' + esc(hubHref(KKC.newHash(kind, row))) + '" target="katatsugi-hub">書く</a>';
+      /* 2026-10-06 ユーザー指示「提出できているできていないに関わらず、ここから比較推奨のデータや意向把握のデータにとべるように」
+         記録がある＝開く（欠けがあれば「開いて直す」）／まだ＝開いて書く（顧客名・契約日を写す）／要らない＝記録の画面を開く */
+      var x = row.st[kind], s = fd ? x.s : '', href, lab, cls = 'btn-ghost';
+      if (x.r) { href = KKC.openHash(x.r); lab = s === 'miss' ? '開いて直す' : '開く'; }
+      else if (s === 'ex') { href = '#compliance/' + kind; lab = '記録の画面を開く'; }
+      else { href = KKC.newHash(kind, row); lab = '開いて書く'; cls = 'btn-primary'; }
       return '<li class="kk-it"><span class="kk-n">' + esc(KKC.NAME[kind]) + '</span>' +
         '<span class="kk-st s-' + (s || 'unk') + '">' + esc(fd ? KK_ST[s] : '状態は不明') + '</span>' +
-        (x.r ? '<span class="kk-own">' + esc([KKC.recDate(x.r) ? '記録 ' + fmtMd(KKC.recDate(x.r)) : '', x.r.owner].filter(Boolean).join('・')) + '</span>' : '') + act +
+        (x.r ? '<span class="kk-own">' + esc([KKC.recDate(x.r) ? '記録 ' + fmtMd(KKC.recDate(x.r)) : '', x.r.owner].filter(Boolean).join('・')) + '</span>' : '') +
+        '<a class="btn ' + cls + ' btn-sm" href="' + esc(hubHref(href)) + '" target="katatsugi-hub" aria-label="' + esc(KKC.NAME[kind] + 'を' + lab) + '">' + lab + '</a>' +
         (s === 'ex' && x.why ? '<span class="kk-why">要らない理由：' + esc(x.why) + '</span>' : '') +
         (s === 'miss' && x.r ? '<span class="kk-why">欠け：' + esc(x.r.miss.join('・') || (kind === 'tekigou' && x.r.ng ? 'お勧めしなかった記録' : '')) + '</span>' : '') +
         (x.odr ? '<span class="kk-why" style="color:var(--red-text);font-weight:700;">記録の日付が契約日より後です（契約の前に確かめた記録か、日付を確かめてください）</span>' : '') + '</li>';
     }).join('') + '</ul>' +
+    '<label class="kk-hen"><input type="checkbox" id="kkHen" data-kid="' + esc(k.id) + '"' + (row.hen.on ? ' checked' : '') + '><span><b>変額保険など</b>（運用の成果で受け取る額が変わる保険）の契約' +
+    (row.hen.hand ? '<small>手で決めています</small>' : row.hen.auto ? '<small>' + esc(row.hen.auto) + 'から判断しました。違うときは、ここで外してください</small>' : '<small>印を付けると、適合性の確認も要る記録に入ります</small>') + '</span></label>' +
     (row.hen.on ? '<p class="kk-note"><b>適合性の確認書は、申込書と一緒に保険会社へ提出してください。</b>様式と出し方は、所属保険会社の決まりに従ってください。</p>' : '') +
     (!fd ? '<p class="kk-src">この端末で管理画面をまだ開いていないため、記録があるかは分かりません。管理画面を一度開くと、ここに状態が出ます。</p>'
       : row.before ? '<p class="kk-src">この契約は、顧客管理の「知らせの起点」の日より前なので、知らせには数えていません。</p>' : '');
@@ -4243,7 +4389,7 @@ function kkWireHen(host){
     var on = this.checked, kid = this.getAttribute('data-kid');
     kkCache = null;
     var row = kkRowOf(kkGet(), kid), auto = !!(row && row.hen.auto);
-    var ok = KKC.toolPatch(function(o){ if (on === auto) delete o.hen[kid]; else o.hen[kid] = on; });
+    var ok = KKC.toolPatch(function(o){ if (on === auto) delete o.hen[kid]; else o.hen[kid] = on; KKC.histPush(o, kid, (on ? '変額保険などにした' : '変額保険などから外した') + '（営業ダッシュボード）'); });
     if (!ok) { offerUndo('この端末に保存できませんでした。'); return; }
     kkRefresh();
     var c2 = $('kkHen'); if (c2) c2.focus();
@@ -4254,14 +4400,24 @@ function kkWireHen(host){
    5-1a-2. 予定・記録の中身の窓（evOvl）
    2026-10-05 ユーザー指示「営業のダッシュボードに関してもイベントや顧客をクリックしたら中身が見れるようにしてください。
      今はただのカレンダーツールにすぎない。ここから顧客への紐づけやコンプラの確認ができるようにしてください。」
-   ・お客様（登録していない名前なら、お客様につなぐ・登録する）／この日のこと／契約の内容／コンプライアンス
-   ・契約の記録：要る記録（書く・開く）・変額保険などの印・ご高齢の方の確認・日付の順番・上長の確認
-   ・契約の前の記録：この方の意向把握・比較推奨（書く・開く）・苦情の対応中・ご高齢の方の確認の見込み
+   2026-10-06 ユーザー指示「名前やイベントをクリックしたら下ではなく、この画面上に、詳細が出るようにしてください。名前、時間、場所、APなのかFFなのかなど。」
+     「この「契約」の場合、意向把握や比較推奨が提出できているか、イベントの詳細のように出してください。
+      また提出できているできていないに関わらずここから比較推奨のデータや意向把握のデータにとべるようにしてください。全ては使いやすさと見やすさです。」
+   ・いちばん上に要点（種類＝AP・FF…・お名前・日時・場所・同席。登録していない名前なら、お客様につなぐ・登録する）
+   ・契約の記録：提出書類（意向把握・比較推奨・要るときは適合性の確認）の状態と、状態に関わらず押せる「開く」→ 契約の内容 → そのほかの確認（ご高齢の方・上長）→ この日のこと
+   ・契約の前の記録：この日のこと → この方の意向把握・比較推奨（開く）・苦情の対応中・ご高齢の方の確認の見込み
+   ・サンプル表示の予定も、同じ窓で中身を出す（「開く」は管理画面のその記録の画面）
    ============================================================ */
 var evId = null, evLead = '', evBack = null, evOverAe = false;
+/* id から予定・記録を引く（サンプル表示の予定は smp で始まる） */
+function evIsSmp(id){ return String(id || '').indexOf('smp') === 0; }
+function evAct(id){
+  var src = evIsSmp(id) ? sampleActs : state.activities;
+  return src.filter(function(x){ return x.id === id; })[0] || null;
+}
 function openEv(id, opt){
   opt = opt || {};
-  var a = state.activities.filter(function(x){ return x.id === id; })[0];
+  var a = evAct(id);
   if (!a) { offerUndo('この記録は見つかりませんでした（別の窓で消された可能性があります）。', null); return; }
   if ($('evOvl').classList.contains('hide')) evBack = opt.back || document.activeElement;
   evId = id; evLead = opt.lead || '';
@@ -4304,30 +4460,26 @@ function evGoCust(cid){
   openDetail(cid);
 }
 function renderEv(){
-  var a = evId ? state.activities.filter(function(x){ return x.id === evId; })[0] : null;
+  var a = evId ? evAct(evId) : null;
   if (!a) { closeEv(true); return; }
+  $('evWhen').textContent = '';
+  if (evIsSmp(a.id)) {
+    $('evTitle').textContent = (SAMPLE_LABELS[a.type] ? stageLabel(a.type) : stageLabel(a.type) + 'の予定') + '（サンプル）';
+    $('evBody').innerHTML = evSampleHtml(a);
+    $('evEdit').classList.add('hide'); $('evCust').classList.add('hide');
+    return;
+  }
   kkCache = null;
   var c = custById(a.cid), name = actName(a);
   var k = a.contractId ? contractById(a.contractId) : null;
   var res = kkGet(), row = k && res ? kkRowOf(res, k.id) : null;
   $('evTitle').textContent = stageLabel(a.type) + 'の記録';
-  $('evWhen').textContent = fmtJpDate(a.date) + '　' + timeLabel(a);
   var h = evLead ? '<p class="ev-lead" role="status">' + esc(evLead) + '</p>' : '';
-  h += '<section class="ev-sec ev-who" aria-label="お客様">' + evWhoHtml(a, c, row) + '</section>';
-  var comp = typeof KKC !== 'undefined' && !SAMPLE_LABELS[a.type]
-    ? '<section class="ev-sec ev-comp" aria-label="コンプライアンス">' + (row ? evContractComp(row, res, c) : evNameComp(a, c, name)) + '</section>' : '';
-  if (row) h += comp;
-  /* この日のこと */
-  var dtext = detailTagsText(a.type, a.detail), kv = '';
-  kv += '<dt>種類</dt><dd><span class="badge bg-' + esc(a.type) + '">' + esc(stageLabel(a.type)) + '</span></dd>';
-  kv += '<dt>日時</dt><dd>' + esc(fmtJpDate(a.date) + '　' + timeLabel(a)) + '</dd>';
-  if (a.place) kv += '<dt>場所</dt><dd>' + esc(a.place) + '</dd>';
-  if (a.who || a.fam === true) kv += '<dt>同席</dt><dd>' + esc(a.who || '') + (a.fam === true ? '<span class="ev-fam">ご家族などが同席</span>' : '') + '</dd>';
-  if (dtext) kv += '<dt>内容</dt><dd>' + esc(dtext) + '</dd>';
-  if (a.memo) kv += '<dt>メモ</dt><dd>' + esc(a.memo) + '</dd>';
-  if (a.bossComment) kv += '<dt>上長から</dt><dd>' + esc(a.bossComment) + '<br><span class="kk-src">' + esc((a.bossBy || '上長') + (a.checkedAt ? '（' + a.checkedAt + '）' : '')) + '</span></dd>';
-  h += '<section class="ev-sec"><h3 class="ev-h">この日のこと</h3><dl class="kv">' + kv + '</dl></section>';
-  /* 契約の内容 */
+  /* 1. 要点（種類・お名前・日時・場所・同席） */
+  h += evSumHtml(a, c, row);
+  /* 2. 契約：提出書類（状態に関わらず「開く」で管理画面のその記録へ） */
+  if (row) h += '<section class="ev-sec ev-comp ev-docs" aria-label="提出書類">' + evContractComp(row, res) + '</section>';
+  /* 3. 契約の内容 */
   if (k) {
     h += '<section class="ev-sec"><h3 class="ev-h">契約の内容</h3><dl class="kv">' +
       '<dt>保険会社・商品</dt><dd>' + esc([k.company, k.product].filter(Boolean).join('　') || '—') + '</dd>' +
@@ -4336,16 +4488,42 @@ function renderEv(){
       (k.amt ? '<dt>保険料</dt><dd>' + esc(fmtYenFull(k.amt)) + '（' + esc(MODES[k.mode] || '') + (k.payNote ? '・' + esc(k.payNote) : '') + '）</dd>' : '') +
       '<dt>払込タイプ</dt><dd>' + esc(rateLabel(rateById(k.ptype))) + '</dd></dl></section>';
   }
-  /* 契約の前の記録は、この日のことのあとに */
-  if (!row) h += comp;
+  /* 4. 契約：そのほかの確認（ご高齢の方・上長の確認・戻された理由） */
+  if (row) { var more = evContractMore(row, res); if (more) h += '<section class="ev-sec ev-comp ev-more" aria-label="そのほかの確認">' + more + '</section>'; }
+  /* 5. この日のこと（内容・メモ・上長から。種類・日時・場所・同席は上の要点にある） */
+  var dtext = detailTagsText(a.type, a.detail), kv = '';
+  if (dtext) kv += '<dt>内容</dt><dd>' + esc(dtext) + '</dd>';
+  if (a.memo) kv += '<dt>メモ</dt><dd>' + esc(a.memo) + '</dd>';
+  if (a.bossComment) kv += '<dt>上長から</dt><dd>' + esc(a.bossComment) + '<br><span class="kk-src">' + esc((a.bossBy || '上長') + (a.checkedAt ? '（' + a.checkedAt + '）' : '')) + '</span></dd>';
+  h += '<section class="ev-sec ev-day"><h3 class="ev-h">この日のこと</h3>' + (kv ? '<dl class="kv">' + kv + '</dl>' : '<p class="kk-src" style="margin:0;">内容やメモはまだありません（「編集する」から書けます）。</p>') + '</section>';
+  /* 6. 契約の前の記録：この方のコンプライアンスの記録 */
+  if (!row && typeof KKC !== 'undefined' && !SAMPLE_LABELS[a.type]) h += '<section class="ev-sec ev-comp" aria-label="コンプライアンス">' + evNameComp(a, c, name) + '</section>';
   $('evBody').innerHTML = h;
   kkWireHen($('evBody'));
   $('evEdit').classList.toggle('hide', evOverAe);
   $('evCust').classList.toggle('hide', evOverAe || !c);
 }
-/* お客様の欄。登録していない名前は、同じお名前の方につなぐ・お客様として登録する */
-function evWhoHtml(a, c, row){
-  if (SAMPLE_LABELS[a.type]) return '<div class="ew-main"><span class="ew-name">' + esc(stageLabel(a.type)) + '</span></div>';
+/* 種類の札（AP アプローチ など。サンプルのミーティング・休日出勤・代休は名前だけ） */
+function evTypeHtml(t){
+  var st = ACT_TYPES.filter(function(x){ return x.k === t; })[0];
+  return '<span class="badge bg-' + esc(t) + ' es-type">' + (st ? '<b class="es-code">' + esc(t) + '</b>' : '') + esc(stageLabel(t)) + '</span>' +
+    (st && st.full ? '<span class="es-full">' + esc(st.full) + '</span>' : '');
+}
+/* いちばん上の要点：種類・お名前・日時・場所・同席（＋登録済みのお客様の情報／登録していない名前のつなぎ方） */
+function evSumHtml(a, c, row, smp){
+  var lab = SAMPLE_LABELS[a.type];
+  var nm = lab ? (a.type === 'MT' && a.guest ? a.guest : '') : (c ? c.name : String(a.guest || '').trim());
+  var h = '<section class="ev-sec ev-sum ev-who" aria-label="予定の要点"><div class="es-top">' + evTypeHtml(a.type) + '</div>';
+  if (!lab) h += '<p class="es-name">' + (nm ? esc(/様$/.test(nm) ? nm : nm + ' 様') : '（顧客未設定）') + '</p>';
+  else if (nm) h += '<p class="es-name">' + esc(nm) + '</p>';
+  h += '<dl class="es-kv"><dt>日時</dt><dd><span class="nb">' + esc(fmtJpDate(a.date)) + '</span>　<span class="nb">' + esc(timeLabel(a)) + '</span></dd>' +
+    '<dt>場所</dt><dd>' + (a.place ? esc(a.place) : '<span class="es-none">記録なし</span>') + '</dd>' +
+    (a.who || a.fam === true ? '<dt>同席</dt><dd>' + esc(a.who || '') + (a.fam === true ? '<span class="ev-fam">ご家族などが同席</span>' : '') + '</dd>' : '') + '</dl>';
+  if (!smp && !lab) h += evWhoMore(a, c, row);
+  return h + '</section>';
+}
+/* 登録済みのお客様の情報／登録していない名前は、同じお名前の方につなぐ・お客様として登録する */
+function evWhoMore(a, c, row){
   if (c) {
     var age = birthOk(c) && typeof KKC !== 'undefined' ? KKC.ageAt(c.birth, todayStr()) : null;
     var tel = telHref(c.tel);
@@ -4355,17 +4533,16 @@ function evWhoHtml(a, c, row){
     var stl = c.status === 'lost' ? '失注' : c.status === 'hold' ? '保留' : stageLabel(c.stage);
     if (stl) sub.push('<span>ステージ：' + esc(stl) + '</span>');
     if (c.tel) sub.push(tel ? '<a href="' + esc(tel) + '">' + esc(c.tel) + '</a>' : '<span>' + esc(c.tel) + '</span>');
-    return '<div class="ew-main"><span class="ew-name">' + esc(c.name) + ' 様</span><span class="ew-sub">' + sub.join('') + '</span></div>' +
+    return '<div class="es-cust">' + sub.join('') + '</div>' +
       (c.next ? '<p class="ew-note">次にやること：' + esc(c.next) + '</p>' : '') +
       (!birthOk(c) && row && row.kou && row.kou.unknown && !evOverAe ? '<div class="ew-acts"><button type="button" class="btn btn-ghost btn-sm" data-ev-birth="' + esc(c.id) + '">生年月日を入れる（ご高齢の方の確認に使います）</button></div>' : '');
   }
   var g = String(a.guest || '').trim();
-  if (!g) return '<div class="ew-main"><span class="ew-name">（顧客未設定）</span></div>';
+  if (!g) return '';
   var same = custsByName(g);
   /* 数えるのは活動の記録だけ（契約の記録は、その契約の活動と一緒に1件として数える） */
   var gk = nameKey(g), n = state.activities.filter(function(x){ return !x.cid && x.guest && nameKey(x.guest) === gk; }).length;
-  return '<div class="ew-main"><span class="ew-name">' + esc(g) + ' 様</span><span class="ew-sub"><span>お客様として登録されていない名前です</span></span></div>' +
-    '<p class="ew-note">お客様につなぐと、カルテ・誕生日・ご高齢の方の確認がこの記録とつながります。' + (n > 1 ? '同じ名前で残した記録 ' + n + '件を、まとめてつなぎます。' : '') + '</p>' +
+  return '<p class="ew-note"><b>お客様として登録されていない名前です。</b>お客様につなぐと、カルテ・誕生日・ご高齢の方の確認がこの記録とつながります。' + (n > 1 ? '同じ名前で残した記録 ' + n + '件を、まとめてつなぎます。' : '') + '</p>' +
     (evOverAe ? '' : '<div class="ew-acts">' + same.slice(0, 3).map(function(x){
       return '<button type="button" class="btn btn-ghost btn-sm" data-ev-link="' + esc(x.id) + '">' + esc(custLabel(x)) + 'の記録にする</button>';
     }).join('') + '<button type="button" class="btn ' + (same.length ? 'btn-ghost' : 'btn-primary') + ' btn-sm" data-ev-new="1">' +
@@ -4397,18 +4574,24 @@ $('evBody').addEventListener('click', function(ev){
     if ($('cfBirth')) $('cfBirth').focus();
   }
 });
-/* 契約の記録：この契約のコンプライアンス */
-function evContractComp(row, res, c){
-  var h = '<div class="ev-ch"><h3 class="ev-h">この契約のコンプライアンス</h3>' +
-    '<a class="btn btn-ghost btn-sm" href="' + esc(kokyakuHref('#k=' + encodeURIComponent(row.k.id))) + '" target="katatsugi-kokyaku">顧客管理で見る</a></div>';
-  var red = row.alerts.filter(function(a){ return a.lv === 'red'; }), amb = row.alerts.filter(function(a){ return a.lv === 'amber'; });
-  var info = row.alerts.filter(function(a){ return a.lv === 'info'; });
+/* 契約の記録：提出書類（意向把握・比較推奨・要るときは適合性の確認）。状態の札と、状態に関わらず押せる「開く」 */
+function evContractComp(row, res){
+  var fd = res.feed;
+  var bad = fd ? row.need.filter(function(kind){ var x = row.st[kind]; return x.s === 'none' || x.s === 'miss' || x.odr; }).length : 0;
+  var chip = !fd ? '<span class="kk-st s-unk">状態は不明</span>'
+    : row.before ? '<span class="kk-st s-unk">知らせの起点より前</span>'
+    : bad ? '<span class="kk-st s-none">直すことがあります（' + bad + 'つ）</span>' : '<span class="kk-st s-ok">そろっています</span>';
+  return '<div class="ev-ch"><h3 class="ev-h">提出書類</h3>' + chip +
+    '<a class="btn btn-ghost btn-sm" href="' + esc(kokyakuHref('#k=' + encodeURIComponent(row.k.id))) + '" target="katatsugi-kokyaku">顧客管理で見る</a></div>' +
+    kkDocsHtml(row, res, true);
+}
+/* 契約の記録：そのほかの確認（上長から戻された理由・ご高齢の方の確認・上長の確認） */
+function evContractMore(row, res){
+  var h = '';
+  var amb = row.alerts.filter(function(a){ return a.lv === 'amber'; }), info = row.alerts.filter(function(a){ return a.lv === 'info'; });
   if (row.before) h += '<div class="ev-al info"><b>知らせの起点より前の契約です</b>顧客管理の「知らせの起点」の日より前なので、知らせと上長の確認には数えていません。</div>';
-  else if (red.length) h += '<div class="ev-al bad" role="note"><b>直すことがあります</b><ul>' + red.map(function(a){ return '<li>' + esc(a.t) + '</li>'; }).join('') + '</ul></div>';
   else if (amb.length) h += '<div class="ev-al bk" role="note"><b>上長から戻されました</b><ul>' + amb.map(function(a){ return '<li>' + esc(a.t.replace(/^上長から戻されました：?/, '') || '理由は書かれていません') + '</li>'; }).join('') + '</ul></div>';
-  else if (res.feed) h += '<div class="ev-al ok"><b>要る記録はそろっています</b>' + (row.kou.need ? 'ご高齢の方の確認も、条件を満たしています。' : '') + '</div>';
   if (!row.before && info.length) h += '<div class="ev-al info">' + info.map(function(a){ return esc(a.t); }).join('<br>') + '</div>';
-  h += kkDocsHtml(row, res, true);
   /* ご高齢の方の確認 */
   if (row.kou.need) {
     var f = row.f, set = res.tool.set;
@@ -4419,6 +4602,37 @@ function evContractComp(row, res, c){
   }
   var ci = kkChkInfo(row);
   if (!row.before) h += '<p class="ev-line"><b>上長の確認</b><span class="' + ci.cls + '">' + esc(ci.t) + '</span></p>';
+  return h ? '<h3 class="ev-h">そのほかの確認</h3>' + h : '';
+}
+/* サンプル表示の予定の中身（実際の記録ではない。「開く」は管理画面のその記録の画面を開く） */
+function smpNeed(K){ return ['iko', 'hikaku'].concat(K.hen ? ['tekigou'] : []); }
+function smpDocsBad(K){ return smpNeed(K).filter(function(kind){ return K.docs[kind] !== 'ok'; }); }
+function smpLineHtml(K){
+  var b = smpDocsBad(K);
+  return b.length ? '<span class="tl-meta kk-dp bad">直すこと：' + esc(b.map(function(kind){ return KKC.NAME[kind] + (K.docs[kind] === 'miss' ? 'に欠け' : 'がまだ'); }).join('・')) + '</span>'
+    : '<span class="tl-meta kk-dp ok">提出書類：そろっています</span>';
+}
+function evSampleHtml(a){
+  var h = '<div class="ev-smp" role="note"><b>サンプル表示です</b>実際の記録ではありません。押したときの見え方の見本です。' +
+    (a.smpK ? '「開く」は、管理画面のコンプライアンスの、その記録の画面を開きます。' : '') + '</div>';
+  h += evSumHtml(a, null, null, true);
+  var K = a.smpK;
+  if (!K || typeof KKC === 'undefined') return h;
+  var need = smpNeed(K), bad = smpDocsBad(K).length, base = parseYmd(a.date);
+  var off = { iko: -14, hikaku: -7, tekigou: -7 };
+  h += '<section class="ev-sec ev-comp ev-docs" aria-label="提出書類"><div class="ev-ch"><h3 class="ev-h">提出書類</h3>' +
+    (bad ? '<span class="kk-st s-none">直すことがあります（' + bad + 'つ）</span>' : '<span class="kk-st s-ok">そろっています</span>') + '</div>' +
+    '<ul class="kk-list">' + need.map(function(kind){
+      var s2 = K.docs[kind], lab = s2 === 'ok' ? '開く' : s2 === 'miss' ? '開いて直す' : '開いて書く';
+      return '<li class="kk-it"><span class="kk-n">' + esc(KKC.NAME[kind]) + '</span>' +
+        '<span class="kk-st s-' + s2 + '">' + esc(KK_ST[s2]) + '</span>' +
+        (s2 !== 'none' ? '<span class="kk-own">記録 ' + esc(fmtMd(ymd(addDays(base, off[kind])))) + '・見本</span>' : '') +
+        '<a class="btn ' + (s2 === 'none' ? 'btn-primary' : 'btn-ghost') + ' btn-sm" href="' + esc(hubHref('#compliance/' + kind)) + '" target="katatsugi-hub" aria-label="' + esc(KKC.NAME[kind] + 'を' + lab) + '">' + lab + '</a>' +
+        (s2 === 'miss' ? '<span class="kk-why">欠け：お勧めした理由（見本）</span>' : '') + '</li>';
+    }).join('') + '</ul>' +
+    (K.hen ? '<p class="kk-note"><b>適合性の確認書は、申込書と一緒に保険会社へ提出してください。</b>様式と出し方は、所属保険会社の決まりに従ってください。</p>' : '') + '</section>';
+  h += '<section class="ev-sec"><h3 class="ev-h">契約の内容</h3><dl class="kv"><dt>保険会社・商品</dt><dd>' + esc(K.company + '　' + K.product) + '</dd>' +
+    '<dt>保険料</dt><dd>' + esc(fmtYenFull(K.amt)) + '（月払）</dd></dl></section>';
   return h;
 }
 /* 契約の前の記録：この方のコンプライアンスの記録（管理画面の記録を顧客名で） */
@@ -4432,7 +4646,7 @@ function evNameComp(a, c, name){
   h += '<ul class="kk-list ev-recs">' + kinds.map(function(kind){
     var list = recs[kind], r = list[0];
     var act = r ? '<a class="btn btn-ghost btn-sm" href="' + esc(hubHref(KKC.openHash(r))) + '" target="katatsugi-hub">' + (r.miss.length ? '開いて直す' : '開く') + '</a>'
-      : '<a class="btn btn-primary btn-sm" href="' + esc(hubHref(KKC.newHashFor(kind, name, a.date, kind === 'hikaku' ? m.dates : null))) + '" target="katatsugi-hub">書く</a>';
+      : '<a class="btn btn-primary btn-sm" href="' + esc(hubHref(KKC.newHashFor(kind, name, a.date, kind === 'hikaku' ? m.dates : null))) + '" target="katatsugi-hub" aria-label="' + esc(KKC.NAME[kind] + 'を開いて書く') + '">開いて書く</a>';
     var s = !fd ? 'unk' : !r ? 'none' : r.miss.length ? 'miss' : 'ok';
     return '<li class="kk-it"><span class="kk-n">' + esc(KKC.NAME[kind]) + '</span>' +
       '<span class="kk-st s-' + s + '">' + esc(!fd ? '状態は不明' : !r ? 'まだ' : r.miss.length ? '欠けあり' : 'あり') + '</span>' +
