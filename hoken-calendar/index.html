@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" data-kt="cal">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -609,6 +609,37 @@ a.tb-tag:hover{border-color:var(--amber);}
   .sheet-body{padding:var(--sp-4);}
   .cust-row{padding:14px 16px;gap:var(--sp-3);}
 }
+/* KTNAV-CSS-BEGIN 社内ツールの切り替え（正本は hoken-newtools-src/tools-common/ktnav.html。apply_ktnav.py が入れる） */
+.ktnav{position:relative;}
+.ktnav > summary{list-style:none;display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:8px 16px;border-radius:999px;
+  border:1.5px solid var(--line);background:var(--white);color:var(--navy);font-weight:700;font-size:var(--fs-sm);cursor:pointer;white-space:nowrap;}
+.ktnav > summary::-webkit-details-marker{display:none;}
+.ktnav > summary:hover,.ktnav[open] > summary{border-color:var(--navy-2);background:var(--navy-soft);}
+.ktnav > summary svg{width:18px;height:18px;}
+.ktnav-menu{position:absolute;right:0;top:calc(100% + 8px);z-index:60;width:min(340px,calc(100vw - 24px));background:var(--white);
+  border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 32px rgba(40,50,60,.16);padding:8px;display:grid;gap:2px;}
+.ktnav-menu a,.ktnav-menu .kt-cur{display:grid;grid-template-columns:34px minmax(0,1fr);align-items:center;gap:2px 10px;min-height:52px;
+  padding:7px 10px;border-radius:12px;text-decoration:none;color:var(--text);}
+.ktnav-menu a:hover,.ktnav-menu a:focus-visible{background:var(--navy-soft);}
+.ktnav-menu .kt-ico{grid-row:1 / span 2;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:var(--navy-soft);color:var(--navy);}
+.ktnav-menu .kt-ico svg{width:18px;height:18px;}
+.ktnav-menu b{font-size:var(--fs-sm);color:var(--navy);line-height:1.35;}
+.ktnav-menu small{font-size:var(--fs-xs);color:var(--muted);line-height:1.4;}
+.ktnav-menu .kt-cur{background:#f6f3ef;}
+.ktnav-menu .kt-cur b::after{content:"いまの画面";display:inline-block;white-space:nowrap;vertical-align:1px;font-weight:700;font-size:var(--fs-xs);line-height:1.5;
+  color:var(--muted);background:var(--white);border:1px solid var(--line);border-radius:999px;padding:0 8px;margin-left:6px;}
+.ktnav-menu hr{border:0;border-top:1px solid var(--line);margin:4px 6px;}
+.ktnav > summary .kt-s{display:none;}
+@media(max-width:600px){
+  .topbar .tb-home{display:none !important;}
+  .ktnav > summary{padding:8px 12px;font-size:14px;gap:6px;}
+  .ktnav > summary .kt-l{display:none;}
+  .ktnav > summary .kt-s{display:inline;}
+  .ktnav-menu{position:fixed;left:12px;right:12px;top:60px;width:auto;max-height:calc(100dvh - 80px);overflow:auto;}
+}
+@media print{ .ktnav{display:none !important;} }
+/* KTNAV-CSS-END */
 </style>
 </head>
 <body>
@@ -923,6 +954,7 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
     </div>
     <div class="tb-right">
       <a class="tb-tag" id="tbTag" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>データはこの端末だけ・控えを取る</a>
+      <!-- KTNAV-BEGIN --><details class="ktnav" id="ktNav"><summary aria-label="ほかのツールへ切り替える"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4 3 8l4 4"/><path d="M3 8h13"/><path d="m17 12 4 4-4 4"/><path d="M21 16H8"/></svg><span class="kt-l">ツールを切り替え</span><span class="kt-s">メニュー</span></summary><nav class="ktnav-menu" id="ktNavMenu" aria-label="社内ツールの切り替え"></nav></details><!-- KTNAV-END -->
       <a class="tb-home" id="tbHome" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg><span>管理画面<span class="th-l">へ</span></span></a>
     </div>
   </div>
@@ -1066,9 +1098,10 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
     <div class="sec">
       <div class="card">
         <h3 class="c-head">営業ダッシュボードから取り込む</h3>
-        <p class="sec-note">同じ端末の「保険営業ダッシュボード」に入れたお客様（氏名・ふりがな・生年月日・連絡先）とご契約を、こちらへ写します。営業ダッシュボードの記録は書き換えません。同じお名前と生年月日の方、前に取り込んだ方は重ねません。</p>
+        <p class="sec-note">同じ端末の「保険営業ダッシュボード」に入れたお客様（氏名・ふりがな・生年月日・連絡先）とご契約（契約日・満期日・払込満了日）を、こちらへ写します。営業ダッシュボードの記録は書き換えません。同じお名前と生年月日の方、前に取り込んだ方は重ねません。</p>
+        <label class="chk" id="autoSalesWrap" style="margin-bottom:12px;"><input type="checkbox" id="autoSales"><span>開いたときと、営業ダッシュボードで保存したときに自動で取り込む</span></label>
         <div class="frm-actions" style="margin-top:0;">
-          <button class="btn btn-primary btn-sm" id="impSales">営業ダッシュボードから取り込む</button>
+          <button class="btn btn-primary btn-sm" id="impSales">いま取り込む</button>
         </div>
         <p class="sec-note" id="salesInfo" style="margin-bottom:0;"></p>
       </div>
@@ -1235,9 +1268,20 @@ function defaultState(){
     policies: [],        /* { id, cid, kind, kindText, company, product, start, maturity, payEnd, renew, renewY, annAge, memo, addedAt, sid } */
     done: {},            /* きっかけのid →{ d:連絡した日, how:方法, memo:メモ, at:記録した日時 }。
                             id は「種類|契約（またはお客様）|年」なので、日付を直しても印は外れない。翌年はまた出る */
-    settings: { horizon: 90, hideDone: false, types: {}, lookback: 90 },
+    settings: { horizon: 90, hideDone: false, types: {}, lookback: 90, autoSales: true },
+    salesSeen: { c: {}, k: {} },   /* 営業ダッシュボードから一度入れた（または前から入っていた）お客様・ご契約の番号。こちらで消したものは自動では足し直さない（2026-10-06） */
     lastTab: ''
   };
+}
+function cleanSeen(o){
+  var out = { c: {}, k: {} };
+  if (!o || typeof o !== 'object') return out;
+  ['c', 'k'].forEach(function(g){
+    var m = o[g];
+    if (!m || typeof m !== 'object' || Array.isArray(m)) return;
+    Object.keys(m).slice(0, 40000).forEach(function(id){ if (/^[A-Za-z0-9_@.\-]{1,80}$/.test(id)) out[g][id] = 1; });
+  });
+  return out;
 }
 var baseRaw = null, otherWin = false, saveFailed = false;
 function fromRaw(raw){
@@ -1255,7 +1299,9 @@ function fromRaw(raw){
       st.settings.hideDone = !!s.hideDone;
       if (s.types && typeof s.types === 'object') st.settings.types = s.types;
       if (LOOKBACKS.indexOf(+s.lookback) >= 0) st.settings.lookback = +s.lookback;
+      st.settings.autoSales = s.autoSales !== false;
     }
+    st.salesSeen = cleanSeen(o.salesSeen);
     if (TABS.indexOf(o.lastTab) >= 0) st.lastTab = o.lastTab;
   }
   CAL_ORDER.forEach(function(k){ if (typeof st.settings.types[k] !== 'boolean') st.settings.types[k] = true; });
@@ -1309,6 +1355,9 @@ function mergeStates(b, m, t){
   out.customers = mergeList(b.customers, m.customers, t.customers, 'id');
   out.policies = mergeList(b.policies, m.policies, t.policies, 'id');
   out.done = mergeDone(b.done, m.done, t.done);
+  var sn = cleanSeen(t.salesSeen), sm = cleanSeen(m.salesSeen);
+  ['c', 'k'].forEach(function(g){ Object.keys(sm[g]).forEach(function(id){ sn[g][id] = 1; }); });
+  out.salesSeen = sn;
   out.settings = m.settings;
   out.lastTab = m.lastTab;
   return out;
@@ -1330,6 +1379,7 @@ function save(){
   catch (e) { saveFailed = true; renderBars(); return false; }
   baseRaw = json;
   if (saveFailed || otherWin) { saveFailed = false; otherWin = false; renderBars(); }
+  if (typeof writeCalFeed === 'function') writeCalFeed();
   return true;
 }
 /* タブの切り替えだけを残す（ほかの窓の記録を上書きしない） */
@@ -1367,6 +1417,8 @@ function reloadFromStorage(){
 }
 window.addEventListener('storage', function(e){
   if (!state) return;
+  /* 営業ダッシュボードで保存したら、新しいお客様・ご契約を取り込む（設定で止められる） */
+  if (e.key === 'officem.hokenSales.v1' && typeof autoFromSales === 'function') { autoFromSales(); return; }
   if (e.key === LS_KEY || e.key === null) {
     var nv = null;
     try { nv = localStorage.getItem(LS_KEY); } catch (x) { return; }
@@ -1407,22 +1459,11 @@ function renderBackupInfo(){
   if (el) el.textContent = at ? '最後に控えを書き出した日時：' + fmtStamp(at) + '（' + daysSince(at) + '）' : 'この端末では、まだ控えを書き出していません。';
   renderNote();
 }
-/* ページの上の静かなお知らせ：記録があって、控えを14日以上書き出していないとき */
-var noteClosed = false;
+/* ページの上の控えの帯は出さない（2026-10-06 ユーザー指示＋画面写真「注釈やサンプルと記載されていてなどが多すぎて見ずらい。無くしてください」）。
+   控えは「設定・控え」の「控えを書き出す」と、管理画面の「データの控え」から書き出せる */
 function renderNote(){
   var host = $('omNote');
-  if (!host || !state) return;
-  var n = state.customers.length;
-  var at = lastBackupAt();
-  var days = at ? Math.floor((Date.now() - Date.parse(at)) / 86400000) : null;
-  if (noteClosed || !n || (days !== null && days < 14)) { host.innerHTML = ''; return; }
-  host.innerHTML = '<div class="om-note no-print"><span class="on-t"><b>' +
-    (days === null ? '控えをまだ書き出していません。' : '最後に控えを書き出してから' + days + '日たちました。') + '</b>' +
-    '<span class="on-why">記録はこの端末の中だけです。書き出しておけば、端末を替えても戻せます。</span></span>' +
-    '<button type="button" class="btn btn-primary btn-sm" id="noteExp">控えを書き出す</button>' +
-    '<button type="button" class="btn btn-ghost btn-sm" id="noteClose">今は閉じる</button></div>';
-  $('noteExp').addEventListener('click', exportBackup);
-  $('noteClose').addEventListener('click', function(){ noteClosed = true; renderNote(); });
+  if (host) host.innerHTML = '';
 }
 
 /* ---- 読み込んだ控えの中身を、形で確かめてから使う（知らない項目は捨てる・長さに上限） ---- */
@@ -1438,7 +1479,14 @@ function cleanCust(c){
   if (cS(c.addedAt)) o.addedAt = cS(c.addedAt, 30);
   if (cId(c.sid)) o.sid = c.sid;
   if (c.src === 'sales') o.src = 'sales';
+  if (c.sv && typeof c.sv === 'object' && cD(c.sv.birth)) o.sv = { birth: cD(c.sv.birth) };   /* 営業ダッシュボードから前に写した値 */
   return o;
+}
+function cleanSv(v, keys){
+  if (!v || typeof v !== 'object') return null;
+  var o = {}, n = 0;
+  keys.forEach(function(k){ if (cD(v[k])) { o[k] = cD(v[k]); n++; } });
+  return n ? o : null;
 }
 function cleanPol(p){
   if (!p || typeof p !== 'object' || !cId(p.id) || !cId(p.cid)) return null;
@@ -1447,6 +1495,8 @@ function cleanPol(p){
     renew:p.renew === true, renewY:cInt(p.renewY, 0, 50), annAge:cInt(p.annAge, 0, 100), memo:cS(p.memo, 1000) };
   if (cS(p.addedAt)) o.addedAt = cS(p.addedAt, 30);
   if (cId(p.sid)) o.sid = p.sid;
+  var sv = cleanSv(p.sv, ['start', 'maturity', 'payEnd']);
+  if (sv) o.sv = sv;
   return o;
 }
 var DONE_KEY_RE = /^(bd|ann|mat|pay|pen|age)\|[A-Za-z0-9_@.\-]{1,80}\|(\d{4}|\d{4}-\d{2}-\d{2})(\|pre)?$/;
@@ -1475,8 +1525,10 @@ function cleanState(o){
     if (HORIZONS.indexOf(+s.horizon) >= 0) d.settings.horizon = +s.horizon;
     d.settings.hideDone = s.hideDone === true;
     if (LOOKBACKS.indexOf(+s.lookback) >= 0) d.settings.lookback = +s.lookback;
+    d.settings.autoSales = s.autoSales !== false;
     if (s.types && typeof s.types === 'object') CAL_ORDER.forEach(function(k){ if (typeof s.types[k] === 'boolean') d.settings.types[k] = s.types[k]; });
   }
+  d.salesSeen = cleanSeen(o.salesSeen);
   CAL_ORDER.forEach(function(k){ if (typeof d.settings.types[k] !== 'boolean') d.settings.types[k] = true; });
   return d;
 }
@@ -3414,17 +3466,27 @@ function salesCount(){
   var o = salesData();
   return o ? o.customers.filter(function(c){ return c && typeof c === 'object' && cS(c.name).trim() && c.status !== 'lost'; }).length : 0;
 }
-function salesPlan(){
+/* auto＝自動の取り込み（こちらで消したお客様・ご契約は足し直さない）。
+   fill＝前から入っている方・ご契約に、営業ダッシュボードの生年月日・契約日・満期日・払込満了日を写す。
+   写すのは「こちらが空」か「前に写した値のまま（こちらで直していない）」のときだけ（sv＝前に写した値） */
+function svFill(rec, f, v, out){
+  if (!v) return;
+  var sv = rec.sv || {}, cur = rec[f] || '';
+  if (cur === v) { if (sv[f] !== v) { out.sv = out.sv || {}; out.sv[f] = v; } return; }
+  if (!cur || cur === sv[f]) { out[f] = v; out.sv = out.sv || {}; out.sv[f] = v; }
+}
+function salesPlan(auto){
   var o = salesData();
   if (!o) return null;
   var today = todayStr(), now = new Date().toISOString();
+  var seen = auto ? cleanSeen(state.salesSeen) : null;
   var bySid = {}, byKey = {};
   state.customers.forEach(function(c){
     if (c.sid) bySid[c.sid] = c;
     var k = nameKey(c.name); (byKey[k] = byKey[k] || []).push(c);
   });
-  var plan = { addC: [], addP: [], have: 0, lost: 0, unsure: 0, noBirth: 0, futureB: 0, dupP: 0 };
-  var map = {};
+  var plan = { addC: [], addP: [], fill: [], seenC: [], seenK: [], have: 0, lost: 0, unsure: 0, noBirth: 0, futureB: 0, dupP: 0 };
+  var map = {}, linked = {};
   o.customers.forEach(function(sc){
     if (!sc || typeof sc !== 'object' || !cId(sc.id)) return;
     var name = cS(sc.name, 80).trim();
@@ -3434,34 +3496,106 @@ function salesPlan(){
     if (isYmd(sc.birth) && sc.birth > today) plan.futureB++;
     var hit = bySid[sc.id] || null;
     if (!hit) {
-      var cands = byKey[nameKey(name)] || [];
+      if (seen && seen.c[sc.id]) return;   /* 前に入れて、こちらで消した方は、自動では足し直さない */
+      var cands = (byKey[nameKey(name)] || []).filter(function(c){ return !c.sid || c.sid === sc.id; });
       if (birth) {
         hit = cands.filter(function(c){ return c.birth === birth; })[0] || null;
         if (!hit && cands.length === 1 && !cands[0].birth) hit = cands[0];
       } else if (cands.length === 1) hit = cands[0];
       else if (cands.length > 1) { plan.unsure++; return; }
     }
-    if (hit) { plan.have++; map[sc.id] = hit.id; return; }
+    if (hit) {
+      if (linked[hit.id]) return;   /* 1人に2人ぶんを重ねない */
+      linked[hit.id] = 1;
+      plan.have++; map[sc.id] = hit.id; plan.seenC.push(sc.id);
+      var f = {};
+      if (!hit.sid) f.sid = sc.id;
+      svFill(hit, 'birth', birth, f);
+      if (Object.keys(f).length) plan.fill.push({ t: 'c', id: hit.id, f: f });
+      return;
+    }
     var c = { id: uid('c'), name: name, kana: toKata(cS(sc.kana, 80)), birth: birth, contact: cS(sc.tel, 200),
       memo: cS(sc.company, 120) ? '会社・職業：' + cS(sc.company, 120) : '', addedAt: now, sid: sc.id, src: 'sales' };
+    if (birth) c.sv = { birth: birth };
     if (!birth) plan.noBirth++;
-    plan.addC.push(c); map[sc.id] = c.id;
+    plan.addC.push(c); map[sc.id] = c.id; plan.seenC.push(sc.id);
   });
-  var sidHave = {}, keyHave = {};
-  state.policies.forEach(function(p){ if (p.sid) sidHave[p.sid] = 1; keyHave[p.cid + '|' + normText(p.company) + '|' + normText(p.product) + '|' + (p.start || '')] = 1; });
+  var bySidP = {}, keyHave = {};
+  state.policies.forEach(function(p){ if (p.sid) bySidP[p.sid] = p; keyHave[p.cid + '|' + normText(p.company) + '|' + normText(p.product) + '|' + (p.start || '')] = 1; });
   (Array.isArray(o.contracts) ? o.contracts : []).forEach(function(k){
     if (!k || typeof k !== 'object' || !cId(k.id) || !map[k.cid]) return;
-    if (sidHave[k.id]) return;
-    var cid = map[k.cid], company = cS(k.company, 120), product = cS(k.product, 160), start = isYmd(k.date) ? k.date : '';
+    var start = isYmd(k.date) ? k.date : '', mat = isYmd(k.mat) ? k.mat : '', pend = isYmd(k.payEnd) ? k.payEnd : '';
+    var have = bySidP[k.id];
+    if (have) {
+      plan.seenK.push(k.id);
+      var f = {};
+      svFill(have, 'start', start, f); svFill(have, 'maturity', mat, f); svFill(have, 'payEnd', pend, f);
+      if (Object.keys(f).length) plan.fill.push({ t: 'p', id: have.id, f: f });
+      return;
+    }
+    if (seen && seen.k[k.id]) return;
+    var cid = map[k.cid], company = cS(k.company, 120), product = cS(k.product, 160);
     var key = cid + '|' + normText(company) + '|' + normText(product) + '|' + start;
-    if (keyHave[key]) { plan.dupP++; return; }
+    if (keyHave[key]) { plan.dupP++; plan.seenK.push(k.id); return; }
     keyHave[key] = 1;
     var kind = guessKind(product) || 'other', son = kindDef(kind).grp === 'sonpo';
-    plan.addP.push({ id: uid('p'), cid: cid, kind: kind, kindText: '', company: company, product: product,
-      start: start, maturity: '', payEnd: '', renew: son, renewY: son ? 1 : 0, annAge: 0,
-      memo: '営業ダッシュボードから取り込み', addedAt: now, sid: k.id });
+    var p = { id: uid('p'), cid: cid, kind: kind, kindText: '', company: company, product: product,
+      start: start, maturity: mat, payEnd: pend, renew: son, renewY: son ? 1 : 0, annAge: 0,
+      memo: '営業ダッシュボードから取り込み', addedAt: now, sid: k.id };
+    var sv = cleanSv({ start: start, maturity: mat, payEnd: pend }, ['start', 'maturity', 'payEnd']);
+    if (sv) p.sv = sv;
+    plan.addP.push(p); plan.seenK.push(k.id);
   });
   return plan;
+}
+function polById(id){ for (var i = 0; i < state.policies.length; i++) if (state.policies[i].id === id) return state.policies[i]; return null; }
+/* 取り込みを当てる（足す・写す・一度入れた印）。変わったものがあれば true */
+function applySalesPlan(plan){
+  var ch = false;
+  plan.addC.forEach(function(c){ state.customers.push(c); ch = true; });
+  plan.addP.forEach(function(p){ state.policies.push(p); ch = true; });
+  plan.fill.forEach(function(x){
+    var r = x.t === 'c' ? custById(x.id) : polById(x.id);
+    if (!r) return;
+    Object.keys(x.f).forEach(function(k){
+      if (k === 'sv') r.sv = Object.assign({}, r.sv || {}, x.f.sv);
+      else r[k] = x.f[k];
+    });
+    ch = true;
+  });
+  state.salesSeen = cleanSeen(state.salesSeen);
+  plan.seenC.forEach(function(id){ if (!state.salesSeen.c[id]) { state.salesSeen.c[id] = 1; ch = true; } });
+  plan.seenK.forEach(function(id){ if (!state.salesSeen.k[id]) { state.salesSeen.k[id] = 1; ch = true; } });
+  return ch;
+}
+function fillCount(plan){ return plan.fill.filter(function(x){ return Object.keys(x.f).some(function(k){ return k !== 'sv' && k !== 'sid'; }); }).length; }
+/* 自動の取り込み：開いたとき・営業ダッシュボードで保存したとき（設定で止められる）。
+   ほかの窓でこのツールの記録が変わっているあいだは、読み直すまで待つ */
+var autoBusy = false;
+function autoFromSales(quiet){
+  if (!state || autoBusy || state.settings.autoSales === false || otherWin || askDone) return;
+  var raw = null;
+  try { raw = localStorage.getItem(LS_KEY); } catch (e) { return; }
+  if (raw !== baseRaw && dataSig(raw) !== dataSig(baseRaw)) return;
+  var plan = salesPlan(true);
+  if (!plan) return;
+  autoBusy = true;
+  var nc = plan.addC.length, np = plan.addP.length, nf = fillCount(plan);
+  var ch = applySalesPlan(plan);
+  autoBusy = false;
+  if (!ch) return;
+  if (!save()) return;
+  if (!quiet) refreshView();
+  if (nc || np) {
+    var msg = '営業ダッシュボードから、' + (nc ? 'お客様' + nc + '人' : '') + (nc && np ? '・' : '') + (np ? 'ご契約' + np + '件' : '') + 'を取り込みました。';
+    offerUndo(msg, function(){
+      var cs = {}, ps = {};
+      plan.addC.forEach(function(c){ cs[c.id] = 1; });
+      plan.addP.forEach(function(p){ ps[p.id] = 1; });
+      state.customers = state.customers.filter(function(c){ return !cs[c.id]; });
+      state.policies = state.policies.filter(function(p){ return !ps[p.id] && !cs[p.cid]; });
+    });
+  } else if (nf) offerUndo('営業ダッシュボードの生年月日・満期日などを、' + nf + '件に写しました。', null);
 }
 function importFromSales(){
   var plan = salesPlan();
@@ -3471,9 +3605,12 @@ function importFromSales(){
       [{ label:'閉じる', value:'' }]);
     return;
   }
+  var nf = fillCount(plan);
   if (!plan.addC.length && !plan.addP.length) {
+    if (applySalesPlan(plan)) { save(); refreshView(); }
     omAsk('新しく取り込むお客様・ご契約はありません',
       '<p style="margin:0;">営業ダッシュボードのお客様は、全てこちらに入っています（同じお名前と生年月日の方・前に取り込んだ方は重ねません）。</p>' +
+      (nf ? '<p style="margin:8px 0 0;">生年月日・満期日などを、営業ダッシュボードから ' + nf + '件に写しました。</p>' : '') +
       (plan.unsure ? '<p style="margin:8px 0 0;">同じお名前の方が2人以上いて見分けられなかった方 ' + plan.unsure + '人は、取り込んでいません。手で足してください。</p>' : ''),
       [{ label:'閉じる', value:'' }]);
     return;
@@ -3485,23 +3622,70 @@ function importFromSales(){
   if (plan.dupP) note.push('同じご契約がすでにある ' + plan.dupP + '件は、重ねません。');
   if (plan.noBirth) note.push('生年月日が入っていない方 ' + plan.noBirth + '人は、誕生日と年齢の節目のきっかけが出ません（あとで「編集する」から入れられます）。');
   if (plan.futureB) note.push('生年月日が今日より先になっている方 ' + plan.futureB + '人は、生年月日を空のまま取り込みます。');
+  if (nf) note.push('もう入っている方・ご契約 ' + nf + '件に、生年月日・満期日などを写します（こちらで直した値は上書きしません）。');
   omAsk('営業ダッシュボードから取り込む',
     '<table><tr><th>新しく足すお客様</th><td>' + plan.addC.length + '人</td></tr><tr><th>足すご契約</th><td>' + plan.addP.length + '件</td></tr></table>' +
     (note.length ? '<p style="margin:0;">' + note.map(esc).join('<br>') + '</p>' : '') +
-    '<p style="margin:8px 0 0;color:var(--muted);">営業ダッシュボードの記録は書き換えません。ご契約の満期日・払込満了日は営業ダッシュボードに無いので、要るものはあとで足してください。</p>',
+    '<p style="margin:8px 0 0;color:var(--muted);">営業ダッシュボードの記録は書き換えません。満期日・払込満了日は、営業ダッシュボードの契約の欄に入れたものだけを写します。</p>',
     [{ label:'取り込む', value:'go', cls:'btn-primary' }, { label:'やめる', value:'' }],
     function(v){
       if (v !== 'go') return;
       var prev = clone(state);
-      plan.addC.forEach(function(c){ state.customers.push(c); });
-      plan.addP.forEach(function(p){ state.policies.push(p); });
+      applySalesPlan(plan);
       if (!save()) { state = prev; return; }
       refreshView();
-      offerUndo('営業ダッシュボードから、お客様' + plan.addC.length + '人・ご契約' + plan.addP.length + '件を取り込みました。', function(){ state = prev; });
+      offerUndo('営業ダッシュボードから、お客様' + plan.addC.length + '人・ご契約' + plan.addP.length + '件を取り込みました。', function(){
+        var seen = cleanSeen(state.salesSeen);
+        state = prev; state.salesSeen = seen;   /* 戻しても、自動では足し直さない */
+      });
     });
 }
 $('impSales').addEventListener('click', importFromSales);
+$('autoSales').addEventListener('change', function(){
+  state.settings.autoSales = this.checked;
+  $('autoSalesWrap').classList.toggle('on', this.checked);
+  save();
+  if (this.checked) autoFromSales();
+});
+
+/* ---- ほかのツール（営業ダッシュボード・管理画面）へ渡す声かけの要約（2026-10-06） ----
+   中身は日付・種類・お名前・ご契約の名前・連絡済みか・期限を過ぎて未連絡か だけ。
+   過ぎた日は「期限を過ぎて未連絡」のものだけ、先は200日まで。書き換えはこのツールだけが行う */
+var CAL_FEED_OUT = 'officem.hokenCalendar.feed.v1', lastFeedBody = null;
+function feedLabel(e){
+  if (e.type === 'bd') return '誕生日の前月（' + e.age + '歳）';
+  if (e.type === 'age') return e.age + '歳の節目';
+  if (e.type === 'ann') return e.upd ? '更新の時期' : '契約応当日';
+  if (e.type === 'mat') return kindDef(e.pol && e.pol.kind).grp === 'sonpo' ? '満期・更改' : '満期';
+  if (e.type === 'pay') return '払込満了';
+  if (e.type === 'pen') return e.sub === 'pre' ? '年金開始の3か月前' : '年金の受取開始';
+  return EV_DEFS[e.type] ? EV_DEFS[e.type].label : '';
+}
+function writeCalFeed(){
+  if (!state) return;
+  try {
+    var today = todayStr(), to = addDaysStr(today, 200), soonTo = addDaysStr(today, 14);
+    var over = overdueEvents(), soon = 0;
+    var list = over.map(function(e){ e.__ov = 1; return e; }).concat(genEvents(today, to));
+    var ev = list.map(function(e){
+      var o = { d: e.date, t: e.type, l: feedLabel(e), n: e.cust ? e.cust.name : '' };
+      if (e.cust && e.cust.sid) o.cs = e.cust.sid;
+      if (e.pol) { o.p = polTitle(e.pol); if (e.pol.sid) o.ks = e.pol.sid; }
+      if (e.done) o.dn = 1;
+      if (e.__ov) o.ov = 1;
+      if (!e.done && !e.__ov && e.date <= soonTo) soon++;
+      return o;
+    });
+    var body = JSON.stringify({ v: 1, today: today, over: over.length, soon: soon, ev: ev.slice(0, 6000) });
+    if (body === lastFeedBody) return;
+    var o = JSON.parse(body); o.at = new Date().toISOString();
+    localStorage.setItem(CAL_FEED_OUT, JSON.stringify(o));
+    lastFeedBody = body;
+  } catch (e) {}
+}
 function renderSalesInfo(){
+  $('autoSales').checked = state.settings.autoSales !== false;
+  $('autoSalesWrap').classList.toggle('on', state.settings.autoSales !== false);
   var el = $('salesInfo');
   if (!el) return;
   var o = salesData();
@@ -3614,6 +3798,12 @@ function renderRules(){
 /* このツール自身は合言葉を持たない（公開版は扉が、管理画面の合言葉を入れた端末かを確かめてから開く）。
    開けばすぐ氏名と生年月日が出るので、「この端末にだけ残る／共有PCでは使わない／画面ロック」の注意は画面上で強く出している。 */
 state = load();
+autoFromSales(true);   /* 営業ダッシュボードに入れたお客様・ご契約を写す（設定で止められる） */
+writeCalFeed();
+document.addEventListener('visibilitychange', function(){
+  if (document.visibilityState !== 'visible') return;
+  autoFromSales(); writeCalFeed();
+});
 $('tbHome').href = hubHref();
 $('tbTag').href = hubHref('#backup');
 (function(){
@@ -3663,5 +3853,58 @@ window.__calTest = {
   parseCsv: parseCsv
 };
 </script>
+<script>/* KTNAV-JS-BEGIN 社内ツールの切り替え（正本は hoken-newtools-src/tools-common/ktnav.html） */
+(function(){
+  /* 管理画面の行き先は、この画面の「管理画面へ」（#tbHome）から読む。
+     公開先は ../hoken-hub/、会社フォルダは ../（make_agency.py が OMHUBURL の行を差し替える）、手元は日本語のファイル名 */
+  var ME = document.documentElement.getAttribute('data-kt') || '';
+  var ICO = {
+    hub: '<path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/>',
+    sales: '<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/>',
+    kokyaku: '<rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/>',
+    cal: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+    comp: '<path d="M12 3 4.5 6v5.5c0 4.6 3.2 8.2 7.5 9.5 4.3-1.3 7.5-4.9 7.5-9.5V6z"/><path d="m8.8 12 2.2 2.2 4.4-4.4"/>',
+    gyaku: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'
+  };
+  var T = [
+    { k:'hub', w:'katatsugi-hub', f:'', p:'', h:'', n:'管理画面', d:'今日の仕事・お客様をさがす' },
+    { k:'sales', w:'katatsugi-sales', f:'保険営業管理ツール.html', p:'hoken-sales/', h:'', n:'営業ダッシュボード', d:'予定・お客様・契約の記録' },
+    { k:'kokyaku', w:'katatsugi-kokyaku', f:'保険顧客管理ツール.html', p:'hoken-kokyaku/', h:'', n:'顧客管理', d:'契約ごとの提出書類・代理店点検' },
+    { k:'comp', w:'katatsugi-hub', f:'', p:'', h:'#compliance', n:'コンプライアンスの記録', d:'意向把握・比較推奨・適合性・苦情' },
+    { k:'cal', w:'katatsugi-calendar', f:'保険満期カレンダー.html', p:'hoken-calendar/', h:'', n:'満期・年齢到達カレンダー', d:'満期・更新・誕生日の声かけ' },
+    { k:'gyaku', w:'katatsugi-gyakusan', f:'保険目標逆算プランナー.html', p:'hoken-gyakusan/', h:'', n:'目標逆算プランナー', d:'実績の数から1日の接触を逆算' }
+  ];
+  function local(){ var p = location.pathname; return /\.html$/.test(p) && !/\/index\.html$/.test(p); }
+  function hubBase(){
+    var a = document.getElementById('tbHome'), h = a ? (a.getAttribute('href') || '') : '';
+    h = h.split('#')[0];
+    if (!h) h = local() ? encodeURI('保険ツール管理画面.html') : '../hoken-hub/';
+    return h;
+  }
+  function href(t){
+    if (t.k === 'hub' || t.k === 'comp') return hubBase() + t.h;
+    return (local() ? encodeURI(t.f) : '../' + t.p) + t.h;
+  }
+  var me = null; T.forEach(function(t){ if (t.k === ME) me = t; });
+  // 同じツールは同じタブで開く。同じタブで別のツールへ移ったときは付け直す（ほかの名前の付いた窓は触らない）
+  if (me && (!window.name || /^katatsugi-/.test(window.name))) { try { window.name = me.w; } catch (e) {} }
+  var menu = document.getElementById('ktNavMenu'), box = document.getElementById('ktNav');
+  if (!menu || !box) return;
+  var esc = function(s){ return String(s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); };
+  function draw(){
+    menu.innerHTML = T.map(function(t, i){
+      var ico = '<span class="kt-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICO[t.k] + '</svg></span>';
+      var body = ico + '<b>' + esc(t.n) + '</b><small>' + esc(t.d) + '</small>';
+      return (i === 1 ? '<hr>' : '') + (t.k === ME ? '<span class="kt-cur" aria-current="page">' + body + '</span>'
+        : '<a href="' + esc(href(t)) + '" target="' + t.w + '" data-kt-go="' + t.k + '">' + body + '</a>');
+    }).join('');
+  }
+  draw();
+  box.addEventListener('toggle', function(){ if (box.open) draw(); });
+  menu.addEventListener('click', function(e){ if (e.target.closest('a')) box.open = false; });
+  document.addEventListener('click', function(e){ if (box.open && !box.contains(e.target)) box.open = false; });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && box.open) { box.open = false; var s = box.querySelector('summary'); if (s) s.focus(); } });
+})();
+/* KTNAV-JS-END */</script>
 </body>
 </html>
