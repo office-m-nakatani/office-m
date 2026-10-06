@@ -109,6 +109,13 @@ a{color:var(--navy-2);}
 .bk-meter{height:10px;border-radius:999px;background:#eef1f5;overflow:hidden;}
 .bk-meter span{display:block;height:100%;background:#2c7a4b;border-radius:999px;}
 .bk-meter-cap{font-size:var(--fs-xs);color:var(--muted);margin:6px 0 12px;line-height:1.7;}
+/* 量が上限に近いとき（70％から琥珀・90％から赤。2026-10-06） */
+.bk-meter.bk-m-warn span{background:#c77a17;}
+.bk-meter.bk-m-full span{background:#b3261e;}
+.bk-full{margin:0 0 12px;max-width:none;}
+.bk-nag.bk-nag-full{background:#fdecea;border-color:#efb8b2;}
+.bk-nag.bk-nag-full > svg{color:#b3261e;}
+.bk-nag.bk-nag-full b{color:#8f1d16;}
 .bk-tablewrap{overflow-x:auto;margin-bottom:12px;}
 .bk-table{width:100%;border-collapse:collapse;font-size:var(--fs-sm);}
 .bk-table th,.bk-table td{border-bottom:1px solid var(--line);padding:8px 8px;text-align:left;vertical-align:top;line-height:1.6;}
@@ -668,7 +675,9 @@ body.comp-open #admin .wrap{max-width:1360px;}
   #auditSec .cp-table tr.cp-row > td[data-l]{border-bottom:1px solid #e8edf2;padding:8px 0;}
   #auditSec .cp-table tr.cp-row > td.cp-act-td{border-bottom:0;padding-top:10px;}
   #auditSec .cp-table > tbody > tr.cp-det > td{border:1px solid #d5e0ea;border-top:0;padding:10px 12px 12px;}
-  .cp-table .cp-acts{display:flex;}
+  /* 携帯の操作ボタンは2列の等幅（4つが「3つ＋1つ」とばらけないように。2026-10-06） */
+  .cp-table .cp-acts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));}
+  .cp-table .cp-acts .cp-btn{width:100%;justify-content:center;text-align:center;}
 }
 @media screen and (min-width:641px) and (max-width:1200px){
   #auditSec .cp-table tr.cp-row, #auditSec .au-cards > tbody > tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:28px;}
@@ -5899,7 +5908,8 @@ var BK_GROUPS = [
 ];
 /* 控えに入れない記録（合言葉・鍵・お試し・一時のもの） */
 var BK_SKIP = /unlock|trial|session|account|auth|pass|_tmp$|imported_from|__$/i;
-var BK_LIMIT = 5000000;   /* ブラウザが1つの場所に許す量の目安（おおむね5MB。ブラウザで違う） */
+var BK_LIMIT = 5242880;   /* ブラウザが1つの場所に許す量の目安（localStorage はおおむね5MiB。ブラウザで違う。MDN） */
+var BK_WARN = 70, BK_FULL = 90;   /* この割合を超えたら、管理画面の上の帯で知らせる（90％からは急ぎの言い方） */
 
 function bkLs() { try { return window.localStorage; } catch (e) { return null; } }
 function bkGroupOf(k) {
@@ -5925,14 +5935,20 @@ function bkCollect() {
   }
   return out;
 }
+/* 量の見積もりは多めに取る（2026-10-06）：日本語などの字は2つ分に数える。
+   ブラウザによって数え方が違い（字数で数えるもの・日本語を2倍に数えるもの）、上限を超えると書き込みが失敗するので（MDN）、
+   どちらの数え方でも上限より先に知らせが出るように、重いほうで数える */
+function bkWeigh(s) { s = String(s); var ascii = s.replace(/[^\x00-\x7f]+/g, '').length; return ascii + (s.length - ascii) * 2; }
 function bkSizes(map) {
-  var by = {}, total = 0;
+  var by = {}, total = 0, w = 0;
   Object.keys(map).forEach(function (k) {
-    var g = bkGroupOf(k), n = k.length + String(map[k]).length;
-    by[g] = (by[g] || 0) + n; total += n;
+    var g = bkGroupOf(k), v = String(map[k]), n = k.length + v.length;
+    by[g] = (by[g] || 0) + n; total += n; w += bkWeigh(k) + bkWeigh(v);
   });
-  return { by: by, total: total };
+  return { by: by, total: total, w: w };
 }
+/* 使っている量（上限の目安に対する割合・小数1桁） */
+function bkPct(sz) { return Math.min(100, Math.round(sz.w / BK_LIMIT * 1000) / 10); }
 function bkFmt(n) { return n < 1000 ? n + '字' : n < 1000000 ? Math.round(n / 1000) + '千字' : (Math.round(n / 100000) / 10) + '百万字'; }
 function bkMarks() { try { var o = JSON.parse((bkLs() || {}).getItem(BACKUP_KEY) || '{}'); return o && typeof o === 'object' ? o : {}; } catch (e) { return {}; } }
 function bkMark(ids, all) {
@@ -5978,7 +5994,7 @@ function bkPersistState(cb) {
 }
 
 function openBackup() {
-  var map = bkCollect(), sz = bkSizes(map), pct = Math.min(100, Math.round(sz.total / BK_LIMIT * 1000) / 10);
+  var map = bkCollect(), sz = bkSizes(map), pct = bkPct(sz);
   var lastAll = bkMarks().all, dAll = bkDaysSince(lastAll);
   var rows = BK_GROUPS.map(function (g) {
     var n = sz.by[g.id] || 0, last = bkLast(g.id), d = bkDaysSince(last);
@@ -5995,8 +6011,10 @@ function openBackup() {
       '<input type="file" id="bkFile" accept="application/json,.json" hidden>' +
     '</div>' +
     '<p class="bk-last">最後に全ての控えを取った日：<b>' + (lastAll ? esc(fmtDate(Date.parse(lastAll))) + (dAll >= 0 ? '（' + (dAll === 0 ? '今日' : dAll + '日前') + '）' : '') : '<span class="bk-nw">まだ取っていません</span>') + '</b></p>' +
-    '<div class="bk-meter" role="img" aria-label="使っている量 ' + pct + '％"><span style="width:' + Math.max(pct, 1) + '%"></span></div>' +
-    '<p class="bk-meter-cap">保険ツールの記録：' + bkFmt(sz.total) + '（ブラウザが1つの場所に許す量の目安の ' + pct + '％。同じ場所のほかのページと分け合います）</p>' +
+    '<div class="bk-meter' + (pct >= BK_FULL ? ' bk-m-full' : pct >= BK_WARN ? ' bk-m-warn' : '') + '" role="img" aria-label="使っている量 ' + pct + '％"><span style="width:' + Math.max(pct, 1) + '%"></span></div>' +
+    '<p class="bk-meter-cap">保険ツールの記録：' + bkFmt(sz.total) + '（ブラウザが1つの場所に許す量の目安の <b>' + pct + '％</b>。多めに見積もっています。同じ場所のほかのページと分け合います）</p>' +
+    (pct >= BK_WARN ? '<div class="note note-amber bk-full">' + ICO.warn + ' 記録の量が上限に近づいています。<b>上限を超えると、新しい記録を保存できなくなります。</b>' +
+      '先に全ての記録を控えのファイルにしてから、要らない記録（使い終えたライフプランの資料・古い活動の記録など）を、それぞれのツールで消してください。</div>' : '') +
     '<div class="bk-tablewrap"><table class="bk-table"><thead><tr><th scope="col">記録</th><th scope="col">量</th><th scope="col">最後に控えた日</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
     '<div class="note note-sky bk-persist" id="bkPersist">' + ICO.shield + ' 確かめています…</div>' +
     '<p class="bk-foot">控えのファイルには、お客様のお名前・ご相談の中身などが入ります。<b>社外へ持ち出さず</b>、社内の決まりに沿って保管してください。' +
@@ -6083,15 +6101,19 @@ function bkRestoreAsk(o) {
 /* 入口の催促：記録があるのに、全ての控えを長く取っていないとき（iPhone・iPad は7日、ほかは30日） */
 function renderBackupNag() {
   var host = document.getElementById('backupNag'); if (!host) return;
-  var map = bkCollect(), sz = bkSizes(map), own = sz.total - (sz.by.hub || 0);
+  var map = bkCollect(), sz = bkSizes(map), own = sz.total - (sz.by.hub || 0), pct = bkPct(sz);
   var last = bkMarks().all, d = bkDaysSince(last), lim = bkIsIOS() ? 7 : 30;
   var hidden = false; try { hidden = sessionStorage.getItem('officem.backupNag.hide') === '1'; } catch (e) {}
-  if (own < 300 || hidden || (last && d < lim)) { host.innerHTML = ''; host.className = 'hide'; return; }
-  host.className = 'bk-nag';
+  /* 量が上限に近いときは、控えを取ったばかりでも出す（上限を超えると保存が失敗するため。2026-10-06） */
+  var full = pct >= BK_WARN;
+  if (hidden || (!full && (own < 300 || (last && d < lim)))) { host.innerHTML = ''; host.className = 'hide'; return; }
+  host.className = 'bk-nag' + (pct >= BK_FULL ? ' bk-nag-full' : '');
   host.setAttribute('role', 'status');
-  host.innerHTML = ICO.warn + '<span>' + (last ? '最後に全ての記録の控えを取ってから <b>' + d + '日</b> たちました。' : '全ての記録の控えを、まだ取っていません。') +
-    '記録はこの端末の中だけにあるので、消える前に控えのファイルにしてください。</span>' +
-    '<button type="button" class="btn btn-ghost btn-sm" id="bkNagGo">控えを取る</button>' +
+  host.innerHTML = ICO.warn + '<span>' + (full
+      ? '記録の量が、ブラウザが許す量の目安の <b>' + pct + '％</b> になりました。上限を超えると新しい記録を保存できなくなります。控えを取ってから、要らない記録を消してください。'
+      : (last ? '最後に全ての記録の控えを取ってから <b>' + d + '日</b> たちました。' : '全ての記録の控えを、まだ取っていません。') +
+        '記録はこの端末の中だけにあるので、消える前に控えのファイルにしてください。') + '</span>' +
+    '<button type="button" class="btn btn-ghost btn-sm" id="bkNagGo">' + (full ? '量と控えを見る' : '控えを取る') + '</button>' +
     '<button type="button" class="nb-x" id="bkNagX" aria-label="今回は閉じる">&times;</button>';
   document.getElementById('bkNagGo').onclick = openBackup;
   document.getElementById('bkNagX').onclick = function () { try { sessionStorage.setItem('officem.backupNag.hide', '1'); } catch (e) {} renderBackupNag(); };
@@ -7585,7 +7607,7 @@ var CP = {
       { k: 'date', t: 'date', l: '面談・申込の日', req: 1 }, CP_NO, CP_SHU_F, CP_HEN_NOTE,
       { k: 'first', t: 'area', l: '最初のご意向', ph: '例：子どもが独立するまでの死亡保障を、今の家計で続けられる範囲で', req: 1 },
       { k: 'final', t: 'area', l: '申込の内容（最終のご意向）', ph: '例：収入保障保険。お子さまが独立する年まで', req: 1 },
-      { k: 'same', t: 'select', l: '最初のご意向と申込の内容', opts: ['同じ', '違う'], req: 1 },
+      { k: 'same', t: 'select', l: '最初のご意向と申込の内容', opts: ['同じ', '違う'], req: 1, short: '同じか違うか' },
       { k: 'why', t: 'area', l: '違った点と、その理由', ph: '例：保険料を抑えたいとのご要望で、保障の期間を短くした。違いをご説明し、了承をいただいた',
         req: function (f) { return f.same === '違う'; }, reqNote: '違うときは必須', short: '違った理由' },
       { k: 'c1', t: 'check', l: '最終のご意向と申込の内容が合っていることを、お客様と一緒に確かめた', req: 1, short: 'お客様と確かめたチェック' },
@@ -7901,7 +7923,7 @@ function cpStampsHTML(r) {
 }
 function cpFlagsHTML(r) {
   var f = r.f, out = [], miss = cpMissing(r);
-  if (miss.length) out.push('<span class="au-flag red" title="' + esc(miss.join('・')) + '">' + esc('記録の欠け ' + miss.length + '：' + cpCut(miss.join('・'), 26)) + '</span>');
+  if (miss.length) out.push('<span class="au-flag red" title="' + esc(miss.join('・')) + '">' + esc('記録の不備 ' + miss.length + '：' + cpCut(miss.join('・'), 26)) + '</span>');
   if (r.kind === 'iko' && f.same === '違う') out.push(auFlag('wait', '意向と違う申込'));
   if (r.kind === 'hikaku' && f.off) out.push(auFlag('amber', '方針の外'));
   if (r.kind === 'hikaku' && cpHkDiff(f)) out.push(auFlag('wait', 'お勧めと違う商品を選ばれた'));
@@ -7918,7 +7940,7 @@ function cpFlagsHTML(r) {
     else { var n = cpSince(f.date); out.push(auFlag('amber', '対応中' + (n !== null && n >= 0 ? ' ' + n + '日' : ''))); }
     if (f.rep === '未判断') out.push(auFlag('amber', '報告の要否が未判断'));
   }
-  if (!out.length) out.push(auFlag('ok', 'そろっている'));
+  if (!out.length) out.push(auFlag('ok', '不備なし'));
   return out.join('');
 }
 function cpGist(r) {
@@ -8252,7 +8274,7 @@ function cpFilterHTML(kind) {
     return '<label>' + label + '<select data-cp-filt="' + key + '" data-kind="' + kind + '"><option value="">すべて</option>' +
       opts.map(function (o) { return '<option value="' + esc(o[0]) + '"' + (q[key] === o[0] ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; }).join('') + '</select></label>';
   };
-  var sts = CP_NOCONF[kind] ? [['miss', '記録の欠けがある']] : [['wait', '確認待ち'], ['miss', '記録の欠けがある'], ['back', '戻された・確認のあとに直された']];
+  var sts = CP_NOCONF[kind] ? [['miss', '記録の不備がある']] : [['wait', '確認待ち'], ['miss', '記録の不備がある'], ['back', '戻された・確認のあとに直された']];
   if (kind === 'kujo') sts.push(['open', '対応中']);
   return '<div class="cp-filter">' +
     sel('ym', '月', Object.keys(yms).sort().reverse().map(function (y) { return [y, auYmLabel(y)]; })) +
@@ -8272,7 +8294,7 @@ function cpBarRows(pairs, total, head) {
 function cpStatsHTML(kind, list) {
   var miss = list.filter(function (r) { return cpMissing(r).length; }).length;
   var wait = list.filter(cpWaitAny).length;
-  var h = '<div class="cp-tiles">' + cpTile('記録', list.length + '件') + cpTile('記録の欠けがある', miss + '件') + (CP_NOCONF[kind] ? '' : cpTile('確認待ち', wait + '件'));
+  var h = '<div class="cp-tiles">' + cpTile('記録', list.length + '件') + cpTile('記録の不備がある', miss + '件') + (CP_NOCONF[kind] ? '' : cpTile('確認待ち', wait + '件'));
   if (kind === 'iko') h += cpTile('最初のご意向と違う申込', list.filter(function (r) { return r.f.same === '違う'; }).length + '件') + '</div>';
   else if (kind === 'hikaku') {
     h += cpTile('方針の外でお勧め', list.filter(function (r) { return r.f.off; }).length + '件') +
@@ -8358,7 +8380,7 @@ function cpKujoSetHTML() {
   return '<details class="au-form" data-snap="kujoDays"><summary>初動の目安（いま受付から' + d + '日）を変える</summary><div class="au-grid">' +
     '<label>初動の目安（日）<input type="number" name="kujoDays" min="1" max="60" step="1" inputmode="numeric" value="' + d + '"></label></div>' +
     '<div class="au-actions"><button type="button" class="btn btn-primary btn-sm" data-cp-act="kujoDays">保存</button></div>' +
-    '<p class="au-note">社内の目安です。所属保険会社の決まりがあれば、そちらに合わせてください。目安を過ぎても初動の日が無いと、赤い札「記録の欠け」になります。ほかの端末へは、比較推奨の「比較推奨の設定」から、設定のファイルにして配れます。</p></details>';
+    '<p class="au-note">社内の目安です。所属保険会社の決まりがあれば、そちらに合わせてください。目安を過ぎても初動の日が無いと、赤い札「記録の不備」になります。ほかの端末へは、比較推奨の「比較推奨の設定」から、設定のファイルにして配れます。</p></details>';
 }
 function cpRenderKind(kind) {
   var C = CP[kind], host = document.getElementById(C.panel);
@@ -8618,7 +8640,7 @@ function cpHomeData() {
     var vis = mgr ? all : all.filter(cpMine);
     var lab = function (r) { return auFmt(r.f.date) + (r.f.no ? ' ' + r.f.no : '') + (mgr && r.owner ? '（' + r.owner + '）' : ''); };
     out.t[k] = ['<span>記録 ' + all.length + '件</span>'];
-    push(k, 'red', '記録の欠け', vis.filter(function (r) { return cpMissing(r).length; }).map(lab));
+    push(k, 'red', '記録の不備', vis.filter(function (r) { return cpMissing(r).length; }).map(lab));
     if (k === 'kujo') push(k, 'amber', '対応中', vis.filter(function (r) { return !r.f.done; }).map(lab));
   });
   var c = cpCounts();
@@ -8630,7 +8652,7 @@ function cpHomeData() {
   var ym = auIsoToday().slice(0, 7);
   out.t.self = ['<span>今月 ' + au.selfs.filter(function (x) { return x.ym === ym; }).length + '人分</span>'];
   /* 社内ツールのカードの札：記録の欠けだけ（上長・社長の確認は 2026-10-05 に外した） */
-  if (c.miss.length) out.card.push(cpFlagT('red', '記録の欠け ' + c.miss.length, c.miss));
+  if (c.miss.length) out.card.push(cpFlagT('red', '記録の不備 ' + c.miss.length, c.miss));
   return out;
 }
 var CP_TL_COLOR = { iko: 'sky', hikaku: 'green', tekigou: 'coral', shorui: 'amber', kujo: 'berry', train: 'green', mat: 'sky', limit: 'berry', self: 'amber' };
@@ -8912,7 +8934,7 @@ function cpKhHTML(r, outAt) {
     '<header class="cp-kh-head"><h4 class="cp-kh-title">比較推奨の記録票<span>（保存用）</span></h4>' +
     '<dl class="cp-kh-id"><dt>記録番号</dt><dd>' + esc(r.id) + '</dd><dt>出力した日時</dt><dd>' + esc(cpTsFmt(outAt)) + '</dd>' +
     '<dt>出力した人</dt><dd>' + esc(au.me.name ? au.me.name + '（' + CP_ROLE_SHORT[au.me.role] + '）' : '（未記入）') + '</dd></dl></header>';
-  if (miss.length) h += '<p class="cp-kh-miss"><b>記録の欠けがあります：</b>' + esc(miss.join('・')) + '。欠けを埋めてから、印刷し直してください。</p>';
+  if (miss.length) h += '<p class="cp-kh-miss"><b>記録の不備があります：</b>' + esc(miss.join('・')) + '。不備を直してから、印刷し直してください。</p>';
   h += '<table class="cp-kh-tbl"><tbody>' +
     cpKhSec(++n, 'お客様と日付') +
     cpKhRow('顧客名', cpKhTxt(f.no)) + cpKhRow('種目', cpKhTxt(f.shu ? cpShuLabel(f.shu) : '')) +
@@ -8949,7 +8971,7 @@ function cpKiroku(list) {
   var at = new Date().toISOString();
   var miss = list.filter(function (r) { return cpMissing(r).length; }).length;
   var root = modal('記録票の印刷' + (list.length > 1 ? '（' + list.length + '件）' : ''),
-    (list.length > 1 ? '<p class="cp-kh-lead">' + list.length + '件を、1件ずつ別の紙に印刷します。' + (miss ? '記録の欠けがある記録が ' + miss + '件あります（紙にも出ます）。' : '') + '</p>' : '') +
+    (list.length > 1 ? '<p class="cp-kh-lead">' + list.length + '件を、1件ずつ別の紙に印刷します。' + (miss ? '記録の不備がある記録が ' + miss + '件あります（紙にも出ます）。' : '') + '</p>' : '') +
     list.map(function (r) { return cpKhHTML(r, at); }).join(''),
     '<button type="button" class="btn btn-ghost btn-sm" data-mclose>閉じる</button><button type="button" class="btn btn-primary btn-sm" id="cpKhPrint">印刷・PDFにする</button>', true);
   root.querySelector('.modal-box').classList.add('cp-sheet-box', 'cp-kh-box');
@@ -9029,7 +9051,7 @@ function cpSave(kind, form) {
   cpEdit[kind] = null;
   auSave(); cpRerender(form);
   var miss = cpMissing(r);
-  toast((hadConf ? '直しました。もう一度確認を受けます' : '保存しました（この端末）') + (r.kid && !id ? '。顧客管理の契約とつながりました' : '') + (miss.length ? '。記録の欠け：' + miss.join('・') : ''));
+  toast((hadConf ? '直しました。もう一度確認を受けます' : '保存しました（この端末）') + (r.kid && !id ? '。顧客管理の契約とつながりました' : '') + (miss.length ? '。記録の不備：' + miss.join('・') : ''));
 }
 /* 要るときだけ出す欄（違う商品を選ばれた経緯・方針の外の理由）を、いまの入力に合わせる。書いてあれば出したまま */
 function cpWhenSync(form) {
@@ -9529,7 +9551,8 @@ var TD_ICO = {
 function tdJSON(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } }
 function tdStr(v, n) { return typeof v === 'string' ? v.slice(0, n || 120) : ''; }
 function tdYmd(v) { return typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : ''; }
-function tdMd(s) { return s ? (+s.slice(5, 7)) + '月' + (+s.slice(8, 10)) + '日' : ''; }
+/* 今年の日付は月日だけ、ほかの年は年も書く（去年の契約が、これから先の日付に読めないように） */
+function tdMd(s) { if (!s) return ''; var md = (+s.slice(5, 7)) + '月' + (+s.slice(8, 10)) + '日'; return s.slice(0, 4) === String(new Date().getFullYear()) ? md : (+s.slice(0, 4)) + '年' + md; }
 function tdAdd(s, n) { var d = new Date(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10) + n), z = function (x) { return (x < 10 ? '0' : '') + x; }; return d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()); }
 /* 社内ツールの行き先（手元＝同じフォルダのファイル／公開先＝../hoken-xxx/）。開けないときは空 */
 function tdHref(key, hash) { var t = inhouseTarget(key); return t ? t + (hash || '') : ''; }
@@ -9973,6 +9996,9 @@ function auInitButtons() {
    ★お客様に見せる文言ではないが、効果の数字や断定（必ず・絶対）は書かない。
    ============================================================ */
 var UPDATES = [
+  { id: '2026-10-06-zentai', date: '2026-10-06', target: 'sec:backup',
+    title: '管理画面：「今日の仕事」「お客様をさがす」と、記録の量の知らせ',
+    body: '管理画面のいちばん上に「今日の仕事」（今日の予定・提出書類・声かけ・記録の不備）と「お客様をさがす」を置きました。1行押すと、その画面のその場所が開きます。営業ダッシュボード・顧客管理・満期カレンダー・目標逆算の上には「ツールを切り替え」があり、ほかのツールへ1回で移れます。満期カレンダーは営業ダッシュボードのお客様とご契約を自動で取り込みます。記録はこの端末のブラウザの中にあり、入れられる量に上限があります（上限を超えると、新しい記録を保存できなくなります）。量が7割を超えたら、この画面の上でお知らせします。そのときは「データの控え」で控えを取ってから、要らない記録を消してください。' },
   { id: '2026-10-06-kokyaku100', date: '2026-10-06', target: 'inh:kokyaku',
     title: '顧客管理：一覧を1件1行に・「やること」・点検用の記録・自主点検',
     body: '契約の一覧を1件1行に畳み、いちばん上に「やること」（比較推奨を書く・日付を直す など）を、契約から日の経った順に並べました。契約ごとに「これまでの記録」（誰が・いつ、つないだか・理由を残したか・知らせが出た日と消えた日）が残ります。代理店点検では、担当者が書き出す「点検用の記録」を読み込むと、上長・社長の端末でも全員のお客様ファイル・担当者ごとの表・月ごとのまとめを出せます（読み込んだ記録は保存せず、閉じると消えます）。自主点検の記録も残せます。上長の返しは全員分を1つのファイルにでき、報告が古いメンバーに札が付きます。' },

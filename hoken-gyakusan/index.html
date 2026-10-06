@@ -949,7 +949,7 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
     <div class="tb-brand">
       <!-- 管理画面（保険ツール管理画面.html）のこのツールのカードと同じ絵。入口と中で顔をそろえる -->
       <span class="tb-art"><svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#fdf3e2"/><circle cx="22" cy="22" r="13" fill="none" stroke="#966417" stroke-width="3"/><circle cx="22" cy="22" r="7" fill="none" stroke="#966417" stroke-width="3"/><circle cx="22" cy="22" r="2.6" fill="#bf4123"/><path d="M14 40h12v6H14zM24 46h12v6H24zM34 52h14v6H34z" fill="#966417"/><path d="M46 14v14M40 22l6 6 6-6" fill="none" stroke="#bf4123" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-      <span><h1><span class="nw">保険</span> <span class="nw">目標逆算プランナー</span></h1><small>手元に残したい額から、1営業日の接触件数を逆算する</small></span>
+      <span><h1><span class="nw">保険</span> <span class="nw">目標逆算プランナー</span></h1><small>手取りの目標から、1日の接触件数を逆算</small></span>
     </div>
     <div class="tb-right">
       <a class="tb-tag" id="tbBackup" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>データはこの端末だけ・控えを取る</a>
@@ -1251,11 +1251,11 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
 
   <div class="sec">
     <div class="card">
-      <h3 style="color:var(--navy);margin-bottom:4px;">この率が5ポイント上がったら、1日の接触は何本減るか</h3>
+      <h3 style="color:var(--navy);margin-bottom:4px;">この率が5ポイント上がったら、1日の接触は何件減るか</h3>
       <p class="sec-note" style="margin-top:0;">率を1つだけ5ポイント上げて、ほかは今のままにしたときの比較です。効き目の大きい順に並べています。「接触を増やす」より「どこを直すか」を決めるための表です。</p>
       <div class="tbl-scroll">
         <table class="tbl" id="effTbl">
-          <thead><tr><th>上げる率</th><th class="num">今</th><th class="num">5ポイント上げると</th><th class="num">1日の接触</th><th class="num">減る本数</th></tr></thead>
+          <thead><tr><th>上げる率</th><th class="num">今</th><th class="num">5ポイント上げると</th><th class="num">1日の接触</th><th class="num">減る件数</th></tr></thead>
           <tbody id="effBody"></tbody>
         </table>
       </div>
@@ -1570,7 +1570,7 @@ function fmtNumUnit(n, unit){
   if (a >= 1000) return (Math.round(n) || 0).toLocaleString('ja-JP') + unit;
   return ((Math.round(n*10)/10) || 0).toLocaleString('ja-JP') + unit;
 }
-function fmtDay(n){ return fmtNumUnit(n, '本'); }
+function fmtDay(n){ return fmtNumUnit(n, '件'); }   /* 接触の数。題名の「接触件数」とそろえて「件」（2026-10-06 まで「本」） */
 function fmtPct(n){
   if (!isNum(n)) return DASH;
   if (Math.abs(n) >= 1000) return (Math.round(n) || 0).toLocaleString('ja-JP') + '％';
@@ -2008,7 +2008,7 @@ function renderPlan(){
   setStep('s8', fmtCnt(c.need8), isNum(c.need8) ? '面談 ' + fmtCnt(c.need7) + ' ÷ 面談実施率 ' + fmtPct(p.rMeet) : '');
   setStep('s9', fmtCnt(c.need9), isNum(c.need9) ? 'アポ ' + fmtCnt(c.need8) + ' ÷ アポ獲得率 ' + fmtPct(p.rAppt) : '');
   setStep('s10', fmtDay(c.perDay), isNum(c.perDay)
-    ? '接触 ' + fmtCnt(c.need9) + ' ÷ ' + p.months + 'か月 ÷ ' + p.days + '営業日。1か月 ' + fmtDay(c.perMonth) + '／1週（5営業日） ' + fmtDay(c.perWeek) + '。この本数が、計画の前提になる目安です。率が変われば変わります'
+    ? '接触 ' + fmtCnt(c.need9) + ' ÷ ' + p.months + 'か月 ÷ ' + p.days + '営業日。1か月 ' + fmtDay(c.perMonth) + '／1週（5営業日） ' + fmtDay(c.perWeek) + '。この件数が、計画の前提になる目安です。率が変われば変わります'
     : '');
 
   /* 答えの箱（目標のすぐ下） */
@@ -2053,7 +2053,7 @@ function renderFunnel(elId, counts, max){
   }).join('');
 }
 
-/* 「この率が5ポイント上がったら1日の接触は何本減るか」 */
+/* 「この率が5ポイント上がったら1日の接触は何件減るか」 */
 function renderEffect(p, c){
   var base = c.perDay;
   var rows = STEPS.map(function(st){
@@ -2074,7 +2074,7 @@ function renderEffect(p, c){
       '<td class="num" data-l="今">' + esc(isNum(o.cur) ? fmtPct(o.cur) : DASH) + '</td>' +
       '<td class="num" data-l="5ポイント上げると">' + esc(isNum(o.next) ? fmtPct(o.next) : DASH) + '</td>' +
       '<td class="num" data-l="1日の接触">' + esc(fmtDay(o.day)) + '</td>' +
-      '<td class="num" data-l="減る本数"><b>' + (isNum(o.gain) && o.gain > 0.05 ? '−' + esc(fmtDay(o.gain)) : (o.msg ? esc(o.msg) : DASH)) + '</b></td></tr>';
+      '<td class="num" data-l="減る件数"><b>' + (isNum(o.gain) && o.gain > 0.05 ? '−' + esc(fmtDay(o.gain)) : (o.msg ? esc(o.msg) : DASH)) + '</b></td></tr>';
   }).join('');
   var top = rows[0];
   $('effNote').textContent = (isNum(base) && base > 0 && top && isNum(top.gain) && top.gain > 0.05)

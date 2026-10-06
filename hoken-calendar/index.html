@@ -424,7 +424,9 @@ footer{margin-top:var(--sp-8);border-top:1px solid var(--line);padding:var(--sp-
 /* ============================================================
    2026-10-04 製品として売るための直し（共通の部品 A〜F）
    ============================================================ */
-.tb-brand h1{display:block;font-family:var(--mincho);font-size:var(--fs-lg);letter-spacing:.06em;font-weight:600;line-height:1.35;color:var(--navy);margin:0;}
+.tb-brand h1{display:block;font-family:var(--mincho);font-size:var(--fs-lg);letter-spacing:.02em;font-weight:600;line-height:1.35;color:var(--navy);margin:0;}
+/* 題名が長いので「保険 」は出さない（出すと PC で右のボタンが2段目に落ちる。2026-10-06 実測 346px → 279px） */
+.tb-brand h1 .tb-pre{display:none;}
 .tb-right{margin-left:auto;display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap;justify-content:flex-end;}
 a.tb-tag{margin-left:0;text-decoration:none;min-height:44px;}
 a.tb-tag:hover{border-color:var(--amber);}
@@ -950,7 +952,7 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
   <div class="wrap">
     <div class="tb-brand">
       <span class="tb-art"><svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#ffeee3"/><rect x="12" y="17" width="40" height="35" rx="7" fill="#fffdf8" stroke="#f0846a" stroke-width="3"/><path d="M12 27h40" stroke="#f0846a" stroke-width="3"/><path d="M22 12v9M42 12v9" stroke="#bf4123" stroke-width="3.4" stroke-linecap="round"/><path d="m24 39 6 6 12-12" fill="none" stroke="#2c7a4b" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-      <span><h1><span class="tb-pre">保険 </span>満期・年齢到達カレンダー</h1><small>保全と追加提案のきっかけを、日付から拾い出す</small></span>
+      <span><h1><span class="tb-pre">保険 </span>満期・年齢到達カレンダー</h1><small>保全と追加提案のきっかけを日付で拾う</small></span>
     </div>
     <div class="tb-right">
       <a class="tb-tag" id="tbTag" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>データはこの端末だけ・控えを取る</a>
@@ -1195,7 +1197,7 @@ function diffDays(a, b){
                      Date.UTC(x.getFullYear(), x.getMonth(), x.getDate())) / 86400000);
 }
 function isYmd(s){ return /^\d{4}-\d{2}-\d{2}$/.test(String(s || '')); }
-function fmtMd(s){ var d = parseYmd(s); return (d.getMonth()+1) + '月' + d.getDate() + '日（' + DOW[d.getDay()] + '）'; }
+function fmtMd(s){ var d = parseYmd(s); return (d.getFullYear() !== new Date().getFullYear() ? d.getFullYear() + '年' : '') + (d.getMonth()+1) + '月' + d.getDate() + '日（' + DOW[d.getDay()] + '）'; }   /* 今年でなければ年も書く */
 function fmtYmdJp(s){ if (!s) return ''; var d = parseYmd(s); return d.getFullYear() + '年' + (d.getMonth()+1) + '月' + d.getDate() + '日'; }
 /* 年の途中で改元した年は、その年の大半を占める元号で出す（1989→平成元・2019→令和元） */
 function wareki(y){
@@ -1681,7 +1683,7 @@ function genEvents(from, to){
       var isMile = MILESTONES.indexOf(age) >= 0;
       push({
         type:'bd', date: addMonths(bday, -1), cid: c.id, cust: c,
-        title: '来月 ' + fmtYmdJp(bday).replace(/^\d+年/, '') + ' が誕生日（' + age + '歳）',
+        title: fmtYmdJp(bday).replace(/^\d+年/, '') + ' が誕生日（' + age + '歳）',   /* 「来月」「あと◯日」は表示するときに今日から決める（evTitle） */
         why: '年齢が変わる前に、いまの保障とご家族の状況がずれていないかを確かめる区切りです。誕生日を過ぎると、入り直すときの条件が変わることがあります。' +
              (isMile ? '　この年は節目の年齢（' + age + '歳）にあたります。' : ''),
         age: age, bday: bday
@@ -1796,7 +1798,10 @@ function scriptFor(ev){
              'ご都合のよい日を、来週と再来週で2つほど教えていただけますでしょうか。\n30分ほどで終わります。よろしくお願いいたします。';
   var body = '';
   if (ev.type === 'bd') {
-    body = '来月 ' + fmtYmdJp(ev.bday).replace(/^\d+年/, '') + ' がお誕生日ですね。少し早いですが、おめでとうございます。\n' +
+    var bw = bdWhen(ev.bday), bmd = fmtYmdJp(ev.bday).replace(/^\d+年/, '');
+    body = (bw.n > 0 ? bw.word + bmd + ' がお誕生日ですね。少し早いですが、おめでとうございます。\n'
+          : bw.n === 0 ? '今日 ' + bmd + ' はお誕生日ですね。おめでとうございます。\n'
+          : '先日 ' + bmd + ' にお誕生日を迎えられましたね。おめでとうございます。\n') +
            '区切りのタイミングですので、いまのご契約の内容と、ご家族やお仕事の状況にずれがないか、\n一度ご一緒に確認させていただけませんか。';
   } else if (ev.type === 'ann' && ev.upd) {
     body = 'ご契約の更新の時期が近づいてまいりました。\n' +
@@ -1891,6 +1896,19 @@ function doneText(dn){
   if (dn.how) p.push(dn.how);
   return '連絡済み' + (p.length ? '（' + p.join('・') + '）' : '');
 }
+/* 誕生日まで（今日から数える）。声かけの日（前月）が過ぎても、誕生日そのものはまだ先のことがある */
+function bdWhen(bday){
+  var t = todayStr(), n = diffDays(t, bday);
+  if (n === 0) return { n: 0, word: '今日 ', rel: '今日' };
+  if (n < 0) return { n: n, word: '', rel: (-n) + '日前に迎えました' };
+  var a = parseYmd(t), b = parseYmd(bday);
+  var mon = (b.getFullYear() - a.getFullYear()) * 12 + b.getMonth() - a.getMonth();
+  return { n: n, word: mon === 0 ? '今月 ' : mon === 1 ? '来月 ' : '', rel: 'あと' + n + '日' };
+}
+function evTitle(ev){
+  if (ev.type !== 'bd' || !isYmd(ev.bday)) return ev.title;
+  return ev.title + '・' + bdWhen(ev.bday).rel;
+}
 /* きっかけ1件のカード（今後の予定・カレンダーの当日・顧客詳細で共用） */
 function evCardHtml(ev, opt){
   opt = opt || {};
@@ -1912,7 +1930,7 @@ function evCardHtml(ev, opt){
       (c.kana ? '<span class="ev-kana">' + esc(c.kana) + '</span>' : '') +
       (isYmd(c.birth) ? '<span class="ev-kana">' + esc(fmtYmdJp(c.birth)) + '生' + (age !== null ? '（' + age + '歳）' : '') + '</span>' : '') +
       (dup ? '<span class="dup-tag">同じお名前の方がいます</span>' : '') + '</div>') +
-    '<div class="ev-title">' + esc(ev.title) + '</div>' +
+    '<div class="ev-title">' + esc(evTitle(ev)) + '</div>' +
     '<div class="ev-why">' + esc(ev.why) + '</div>' +
     (ev.done && dn && dn.memo ? '<div class="ev-donememo">連絡のメモ：' + esc(dn.memo) + '</div>' : '') +
     '<div class="ev-acts">' +
@@ -2011,7 +2029,7 @@ function openDoneForm(host, ev, after, btn){
 function askUndoDone(ev, after){
   var dn = ev.dn || {};
   omAsk('連絡済みを取り消しますか',
-    '<p style="margin:0;"><b>' + esc(((ev.cust && ev.cust.name) || '') + ' 様') + '</b>　' + esc(ev.title) + '</p>' +
+    '<p style="margin:0;"><b>' + esc(((ev.cust && ev.cust.name) || '') + ' 様') + '</b>　' + esc(evTitle(ev)) + '</p>' +
     '<p style="margin:8px 0 0;">' + esc(doneText(dn)) + (dn.memo ? '<br>メモ：' + esc(dn.memo) : '') + '</p>' +
     '<p style="margin:8px 0 0;color:var(--muted);">取り消すと、この連絡の記録（連絡した日・方法・メモ）も消えます。すぐあとなら元に戻せます。</p>',
     [{ label:'取り消す', value:'yes', cls:'btn-primary' }, { label:'やめる', value:'' }],
@@ -2333,7 +2351,7 @@ function hkCardHtml(ev, opt){
       '<span>面談日 ' + esc(r.mtgs.length ? r.mtgs.map(fmtYmdJp).join('・') : '（なし）') + '</span>' +
       '<span>契約日 ' + esc(r.kdate ? fmtYmdJp(r.kdate) : '（未定）') + '</span>' +
       '<span>記録した人 ' + esc(r.owner || '（未記入）') + '</span></div>' +
-    (r.miss.length ? '<div class="hk-miss">記録の欠け：' + esc(r.miss.join('・')) + '（管理画面で埋めてください）</div>' : '') +
+    (r.miss.length ? '<div class="hk-miss">記録の不備：' + esc(r.miss.join('・')) + '（管理画面で埋めてください）</div>' : '') +
     '<div class="ev-acts"><a class="btn btn-primary btn-sm" href="' + esc(hkHubLink(r.id)) + '" target="katatsugi-hub">管理画面で記録を開く</a></div>' +
   '</div>';
 }
@@ -2351,7 +2369,7 @@ function renderHkStrip(){
   var evs = hkEvents(a, b), m = 0, k = 0, miss = {};
   evs.forEach(function(e){ if (e.sub === 'kei') k++; else m++; if (e.hk.miss.length) miss[e.hk.id] = 1; });
   var nMiss = Object.keys(miss).length;
-  host.innerHTML = '<div class="hk-strip-t"><b>比較推奨の記録</b>' + esc((calM + 1) + '月：面談 ' + m + '件・契約日 ' + k + '件' + (nMiss ? '・記録の欠けがある記録 ' + nMiss + '件' : '')) +
+  host.innerHTML = '<div class="hk-strip-t"><b>比較推奨の記録</b>' + esc((calM + 1) + '月：面談 ' + m + '件・契約日 ' + k + '件' + (nMiss ? '・記録の不備がある記録 ' + nMiss + '件' : '')) +
     '。日を押すと、記録の要点が下に出ます' + (state.settings.types.hk ? '' : '（いまは下の「比較推奨の記録」を隠しています）') + '。</div>' + link;
 }
 /* お客様の詳しい画面：同じお名前で残した比較推奨の記録
@@ -3653,7 +3671,7 @@ $('autoSales').addEventListener('change', function(){
    過ぎた日は「期限を過ぎて未連絡」のものだけ、先は200日まで。書き換えはこのツールだけが行う */
 var CAL_FEED_OUT = 'officem.hokenCalendar.feed.v1', lastFeedBody = null;
 function feedLabel(e){
-  if (e.type === 'bd') return '誕生日の前月（' + e.age + '歳）';
+  if (e.type === 'bd') return fmtYmdJp(e.bday).replace(/^\d+年/, '') + 'が誕生日（' + e.age + '歳）';   /* 左に出る日付は声をかける日（前月） */
   if (e.type === 'age') return e.age + '歳の節目';
   if (e.type === 'ann') return e.upd ? '更新の時期' : '契約応当日';
   if (e.type === 'mat') return kindDef(e.pol && e.pol.kind).grp === 'sonpo' ? '満期・更改' : '満期';
