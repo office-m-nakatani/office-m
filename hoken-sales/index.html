@@ -21,7 +21,7 @@
     「確認依頼」に取り込まれ、コメントを返信リンク（#c=…）で返す。リンクには顧客名と
     内容メモが入るため、社外に誤送信しないこと（画面上にも注意書きを出している）。
   - デザインは2026-08に製品版として全面刷新：他ツールのパステル基調から独立した専用トークン。
-    活動種別6色（アプローチ青・ヒアリング橙・プレゼン水・クロージング菫・契約紅・定期訪問桃）と
+    活動種別7色（アプローチ青・ヒアリング橙・プレゼン水・クロージング菫・契約紅・定期訪問桃・ビジネスパートナー訪問紫）と
     ファネルの青5段階は、dataviz規約のvalidate_palette.jsで色覚多様性・コントラスト検証済み。
     トークン名（--coral-btn等）は互換のため旧名のまま値だけ差し替えている。
   - ★2026-10-06 全体の辛口点検で、外枠（地・線・上の帯・タブ・見出し・ボタン）はほかの社内ツールと同じ顔に戻した
@@ -44,11 +44,11 @@
   --teal:#b03569; --teal-bg:#fdedf4; --teal-border:#f6cade;   /* 旧teal＝定期訪問。現在は桃色系 */
   --red-text:#c22f2f; --red-bg:#fbeaea;
   --chart-1:#2a78d6;
-  /* 活動種別6色（マーク用）とバッジ文字色（白地4.5:1確保用） */
-  --tAP:#2a78d6; --tFF:#eb6834; --tPZ:#1baf7a; --tCL:#4a3aa7; --tKY:#b3261e; --tTH:#e87ba4;
-  --tAPtx:#1c5cab; --tFFtx:#ba4413; --tPZtx:#0d7a52; --tCLtx:#4a3aa7; --tKYtx:#a3221b; --tTHtx:#b03569;
-  --tAPbg:#e8f1fb; --tFFbg:#fdeee4; --tPZbg:#e2f6ee; --tCLbg:#edeafa; --tKYbg:#fbe9e7; --tTHbg:#fdedf4;
-  --tAPbd:#c4dcf5; --tFFbd:#f8d2bd; --tPZbd:#b8e8d5; --tCLbd:#d5cef2; --tKYbd:#efbdb6; --tTHbd:#f6cade;
+  /* 活動種別7色（マーク用）とバッジ文字色（白地4.5:1確保用）。BP＝ビジネスパートナー訪問（2026-10-07 追加。今の6色と色覚の検証をして選んだ紫） */
+  --tAP:#2a78d6; --tFF:#eb6834; --tPZ:#1baf7a; --tCL:#4a3aa7; --tKY:#b3261e; --tTH:#e87ba4; --tBP:#965a96;
+  --tAPtx:#1c5cab; --tFFtx:#ba4413; --tPZtx:#0d7a52; --tCLtx:#4a3aa7; --tKYtx:#a3221b; --tTHtx:#b03569; --tBPtx:#7a3f7a;
+  --tAPbg:#e8f1fb; --tFFbg:#fdeee4; --tPZbg:#e2f6ee; --tCLbg:#edeafa; --tKYbg:#fbe9e7; --tTHbg:#fdedf4; --tBPbg:#f6edf6;
+  --tAPbd:#c4dcf5; --tFFbd:#f8d2bd; --tPZbd:#b8e8d5; --tCLbd:#d5cef2; --tKYbd:#efbdb6; --tTHbd:#f6cade; --tBPbd:#e3cce3;
   /* 見出しも本文と同じサンセリフ（旧minchoトークンは互換のため名前だけ残す） */
   --mincho:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",YuGothic,Meiryo,"Noto Sans JP",sans-serif;
   --fs-xs:.8125rem; --fs-sm:.9rem; --fs-base:1rem; --fs-md:1.125rem;
@@ -126,7 +126,9 @@ a{color:var(--navy-2);}
 .frm .full{grid-column:1 / -1;}
 .fld label{display:block;font-size:var(--fs-xs);font-weight:700;color:var(--navy);margin-bottom:4px;letter-spacing:.03em;}
 .fld label .opt{font-weight:600;color:var(--muted);letter-spacing:0;margin-left:2px;}
-.fld input[type=text],.fld input[type=number],.fld input[type=date],.fld input[type=time],.fld input[type=password],.fld select,.fld textarea{
+/* 2026-10-07 ユーザー指示「電話番号のところだけ枠が小さい」：電話・メール・URL の欄が抜けていて、ブラウザの素の小さな枠で出ていた */
+.fld input[type=text],.fld input[type=number],.fld input[type=date],.fld input[type=time],.fld input[type=password],
+.fld input[type=tel],.fld input[type=email],.fld input[type=url],.fld select,.fld textarea{
   width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px;background:#fff;}
 .fld textarea{min-height:70px;resize:vertical;}
 .fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--navy-2);outline:none;box-shadow:0 0 0 3px var(--navy-soft);}
@@ -154,13 +156,14 @@ a{color:var(--navy-2);}
 .board-row.unread .br-title,.board-row.unread .br-from{font-weight:800;}
 .board-row .br-body{margin-top:var(--sp-2);font-size:var(--fs-sm);color:var(--text);white-space:pre-wrap;display:none;}
 .board-row.open .br-body{display:block;}
-/* 活動種別の6色（AP青・FF橙・プレゼン水・クロージング菫・契約紅・定期訪問桃。色覚検証済みセット） */
+/* 活動種別の7色（AP青・FF橙・プレゼン水・クロージング菫・契約紅・定期訪問桃・ビジネスパートナー訪問紫。色覚検証済みセット） */
 .bg-AP{background:var(--tAPbg);border-color:var(--tAPbd);color:var(--tAPtx);}
 .bg-FF{background:var(--tFFbg);border-color:var(--tFFbd);color:var(--tFFtx);}
 .bg-PZ{background:var(--tPZbg);border-color:var(--tPZbd);color:var(--tPZtx);}
 .bg-CL{background:var(--tCLbg);border-color:var(--tCLbd);color:var(--tCLtx);}
 .bg-KY{background:var(--tKY);border-color:var(--tKY);color:#fff;}   /* 契約は塗りつぶしで目立たせる（白抜き 6.5:1） */
 .bg-TH{background:var(--tTHbg);border-color:var(--tTHbd);color:var(--tTHtx);}   /* 定期訪問 */
+.bg-BP{background:var(--tBPbg);border-color:var(--tBPbd);color:var(--tBPtx);}   /* ビジネスパートナー訪問 */
 .bg-lost{background:#eef0f3;border-color:#d9dee4;color:#5f6b78;}
 .bg-hold{background:#f2f0fa;border-color:#dcd6f0;color:#5b4a91;}
 .bg-bd{background:#fdf6e3;border-color:#ecd9a8;color:#7d5413;}   /* 誕生日 */
@@ -215,7 +218,8 @@ a{color:var(--navy-2);}
 .icon-btn svg{width:16px;height:16px;}
 
 /* ---------- 活動種別ボタン ---------- */
-/* 6種類あるので3列×2段。5＋1で折り返すより読みやすい */
+/* 6種類は3列×2段。7つ目のビジネスパートナー訪問は名前が長いので、3段目に横いっぱいで置く */
+.ae-top{margin-bottom:var(--sp-4);}
 .type-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-2);}
 .type-btn{min-height:56px;border:1.5px solid var(--line);background:var(--white);border-radius:12px;cursor:pointer;
   font-weight:700;font-size:var(--fs-base);color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:8px;}
@@ -227,6 +231,8 @@ a{color:var(--navy-2);}
 .type-btn[data-type="CL"][aria-pressed="true"]{background:var(--tCLbg);border:2px solid var(--tCL);color:var(--tCLtx);}
 .type-btn[data-type="KY"][aria-pressed="true"]{background:var(--tKYbg);border:2px solid var(--tKY);color:var(--tKYtx);}
 .type-btn[data-type="TH"][aria-pressed="true"]{background:var(--tTHbg);border:2px solid var(--tTH);color:var(--tTHtx);}
+.type-btn[data-type="BP"]{grid-column:1 / -1;}
+.type-btn[data-type="BP"][aria-pressed="true"]{background:var(--tBPbg);border:2px solid var(--tBP);color:var(--tBPtx);}
 .contract-box{margin-top:var(--sp-4);border:1.5px dashed var(--green-border);background:var(--green-bg);
   border-radius:14px;padding:var(--sp-4);}
 .contract-box h3{font-size:var(--fs-md);color:var(--green);margin-bottom:var(--sp-3);}
@@ -268,7 +274,7 @@ a{color:var(--navy-2);}
 /* 左端の太線＝種別のマーク色（マスを一目で見分ける） */
 .cal-ev.bg-AP{border-left-color:var(--tAP);} .cal-ev.bg-FF{border-left-color:var(--tFF);}
 .cal-ev.bg-PZ{border-left-color:var(--tPZ);} .cal-ev.bg-CL{border-left-color:var(--tCL);}
-.cal-ev.bg-KY{border-left-color:#6e140e;} .cal-ev.bg-TH{border-left-color:var(--tTH);}
+.cal-ev.bg-KY{border-left-color:#6e140e;} .cal-ev.bg-TH{border-left-color:var(--tTH);} .cal-ev.bg-BP{border-left-color:var(--tBP);}
 .cal-ev.bd{background:#fdf6e3;border-color:#ecd9a8;border-left-color:#d9b14d;color:#7d5413;}
 /* 誕生日は「◯◯様 △歳お誕生日」を切らずに見せる（名前の後ろで折り返す） */
 .cal-ev.bd{white-space:normal;text-overflow:clip;line-height:1.35;padding-top:3px;padding-bottom:3px;}
@@ -299,35 +305,8 @@ a{color:var(--navy-2);}
 .day-row.cf .day-go{color:#34465d;}
 .day-row.cf .cf-over{color:var(--red-text);font-weight:700;}
 .day-row.cf .cf-done{color:#2c7a4b;font-weight:700;}
-.day-row.cf .day-body b,.tdc-row b{white-space:nowrap;}   /* お名前を語の途中で折らない */
-/* ---------- 今日（営業活動の頭） ---------- */
-.today-card{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:var(--sp-4) var(--sp-5);
-  margin-bottom:var(--sp-4);box-shadow:0 2px 10px rgba(22,40,60,.05);}
-.tdc-head{display:flex;align-items:center;gap:var(--sp-3);flex-wrap:wrap;margin-bottom:var(--sp-3);}
-.tdc-h{font-size:var(--fs-md);color:var(--navy);font-weight:800;margin:0;}
-.tdc-head .btn{margin-left:auto;}
-.tdc-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--sp-3) var(--sp-5);}
-.tdc-col{min-width:0;display:flex;flex-direction:column;gap:var(--sp-2);align-items:flex-start;}
-.tdc-t{font-size:var(--fs-sm);color:var(--muted);font-weight:700;}
-.tdc-list{list-style:none;margin:0;padding:0;display:grid;gap:6px;width:100%;}
-.tdc-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%;min-height:44px;padding:8px 12px;text-align:left;
-  background:#fbfcfe;border:1px solid var(--line);border-radius:10px;font:inherit;font-size:var(--fs-sm);color:var(--text);
-  cursor:pointer;text-decoration:none;}
-.tdc-row:hover{border-color:var(--navy-2);}
-.tdc-row.tdc-static{cursor:default;}
-.tdc-row.tdc-static:hover{border-color:var(--line);}
-.tdc-row b{color:var(--navy);}
-.tdc-time{font-weight:700;color:var(--muted);font-size:var(--fs-xs);min-width:3.6em;font-variant-numeric:tabular-nums;}
-.tdc-time.over{color:var(--red-text);}
-.tdc-sub{color:var(--muted);font-size:var(--fs-xs);}
-.tdc-none{font-size:var(--fs-sm);color:var(--muted);margin:0;}
-.tdc-cnt{display:flex;gap:6px 14px;flex-wrap:wrap;font-size:var(--fs-sm);font-weight:700;color:var(--text);margin:0;}
-.tdc-over{color:var(--red-text);}
-.tdc-more{font-size:var(--fs-sm);font-weight:700;color:var(--navy-2);display:inline-flex;align-items:center;min-height:44px;}
+.day-row.cf .day-body b{white-space:nowrap;}   /* お名前を語の途中で折らない */
 @media(max-width:760px){
-  .tdc-cols{grid-template-columns:minmax(0,1fr);}
-  .today-card{padding:var(--sp-4);}
-  .tdc-head .btn{margin-left:0;width:100%;}
   .day-row.cf{flex-wrap:wrap;}
   .day-row.cf .day-body{flex:1 1 calc(100% - 6em);}
   .day-row.cf .day-go{width:100%;text-align:right;padding-top:0;}
@@ -925,7 +904,7 @@ a.tb-tag:hover{border-color:var(--navy-2);color:var(--navy);}
     display:inline-block;vertical-align:middle;overflow:hidden;color:transparent;font-size:0;line-height:9px;}
   .cal-ev.bg-AP{background:var(--tAP);} .cal-ev.bg-FF{background:var(--tFF);}
   .cal-ev.bg-PZ{background:var(--tPZ);} .cal-ev.bg-CL{background:var(--tCL);}
-  .cal-ev.bg-KY{background:var(--tKY);width:11px;height:11px;} .cal-ev.bg-TH{background:var(--tTH);}   /* 契約の点だけ少し大きく */
+  .cal-ev.bg-KY{background:var(--tKY);width:11px;height:11px;} .cal-ev.bg-TH{background:var(--tTH);} .cal-ev.bg-BP{background:var(--tBP);}   /* 契約の点だけ少し大きく */
   .cal-ev.bd{background:#d9b14d;padding:0;line-height:9px;}
   .cal-ev.cf{background:#5a6f8a;padding:0;line-height:9px;border-radius:2px;}   /* 声かけは四角い点（色だけで見分けさせない） */
   .cal-ev.kk-bad{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--red-text);margin:3px 4px 1px 2px;}   /* 直すことがある契約：赤い輪 */
@@ -947,7 +926,7 @@ a.tb-tag:hover{border-color:var(--navy-2);color:var(--navy);}
    2026-10-06 全体の辛口点検：ほかの社内ツール（顧客管理・満期カレンダー・目標逆算・管理画面）と同じ顔にそろえる。
    この画面だけ青と灰の別の顔（2026-08 の製品版の刷新）で、行き来すると別の製品に見えていた。
    - 地と線は暖かい色、上の帯は淡い桃と水色、ツール名と節の見出しは明朝、タブは下線、ボタンは丸く、主ボタンは珊瑚色
-   - ★活動の種類の6色（--tAP〜--tTH）とグラフの青（--chart-1）は色覚の検証をしてあるので、そのまま残す
+   - ★活動の種類の7色（--tAP〜--tTH・--tBP）とグラフの青（--chart-1）は色覚の検証をしてあるので、そのまま残す
    - ★上書きはこの塊の中だけ（前の指定は消していない）。外すと前の顔に戻る
    ============================================================ */
 :root{
@@ -1369,7 +1348,7 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
     <button class="tab" role="tab" id="tabBtnAct" data-tab="act" aria-selected="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17M8.5 14.5l2.2 2.2 4.6-4.6"/></svg>営業活動</button>
     <button class="tab" role="tab" id="tabBtnCust" data-tab="cust" aria-selected="false">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3 2.8-4.5 5.5-4.5S13.9 16 14.5 19"/><circle cx="17" cy="9" r="2.4"/><path d="M15.6 14.7c2.6-.3 4.6 1 5.2 3.8"/></svg>顧客カルテ</button>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3 2.8-4.5 5.5-4.5S13.9 16 14.5 19"/><circle cx="17" cy="9" r="2.4"/><path d="M15.6 14.7c2.6-.3 4.6 1 5.2 3.8"/></svg>顧客検索</button>
     <button class="tab" role="tab" id="tabBtnRate" data-tab="rate" aria-selected="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19 12a7 7 0 0 0-.2-1.6l2-1.5-2-3.4-2.3 1a7 7 0 0 0-2.7-1.6L13.5 2h-3l-.3 2.9a7 7 0 0 0-2.7 1.6l-2.3-1-2 3.4 2 1.5A7 7 0 0 0 5 12c0 .5.1 1.1.2 1.6l-2 1.5 2 3.4 2.3-1a7 7 0 0 0 2.7 1.6l.3 2.9h3l.3-2.9a7 7 0 0 0 2.7-1.6l2.3 1 2-3.4-2-1.5c.1-.5.2-1 .2-1.6Z"/></svg>設定</button>
     <button class="tab hide" role="tab" id="tabBtnBox" data-tab="box" aria-selected="false">
@@ -1382,15 +1361,16 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
 
 <main class="wrap">
   <div id="omNote"></div>
-  <!-- 提出書類がまだの契約の知らせ（営業活動・顧客カルテのタブで出す。数え方は社内ツールの顧客管理と同じ KKC。kkRenderAlarm() が描く） -->
+  <!-- 提出書類がまだの契約の知らせ（営業活動・顧客検索のタブで出す。数え方は社内ツールの顧客管理と同じ KKC。kkRenderAlarm() が描く） -->
   <div id="kkAlarm" class="kk-alarm hide" role="status" aria-live="polite"></div>
 
-  <!-- ================= 顧客カルテ（2026-10-06 夜に「顧客管理」から改称。社内ツールの「顧客管理（契約と提出書類）」と名前を分けた） ================= -->
+  <!-- ================= 顧客検索（2026-10-06 夜に「顧客管理」から「顧客カルテ」へ、2026-10-07 ユーザー指示「顧客カルテではなく、顧客検索にしてください」で「顧客検索」へ改称。
+       社内ツールの「顧客管理（契約と提出書類）」とは別の名前。お客様1人ずつの画面は今までどおり「カルテ」） ================= -->
   <section id="tab-cust" role="tabpanel" class="hide">
     <div class="sec">
       <div class="sec-head">
         <span class="sh-art"><svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="18" cy="22" r="8" fill="#f7cdb4"/><path d="M6 50c0-8 5.4-14 12-14s12 6 12 14Z" fill="#63b8dd"/><circle cx="45" cy="22" r="8" fill="#f7cdb4"/><path d="M33 50c0-8 5.4-14 12-14s12 6 12 14Z" fill="#f0846a"/><circle cx="32" cy="38" r="6" fill="#f7cdb4"/><path d="M23 55c0-6 4-10 9-10s9 4 9 10Z" fill="#f7c34e"/></svg></span>
-        <div><h2>顧客カルテ</h2><p>お客様を探すのはここから。カルテから提出書類・コンプライアンスの記録・満期カレンダーまで開けます</p></div>
+        <div><h2>顧客検索</h2><p>お客様を探すのはここから。カルテから提出書類・コンプライアンスの記録・満期カレンダーまで開けます</p></div>
       </div>
 
       <div class="toolrow" id="custToolrow">
@@ -1438,9 +1418,9 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
           <p class="sec-note" style="margin-top:0;">活動を記録するときに、登録していない名前を入れたものです。お客様として登録すると、カルテに紐づきます。</p>
           <div id="guestList"></div>
         </div>
-        <!-- 顧客カルテに無いお名前（2026-10-07：管理画面の「お客様をさがす」をここへ移した。renderOthers() が描く） -->
+        <!-- 登録していないお名前（ほかの記録にだけある方。2026-10-07：管理画面の「お客様をさがす」をここへ移した。renderOthers() が描く） -->
         <div class="guest-box hide" id="otherBox">
-          <h3 style="color:var(--navy);font-size:var(--fs-md);margin-bottom:var(--sp-1);">顧客カルテに無いお名前</h3>
+          <h3 style="color:var(--navy);font-size:var(--fs-md);margin-bottom:var(--sp-1);">ほかの記録にだけあるお名前</h3>
           <p class="sec-note" style="margin-top:0;"><span class="nb">コンプライアンスの記録や</span><span class="nb">満期カレンダーにだけある</span><span class="nb">お名前です。</span><br><span class="nb">登録すると、</span><span class="nb">カルテでまとめて見られます。</span></p>
           <div id="otherList"></div>
         </div>
@@ -1475,7 +1455,6 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
   <!-- ================= 営業活動 ================= -->
   <section id="tab-act" role="tabpanel" class="hide">
     <div class="sec">
-      <div id="todayCard" class="today-card hide" aria-label="今日の予定と声かけ"></div>
       <div class="sec-head">
         <span class="sh-art"><svg aria-hidden="true" viewBox="0 0 64 64"><rect x="12" y="10" width="40" height="46" rx="7" fill="#fffdf8" stroke="#efe2d8" stroke-width="2.5"/><rect x="24" y="5" width="16" height="10" rx="4" fill="#27587f"/><path d="m19 26 4 4 7-8" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="34" y="25" width="12" height="3.5" rx="1.75" fill="#d9cfc4"/><path d="m19 40 4 4 7-8" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="34" y="39" width="12" height="3.5" rx="1.75" fill="#d9cfc4"/></svg></span>
         <div><h2>営業活動</h2><p>カレンダーで日付を選び、誰と・どこで・何をしたかを1分で記録</p></div>
@@ -1509,7 +1488,8 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
           <span class="badge bg-AP">アプローチ</span><span class="badge bg-FF">ヒアリング</span>
           <span class="badge bg-PZ">プレゼン</span><span class="badge bg-CL">クロージング</span>
           <span class="badge bg-KY">契約</span><span class="badge bg-TH">定期訪問</span>
-          <span class="badge bg-bd">誕生日（顧客カルテから）</span>
+          <span class="badge bg-BP">ビジネスパートナー訪問</span>
+          <span class="badge bg-bd">誕生日（カルテから）</span>
           <span class="badge bg-cf" id="legendCF">満期・更新など（満期カレンダーから）</span>
           <span class="badge bg-MT hide" id="legendMT">ミーティング</span>
           <span class="badge bg-HD hide" id="legendHD">休日出勤</span>
@@ -1763,6 +1743,18 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
       <span id="aeWhen" style="margin-left:auto;font-size:var(--fs-xs);color:var(--muted);font-weight:700;"></span>
     </div>
     <div class="sheet-body">
+      <!-- 誰と・どこで・誰が同席したかを窓のいちばん上に（2026-10-07 ユーザー指示「活動記録は顧客名、場所、同席者が上に表示されるようにしてください」） -->
+      <div class="frm ae-top">
+        <div class="fld" style="position:relative;"><label for="aeCust" id="aeCustLabel">顧客名</label>
+          <input type="text" id="aeCust" autocomplete="off" placeholder="例：山田 花子">
+          <div class="cust-suggest hide" id="aeCustSuggest"></div>
+          <div class="ae-hint" id="aeCustHint" aria-live="polite"></div>
+</div>
+        <div class="fld"><label for="aePlace">場所</label><input type="text" id="aePlace" placeholder="例：高松市　お客様ご自宅"></div>
+        <div class="fld full"><label for="aeWho">同席者・相手メモ</label><input type="text" id="aeWho" placeholder="例：奥様同席、社長と経理部長"></div>
+        <div class="fld full" id="aeFamFld"><label class="chk" id="aeFamLabel"><input type="checkbox" id="aeFam"><span>ご家族などが同席した</span></label>
+          <div class="hint">ご高齢の方の募集で、ご家族などの同席の記録になります（顧客管理の確認に使います）</div></div>
+      </div>
       <div class="fld" style="margin-bottom:var(--sp-3);">
         <label>活動の種類</label>
         <div class="type-grid" id="aeTypes">
@@ -1772,6 +1764,7 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
           <button class="type-btn" data-type="CL" aria-pressed="false">クロージング</button>
           <button class="type-btn" data-type="KY" aria-pressed="false">契約</button>
           <button class="type-btn" data-type="TH" aria-pressed="false">定期訪問</button>
+          <button class="type-btn" data-type="BP" aria-pressed="false">ビジネスパートナー訪問</button>
         </div>
       </div>
       <div class="fld hide" id="aeDetailWrap" style="margin-bottom:var(--sp-3);">
@@ -1787,15 +1780,6 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
           <div class="time-wrap"><input type="text" class="time-input" id="aeEnd" inputmode="numeric" autocomplete="off" placeholder="例：12:00"></div>
           <div class="hint">開始の2時間後が自動で入ります</div></div>
         <div class="fld full"><label class="chk" id="aeAlldayLabel"><input type="checkbox" id="aeAllday"><span>終日にする（時刻を使わない）</span></label></div>
-        <div class="fld" style="position:relative;"><label for="aeCust">顧客名</label>
-          <input type="text" id="aeCust" autocomplete="off" placeholder="例：山田 花子">
-          <div class="cust-suggest hide" id="aeCustSuggest"></div>
-          <div class="ae-hint" id="aeCustHint" aria-live="polite"></div>
-</div>
-        <div class="fld"><label for="aePlace">場所</label><input type="text" id="aePlace" placeholder="例：高松市　お客様ご自宅"></div>
-        <div class="fld full"><label for="aeWho">同席者・相手メモ</label><input type="text" id="aeWho" placeholder="例：奥様同席、社長と経理部長"></div>
-        <div class="fld full"><label class="chk" id="aeFamLabel"><input type="checkbox" id="aeFam"><span>ご家族などが同席した</span></label>
-          <div class="hint">ご高齢の方の募集で、ご家族などの同席の記録になります（顧客管理の確認に使います）</div></div>
         <div class="fld full"><label for="aeNote">備考<span class="opt">（書かなくても保存できます）</span></label><input type="text" id="aeNote" maxlength="400" placeholder="例：駐車場あり、資料を持参"></div>
         <div class="fld full"><label for="aeMemo">内容メモ</label><textarea id="aeMemo" placeholder="話した内容・次のアクションなど"></textarea>
           <div class="frm-actions" style="margin-top:var(--sp-2);">
@@ -2500,7 +2484,9 @@ var STAGES = [
 ];
 /* 活動の種類＝ステージ5つ＋定期訪問。定期訪問は契約までの段階ではない（＝見込みの絞り込みや
    確度設定には出さない）ので STAGES には入れず、記録するときの選択肢としてだけ足す */
-var ACT_TYPES = STAGES.concat([{ k:'TH', label:'定期訪問', full:'フォロー・アフター' }]);
+/* BP＝ビジネスパートナー訪問（2026-10-07 ユーザー指示「活動の種類にビジネスパートナー訪問を追加してください」）。
+   提携先・紹介元など、お客様ではない相手への訪問。定期訪問と同じく契約までの段階には入れない（ステージを進めない・目標逆算と提出書類の数えに入れない） */
+var ACT_TYPES = STAGES.concat([{ k:'TH', label:'定期訪問', full:'フォロー・アフター' }, { k:'BP', label:'ビジネスパートナー訪問', full:'提携先・紹介元への訪問' }]);
 /* MT/HD/DKは「サンプルを表示」専用の種別（実際の記録では選べない）。ACT_TYPESには入れない */
 var SAMPLE_LABELS = { MT:'ミーティング', HD:'休日出勤', DK:'代休' };
 function stageLabel(k){
@@ -2854,7 +2840,7 @@ function cT(v){ return /^\d{2}:\d{2}$/.test(String(v || '')) ? v : ''; }
 function cId(v){ return typeof v === 'string' && /^[A-Za-z0-9_@.\-]{1,80}$/.test(v) ? v : ''; }
 function cOne(v, list, dflt){ return list.indexOf(v) >= 0 ? v : dflt; }
 function cArr(v, max, fn){ return (Array.isArray(v) ? v.slice(0, max) : []).map(fn).filter(Boolean); }
-var STAGE_KEYS = ['AP','FF','PZ','CL','KY'], TYPE_KEYS = ['AP','FF','PZ','CL','KY','TH'];
+var STAGE_KEYS = ['AP','FF','PZ','CL','KY'], TYPE_KEYS = ['AP','FF','PZ','CL','KY','TH','BP'];
 function cleanCust(c){
   if (!c || typeof c !== 'object' || !cId(c.id) || !cS(c.name).trim()) return null;
   var o = { id:c.id, created:cN(c.created), name:cS(c.name, 80), kana:cS(c.kana, 80), company:cS(c.company, 120), tel:cS(c.tel, 80),
@@ -3034,7 +3020,7 @@ function refreshView(){
 }
 
 /* ============================================================
-   4. 顧客カルテ
+   4. 顧客検索とカルテ
    ============================================================ */
 var custFilter = 'all';
 var editCustId = null;
@@ -3170,10 +3156,10 @@ function renderCust(){
   });
   renderGuests(toks);
   var others = renderOthers(toks);
-  if (toks.length && !list.length && !near.length && others) cnt.innerHTML = '「' + esc(q) + '」<span class="nb">は顧客カルテにいません。</span><span class="nb">下は、ほかの記録にあるお名前です。</span>';
+  if (toks.length && !list.length && !near.length && others) cnt.innerHTML = '「' + esc(q) + '」<span class="nb">は、お客様に登録されていません。</span><span class="nb">下は、ほかの記録にあるお名前です。</span>';
 }
 
-/* ---- 顧客カルテに無いお名前（2026-10-07 ユーザー指示「学習教材と、顧客管理での調べるは別の検索できる場所に配置してください。
+/* ---- 登録していないお名前（ほかの記録にだけある方。2026-10-07 ユーザー指示「学習教材と、顧客管理での調べるは別の検索できる場所に配置してください。
    顧客管理は営業ダッシュボードが中心で操作できるようにしてください」）。管理画面の「お客様をさがす」をここへ移した。
    管理画面のコンプライアンスの記録（要約 KKC.feed()）と満期カレンダーの要約（calFeed()）にだけ残っているお名前を、
    この検索で見つけ、記録を開く・満期カレンダーで見る・お客様として登録する、をここから行う。
@@ -3231,7 +3217,7 @@ function guestGroups(){
     if (isCon) o.cons++; else o.acts++;
     if (date && date > o.last) o.last = date;
   }
-  state.activities.forEach(function(a){ if (!a.cid && a.guest && !SAMPLE_LABELS[a.type]) add(a.guest, a.date, false); });
+  state.activities.forEach(function(a){ if (!a.cid && a.guest && !SAMPLE_LABELS[a.type] && a.type !== 'BP') add(a.guest, a.date, false); });
   state.contracts.forEach(function(k){ if (!k.cid && k.guest) add(k.guest, k.date, true); });
   return Object.keys(g).map(function(k){ return g[k]; }).sort(function(a, b){ return a.last < b.last ? 1 : a.last > b.last ? -1 : 0; });
 }
@@ -3643,7 +3629,7 @@ function actsOn(dateStr){
       return x < y ? -1 : x > y ? 1 : (a.id < b.id ? -1 : 1);
     });
 }
-/* 誕生日：その日に何歳になるかを出す（顧客カルテの誕生日から計算） */
+/* 誕生日：その日に何歳になるかを出す（カルテの誕生日から計算） */
 /* その年の誕生日。2月29日生まれの方は、平年は2月28日に出す */
 function bdayInYear(birth, y){
   var b = parseYmd(birth), m = b.getMonth(), d = b.getDate();
@@ -4021,7 +4007,13 @@ function setAeType(t){
   if (t === 'KY') renderPicker('ae');
   renderAeDetail(t);
   aeKkSync();
-  aeKyPreRender();
+  /* ビジネスパートナー訪問：相手はお客様ではないので「訪問先」と呼び、ご家族の同席の欄は出さない */
+  var bp = t === 'BP';
+  $('aeCustLabel').textContent = bp ? '訪問先（会社・お名前）' : '顧客名';
+  $('aeCust').placeholder = bp ? '例：○○不動産　田中様' : '例：山田 花子';
+  $('aeFamFld').classList.toggle('hide', bp);
+  if (bp && $('aeFam').checked) { $('aeFam').checked = false; aeFamSync(); }
+  renderAeHint();   /* aeKyPreRender も呼ぶ */
 }
 document.querySelectorAll('#aeTypes .type-btn').forEach(function(b){
   b.addEventListener('click', function(){
@@ -4148,6 +4140,7 @@ function renderAeHint(){
   }
   if (w.cid) { el.className = 'ae-hint ok'; el.textContent = '「' + custLabel(custById(w.cid)) + '」様の記録になります。'; return; }
   el.className = 'ae-hint muted';
+  if (aeType === 'BP') { el.textContent = 'お客様の一覧には入りません。'; return; }
   el.innerHTML = 'まだ登録していないお名前です。このままでも記録できます。<br>' +
     '<button type="button" class="btn btn-ghost btn-sm" id="aeMakeCust">この名前でお客様を作る</button>';
   $('aeMakeCust').addEventListener('click', quickCreateCust);
@@ -4163,7 +4156,7 @@ function quickCreateCust(){
   if (!save()) return;
   fillCustSelectors();
   renderAeHint();
-  $('aeCustHint').textContent = '「' + c.name + '」様をお客様として登録しました。この記録はカルテに紐づきます。会社名・連絡先・誕生日は、顧客カルテから入れられます。';
+  $('aeCustHint').textContent = '「' + c.name + '」様をお客様として登録しました。この記録はカルテに紐づきます。会社名・連絡先・誕生日は、この方のカルテから入れられます。';
   var gn = guestCount(nameKey(name));
   if (gn) {
     omAsk('この名前で残した記録があります',
@@ -4212,8 +4205,9 @@ function openActNew(dateStr, cid){
   $('aeErr').textContent = '';
   $('aeOvl').classList.remove('hide');
   document.body.style.overflow = 'hidden';
-  if (pc) $('aeOvl').querySelector('.sheet-body').scrollTop = 0;
-  document.querySelector('#aeTypes .type-btn').focus();
+  /* 窓の頭（顧客名・場所・同席者）を見せたまま、焦点は種類のボタンへ（名前の欄に焦点を当てると候補の一覧が開いて種類を隠すため） */
+  $('aeOvl').querySelector('.sheet-body').scrollTop = 0;
+  document.querySelector('#aeTypes .type-btn').focus({ preventScroll: true });
 }
 function openActEdit(id){
   var a = state.activities.filter(function(x){ return x.id === id; })[0];
@@ -4290,9 +4284,9 @@ $('aeSave').addEventListener('click', function(){
   var a = state.activities.filter(function(x){ return x.id === aeId; })[0];
   if (!a) return;
   var err = $('aeErr'); err.textContent = '';
-  if (!aeType) { err.textContent = '活動の種類（アプローチ〜契約・定期訪問）を選んでください。'; return; }
+  if (!aeType) { err.textContent = '活動の種類を選んでください。'; return; }
   var who = resolveWho($('aeCust').value);
-  if (!who) { err.textContent = '顧客名を入れてください。'; $('aeCust').focus(); return; }
+  if (!who) { err.textContent = aeType === 'BP' ? '訪問先を入れてください。' : '顧客名を入れてください。'; $('aeCust').focus(); return; }
   if (who.dup) { err.textContent = '同じお名前の方が' + who.dup.length + '人います。顧客名の候補から、会社名を見て選んでください。'; $('aeCust').focus(); aeSug.show(); return; }
   var cid = who.cid;
   var date = dpValue('aeDate') || a.date;
@@ -4336,9 +4330,9 @@ $('aeSave').addEventListener('click', function(){
 
 function saveNewFromSheet(){
   var err = $('aeErr'); err.textContent = '';
-  if (!aeType) { err.textContent = '活動の種類（アプローチ〜契約・定期訪問）を選んでください。'; return; }
+  if (!aeType) { err.textContent = '活動の種類を選んでください。'; return; }
   var who = resolveWho($('aeCust').value);
-  if (!who) { err.textContent = '顧客名を入れてください。'; $('aeCust').focus(); return; }
+  if (!who) { err.textContent = aeType === 'BP' ? '訪問先を入れてください。' : '顧客名を入れてください。'; $('aeCust').focus(); return; }
   if (who.dup) { err.textContent = '同じお名前の方が' + who.dup.length + '人います。顧客名の候補から、会社名を見て選んでください。'; $('aeCust').focus(); aeSug.show(); return; }
   var cid = who.cid;
   var date = dpValue('aeDate') || todayStr();
@@ -4367,7 +4361,7 @@ function saveNewFromSheet(){
   state.activities.push(act);
   var c = custById(cid);
   if (c) {
-    /* 記録した種類が今のステージより先なら進める。定期訪問は STAGES に無い（-1）ので進まない */
+    /* 記録した種類が今のステージより先なら進める。定期訪問・ビジネスパートナー訪問は STAGES に無い（-1）ので進まない */
     var order = STAGES.map(function(sg){ return sg.k; });
     if (order.indexOf(aeType) > order.indexOf(c.stage)) c.stage = aeType;
     if (aeType === 'KY') c.status = 'won';
@@ -4405,7 +4399,6 @@ function afterActChange(){
 
 function renderAct(){
   kkRenderAlarm();
-  renderToday();
   renderCal();
   /* 2026-10-06 全体の辛口点検：記録が入ったあとは「サンプルを表示」を控えめに（本当の仕事のボタンと同じ重さで並べない）。
      押せば今までどおりサンプルが出る。サンプルを出しているあいだは「サンプルを消す」を目立たせる */
@@ -4413,7 +4406,7 @@ function renderAct(){
 }
 
 /* ============================================================
-   5-0. 満期カレンダーの声かけと、今日の予定（2026-10-06）
+   5-0. 満期カレンダーの声かけ（2026-10-06。今日の予定の箱は 2026-10-07 に外した）
    ・満期カレンダーが書く要約（officem.hokenCalendar.feed.v1）を読むだけ。書き換えない
    ・月の表に出すのは、ご契約の日（満期・更新・契約応当日・払込満了・年金の受取開始）だけ。
      誕生日はこのツールのお客様から出しているので重ねない
@@ -4446,80 +4439,12 @@ function cfIsOver(e, today){
   if (e.d >= today) return false;
   return e.t === 'mat' || e.t === 'pay' || e.t === 'pen' || (e.t === 'ann' && e.l === '更新の時期');
 }
-function cfSummary(){
-  var f = calFeed();
-  if (!f) return null;
-  var today = todayStr(), to = ymd(addDays(parseYmd(today), 14));
-  var over = [], soon = [];
-  f.ev.forEach(function(e){
-    if (e.dn) return;
-    if (cfIsOver(e, today)) over.push(e);
-    else if (e.d >= today && e.d <= to) soon.push(e);
-  });
-  return { over: over, soon: soon };
-}
 function cfBadge(e){ return '<span class="badge bg-cf">' + esc(e.l || '声かけ') + '</span>'; }
 function cfName(e){ return e.n ? e.n + '様' : ''; }
 function cfHref(e){ return calendarHref('#d=' + e.d); }
 
-/* 今日の予定：今日の記録・お誕生日・声かけ（期限を過ぎて未連絡・2週間以内） */
-/* 今日の箱のお名前は「様」をつける（声かけ・管理画面の今日の仕事と同じ書き方） */
-function tdcName(a){
-  if (a.type === 'MT' || a.type === 'HD' || a.type === 'DK') return actName(a);   /* 社内の予定は「様」をつけない */
-  var c = custById(a.cid), n = c ? c.name : (a.guest || '');
-  if (!n) return '（お名前なし）';
-  return /(様|さま|殿)$/.test(n) ? n : n + '様';
-}
-function renderToday(){
-  var el = $('todayCard');
-  if (!el) return;
-  if (sampleMode) { el.classList.add('hide'); el.innerHTML = ''; return; }
-  var today = todayStr(), acts = actsOn(today), bds = birthdaysOn(today);
-  var h = '<div class="tdc-head"><h3 class="tdc-h">今日　' + esc(fmtJpDate(today)) + '</h3>' +
-    '<button type="button" class="btn btn-primary btn-sm" id="tdcAdd">今日の記録をつける</button></div><div class="tdc-cols">';
-  /* 予定 */
-  h += '<div class="tdc-col"><b class="tdc-t">予定</b>';
-  if (acts.length || bds.length) {
-    h += '<ul class="tdc-list">' + bds.map(function(o){
-      return '<li><span class="tdc-row tdc-static"><span class="tdc-time">終日</span><span class="badge bg-bd">誕生日</span><b>' + esc(o.c.name) + '様</b><span class="tdc-sub">' + o.age + '歳</span></span></li>';
-    }).join('') + acts.map(function(a){
-      return '<li><button type="button" class="tdc-row" data-e="' + esc(a.id) + '"><span class="tdc-time">' + esc(a.start || '終日') + '</span>' +
-        '<span class="badge bg-' + a.type + '">' + esc(stageLabel(a.type)) + '</span><b>' + esc(tdcName(a)) + '</b>' +
-        (a.place ? '<span class="tdc-sub">' + esc(a.place) + '</span>' : '') + '</button></li>';
-    }).join('') + '</ul>';
-  } else {
-    var nx = state.activities.filter(function(a){ return a.date > today; }).sort(function(a, b){
-      return a.date !== b.date ? (a.date < b.date ? -1 : 1) : ((a.start || '99') < (b.start || '99') ? -1 : 1);
-    })[0];
-    h += '<p class="tdc-none">今日の予定はありません。</p>' +
-      (nx ? '<ul class="tdc-list"><li><button type="button" class="tdc-row" data-e="' + esc(nx.id) + '"><span class="tdc-time">' + esc(fmtMd(nx.date) + (nx.start ? ' ' + nx.start : '')) + '</span>' +
-        '<span class="badge bg-' + nx.type + '">' + esc(stageLabel(nx.type)) + '</span><b>' + esc(tdcName(nx)) + '</b><span class="tdc-sub">次の予定</span></button></li></ul>' : '');
-  }
-  h += '</div>';
-  /* 声かけ（満期カレンダー） */
-  var cs = cfSummary();
-  h += '<div class="tdc-col"><b class="tdc-t">声かけ（満期カレンダー）</b>';
-  if (!cs) {
-    h += '<p class="tdc-none">満期カレンダーを一度開くと、満期・更新・誕生日の前月などの声かけがここに出ます。</p>' +
-      '<a class="btn btn-ghost btn-sm" href="' + esc(calendarHref()) + '" target="katatsugi-calendar">満期カレンダーを開く</a>';
-  } else {
-    var list = cs.over.concat(cs.soon);
-    h += '<p class="tdc-cnt">' + (cs.over.length ? '<span class="tdc-over">期限を過ぎて未連絡 ' + cs.over.length + '件</span>' : '<span>期限を過ぎて未連絡 0件</span>') +
-      '<span>2週間以内 ' + cs.soon.length + '件</span></p>';
-    if (list.length) h += '<ul class="tdc-list">' + list.slice(0, 4).map(function(e){
-      return '<li><a class="tdc-row" href="' + esc(cfHref(e)) + '" target="katatsugi-calendar"><span class="tdc-time' + (cfIsOver(e, today) ? ' over' : '') + '">' + esc(fmtMd(e.d)) + '</span>' +
-        cfBadge(e) + '<b>' + esc(cfName(e) || '—') + '</b></a></li>';
-    }).join('') + '</ul>';
-    h += '<a class="tdc-more" href="' + esc(calendarHref()) + '" target="katatsugi-calendar">満期カレンダーで全て見る' + (list.length > 4 ? '（ほか' + (list.length - 4) + '件）' : '') + '</a>';
-  }
-  h += '</div></div>';
-  el.innerHTML = h;
-  el.classList.remove('hide');
-  $('tdcAdd').addEventListener('click', function(){ openActNew(today); });
-  el.querySelectorAll('button[data-e]').forEach(function(b){
-    b.addEventListener('click', function(){ openEv(b.getAttribute('data-e'), { back: b }); });
-  });
-}
+/* 営業活動の頭の「今日」の箱（今日の予定と声かけ）は外した（2026-10-07 ユーザー指示「写真1枚目ここを削除」）。
+   予定はカレンダーとその日の一覧、声かけは月の表と満期カレンダーで見る */
 window.addEventListener('storage', function(e){
   if (state && (e.key === CF_KEY || e.key === null) && curTab() === 'act') renderAct();
 });
@@ -4661,7 +4586,7 @@ function kkKoureiPreHtml(p, cls){
     : '<' + cls + ' class="bk">ご高齢の方（' + p.age + '歳）です。契約までに、' + esc(cond) + 'を記録に残してください（いま：' + esc(now) + '）</' + cls + '>';
 }
 
-/* ---- 営業活動・顧客カルテのタブの上の知らせ（群ごとの件数と、対象の契約） ---- */
+/* ---- 営業活動・顧客検索のタブの上の知らせ（群ごとの件数と、対象の契約） ---- */
 function kkRenderAlarm(){
   var el = $('kkAlarm');
   if (!el) return;
@@ -4832,7 +4757,7 @@ $('evCust').addEventListener('click', function(){
   var a = evId ? state.activities.filter(function(x){ return x.id === evId; })[0] : null;
   if (a && custById(a.cid)) evGoCust(a.cid);
 });
-/* 顧客カルテへ（窓を閉じて、顧客カルテのタブでカルテを開く） */
+/* カルテへ（窓を閉じて、顧客検索のタブでカルテを開く） */
 function evGoCust(cid){
   closeEv(true);
   showTab('cust');
@@ -4923,7 +4848,7 @@ function evWhoMore(a, c, row){
       (!birthOk(c) && row && row.kou && row.kou.unknown && !evOverAe ? '<div class="ew-acts"><button type="button" class="btn btn-ghost btn-sm" data-ev-birth="' + esc(c.id) + '">生年月日を入れる（ご高齢の方の確認に使います）</button></div>' : '');
   }
   var g = String(a.guest || '').trim();
-  if (!g) return '';
+  if (!g || a.type === 'BP') return '';
   var same = custsByName(g);
   /* 数えるのは活動の記録だけ（契約の記録は、その契約の活動と一緒に1件として数える） */
   var gk = nameKey(g), n = state.activities.filter(function(x){ return !x.cid && x.guest && nameKey(x.guest) === gk; }).length;
@@ -5133,7 +5058,7 @@ function kkTakeHash(){
     else offerUndo('このお客様は、この端末の営業ダッシュボードに見つかりませんでした。', null);
     return true;
   }
-  /* #q=お名前（満期カレンダーなどから）／#find（管理画面の「お客様をさがす」から）：顧客カルテのタブで探す欄を開く。
+  /* #q=お名前（満期カレンダーなどから）／#find（管理画面の「お客様をさがす」から）：顧客検索のタブで探す欄を開く。
      ★前は開いたときだけ読んでいた。開いたままのタブでも効くよう、ここで受ける */
   if (h === '#find' || h.indexOf('#q=') === 0) {
     var q = '';
@@ -5475,7 +5400,7 @@ function renderBdList(){
     b.addEventListener('click', function(){
       var c = custById(b.getAttribute('data-bd'));
       if (!c) return;
-      if (!confirm('「' + c.name + '」の誕生日を消しますか？（顧客カルテは残ります）')) return;
+      if (!confirm('「' + c.name + '」の誕生日を消しますか？（カルテは残ります）')) return;
       var old = c.birth;
       c.birth = '';
       save(); renderBdList(); renderAct();
@@ -6675,8 +6600,8 @@ function startApp(){
   refreshBoardTab();
   renderBackupInfo();
   /* マスタ取り込み時は設定タブの表示を上書きしない。
-     満期カレンダーなどから #q=お名前 で開いたときは、顧客カルテのタブでその名前を探した形で開く */
-  /* 顧客管理・管理画面から #ev=（記録の中身）／#cust=（カルテ）／#q=お名前・#find（顧客カルテで探す）で開いたとき */
+     満期カレンダーなどから #q=お名前 で開いたときは、顧客検索のタブでその名前を探した形で開く */
+  /* 顧客管理・管理画面から #ev=（記録の中身）／#cust=（カルテ）／#q=お名前・#find（顧客検索で探す）で開いたとき */
   if (kkTakeHash()) return;
   if (!takeSharedMaster()) {
     var lt = state.lastTab;
@@ -6747,7 +6672,7 @@ $('calPrint').addEventListener('click', function(){ window.print(); });
 window.addEventListener('beforeprint', function(){
   if (!state) return;
   var t = curTab(), what = t === 'act' ? '営業活動（' + calY + '年' + (calM + 1) + '月）'
-    : t === 'cust' ? (detailCustId && custById(detailCustId) && !$('custDetail').classList.contains('hide') ? '顧客カルテ：' + custById(detailCustId).name + ' 様' : '顧客一覧')
+    : t === 'cust' ? (detailCustId && custById(detailCustId) && !$('custDetail').classList.contains('hide') ? 'カルテ：' + custById(detailCustId).name + ' 様' : '顧客検索の一覧')
     : t === 'rate' ? '設定' : t === 'board' ? '掲示板' : '確認依頼';
   $('printHead').textContent = TOOL_NAME + '　' + what + '　印刷した日：' + fmtStamp(new Date().toISOString()) + '　社内用（社外へ持ち出さない）';
 });
