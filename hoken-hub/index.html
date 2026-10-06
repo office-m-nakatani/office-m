@@ -258,7 +258,10 @@ body.comp-open #admin .wrap{max-width:1360px;}
 .cp-tl.wide .cp-tl-top{width:auto;flex:none;}
 .cp-tl.wide .cp-tl-d{flex:1 1 auto;}
 .cp-tl.wide .cp-tl-m{margin-top:0;padding-top:0;flex:none;}
-@media(max-width:760px){ .cp-tgrid{grid-template-columns:1fr;gap:var(--sp-2);} }
+/* 毎日の記録は4つ（2026-10-05 に適合性の確認を足した）。広い画面は4列、1180px 以下は2列 */
+.cp-tgrid.cp-tgrid4{grid-template-columns:repeat(4,minmax(0,1fr));}
+@media(max-width:1180px){ .cp-tgrid.cp-tgrid4{grid-template-columns:repeat(2,minmax(0,1fr));} }
+@media(max-width:760px){ .cp-tgrid, .cp-tgrid.cp-tgrid4{grid-template-columns:1fr;gap:var(--sp-2);} }
 @media(max-width:560px){
   .cp-tl.wide{flex-direction:column;align-items:flex-start;gap:6px;}
   .cp-tl.wide .cp-tl-m{margin-top:2px;}
@@ -737,10 +740,11 @@ body.comp-open #admin .wrap{max-width:1360px;}
   body.au-print #auditSec .au-panel::before{display:block;font-size:13pt;font-weight:700;border-bottom:1.5px solid #333;padding-bottom:3px;margin:6px 0 8px;}
   body.au-print #auIko::before{content:"1　意向把握の記録";}
   body.au-print #auHikaku::before{content:"2　比較推奨の記録";}
-  body.au-print #auKujo::before{content:"3　苦情・お申し出の台帳";}
-  body.au-print #auTrain::before{content:"4　研修台帳";}
-  body.au-print #auLimit::before{content:"5　資格・届出の期限";}
-  body.au-print #auSelf::before{content:"6　自習の記録（本人が端末の記録を書き出したもの）";}
+  body.au-print #auTekigou::before{content:"3　適合性の確認の記録（変額保険など）";}
+  body.au-print #auKujo::before{content:"4　苦情・お申し出の台帳";}
+  body.au-print #auTrain::before{content:"5　研修台帳";}
+  body.au-print #auLimit::before{content:"6　資格・届出の期限";}
+  body.au-print #auSelf::before{content:"7　自習の記録（本人が端末の記録を書き出したもの）";}
   /* 台帳の形（2026-10-04 辛口の点検：4件で6枚・「（あなた）」や画面の説明文が紙に出ていた）。A4横・ページ番号・中身は2列に詰める */
   body.au-print #auditSec{page:ledger;}
   body.au-print #auditSec .au-lead, body.au-print #auditSec .cp-you, body.au-print #auditSec .cp-det-tools,
@@ -1288,10 +1292,10 @@ svg.hub-mtface{clip-path:circle(50% at 50% 50%);}
         <!-- コンプライアンスの記録（2026-10-04 ユーザー指示「デフォルトの並びをこれに変更」で AI師匠のすぐ下へ。2026-10-01 ユーザー指示「コンプライアンスは（社内ツールの一覧の）ここに追加し、クリックして中を確認できるように」）
              ★ほかのカードと違い、別のページを開かず、この管理画面の中でコンプライアンスの画面に切り替える（記録がこの画面の保存先にあるため）。
                配線は initAudit()。カードの下の札（#kirokuBadges）は cpRenderCommon() が描く -->
-        <div class="training-banner b-green" id="kirokuBanner" tabindex="0" role="button" aria-label="コンプライアンス（意向把握・比較推奨・苦情の記録と台帳）を開く">
+        <div class="training-banner b-green" id="kirokuBanner" tabindex="0" role="button" aria-label="コンプライアンス（意向把握・比較推奨・適合性の確認・苦情の記録と台帳）を開く">
           <span class="t-art"><svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#e8f6ef"/><rect x="15" y="12" width="30" height="40" rx="4" fill="#fffdf8" stroke="#2c7a4b" stroke-width="2.6"/><rect x="23" y="8" width="14" height="8" rx="3" fill="#2c7a4b"/><path d="m20.5 26 3 3 5-5.5M20.5 38l3 3 5-5.5" fill="none" stroke="#2c7a4b" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M32 27h8M32 39h8" stroke="#a9d3bb" stroke-width="3" stroke-linecap="round"/><circle cx="46" cy="47" r="9" fill="#1b3f5e"/><path d="m42.2 47 2.8 2.8 5-5.4" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
           <span class="t-body"><h3>コンプライアンス</h3>
-          <p>意向把握・比較推奨・苦情の記録と、研修・資格の台帳。開いたらすぐ書けて、紙に残す印刷もここから。</p>
+          <p>意向把握・比較推奨・適合性の確認（変額保険）・苦情の記録と、研修・資格の台帳。開いたらすぐ書けて、紙に残す印刷もここから。</p>
           <span class="t-badges" id="kirokuBadges"></span></span>
           <span class="t-go" id="kirokuGo">開く<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></span>
         </div>
@@ -1331,6 +1335,16 @@ svg.hub-mtface{clip-path:circle(50% at 50% 50%);}
           <span class="t-body"><h3>保険営業ダッシュボード</h3>
           <p>営業活動のカレンダー（アプローチから契約・定期訪問まで）、顧客カルテ、面談の記録、お誕生日。入力した内容はこの端末のブラウザにだけ残ります。</p></span>
           <span class="t-go" id="salesGo"></span>
+        </div>
+        <!-- 顧客管理（2026-10-05 ユーザー指示「顧客管理ツールを作成してください。ダッシュボードから契約したものに対して、意向把握と比較推奨と紐づけできるようにして、
+             各契約顧客で提出できていない場合、アラームなどで知らせるようにしてください。あと、変額保険を契約するときは、適合性確認書類も一緒に提出するようにしてください。」
+             「顧客管理は各保険営業マンのことも上長が見れるように、してください。」）。カードの下の札（#kokyakuBadges）は kkRenderBadge() が描く -->
+        <div class="training-banner b-green" id="kokyakuBanner" tabindex="0" role="button" aria-label="顧客管理（契約と提出書類）を開く">
+          <span class="t-art"><svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#e8f6ef"/><rect x="9" y="13" width="34" height="40" rx="5" fill="#fffdf8" stroke="#2c7a4b" stroke-width="2.6"/><circle cx="20" cy="25" r="4.6" fill="#f7cdb4"/><path d="M13.5 35c.8-4.2 3.6-6.4 6.5-6.4s5.7 2.2 6.5 6.4Z" fill="#2c7a4b"/><path d="M29 23h9M29 29h7M15 41h22M15 47h16" stroke="#a9d3bb" stroke-width="3" stroke-linecap="round"/><circle cx="47" cy="44" r="11" fill="#1b3f5e"/><path d="m41.8 44 3.4 3.4 6.2-6.6" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span class="t-body"><h3>顧客管理（契約と提出書類）</h3>
+          <p>契約ごとに、意向把握・比較推奨・適合性の確認（変額保険）・ご高齢の方の確認がそろっているかを知らせます。代理店点検の準備と、お客様の記録の印刷もここから。</p>
+          <span class="t-badges" id="kokyakuBadges"></span></span>
+          <span class="t-go" id="kokyakuGo"></span>
         </div>
         <div class="training-banner" id="planBanner" tabindex="0" role="button" aria-label="保険 目標逆算プランナーを開く">
           <span class="t-art"><svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#fdf3e2"/><circle cx="22" cy="22" r="13" fill="none" stroke="#966417" stroke-width="3"/><circle cx="22" cy="22" r="7" fill="none" stroke="#966417" stroke-width="3"/><circle cx="22" cy="22" r="2.6" fill="#bf4123"/><path d="M14 40h12v6H14zM24 46h12v6H24zM34 52h14v6H34z" fill="#966417"/><path d="M46 14v14M40 22l6 6 6-6" fill="none" stroke="#bf4123" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
@@ -1385,11 +1399,12 @@ svg.hub-mtface{clip-path:circle(50% at 50% 50%);}
             <button type="button" class="cp-tool" data-cpopen="tool:lifeplan"><b>ライフプラン（商談記録）</b><span>商談の日付・場所・方法・ご出席を残す</span></button>
             <button type="button" class="cp-tool" data-cpopen="inh:case"><b>支払事例トレーニング</b><span>「出ますよ」と言い過ぎないための練習</span></button>
             <button type="button" class="cp-tool" data-cpopen="inh:cal"><b>満期・年齢到達カレンダー</b><span>更新・満期・年齢の節目の声かけ</span></button>
+            <button type="button" class="cp-tool" data-cpopen="inh:kokyaku"><b>顧客管理</b><span>契約ごとに、提出書類がそろっているかを見る</span></button>
             <button type="button" class="cp-tool" data-cpopen="inh:sales"><b>営業ダッシュボード</b><span>顧客カルテと面談の記録</span></button>
           </div>
         </div>
         <div class="au-foot">
-          <button class="btn btn-ghost btn-sm" type="button" id="auPrint">全てを印刷・PDFにする（6つまとめて）</button>
+          <button class="btn btn-ghost btn-sm" type="button" id="auPrint">全てを印刷・PDFにする（7つまとめて）</button>
           <button class="btn btn-ghost btn-sm" type="button" id="auExport">控えを書き出す</button>
           <button class="btn btn-ghost btn-sm" type="button" id="auImportBtn">控えから読み込む</button>
           <input type="file" id="auImport" accept="application/json,.json" hidden>
@@ -1403,6 +1418,7 @@ svg.hub-mtface{clip-path:circle(50% at 50% 50%);}
       </div>
       <div class="au-panel hide" id="auIko" role="region" aria-label="意向把握の記録"></div>
       <div class="au-panel hide" id="auHikaku" role="region" aria-label="比較推奨の記録"></div>
+      <div class="au-panel hide" id="auTekigou" role="region" aria-label="適合性の確認の記録（変額保険など）"></div>
       <div class="au-panel hide" id="auKujo" role="region" aria-label="苦情・お申し出の台帳"></div>
       <div class="au-panel hide" id="auTrain" role="region" aria-label="研修台帳"></div>
       <div class="au-panel hide" id="auLimit" role="region" aria-label="資格・届出の期限"></div>
@@ -1438,6 +1454,450 @@ svg.hub-mtface{clip-path:circle(50% at 50% 50%);}
 <div class="toast" id="toast"></div>
 <div id="modalRoot"></div>
 
+<script>
+/* KKCORE-BEGIN 顧客管理の共通の数え方（正本は hoken-newtools-src/kokyaku/kkcore.js。apply_kokyaku_core.py が3つの画面に写す。ここを直接直さない）
+   2026-10-05 ユーザー指示「顧客管理ツールを作成してください。ダッシュボードから契約したものに対して、意向把握と比較推奨と紐づけできるようにして、
+     各契約顧客で提出できていない場合、アラームなどで知らせるようにしてください。あと、変額保険を契約するときは、適合性確認書類も一緒に提出するようにしてください。」
+   2026-10-05 ユーザー指示「大手保険会社で使っている顧客管理システムのように、上長が確認できる仕組み、コンプラ遵守にできるようにアラートをかけるなどしてください。」
+   ★読むのは同じ端末（同じ場所）の3つの保存先だけ。どれも書き換えない（顧客管理の保存先だけ、toolPatch で書く）
+     ・営業ダッシュボードの契約・お客様・活動（officem.hokenSales.v1）
+     ・管理画面が書き出す、コンプライアンスの記録の要約（officem.hokenHub.compFeed.v1。中身＝顧客名・日付・記録の欠けまで。苦情は対応中かどうかまで）
+     ・顧客管理の保存先（officem.hokenKokyaku.v1。手でつないだ記録・対象外の理由・変額保険かどうか・知らせの起点の日・ご高齢の方の設定と確認・上長の確認・証券番号）
+   ★つなぎ方：①手でつないだ記録 ②管理画面で「この契約から書いた」記録（kid） ③同じ顧客名で、契約日の180日前から60日あとまでの記録（日付の近い順に1つずつ）
+   ★知らせ（alerts）は「契約ごとの事実（facts）」から作る。メンバーの端末も上長の端末も同じ関数で数える（上長は報告の事実から数え直す）
+     赤＝記録がまだ・記録に欠け・記録の日付が契約日より後・ご高齢の方の確認が無い／琥珀＝上長から戻された／灰＝生年月日が無い
+   ★ご高齢の方の確認の年齢と条件は設定で変える（所属保険会社の決まりに合わせる。ここに決まりの細部は書かない） */
+var KKC = (function () {
+  'use strict';
+  var SALES_KEY = 'officem.hokenSales.v1', FEED_KEY = 'officem.hokenHub.compFeed.v1', TOOL_KEY = 'officem.hokenKokyaku.v1';
+  var KINDS = ['iko', 'hikaku', 'tekigou'];
+  var NAME = { iko: '意向把握', hikaku: '比較推奨', tekigou: '適合性の確認' };
+  var STATUS = { ok: 'そろっている', miss: '欠けあり', none: 'まだ', ex: '要らない', na: '対象外' };
+  var ST_KEYS = ['ok', 'miss', 'none', 'ex', 'na'];
+  var HEN_RE = /変額|ユニット・?リンク|unit\s*-?\s*link/i;
+  /* ご家族などの同席（同席者の欄の言葉）。「工夫」「丈夫」の「夫」は数えない */
+  var FAM_RE = /家族|奥様|奥さま|ご主人|旦那|夫婦|(?:^|[^工丈])夫|妻|配偶者|息子|娘|長男|長女|次男|次女|ご子息|ご息女|お子|子ども|子供|親族|両親|父|母|兄|弟|姉|妹|孫|甥|姪|嫁|婿/;
+  var MEET_TYPES = ['FF', 'PZ', 'CL', 'KY'];
+  var BACK = 180, AHEAD = 60;
+  var SHU_OF = { shushin: '終身保険', teiki: '定期保険', iryo: '医療保険', gan: 'ガン保険' };
+  var SET_DEF = { age: 70, rule: 'either' };
+
+  function rd(k) { try { var v = JSON.parse(localStorage.getItem(k) || 'null'); return v && typeof v === 'object' ? v : null; } catch (e) { return null; } }
+  function str(v, n) { return typeof v === 'string' ? v.slice(0, n || 200) : ''; }
+  function ymd(v) { return typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : ''; }
+  function idOk(v) { return typeof v === 'string' && /^[A-Za-z0-9_@.\-]{1,80}$/.test(v) ? v : ''; }
+  function iso(v) { return typeof v === 'string' && v.length <= 40 && !isNaN(Date.parse(v)) ? v : ''; }
+  function pad(n) { return ('0' + n).slice(-2); }
+  function today() { var d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  /* お名前の見分け（全角半角・カタカナとひらがな・空白・「様」をそろえる） */
+  function nk(s) {
+    s = String(s == null ? '' : s);
+    try { s = s.normalize('NFKC'); } catch (e) {}
+    s = s.replace(/[\s　]*(様|さま|殿|さん)[\s　]*$/, '').toLowerCase()
+      .replace(/[ァ-ヶ]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0x60); });
+    return s.replace(/[\s　・･.]/g, '');
+  }
+  function dayDiff(a, b) {
+    var x = Date.parse(a + 'T00:00:00Z'), y = Date.parse(b + 'T00:00:00Z');
+    return isNaN(x) || isNaN(y) ? null : Math.round((x - y) / 86400000);
+  }
+  /* その日の満年齢（生年月日が無い・先の日付なら null） */
+  function ageAt(birth, date) {
+    birth = ymd(birth); date = ymd(date) || today();
+    if (!birth || birth > date) return null;
+    var a = (+date.slice(0, 4)) - (+birth.slice(0, 4));
+    if (date.slice(5) < birth.slice(5)) a--;
+    return a >= 0 && a < 130 ? a : null;
+  }
+
+  /* 営業ダッシュボードの契約（読むだけ）
+     面談の日＝そのお客様のヒアリング・プレゼン・クロージング・契約の日（契約日まで）
+     ご家族の同席＝契約日までの活動に「ご家族などが同席」の印か、同席者の欄にご家族の言葉があるか */
+  function contracts(sales) {
+    sales = sales || rd(SALES_KEY) || {};
+    var cust = {}, prod = {}, byCid = {}, byGuest = {};
+    (Array.isArray(sales.customers) ? sales.customers : []).forEach(function (c) { if (c && idOk(c.id)) cust[c.id] = c; });
+    (Array.isArray(sales.products) ? sales.products : []).forEach(function (p) { if (p && idOk(p.id)) prod[p.id] = p; });
+    (Array.isArray(sales.activities) ? sales.activities : []).slice(0, 50000).forEach(function (a) {
+      if (!a || !ymd(a.date) || ['MT', 'HD', 'DK'].indexOf(a.type) >= 0) return;
+      if (idOk(a.cid)) (byCid[a.cid] = byCid[a.cid] || []).push(a);
+      else if (str(a.guest, 80).trim()) { var g = nk(a.guest); (byGuest[g] = byGuest[g] || []).push(a); }
+    });
+    return (Array.isArray(sales.contracts) ? sales.contracts : []).slice(0, 20000).map(function (k) {
+      if (!k || !idOk(k.id)) return null;
+      var c = cust[k.cid] || null, p = prod[k.pid] || null;
+      var name = str(c ? c.name : k.guest, 80).trim(), date = ymd(k.date);
+      if (!name) return null;
+      var acts = (k.cid && c ? byCid[k.cid] : byGuest[nk(name)]) || [];
+      var mtgs = [], fam = '', famAct = '';
+      acts.forEach(function (a) {
+        if (date && a.date > date) return;
+        if (MEET_TYPES.indexOf(a.type) >= 0 && mtgs.indexOf(a.date) < 0) mtgs.push(a.date);
+        if (!fam && a.fam === true) { fam = 'mark'; famAct = idOk(a.id); }
+        else if (!fam && FAM_RE.test(str(a.who, 200))) { fam = 'who'; famAct = idOk(a.id); }
+      });
+      mtgs.sort();
+      var birth = c && ymd(c.birth) && c.birth <= today() ? c.birth : '';
+      return { id: k.id, cid: c ? c.id : '', name: name, company: str(k.company, 120).trim(), product: str(k.product, 160).trim(),
+        pkind: p ? str(p.kind, 20) : '', pname: p ? str(p.name, 160) : '', pnote: p ? str(p.note, 300) : '',
+        date: date, mtgs: mtgs.slice(-12), times: mtgs.length, fam: fam, famAct: famAct,
+        birth: birth, age: birth ? ageAt(birth, date) : null, actId: idOk(k.actId), insured: str(k.insured, 80),
+        ccompany: c ? str(c.company, 120) : '', kana: c ? str(c.kana, 80).trim() : '',
+        amt: typeof k.amt === 'number' && isFinite(k.amt) && k.amt > 0 ? Math.round(k.amt) : 0, mode: ['m', 'h', 'y', 's'].indexOf(k.mode) >= 0 ? k.mode : '',
+        payNote: str(k.payNote, 200), pno: '' };
+    }).filter(Boolean);
+  }
+
+  /* 管理画面が書き出す記録の要約（無ければ null＝管理画面をまだ開いていない） */
+  function feed() {
+    var o = rd(FEED_KEY);
+    if (!o || !Array.isArray(o.recs)) return null;
+    return { at: str(o.at, 40), me: str(o.me, 40), recs: o.recs.slice(0, 20000).filter(function (r) {
+      return r && idOk(r.id) && KINDS.indexOf(r.kind) >= 0;
+    }).map(function (r) {
+      return { id: r.id, kind: r.kind, no: str(r.no, 80), shu: str(r.shu, 40), date: ymd(r.date), kdate: ymd(r.kdate), mtg1: ymd(r.mtg1), owner: str(r.owner, 40),
+        kid: idOk(r.kid), upd: str(r.upd, 40), ng: r.ng === true, sub: ymd(r.sub), prod: str(r.prod, 200),
+        miss: (Array.isArray(r.miss) ? r.miss : []).slice(0, 20).map(function (x) { return str(x, 80); }).filter(Boolean) };
+    }), kujo: (Array.isArray(o.kujo) ? o.kujo : []).slice(0, 5000).filter(function (r) { return r && idOk(r.id); }).map(function (r) {
+      return { id: r.id, kind: 'kujo', no: str(r.no, 80), date: ymd(r.date), owner: str(r.owner, 40), upd: str(r.upd, 40),
+        open: r.open === true, late: r.late === true, miss: (Array.isArray(r.miss) ? r.miss : []).slice(0, 20).map(function (x) { return str(x, 80); }).filter(Boolean) };
+    }) };
+  }
+
+  /* 顧客管理の保存先（形の合わないものは読み捨てる） */
+  function cleanLinks(v) {
+    var out = {};
+    if (!v || typeof v !== 'object') return out;
+    Object.keys(v).slice(0, 20000).forEach(function (kid) {
+      if (!idOk(kid) || !v[kid] || typeof v[kid] !== 'object') return;
+      var e = {};
+      KINDS.forEach(function (kind) {
+        var l = v[kid][kind];
+        if (!l || typeof l !== 'object') return;
+        var x = { at: str(l.at, 40) };
+        if (idOk(l.id)) x.id = l.id;
+        else if (str(l.ex, 200).trim()) x.ex = str(l.ex, 200).trim();
+        else if (l.off === true) x.off = true;
+        else return;
+        e[kind] = x;
+      });
+      if (Object.keys(e).length) out[kid] = e;
+    });
+    return out;
+  }
+  function cleanHen(v) {
+    var out = {};
+    if (v && typeof v === 'object') Object.keys(v).slice(0, 20000).forEach(function (kid) { if (idOk(kid) && typeof v[kid] === 'boolean') out[kid] = v[kid]; });
+    return out;
+  }
+  /* ご高齢の方の確認の設定（年齢・条件）。上長の返しで配られた設定は at が新しいときだけ入る */
+  function cleanSet(v) {
+    v = v && typeof v === 'object' ? v : {};
+    var age = Math.round(+v.age);
+    return { age: isFinite(age) && age >= 50 && age <= 100 ? age : SET_DEF.age, rule: v.rule === 'both' ? 'both' : 'either', at: iso(v.at), by: str(v.by, 40) };
+  }
+  /* ご高齢の方の確認を、面談・同席のほかの方法で残したもの（契約ごと） */
+  function cleanKh(v) {
+    var out = {};
+    if (v && typeof v === 'object') Object.keys(v).slice(0, 20000).forEach(function (kid) {
+      var x = v[kid];
+      if (idOk(kid) && x && typeof x === 'object' && str(x.why, 200).trim()) out[kid] = { why: str(x.why, 200).trim(), at: iso(x.at) };
+    });
+    return out;
+  }
+  /* 上長の確認（メンバーの端末に、上長の返しから入ったもの）。st＝ok（確認した）／back（戻した） */
+  function cleanCheck(x) {
+    if (!x || typeof x !== 'object' || (x.st !== 'ok' && x.st !== 'back')) return null;
+    var sig = str(x.sig, 20);
+    if (!/^[a-z0-9]{1,14}$/.test(sig)) return null;
+    return { st: x.st, why: str(x.why, 300).trim(), by: str(x.by, 40).trim(), at: iso(x.at), sig: sig, got: iso(x.got) };
+  }
+  function cleanChecks(v) {
+    var out = {};
+    if (v && typeof v === 'object') Object.keys(v).slice(0, 20000).forEach(function (kid) { var c = cleanCheck(v[kid]); if (idOk(kid) && c) out[kid] = c; });
+    return out;
+  }
+  /* 証券番号（契約の番号ごと。2026-10-05 代理店点検：指摘された契約をすぐ探すため）。
+     ★営業ダッシュボードの契約には書かず、顧客管理の保存先に持つ（証券は契約のあとに届くので、顧客管理でも営業ダッシュボードでも入れられるように） */
+  function pnoStr(v) { return str(v, 60).replace(/[\u0000-\u001f\u007f]/g, '').replace(/\s+/g, ' ').trim().slice(0, 40); }
+  function cleanPno(v) {
+    var out = {};
+    if (v && typeof v === 'object') Object.keys(v).slice(0, 20000).forEach(function (kid) { var p = pnoStr(v[kid]); if (idOk(kid) && p) out[kid] = p; });
+    return out;
+  }
+  function tool() {
+    var o = rd(TOOL_KEY) || {};
+    return { links: cleanLinks(o.links), hen: cleanHen(o.hen), since: ymd(o.since), set: cleanSet(o.set), kh: cleanKh(o.kh), checks: cleanChecks(o.checks), pno: cleanPno(o.pno) };
+  }
+  /* 顧客管理の保存先を、読み直してから一か所だけ書き換える（営業ダッシュボードの窓からも使う） */
+  function toolPatch(fn) {
+    var o = rd(TOOL_KEY) || { v: 1 };
+    o.links = cleanLinks(o.links); o.hen = cleanHen(o.hen); o.kh = cleanKh(o.kh); o.pno = cleanPno(o.pno);
+    fn(o);
+    try { localStorage.setItem(TOOL_KEY, JSON.stringify(o)); return true; } catch (e) { return false; }
+  }
+
+  function recDate(r) { return r.kind === 'hikaku' ? (r.kdate || r.date) : r.date; }
+  /* 記録の日付の順番を見る日（比較推奨は最初の面談日。前の要約に無ければ記録の日付） */
+  function orderDate(r) { return r.kind === 'hikaku' ? (r.mtg1 || r.date) : r.date; }
+  function nameText(k) { return (k.company + ' ' + k.product + ' ' + k.pname + ' ' + k.pnote); }
+
+  /* ---- 契約ごとの事実（上長へ渡す報告の1行と同じ形）。上長の端末でもこの形を読み直して数える ---- */
+  function cleanFacts(x) {
+    if (!x || typeof x !== 'object') return null;
+    var name = str(x.name, 80).trim();
+    if (!name) return null;
+    var st = {}, ex = {}, miss = {}, odr = {};
+    KINDS.forEach(function (k) {
+      var s = x.st && x.st[k];
+      st[k] = ST_KEYS.indexOf(s) >= 0 ? s : 'na';
+      var e = x.ex && str(x.ex[k], 200).trim(); if (e && st[k] === 'ex') ex[k] = e;
+      var m = x.miss && Array.isArray(x.miss[k]) ? x.miss[k].slice(0, 8).map(function (v) { return str(v, 60).trim(); }).filter(Boolean) : [];
+      if (m.length && (st[k] === 'miss')) miss[k] = m;
+      if (x.odr && x.odr[k] === true && (st[k] === 'ok' || st[k] === 'miss')) odr[k] = true;
+    });
+    var age = typeof x.age === 'number' && isFinite(x.age) && x.age >= 0 && x.age < 130 ? Math.floor(x.age) : null;
+    var times = Math.max(0, Math.min(99, Math.floor(+x.times) || 0));
+    return { kid: idOk(x.kid), date: ymd(x.date), name: name, company: str(x.company, 120).trim(), product: str(x.product, 160).trim(),
+      hen: x.hen === true, before: x.before === true, st: st, ex: ex, miss: miss, odr: odr,
+      age: age, fam: x.fam === true, times: times, kh: str(x.kh, 200).trim(), pno: pnoStr(x.pno) };
+  }
+  /* 事実の印（同じ事実なら、どの端末で数えても同じ文字）。上長の確認は、確認したときの印と今の印が同じときだけ生きる
+     ★証券番号（pno）は契約を探すための番号なので、印には入れない（あとから入れても上長の確認は外れない） */
+  function sig(f) {
+    var s = JSON.stringify([f.date, nk(f.name), f.company, f.product, f.hen, f.before, KINDS.map(function (k) {
+      return [f.st[k], f.ex[k] || '', (f.miss[k] || []).join('/'), f.odr[k] ? 1 : 0];
+    }), f.age, f.fam, f.times, f.kh]);
+    var h = 0x811c9dc5;
+    for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+    return h.toString(36);
+  }
+  /* ご高齢の方の確認（設定の年齢以上のとき）。ok＝条件を満たす／手で理由を残した */
+  function kourei(f, set) {
+    set = set || SET_DEF;
+    if (f.age === null) return { need: false, unknown: true };
+    if (f.age < set.age) return { need: false };
+    var famOk = f.fam, timesOk = f.times >= 2;
+    var ok = !!f.kh || (set.rule === 'both' ? famOk && timesOk : famOk || timesOk);
+    var lack = [];
+    if (!ok) {
+      if (set.rule === 'both') {
+        if (!famOk) lack.push('ご家族などの同席の記録がありません');
+        if (!timesOk) lack.push('面談の記録が' + f.times + '回です（2回以上）');
+      } else lack.push('ご家族などの同席か、2回以上の面談の記録がありません（面談' + f.times + '回）');
+    }
+    return { need: true, ok: ok, famOk: famOk, timesOk: timesOk, hand: !!f.kh, lack: lack };
+  }
+  /* 知らせ。lv＝red（直す）／amber（上長から戻された）／info（分からない）。g＝絞り込みの群 */
+  function alerts(f, set, chk) {
+    var out = [], need = f.hen ? KINDS : ['iko', 'hikaku'];
+    need.forEach(function (kind) {
+      var s = f.st[kind];
+      if (s === 'none') out.push({ c: 'none-' + kind, lv: 'red', g: 'doc', t: NAME[kind] + 'の記録がまだ' });
+      else if (s === 'miss') out.push({ c: 'miss-' + kind, lv: 'red', g: 'doc', t: NAME[kind] + 'の記録に欠け' + (f.miss[kind] ? '（' + f.miss[kind].slice(0, 3).join('・') + (f.miss[kind].length > 3 ? ' ほか' : '') + '）' : '') });
+    });
+    KINDS.forEach(function (kind) { if (f.odr[kind]) out.push({ c: 'odr-' + kind, lv: 'red', g: 'odr', t: NAME[kind] + 'の日付が契約日より後' }); });
+    var ko = kourei(f, set);
+    if (ko.need && !ko.ok) out.push({ c: 'kourei', lv: 'red', g: 'kourei', t: 'ご高齢の方（' + f.age + '歳）：' + ko.lack.join('・') });
+    if (ko.unknown) out.push({ c: 'noage', lv: 'info', g: 'noage', t: '生年月日が無いため、ご高齢の方の確認が要るか分かりません' });
+    if (chk && chk.st === 'back') {
+      if (chk.sig === sig(f)) out.push({ c: 'back', lv: 'amber', g: 'back', t: '上長から戻されました' + (chk.why ? '：' + chk.why : '') });
+      else out.push({ c: 'backfix', lv: 'info', g: 'backfix', t: '戻されたあとに中身が変わりました。上長へ報告し直してください' });
+    }
+    if (f.before) out.forEach(function (a) { if (a.lv === 'red') a.lv = 'info'; });   // 起点より前の契約は数えない
+    return out;
+  }
+
+  /* 契約ごとに、要る記録・つながった記録・状態・知らせを出す */
+  function compute(opt) {
+    opt = opt || {};
+    var ks = opt.contracts || contracts(), fd = opt.feed !== undefined ? opt.feed : feed(), ts = opt.tool || tool();
+    var recs = fd ? fd.recs : [], byId = {}, kidSet = {};
+    recs.forEach(function (r) { byId[r.id] = r; });
+    ks.forEach(function (k) { kidSet[k.id] = 1; });
+    var pnos = ts.pno || {};
+    ks.forEach(function (k) { k.pno = pnos[k.id] || ''; });
+    var rows = ks.map(function (k) { return { k: k, st: {}, need: [], hen: null, alarm: false, before: !!(ts.since && k.date && k.date < ts.since) }; });
+    var rowOf = {}; rows.forEach(function (row) { rowOf[row.k.id] = row; });
+    var used = {};
+    /* ① 手でつないだ記録・対象外・自動のつなぎを外したもの */
+    rows.forEach(function (row) {
+      var L = ts.links[row.k.id] || {};
+      KINDS.forEach(function (kind) {
+        var l = L[kind];
+        if (!l) return;
+        if (l.ex) row.st[kind] = { s: 'ex', why: l.ex };
+        else if (l.id && byId[l.id] && byId[l.id].kind === kind) { row.st[kind] = { r: byId[l.id], how: 'hand' }; used[l.id] = 1; }
+        else if (l.off) row.st[kind] = { off: true };
+      });
+    });
+    /* ② 管理画面で、この契約から書いた記録（いちばん新しく直したもの） */
+    recs.forEach(function (r) {
+      if (!r.kid || !kidSet[r.kid]) return;
+      used[r.id] = 1;   // ほかの契約へ自動ではつながない
+      var row = rowOf[r.kid], cur = row.st[r.kind];
+      if (cur && !(cur.how === 'kid')) return;
+      if (!cur || (r.upd > cur.r.upd)) row.st[r.kind] = { r: r, how: 'kid' };
+    });
+    /* ③ 同じ顧客名で、契約日に近い記録（1つの記録は1つの契約にだけ） */
+    KINDS.forEach(function (kind) {
+      var pairs = [];
+      recs.forEach(function (r) {
+        if (r.kind !== kind || used[r.id] || !nk(r.no)) return;
+        var rd0 = recDate(r);
+        rows.forEach(function (row) {
+          if (row.st[kind] || !row.k.date || !rd0 || nk(row.k.name) !== nk(r.no)) return;
+          var d = dayDiff(rd0, row.k.date);
+          if (d === null || d < -BACK || d > AHEAD) return;
+          var sc = kind === 'hikaku' && r.kdate === row.k.date ? -1 : Math.abs(d);
+          if (kind === 'tekigou') {   // 適合性の確認は、変額保険などの契約へ先につなぐ（同じ日の医療保険などへ取られない）
+            var hv = ts.hen.hasOwnProperty(row.k.id) ? ts.hen[row.k.id] : null;
+            if (hv === false) return;
+            if (hv !== true && !HEN_RE.test(nameText(row.k))) sc += 500;
+          }
+          pairs.push({ row: row, r: r, sc: sc });
+        });
+      });
+      pairs.sort(function (a, b) { return a.sc - b.sc || (a.r.upd < b.r.upd ? 1 : -1); });
+      pairs.forEach(function (p) {
+        if (p.row.st[kind] || used[p.r.id]) return;
+        p.row.st[kind] = { r: p.r, how: 'auto' }; used[p.r.id] = 1;
+      });
+    });
+    /* 状態：要る記録＝意向把握・比較推奨（変額保険などは、適合性の確認も） */
+    var cnt = { all: rows.length, alarm: 0, ok: 0, none: { iko: 0, hikaku: 0, tekigou: 0 }, miss: { iko: 0, hikaku: 0, tekigou: 0 }, hen: 0, before: 0,
+      g: { doc: 0, odr: 0, kourei: 0, back: 0, noage: 0 }, back: 0, chkOk: 0, kourei: 0 };
+    var td = today();
+    rows.forEach(function (row) {
+      var k = row.k, hv = ts.hen.hasOwnProperty(k.id) ? ts.hen[k.id] : null;
+      var auto = HEN_RE.test(nameText(k)) ? '商品名' : '';
+      ['iko', 'hikaku'].forEach(function (kind) { var x = row.st[kind]; if (!auto && x && x.r && /変額/.test(x.r.shu)) auto = NAME[kind] + 'の種目'; });
+      if (!auto && row.st.tekigou && row.st.tekigou.r) auto = '適合性の確認の記録';
+      row.hen = { on: hv === null ? !!auto : hv, auto: auto, hand: hv !== null };
+      row.need = row.hen.on ? KINDS.slice() : ['iko', 'hikaku'];
+      KINDS.forEach(function (kind) {
+        var x = row.st[kind] || {};
+        if (x.s === 'ex') { row.st[kind] = x; return; }
+        if (x.r) {
+          x.s = x.r.miss.length || (kind === 'tekigou' && x.r.ng) ? 'miss' : 'ok';
+          var od = orderDate(x.r);
+          x.odr = !!(k.date && od && od > k.date);
+        } else x.s = row.need.indexOf(kind) >= 0 ? 'none' : 'na';
+        row.st[kind] = x;
+      });
+      if (row.need.indexOf('tekigou') < 0 && row.st.tekigou.s === 'ex') row.st.tekigou.s = 'na';
+      /* 事実・印・知らせ */
+      var miss = {}, ex = {}, odr = {}, st = {};
+      KINDS.forEach(function (kind) {
+        var x = row.st[kind];
+        st[kind] = x.s;
+        if (x.s === 'ex') ex[kind] = x.why;
+        if (x.r && x.r.miss.length) miss[kind] = x.r.miss.slice(0, 8);
+        if (kind === 'tekigou' && x.r && x.r.ng) miss[kind] = (miss[kind] || []).concat(['お勧めしなかった記録']);
+        if (x.odr) odr[kind] = true;
+      });
+      var kh = ts.kh[k.id];
+      row.f = cleanFacts({ kid: k.id, date: k.date, name: k.name, company: k.company, product: k.product || k.pname, hen: row.hen.on, before: row.before,
+        st: st, ex: ex, miss: miss, odr: odr, age: k.age, fam: !!k.fam, times: k.times, kh: kh ? kh.why : '', pno: k.pno });
+      row.sig = sig(row.f);
+      row.kou = kourei(row.f, ts.set);
+      row.khRec = kh || null;
+      var chk = ts.checks[k.id] || null;
+      row.chk = chk ? { st: chk.st, why: chk.why, by: chk.by, at: chk.at, live: chk.sig === row.sig } : null;
+      row.alerts = alerts(row.f, ts.set, chk);
+      if (!fd) row.alerts = row.alerts.filter(function (a) { return a.g !== 'doc' && a.g !== 'odr'; });   // 記録を受け取っていない端末では、書類の知らせを出さない（分からないため）
+      row.alarm = row.alerts.some(function (a) { return a.lv === 'red'; });
+      row.back = row.alerts.some(function (a) { return a.c === 'back'; });
+      row.days = k.date ? dayDiff(td, k.date) : null;
+      if (row.hen.on) cnt.hen++;
+      if (row.kou.need) cnt.kourei++;
+      if (row.before) { cnt.before++; return; }
+      if (row.chk && row.chk.live && row.chk.st === 'ok') cnt.chkOk++;
+      var gs = {};
+      row.alerts.forEach(function (a) { if (a.lv !== 'info' || a.g === 'noage') gs[a.g] = 1; });
+      Object.keys(gs).forEach(function (g) { if (cnt.g.hasOwnProperty(g)) cnt.g[g]++; });
+      if (row.back) cnt.back++;
+      if (row.alarm) {
+        cnt.alarm++;
+        row.need.forEach(function (kind) { var s = row.st[kind].s; if (s === 'none') cnt.none[kind]++; if (s === 'miss') cnt.miss[kind]++; });
+      } else cnt.ok++;
+    });
+    return { rows: rows, counts: cnt, feed: fd, tool: ts };
+  }
+
+  /* 手でつなぐときの候補（同じ顧客名・日付の近い順。ほかの記録も後ろに並べる） */
+  function candidates(res, row, kind) {
+    var recs = res.feed ? res.feed.recs : [], key = nk(row.k.name);
+    var linked = {};
+    res.rows.forEach(function (x) { var s = x.st[kind]; if (s && s.r && x !== row) linked[s.r.id] = x.k; });
+    return recs.filter(function (r) { return r.kind === kind; }).map(function (r) {
+      var d = dayDiff(recDate(r) || '', row.k.date || '');
+      return { r: r, same: nk(r.no) === key, d: d, other: linked[r.id] || null };
+    }).sort(function (a, b) {
+      return (b.same - a.same) || ((a.d === null ? 1e6 : Math.abs(a.d)) - (b.d === null ? 1e6 : Math.abs(b.d)));
+    });
+  }
+  /* お客様の名前で、コンプライアンスの記録を集める（契約の前の面談からも見られるように） */
+  function recsByName(name, fd) {
+    fd = fd === undefined ? feed() : fd;
+    var key = nk(name), out = { iko: [], hikaku: [], tekigou: [], kujo: [] };
+    if (!fd || !key) return out;
+    fd.recs.forEach(function (r) { if (nk(r.no) === key) out[r.kind].push(r); });
+    fd.kujo.forEach(function (r) { if (nk(r.no) === key) out.kujo.push(r); });
+    Object.keys(out).forEach(function (k) { out[k].sort(function (a, b) { return (recDate(b) || '') < (recDate(a) || '') ? -1 : 1; }); });
+    return out;
+  }
+
+  /* 管理画面で新しく書くときの飛び先（顧客名・日付・種目・面談日を写し、契約から書くときは契約の番号を残す） */
+  function enc(s) { return encodeURIComponent(s); }
+  /* 種目：商品マスタの種類 → 商品名の言葉の順に拾う（管理画面の種目の名前と同じ字。合わなければ管理画面が空にする） */
+  var SHU_WORDS = [[/一時払.*終身/, '一時払終身保険'], [/長期平準/, '長期平準保険'], [/養老/, '養老保険（福利厚生）'], [/終身/, '終身保険'],
+    [/定期/, '定期保険'], [/医療/, '医療保険'], [/がん|ガン|癌/, 'ガン保険'], [/自動車/, '自動車保険'], [/火災/, '火災保険'], [/地震/, '地震保険'],
+    [/傷害/, '傷害保険'], [/賠償/, '賠償責任保険'], [/少額短期|少短/, '少額短期保険']];
+  function shuOf(row) {
+    var t = row.k.product + ' ' + row.k.pname;
+    if (row.hen && row.hen.on) return /定期/.test(t) ? '変額定期' : '変額保険';
+    if (SHU_OF[row.k.pkind]) return SHU_OF[row.k.pkind];
+    for (var i = 0; i < SHU_WORDS.length; i++) if (SHU_WORDS[i][0].test(t)) return SHU_WORDS[i][1];
+    return '';
+  }
+  function tekigouShu(row) {
+    var t = row.k.product + ' ' + row.k.pname;
+    if (/年金/.test(t)) return '変額個人年金保険';
+    if (/定期/.test(t)) return '変額定期保険';
+    if (/外貨/.test(t) && !/変額/.test(t)) return '外貨建ての保険';
+    return '変額保険（終身・有期）';
+  }
+  function newHash(kind, row) {
+    var p = ['no=' + enc(row.k.name)];
+    if (row.k.id) p.push('k=' + enc(row.k.id));
+    if (row.k.date) p.push('d=' + enc(row.k.date));
+    var shu = shuOf(row);
+    if (shu && kind !== 'tekigou') p.push('shu=' + enc(shu));
+    if (kind === 'hikaku' && row.k.mtgs && row.k.mtgs.length) p.push('m=' + enc(row.k.mtgs.join(',')));
+    if (kind === 'tekigou') {
+      p.push('t=' + enc(tekigouShu(row)));
+      var pr = (row.k.company + ' ' + (row.k.product || row.k.pname)).trim();
+      if (pr) p.push('p=' + enc(pr));
+    }
+    return '#compliance/' + kind + '/new?' + p.join('&');
+  }
+  /* 契約の前（面談の日）から書くとき：顧客名と日付だけ写す（契約の番号は付けない） */
+  function newHashFor(kind, name, date, mtgs) {
+    return newHash(kind, { k: { id: '', name: name, date: kind === 'hikaku' ? '' : date, mtgs: mtgs || (kind === 'hikaku' && date ? [date] : []),
+      company: '', product: '', pname: '', pkind: '' }, hen: { on: false } });
+  }
+  function openHash(r) { return '#compliance/' + r.kind + '/' + r.id; }
+
+  return { KINDS: KINDS, NAME: NAME, STATUS: STATUS, SALES_KEY: SALES_KEY, FEED_KEY: FEED_KEY, TOOL_KEY: TOOL_KEY, SET_DEF: SET_DEF, FAM_RE: FAM_RE,
+    nk: nk, dayDiff: dayDiff, ageAt: ageAt, today: today, contracts: contracts, feed: feed, tool: tool,
+    cleanLinks: cleanLinks, cleanHen: cleanHen, cleanSet: cleanSet, cleanKh: cleanKh, cleanCheck: cleanCheck, cleanChecks: cleanChecks, cleanPno: cleanPno, pnoStr: pnoStr,
+    cleanFacts: cleanFacts, sig: sig, kourei: kourei, alerts: alerts,
+    toolPatch: toolPatch, compute: compute, candidates: candidates, recsByName: recsByName,
+    newHash: newHash, newHashFor: newHashFor, openHash: openHash, recDate: recDate, orderDate: orderDate };
+})();
+/* KKCORE-END */
+</script>
 <script>
 (function () {
 'use strict';
@@ -3657,6 +4117,7 @@ var INHOUSE = {
   sales:    { local: '保険営業管理ツール.html', url: 'https://office-m-nakatani.github.io/office-m/hoken-sales/' },
   plan:     { local: '保険目標逆算プランナー.html', url: 'https://office-m-nakatani.github.io/office-m/hoken-gyakusan/' },
   cal:      { local: '保険満期カレンダー.html', url: 'https://office-m-nakatani.github.io/office-m/hoken-calendar/' },
+  kokyaku:  { local: '保険顧客管理ツール.html', url: 'https://office-m-nakatani.github.io/office-m/hoken-kokyaku/' },
   /* AI師匠は単独ページ（ビルド生成物）。中身の正本は lifeplan/ichijo.html のAI師匠で、
      hoken-mentor-src/build.py が 保険AI師匠.html を作る。ライフプランの中の画面とは保存先を共有する */
   mentor:   { local: '保険AI師匠.html', url: 'https://office-m-nakatani.github.io/office-m/hoken-mentor/' }
@@ -3665,14 +4126,17 @@ var INHOUSE = {
 /* 社内ツールも「言葉でさがす」から辿れるようにするための見せかけの1件（共有リンクは出さない） */
 var INHOUSE_SEARCH = [
   { key: 'cpsec', name: 'コンプライアンス（社内）',
-    label: '意向把握・比較推奨・苦情の記録と、研修・資格の台帳',
-    keys: '社内 コンプライアンス コンプラ 意向把握 意向確認 比較推奨 推奨販売 推奨方針 方針 苦情 お申し出 申出 台帳 研修台帳 資格 届出 期限 監査 記録 記録票 確認 上長 社長 自習' },
+    label: '意向把握・比較推奨・適合性の確認（変額保険）・苦情の記録と、研修・資格の台帳',
+    keys: '社内 コンプライアンス コンプラ 適合性 適合性確認 変額 特定保険契約 意向把握 意向確認 比較推奨 推奨販売 推奨方針 方針 苦情 お申し出 申出 台帳 研修台帳 資格 届出 期限 監査 記録 記録票 確認 上長 社長 自習' },
   { key: 'training', name: '保険知識トレーニング（社員教育）',
     label: '確かめテスト・朝礼の1問・数字早見表・言ってはいけないトークの添削・ロープレのお題',
     keys: '社内 社員教育 教育 研修 トレーニング 勉強 学習 テスト 理解度 確かめ 朝礼 ロープレ NGトーク 言ってはいけない 添削 早見表' },
   { key: 'sales', name: '保険営業ダッシュボード（社内）',
     label: '営業活動のカレンダー・顧客カルテ・面談記録・お誕生日',
     keys: '社内 営業 ダッシュボード 営業活動 カレンダー 見込客 アプローチ ヒアリング プレゼン クロージング 契約 顧客カルテ カルテ 面談 記録 日報 定期訪問 誕生日' },
+  { key: 'kokyaku', name: '顧客管理（社内）',
+    label: '契約ごとに、意向把握・比較推奨・適合性の確認（変額保険）がそろっているかを並べ、まだの契約を知らせる。代理店点検の準備・お客様ファイルの印刷・上長の確認',
+    keys: '社内 顧客管理 顧客 契約 契約者 提出 未提出 提出書類 書類 意向把握 比較推奨 適合性 適合性確認 変額 変額保険 特定保険契約 外貨建て アラーム 知らせ 上長 報告 メンバー 一覧 代理店点検 点検 監査 証券番号 お客様ファイル 抜き取り 帳簿' },
   { key: 'case', name: '保険支払事例トレーニング（社内）',
     label: '支払いが分かれる場面68件・「出る／出ないことがある／条件しだい」の3択',
     keys: '社内 支払 支払事例 出る 出ない 免責 責任開始 告知義務違反 不告知教唆 入院の定義 手術の定義 上皮内新生物 所定の状態 高度障害 払込免除 失効 復活 時効 代理請求 先進医療 通院 約款 事例 ケース' },
@@ -3708,7 +4172,7 @@ var INHOUSE_BANNER = {
   cpsec:'kirokuBanner',
   training:'trainingBanner', case:'caseBanner', talk:'talkBanner', comp:'compBanner',
   shikaku:'shikakuBanner', mentor:'mentorBanner',
-  sales:'salesBanner', plan:'planBanner', cal:'calBanner'
+  sales:'salesBanner', kokyaku:'kokyakuBanner', plan:'planBanner', cal:'calBanner'
 };
 function inhouseArt(id) {
   var banner = document.getElementById(INHOUSE_BANNER[String(id).slice(4)] || '');
@@ -5232,6 +5696,7 @@ var BK_GROUPS = [
   { id: 'shiharai', name: '支払事例トレーニング', keys: ['officem.hokenShiharai.v1'] },
   { id: 'compknock', name: 'コンプライアンス100本ノック', keys: ['officem.hokenCompliance.v1'] },
   { id: 'sales', name: '営業ダッシュボード', keys: ['officem.hokenSales.v1'] },
+  { id: 'kokyaku', name: '顧客管理（契約と記録のつなぎ・受け取った報告）', keys: ['officem.hokenKokyaku.v1'] },
   { id: 'gyakusan', name: '目標逆算プランナー', keys: ['officem.hokenGyakusan.v1'] },
   { id: 'calendar', name: '満期・年齢到達カレンダー', keys: ['officem.hokenCalendar.v1'] }
 ];
@@ -6463,7 +6928,7 @@ function auSave() {
     auLoadFailed = false;
   }
   try { localStorage.setItem(AUDIT_KEY, JSON.stringify(au)); } catch (e) { toast('この端末に保存できませんでした'); }
-  cpCalFeed(); }
+  cpCalFeed(); cpCompFeed(); }
 function auId() { return 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 function auToday() { var d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
 function auIsoToday() { var d = new Date(), z = function (n) { return (n < 10 ? '0' : '') + n; }; return d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()); }
@@ -6906,12 +7371,18 @@ function cpHkDiff(f) {
 /* 2026-10-03 ユーザー指示「お客様の管理番号ではなく、顧客名に変更」。★記録の鍵の名前（no）は前のまま（前の記録・受け渡しのファイルを読むため） */
 var CP_NO = { k: 'no', t: 'text', l: '顧客名', ph: '例：山田 太郎', req: 1 };
 var CP_SHU_F = { k: 'shu', t: 'select', l: '種目', opts: CP_SHU, groups: CP_SHU_G, keep: CP_SHU_OLD, req: 1 };
+/* 適合性の確認（変額保険など）の種類と結果（2026-10-05） */
+var CP_TK_SHU = ['変額保険（終身・有期）', '変額個人年金保険', '変額定期保険', '外貨建ての保険', 'そのほか（運用の成果で受け取る額が変わる保険）'];
+var CP_TK_RES = ['ご意向とご事情に合っていることを確かめた', '合わないため、お勧めしなかった'];
+/* 種目が変額保険・変額定期のときだけ出す知らせ（意向把握・比較推奨の入力欄の中） */
+var CP_HEN_NOTE = { t: 'note', when: function (f) { return /変額/.test(f.shu || ''); },
+  l: '変額保険は、<b>適合性の確認</b>も記録し、所属保険会社の<b>適合性の確認書を申込書と一緒に提出</b>します。この記録を保存したあと、記録の中身の「この顧客で適合性の確認を書く」から書けます。' };
 var CP = {
   iko: { panel: 'auIko', label: '意向把握', title: '意向把握の記録', dateL: '面談・申込の日',
     lead: 'お客様の<b>最初のご意向</b>と<b>申込の内容（最終のご意向）</b>を並べて残します。違うときは、違った点と理由を残します。' +
       '点検で最もよく見られるところです。お客様は<b>顧客名</b>で残します（ご住所・ご連絡先は書かないでください）。',
     f: [
-      { k: 'date', t: 'date', l: '面談・申込の日', req: 1 }, CP_NO, CP_SHU_F,
+      { k: 'date', t: 'date', l: '面談・申込の日', req: 1 }, CP_NO, CP_SHU_F, CP_HEN_NOTE,
       { k: 'first', t: 'area', l: '最初のご意向', ph: '例：子どもが独立するまでの死亡保障を、今の家計で続けられる範囲で', req: 1 },
       { k: 'final', t: 'area', l: '申込の内容（最終のご意向）', ph: '例：収入保障保険。お子さまが独立する年まで', req: 1 },
       { k: 'same', t: 'select', l: '最初のご意向と申込の内容', opts: ['同じ', '違う'], req: 1 },
@@ -6943,7 +7414,7 @@ var CP = {
        ★前の形で書いた概要（cmps[].n）は消さない（直すときは隠した欄で持ち越し、中身・記録票・表示の画面に出す） */
     f: [
       { t: 'head', l: 'お客様と日付' },
-      CP_NO, CP_SHU_F,
+      CP_NO, CP_SHU_F, CP_HEN_NOTE,
       { k: 'kdate', t: 'date', l: '契約日', reqNote: '決まったら' },
       { k: 'mtgs', t: 'dates', l: 'これまでの面談日', req: 1, short: '面談日' },
       { k: 'date', t: 'calc', l: '記録の日付' },
@@ -6997,17 +7468,47 @@ var CP = {
       { k: 'res', t: 'area', l: '対応の結果' },
       { k: 'done', t: 'date', l: '完了日' },
       { k: 'prev', t: 'area', l: '再発防止', ph: '例：満期の3か月前に、カレンダーで声かけする手順にした', req: function (f) { return !!f.done; }, reqNote: '完了したら必須' }
+    ] },
+  /* 2026-10-05 ユーザー指示「変額保険を契約するときは、適合性確認書類も一緒に提出するようにしてください」
+     変額保険など（運用の成果で受け取る額が変わる保険）は、お客様の知識・経験・財産の状況・契約の目的に照らして合っているかを確かめ、
+     所属保険会社の適合性の確認書を申込書と一緒に提出する。ここでは「確かめたこと」と「一緒に提出したこと」を残す。
+     ★条番号・様式の名前・確かめる項目の細部は書かない（所属保険会社の様式と決まりに従う、と書く）
+     ★提出がまだのあいだは記録の欠け（赤い札）になり、顧客管理の「まだ」にも数える */
+  tekigou: { panel: 'auTekigou', label: '適合性の確認', title: '適合性の確認の記録（変額保険など）', dateL: '確かめた日',
+    lead: '変額保険など、運用の成果で受け取る額が変わる保険は、お客様の<b>投資の知識と経験・財産の状況・ご契約の目的</b>に照らして合っているかを確かめ、' +
+      '所属保険会社の<b>適合性の確認書</b>を<b>申込書と一緒に保険会社へ提出</b>します。ここでは、確かめたことと提出したことを残します。' +
+      '確かめる項目と様式は、所属保険会社の決まりに従ってください。お客様は<b>顧客名</b>で残します（ご住所・ご連絡先は書かないでください）。',
+    f: [
+      { t: 'head', l: 'お客様と商品' },
+      { k: 'date', t: 'date', l: '確かめた日', req: 1 }, CP_NO,
+      { k: 'tshu', t: 'select', l: '保険の種類', opts: CP_TK_SHU, req: 1 },
+      { k: 'prod', t: 'text', l: '保険会社・商品名', ph: '例：〇〇生命 変額保険（終身型）', wide: 1 },
+      { t: 'head', l: 'お伺いしたこと' },
+      { k: 'k1', t: 'check', l: '投資の知識と経験（投資信託・株式などの経験、運用の仕組みのご理解）をお伺いした', req: 1, short: '知識と経験のお伺い' },
+      { k: 'k2', t: 'check', l: '財産の状況（収入・資産・続けて払える保険料）をお伺いした', req: 1, short: '財産の状況のお伺い' },
+      { k: 'k3', t: 'check', l: 'ご契約の目的（保障・老後の備え・資産を残すなど）と、運用についてのお考えをお伺いした', req: 1, short: 'ご契約の目的のお伺い' },
+      { t: 'head', l: 'ご説明したこと' },
+      { k: 's1', t: 'check', l: '運用の成果で、受け取る額（解約したとき・満期・年金など）が増えたり減ったりし、払い込んだ額を下回ることがある仕組みを説明した', req: 1, short: '受け取る額が変わる仕組みの説明' },
+      { k: 's2', t: 'check', l: 'かかる費用（保険の費用・運用の費用など）と、解約したときの扱いを説明した', req: 1, short: '費用と解約の扱いの説明' },
+      { k: 'res', t: 'select', l: '確かめた結果', opts: CP_TK_RES, req: 1 },
+      { k: 'gist', t: 'area', l: '確かめた中身（要点・任意）', ph: '例：投資信託の経験あり。老後の備えの一部を、続けて払える範囲で長く運用したいとのご意向', rows: 2 },
+      { t: 'head', l: '書類の提出' },
+      { k: 'sheet', t: 'check', l: '所属保険会社の適合性の確認書（様式）に、お客様に記入・確認していただいた', req: function (f) { return f.res !== CP_TK_RES[1]; }, reqNote: 'お勧めしたときは必須', short: '適合性の確認書の記入' },
+      { k: 'sub', t: 'check', l: '適合性の確認書を、申込書と一緒に保険会社へ提出した', req: function (f) { return f.res !== CP_TK_RES[1]; }, reqNote: 'お勧めしたときは必須', short: '申込書と一緒の提出' },
+      { k: 'subDate', t: 'date', l: '提出した日', req: function (f) { return !!f.sub; }, reqNote: '提出したら必須' }
     ] }
 };
 /* 2026-10-04 深夜 ユーザー指示（入口のタイルの画面写真）「募集資料台帳、書類の点検を削除」：書類の点検は画面から外した。
    ★前に残した書類の点検の記録は消さない。読み込むときに au.oldRecs へ分けて残し（cpCleanInto）、保存・控えにはそのまま入る。CP.shorui の欄の定義も残す（読むため） */
-var CP_KINDS = ['iko', 'hikaku', 'kujo'];
+var CP_KINDS = ['iko', 'hikaku', 'tekigou', 'kujo'];   /* 適合性の確認（tekigou）は 2026-10-05 に足した */
 var CP_GONE = { shorui: 1 };
-var CP_SH = { iko: '意向把握', hikaku: '比較推奨', shorui: '書類の点検', kujo: '苦情' };   /* 表の「種類」の列に出す短い名前 */
+var CP_SH = { iko: '意向把握', hikaku: '比較推奨', tekigou: '適合性の確認', shorui: '書類の点検', kujo: '苦情' };   /* 表の「種類」の列に出す短い名前 */
 /* 同じお客様の次の記録（意向把握 → 比較推奨）。顧客名・種目・日付を写して書き始める（2026-10-04 辛口の点検：同じお客様を3回打っていた） */
 var CP_NEXT = { iko: 'hikaku' };
 var cpPrefill = {};
-var cpEdit = {}, cpOpen = {}, cpFilt = { iko: {}, hikaku: {}, shorui: {}, kujo: {} }, cpKakYm = '';
+var cpEdit = {}, cpOpen = {}, cpFilt = { iko: {}, hikaku: {}, tekigou: {}, shorui: {}, kujo: {} }, cpKakYm = '';
+/* 顧客管理の契約から書き始めた記録（#compliance/<記録>/new?…&k=<契約の番号>）。保存した記録に契約の番号（kid）を残す */
+var cpPrefillKid = {}, cpPrefillFrom = {};
 
 function cpOpts(d) { return typeof d.opts === 'function' ? d.opts() : (d.opts || []); }
 var CP_TS = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/;
@@ -7051,8 +7552,12 @@ function cpClean(x) {
   }
   var conf = Array.isArray(x.conf) ? x.conf.slice(0, 200).map(cpConfClean).filter(Boolean) : [];
   var upd = cpTs(x.upd) || cpNow();
-  return { id: id, kind: kind, owner: cpName(x.owner), cre: cpTs(x.cre) || upd, upd: upd, f: f, conf: conf, dev: cpDevStr(x.dev) };
+  var out = { id: id, kind: kind, owner: cpName(x.owner), cre: cpTs(x.cre) || upd, upd: upd, f: f, conf: conf, dev: cpDevStr(x.dev) };
+  var kid = cpKidStr(x.kid);
+  if (kid) out.kid = kid;   // 顧客管理の契約から書いた記録（営業ダッシュボードの契約の番号）
+  return out;
 }
+function cpKidStr(v) { v = auStr(v); return /^[A-Za-z0-9_@.\-]{1,80}$/.test(v) ? v : ''; }
 /* 面談日：日付の形のものだけ・重なりを除いて古い順に（CP_MTG_MAX まで） */
 var CP_MTG_MAX = 12;
 function cpDatesClean(v) {
@@ -7155,7 +7660,7 @@ function cpSelfMark(c, r) { return auNameKey(c.name) === auNameKey(r.owner) || (
 /* 上長・社長の確認（承認）を付けない記録（2026-10-04 ユーザー指示「比較推奨に関しては上長や社長の承認はなくしてください」
    → 2026-10-05 ユーザー指示「意向把握と苦情も上長への報告を削除してください」で、全ての記録で外した）
    ★前に付いた印は記録に残したまま（消さない）。画面・数・記録票・カレンダーでは使わない。受け取るファイルの印も入れない */
-var CP_NOCONF = { iko: 1, hikaku: 1, kujo: 1 };
+var CP_NOCONF = { iko: 1, hikaku: 1, tekigou: 1, kujo: 1 };
 function cpNeedsConf(r) { return !CP_NOCONF[r.kind]; }
 /* 記録は上長・社長へ渡さない（2026-10-04 深夜に比較推奨、2026-10-05 に意向把握・苦情）。記録は書いた人の端末に残し、紙は各記録の印刷で残す。
    受け取ったファイルに記録が入っていても読み込まない（前の版のファイル）。ほかの端末へ配れるのは設定（方針・保険会社・理由・初動の目安）だけ */
@@ -7200,6 +7705,8 @@ function cpFlagsHTML(r) {
   if (r.kind === 'iko' && f.same === '違う') out.push(auFlag('wait', '意向と違う申込'));
   if (r.kind === 'hikaku' && f.off) out.push(auFlag('amber', '方針の外'));
   if (r.kind === 'hikaku' && cpHkDiff(f)) out.push(auFlag('wait', 'お勧めと違う商品を選ばれた'));
+  if (r.kind === 'tekigou' && f.res === CP_TK_RES[1]) out.push(auFlag('wait', 'お勧めしなかった'));
+  if (r.kind === 'tekigou' && f.res !== CP_TK_RES[1] && f.sub) out.push(auFlag('ok', '確認書を提出 ' + (auFmt(f.subDate) || '')));
   if (r.kind === 'shorui') {
     var nfix = f.items.filter(function (s) { return s === '直した'; }).length;
     if (f.boshu && auNameKey(f.boshu) === auNameKey(r.owner)) out.push(auFlag('amber', '募集人本人が点検'));
@@ -7219,11 +7726,13 @@ function cpGist(r) {
   if (r.kind === 'iko') return cpCut(f.first, 30) + ' → ' + cpCut(f.final, 30);
   if (r.kind === 'hikaku') return (f.rcmp || '（未記入）') + (f.rprod ? ' ' + f.rprod : '') + '／' + cpCut(f.pol, 20);
   if (r.kind === 'shorui') return '募集人 ' + (f.boshu || '（未記入）') + '／直した ' + f.items.filter(function (s) { return s === '直した'; }).length + '項目';
+  if (r.kind === 'tekigou') return (f.tshu || '（未記入）') + '／' + (f.res === CP_TK_RES[1] ? 'お勧めしなかった' : f.sub ? '確認書を提出' : '確認書はまだ');
   return cpCut(f.sum, 40);
 }
 
 /* ---------- 入力欄 ---------- */
 function cpField(d, f, no) {
+  if (d.t === 'note') return '<p class="cp-warn cp-hen-note">' + d.l + '</p>';   // 決まった文（書いた人の文字は入らない）
   if (d.t === 'head') return '<h4 class="cp-step"><span class="cp-step-no" aria-hidden="true">' + no + '</span>' + esc(d.l) + '</h4>';
   if (d.t === 'calc') return '';
   var v = f ? f[d.k] : (d.k === 'date' ? auIsoToday() : d.k === 'rep' ? '未判断' : d.t === 'dates' ? [auIsoToday()] : d.t === 'checks' || d.t === 'items' ? [] : '');
@@ -7382,7 +7891,7 @@ function cpRead(kind, form) {
   return cpClean({ id: 'x', kind: kind, f: f }).f;
 }
 /* 開いたらすぐ書く欄を出す記録（「記録を足す」を押す一手を省く。畳まない）。★台帳の入力欄（研修の計画と記録・募集資料・資格の期限）も同じ形（details.au-form.cp-direct） */
-var CP_DIRECT = { iko: 1, hikaku: 1, shorui: 1, kujo: 1 };   /* 2026-10-04 夜：書類の点検・苦情も（ユーザー指示「他にも記録を足すボタンが見つかった。削除し、そのまま記入できるように」） */
+var CP_DIRECT = { iko: 1, hikaku: 1, tekigou: 1, shorui: 1, kujo: 1 };   /* 2026-10-04 夜：書類の点検・苦情も（ユーザー指示「他にも記録を足すボタンが見つかった。削除し、そのまま記入できるように」） */
 /* 数と割合の欄・絞り込みを出さない記録（2026-10-04 ユーザー指示「情報が多すぎて使いたくなくなります」） */
 var CP_PLAIN = { hikaku: 1 };
 function cpFormHTML(kind) {
@@ -7390,7 +7899,9 @@ function cpFormHTML(kind) {
   var dir = !!CP_DIRECT[kind];
   var h = '<details class="au-form cp-form' + (dir ? ' cp-direct' : '') + '"' + (f || dir ? ' open' : '') + ' data-snap="cp-' + kind + '"><summary' + (dir ? ' tabindex="-1"' : '') + '>' +
     (r ? esc('直す：' + auFmt(f.date) + ' ' + (f.no || cpCut(f.sum || '', 12))) : (dir ? '新しい記録を書く' : '記録を足す')) + '</summary>';
-  if (!r && f) h += '<p class="cp-warn cp-prefill">ほかの記録から顧客名・種目を写してあります。違うときは書き換えてください。</p>';
+  if (!r && f) h += '<p class="cp-warn cp-prefill">' + (cpPrefillFrom[kind]
+    ? esc('顧客管理の契約（' + (cpPrefillFrom[kind] || '') + '）から、顧客名と日付を写してあります。違うときは書き換えてください。この記録は、その契約とつながります。')
+    : 'ほかの記録から顧客名・種目を写してあります。違うときは書き換えてください。' + (cpPrefillKid[kind] ? esc('この記録も、元の記録と同じ契約（顧客管理）とつながります。') : '')) + '</p>';
   if (r && r.conf.length && cpNeedsConf(r)) h += '<p class="cp-warn">この記録には確認の印があります。直すと「確認のあとに直された」になり、もう一度確認を受けます（前の印は消えずに残ります）。</p>';
   if (kind === 'hikaku' && !au.pols.length) h += '<p class="cp-warn">推奨の方針がまだありません。下の「比較推奨の設定」で、推奨の方針を登録してください。</p>';
   var step = 0;
@@ -7398,7 +7909,7 @@ function cpFormHTML(kind) {
     var x = cpField(d, f, d.t === 'head' ? ++step : 0);
     if (!d.when || !x) return x;
     var on = f ? d.when(f) || !!f[d.k] : false;   // 要るときだけ出す（書いてあれば出したまま）
-    return '<div class="wide cp-when' + (on ? '' : ' hide') + '" data-cp-when="' + d.k + '">' + x + '</div>';
+    return '<div class="wide cp-when' + (on ? '' : ' hide') + '" data-cp-when="' + (d.k || 'note') + '">' + x + '</div>';
   }).join('') + '</div>' +
     '<div class="au-actions"><button type="button" class="btn btn-primary btn-sm" data-cp-act="save" data-kind="' + kind + '">' + (r ? '直した内容で保存' : '記録する') + '</button>' +
     (r ? '<button type="button" class="btn btn-ghost btn-sm" data-cp-act="cancel" data-kind="' + kind + '">やめる</button>' : '') + '</div></details>';
@@ -7420,6 +7931,9 @@ var CP_COLS = {
     }]],
   shorui: [['点検した日', function (r) { return esc(auFmt(r.f.date)); }], ['顧客名', function (r) { return auNm(r.f.no); }], ['募集人', function (r) { return auNm(r.f.boshu); }],
     ['点検した書類', function (r) { return esc(cpCut(r.f.docs.join('、'), 30)); }], ['送った日', function (r) { return esc(auFmt(r.f.sent)); }]],
+  tekigou: [['確かめた日', function (r) { return esc(auFmt(r.f.date)); }], ['顧客名', function (r) { return auNm(r.f.no); }], ['保険の種類', function (r) { return esc(r.f.tshu); }],
+    ['保険会社・商品名', function (r) { return esc(cpCut(r.f.prod, 30) || '―'); }],
+    ['確認書の提出', function (r) { return r.f.res === CP_TK_RES[1] ? esc('お勧めしなかった') : r.f.sub ? '<span class="cp-nw">' + esc('提出 ' + (auFmt(r.f.subDate) || '')) + '</span>' : esc('まだ'); }]],
   kujo: [['受付日', function (r) { return esc(auFmt(r.f.date)); }], ['区分', function (r) { return esc(r.f.type.replace(/（.*$/, '')); }], ['受付の方法', function (r) { return esc(r.f.how); }],
     ['お申し出の要旨', function (r) { return esc(cpCut(r.f.sum, 40)); }], ['保険会社への報告', function (r) { return esc(r.f.rep + (r.f.repDate ? ' ' + auFmt(r.f.repDate) : '')); }]]
 };
@@ -7454,19 +7968,39 @@ function cpDetailHTML(r) {
     else s = d.k === 'shu' && v ? cpShuLabel(v) : v;
     return '<tr><th>' + esc(d.l) + '</th><td>' + (s ? esc(s) : '―') + '</td></tr>';
   }).join('');
+  if (r.kid) rows += '<tr><th>つながっている契約</th><td>' + esc(cpKidLabel(r.kid) || '（この端末の営業ダッシュボードに見つかりません）') + '</td></tr>';
   rows += '<tr><th>記録した人</th><td>' + esc(r.owner || '（未記入）') + '</td></tr>' +
     '<tr><th>記録した日時／最後に直した日時</th><td>' + esc(cpTsFmt(r.cre) + '／' + cpTsFmt(r.upd)) + '</td></tr>';
   var hist = r.conf.slice().sort(function (a, b) { return a.ts < b.ts ? -1 : 1; }).map(function (c) {
     return '<li>' + esc(cpTsFmt(c.ts) + '　' + CP_ROLE_SHORT[c.role] + ' ' + c.name + '：' + (c.ok ? '確認した' : '戻した') + (c.note ? '「' + c.note + '」' : '') +
       (c.ver !== r.upd ? '（この印のあとに中身が直されています）' : '')) + '</li>';
   }).join('');
-  var nx = CP_NEXT[r.kind], tools = (nx && cpMine(r) ? '<button type="button" class="au-mini cp-btn" data-cp-act="copyTo" data-to="' + nx + '" data-id="' + esc(r.id) + '">この顧客で' + esc(CP_SH[nx]) + 'を書く</button>' : '') +
+  var nx = cpNextKinds(r), tools = (cpMine(r) ? nx.map(function (k) { return '<button type="button" class="au-mini cp-btn" data-cp-act="copyTo" data-to="' + k + '" data-id="' + esc(r.id) + '">この顧客で' + esc(CP_SH[k]) + 'を書く</button>'; }).join('') : '') +
+    (r.kid && inhouseTarget('kokyaku') ? '<button type="button" class="au-mini cp-btn" data-cp-act="kokyaku" data-id="' + esc(r.id) + '">顧客管理で見る</button>' : '') +
     (cpMine(r) && !r.conf.length ? '<button type="button" class="au-mini cp-btn cp-del" data-cp-act="del" data-id="' + esc(r.id) + '">この記録を消す</button>' : '');
   return '<table class="cp-det-tbl"><tbody>' + rows + '</tbody></table>' +
     (cpNeedsConf(r) ? '<p class="cp-l" style="margin-top:10px">確認の記録</p>' + (hist ? '<ul class="cp-hist">' + hist + '</ul>' : '<p class="au-empty" style="padding:4px 0">まだ確認の印はありません。</p>') : '') +
     (tools ? '<p class="cp-det-tools">' + tools + '</p>' : '') +
     (r.kind === 'hikaku' ? '<p class="cp-cal-go"><button type="button" class="au-mini cp-btn" data-cp-act="cal" data-id="' + esc(r.id) + '">満期・年齢到達カレンダーで見る</button>' +
       '<span>面談日と契約日が、カレンダーにも出ます（この端末の記録）</span></p>' : '');
+}
+/* 同じお客様の次の記録。変額保険（種目）の意向把握・比較推奨からは、適合性の確認も書ける（2026-10-05） */
+function cpNextKinds(r) {
+  var out = CP_NEXT[r.kind] ? [CP_NEXT[r.kind]] : [];
+  if ((r.kind === 'iko' || r.kind === 'hikaku') && /変額/.test(r.f.shu || '')) out.push('tekigou');
+  return out;
+}
+/* 記録とつながっている契約（この端末の営業ダッシュボードの契約）の見出し */
+function cpKidLabel(kid) {
+  if (!kid || typeof KKC === 'undefined') return '';
+  var k = KKC.contracts().filter(function (x) { return x.id === kid; })[0];
+  return k ? (auFmt(k.date) || '契約日なし') + ' ' + (k.name ? k.name + ' 様 ' : '') + (k.company + ' ' + k.product).trim() : '';
+}
+/* 顧客管理（社内ツール）を、その契約の所で開く */
+function cpOpenKokyaku(kid) {
+  var t = inhouseTarget('kokyaku');
+  if (!t) { toast('顧客管理はまだ公開していません'); return; }
+  window.open(t + (kid ? '#k=' + encodeURIComponent(kid) : ''), 'katatsugi-kokyaku');
 }
 /* 比べた商品の一覧（中身・社内の控え）。前の形の記録は書いた文のまま */
 function cpCmpListHTML(f) {
@@ -7556,6 +8090,9 @@ function cpStatsHTML(kind, list) {
     var fixes = CP_ITEMS.map(function (o, i) { return [o, list.filter(function (r) { return r.f.items[i] === '直した'; }).length]; })
       .filter(function (p) { return p[1]; }).sort(function (a, b) { return b[1] - a[1]; });
     if (fixes.length) h += '<h3>直しの多い項目（研修の題材に）</h3>' + cpBarRows(fixes, list.length, '項目');
+  } else if (kind === 'tekigou') {
+    h += cpTile('確認書の提出がまだ', list.filter(function (r) { return r.f.res !== CP_TK_RES[1] && !r.f.sub; }).length + '件') +
+      cpTile('お勧めしなかった', list.filter(function (r) { return r.f.res === CP_TK_RES[1]; }).length + '件') + '</div>';
   } else if (kind === 'kujo') {
     var open = list.filter(function (r) { return !r.f.done; });
     var longest = open.reduce(function (m, r) { var n = cpSince(r.f.date); return n !== null && n > m ? n : m; }, 0);
@@ -7710,22 +8247,24 @@ function cpRenderCommon() {
 
 /* ---------- 入口の一覧（タイル）と、社内ツールのカードの札（2026-10-01 続き）----------
    ★赤い札は「記録の欠け」と台帳の期限切れ・登録番号なし・届出の未確認だけ。確認待ち・対応中は琥珀、件数は灰の文字 */
-var AU_TITLE = { iko: '意向把握の記録', hikaku: '比較推奨の記録', kujo: '苦情・お申し出の台帳',
+var AU_TITLE = { iko: '意向把握の記録', hikaku: '比較推奨の記録', tekigou: '適合性の確認の記録（変額保険など）', kujo: '苦情・お申し出の台帳',
   train: '研修台帳', limit: '資格・届出の期限', self: '自習の記録' };
 var CP_ICO = {
   iko: '<path d="M4 5.5h16v10H9l-5 4v-14Z"/><path d="M8 9.5h8M8 12.5h5"/>',
   hikaku: '<path d="M12 4v16M5 20h14"/><path d="M5 8h14"/><path d="m5 8-2.5 6a2.5 2.5 0 0 0 5 0L5 8ZM19 8l-2.5 6a2.5 2.5 0 0 0 5 0L19 8Z"/>',
   shorui: '<path d="M6 3h9l4 4v14H6Z"/><path d="M15 3v4h4"/><path d="m9 13 2 2 4-4"/>',
+  tekigou: '<path d="M4 16.5a8 8 0 0 1 16 0"/><path d="m12 16.5 3.6-4.6"/><path d="M6.5 20h11"/><path d="M7.2 11.6l1 .9M12 8.5v1.3M16.8 11.6l-1 .9"/>',
   kujo: '<path d="M4 5h16v11H8l-4 3.5Z"/><path d="M12 8v3.5M12 13.6v.01"/>',
   train: '<path d="M3 8.5 12 4l9 4.5-9 4.5Z"/><path d="M7 10.5V15c0 1.4 2.2 2.8 5 2.8s5-1.4 5-2.8v-4.5"/>',
   mat: '<rect x="4" y="3.5" width="16" height="17" rx="2"/><path d="M8 8h8M8 11.5h8M8 15h5"/>',
   limit: '<circle cx="12" cy="12.5" r="8"/><path d="M12 8v4.8l3 1.8M9.5 2.8h5"/>',
   self: '<path d="M4 19V5M4 19h16"/><path d="m7 15 4-4 3 3 5-6"/>'
 };
-var CP_TL_NAME = { iko: '意向把握', hikaku: '比較推奨', shorui: '書類の点検', kujo: '苦情・お申し出',
+var CP_TL_NAME = { iko: '意向把握', hikaku: '比較推奨', tekigou: '適合性の確認', shorui: '書類の点検', kujo: '苦情・お申し出',
   train: '研修台帳', mat: '募集資料台帳', limit: '資格・届出の期限', self: '自習の記録' };
 var CP_TL_DESC = {
-  iko: '最初のご意向と申込の内容を並べて残す', hikaku: '推奨の方針・比べた商品・お勧めした理由', shorui: '申込書類を送る前に、別の人が点検',
+  iko: '最初のご意向と申込の内容を並べて残す', hikaku: '推奨の方針・比べた商品・お勧めした理由', tekigou: '変額保険など。確認書を申込書と一緒に提出',
+  shorui: '申込書類を送る前に、別の人が点検',
   kujo: '受付から再発防止まで、1件ずつ閉じる', train: '研修の計画と、実施・出席の記録', mat: '登録番号・承認日・使用期限',
   limit: '名簿・損保一般試験・継続教育・届出', self: '社員から受け取った学習の記録（量だけ）'
 };
@@ -7754,7 +8293,7 @@ function cpHomeData() {
   if (c.miss.length) out.card.push(cpFlagT('red', '記録の欠け ' + c.miss.length, c.miss));
   return out;
 }
-var CP_TL_COLOR = { iko: 'sky', hikaku: 'green', shorui: 'amber', kujo: 'berry', train: 'green', mat: 'sky', limit: 'berry', self: 'amber' };
+var CP_TL_COLOR = { iko: 'sky', hikaku: 'green', tekigou: 'coral', shorui: 'amber', kujo: 'berry', train: 'green', mat: 'sky', limit: 'berry', self: 'amber' };
 function cpTileHTML(k, d, wide) {
   return '<button type="button" class="cp-tl c-' + (CP_TL_COLOR[k] || 'sky') + (wide ? ' wide' : '') + '" data-au-tab="' + k + '">' +
     '<span class="cp-tl-top"><span class="cp-tl-ico"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + CP_ICO[k] + '</svg></span>' +
@@ -7765,7 +8304,7 @@ function cpTileHTML(k, d, wide) {
 function cpRenderHome() {
   var d = cpHomeData(), host = document.getElementById('cpHomeTiles');
   if (host) host.innerHTML =
-    '<h3 class="cp-home-h">毎日の記録</h3><div class="cp-tgrid">' + CP_KINDS.map(function (k) { return cpTileHTML(k, d); }).join('') + '</div>' +
+    '<h3 class="cp-home-h">毎日の記録</h3><div class="cp-tgrid cp-tgrid4">' + CP_KINDS.map(function (k) { return cpTileHTML(k, d); }).join('') + '</div>' +
     '<h3 class="cp-home-h">台帳（監査資料）</h3><div class="cp-tgrid">' + ['train', 'limit', 'self'].map(function (k) { return cpTileHTML(k, d); }).join('') + '</div>';
   var cb = document.getElementById('kirokuBadges');
   if (cb) cb.innerHTML = d.card.join('');
@@ -8140,12 +8679,16 @@ function cpSave(kind, form) {
   if (r) {
     if (JSON.stringify(r.f) === JSON.stringify(f)) { cpEdit[kind] = null; cpRenderKind(kind); toast('変わったところはありません'); return; }
     r.f = f; r.upd = now;
-  } else { r = { id: auId(), kind: kind, owner: au.me.name, cre: now, upd: now, f: f, conf: [], dev: au.dev }; au.recs.push(r); cpPrefill[kind] = null; }
+  } else {
+    r = { id: auId(), kind: kind, owner: au.me.name, cre: now, upd: now, f: f, conf: [], dev: au.dev };
+    if (cpPrefillKid[kind]) r.kid = cpPrefillKid[kind];   // 顧客管理の契約から書いた記録
+    au.recs.push(r); cpPrefill[kind] = null; cpPrefillKid[kind] = ''; cpPrefillFrom[kind] = '';
+  }
   var hadConf = r.conf.length && cpNeedsConf(r);
   cpEdit[kind] = null;
   auSave(); cpRerender(form);
   var miss = cpMissing(r);
-  toast((hadConf ? '直しました。もう一度確認を受けます' : '保存しました（この端末）') + (miss.length ? '。記録の欠け：' + miss.join('・') : ''));
+  toast((hadConf ? '直しました。もう一度確認を受けます' : '保存しました（この端末）') + (r.kid && !id ? '。顧客管理の契約とつながりました' : '') + (miss.length ? '。記録の欠け：' + miss.join('・') : ''));
 }
 /* 要るときだけ出す欄（違う商品を選ばれた経緯・方針の外の理由）を、いまの入力に合わせる。書いてあれば出したまま */
 function cpWhenSync(form) {
@@ -8154,7 +8697,7 @@ function cpWhenSync(form) {
   var f = cpRead(m[1], form);
   C.f.forEach(function (d) {
     if (!d.when) return;
-    var box = form.querySelector('[data-cp-when="' + d.k + '"]');
+    var box = form.querySelector('[data-cp-when="' + (d.k || 'note') + '"]');
     if (box) box.classList.toggle('hide', !(d.when(f) || f[d.k]));
   });
 }
@@ -8217,13 +8760,20 @@ function cpHandle(e) {
     if (!CP[to]) return;
     var pf = { no: r.f.no, shu: r.f.shu };
     if (to === 'hikaku') pf.mtgs = r.f.date ? [r.f.date] : [];
+    if (to === 'tekigou') {
+      var sc = r.kind === 'hikaku' ? ((r.f.cmps || []).filter(function (x) { return x.s; })[0] || (r.f.cmps || []).filter(function (x) { return x.r; })[0]) : null;
+      pf = { no: r.f.no, date: r.kind === 'iko' ? r.f.date : (r.f.kdate || cpLastMtg(r.f) || auIsoToday()), tshu: r.f.shu === '変額定期' ? '変額定期保険' : CP_TK_SHU[0],
+        prod: sc ? cpCmpName(sc) : (r.f.scmp || ((r.f.rcmp || '') + ' ' + (r.f.rprod || '')).trim()) };
+    }
     cpPrefill[to] = pf; cpEdit[to] = null;
+    cpPrefillKid[to] = r.kid || ''; cpPrefillFrom[to] = '';   // 元の記録が契約とつながっていれば、次の記録も同じ契約へ
     auSetTab(to); cpRenderKind(to);
     var fm2 = document.querySelector('#' + CP[to].panel + ' .cp-form');
     if (fm2) { fm2.open = true; fm2.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-    toast('顧客名・種目' + (to === 'hikaku' ? '・面談日' : '') + 'を写しました。続きを入れて「記録する」を押してください');
+    toast('顧客名・' + (to === 'tekigou' ? '日付・商品' : '種目') + (to === 'hikaku' ? '・面談日' : '') + 'を写しました。続きを入れて「記録する」を押してください');
     return;
   }
+  if (act === 'kokyaku' && r) { cpOpenKokyaku(r.kid); return; }
   if (act === 'edit' && r) {
     if (!cpMine(r)) { toast('直せるのは、記録した本人だけです'); return; }
     cpEdit[r.kind] = r.id; auSetTab(r.kind); cpRenderKind(r.kind);
@@ -8338,7 +8888,7 @@ function auRenderSome(keys, skip) {
   auSetTab(auTab);
 }
 /* 書類の点検（shorui）と募集資料台帳（mat）は 2026-10-04 深夜に画面から外した（ユーザー指示「募集資料台帳、書類の点検を削除」）。記録は保存先に残る */
-var AU_PANELS = [['iko', 'auIko'], ['hikaku', 'auHikaku'], ['kujo', 'auKujo'],
+var AU_PANELS = [['iko', 'auIko'], ['hikaku', 'auHikaku'], ['tekigou', 'auTekigou'], ['kujo', 'auKujo'],
   ['train', 'auTrain'], ['limit', 'auLimit'], ['self', 'auSelf']];
 function auSetTab(k) {
   if (k !== 'home' && !AU_TITLE[k]) k = 'home';
@@ -8464,7 +9014,9 @@ function initAudit() {
   cpInitFile();
   auLoad();
   try { auRenderAll(); } catch (err) { auLoadFailed = true; au = auClean(null); auRenderAll(); toast('コンプライアンスの記録を読み込めませんでした。控えから読み込んでください'); }
-  if (!auLoadFailed) cpCalFeed();   // カレンダーに出す比較推奨の要約（前に残した記録の分も）
+  if (!auLoadFailed) { cpCalFeed(); cpCompFeed(); }   // カレンダーに出す比較推奨の要約・顧客管理へ渡す要約（前に残した記録の分も）
+  /* 営業ダッシュボード・顧客管理をほかの窓で直したら、顧客管理のカードの札を数え直す */
+  window.addEventListener('storage', function (e) { if (typeof KKC !== 'undefined' && (e.key === KKC.SALES_KEY || e.key === KKC.TOOL_KEY)) kkRenderBadge(); });
   auSetTab('home');
   var card = document.getElementById('kirokuBanner');
   if (card) {
@@ -8477,12 +9029,14 @@ function initAudit() {
 /* アドレスの末尾 #compliance で開く。#compliance/<記録の名前>（AI師匠の「相談のきっかけ」から）は、その記録を開いて、書く欄も開いておく
    2026-10-03 ユーザー指示「流れるものにコンプラについてで比較推奨商品、意向把握についてなどを追加し、ここにとべるように」 */
 function cpDeepLink() {
-  var m = /^#compliance(?:\/([a-z]+)(?:\/([A-Za-z0-9_-]{1,64}))?)?$/.exec(location.hash);
+  var m = /^#compliance(?:\/([a-z]+)(?:\/([A-Za-z0-9_-]{1,64}))?)?(?:\?(.*))?$/.exec(location.hash);
   if (!m) return;
   cpOpenView(false);
   if (!m[1]) return;
   try { history.replaceState(null, '', location.pathname + location.search + '#compliance'); } catch (e) {}
   auSetTab(AU_TITLE[m[1]] ? m[1] : 'home');
+  /* #compliance/<記録>/new?no=…&k=<契約の番号>…（顧客管理・営業ダッシュボードの契約から）は、顧客名と日付を写して書き始める */
+  if (m[2] === 'new' && CP[m[1]] && CP_KINDS.indexOf(m[1]) >= 0) { cpFromLink(m[1], m[3] || ''); return; }
   /* #compliance/<記録の名前>/<記録番号>（満期・年齢到達カレンダーから）は、その記録の中身を開いて見せる */
   var r = m[2] && CP[m[1]] ? cpRec(m[2]) : null;
   if (m[2] && CP[m[1]]) {
@@ -8505,6 +9059,87 @@ function cpDeepLink() {
    ★入れるのは、カレンダーに出す分だけ（顧客名・種目・面談日・契約日・お勧めと選択・記録した人・記録の欠け）。
      確認の状態は 2026-10-04 に外した（比較推奨は上長・社長の確認を付けない）
      理由・経緯・方針の中身は入れない（それは管理画面で見る） */
+/* ---------- 顧客管理へのつなぎ（2026-10-05）----------
+   ユーザー指示「ダッシュボードから契約したものに対して、意向把握と比較推奨と紐づけできるようにして、各契約顧客で提出できていない場合、アラームなどで知らせるように」
+   ★顧客管理（hoken-kokyaku）は同じ端末の保存先を読む。記録の形を知らなくて済むよう、要約（COMP_FEED_KEY）をここで書き出す（保存のたびと、開いたとき）
+   ★入れるのは、つなぎと「そろっているか」に要る分だけ（顧客名・種目・日付・記録した人・記録の欠け・契約の番号）。ご意向・お勧めの理由などの中身は入れない
+   2026-10-05 ユーザー指示「大手保険会社で使っている顧客管理システムのように…コンプラ遵守にできるようにアラートをかけるなど」
+   ★比較推奨の最初の面談日（mtg1）＝契約日より後に比べていないかを見るため
+   ★苦情（kujo）＝顧客名・受付日・対応中か・初動が目安を過ぎたか・欠けまで。お申し出の中身は入れない。
+     顧客管理・営業ダッシュボードの「その方の画面」に出すだけで、上長へ渡す報告には入れない（2026-10-05 に苦情の上長への報告を外したため） */
+var COMP_FEED_KEY = 'officem.hokenHub.compFeed.v1';
+function cpCompFeed() {
+  try {
+    var recs = au.recs.filter(function (r) { return r.kind === 'iko' || r.kind === 'hikaku' || r.kind === 'tekigou'; }).map(function (r) {
+      var f = r.f, o = { id: r.id, kind: r.kind, no: f.no, shu: r.kind === 'tekigou' ? f.tshu : f.shu, date: f.date || '', kdate: f.kdate || '',
+        owner: r.owner, upd: r.upd, miss: cpMissing(r) };
+      if (r.kid) o.kid = r.kid;
+      if (r.kind === 'hikaku' && (f.mtgs || []).length) o.mtg1 = f.mtgs[0];
+      if (r.kind === 'tekigou') { o.ng = f.res === CP_TK_RES[1]; o.sub = f.sub ? (f.subDate || '') : ''; o.prod = f.prod || ''; }
+      return o;
+    });
+    var kujo = au.recs.filter(function (r) { return r.kind === 'kujo' && r.f.no; }).map(function (r) {
+      var miss = cpMissing(r);
+      return { id: r.id, no: r.f.no, date: r.f.date || '', owner: r.owner, upd: r.upd, open: !r.f.done,
+        late: miss.some(function (m) { return /^初動の記録/.test(m); }), miss: miss };
+    });
+    localStorage.setItem(COMP_FEED_KEY, JSON.stringify({ v: 1, at: new Date().toISOString(), me: au.me.name, recs: recs, kujo: kujo, defs: cpFeedDefs(), led: cpFeedLed() }));
+  } catch (e) {}
+  kkRenderBadge();
+}
+/* 2026-10-05 ユーザー指示「年に数回ある保険メーカーからの保険代理店への代理店監査が通るように、また指摘された時にお客さんの情報がすぐに出せるようにしてください」
+   ★顧客管理の「お客様ファイル」は、同じ端末のこの記録（AUDIT_KEY）を読んで中身を描く。欄の名前と形は、ここ（CP）が正本なので、名前と形だけを要約に入れて渡す（定義を二重に持たない）
+   ★台帳の要約（led）＝顧客管理の「代理店点検の準備」に出す数と名前。研修・資格と届出・推奨の方針が見本のままか、だけ（中身は管理画面で見る） */
+function cpFeedDefs() {
+  var out = {};
+  ['iko', 'hikaku', 'tekigou', 'kujo'].forEach(function (k) {
+    out[k] = { label: CP[k].label, title: CP[k].title, f: CP[k].f.filter(function (d) { return d.t !== 'note'; }).map(function (d) {
+      var o = { k: d.k || '', t: d.t, l: d.l };
+      if (d.when) o.w = 1;
+      return o;
+    }) };
+  });
+  return out;
+}
+function cpFeedLed() {
+  try {
+    var fy = auFyOf(), is = auIssues(), cut = function (a) { return a.slice(0, 30); };
+    return { fy: fy, train: au.trainings.filter(function (t) { return auFyOf(t.date) === fy; }).length,
+      plans: au.plans.filter(function (p) { return auFyOf(p.ym + '-01') === fy; }).length, members: auActiveMembers().length,
+      expired: cut(is.expired), urgent: cut(is.urgent), soon: is.soon.length, keizoku: cut(is.keizoku), todoke: cut(is.todoke), notrain: cut(is.notrain),
+      polSample: !au.polsAt, kujoDays: au.cpset.kujoDays };
+  } catch (e) { return null; }
+}
+/* 社内ツールの「顧客管理」のカードの札：直すことがある契約（書類がまだ・欠け・日付・ご高齢の方の確認）と、上長から戻された契約の数。
+   言い方は営業ダッシュボードの知らせ（kkRenderAlarm）とそろえる */
+function kkRenderBadge() {
+  var el = document.getElementById('kokyakuBadges');
+  if (!el || typeof KKC === 'undefined') return;
+  var c;
+  try { c = KKC.compute().counts; } catch (e) { return; }
+  var h = '';
+  if (c.alarm) h += '<span class="au-flag red">直すことがある契約 ' + c.alarm + '件</span>';
+  if (c.back) h += '<span class="au-flag amber">上長から戻された契約 ' + c.back + '件</span>';
+  if (!h && c.all) h = '<span class="au-flag ok">全ての契約でそろっている（' + c.all + '件）</span>';
+  el.innerHTML = h;
+}
+/* 顧客管理・営業ダッシュボードの契約から開いたとき：顧客名・日付（比較推奨は面談日も）を写して、書く欄を開く */
+function cpFromLink(kind, q) {
+  var P = {};
+  q.split('&').forEach(function (x) { var i = x.indexOf('='); if (i > 0) { try { P[x.slice(0, i)] = decodeURIComponent(x.slice(i + 1)); } catch (e) {} } });
+  var d = auDateStr(P.d), shu = CP_SHU.indexOf(auStr(P.shu)) >= 0 ? P.shu : '', pf = { no: cpName(P.no) };
+  if (kind === 'iko') { pf.date = d || auIsoToday(); pf.shu = shu; }
+  else if (kind === 'hikaku') { pf.shu = shu; pf.kdate = d; pf.mtgs = cpDatesClean(auStr(P.m).split(',')); }
+  else if (kind === 'tekigou') { pf.date = d || auIsoToday(); pf.tshu = CP_TK_SHU.indexOf(auStr(P.t)) >= 0 ? P.t : ''; pf.prod = auStr(P.p).slice(0, 200).trim(); }
+  cpPrefill[kind] = pf; cpEdit[kind] = null;
+  cpPrefillKid[kind] = cpKidStr(P.k);
+  cpPrefillFrom[kind] = cpPrefillKid[kind] ? (cpKidLabel(cpPrefillKid[kind]) || '契約') : '';
+  cpRenderKind(kind);
+  var fm = document.querySelector('#' + CP[kind].panel + ' .cp-form');
+  if (fm) fm.open = true;
+  document.getElementById('auditSec').scrollIntoView({ block: 'start' });
+  toast('契約から顧客名と日付を写しました。続きを入れて「記録する」を押してください');
+}
 var CAL_FEED_KEY = 'officem.hokenHub.calFeed.v1';
 function cpCalFeed() {
   try {
@@ -8689,7 +9324,7 @@ function auInitButtons() {
     var fy = one && cpFilt[auTab] && cpFilt[auTab].ym ? auYmLabel(cpFilt[auTab].ym) : (dates.length ? auFmt(dates[0]) + '〜' + auFmt(dates[dates.length - 1]) : '');
     var office = (state.settings && state.settings.office) || '';
     document.getElementById('auPrintHead').innerHTML = '<p>' + esc((office ? office + '　' : '') + (one ? 'コンプライアンス：' + (AU_TITLE[auTab] || '')
-        : 'コンプライアンス（意向把握・比較推奨・苦情・研修台帳・資格と届出の期限・自習の記録）') +
+        : 'コンプライアンス（意向把握・比較推奨・適合性の確認・苦情・研修台帳・資格と届出の期限・自習の記録）') +
       (fy ? '　対象の期間 ' + fy : '') + (au.me.name ? '　出力した人 ' + au.me.name : '') + '　出力日 ' + auFmt(auIsoToday())) + '</p>' +
       (one && CP_NOCONF[auTab] ? '' : '<table class="au-print-sign"><tr><th>上長の確認</th><td></td><th>日付</th><td></td><th>社長の確認</th><td></td><th>日付</th><td></td></tr></table>') +   /* 意向把握・比較推奨・苦情だけの紙には上長・社長の欄を出さない */
       '<p>' + esc('※記録の手助けとして作成したもので、点検・監査の結果を保証するものではありません。お客様のお名前が入っているので、社外へ持ち出さないでください。') + '</p>';
@@ -8760,6 +9395,15 @@ function auInitButtons() {
    ★お客様に見せる文言ではないが、効果の数字や断定（必ず・絶対）は書かない。
    ============================================================ */
 var UPDATES = [
+  { id: '2026-10-05-tenken', date: '2026-10-05', target: 'inh:kokyaku',
+    title: '顧客管理：「代理店点検」のタブを追加',
+    body: '保険会社の代理店点検に備える画面です。顧客名・ふりがな・証券番号・保険会社・商品名でお客様を探し、契約・面談と活動・意向把握・比較推奨・適合性の確認・苦情の記録を1枚の「お客様ファイル」にして印刷できます。期間を選ぶと、記録がまだ・欠けている契約、日付の順番、ご高齢の方の確認、研修や資格の期限などを準備の表に並べ、直す契約へそのまま進めます。無作為に選んだ契約のお客様ファイル、点検用の契約の一覧（A4横の印刷・CSV）も作れます。証券番号は、営業ダッシュボードの契約の欄か、顧客管理の契約のカードから入れます。点検の項目・様式・記録を残す期間は、所属保険会社の指示と社内規則に従ってください。' },
+  { id: '2026-10-05-kokyaku', date: '2026-10-05', target: 'inh:kokyaku',
+    title: '社内ツール：「顧客管理（契約と提出書類）」を追加',
+    body: '営業ダッシュボードで記録した契約ごとに、意向把握・比較推奨・適合性の確認（変額保険のとき）の記録がそろっているかを並べます。まだの契約・記録に欠けがある契約は、一覧の上とこのカードの札で知らせます。記録は顧客名と日付で自動でつながり、つながらないときは手で選んでつなげます。その場から、顧客名と契約日を写した書く欄を開けます。上長・社長は、メンバーが書き出した「顧客管理の報告」（提出のそろい方だけで、記録の中身は入りません）を読み込むと、全員分を一つの画面で見られます。' },
+  { id: '2026-10-05-tekigou', date: '2026-10-05', target: 'sec:auditSec',
+    title: 'コンプライアンス：「適合性の確認」（変額保険など）の記録を追加',
+    body: '変額保険・外貨建ての保険など、運用の成果で受け取る額が変わる保険をお勧めするときの記録です。お伺いしたこと（知識と経験・財産の状況・ご契約の目的）と、ご説明したこと（受け取る額が変わることとその理由・費用）を残し、お勧めしたときは確認書を申込書と一緒に提出したかと、その日を記録します。意向把握・比較推奨で種目に変額保険を選ぶと、適合性の確認も書くよう知らせが出て、「この顧客で適合性の確認を書く」から顧客名を写した書く欄を開けます。確認書の様式と提出の方法は、所属保険会社の決まりに従ってください。' },
   { id: '2026-10-05-iryohojin', date: '2026-10-05', target: 'tool:iryohojin-check',
     title: '法人・経営：「医療法人編」を追加',
     body: '医療法人の理事長と話すための学習ツールです。配当ができず、役員報酬にも止まる所があるので法人にお金が溜まる仕組み、持分のある法人とない法人で溜まったお金の重さと最後の行き先が違うこと、継ぐ人と事業の広げにくさ、役員報酬と役員退職金という出口、理事長が持つ家賃収入の会社という箱を、医療法人・箱の会社・理事長個人の三つの財布として一枚の年表に並べる順番を、14の問題と8つの逆転劇場で身につけます。税は顧問の税理士、医療法の届出と認可は都道府県の窓口と確かめる線引きも入っています。' },
