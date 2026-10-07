@@ -5050,6 +5050,19 @@ function kkTakeHash(){
     openEv(a.id, { back: document.querySelector('[data-e="' + a.id + '"]') });
     return true;
   }
+  /* #k=<契約の番号>（2026-10-07 管理画面で意向把握・比較推奨などを保存したあとの「営業ダッシュボードへ戻る」から）：その契約の中身（提出書類）を開く */
+  if ((m = /^#k=([A-Za-z0-9_@.\-]{1,80})$/.exec(h))) {
+    history.replaceState(null, '', location.href.split('#')[0]);
+    closeEv(true);
+    showTab('act');
+    var kc = (state.contracts || []).filter(function(x){ return x.id === m[1]; })[0];
+    if (!kc) { offerUndo('この契約は、この端末の営業ダッシュボードに見つかりませんでした。', null); return true; }
+    if (sampleMode) $('sampleBtn').click();
+    var ka = state.activities.filter(function(x){ return x.contractId === kc.id; })[0];
+    if (ka) selectDate(ka.date);
+    kkOpenContract(kc.id, '提出書類を更新しました。残りの記録は、下の「提出書類」で確かめられます。');
+    return true;
+  }
   if ((m = /^#cust=([A-Za-z0-9_@.\-]{1,80})$/.exec(h))) {
     history.replaceState(null, '', location.href.split('#')[0]);
     closeEv(true);

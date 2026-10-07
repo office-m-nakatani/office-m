@@ -598,6 +598,24 @@ body.comp-open #admin .wrap{max-width:1360px;}
 .cp-kh-all span{font-size:var(--fs-xs);color:var(--muted);}
 .cp-cal-go{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin:10px 0 0;font-size:var(--fs-xs);color:var(--muted);}
 .cp-cal-go .cp-btn{min-height:44px;}
+/* 記録を保存したあとの帯（続けて書く・営業ダッシュボードへ戻る）。2026-10-07 ユーザー指示「書類を1つ完成した後に続けて作業をできるように」 */
+.cp-after{position:relative;margin:0 0 var(--sp-4);padding:16px 18px 16px;border:1px solid var(--green-border);border-radius:14px;background:linear-gradient(160deg,#eef8f2 0%,#fff 75%);box-shadow:0 2px 10px rgba(44,122,75,.08);}
+.cp-after:focus{outline:none;}
+.cp-after:focus-visible{outline:3px solid var(--sky);outline-offset:2px;}
+.cp-after-h{display:flex;align-items:flex-start;gap:10px;margin:0 44px 4px 0;font-size:var(--fs-md);color:#215c39;line-height:1.5;}
+.cp-after-h svg{width:24px;height:24px;flex:0 0 auto;margin-top:2px;}
+.cp-after-tt{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 12px;min-width:0;}
+.cp-after-h b{font-family:var(--mincho);font-weight:700;letter-spacing:.02em;}
+.cp-after-h .cp-after-nm{color:var(--text);font-size:var(--fs-sm);}
+.cp-after-miss{margin:6px 0 0;padding:8px 12px;border-radius:10px;background:#fdeeee;color:#9b2c2c;font-size:var(--fs-sm);line-height:1.6;}
+.cp-after-l{margin:12px 0 8px;font-size:var(--fs-xs);color:var(--muted);font-weight:700;letter-spacing:.06em;}
+.cp-after-acts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,15em),1fr));gap:8px;}
+.cp-after-acts .btn{min-height:52px;flex-direction:column;gap:1px;padding:8px 16px;border-radius:14px;line-height:1.35;text-align:center;text-decoration:none;}
+.cp-after-acts .btn b{font-weight:700;font-size:var(--fs-sm);}
+.cp-after-acts .btn span{font-size:var(--fs-xs);font-weight:400;}
+.cp-after-x{position:absolute;top:8px;right:8px;width:44px;height:44px;border:none;border-radius:50%;background:transparent;color:var(--muted);font-size:1.4rem;line-height:1;cursor:pointer;}
+.cp-after-x:hover{background:rgba(0,0,0,.05);}
+@media(max-width:560px){ .cp-after{padding:14px 12px;} .cp-after-acts{grid-template-columns:1fr;} }
 .cp-row.cp-hit > td{background:var(--navy-soft);}
 @media(max-width:560px){
   .cp-kh{padding:14px 12px;}
@@ -1275,6 +1293,7 @@ svg.hub-mtface{clip-path:circle(50% at 50% 50%);}
   padding:11px 22px;border-radius:999px;font-size:var(--fs-sm);box-shadow:0 8px 24px rgba(27,63,94,.3);opacity:0;
   transition:.25s;pointer-events:none;z-index:90;}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+@media(max-width:560px){ .toast{width:calc(100vw - 32px);border-radius:14px;line-height:1.6;} }   /* 携帯で長い知らせが丸い塊になっていた（2026-10-07） */
 @media print{.tb-actions,.admin-foot,.card-actions,.p-actions{display:none;}}
 
 /* キーボード操作でたどったときに、いまどこにいるかがはっきり分かるようにする。
@@ -7733,7 +7752,7 @@ var CP_KINDS = ['iko', 'hikaku', 'tekigou', 'kujo'];   /* 適合性の確認（t
 var CP_GONE = { shorui: 1 };
 var CP_SH = { iko: '意向把握', hikaku: '比較推奨', tekigou: '適合性の確認', shorui: '書類の点検', kujo: '苦情' };   /* 表の「種類」の列に出す短い名前 */
 /* 同じお客様の次の記録（意向把握 → 比較推奨）。顧客名・種目・日付を写して書き始める（2026-10-04 辛口の点検：同じお客様を3回打っていた） */
-var CP_NEXT = { iko: 'hikaku' };
+var CP_NEXT = { iko: 'hikaku', hikaku: 'iko' };   /* 2026-10-07 比較推奨 → 意向把握も（ユーザー指示「意向把握から比較推奨へも同じです」） */
 var cpPrefill = {};
 var cpEdit = {}, cpOpen = {}, cpFilt = { iko: {}, hikaku: {}, tekigou: {}, shorui: {}, kujo: {} }, cpKakYm = '';
 /* 顧客管理の契約から書き始めた記録（#compliance/<記録>/new?…&k=<契約の番号>）。保存した記録に契約の番号（kid）を残す */
@@ -8215,8 +8234,77 @@ function cpDetailHTML(r) {
     (r.kind === 'hikaku' ? '<p class="cp-cal-go"><button type="button" class="au-mini cp-btn" data-cp-act="cal" data-id="' + esc(r.id) + '">満期・年齢到達カレンダーで見る</button>' +
       '<span>面談日と契約日が、カレンダーにも出ます（この端末の記録）</span></p>' : '');
 }
+/* 同じお客様の次の記録を、顧客名・種目・日付を写して書き始める（中身の「この顧客で◯◯を書く」と、保存したあとの帯の「続けて◯◯を書く」） */
+function cpCopyTo(r, to) {
+  if (!CP[to] || !r) return;
+  var pf = { no: r.f.no, shu: r.f.shu };
+  if (r.kind === 'tekigou') pf.shu = r.f.tshu === '変額定期保険' ? '変額定期' : (/^変額保険/.test(r.f.tshu || '') ? '変額保険' : '');   // 適合性の確認の「保険の種類」から、種目へ
+  if (to === 'hikaku') pf.mtgs = r.f.date ? [r.f.date] : [];
+  if (to === 'iko') pf.date = r.kind === 'hikaku' ? (cpLastMtg(r.f) || auIsoToday()) : (r.f.date || auIsoToday());   // 面談・申込の日＝比較推奨の最後の面談日
+  if (to === 'tekigou') {
+    var sc = r.kind === 'hikaku' ? ((r.f.cmps || []).filter(function (x) { return x.s; })[0] || (r.f.cmps || []).filter(function (x) { return x.r; })[0]) : null;
+    pf = { no: r.f.no, date: r.kind === 'iko' ? r.f.date : (r.f.kdate || cpLastMtg(r.f) || auIsoToday()), tshu: r.f.shu === '変額定期' ? '変額定期保険' : CP_TK_SHU[0],
+      prod: sc ? cpCmpName(sc) : (r.f.scmp || ((r.f.rcmp || '') + ' ' + (r.f.rprod || '')).trim()) };
+  }
+  cpPrefill[to] = pf; cpEdit[to] = null;
+  cpPrefillKid[to] = r.kid || ''; cpPrefillFrom[to] = '';   // 元の記録が契約とつながっていれば、次の記録も同じ契約へ
+  auSetTab(to); cpRenderKind(to);
+  var fm2 = document.querySelector('#' + CP[to].panel + ' .cp-form');
+  if (fm2) fm2.open = true;
+  var cr = document.getElementById('cpCrumb');   // 画面の頭（どの記録を書いているかの題名）から見せる
+  (cr && !cr.classList.contains('hide') ? cr : fm2 || document.getElementById('auditSec')).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  toast('顧客名・' + (to === 'tekigou' ? '日付・商品' : (pf.shu ? '種目・' : '') + (to === 'hikaku' ? '面談日' : '日付')) + 'を写しました。続きを入れて「記録する」を押してください');
+}
+/* ---------- 記録を保存したあとの帯（2026-10-07） ----------
+   ユーザー指示「比較推奨を入力した後にダッシュボードに戻るボタン、や続けて意向把握を入力するのようにしてください。
+   書類を1つ完成した後に続けて作業をできるようにする目的です。意向把握から比較推奨へも同じです。」
+   ★保存したら、その記録の画面のいちばん上に出す。×・ほかの記録を直す・続けて書くを押すと消える（保存し直すとまた出る）
+   ★同じお客様の次の記録が既にあれば「書く」ではなく「開く」（二重に書かせない）。同じ契約（kid）につながった記録、無ければ同じ顧客名の記録
+   ★営業ダッシュボードへは、契約につながっていればその契約の中身（提出書類）、無ければその方のカルテ、それも無ければ顧客検索で開く */
+var cpAfter = {};
+function cpSameRec(r, kind) {
+  var key = cpNk(r.f.no);
+  if (!key) return null;
+  var c = au.recs.filter(function (x) { return x.kind === kind && cpNk(x.f.no) === key && (!r.kid || !x.kid || x.kid === r.kid); });
+  c.sort(function (a, b) { return (a.kid && a.kid === r.kid ? 0 : 1) - (b.kid && b.kid === r.kid ? 0 : 1) || (a.upd < b.upd ? 1 : -1); });
+  return c[0] || null;
+}
+function cpSalesBack(r) {
+  if (!inhouseTarget('sales')) return null;
+  if (r.kid) return { href: tdHref('sales', '#k=' + encodeURIComponent(r.kid)), sub: 'この契約の提出書類を開きます' };
+  var s = r.f.no ? cpSalesFind(r.f.no) : null;
+  if (s && s.c && s.n === 1) return { href: tdHref('sales', '#cust=' + encodeURIComponent(s.c.id)), sub: 'この方のカルテを開きます' };
+  return { href: tdHref('sales', r.f.no ? '#q=' + encodeURIComponent(r.f.no) : ''), sub: r.f.no ? '顧客検索でこの方を探します' : '営業活動のカレンダーを開きます' };
+}
+var CP_ICO_DONE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="m7.8 12.3 2.9 2.9 5.5-6"/></svg>';
+function cpAfterHTML(kind) {
+  var r = cpAfter[kind] ? cpRec(cpAfter[kind]) : null;
+  if (!r || r.kind !== kind) { cpAfter[kind] = ''; return ''; }
+  var miss = cpMissing(r), acts = '';
+  if (cpMine(r)) cpNextKinds(r).forEach(function (to, i) {
+    var have = cpSameRec(r, to);
+    acts += have
+      ? '<button type="button" class="btn btn-ghost" data-cp-act="afterOpen" data-kind="' + kind + '" data-rec="' + esc(have.id) + '"><b>' + esc(CP[to].label) + 'の記録を開く</b><span>この方の記録あり（' + esc(auFmt(have.f.date) || '日付なし') + '）</span></button>'
+      : '<button type="button" class="btn ' + (i ? 'btn-ghost' : 'btn-primary') + '" data-cp-act="afterNext" data-to="' + to + '" data-id="' + esc(r.id) + '"><b>続けて' + esc(CP[to].label) + 'を書く</b><span>顧客名などを写して始めます</span></button>';
+  });
+  var sb = cpSalesBack(r);
+  if (sb) acts += '<a class="btn btn-ghost" href="' + esc(sb.href) + '" target="katatsugi-sales"><b>営業ダッシュボードへ戻る</b><span>' + esc(sb.sub) + '</span></a>';
+  acts += '<button type="button" class="btn btn-ghost" data-cp-act="afterHome" data-kind="' + kind + '"><b>コンプライアンスの一覧へ</b><span>ほかの記録を選びます</span></button>';
+  return '<div class="cp-after" role="status" tabindex="-1" data-cp-after="' + kind + '">' +
+    '<p class="cp-after-h">' + CP_ICO_DONE + '<span class="cp-after-tt"><b>' + esc(CP[kind].label) + 'の記録を保存しました</b>' + (r.f.no ? '<span class="cp-after-nm">' + auNm(r.f.no) + ' 様</span>' : '') + '</span></p>' +
+    (miss.length ? '<p class="cp-after-miss">記録の不備：' + esc(miss.join('・')) + '。下の一覧の「直す」から埋めてください。</p>' : '') +
+    '<p class="cp-after-l">続けて作業する</p><div class="cp-after-acts">' + acts + '</div>' +
+    '<button type="button" class="cp-after-x" data-cp-act="afterX" data-kind="' + kind + '" aria-label="この帯を閉じる">×</button></div>';
+}
+/* 記録の中身を開いて見せる（保存したあとの帯の「◯◯の記録を開く」） */
+function cpShowRec(r) {
+  auSetTab(r.kind); cpFilt[r.kind] = {}; cpOpen[r.id] = true; cpRenderKind(r.kind);
+  var det = document.querySelector('[data-cpd="' + r.id + '"]'), row = det && det.previousElementSibling;
+  if (row) { row.classList.add('cp-hit'); row.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+}
 /* 同じお客様の次の記録。変額保険（種目）の意向把握・比較推奨からは、適合性の確認も書ける（2026-10-05） */
 function cpNextKinds(r) {
+  if (r.kind === 'tekigou') return ['iko', 'hikaku'];   // 適合性の確認のあとは、同じ契約の意向把握・比較推奨へ
   var out = CP_NEXT[r.kind] ? [CP_NEXT[r.kind]] : [];
   if ((r.kind === 'iko' || r.kind === 'hikaku') && /変額/.test(r.f.shu || '')) out.push('tekigou');
   return out;
@@ -8393,7 +8481,7 @@ function cpRenderKind(kind) {
   var C = CP[kind], host = document.getElementById(C.panel);
   if (!host) return;
   var all = au.recs.filter(function (r) { return r.kind === kind; }), list = cpFiltered(kind);
-  var h = C.leadEnd ? '' : '<p class="au-lead">' + C.lead + '</p>';
+  var h = cpAfterHTML(kind) + (C.leadEnd ? '' : '<p class="au-lead">' + C.lead + '</p>');
   if (kind === 'hikaku') h += cpPolsHTML();
   h += cpFormHTML(kind);
   if (kind === 'kujo') h += cpKujoSetHTML();
@@ -9056,9 +9144,12 @@ function cpSave(kind, form) {
   }
   var hadConf = r.conf.length && cpNeedsConf(r);
   cpEdit[kind] = null;
+  cpAfter[kind] = r.id;   // 保存したあとの帯（続けて書く・営業ダッシュボードへ戻る）
   auSave(); cpRerender(form);
+  var band = document.querySelector('#' + CP[kind].panel + ' .cp-after');
+  if (band) { band.scrollIntoView({ behavior: 'smooth', block: 'start' }); try { band.focus({ preventScroll: true }); } catch (e) {} }
   var miss = cpMissing(r);
-  toast((hadConf ? '直しました。もう一度確認を受けます' : '保存しました（この端末）') + (r.kid && !id ? '。顧客管理の契約とつながりました' : '') + (miss.length ? '。記録の不備：' + miss.join('・') : ''));
+  toast((hadConf ? '直しました。もう一度確認を受けます' : '保存しました（この端末）') + (r.kid && !id ? '。顧客管理の契約とつながりました' : '') + (band || !miss.length ? '' : '。記録の不備：' + miss.join('・')));   // 不備は帯に出す
 }
 /* 要るときだけ出す欄（違う商品を選ばれた経緯・方針の外の理由）を、いまの入力に合わせる。書いてあれば出したまま */
 function cpWhenSync(form) {
@@ -9094,7 +9185,7 @@ function cpHandle(e) {
   if (!b) return false;
   var act = b.dataset.cpAct, id = b.dataset.id, r = id ? cpRec(id) : null, form = b.closest('.au-form');
   if (act === 'save') { cpSave(b.dataset.kind, form); return; }
-  if (act === 'cancel') { cpEdit[b.dataset.kind] = null; cpSalesPick[b.dataset.kind] = null; cpRenderKind(b.dataset.kind); return; }
+  if (act === 'cancel') { cpEdit[b.dataset.kind] = null; cpSalesPick[b.dataset.kind] = null; cpAfter[b.dataset.kind] = ''; cpRenderKind(b.dataset.kind); return; }
   /* 比較推奨：表の行を足す・お客様の選択を取り消す・お客様に表示する（書きかけのまま）・記録を表示して印刷する */
   if (act === 'cmpMore') {
     var hid = form && form.querySelector('.cp-cmp-row.hide');
@@ -9126,28 +9217,25 @@ function cpHandle(e) {
     [].forEach.call(document.querySelectorAll('[data-cp-act="det"][data-id="' + id + '"]'), function (x) { x.textContent = cpOpen[id] ? '閉じる' : '中身'; x.setAttribute('aria-expanded', cpOpen[id] ? 'true' : 'false'); });
     return;
   }
-  if (act === 'copyTo' && r) {
-    var to = b.dataset.to;
-    if (!CP[to]) return;
-    var pf = { no: r.f.no, shu: r.f.shu };
-    if (to === 'hikaku') pf.mtgs = r.f.date ? [r.f.date] : [];
-    if (to === 'tekigou') {
-      var sc = r.kind === 'hikaku' ? ((r.f.cmps || []).filter(function (x) { return x.s; })[0] || (r.f.cmps || []).filter(function (x) { return x.r; })[0]) : null;
-      pf = { no: r.f.no, date: r.kind === 'iko' ? r.f.date : (r.f.kdate || cpLastMtg(r.f) || auIsoToday()), tshu: r.f.shu === '変額定期' ? '変額定期保険' : CP_TK_SHU[0],
-        prod: sc ? cpCmpName(sc) : (r.f.scmp || ((r.f.rcmp || '') + ' ' + (r.f.rprod || '')).trim()) };
-    }
-    cpPrefill[to] = pf; cpEdit[to] = null;
-    cpPrefillKid[to] = r.kid || ''; cpPrefillFrom[to] = '';   // 元の記録が契約とつながっていれば、次の記録も同じ契約へ
-    auSetTab(to); cpRenderKind(to);
-    var fm2 = document.querySelector('#' + CP[to].panel + ' .cp-form');
-    if (fm2) { fm2.open = true; fm2.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-    toast('顧客名・' + (to === 'tekigou' ? '日付・商品' : '種目') + (to === 'hikaku' ? '・面談日' : '') + 'を写しました。続きを入れて「記録する」を押してください');
+  if (act === 'copyTo' && r) { cpCopyTo(r, b.dataset.to); return; }
+  /* 保存したあとの帯（2026-10-07）：続けて書く／もう書いてある記録を開く／閉じる／コンプライアンスの一覧へ */
+  if (act === 'afterNext' && r) {
+    cpAfter[r.kind] = '';
+    var bd0 = document.querySelector('[data-cp-after="' + r.kind + '"]'); if (bd0) bd0.remove();   // 元の記録の画面の帯も消す（書きかけの欄は描き直さない）
+    cpCopyTo(r, b.dataset.to); return;
+  }
+  if (act === 'afterOpen') { var ro = cpRec(b.dataset.rec); if (ro) { cpAfter[b.dataset.kind] = ''; cpShowRec(ro); } return; }
+  if (act === 'afterX') { cpAfter[b.dataset.kind] = ''; cpRenderKind(b.dataset.kind); return; }
+  if (act === 'afterHome') {   // 上の「一覧へ戻る」と同じ
+    cpAfter[b.dataset.kind] = '';
+    cpGoTab('home');
+    document.getElementById('auditSec').scrollIntoView({ block: 'start' });
     return;
   }
   if (act === 'kokyaku' && r) { cpOpenKokyaku(r.kid); return; }
   if (act === 'edit' && r) {
     if (!cpMine(r)) { toast('直せるのは、記録した本人だけです'); return; }
-    cpEdit[r.kind] = r.id; auSetTab(r.kind); cpRenderKind(r.kind);
+    cpEdit[r.kind] = r.id; cpAfter[r.kind] = ''; auSetTab(r.kind); cpRenderKind(r.kind);
     var fm = document.querySelector('#' + CP[r.kind].panel + ' .cp-form');
     if (fm) fm.scrollIntoView({ behavior: 'smooth', block: 'start' });
     return;
