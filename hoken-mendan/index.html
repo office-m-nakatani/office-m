@@ -272,7 +272,7 @@ select{appearance:none; background-image:url("data:image/svg+xml;charset=utf8,%3
 
 /* ★display を書くものを hidden で隠すときは、必ずこの型でセットにする
    （#tk-expired・.mt-tools で同じ事故を起こしている。詳細度で [hidden] が負ける） */
-#meetForm[hidden], #sent[hidden], #done[hidden]{display:none !important}
+#meetForm[hidden], #sent[hidden], #done[hidden], #refField[hidden]{display:none !important}
 
 /* 送信中・送信できたとき */
 .btn[disabled]{filter:saturate(.35) brightness(1.02); box-shadow:none; cursor:progress; transform:none}
@@ -453,9 +453,16 @@ footer a{color:var(--ink2)}
           <option value="" disabled selected>選択してください</option>
           <option value="Instagram">Instagram</option>
           <option value="Google検索">Google検索</option>
-          <option value="紹介">紹介</option>
+          <option value="保険会社のご担当者からの紹介">保険会社のご担当者からの紹介</option>
+          <option value="紹介">そのほかの紹介（知人・同業の方など）</option>
           <option value="その他">その他</option>
         </select>
+      </div>
+      <!-- 2026-10-07：紹介元を残す欄。紹介を選んだときだけ出す。
+           ★受け口（gas-mendan.gs）は直していない。中身は「知った経路」の文に（）で添えて送る＝メールの本文と表の「知った経路」の列にそのまま入る -->
+      <div class="field" id="refField" hidden>
+        <label class="lb" for="f-ref">紹介してくださった方<span class="any">任意</span></label>
+        <input type="text" id="f-ref" maxlength="80" autocomplete="off" placeholder="例：〇〇生命 〇〇支社 〇〇様">
       </div>
       <div class="field">
         <label class="check">
@@ -718,6 +725,17 @@ footer a{color:var(--ink2)}
   function v(id){ return $(id).value.trim(); }
   function or(id, alt){ return v(id) || alt; }
 
+  /* 紹介を選んだときだけ「紹介してくださった方」を出す。中身は知った経路の文に（）で添える */
+  var refField = $('refField');
+  function refOn(){ return /紹介/.test($('f-source').value); }
+  function refSync(){ refField.hidden = !refOn(); }
+  $('f-source').addEventListener('change', refSync);
+  refSync();
+  function sourceText(){
+    var src = v('f-source'), ref = refOn() ? v('f-ref').replace(/[\r\n]+/g, ' ') : '';
+    return ref ? src + '（' + ref + '）' : src;
+  }
+
   /* 送り先があるときは、ボタンの文言も「送信する」に変える */
   if (FORM_ENDPOINT){
     submitBtn.innerHTML = submitBtn.innerHTML.replace('この内容でメールを作成する', 'この内容で送信する');
@@ -759,7 +777,7 @@ footer a{color:var(--ink2)}
     lines = lines.concat([
       '',
       'いま困っていること・ご要望：' + or('f-trouble', '（未記入）'),
-      'どこで知ったか：' + v('f-source'),
+      'どこで知ったか：' + sourceText(),
       '体験版（3日間）URLの送付：' + ($('f-trial').checked ? '希望する' : '希望しない'),
       '同意事項：同意済み',
       '',
@@ -782,7 +800,7 @@ footer a{color:var(--ink2)}
       count: v('f-count'),
       picks: picks.map(function(p){ return fmtFull(p); }),
       trouble: or('f-trouble', ''),
-      source: v('f-source'),
+      source: sourceText(),
       trial: $('f-trial').checked,
       subject: subject,
       body: body,
