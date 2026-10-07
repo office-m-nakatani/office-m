@@ -1,45 +1,39 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" data-kt="gyaku">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
-<title>保険 目標逆算プランナー｜年収の目標から1営業日の接触件数まで</title>
+<title>保険 目標逆算プランナー｜手元に残したい額から1営業日の接触件数まで</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23fdf3e2'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23966417' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='3.2' fill='%23bf4123'/%3E%3C/svg%3E">
 <!--
   ⚠️ 社内利用専用ツール（顧客に配布しない・共有リンクの対象外）
-  - 目標・率・実績・1on1メモは、この端末のブラウザ（localStorage）にのみ保存する。
-    サーバー送信は一切ない。共有PCでは使わない。バックアップは「記録・1on1」タブの
-    JSON書き出しで取ること（端末を替えると消える）。
-  - 【率の初期値は「目安」であって統計ではない】画面に置いてある成約率・提案化率・
-    面談実施率・アポ獲得率・手取り率・経費率は、話を始めるためのきりのよい仮の数字。
-    出典のある業界統計ではないので、必ず本人の実績で上書きして使うこと。
-    実績が無いうちは「この数字だと1日何本になるか」を見る叩き台としてだけ使う。
-  - 手数料率の初期値40%は、保険営業ダッシュボード（保険営業管理ツール.html）の
-    「平準払」の初期値に合わせた参考値。実際の料率は保険会社・代理店委託契約ごとに
-    異なり非公開のため、自社の料率に直してから使うこと。
-  - 1件あたり平均AP・年収の目標・稼働日数も同じく仮置き。数字の呼び方（AP・FF・
-    プレゼン・クロージング）は保険営業ダッシュボードとそろえてある（並べて使うため）。
-  - このツールは「見込みの逆算」だけを扱う。実際の募集行為・帳票・比較推奨の記録は
-    別ツール（営業ダッシュボード・コンプライアンス）の担当。
-  - 逆算の結果は「これだけやれば必ず達成する」という約束ではない。市場・時期・
-    顧客層で率は動く。1on1では数字そのものより「どの段でいちばん落ちているか」を見ること。
-  - ボトルネックの色分けを「ポイント差だけ」に戻さないこと。アポ獲得率のように率が
-    小さい段では、4％と10％の差はたった6ポイントでも必要な接触が2倍以上に増える。
-    そのため差のポイントと「計画に対する割合」の両方を見て、悪いほうを採っている
-    （renderReal の items / worst の作り方）。
-  - 1営業日100本を超えたら「普通の営業日には収まらない」と画面で言う。数字が
-    出ているのに現実には回らない計画を、そのまま部下に渡さないための歯止め。
-  - このツールにパスワードは無い。入口の管理画面（保険ツール管理画面.html）で合言葉を
-    入れてから開く前提なので、ここでは聞かない。記録がこの端末のブラウザにだけ残る点は
-    変わらないので、上の注意（共有PCでは使わない・JSONで書き出す）はそのまま生きている。
-  - 見た目は「保険知識トレーニング（保険社員教育ツール.html）」「保険ツール管理画面」と
-    同じ顔（hoken-newtools-src/shell.css）。クリーム地・明朝の見出し・コーラルの下線・
-    丸ピルのボタン。**保険営業ダッシュボードの青系トークンを真似しないこと**（一度それを
-    土台にしてしまい、作り直しになった）。
-  - 良し悪しを示す色（ボトルネックの赤・黄・緑）には必ず文字（「大きく足りない」等）を
-    添えてある。色だけで意味を伝えないこと。
-  - 未了：手数料率・平均APの社内標準値が決まったら、DEFAULT_PLAN の値を差し替えること。
+  - 目標・率・実績・月の記録・1対1の面談のメモは、この端末のブラウザ（localStorage）にのみ保存する。
+    サーバー送信は一切ない。端末を替える・ブラウザが消すと無くなるので、「記録・1対1の面談」タブの
+    「控えを書き出す（ファイル）」で控えを取る（kind:'katatsugi-gyakusan'。社内ツール共通の部品＝
+    hoken-newtools-src/tools-common/SPEC.md）。navigator.storage.persist() はこのツールでは呼ばない。
+  - 2026-10-04 に v2 にした：記録は人ごと（部下ごと）に分ける（people[]）。前の版（v1）の記録は
+    「自分」に入る。前の版で開かれても1人目が見えるよう、一番上にも1人目の plan・real・months・ones を写す。
+  - 【率の初期値は「目安」であって統計ではない】成約率・提案化率・面談実施率・アポ獲得率・手取り率・
+    経費率・手数料率・1件あたりの平均保険料は、話を始めるためのきりのよい仮の数字。必ず本人の実績で
+    上書きして使うこと。手数料率は保険会社・商品・委託契約で違うので、所属代理店の規程で確かめる前提
+    （画面にもそう書いてある）。
+  - 段の呼び方は 接触・アポ・面談・提案・成約。英字の略語（AP・FF など）は画面に出さない
+    （営業ダッシュボードの「アプローチ」とは数え方が違うので、実績タブに段の数え方を書いてある）。
+  - 「既にある手数料収入（継続の手数料・更改など）」を引いてから、新規で要る件数を逆算する（損保の更改を含めるため）。
+  - 件数は「前の段の件数（切り上げたもの）÷ 率」を切り上げる。画面の数字だけで手で検算すると合う形。
+  - 「実績の率で計算する」は計画の率を書き換えない（useReal と snap に分けて持ち、「計画の率に戻す」で戻る）。
+  - 逆算の結果は「これだけやれば必ず達成する」という約束ではない。画面の答えの箱とフッターに
+    「必ず達成する約束ではありません」を出してある。消さないこと。
+  - ボトルネックは「大きく足りない」「やや足りない」の段の中からだけ選ぶ。比べるときは実績の率と
+    計画の率をどちらも小数1桁にそろえる（ずれると「計画どおり」と「ボトルネック」が同時に付く）。
+    ポイント差と「計画に対する割合」の両方を見て、悪いほうを採っている（judge／worstOf）。
+  - 1営業日100本を超えたら「普通の営業日には収まらない」と画面で言う。
+  - このツールにパスワードは無い。入口の管理画面（保険ツール管理画面.html）で合言葉を入れてから開く前提。
+  - 見た目は「保険知識トレーニング」「保険ツール管理画面」と同じ顔（hoken-newtools-src/shell.css）。
+    **保険営業ダッシュボードの青系トークンを真似しないこと**。
+  - 良し悪しを示す色（赤・黄・緑）には必ず文字（「大きく足りない」等）を添えてある。色だけで意味を伝えないこと。
+  - 未了：手数料率・平均保険料の社内標準値が決まったら、DEFAULT_PLAN の値を差し替えること。
 -->
 <style>
 /* ============================================================
@@ -387,6 +381,263 @@ footer{margin-top:var(--sp-8);border-top:1px solid var(--line);padding:var(--sp-
   .bn-row{grid-template-columns:minmax(0,1fr);}
   .bn-row .bn-num{white-space:normal;}
 }
+
+/* ============================================================
+   2026-10-04 の直し（社内ツール共通の部品 A〜F と、点検の報告 C の直し）
+   ============================================================ */
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+/* ---- A. 上の帯：ツール名を h1 に。右に「管理画面へ」。データの札は管理画面の「データの控え」へのリンク ---- */
+.tb-brand h1{font-family:var(--mincho);font-size:var(--fs-lg);letter-spacing:.06em;font-weight:600;line-height:1.35;color:var(--navy);}
+.tb-brand .nw{display:inline-block;white-space:nowrap;}
+a.tb-tag{text-decoration:none;min-height:44px;}
+a.tb-tag:hover{background:#fbe9c9;}
+.tb-home{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 18px;border-radius:999px;
+  border:1px solid #cfe0ec;background:var(--white);color:var(--navy);font-size:var(--fs-sm);font-weight:700;
+  text-decoration:none;white-space:nowrap;letter-spacing:.03em;}
+.tb-home:hover{background:var(--navy-soft);}
+.tb-home svg{width:17px;height:17px;}
+.tl-s{display:none;}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap;justify-content:flex-end;}
+.tb-right a.tb-tag{margin-left:0;}
+@media(max-width:600px){
+  .topbar .wrap{flex-wrap:nowrap;min-height:0;padding:10px 16px;gap:10px;}
+  .tb-brand{flex:1 1 auto;min-width:0;gap:10px;}
+  .tb-brand .tb-art,.tb-brand .tb-art svg{width:38px;height:38px;}
+  .tb-brand h1{font-size:15px;line-height:1.3;letter-spacing:0;}
+  .tb-brand small,.topbar .tb-tag{display:none;}
+  .tb-right{flex-wrap:nowrap;}
+  .tb-home{margin-left:auto;padding:0 12px;font-size:14px;gap:6px;}
+  .tl-l{display:none;}
+  .tl-s{display:inline;}
+}
+@media(max-width:374px){ .tb-brand h1{font-size:14px;} .tb-home{padding:0 10px;} }
+
+/* ---- B. タブ：携帯では全てのタブを1画面に（印が上・名前が下） ---- */
+@media(max-width:600px){
+  .tabs .wrap{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;padding:0 4px;overflow:visible;}
+  .tab{flex-direction:column;justify-content:center;gap:3px;min-height:56px;padding:7px 2px 6px;
+    white-space:normal;text-align:center;font-size:13px;line-height:1.25;letter-spacing:0;}
+  .tab svg{width:18px;height:18px;}
+}
+
+/* ---- C. 保存できないとき（赤）・別の窓で記録が変わったとき（琥珀）の帯。タブと一緒に上に残る ---- */
+.om-bar{font-size:var(--fs-sm);font-weight:700;line-height:1.6;}
+.om-bar .wrap{display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap;padding:8px 16px;}
+.om-bar.err{background:#fbe3e1;color:#8f2621;border-bottom:2px solid var(--red);}
+.om-bar.warn{background:var(--amber-bg);color:#6b4a10;border-bottom:2px solid #d99a24;}
+.om-bar button{min-height:44px;border-radius:999px;padding:0 16px;font-weight:700;cursor:pointer;
+  background:var(--white);border:1px solid currentColor;color:inherit;}
+
+/* ---- E. 押す場所は 44px 以上・字は 13px 以上 ---- */
+.btn-sm{min-height:44px;}
+.chip{min-height:44px;padding:8px 16px;}
+.ctl input[type=range]{height:44px;}
+.ctl-num input{min-height:44px;}
+.fn-val{font-size:var(--fs-xs);}
+@media(max-width:640px){ .fn-val{font-size:13px;} }
+table.tbl td small{color:var(--muted);margin-left:2px;}
+
+/* ---- 記録する人（部下ごとに分ける） ---- */
+.who-bar{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;margin-top:var(--sp-5);
+  background:var(--white);border:1px solid var(--line);border-radius:18px;padding:10px 14px;box-shadow:var(--shadow-sm);}
+.who-bar label{font-size:var(--fs-sm);font-weight:700;color:var(--navy);}
+.who-bar select{flex:1 1 180px;max-width:320px;min-height:44px;border:1px solid #dfd0c4;border-radius:12px;padding:8px 12px;background:var(--white);}
+
+/* ---- 1段目（目標）の金額欄と、答えの箱 ---- */
+.goal-in{display:flex;align-items:center;gap:8px;margin:6px 0 4px;}
+.goal-in input{width:12em;max-width:100%;min-height:48px;border:1px solid #dfd0c4;border-radius:12px;padding:8px 14px;
+  font-family:var(--mincho);font-size:var(--fs-lg);font-weight:600;color:var(--navy);text-align:right;background:var(--white);font-variant-numeric:tabular-nums;}
+.goal-in input:focus,.ctl-money input:focus{outline:none;border-color:var(--coral);box-shadow:0 0 0 3px rgba(240,132,106,.22);}
+.goal-in span{font-weight:700;color:var(--navy);}
+#goalChips{margin-top:8px;}
+.ctl-money input{width:9.5em;}
+.ctl.ctl-m{grid-template-columns:minmax(7.5em,auto) minmax(0,1fr);}
+.ctl.ctl-m .ctl-num{justify-self:start;}
+.ans{margin:var(--sp-3) 0 0 44px;border:2px solid var(--coral);border-radius:20px;background:var(--white);
+  box-shadow:var(--shadow);padding:var(--sp-4) var(--sp-5);}
+.ans-head{font-size:var(--fs-xs);font-weight:800;color:var(--coral-text);letter-spacing:.08em;}
+.ans-main{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-top:2px;}
+.ans-l{font-weight:700;color:var(--navy);}
+.ans-main b{font-family:var(--mincho);font-size:2.4rem;font-weight:600;color:var(--coral-text);line-height:1.2;font-variant-numeric:tabular-nums;}
+.ans-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:8px;}
+.ans-grid span{background:var(--bg);border-radius:12px;padding:8px 12px;font-size:var(--fs-xs);color:var(--muted);font-weight:700;}
+.ans-grid b{display:block;font-family:var(--mincho);font-size:var(--fs-lg);color:var(--navy);font-weight:600;font-variant-numeric:tabular-nums;}
+.ans-note{font-size:var(--fs-xs);color:var(--muted);margin-top:8px;}
+.ans-toggle{display:none;margin-top:10px;}
+.mode-bar{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;margin-top:10px;background:var(--sky-bg);
+  border:1px solid var(--sky-border);color:#1f4f6d;border-radius:14px;padding:8px 12px;font-size:var(--fs-sm);font-weight:700;}
+.ctl-real{grid-column:1 / -1;font-size:var(--fs-xs);color:#1f4f6d;background:var(--sky-bg);border-radius:10px;padding:6px 10px;}
+.ctl.is-real .ctl-name{color:var(--sky);}
+.ctl input:disabled{opacity:.55;cursor:not-allowed;}
+/* 率の欄の要約（携帯で畳んだときだけ出す） */
+.ctl-sum{display:none;width:100%;min-height:44px;align-items:center;justify-content:space-between;gap:10px;
+  background:none;border:none;cursor:pointer;text-align:left;font-size:var(--fs-sm);font-weight:700;color:var(--navy);padding:4px 2px;}
+.ctl-sum .cs-go{flex:none;font-size:var(--fs-xs);color:var(--coral-text);border:1px solid var(--coral-border);border-radius:999px;padding:4px 12px;background:var(--white);}
+.fn-h{font-size:var(--fs-sm);color:var(--navy);margin-bottom:8px;}
+.ctl-hint,.ctl-real{max-width:40em;}
+.lad-sub,.sec-note{max-width:40em;}
+
+/* ---- ボトルネックの4段（ほぼ計画どおり を足した） ---- */
+.bn-row.lv-near{border-left-color:#9ccfb9;}
+.badge.bd-near{background:#eef7f2;color:#2a6b47;}
+
+/* ---- 目標と答え：PC では横に並べて、最初の画面に答えを出す ---- */
+@media(min-width:900px){
+  .goal-pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--sp-4);align-items:stretch;}
+  .goal-pair .ans{margin:0;}
+}
+.ans-mini{display:none;}
+@media(max-width:640px){
+  .ans-mini{display:flex;position:sticky;bottom:0;z-index:15;align-items:baseline;gap:8px;flex-wrap:wrap;
+    margin:var(--sp-4) calc(-1 * var(--sp-4)) 0;padding:10px var(--sp-4) calc(10px + env(safe-area-inset-bottom));
+    background:rgba(255,255,255,.97);border-top:2px solid var(--coral);box-shadow:0 -8px 18px rgba(130,100,80,.12);
+    font-size:var(--fs-sm);font-weight:700;color:var(--navy);visibility:hidden;}
+  .ans-mini.on{visibility:visible;}
+  .ans-mini b{font-family:var(--mincho);font-size:1.5rem;color:var(--coral-text);font-weight:600;}
+  .ans-mini #amSub{font-size:var(--fs-xs);color:var(--muted);}
+  .who-bar{display:grid;grid-template-columns:auto minmax(0,1fr) auto;padding:8px 10px;gap:8px;margin-top:var(--sp-3);}
+  .who-bar label{font-size:13px;}
+  .who-bar select{min-width:0;}
+  #whoAdd{padding:8px 12px;}
+  .sec-head h2{font-size:var(--fs-lg);}
+}
+/* ---- 1対1の面談のメモ ---- */
+.rec-act{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.rec.editing{border-color:var(--coral);box-shadow:0 0 0 3px var(--coral-bg);}
+td.m-act{white-space:nowrap;}
+td.m-act .btn + .btn{margin-left:6px;}
+td.m-memo{white-space:normal !important;min-width:11em;max-width:16em;}
+
+/* ---- 控えから戻すときの確認の窓 ---- */
+.modal{position:fixed;inset:0;z-index:100;background:rgba(27,63,94,.35);display:flex;align-items:center;justify-content:center;padding:16px;}
+.modal-box{background:var(--white);border-radius:20px;box-shadow:0 18px 50px rgba(27,63,94,.3);padding:var(--sp-5);width:min(560px,100%);max-height:calc(100vh - 32px);overflow:auto;}
+.modal-box h3{font-family:var(--mincho);font-size:var(--fs-lg);color:var(--navy);margin-bottom:10px;font-weight:600;}
+.modal-box table.tbl th{white-space:nowrap;}
+
+/* ---- 携帯：率の欄を畳む・答えの箱・表をカードに・保存を下に貼る ---- */
+@media(max-width:640px){
+  .ans{margin-left:0;padding:var(--sp-4);}
+  .ans-main b{font-size:2rem;}
+  .ans-grid{gap:6px;}
+  .ans-grid span{padding:7px 8px;}
+  .ans-grid b{font-size:var(--fs-md);}
+  .ans-toggle{display:inline-flex;}
+  .ctl-sum{display:flex;}
+  body:not(.rates-open) .lad-ctrl .ctl{display:none;}
+  body.rates-open .lad-ctrl .ctl-sum{border-bottom:1px solid var(--line);margin-bottom:8px;padding-bottom:8px;}
+  .lad-op{padding:6px 0;}
+  .ctl.ctl-m{grid-template-columns:minmax(0,1fr);}
+  .ctl-money input{width:100%;}
+  .goal-in input{width:100%;}
+  /* 表はカードの並びに */
+  #mTbl, #effTbl{min-width:0;}
+  #mTbl thead, #effTbl thead{display:none;}
+  #mTbl, #mTbl tbody, #mTbl tr, #mTbl td, #effTbl, #effTbl tbody, #effTbl tr, #effTbl td{display:block;width:100%;}
+  #mTbl tr, #effTbl tr{border:1px solid var(--line);border-radius:14px;padding:6px 14px;margin-bottom:10px;background:var(--white);}
+  #mTbl td, #effTbl td{display:flex;gap:12px;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px dashed var(--line);
+    text-align:right;white-space:normal;}
+  #mTbl td:last-child, #effTbl td:last-child{border-bottom:none;}
+  #mTbl td::before, #effTbl td::before{content:attr(data-l);flex:none;color:var(--muted);font-weight:700;text-align:left;font-size:var(--fs-xs);}
+  #mTbl td.m-ym::before, #mTbl td.m-act::before, #effTbl td:first-child::before{content:none;}
+  #mTbl td.m-ym, #effTbl td:first-child{justify-content:flex-start;text-align:left;font-weight:700;color:var(--navy);}
+  #mTbl td.m-memo{max-width:none;min-width:0;}
+  #mTbl td.m-act{justify-content:flex-start;gap:8px;}
+  #mTbl td.m-act .btn + .btn{margin-left:0;}
+  #mTableWrap.tbl-scroll, #effTbl{overflow:visible;}
+  .tbl-scroll:has(#effTbl){overflow:visible;}
+  .frm-actions.sticky-m{position:sticky;bottom:0;z-index:15;background:rgba(255,255,255,.97);margin:var(--sp-3) calc(-1 * var(--sp-4)) 0;
+    padding:10px var(--sp-4) calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line);border-radius:0 0 18px 18px;flex-wrap:nowrap;}
+  .frm-actions.sticky-m .btn-primary{flex:1 1 auto;}
+  .who-bar select{max-width:none;}
+  /* 件数の欄は携帯では2列に（1列だと縦に長くなる） */
+  #tab-real .frm, #mForm{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-3);align-items:end;}
+  #tab-real .frm .full-m, #mForm .full-m, #mForm .full{grid-column:1 / -1;}
+  #tab-real .frm label, #mForm label{font-size:13px;line-height:1.45;}
+}
+
+/* ---- D. 印刷 ---- */
+.print-head,.print-area{display:none;}
+.dash-card{border-color:#cfe0ec;}
+.dash-period{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-2) var(--sp-3);margin:var(--sp-2) 0 var(--sp-3);}
+.dash-l{font-size:var(--fs-sm);font-weight:700;color:var(--navy);}
+.dash-nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:var(--sp-2);}
+.dash-n{border:1px solid var(--line);border-radius:14px;background:#fffcf9;padding:10px 12px;display:grid;gap:2px;}
+.dash-n span{font-size:var(--fs-xs);font-weight:700;color:var(--muted);}
+.dash-n b{font-size:var(--fs-lg);color:var(--navy);font-variant-numeric:tabular-nums;white-space:nowrap;}
+.dash-n b small{font-size:var(--fs-xs);color:var(--muted);margin-left:2px;}
+.dash-n.wide{grid-column:span 2;}
+.dash-how{margin-top:var(--sp-3);font-size:var(--fs-sm);color:var(--text);}
+.dash-how summary{cursor:pointer;font-weight:700;color:var(--navy-2);min-height:44px;display:flex;align-items:center;}
+.dash-how ul{margin:0;padding-left:1.2em;display:grid;gap:4px;line-height:1.7;max-width:46em;}
+@media(max-width:640px){
+  .dash-nums{display:block;border:1px solid var(--line);border-radius:14px;background:#fffcf9;overflow:hidden;}
+  .dash-n{display:flex;align-items:baseline;justify-content:space-between;gap:10px;border:0;border-radius:0;background:none;padding:8px 14px;}
+  .dash-n + .dash-n{border-top:1px solid var(--line);}
+  .dash-n span{font-size:var(--fs-sm);}
+  .dash-n b{font-size:var(--fs-md);}
+}
+@media print{
+  @page{size:A4 portrait;margin:14mm 12mm;}
+  html,body{background:#fff !important;}
+  body{padding:0;font-size:10.5pt;color:#222;}
+  .topbar,.tabs,.om-bar,.who-bar,button,.btn,.chips,.ctl-sum,.ans-toggle,.mode-bar button,input[type=range],.frm-actions,.no-print,.toast,.modal,#impFile{display:none !important;}
+  .print-head{display:block;border-bottom:2px solid #1b3f5e;padding-bottom:4px;margin-bottom:10px;font-size:10pt;color:#333;}
+  .print-head b{font-size:13pt;color:#1b3f5e;font-family:var(--mincho);}
+  body .lad-ctrl .ctl{display:grid !important;}
+  .card,.tile,.lad-step,.panel,.ans,.bn-row,.rec,.note{box-shadow:none !important;}
+  .lad-step,.lad-op,.card,.bn-row,.rec,.ans,.tile{break-inside:avoid;}
+  .sec{margin-top:12px;}
+  a{color:#222;text-decoration:none;}
+  .tbl-scroll{overflow:visible !important;}
+  table.tbl th,table.tbl td{white-space:normal;}
+  /* 本人が押す「1対1の面談の記録」だけを紙に出す */
+  body.print-sheet > *:not(#printArea){display:none !important;}
+  body.print-sheet #printArea{display:block;}
+}
+.ps{font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",YuGothic,Meiryo,"Noto Sans JP",sans-serif;
+  color:#222;font-size:10.5pt;line-height:1.6;background:#fff;}
+.ps h1{font-family:var(--mincho);font-size:16pt;color:#1b3f5e;font-weight:600;border-bottom:2px solid #1b3f5e;
+  padding-bottom:4px;margin-bottom:8px;letter-spacing:.04em;}
+.ps h2{font-size:11.5pt;color:#1b3f5e;margin:12px 0 4px;}
+.ps .ps-meta{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px 12px;font-size:9.5pt;color:#444;margin-bottom:8px;}
+.ps table{width:100%;border-collapse:collapse;margin-top:4px;}
+.ps th,.ps td{border:1px solid #9aa4ad;padding:4px 7px;font-size:10pt;text-align:left;vertical-align:top;}
+.ps th{background:#eef3f7;color:#1b3f5e;white-space:nowrap;width:9em;}
+.ps .ps-box{border:1px solid #9aa4ad;border-radius:4px;padding:6px 9px;min-height:22mm;white-space:pre-wrap;font-size:10.5pt;}
+.ps .ps-note{font-size:9pt;color:#444;margin-top:8px;line-height:1.6;}
+.ps .ps-sign{display:grid;grid-template-columns:1fr 1fr;gap:6mm;margin-top:8mm;}
+.ps .ps-sign div{border:1px solid #6b7782;height:24mm;padding:4px 8px;font-size:9.5pt;color:#444;}
+/* KTNAV-CSS-BEGIN 社内ツールの切り替え（正本は hoken-newtools-src/tools-common/ktnav.html。apply_ktnav.py が入れる） */
+.ktnav{position:relative;}
+.ktnav > summary{list-style:none;display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:8px 16px;border-radius:999px;
+  border:1.5px solid var(--line);background:var(--white);color:var(--navy);font-weight:700;font-size:var(--fs-sm);cursor:pointer;white-space:nowrap;}
+.ktnav > summary::-webkit-details-marker{display:none;}
+.ktnav > summary:hover,.ktnav[open] > summary{border-color:var(--navy-2);background:var(--navy-soft);}
+.ktnav > summary svg{width:18px;height:18px;}
+.ktnav-menu{position:absolute;right:0;top:calc(100% + 8px);z-index:60;width:min(340px,calc(100vw - 24px));background:var(--white);
+  border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 32px rgba(40,50,60,.16);padding:8px;display:grid;gap:2px;}
+.ktnav-menu a,.ktnav-menu .kt-cur{display:grid;grid-template-columns:34px minmax(0,1fr);align-items:center;gap:2px 10px;min-height:52px;
+  padding:7px 10px;border-radius:12px;text-decoration:none;color:var(--text);}
+.ktnav-menu a:hover,.ktnav-menu a:focus-visible{background:var(--navy-soft);}
+.ktnav-menu .kt-ico{grid-row:1 / span 2;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:var(--navy-soft);color:var(--navy);}
+.ktnav-menu .kt-ico svg{width:18px;height:18px;}
+.ktnav-menu b{font-size:var(--fs-sm);color:var(--navy);line-height:1.35;}
+.ktnav-menu small{font-size:var(--fs-xs);color:var(--muted);line-height:1.4;}
+.ktnav-menu .kt-cur{background:#f6f3ef;}
+.ktnav-menu .kt-cur b::after{content:"いまの画面";display:inline-block;white-space:nowrap;vertical-align:1px;font-weight:700;font-size:var(--fs-xs);line-height:1.5;
+  color:var(--muted);background:var(--white);border:1px solid var(--line);border-radius:999px;padding:0 8px;margin-left:6px;}
+.ktnav-menu hr{border:0;border-top:1px solid var(--line);margin:4px 6px;}
+.ktnav > summary .kt-s{display:none;}
+@media(max-width:600px){
+  .topbar .tb-home{display:none !important;}
+  .ktnav > summary{padding:8px 12px;font-size:14px;gap:6px;}
+  .ktnav > summary .kt-l{display:none;}
+  .ktnav > summary .kt-s{display:inline;}
+  .ktnav-menu{position:fixed;left:12px;right:12px;top:60px;width:auto;max-height:calc(100dvh - 80px);overflow:auto;}
+}
+@media print{ .ktnav{display:none !important;} }
+/* KTNAV-CSS-END */
 </style>
 </head>
 <body>
@@ -406,9 +657,12 @@ html.omtrial-lock body > *:not(#omtrial){ display:none !important; }
 #omtrial p{ margin:0 0 12px; font-size:14px; color:#5d6b7c; line-height:1.95; }
 #omtrial .co{ margin-top:22px; font-size:12.5px; color:#7d8b9b; }
 #omtrial-pill{ position:fixed; left:12px; bottom:12px; z-index:2147483000; pointer-events:none;
-  background:rgba(31,59,87,.88); color:#fff; border-radius:999px; padding:7px 14px;
+  background:rgba(31,59,87,.92); color:#fff; border-radius:999px; padding:8px 15px;
   font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;
-  font-size:12px; font-weight:700; letter-spacing:.02em; }
+  font-size:13px; font-weight:700; letter-spacing:.02em; transition:opacity .6s ease; }
+/* 開いたときに数秒だけ出して消す（左下に置いたままだと、AI師匠の相談の欄やページの最後の行に重なった。2026-10-07） */
+#omtrial-pill.omtrial-fade{ opacity:0; }
+@media (prefers-reduced-motion: reduce){ #omtrial-pill{ transition:none; } }
 #omtrial-pill[hidden]{ display:none !important; }
 @media print{ #omtrial-pill{ display:none !important; } }
 </style>
@@ -454,255 +708,421 @@ html.omtrial-lock body > *:not(#omtrial){ display:none !important; }
   var rem = Math.max(1, Math.ceil((end - now) / 86400000));
   ready(function(){
     var p = document.getElementById('omtrial-pill');
-    if(p){ p.textContent = 'お試しのご利用です（あと' + rem + '日）'; p.hidden = false; }
+    if(!p) return;
+    p.textContent = 'お試しのご利用です（あと' + rem + '日）'; p.hidden = false;
+    setTimeout(function(){ p.className = 'omtrial-fade'; }, 6000);
+    setTimeout(function(){ p.hidden = true; }, 6800);
   });
 })();
 </script>
 <!-- OMTRIAL-END -->
 
+<!-- OMLOG-BEGIN ★学習の記録（量だけ）。正本は hoken-gate-src/katalog.html。ページ側を直接編集しないこと（apply_gate.py で入れ直すと消える） -->
+<script>
+/* ============================================================
+   学習の記録（2026-09-29 ユーザー指示）
+   「教育の記録を1枚の紙に」「使われているかが社長に見える」
+   「社長には内容が見えないようにだけして従業員のプライベートを守ってください」
+
+   ★記録するのは「量」だけ。中身は記録しない（記録していないものは、誰にも見せようがない）
+     残すもの   ＝ その日に1分以上ひらいた学習資料・社内ツールの id と題名／
+                  教材の問題を最後まで解いた id／資格の問題に答えた数／
+                  AI師匠への仕事の相談の回数（AI師匠の側が omLog('m') を呼ぶ）
+     残さないもの＝ 相談の文・返事・正解か不正解か・点数・時刻・どこを読んだか
+   ★置き場所はこの端末の localStorage 'officem.kataLog.v1' だけ。外へ送らない。
+     社長に届くのは、本人が管理画面で中身を見てから書き出して渡したときだけ
+   ★記録するのは「管理画面の合言葉を通した端末」（社員の端末）だけ。
+     お客様や共有リンクで開いた人の端末には何も残さない
+   ★日付は「日」まで。時刻は持たない。社長に渡るのは月ごとの合計（管理画面が作る）
+   ============================================================ */
+(function () {
+  if (window.omLog) return;                       /* 1ページに2回入っても1回だけ動く */
+  var KEY = 'officem.kataLog.v1';
+  var AUTH = 'officem.hokenHub.auth';
+  var KEEP_DAYS = 430;                            /* 13か月と少し。古い日は消す */
+  var OPEN_MS = 60000;                            /* 1分以上ひらいたら「ひらいた」と数える */
+  var TOOLS = /^hoken-(training|shiharai|kirikaeshi|compliance|shikaku|sales|gyakusan|calendar|mentor)$/;
+
+  function read(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } }
+  function staff() {
+    var a = read(AUTH);
+    return !!(a && typeof a.e === 'number' && a.e > Date.now() && /^[0-9a-f]{64}$/.test(String(a.h || '')));
+  }
+  function z(n) { return (n < 10 ? '0' : '') + n; }
+  function day(t) { var d = t ? new Date(t) : new Date(); return d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()); }
+  function load() {
+    var o = read(KEY);
+    if (!o || typeof o !== 'object' || o.v !== 1 || !o.d || typeof o.d !== 'object') o = { v: 1, d: {}, t: {} };
+    if (!o.t || typeof o.t !== 'object') o.t = {};
+    return o;
+  }
+  function save(o) {
+    var cut = day(Date.now() - KEEP_DAYS * 86400000);
+    Object.keys(o.d).forEach(function (k) { if (k < cut) delete o.d[k]; });
+    try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) { /* 残せなくても画面は止めない */ }
+  }
+  function pageId() {
+    var p = String(location.pathname).replace(/\/+$/, '');
+    return p.slice(p.lastIndexOf('/') + 1).replace(/\.html$/i, '');
+  }
+  function cleanTitle(s) {
+    s = String(s || '').replace(/\s+/g, ' ').replace(/[｜|].*$/, '').trim();
+    return s.slice(0, 60);
+  }
+
+  /* 記録の入口。kind：'p'＝ひらいた／'q'＝教材の問題を解き終えた（id）／'s'＝資格の問題（数）／'m'＝AI師匠への仕事の相談（数） */
+  function omLog(kind, id, n) {
+    if (!staff()) return;
+    if (!/^[pqsm]$/.test(kind)) return;
+    var o = load(), d = day(), r = o.d[d] || (o.d[d] = {});
+    if (kind === 'p' || kind === 'q') {
+      id = String(id || '').replace(/[^a-z0-9-]/g, '').slice(0, 64);
+      if (!id) return;
+      r[kind] = r[kind] || {};
+      r[kind][id] = 1;
+      if (kind === 'p' && document.title) o.t[id] = cleanTitle(document.title);
+    } else {
+      n = Math.max(1, Math.min(500, Math.round(+n || 1)));
+      r[kind] = (r[kind] || 0) + n;
+    }
+    save(o);
+  }
+  window.omLog = omLog;
+
+  var id = pageId();
+  var mine = /-check$/.test(id) || TOOLS.test(id);
+  if (!mine) return;
+
+  /* 1分以上ひらいたら「ひらいた」。画面が裏に回っている時間は数えない */
+  var seen = 0, done = false, tick = 5000;
+  var iv = setInterval(function () {
+    if (document.visibilityState && document.visibilityState !== 'visible') return;
+    seen += tick;
+    if (!done && seen >= OPEN_MS) { done = true; omLog('p', id); clearInterval(iv); }
+  }, tick);
+
+  /* 教材：問題を最後まで解くと #quizDone に .show が付く（kyozai-template.html）。
+     ★正解の数は見ない。「最後まで解いた」だけ */
+  function watchQuiz() {
+    var q = document.getElementById('quizDone');
+    if (!q || !window.MutationObserver) return;
+    var hit = false;
+    var mo = new MutationObserver(function () {
+      if (!hit && q.classList.contains('show')) { hit = true; omLog('q', id); mo.disconnect(); }
+    });
+    mo.observe(q, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  /* 資格試験対策ツール：通算の問題数（officem.shikaku.v1 の total）の増えた分だけ数える。
+     ★どの問題を解いたか・正解したかは見ない */
+  function shikakuTotal() { var s = read('officem.shikaku.v1'); return s && +s.total >= 0 ? +s.total : 0; }
+  if (id === 'hoken-shikaku') {
+    var base = shikakuTotal();
+    var flush = function () {
+      var cur = shikakuTotal();
+      if (cur > base) omLog('s', null, cur - base);
+      base = cur;
+    };
+    setInterval(flush, 15000);
+    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') flush(); });
+    window.addEventListener('pagehide', flush);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', watchQuiz);
+  else watchQuiz();
+})();
+</script>
+<!-- OMLOG-END -->
 
 <header class="topbar">
   <div class="wrap">
     <div class="tb-brand">
       <!-- 管理画面（保険ツール管理画面.html）のこのツールのカードと同じ絵。入口と中で顔をそろえる -->
       <span class="tb-art"><svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#fdf3e2"/><circle cx="22" cy="22" r="13" fill="none" stroke="#966417" stroke-width="3"/><circle cx="22" cy="22" r="7" fill="none" stroke="#966417" stroke-width="3"/><circle cx="22" cy="22" r="2.6" fill="#bf4123"/><path d="M14 40h12v6H14zM24 46h12v6H24zM34 52h14v6H34z" fill="#966417"/><path d="M46 14v14M40 22l6 6 6-6" fill="none" stroke="#bf4123" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-      <span><b>保険 目標逆算プランナー</b><small>年収の目標を、今日かける電話の本数まで落とす</small></span>
+      <span><h1><span class="nw">保険</span> <span class="nw">目標逆算プランナー</span></h1><small>手取りの目標から、1日の接触件数を逆算</small></span>
     </div>
-    <span class="tb-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>データはこの端末のみ・外部送信なし</span>
+    <div class="tb-right">
+      <a class="tb-tag" id="tbBackup" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>データはこの端末だけ・控えを取る</a>
+      <!-- KTNAV-BEGIN --><details class="ktnav" id="ktNav"><summary aria-label="ほかのツールへ切り替える"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4 3 8l4 4"/><path d="M3 8h13"/><path d="m17 12 4 4-4 4"/><path d="M21 16H8"/></svg><span class="kt-l">ツールを切り替え</span><span class="kt-s">メニュー</span></summary><nav class="ktnav-menu" id="ktNavMenu" aria-label="社内ツールの切り替え"></nav></details><!-- KTNAV-END -->
+      <a class="tb-home" id="tbHome" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></svg><span class="tl-l">管理画面へ</span><span class="tl-s">管理画面</span></a>
+    </div>
   </div>
 </header>
 
 <nav class="tabs" aria-label="ページ切り替え">
+  <!-- 保存できないとき・別の窓で記録が変わったときの帯（タブと一緒に上に残る） -->
+  <div class="om-bar err hide" id="omErr" role="alert"><div class="wrap">
+    <span>この端末に保存できませんでした。容量がいっぱいか、保存できない設定で開いています。いまの記録は、閉じると消えます。</span>
+    <button type="button" id="omErrBtn">控えを書き出す</button>
+  </div></div>
+  <div class="om-bar warn hide" id="omStale" role="status"><div class="wrap">
+    <span id="omStaleTxt">別の窓でこのツールの記録が変わりました。</span>
+    <button type="button" id="omStaleBtn">読み直す</button>
+  </div></div>
   <div class="wrap" role="tablist">
     <button class="tab" role="tab" id="tabBtnPlan" data-tab="plan" aria-selected="true" aria-controls="tab-plan">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16l-6.4 7.6V20L10.4 18v-6.4z"/></svg>逆算</button>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16l-6.4 7.6V20L10.4 18v-6.4z"/></svg><span>逆算</span></button>
     <button class="tab" role="tab" id="tabBtnReal" data-tab="real" aria-selected="false" aria-controls="tab-real">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20V6M3 20h18"/><path d="M7 16V9M12 16v-4M17 16v-7"/></svg>今の実績とボトルネック</button>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 20V6M3 20h18"/><path d="M7 16V9M12 16v-4M17 16v-7"/></svg><span class="tl-l">今の実績とボトルネック</span><span class="tl-s">今の実績</span></button>
     <button class="tab" role="tab" id="tabBtnLog" data-tab="log" aria-selected="false" aria-controls="tab-log">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>記録・1on1</button>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M8 9h8M8 13h8M8 17h5"/></svg><span class="tl-l">記録・1対1の面談</span><span class="tl-s">記録・面談</span></button>
   </div>
 </nav>
 
 <main class="wrap">
+
+<div class="print-head"><b>保険 目標逆算プランナー</b>　<span class="ph-who"></span>　印刷した日：<span class="ph-date"></span></div>
+
+<!-- 記録する人（部下ごとに分ける） -->
+<div class="who-bar">
+  <label for="whoSel">記録する人</label>
+  <select id="whoSel"></select>
+  <button type="button" class="btn btn-ghost btn-sm" id="whoAdd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>人を足す</button>
+</div>
 
 <!-- ================= 逆算 ================= -->
 <section id="tab-plan" role="tabpanel" aria-labelledby="tabBtnPlan">
   <div class="sec">
     <div class="sec-head">
       <div>
-        <h2>年収の目標から、1営業日の接触件数まで</h2>
-        <p>上の段の数字か、途中の率を動かすと、下の段がその場で変わります。</p>
+        <h2>手元に残したい額から、1営業日の接触件数まで</h2>
+        <p>金額か途中の率を動かすと、下の段と答えがその場で変わります。</p>
       </div>
-    </div>
-    <div class="note note-warn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2.5 20h19z"/><path d="M12 9.5v5M12 17.4v.1"/></svg>
-      <span><b>率の初期値は「目安」です。</b>ここに置いてある率は、話を始めるためのきりのよい仮の数字で、業界の統計ではありません。<b>自分の実績で上書きしてください。</b>「今の実績とボトルネック」タブに直近の実数を入れると、そこから自分の率をこの画面へ取り込めます。</span>
     </div>
   </div>
 
-  <div class="sec">
+  <div class="sec" style="margin-top:var(--sp-4);">
     <div class="ladder">
-
-      <!-- 1 -->
+      <div class="goal-pair">
       <div class="lad-step goal">
         <span class="lad-n">1</span>
         <div>
-          <div class="lad-label">年収の目標（1年で手元に残したい額）</div>
-          <div class="fld" style="max-width:15em;margin-top:6px;">
-            <input type="number" class="pin" data-k="goal" id="pGoal" min="0" max="1000000000" step="100000" inputmode="numeric" aria-label="年収の目標（円）">
-          </div>
-          <div class="lad-sub" id="v1s" style="margin-top:4px;"></div>
-          <div class="chips" style="margin-top:8px;" id="goalChips"></div>
+          <div class="lad-label">手元に残したい額（手取り・1年）</div>
+          <div class="goal-in"><input type="text" class="pmoney" data-k="goal" id="pGoal" inputmode="numeric" autocomplete="off" aria-label="手元に残したい額（手取り・1年・円）"><span>円</span></div>
+          <div class="lad-sub" id="s1s"></div>
+          <div class="chips" id="goalChips" aria-label="よくある置き方"></div>
+          <p class="ctl-hint" style="margin-top:6px;">額面の年収（税金・社会保険料を引く前）で考えるときは、すぐ下の手取り率を100％にしてください。
         </div>
       </div>
-
+      <div class="ans" id="ansBox" aria-live="polite">
+        <div class="ans-head">この計画の答え</div>
+        <div class="ans-main"><span class="ans-l">1営業日の接触</span><b id="aDay">—</b></div>
+        <div class="ans-grid">
+          <span>1か月の接触<b id="aMonth">—</b></span>
+          <span>1か月の成約<b id="aMonthDeal">—</b></span>
+          <span>1年の成約<b id="aYearDeal">—</b></span>
+        </div>
+        <div class="mode-bar hide" id="modeBar"><span id="modeTxt"></span><button type="button" class="btn btn-ghost btn-sm" id="modeBack">計画の率に戻す</button></div>
+        <p class="ans-note"><b>計画を立てるための目安です。必ず達成する約束ではありません。</b>率が変われば変わります。</p>
+        <button type="button" class="btn btn-ghost btn-sm ans-toggle" id="ratesToggle" aria-expanded="false">率と前提を調整する</button>
+      </div>
+      </div>
       <div class="lad-op">
         <div class="lad-arrow" aria-hidden="true"></div>
         <div class="lad-ctrl">
-          <div class="ctl">
+          <button type="button" class="ctl-sum" id="sum1" aria-expanded="false"></button>
+          <div class="ctl" data-c="takehome">
             <span class="ctl-name">手取り率</span>
             <input type="range" class="prange" data-k="takehome" min="10" max="100" step="1" aria-label="手取り率（パーセント）">
-            <span class="ctl-num"><input type="number" class="pin" data-k="takehome" min="10" max="100" step="0.1" inputmode="numeric" aria-label="手取り率（パーセント・数値入力）">％</span>
-            <p class="ctl-hint">所得から税金・社会保険料などを引いたあと、手元に残る割合の目安。人により大きく変わるので、直近の確定申告・源泉徴収票から自分の割合を出して入れ直してください。</p>
+            <span class="ctl-num"><input type="number" class="pin" data-k="takehome" min="10" max="100" step="0.1" inputmode="decimal" aria-label="手取り率（パーセント）（数値で入れる）">％</span>
+            <p class="ctl-real hide" data-real="takehome"></p>
+            <p class="ctl-hint">所得から税金・社会保険料などを引いたあと、手元に残る割合の目安。人により大きく変わるので、直近の確定申告・源泉徴収票から自分の割合を出して入れ直してください。額面で考えるなら100％。</p>
           </div>
-          <div class="ctl">
+          <div class="ctl" data-c="expense">
             <span class="ctl-name">経費率</span>
             <input type="range" class="prange" data-k="expense" min="0" max="90" step="1" aria-label="経費率（パーセント）">
-            <span class="ctl-num"><input type="number" class="pin" data-k="expense" min="0" max="90" step="0.1" inputmode="numeric" aria-label="経費率（パーセント・数値入力）">％</span>
+            <span class="ctl-num"><input type="number" class="pin" data-k="expense" min="0" max="90" step="0.1" inputmode="decimal" aria-label="経費率（パーセント）（数値で入れる）">％</span>
+            <p class="ctl-real hide" data-real="expense"></p>
             <p class="ctl-hint">手数料収入のうち、交通費・通信費・会食・研修などで出ていく割合。会社員で経費が出る立場なら0％にしてください。</p>
           </div>
         </div>
       </div>
-
-      <!-- 2 -->
       <div class="lad-step">
         <span class="lad-n">2</span>
         <div>
-          <div class="lad-label">必要な手数料収入（1年・税込のベース）</div>
-          <div class="lad-val" id="v2">—</div>
-          <div class="lad-sub" id="v2s"></div>
+          <div class="lad-label">必要な手数料収入（1年・経費と税金を引く前）</div>
+          <div class="lad-val" id="s2">—</div>
+          <div class="lad-sub" id="s2s"></div>
         </div>
       </div>
-
       <div class="lad-op">
         <div class="lad-arrow" aria-hidden="true"></div>
         <div class="lad-ctrl">
-          <div class="ctl">
-            <span class="ctl-name">手数料率</span>
-            <input type="range" class="prange" data-k="comm" min="1" max="100" step="1" aria-label="手数料率（パーセント）">
-            <span class="ctl-num"><input type="number" class="pin" data-k="comm" min="1" max="100" step="0.1" inputmode="numeric" aria-label="手数料率（パーセント・数値入力）">％</span>
-            <p class="ctl-hint">アプローチ1件に対して自分が受け取る初年度分の割合。初期値40％は営業ダッシュボードの「平準払」の初期値に合わせた参考値です。実際の料率は保険会社・委託契約ごとに違うので、自社の数字に直してください。</p>
+          <button type="button" class="ctl-sum" id="sum2" aria-expanded="false"></button>
+          <div class="ctl ctl-m" data-c="base">
+            <span class="ctl-name">既にある<br>手数料収入</span>
+            <span class="ctl-num ctl-money"><input type="text" class="pmoney" data-k="base" inputmode="numeric" autocomplete="off" aria-label="既にある手数料収入（1年・円）">円</span>
+            <p class="ctl-real hide" data-real="base"></p>
+            <p class="ctl-hint">前の年までの契約から入る手数料（継続の手数料・損害保険の更改の手数料など）の1年ぶんの見込み。分からなければ0円のまま。入れたぶんだけ、新規の契約で要る額が減ります。所属代理店の支払明細で確かめてください。</p>
           </div>
         </div>
       </div>
-
-      <!-- 3 -->
       <div class="lad-step">
         <span class="lad-n">3</span>
         <div>
-          <div class="lad-label">必要な年換算保険料（1年の合計）</div>
-          <div class="lad-val" id="v3">—</div>
-          <div class="lad-sub" id="v3s"></div>
+          <div class="lad-label">新規の契約で要る手数料収入（1年）</div>
+          <div class="lad-val" id="s3">—</div>
+          <div class="lad-sub" id="s3s"></div>
         </div>
       </div>
-
       <div class="lad-op">
         <div class="lad-arrow" aria-hidden="true"></div>
         <div class="lad-ctrl">
-          <div class="ctl">
-            <span class="ctl-name">1件あたり<br>平均保険料</span>
-            <input type="range" class="prange" data-k="apPer" min="10000" max="2000000" step="10000" aria-label="1件あたりの平均年換算保険料（円）">
-            <span class="ctl-num"><input type="number" class="pin" data-k="apPer" min="1000" max="100000000" step="10000" inputmode="numeric" aria-label="1件あたりの平均年換算保険料（円・数値入力）">円</span>
-            <p class="ctl-hint">成約1件あたりの年換算保険料の平均。月払保険料の12か月分で考えます（月1.7万円なら約20万円）。過去1年の契約から自分の平均を出すのがいちばん正確です。</p>
+          <button type="button" class="ctl-sum" id="sum3" aria-expanded="false"></button>
+          <div class="ctl" data-c="comm">
+            <span class="ctl-name">手数料率</span>
+            <input type="range" class="prange" data-k="comm" min="1" max="100" step="1" aria-label="手数料率（パーセント）">
+            <span class="ctl-num"><input type="number" class="pin" data-k="comm" min="1" max="100" step="0.1" inputmode="decimal" aria-label="手数料率（パーセント）（数値で入れる）">％</span>
+            <p class="ctl-real hide" data-real="comm"></p>
+            <p class="ctl-hint">新規の契約の保険料（年換算）に対して、1年目に受け取る手数料の割合の目安。保険会社・商品・委託契約で違い、初期値の40％は仮の数字です。所属代理店の規程・委託契約で確かめて、自分の数字に直してください。</p>
           </div>
         </div>
       </div>
-
-      <!-- 4 -->
       <div class="lad-step">
         <span class="lad-n">4</span>
         <div>
-          <div class="lad-label">必要な成約件数（契約）</div>
-          <div class="lad-val" id="v4">—</div>
-          <div class="lad-sub" id="v4s"></div>
+          <div class="lad-label">新規の契約の年換算保険料（1年の合計）</div>
+          <div class="lad-val" id="s4">—</div>
+          <div class="lad-sub" id="s4s"></div>
         </div>
       </div>
-
       <div class="lad-op">
         <div class="lad-arrow" aria-hidden="true"></div>
         <div class="lad-ctrl">
-          <div class="ctl">
-            <span class="ctl-name">成約率</span>
-            <input type="range" class="prange" data-k="rClose" min="1" max="100" step="1" aria-label="成約率（パーセント）">
-            <span class="ctl-num"><input type="number" class="pin" data-k="rClose" min="1" max="100" step="0.1" inputmode="numeric" aria-label="成約率（パーセント・数値入力）">％</span>
-            <p class="ctl-hint">プレゼン（設計書の提示）からクロージングを経て契約になる割合。</p>
+          <button type="button" class="ctl-sum" id="sum4" aria-expanded="false"></button>
+          <div class="ctl ctl-m" data-c="apPer" data-rate="apPer">
+            <span class="ctl-name">1件あたり<br>平均保険料</span>
+            <span class="ctl-num ctl-money"><input type="text" class="pmoney" data-k="apPer" inputmode="numeric" autocomplete="off" aria-label="1件あたりの平均年換算保険料（円）">円</span>
+            <p class="ctl-real hide" data-real="apPer"></p>
+            <p class="ctl-hint">成約1件あたりの年換算保険料の平均。月払なら12か月分（月1.7万円なら約20万円）、損害保険なら1年の保険料で考えます。過去1年の契約から自分の平均を出すのがいちばん正確です。</p>
           </div>
         </div>
       </div>
-
-      <!-- 5 -->
       <div class="lad-step">
         <span class="lad-n">5</span>
         <div>
-          <div class="lad-label">必要な提案件数（プレゼン）</div>
-          <div class="lad-val" id="v5">—</div>
-          <div class="lad-sub" id="v5s"></div>
+          <div class="lad-label">必要な成約件数</div>
+          <div class="lad-val" id="s5">—</div>
+          <div class="lad-sub" id="s5s"></div>
         </div>
       </div>
-
       <div class="lad-op">
         <div class="lad-arrow" aria-hidden="true"></div>
         <div class="lad-ctrl">
-          <div class="ctl">
-            <span class="ctl-name">提案化率</span>
-            <input type="range" class="prange" data-k="rProp" min="1" max="100" step="1" aria-label="提案化率（パーセント）">
-            <span class="ctl-num"><input type="number" class="pin" data-k="rProp" min="1" max="100" step="0.1" inputmode="numeric" aria-label="提案化率（パーセント・数値入力）">％</span>
-            <p class="ctl-hint">面談（ヒアリング＝ファクトファインディング）から、設計書を出すところまで進む割合。</p>
+          <button type="button" class="ctl-sum" id="sum5" aria-expanded="false"></button>
+          <div class="ctl" data-c="rClose" data-rate="rClose">
+            <span class="ctl-name">成約率</span>
+            <input type="range" class="prange" data-k="rClose" min="1" max="100" step="1" aria-label="成約率（パーセント）">
+            <span class="ctl-num"><input type="number" class="pin" data-k="rClose" min="1" max="100" step="0.1" inputmode="decimal" aria-label="成約率（パーセント）（数値で入れる）">％</span>
+            <p class="ctl-real hide" data-real="rClose"></p>
+            <p class="ctl-hint">提案（設計書の提示）から成約になる割合。</p>
           </div>
         </div>
       </div>
-
-      <!-- 6 -->
       <div class="lad-step">
         <span class="lad-n">6</span>
         <div>
-          <div class="lad-label">必要な面談件数</div>
-          <div class="lad-val" id="v6">—</div>
-          <div class="lad-sub" id="v6s"></div>
+          <div class="lad-label">必要な提案件数（設計書を出す）</div>
+          <div class="lad-val" id="s6">—</div>
+          <div class="lad-sub" id="s6s"></div>
         </div>
       </div>
-
       <div class="lad-op">
         <div class="lad-arrow" aria-hidden="true"></div>
         <div class="lad-ctrl">
-          <div class="ctl">
-            <span class="ctl-name">面談実施率</span>
-            <input type="range" class="prange" data-k="rMeet" min="1" max="100" step="1" aria-label="面談実施率（パーセント）">
-            <span class="ctl-num"><input type="number" class="pin" data-k="rMeet" min="1" max="100" step="0.1" inputmode="numeric" aria-label="面談実施率（パーセント・数値入力）">％</span>
-            <p class="ctl-hint">取れたアポのうち、当日ドタキャン・延期にならずに実際に会えた割合。</p>
+          <button type="button" class="ctl-sum" id="sum6" aria-expanded="false"></button>
+          <div class="ctl" data-c="rProp" data-rate="rProp">
+            <span class="ctl-name">提案化率</span>
+            <input type="range" class="prange" data-k="rProp" min="1" max="100" step="1" aria-label="提案化率（パーセント）">
+            <span class="ctl-num"><input type="number" class="pin" data-k="rProp" min="1" max="100" step="0.1" inputmode="decimal" aria-label="提案化率（パーセント）（数値で入れる）">％</span>
+            <p class="ctl-real hide" data-real="rProp"></p>
+            <p class="ctl-hint">面談（お話をうかがう）から、設計書を出すところまで進む割合。</p>
           </div>
         </div>
       </div>
-
-      <!-- 7 -->
       <div class="lad-step">
         <span class="lad-n">7</span>
         <div>
-          <div class="lad-label">必要なアポ件数</div>
-          <div class="lad-val" id="v7">—</div>
-          <div class="lad-sub" id="v7s"></div>
+          <div class="lad-label">必要な面談件数</div>
+          <div class="lad-val" id="s7">—</div>
+          <div class="lad-sub" id="s7s"></div>
         </div>
       </div>
-
       <div class="lad-op">
         <div class="lad-arrow" aria-hidden="true"></div>
         <div class="lad-ctrl">
-          <div class="ctl">
-            <span class="ctl-name">アポ獲得率</span>
-            <input type="range" class="prange" data-k="rAppt" min="1" max="100" step="1" aria-label="アポ獲得率（パーセント）">
-            <span class="ctl-num"><input type="number" class="pin" data-k="rAppt" min="1" max="100" step="0.1" inputmode="numeric" aria-label="アポ獲得率（パーセント・数値入力）">％</span>
-            <p class="ctl-hint">電話・声かけ・紹介依頼などの接触1件から、会う約束が取れる割合。ここがいちばん低く出ます。</p>
+          <button type="button" class="ctl-sum" id="sum7" aria-expanded="false"></button>
+          <div class="ctl" data-c="rMeet" data-rate="rMeet">
+            <span class="ctl-name">面談実施率</span>
+            <input type="range" class="prange" data-k="rMeet" min="1" max="100" step="1" aria-label="面談実施率（パーセント）">
+            <span class="ctl-num"><input type="number" class="pin" data-k="rMeet" min="1" max="100" step="0.1" inputmode="decimal" aria-label="面談実施率（パーセント）（数値で入れる）">％</span>
+            <p class="ctl-real hide" data-real="rMeet"></p>
+            <p class="ctl-hint">取れたアポのうち、取り消し・延期にならずに実際に会えた割合。</p>
           </div>
         </div>
       </div>
-
-      <!-- 8 -->
       <div class="lad-step">
         <span class="lad-n">8</span>
         <div>
-          <div class="lad-label">必要な接触件数（電話・声かけ・紹介依頼／1年）</div>
-          <div class="lad-val" id="v8">—</div>
-          <div class="lad-sub" id="v8s"></div>
+          <div class="lad-label">必要なアポ件数（会う約束）</div>
+          <div class="lad-val" id="s8">—</div>
+          <div class="lad-sub" id="s8s"></div>
         </div>
       </div>
-
       <div class="lad-op">
         <div class="lad-arrow" aria-hidden="true"></div>
         <div class="lad-ctrl">
-          <div class="ctl">
+          <button type="button" class="ctl-sum" id="sum8" aria-expanded="false"></button>
+          <div class="ctl" data-c="rAppt" data-rate="rAppt">
+            <span class="ctl-name">アポ獲得率</span>
+            <input type="range" class="prange" data-k="rAppt" min="1" max="100" step="1" aria-label="アポ獲得率（パーセント）">
+            <span class="ctl-num"><input type="number" class="pin" data-k="rAppt" min="1" max="100" step="0.1" inputmode="decimal" aria-label="アポ獲得率（パーセント）（数値で入れる）">％</span>
+            <p class="ctl-real hide" data-real="rAppt"></p>
+            <p class="ctl-hint">電話・声かけ・紹介のお願いなどの接触1件から、会う約束が取れる割合。ここがいちばん低く出ます。</p>
+          </div>
+        </div>
+      </div>
+      <div class="lad-step">
+        <span class="lad-n">9</span>
+        <div>
+          <div class="lad-label">必要な接触件数（電話・声かけ・紹介のお願い／1年）</div>
+          <div class="lad-val" id="s9">—</div>
+          <div class="lad-sub" id="s9s"></div>
+        </div>
+      </div>
+      <div class="lad-op">
+        <div class="lad-arrow" aria-hidden="true"></div>
+        <div class="lad-ctrl">
+          <button type="button" class="ctl-sum" id="sum9" aria-expanded="false"></button>
+          <div class="ctl" data-c="months">
             <span class="ctl-name">稼働月数</span>
             <input type="range" class="prange" data-k="months" min="1" max="12" step="1" aria-label="1年の稼働月数">
-            <span class="ctl-num"><input type="number" class="pin" data-k="months" min="1" max="12" step="1" inputmode="numeric" aria-label="1年の稼働月数（数値入力）">か月</span>
+            <span class="ctl-num"><input type="number" class="pin" data-k="months" min="1" max="12" step="1" inputmode="decimal" aria-label="1年の稼働月数（数値で入れる）">か月</span>
+            <p class="ctl-real hide" data-real="months"></p>
             <p class="ctl-hint">1年のうち、実際に営業に出る月数。</p>
           </div>
-          <div class="ctl">
+          <div class="ctl" data-c="days">
             <span class="ctl-name">1か月の<br>営業日数</span>
             <input type="range" class="prange" data-k="days" min="1" max="31" step="1" aria-label="1か月の営業日数">
-            <span class="ctl-num"><input type="number" class="pin" data-k="days" min="1" max="31" step="1" inputmode="numeric" aria-label="1か月の営業日数（数値入力）">日</span>
+            <span class="ctl-num"><input type="number" class="pin" data-k="days" min="1" max="31" step="1" inputmode="decimal" aria-label="1か月の営業日数（数値で入れる）">日</span>
+            <p class="ctl-real hide" data-real="days"></p>
             <p class="ctl-hint">研修・事務日を除いた、実際に接触できる日数。</p>
           </div>
         </div>
       </div>
-
-      <!-- 9 -->
       <div class="lad-step final">
-        <span class="lad-n">9</span>
+        <span class="lad-n">10</span>
         <div>
           <div class="lad-label">1営業日あたりの接触件数</div>
-          <div class="lad-val" id="v9">—</div>
-          <div class="lad-sub" id="v9s"></div>
+          <div class="lad-val" id="s10">—</div>
+          <div class="lad-sub" id="s10s"></div>
         </div>
       </div>
+    </div>
+    <p class="lad-sub" style="margin-top:var(--sp-3);">件数は、前の段の件数（切り上げたもの）を率で割り、1件未満を切り上げています。手で検算するときも、この順で割ると合います。</p>
+    <div class="note note-warn" style="margin-top:var(--sp-4);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2.5 20h19z"/><path d="M12 9.5v5M12 17.4v.1"/></svg>
+      <span><b>率の初期値は仮の数字です。</b>話を始めるためのきりのよい数字で、業界の統計ではありません。自分の実績で上書きしてください（「今の実績」タブに直近の実数を入れると、その率で計算できます）。</span>
     </div>
 
     <div class="note note-warn hide" id="planWarn" style="margin-top:var(--sp-4);">
@@ -712,34 +1132,28 @@ html.omtrial-lock body > *:not(#omtrial){ display:none !important; }
   </div>
 
   <div class="sec">
-    <div class="tiles">
-      <div class="tile"><div class="t-label">1か月あたりの接触</div><div class="t-value" id="tMonth">—</div><div class="t-sub" id="tMonthSub"></div></div>
-      <div class="tile"><div class="t-label">1週（5営業日）あたりの接触</div><div class="t-value" id="tWeek">—</div><div class="t-sub" id="tWeekSub"></div></div>
-      <div class="tile"><div class="t-label">1営業日あたりの接触</div><div class="t-value" id="tDay">—</div><div class="t-sub" id="tDaySub"></div></div>
-    </div>
-  </div>
-
-  <div class="sec">
     <div class="card">
       <h3 style="color:var(--navy);margin-bottom:4px;">必要な件数のファネル（1年）</h3>
-      <p class="sec-note" style="margin-top:0;">接触 → アポ → 面談（ヒアリング） → 提案（プレゼン） → 成約（クロージング→契約）。棒の長さは件数です（0でないものは細くても必ず描いています）。</p>
+      <p class="sec-note" style="margin-top:0;">接触 → アポ → 面談 → 提案 → 成約。棒の長さは件数です（0でないものは細くても必ず描いています）。</p>
       <div class="funnel" id="planFunnel"></div>
     </div>
   </div>
 
   <div class="sec">
     <div class="card">
-      <h3 style="color:var(--navy);margin-bottom:4px;">この率が5ポイント上がったら、1日の電話は何本減るか</h3>
-      <p class="sec-note" style="margin-top:0;">率を1つだけ5ポイント上げて、ほかは今のままにしたときの比較です。効き目の大きい順に並べています。「電話を増やす」より「どこを直すか」を決めるための表です。</p>
+      <h3 style="color:var(--navy);margin-bottom:4px;">この率が5ポイント上がったら、1日の接触は何件減るか</h3>
+      <p class="sec-note" style="margin-top:0;">率を1つだけ5ポイント上げて、ほかは今のままにしたときの比較です。効き目の大きい順に並べています。「接触を増やす」より「どこを直すか」を決めるための表です。</p>
       <div class="tbl-scroll">
-        <table class="tbl">
-          <thead><tr><th>上げる率</th><th class="num">今</th><th class="num">＋5pt</th><th class="num">1日の接触</th><th class="num">減る本数</th></tr></thead>
+        <table class="tbl" id="effTbl">
+          <thead><tr><th>上げる率</th><th class="num">今</th><th class="num">5ポイント上げると</th><th class="num">1日の接触</th><th class="num">減る件数</th></tr></thead>
           <tbody id="effBody"></tbody>
         </table>
       </div>
       <p class="lad-sub" id="effNote" style="margin-top:var(--sp-3);"></p>
     </div>
   </div>
+  <!-- 携帯で答えの箱が画面の外にあるあいだだけ、下に小さく出す（同じ内容なので読み上げは省く） -->
+  <div class="ans-mini" id="ansMini" aria-hidden="true"><span>1営業日の接触</span><b id="amDay">—</b><span id="amSub"></span></div>
 </section>
 
 <!-- ================= 今の実績とボトルネック ================= -->
@@ -748,12 +1162,34 @@ html.omtrial-lock body > *:not(#omtrial){ display:none !important; }
     <div class="sec-head">
       <div>
         <h2>今の実績とボトルネック</h2>
-        <p>直近の実数を入れると、どの段でいちばん落ちているかを色で示します。</p>
+        <p>直近の実数を入れると、どの段でいちばん落ちているかを色と文字で示します。</p>
       </div>
     </div>
     <div class="note note-info">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.6v.1"/></svg>
-      <span>件数は営業ダッシュボード（活動記録）の集計から写してください。件数が少ない月の率はぶれます。<b>3か月ぶんくらいまとめて入れる</b>と落ち着いた数字になります。</span>
+      <span>件数は、手帳や活動の記録から数えて入れてください。<b>数え方</b>：接触＝電話・声かけ・紹介のお願いをした件数／アポ＝会う約束が取れた件数／面談＝実際に会ってお話をうかがった件数／提案＝設計書を出した件数／成約＝契約になった件数。件数が少ない月の率はぶれるので、<b>3か月ぶんくらいまとめて入れる</b>と落ち着いた数字になります。</span>
+    </div>
+  </div>
+
+  <!-- 営業ダッシュボードの記録から数える（2026-10-06 全体の辛口点検：同じ端末に活動の記録があるのに、手帳から数え直して打ち込んでいた） -->
+  <div class="sec hide" id="dashSec">
+    <div class="card dash-card">
+      <h3 style="color:var(--navy);margin-bottom:4px;">営業ダッシュボードの記録から数える</h3>
+      <p class="sec-note" style="margin-top:0;" id="dashWho"></p>
+      <div class="dash-period"><span class="dash-l" id="dashPL">数える期間</span><div class="chips" id="dashChips" role="group" aria-labelledby="dashPL"></div></div>
+      <div class="dash-nums" id="dashNums" aria-live="polite"></div>
+      <p class="lad-sub" id="dashSub"></p>
+      <div class="frm-actions"><button class="btn btn-primary btn-sm" id="dashApply">この数を「直近の実数」に入れる</button></div>
+      <details class="dash-how"><summary>数え方</summary>
+        <ul>
+          <li><b>その段まで進んだお客様の人数</b>で数えます。プレゼンまで進んだ方は、接触・アポ・面談・提案のどれにも1人と数えます（同じ方の同じ段の記録は、期間の中で1人）。</li>
+          <li>接触＝アプローチ・ヒアリング・プレゼン・クロージング・契約のどれかの記録がある方（これからの予定も含む）</li>
+          <li>アポ＝ヒアリングから先の記録がある方（これからの予定も含む）／面談＝今日までにヒアリングから先へ進んだ方</li>
+          <li>提案＝今日までにプレゼンから先へ進んだ方／成約＝契約日が期間の中の契約の数</li>
+          <li>年換算保険料＝その契約の保険料を1年分に（月払い×12・半年払い×2・年払い×1）。一時払いは入れません。定期訪問・ビジネスパートナー訪問は数えません。</li>
+          <li>電話・声かけなど、営業ダッシュボードに残していない接触は入りません。入れたあとに、下の欄で足して直してください。</li>
+        </ul>
+      </details>
     </div>
   </div>
 
@@ -761,51 +1197,48 @@ html.omtrial-lock body > *:not(#omtrial){ display:none !important; }
     <div class="card">
       <h3 style="color:var(--navy);margin-bottom:var(--sp-3);">直近の実数</h3>
       <div class="frm">
-        <div class="fld"><label for="rMonths">対象の期間（か月）</label>
+        <div class="fld full-m"><label for="rMonths">対象の期間（か月）</label>
           <input type="number" id="rMonths" class="rin" data-k="months" min="1" max="60" step="1" inputmode="numeric">
           <div class="hint">この期間の合計件数を入れてください。</div></div>
-        <div class="fld"><label for="rContacts">接触（電話・声かけ）</label>
+        <div class="fld"><label for="rContacts">接触（電話・声かけ・紹介のお願い）</label>
           <input type="number" id="rContacts" class="rin" data-k="contacts" min="0" max="100000000" step="1" inputmode="numeric"></div>
-        <div class="fld"><label for="rAppts">アポ</label>
+        <div class="fld"><label for="rAppts">アポ（会う約束）</label>
           <input type="number" id="rAppts" class="rin" data-k="appts" min="0" max="100000000" step="1" inputmode="numeric"></div>
-        <div class="fld"><label for="rMeets">面談（ヒアリング）</label>
+        <div class="fld"><label for="rMeets">面談</label>
           <input type="number" id="rMeets" class="rin" data-k="meets" min="0" max="100000000" step="1" inputmode="numeric"></div>
-        <div class="fld"><label for="rProps">提案（プレゼン）</label>
+        <div class="fld"><label for="rProps">提案（設計書を出した）</label>
           <input type="number" id="rProps" class="rin" data-k="props" min="0" max="100000000" step="1" inputmode="numeric"></div>
         <div class="fld"><label for="rDeals">成約（契約）</label>
           <input type="number" id="rDeals" class="rin" data-k="deals" min="0" max="100000000" step="1" inputmode="numeric"></div>
-        <div class="fld"><label for="rAp">この期間の年換算保険料の合計（円・任意）</label>
-          <input type="number" id="rAp" class="rin" data-k="ap" min="0" max="100000000000" step="10000" inputmode="numeric">
+        <div class="fld full-m"><label for="rAp">この期間の年換算保険料の合計（円・任意）</label>
+          <input type="text" id="rAp" class="rin rmoney" data-k="ap" inputmode="numeric" autocomplete="off">
           <div class="hint">入れると、1件あたりの平均保険料も実績から出せます。</div></div>
       </div>
       <div class="frm-actions">
-        <button class="btn btn-primary btn-sm" id="applyRates">この実績の率を「逆算」に取り込む</button>
+        <button class="btn btn-primary btn-sm" id="applyRates">この実績の率で「逆算」を計算する</button>
+        <button class="btn btn-ghost btn-sm hide" id="realBack">計画の率に戻す</button>
         <button class="btn btn-ghost btn-sm" id="clearReal">実数を空にする</button>
       </div>
-      <p class="lad-sub" id="applyNote" style="margin-top:var(--sp-2);"></p>
+      <p class="lad-sub" id="applyNote" style="margin-top:var(--sp-2);">計画の率は書き換えません。「計画の率に戻す」でいつでも戻せます。</p>
     </div>
   </div>
 
   <div class="sec">
     <div class="card">
       <h3 style="color:var(--navy);margin-bottom:4px;">どの段で落ちているか</h3>
-      <p class="sec-note" style="margin-top:0;">左の色は、実績の率が「逆算」タブの計画の率をどれだけ下回っているかです。<b>赤</b>＝計画の7割に届かない、または10ポイント以上足りない／<b>黄</b>＝計画の9割に届かない、または3ポイント以上足りない／<b>緑</b>＝計画どおりかそれ以上。ポイント差だけで見ないのは、アポ獲得率のように率そのものが小さい段では、わずかなポイント差でも必要な接触件数が何倍にもなるためです。</p>
+      <p class="sec-note" style="margin-top:0;">実績の率と計画の率を、どちらも小数1桁にそろえて比べます。<b>大きく足りない（赤）</b>＝計画の7割に届かない、または10ポイント以上足りない／<b>やや足りない（黄）</b>＝計画の9割に届かない、または3ポイント以上足りない／<b>ほぼ計画どおり</b>＝それより小さい差／<b>計画どおりかそれ以上（緑）</b>。ポイント差だけで見ないのは、アポ獲得率のように率そのものが小さい段では、わずかなポイント差でも必要な接触件数が大きく変わるためです。</p>
       <div id="bnList"></div>
       <p class="lad-sub" id="bnNote" style="margin-top:var(--sp-3);"></p>
     </div>
   </div>
 
   <div class="sec">
-    <div class="two-col">
-      <div class="card">
-        <h3 style="color:var(--navy);margin-bottom:4px;">計画（1年）</h3>
-        <p class="sec-note" style="margin-top:0;">「逆算」タブの必要件数。</p>
-        <div class="funnel" id="fnPlan"></div>
-      </div>
-      <div class="card">
-        <h3 style="color:var(--navy);margin-bottom:4px;">実績（1年に換算）</h3>
-        <p class="sec-note" style="margin-top:0;">入れた実数を、対象の期間から1年ぶんに引き伸ばした数です。</p>
-        <div class="funnel" id="fnReal"></div>
+    <div class="card">
+      <h3 style="color:var(--navy);margin-bottom:4px;">計画と実績の件数（1年）</h3>
+      <p class="sec-note" style="margin-top:0;">左＝計画の必要件数、右＝入れた実数を1年ぶんに引き伸ばした数。2つの棒は同じものさしで描いています。</p>
+      <div class="two-col">
+        <div><h4 class="fn-h">計画（1年）</h4><div class="funnel" id="fnPlan"></div></div>
+        <div><h4 class="fn-h">実績（1年に換算）</h4><div class="funnel" id="fnReal"></div></div>
       </div>
     </div>
   </div>
@@ -813,7 +1246,7 @@ html.omtrial-lock body > *:not(#omtrial){ display:none !important; }
   <div class="sec">
     <div class="card">
       <h3 style="color:var(--navy);margin-bottom:4px;">今の率のままだと、1日に何本必要か</h3>
-      <p class="sec-note" style="margin-top:0;">目標（「逆算」タブの年収の目標）は変えずに、率だけ実績の値に置き換えて計算し直したものです。</p>
+      <p class="sec-note" style="margin-top:0;">手元に残したい額は変えずに、率だけ実績の値（小数1桁）に置き換えて計算し直したものです。</p>
       <div class="tiles">
         <div class="tile"><div class="t-label">計画の率でいくと</div><div class="t-value" id="tPlanDay">—</div><div class="t-sub">1営業日あたりの接触</div></div>
         <div class="tile"><div class="t-label">今の実績の率でいくと</div><div class="t-value" id="tRealDay">—</div><div class="t-delta" id="tRealDelta"></div><div class="t-sub" id="tRealDaySub"></div></div>
@@ -823,13 +1256,13 @@ html.omtrial-lock body > *:not(#omtrial){ display:none !important; }
   </div>
 </section>
 
-<!-- ================= 記録・1on1 ================= -->
+<!-- ================= 記録・1対1の面談 ================= -->
 <section id="tab-log" role="tabpanel" aria-labelledby="tabBtnLog" class="hide">
   <div class="sec">
     <div class="sec-head">
       <div>
-        <h2>月ごとの記録と1on1のメモ</h2>
-        <p>前の月と並べて見られます。この端末にだけ残ります。</p>
+        <h2>月ごとの記録と1対1の面談</h2>
+        <p>前の月と並べて見られます。記録は人ごとに分かれ、この端末にだけ残ります。</p>
       </div>
     </div>
   </div>
@@ -837,22 +1270,25 @@ html.omtrial-lock body > *:not(#omtrial){ display:none !important; }
   <div class="sec">
     <div class="card">
       <h3 style="color:var(--navy);margin-bottom:var(--sp-3);">月の記録を足す・直す</h3>
-      <div class="frm">
-        <div class="fld"><label for="mYm">年月</label><input type="month" id="mYm"></div>
+      <div class="frm-actions" style="margin:0 0 var(--sp-3);">
+        <button class="btn btn-ghost btn-sm" id="mFromReal">「今の実績」の数字を入れる</button>
+        <button class="btn btn-ghost btn-sm hide" id="mFromDash">営業ダッシュボードの記録から入れる</button>
+        <button class="btn btn-ghost btn-sm" id="mClear">書きかけを消す</button>
+      </div>
+      <div class="frm" id="mForm">
+        <div class="fld full-m"><label for="mYm">年月</label><input type="month" id="mYm"></div>
         <div class="fld"><label for="mContacts">接触</label><input type="number" id="mContacts" min="0" max="100000000" step="1" inputmode="numeric"></div>
         <div class="fld"><label for="mAppts">アポ</label><input type="number" id="mAppts" min="0" max="100000000" step="1" inputmode="numeric"></div>
-        <div class="fld"><label for="mMeets">面談（ヒアリング）</label><input type="number" id="mMeets" min="0" max="100000000" step="1" inputmode="numeric"></div>
-        <div class="fld"><label for="mProps">提案（プレゼン）</label><input type="number" id="mProps" min="0" max="100000000" step="1" inputmode="numeric"></div>
-        <div class="fld"><label for="mDeals">成約（契約）</label><input type="number" id="mDeals" min="0" max="100000000" step="1" inputmode="numeric"></div>
-        <div class="fld"><label for="mAp">年換算保険料の合計（円）</label><input type="number" id="mAp" min="0" max="100000000000" step="10000" inputmode="numeric"></div>
+        <div class="fld"><label for="mMeets">面談</label><input type="number" id="mMeets" min="0" max="100000000" step="1" inputmode="numeric"></div>
+        <div class="fld"><label for="mProps">提案</label><input type="number" id="mProps" min="0" max="100000000" step="1" inputmode="numeric"></div>
+        <div class="fld"><label for="mDeals">成約</label><input type="number" id="mDeals" min="0" max="100000000" step="1" inputmode="numeric"></div>
+        <div class="fld full-m"><label for="mAp">年換算保険料の合計（円）</label><input type="text" id="mAp" class="fmoney" inputmode="numeric" autocomplete="off"></div>
         <div class="fld full"><label for="mMemo">ひとこと（任意）</label><input type="text" id="mMemo" maxlength="200" placeholder="例：紹介が2件。中旬から接触が止まった"></div>
       </div>
-      <div class="frm-actions">
+      <div class="frm-actions sticky-m">
         <button class="btn btn-primary btn-sm" id="mSave">この年月で保存</button>
-        <button class="btn btn-ghost btn-sm" id="mFromReal">「今の実績」の数字を入れる</button>
-        <span class="lad-sub" id="mSaved" style="align-self:center;"></span>
       </div>
-      <p class="lad-sub" style="margin-top:var(--sp-2);">同じ年月で保存すると上書きします。</p>
+      <p class="lad-sub" id="mSaved" role="status" style="margin-top:var(--sp-2);">同じ年月で保存すると上書きします。書きかけは、閉じても次に開いたときに戻ります。</p>
     </div>
   </div>
 
@@ -866,17 +1302,18 @@ html.omtrial-lock body > *:not(#omtrial){ display:none !important; }
 
   <div class="sec">
     <div class="card">
-      <h3 style="color:var(--navy);margin-bottom:var(--sp-3);">1on1のメモ</h3>
-      <div class="frm">
-        <div class="fld"><label for="oDate">日付</label><input type="date" id="oDate"></div>
-        <div class="fld"><label for="oWho">相手（任意）</label><input type="text" id="oWho" maxlength="40" placeholder="例：支店長"></div>
+      <h3 style="color:var(--navy);margin-bottom:var(--sp-3);" id="oTitle">1対1の面談のメモ</h3>
+      <div class="frm" id="oForm">
+        <div class="fld"><label for="oDate">面談の日</label><input type="date" id="oDate"></div>
+        <div class="fld"><label for="oWho">面談した人（任意）</label><input type="text" id="oWho" maxlength="40" placeholder="例：支店長"></div>
         <div class="fld full"><label for="oDecided">決めたこと</label><textarea id="oDecided" maxlength="1000" placeholder="例：アポ獲得率を上げる。断られた直後の一言を3種類つくって試す"></textarea></div>
         <div class="fld full"><label for="oNext">次回まで（宿題）</label><textarea id="oNext" maxlength="1000" placeholder="例：来週までに接触100件・記録は毎日その日のうちに入れる"></textarea></div>
       </div>
-      <div class="frm-actions">
-        <button class="btn btn-primary btn-sm" id="oSave">メモを足す</button>
-        <span class="lad-sub" id="oSaved" style="align-self:center;"></span>
+      <div class="frm-actions sticky-m">
+        <button class="btn btn-primary btn-sm" id="oSave">メモを残す</button>
+        <button class="btn btn-ghost btn-sm hide" id="oCancel">直すのをやめる</button>
       </div>
+      <p class="lad-sub" id="oSaved" role="status" style="margin-top:var(--sp-2);">面談のあとに「この面談を印刷」で、目標・答え・ボトルネック・決めたことを1枚にできます。</p>
       <div id="oList" style="margin-top:var(--sp-4);"></div>
     </div>
   </div>
@@ -884,11 +1321,17 @@ html.omtrial-lock body > *:not(#omtrial){ display:none !important; }
   <div class="sec">
     <div class="card">
       <h3 style="color:var(--navy);margin-bottom:4px;">データの保管</h3>
-      <p class="sec-note" style="margin-top:0;">目標・率・実績・記録・1on1メモは、この端末のブラウザにだけ残ります。外部には送りません。端末を替えると消えるので、ときどきJSONで書き出しておいてください。</p>
+      <p class="sec-note" style="margin-top:0;">目標・率・実績・記録・面談のメモは、この端末のブラウザにだけ残ります。端末の容量が足りないときや、しばらく開かなかったときに、ブラウザが消すことがあります。<b>ときどき控え（ファイル）を書き出しておいてください。</b></p>
       <div class="frm-actions" style="margin-top:0;">
-        <button class="btn btn-ghost btn-sm" id="expJson">JSONで書き出す</button>
-        <label class="btn btn-ghost btn-sm" for="impJson" style="cursor:pointer;">JSONを取り込む</label>
-        <input type="file" id="impJson" accept="application/json,.json" class="hide">
+        <button class="btn btn-primary btn-sm" id="expBtn">控えを書き出す（ファイル）</button>
+        <label class="btn btn-ghost btn-sm" for="impFile" id="impLbl" tabindex="0" role="button">控えから戻す</label>
+        <input type="file" id="impFile" accept="application/json,.json" class="vh">
+        <a class="btn btn-ghost btn-sm" id="logBackup" href="#">管理画面の「データの控え」を開く</a>
+      </div>
+      <p class="lad-sub" id="bkNote" style="margin-top:var(--sp-2);"></p>
+      <div class="frm-actions">
+        <button class="btn btn-ghost btn-sm" id="whoRename">この人の名前を変える</button>
+        <button class="btn btn-danger btn-sm" id="whoDel">この人の記録を消す</button>
         <button class="btn btn-danger btn-sm" id="wipeBtn">この端末のデータを全部消す</button>
       </div>
     </div>
@@ -899,8 +1342,23 @@ html.omtrial-lock body > *:not(#omtrial){ display:none !important; }
 
 <footer>
   保険 目標逆算プランナー（社内利用専用）／株式会社Office-M<br>
-  率の初期値は目安です。数字は自分の実績で上書きして使ってください。データはこの端末のブラウザにだけ保存され、外部には送信しません。
+  計画を立てるための目安です。必ず達成する約束ではありません。率の初期値は仮の数字なので、自分の実績で上書きして使ってください。データはこの端末だけに保存され、外部には送信しません。
 </footer>
+
+<!-- 控えから戻すときの確認 -->
+<div class="modal hide" id="impModal" role="dialog" aria-modal="true" aria-labelledby="impTitle">
+  <div class="modal-box">
+    <h3 id="impTitle">控えから戻しますか</h3>
+    <div id="impBody"></div>
+    <div class="frm-actions">
+      <button class="btn btn-primary" id="impOk">置き換える</button>
+      <button class="btn btn-ghost" id="impCancel">やめる</button>
+    </div>
+  </div>
+</div>
+
+<div id="printArea" class="print-area"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 /* ============================================================
@@ -909,23 +1367,23 @@ html.omtrial-lock body > *:not(#omtrial){ display:none !important; }
 function $(id){ return document.getElementById(id); }
 function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
   return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
-function todayStr(){
-  var d = new Date();
-  return d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2) + '-' + ('0'+d.getDate()).slice(-2);
-}
-function thisMonthStr(){
-  var d = new Date();
-  return d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2);
-}
+function pad2(n){ return ('0' + n).slice(-2); }
+function todayStr(){ var d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate()); }
+function thisMonthStr(){ var d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth()+1); }
+function nowStr(){ var d = new Date(); return todayStr() + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes()); }
 function uid(p){ return p + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function isObj(o){ return !!o && typeof o === 'object' && !Array.isArray(o); }
+function str(v, max){ return typeof v === 'string' ? v.slice(0, max || 200) : ''; }
 
 /* --- 数の扱い。NaN・Infinity・マイナス・空欄をここで全部せき止める --- */
 function isNum(n){ return typeof n === 'number' && isFinite(n); }
-/* 入力文字列 → 数値 or null（空欄・数字でないものは null） */
+/* 入力文字列 → 数値 or null（空欄・数字でないものは null）。全角の数字・カンマ・「円」も受ける */
 function toNum(v){
   if (v === null || v === undefined) return null;
-  var s = String(v).trim();
-  if (s === '') return null;
+  if (typeof v === 'number') return isFinite(v) ? v : null;
+  var s = String(v).replace(/[０-９．]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); })
+    .replace(/[,，、\s円]/g, '').trim();
+  if (s === '' || !/^-?\d*\.?\d+$/.test(s)) return null;
   var n = Number(s);
   return isFinite(n) ? n : null;
 }
@@ -935,18 +1393,19 @@ function clamp(n, lo, hi){
   if (isNum(hi) && n > hi) n = hi;
   return n;
 }
-/* 割り算。分母が null・0以下・非有限なら null を返す（Infinity を外に出さない） */
 function div(a, b){
   if (!isNum(a) || !isNum(b) || b <= 0) return null;
   var r = a / b;
   return isFinite(r) ? r : null;
 }
 function pct(p){ if (!isNum(p) || p <= 0) return null; return p / 100; }
+function r1(n){ return isNum(n) ? Math.round(n * 10) / 10 : null; }
+/* 件数は1件未満を切り上げる（-0 を出さない） */
+function ceilCnt(n){ if (!isNum(n)) return null; var v = Math.ceil(n - 1e-9); return v > 0 ? v : 0; }
 
 /* --- 表示 --- */
 var DASH = '—';
 var TOO_BIG = '桁が大きすぎます';
-/* 大きな数の単位（万・億・兆・京）。京より上は数字を出さず注意文にする */
 function bigUnit(a){
   if (a >= 1e20) return null;
   if (a >= 1e16) return [1e16, '京'];
@@ -956,7 +1415,7 @@ function bigUnit(a){
 }
 function fmtYen(n){
   if (!isNum(n)) return DASH;
-  n = Math.round(n);
+  n = Math.round(n) || 0;
   var a = Math.abs(n);
   if (a >= 1e8) {
     var u = bigUnit(a);
@@ -973,90 +1432,110 @@ function fmtYen(n){
 function fmtYenFull(n){
   if (!isNum(n)) return DASH;
   if (Math.abs(n) >= 1e20) return TOO_BIG;
-  return Math.round(n).toLocaleString('ja-JP') + '円';
+  return (Math.round(n) || 0).toLocaleString('ja-JP') + '円';
 }
-/* 件数：切り上げて表示（計画に使う数なので端数は上に丸める） */
+function fmtMoneyInput(n){ return isNum(n) ? (Math.round(n) || 0).toLocaleString('ja-JP') : ''; }
 function fmtCnt(n){
   if (!isNum(n)) return DASH;
-  var v = Math.ceil(n - 1e-9);
-  var a = Math.abs(v);
-  if (a >= 1e8) {
-    var u = bigUnit(a);
+  var v = ceilCnt(n);
+  if (v >= 1e8) {
+    var u = bigUnit(v);
     if (!u) return TOO_BIG;
     var q = v / u[0];
-    return (Math.abs(q) >= 100 ? Math.round(q) : Math.round(q*10)/10).toLocaleString('ja-JP') + u[1] + '件';
+    return (q >= 100 ? Math.round(q) : Math.round(q*10)/10).toLocaleString('ja-JP') + u[1] + '件';
   }
-  if (a >= 1000000) return Math.round(v/10000).toLocaleString('ja-JP') + '万件';
+  if (v >= 1000000) return Math.round(v/10000).toLocaleString('ja-JP') + '万件';
   return v.toLocaleString('ja-JP') + '件';
 }
-/* 1日あたりの本数：小数1桁まで（大きすぎるときは単位でまとめる） */
-function fmtDay(n){
+function fmtNumUnit(n, unit){
   if (!isNum(n)) return DASH;
   var a = Math.abs(n);
   if (a >= 1e8) {
     var u = bigUnit(a);
     if (!u) return TOO_BIG;
     var q = n / u[0];
-    return (Math.abs(q) >= 100 ? Math.round(q) : Math.round(q*10)/10).toLocaleString('ja-JP') + u[1] + '本';
+    return (Math.abs(q) >= 100 ? Math.round(q) : Math.round(q*10)/10).toLocaleString('ja-JP') + u[1] + unit;
   }
-  if (a >= 1000000) return Math.round(n/10000).toLocaleString('ja-JP') + '万本';
-  if (a >= 1000) return Math.round(n).toLocaleString('ja-JP') + '本';
-  return (Math.round(n*10)/10).toLocaleString('ja-JP') + '本';
+  if (a >= 1000000) return Math.round(n/10000).toLocaleString('ja-JP') + '万' + unit;
+  if (a >= 1000) return (Math.round(n) || 0).toLocaleString('ja-JP') + unit;
+  return ((Math.round(n*10)/10) || 0).toLocaleString('ja-JP') + unit;
 }
+function fmtDay(n){ return fmtNumUnit(n, '件'); }   /* 接触の数。題名の「接触件数」とそろえて「件」（2026-10-06 まで「本」） */
 function fmtPct(n){
   if (!isNum(n)) return DASH;
-  if (Math.abs(n) >= 1000) return Math.round(n).toLocaleString('ja-JP') + '％';
-  return (Math.round(n*10)/10) + '％';
+  if (Math.abs(n) >= 1000) return (Math.round(n) || 0).toLocaleString('ja-JP') + '％';
+  return ((Math.round(n*10)/10) || 0) + '％';
+}
+function fmtGap(g){
+  if (!isNum(g)) return '';
+  g = r1(g) || 0;
+  if (g === 0) return '±0ポイント';
+  return (g > 0 ? '＋' : '−') + r1(Math.abs(g)) + 'ポイント';
 }
 
 var ICO_DOWN_ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v15M6 13.5l6 6 6-6"/></svg>';
 var ICO_UP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>';
 var ICO_DN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>';
 
-/* 営業ダッシュボードと同じ段の呼び方（AP・FF・プレゼン・クロージング・契約） */
+/* 段の呼び方（英字の略語は使わない。営業ダッシュボードの「アプローチ」とは数え方が違うので、段の定義を画面に書いてある） */
 var STAGES = [
-  { k:'contacts', label:'接触',   full:'電話・声かけ・紹介依頼' },
-  { k:'appts',    label:'アポ',   full:'アポ（アプローチの約束）' },
-  { k:'meets',    label:'面談',   full:'面談（ファクトファインディング）' },
-  { k:'props',    label:'プレゼン', full:'提案・設計書' },
-  { k:'deals',    label:'契約',   full:'クロージング→成約' }
+  { k:'contacts', label:'接触' },
+  { k:'appts',    label:'アポ' },
+  { k:'meets',    label:'面談' },
+  { k:'props',    label:'提案' },
+  { k:'deals',    label:'成約' }
 ];
-/* 段と段のあいだの率（逆算では下から上へ割っていく） */
+function stageLabel(k){ for (var i=0;i<STAGES.length;i++) if (STAGES[i].k === k) return STAGES[i].label; return k; }
 var STEPS = [
   { rate:'rAppt',  from:'contacts', to:'appts', name:'アポ獲得率',  arrow:'接触 → アポ' },
   { rate:'rMeet',  from:'appts',    to:'meets', name:'面談実施率',  arrow:'アポ → 面談' },
-  { rate:'rProp',  from:'meets',    to:'props', name:'提案化率',    arrow:'面談 → プレゼン' },
-  { rate:'rClose', from:'props',    to:'deals', name:'成約率',      arrow:'プレゼン → 契約' }
+  { rate:'rProp',  from:'meets',    to:'props', name:'提案化率',    arrow:'面談 → 提案' },
+  { rate:'rClose', from:'props',    to:'deals', name:'成約率',      arrow:'提案 → 成約' }
 ];
-/* ファネルの5段階＝コーラルの濃淡（接触＝淡い → 契約＝濃い）。
-   共通の顔（--coral #f0846a ／ --coral-btn #bf4123）から作った順序の色で、
-   段の順番を示すだけ。良し悪しの意味は持たせない（意味は数字と文字で言う）。
+/* ファネルの5段階＝コーラルの濃淡（接触＝淡い → 成約＝濃い）。段の順番を示すだけ。
    ⚠️ 営業ダッシュボードの青5段階には戻さないこと。 */
 var FUNNEL_COLORS = ['#f8cdbe','#f4a891','#f0846a','#d7603f','#bf4123'];
 
 /* ============================================================
-   1. データ
+   1. 管理画面へ戻る道（社内ツール共通の部品 A）
+   ★次の1行は形を変えない。納品の道具（make_agency.py）が会社フォルダでは '../' に差し替える。
+     台本の中にちょうど1回だけ書くこと（2回あると道具が止まる）
+   ============================================================ */
+var HUB_URL = '../';   /* OMHUBURL */
+function hubHref(h){
+  var p = location.pathname;
+  var local = /\.html$/.test(p) && !/\/index\.html$/.test(p);
+  return (local ? encodeURI('保険ツール管理画面.html') : HUB_URL) + (h || '');
+}
+
+/* ============================================================
+   2. データ
+   ★2026-10-04 に v2 にした：人ごと（部下ごと）に分ける people[]。
+     前の版（v1：plan・real・months・ones が一番上）はそのまま読めて、「自分」という人に入る。
+     前の版で開かれたときのために、一番上にも1人目の plan・real・months・ones を写して保存する
    ============================================================ */
 var LS_KEY = 'officem.hokenGyakusan.v1';
+var TOOL_NAME = '目標逆算プランナー';
+var KIND = 'katatsugi-gyakusan';
 
 /* ⚠️ ここの率は全て「目安」。業界統計ではなく、話を始めるための仮の数字。
    社内の標準値が決まったら差し替えること。 */
 var DEFAULT_PLAN = {
-  goal:      6000000,   /* 年収の目標（手取り）。よくある置き方の一例 */
+  goal:      6000000,   /* 手元に残したい額（手取り・1年）。よくある置き方の一例 */
   takehome:  75,        /* 手取り率（％） */
   expense:   15,        /* 経費率（％） */
-  comm:      40,        /* 手数料率（％）＝営業ダッシュボードの「平準払」初期値に合わせた参考値 */
-  apPer:     200000,    /* 1件あたり平均AP（円）＝月払1.7万円くらいのイメージ */
-  rClose:    40,        /* 成約率（プレゼン→契約） */
-  rProp:     60,        /* 提案化率（FF→プレゼン） */
-  rMeet:     80,        /* 面談実施率（AP→FF） */
-  rAppt:     10,        /* アポ獲得率（接触→AP） */
+  base:      0,         /* 既にある手数料収入（継続の手数料・更改など・1年）（2026-10-04） */
+  comm:      40,        /* 手数料率（％）＝仮の数字。所属代理店の規程・委託契約で確かめて直す */
+  apPer:     200000,    /* 1件あたり平均の年換算保険料（円）＝月払1.7万円くらいのイメージ */
+  rClose:    40,        /* 成約率（提案→成約） */
+  rProp:     60,        /* 提案化率（面談→提案） */
+  rMeet:     80,        /* 面談実施率（アポ→面談） */
+  rAppt:     10,        /* アポ獲得率（接触→アポ） */
   months:    12,        /* 稼働月数 */
   days:      20         /* 1か月の営業日数 */
 };
-/* 入力の上下限。ここを外れた値は必ず丸めてから計算する */
 var PLAN_LIMITS = {
-  goal:[0,1000000000], takehome:[10,100], expense:[0,90], comm:[1,100],
+  goal:[0,1000000000], takehome:[10,100], expense:[0,90], base:[0,1000000000], comm:[1,100],
   apPer:[1000,100000000], rClose:[1,100], rProp:[1,100], rMeet:[1,100], rAppt:[1,100],
   months:[1,12], days:[1,31]
 };
@@ -1065,61 +1544,188 @@ var REAL_LIMITS = {
   props:[0,100000000], deals:[0,100000000], ap:[0,100000000000]
 };
 var DEFAULT_REAL = { months:3, contacts:null, appts:null, meets:null, props:null, deals:null, ap:null };
+var SNAP_KEYS = ['rAppt','rMeet','rProp','rClose','apPer'];
+var MAX_PEOPLE = 50, MAX_REC = 400;
 
-function defaultState(){
-  var p = {}, k;
-  for (k in DEFAULT_PLAN) if (DEFAULT_PLAN.hasOwnProperty(k)) p[k] = DEFAULT_PLAN[k];
-  var r = {};
-  for (k in DEFAULT_REAL) if (DEFAULT_REAL.hasOwnProperty(k)) r[k] = DEFAULT_REAL[k];
-  return { v:1, plan:p, real:r, months:[], ones:[] };
+function copyObj(o){ var r = {}; for (var k in o) if (o.hasOwnProperty(k)) r[k] = o[k]; return r; }
+function newPerson(name){
+  return { id: uid('p'), name: name || '自分', plan: copyObj(DEFAULT_PLAN), real: copyObj(DEFAULT_REAL),
+    useReal: false, snap: null, months: [], ones: [] };
 }
-var state = defaultState();
+function defaultState(){
+  var p = newPerson('自分');
+  return { v:2, cur:p.id, people:[p], lastTab:'plan', ui:{ ratesOpen:false }, drafts:{} };
+}
 
-function load(){
+/* ---- 形を確かめる（読み込み・控えから戻す の両方で使う。知らない項目は捨てる） ---- */
+function cleanPlan(o){
+  var p = copyObj(DEFAULT_PLAN);
+  if (!isObj(o)) return p;
+  for (var k in p) if (p.hasOwnProperty(k) && o.hasOwnProperty(k)) {
+    var v = toNum(o[k]);
+    p[k] = (v === null) ? (k === 'base' ? 0 : null) : clamp(v, PLAN_LIMITS[k][0], PLAN_LIMITS[k][1]);
+  }
+  return p;
+}
+function cleanReal(o){
+  var r = copyObj(DEFAULT_REAL);
+  if (!isObj(o)) return r;
+  for (var k in r) if (r.hasOwnProperty(k) && o.hasOwnProperty(k)) {
+    var v = toNum(o[k]);
+    r[k] = (v === null) ? null : Math.round(clamp(v, REAL_LIMITS[k][0], REAL_LIMITS[k][1]));
+  }
+  return r;
+}
+function cleanSnap(o){
+  if (!isObj(o)) return null;
+  var s = {}, n = 0;
+  SNAP_KEYS.forEach(function(k){
+    var v = toNum(o[k]);
+    if (v !== null && v > 0) { s[k] = clamp(k === 'apPer' ? Math.round(v) : r1(v), PLAN_LIMITS[k][0], PLAN_LIMITS[k][1]); n++; }
+  });
+  if (!n) return null;
+  s.at = /^\d{4}-\d{2}-\d{2}( \d{2}:\d{2})?$/.test(o.at) ? o.at : '';
+  return s;
+}
+function cleanMonths(a){
+  if (!Array.isArray(a)) return [];
+  var seen = {}, out = [];
+  a.forEach(function(m){
+    if (!isObj(m) || typeof m.ym !== 'string' || !/^\d{4}-(0[1-9]|1[0-2])$/.test(m.ym) || seen[m.ym]) return;
+    seen[m.ym] = 1;
+    var rec = { ym: m.ym };
+    ['contacts','appts','meets','props','deals'].forEach(function(k){ var v = toNum(m[k]); rec[k] = v === null ? null : Math.round(clamp(v, 0, 100000000)); });
+    var ap = toNum(m.ap); rec.ap = ap === null ? null : Math.round(clamp(ap, 0, 100000000000));
+    rec.memo = str(m.memo, 200);
+    out.push(rec);
+  });
+  return out.slice(-MAX_REC);
+}
+function cleanOnes(a){
+  if (!Array.isArray(a)) return [];
+  var out = [];
+  a.forEach(function(o){
+    if (!isObj(o)) return;
+    var id = (typeof o.id === 'string' && /^[A-Za-z0-9_-]{1,40}$/.test(o.id)) ? o.id : uid('o');
+    out.push({ id:id, date: /^\d{4}-\d{2}-\d{2}$/.test(o.date) ? o.date : '', who: str(o.who, 40),
+      decided: str(o.decided, 1000), next: str(o.next, 1000) });
+  });
+  return out.slice(-MAX_REC);
+}
+function cleanPerson(o, i){
+  var p = newPerson();
+  if (!isObj(o)) return p;
+  if (typeof o.id === 'string' && /^[A-Za-z0-9_-]{1,40}$/.test(o.id)) p.id = o.id;
+  p.name = str(o.name, 30).trim() || (i === 0 ? '自分' : '名前なし');
+  p.plan = cleanPlan(o.plan);
+  p.real = cleanReal(o.real);
+  p.snap = cleanSnap(o.snap);
+  p.useReal = o.useReal === true && !!p.snap;
+  p.months = cleanMonths(o.months);
+  p.ones = cleanOnes(o.ones);
+  return p;
+}
+function cleanDraft(d){
+  if (!isObj(d)) return null;
+  var out = {};
+  if (isObj(d.m)) {
+    out.m = { ym: /^\d{4}-\d{2}$/.test(d.m.ym) ? d.m.ym : '' };
+    ['contacts','appts','meets','props','deals','ap'].forEach(function(k){ out.m[k] = str(d.m[k], 20); });
+    out.m.memo = str(d.m.memo, 200);
+  }
+  if (isObj(d.o)) out.o = { id: str(d.o.id, 40), date: /^\d{4}-\d{2}-\d{2}$/.test(d.o.date) ? d.o.date : '',
+    who: str(d.o.who, 40), decided: str(d.o.decided, 1000), next: str(d.o.next, 1000) };
+  return out;
+}
+/* 保存してある形（v1 でも v2 でも）→ いまの形 */
+function cleanState(o){
   var st = defaultState();
-  try {
-    var o = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
-    if (!o || typeof o !== 'object') return st;
-    var k;
-    if (o.plan && typeof o.plan === 'object') {
-      for (k in st.plan) if (st.plan.hasOwnProperty(k)) {
-        var v = toNum(o.plan[k]);
-        st.plan[k] = (v === null) ? null : clamp(v, PLAN_LIMITS[k][0], PLAN_LIMITS[k][1]);
-      }
-    }
-    if (o.real && typeof o.real === 'object') {
-      for (k in st.real) if (st.real.hasOwnProperty(k)) {
-        var w = toNum(o.real[k]);
-        st.real[k] = (w === null) ? null : clamp(w, REAL_LIMITS[k][0], REAL_LIMITS[k][1]);
-      }
-    }
-    if (Object.prototype.toString.call(o.months) === '[object Array]') {
-      st.months = o.months.filter(function(m){ return m && typeof m === 'object' && m.ym; }).slice(0, 400);
-    }
-    if (Object.prototype.toString.call(o.ones) === '[object Array]') {
-      st.ones = o.ones.filter(function(m){ return m && typeof m === 'object'; }).slice(0, 400);
-    }
-  } catch (e) {}
+  if (!isObj(o)) return st;
+  var people;
+  if (Array.isArray(o.people) && o.people.length) {
+    people = o.people.slice(0, MAX_PEOPLE).map(cleanPerson);
+    var ids = {};
+    people.forEach(function(p){ if (ids[p.id]) p.id = uid('p'); ids[p.id] = 1; });
+  } else {
+    /* 前の版（v1）：一番上の plan・real・months・ones を「自分」に入れる */
+    var me = cleanPerson({ name:'自分', plan:o.plan, real:o.real, months:o.months, ones:o.ones }, 0);
+    people = [me];
+  }
+  st.people = people;
+  st.cur = (typeof o.cur === 'string' && people.some(function(p){ return p.id === o.cur; })) ? o.cur : people[0].id;
+  st.lastTab = (TABS.indexOf(o.lastTab) >= 0) ? o.lastTab : 'plan';
+  st.ui = { ratesOpen: isObj(o.ui) && o.ui.ratesOpen === true };
+  if (isObj(o.drafts)) Object.keys(o.drafts).slice(0, MAX_PEOPLE).forEach(function(pid){
+    if (people.some(function(p){ return p.id === pid; })) { var d = cleanDraft(o.drafts[pid]); if (d) st.drafts[pid] = d; }
+  });
   return st;
 }
-var saveTimer = null;
+var TABS = ['plan','real','log'];
+var state = defaultState();
+function P(){ for (var i=0;i<state.people.length;i++) if (state.people[i].id === state.cur) return state.people[i]; return state.people[0]; }
+
+function load(){
+  var o = null;
+  try { o = JSON.parse(localStorage.getItem(LS_KEY) || 'null'); } catch (e) { o = null; }
+  return cleanState(o);
+}
+function packState(){
+  var first = state.people[0];
+  /* 前の版で開かれても1人目の記録が見えるように、一番上にも写しておく */
+  return { v:2, cur:state.cur, people:state.people, lastTab:state.lastTab, ui:state.ui, drafts:state.drafts,
+    plan:first.plan, real:first.real, months:first.months, ones:first.ones };
+}
+
+/* --- C. 保存の失敗を知らせる・ほかの窓の保存を知る（社内ツール共通の部品 C） --- */
+var saveTimer = null, staleOther = false, staleHold = false;
 function save(){
   if (saveTimer) clearTimeout(saveTimer);
   saveTimer = setTimeout(saveNow, 250);
 }
 function saveNow(){
   if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
-  try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {}
+  if (staleOther) {
+    if (staleHold) return false;
+    if (!confirm('別の窓で、このツールの記録が変わっています。\nこのまま保存すると、別の窓の記録を上書きして消します。\n\n［OK］この窓の内容で上書きして保存する\n［キャンセル］保存しない（上の帯の「読み直す」で読み直せます）')) {
+      staleHold = true; showStale(); return false;
+    }
+    staleOther = false; staleHold = false; $('omStale').classList.add('hide');
+  }
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(packState()));
+    $('omErr').classList.add('hide');
+    return true;
+  } catch (e) {
+    $('omErr').classList.remove('hide');
+    return false;
+  }
 }
+function showStale(){
+  $('omStaleTxt').textContent = staleHold
+    ? '別の窓でこのツールの記録が変わりました。この窓の変更は、まだ保存していません。'
+    : '別の窓でこのツールの記録が変わりました。';
+  $('omStale').classList.remove('hide');
+}
+window.addEventListener('storage', function(e){
+  if (e.key === LS_KEY || e.key === null) { staleOther = true; staleHold = false; showStale(); }
+});
+$('omStaleBtn').addEventListener('click', function(){ location.reload(); });
+$('omErrBtn').addEventListener('click', function(){ exportBackup(); });
 /* 画面を離れるときに書き残しをなくす */
-window.addEventListener('pagehide', saveNow);
-document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'hidden') saveNow(); });
+window.addEventListener('pagehide', function(){ if (saveTimer) saveNow(); });
+document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'hidden' && saveTimer) saveNow(); });
+
+var toastTimer = null;
+function toast(msg){
+  var t = $('toast'); t.textContent = msg; t.classList.add('on');
+  clearTimeout(toastTimer); toastTimer = setTimeout(function(){ t.classList.remove('on'); }, 3200);
+}
 
 /* ============================================================
-   2. タブ切り替え
+   3. タブ切り替え（最後に開いたタブを覚える）
    ============================================================ */
-var TABS = ['plan','real','log'];
-function showTab(key){
+function showTab(key, keepScroll){
+  if (TABS.indexOf(key) < 0) key = 'plan';
   TABS.forEach(function(t){
     var sec = $('tab-' + t);
     if (sec) sec.classList.toggle('hide', t !== key);
@@ -1129,21 +1735,22 @@ function showTab(key){
   if (key === 'plan') renderPlan();
   if (key === 'real') renderReal();
   if (key === 'log')  renderLog();
-  window.scrollTo(0, 0);
+  if (state.lastTab !== key) { state.lastTab = key; save(); }
+  if (!keepScroll) window.scrollTo(0, 0);
 }
 document.querySelectorAll('.tab').forEach(function(btn){
   btn.addEventListener('click', function(){ showTab(btn.getAttribute('data-tab')); });
 });
 
 /* ============================================================
-   3. 逆算の計算（ここが本体）
+   4. 逆算の計算（ここが本体）
    ------------------------------------------------------------
-   どの段も「分母が空・0・マイナス」なら null を返し、画面には —
-   を出す。NaN と Infinity は外に出さない。
+   ・件数は「前の段の件数（切り上げたもの）÷ 率」を切り上げる。画面の数字だけで手で検算すると合う形
+   ・どの段も「分母が空・0・マイナス」なら null を返し、画面には — を出す
+   ・既にある手数料収入（base）で目標に届くときは、新規の件数は0件
    ============================================================ */
 function calc(p){
   var o = {};
-  /* 1 → 2 : 年収の目標 ÷（手取り率 ×（1−経費率）） */
   var keepRate = null;
   if (isNum(p.takehome) && isNum(p.expense)) {
     var k = (p.takehome / 100) * ((100 - p.expense) / 100);
@@ -1151,83 +1758,159 @@ function calc(p){
   }
   o.keepRate = keepRate;
   o.need1 = isNum(p.goal) ? p.goal : null;
-  o.need2 = div(o.need1, keepRate);            /* 必要な手数料収入 */
-  o.need3 = div(o.need2, pct(p.comm));         /* 必要AP */
-  o.need4 = div(o.need3, p.apPer);             /* 必要な成約件数 */
-  o.need5 = div(o.need4, pct(p.rClose));       /* 必要な提案件数 */
-  o.need6 = div(o.need5, pct(p.rProp));        /* 必要な面談件数 */
-  o.need7 = div(o.need6, pct(p.rMeet));        /* 必要なアポ件数 */
-  o.need8 = div(o.need7, pct(p.rAppt));        /* 必要な接触件数 */
-  o.perMonth = div(o.need8, p.months);
-  o.perDay   = div(o.perMonth, p.days);
-  o.perWeek  = isNum(o.perDay) ? o.perDay * 5 : null;   /* 1週＝5営業日として */
-  /* 件数のファネル（接触→契約） */
-  o.counts = { contacts:o.need8, appts:o.need7, meets:o.need6, props:o.need5, deals:o.need4 };
+  var n2 = div(o.need1, keepRate);
+  o.need2 = (o.need1 === 0 && isNum(keepRate)) ? 0 : (isNum(n2) ? Math.round(n2) : null);   /* 必要な手数料収入（総額） */
+  var base = isNum(p.base) ? p.base : 0;
+  o.base = base;
+  o.need3 = isNum(o.need2) ? Math.max(0, o.need2 - base) : null;            /* 新規で要る手数料収入 */
+  var c = pct(p.comm);
+  o.need4 = (isNum(o.need3) && c) ? Math.round(o.need3 / c) : null;          /* 新規の年換算保険料 */
+  o.need5 = (isNum(o.need4) && isNum(p.apPer) && p.apPer > 0) ? ceilCnt(o.need4 / p.apPer) : null;   /* 成約 */
+  function up(prev, rate){ var r = pct(rate); return (isNum(prev) && r) ? ceilCnt(prev / r) : null; }
+  o.need6 = up(o.need5, p.rClose);    /* 提案 */
+  o.need7 = up(o.need6, p.rProp);     /* 面談 */
+  o.need8 = up(o.need7, p.rMeet);     /* アポ */
+  o.need9 = up(o.need8, p.rAppt);     /* 接触 */
+  o.perMonth = div(o.need9, p.months);
+  if (o.need9 === 0 && isNum(p.months) && p.months > 0) o.perMonth = 0;
+  o.perDay   = (o.perMonth === 0 && isNum(p.days) && p.days > 0) ? 0 : div(o.perMonth, p.days);
+  o.perWeek  = isNum(o.perDay) ? o.perDay * 5 : null;
+  o.dealsMonth = (o.need5 === 0) ? 0 : div(o.need5, p.months);
+  o.counts = { contacts:o.need9, appts:o.need8, meets:o.need7, props:o.need6, deals:o.need5 };
   return o;
 }
-/* 計算が途中で止まった理由を1つだけ返す（利用者に「どこを直せばよいか」を示す） */
+/* 計算に使う率（「今の実績」の率で計算しているときは、取り込んだ率に置き換える。計画の率は残す） */
+function effPlan(person){
+  var p = copyObj(person.plan);
+  if (person.useReal && person.snap) SNAP_KEYS.forEach(function(k){ if (isNum(person.snap[k])) p[k] = person.snap[k]; });
+  return p;
+}
 function planBlocker(p, c){
-  if (!isNum(p.goal)) return '年収の目標が空です。金額を入れてください。';
-  if (p.goal === 0) return '年収の目標が0円です。金額を入れると下の段が出ます。';
-  if (!isNum(c.keepRate)) return '手取り率か経費率が空です。手取り率は1％以上、経費率は90％以下で入れてください。';
-  if (!isNum(c.need3)) return '手数料率が空か0％です。1％以上で入れてください。';
-  if (!isNum(c.need4)) return '1件あたりの平均APが空か0円です。金額を入れてください。';
-  if (!isNum(c.need5)) return '成約率が空か0％です。1％以上で入れてください。';
-  if (!isNum(c.need6)) return '提案化率が空か0％です。1％以上で入れてください。';
-  if (!isNum(c.need7)) return '面談実施率が空か0％です。1％以上で入れてください。';
-  if (!isNum(c.need8)) return 'アポ獲得率が空か0％です。1％以上で入れてください。';
+  if (!isNum(p.goal)) return '手元に残したい額が空です。金額を入れてください。';
+  if (p.goal === 0) return '手元に残したい額が0円です。金額を入れると下の段が出ます。';
+  if (!isNum(c.keepRate)) return '手取り率か経費率が空です。手取り率は10％以上、経費率は90％以下で入れてください。';
+  if (c.need3 === 0) return '';
+  if (!isNum(c.need4)) return '手数料率が空か0％です。1％以上で入れてください。';
+  if (!isNum(c.need5)) return '1件あたりの平均保険料が空か0円です。金額を入れてください。';
+  if (!isNum(c.need6)) return '成約率が空か0％です。1％以上で入れてください。';
+  if (!isNum(c.need7)) return '提案化率が空か0％です。1％以上で入れてください。';
+  if (!isNum(c.need8)) return '面談実施率が空か0％です。1％以上で入れてください。';
+  if (!isNum(c.need9)) return 'アポ獲得率が空か0％です。1％以上で入れてください。';
   if (!isNum(c.perMonth)) return '稼働月数が空か0です。1か月以上で入れてください。';
   if (!isNum(c.perDay)) return '1か月の営業日数が空か0です。1日以上で入れてください。';
   return '';
 }
 
 /* ============================================================
-   4. 逆算タブの表示
+   5. 逆算タブの表示
    ============================================================ */
 function setStep(id, main, sub){
   var e = $(id);
-  if (e) {
-    e.textContent = main;
-    e.className = 'lad-val' + (main === DASH ? ' na' : '');
-  }
+  if (e) { e.textContent = main; e.className = 'lad-val' + (main === DASH ? ' na' : ''); }
   var s = $(id + 's');
   if (s) s.textContent = sub || '';
 }
+var focusedInput = null;
+document.addEventListener('focusin', function(e){ focusedInput = e.target; });
+document.addEventListener('focusout', function(){ focusedInput = null; });
 function syncPlanInputs(){
-  var p = state.plan;
+  var p = P().plan;
   document.querySelectorAll('.pin').forEach(function(el){
-    var k = el.getAttribute('data-k');
-    var v = p[k];
+    if (el === focusedInput) return;
+    var v = p[el.getAttribute('data-k')];
     el.value = (v === null || v === undefined) ? '' : v;
   });
+  document.querySelectorAll('.pmoney').forEach(function(el){
+    if (el === focusedInput) return;
+    el.value = fmtMoneyInput(p[el.getAttribute('data-k')]);
+  });
   document.querySelectorAll('.prange').forEach(function(el){
-    var k = el.getAttribute('data-k');
-    var v = p[k];
-    if (v === null || v === undefined) return;      /* 空欄のときはつまみを動かさない */
-    var lo = +el.min, hi = +el.max;
-    el.value = Math.min(hi, Math.max(lo, v));
+    var v = p[el.getAttribute('data-k')];
+    if (v === null || v === undefined) return;
+    el.value = Math.min(+el.max, Math.max(+el.min, v));
   });
 }
+/* 率の欄：携帯では畳んで、1行の要約（押すと開く）にする */
+function ctlSummary(){
+  var pe = P(), p = effPlan(pe), real = pe.useReal && pe.snap;
+  function rv(k){ return (real && isNum(pe.snap[k])) ? '（実績）' : ''; }
+  var S = {
+    sum1: '手取り率 ' + fmtPct(p.takehome) + '・経費率 ' + fmtPct(p.expense),
+    sum2: '既にある手数料収入 ' + fmtYen(p.base),
+    sum3: '手数料率 ' + fmtPct(p.comm),
+    sum4: '1件あたり平均保険料 ' + fmtYen(p.apPer) + rv('apPer'),
+    sum5: '成約率 ' + fmtPct(p.rClose) + rv('rClose'),
+    sum6: '提案化率 ' + fmtPct(p.rProp) + rv('rProp'),
+    sum7: '面談実施率 ' + fmtPct(p.rMeet) + rv('rMeet'),
+    sum8: 'アポ獲得率 ' + fmtPct(p.rAppt) + rv('rAppt'),
+    sum9: '稼働 ' + (isNum(p.months) ? p.months : DASH) + 'か月・1か月 ' + (isNum(p.days) ? p.days : DASH) + '営業日'
+  };
+  Object.keys(S).forEach(function(id){
+    var b = $(id); if (!b) return;
+    b.innerHTML = '<span>' + esc(S[id]) + '</span><span class="cs-go">' + (state.ui.ratesOpen ? '閉じる' : '直す') + '</span>';
+    b.setAttribute('aria-expanded', state.ui.ratesOpen ? 'true' : 'false');
+  });
+  document.body.classList.toggle('rates-open', !!state.ui.ratesOpen);
+  $('ratesToggle').textContent = state.ui.ratesOpen ? '率と前提の欄を畳む' : '率と前提を調整する';
+  $('ratesToggle').setAttribute('aria-expanded', state.ui.ratesOpen ? 'true' : 'false');
+}
+function setRatesOpen(open, focusEl){
+  state.ui.ratesOpen = !!open; save(); ctlSummary();
+  if (open && focusEl) { var ctl = focusEl.parentElement.querySelector('.ctl input:not([disabled])'); if (ctl) try { ctl.focus({ preventScroll:true }); } catch (e) {} }
+}
+document.querySelectorAll('.ctl-sum').forEach(function(b){
+  b.addEventListener('click', function(){ setRatesOpen(!state.ui.ratesOpen, b); });
+});
+$('ratesToggle').addEventListener('click', function(){ setRatesOpen(!state.ui.ratesOpen); });
+
+/* 実績の率で計算しているあいだは、その率の欄を止めて理由を書く */
+function renderRealLocks(){
+  var pe = P(), on = pe.useReal && pe.snap;
+  document.querySelectorAll('.ctl[data-rate]').forEach(function(ctl){
+    var k = ctl.getAttribute('data-rate');
+    var lock = on && isNum(pe.snap[k]);
+    ctl.classList.toggle('is-real', !!lock);
+    ctl.querySelectorAll('input').forEach(function(i){ i.disabled = !!lock; });
+    var msg = ctl.querySelector('.ctl-real');
+    if (lock) {
+      var txt = k === 'apPer'
+        ? 'いまは実績の平均（' + fmtYen(pe.snap[k]) + '）で計算しています。計画の値は ' + fmtYen(pe.plan[k]) + ' のまま残してあります。'
+        : 'いまは実績の率（' + fmtPct(pe.snap[k]) + '）で計算しています。計画の率 ' + fmtPct(pe.plan[k]) + ' はそのまま残してあります。';
+      msg.textContent = txt; msg.classList.remove('hide');
+    } else msg.classList.add('hide');
+  });
+  $('modeBar').classList.toggle('hide', !on);
+  if (on) $('modeTxt').textContent = 'いまは「今の実績」の率で計算しています' + (pe.snap.at ? '（取り込んだ日時 ' + pe.snap.at + '）' : '') + '。計画の率は残してあります。';
+}
+
 function renderPlan(){
-  var p = state.plan, c = calc(p);
-
-  setStep('v1', p.goal === null ? DASH : fmtYen(p.goal),
-    p.goal === null ? '金額を入れてください' : fmtYenFull(p.goal) + '（手取りで欲しい額）');
-
-  var keepTxt = isNum(c.keepRate) ? '手取り率' + fmtPct(p.takehome) + ' × （100％−経費率' + fmtPct(p.expense) + '）＝ 手元に残る割合 ' + fmtPct(c.keepRate*100) : '';
-  setStep('v2', fmtYen(c.need2), isNum(c.need2) ? fmtYenFull(c.need2) + '　／　' + keepTxt : keepTxt);
-  setStep('v3', fmtYen(c.need3), isNum(c.need3) ? fmtYenFull(c.need3) + '　／　手数料率 ' + fmtPct(p.comm) : '');
-  setStep('v4', fmtCnt(c.need4), isNum(c.need4) ? '1件あたりの平均保険料 ' + fmtYen(p.apPer) + 'で割った件数（表示は切り上げ）' : '');
-  setStep('v5', fmtCnt(c.need5), isNum(c.need5) ? '成約率 ' + fmtPct(p.rClose) + ' で割った件数' : '');
-  setStep('v6', fmtCnt(c.need6), isNum(c.need6) ? '提案化率 ' + fmtPct(p.rProp) + ' で割った件数' : '');
-  setStep('v7', fmtCnt(c.need7), isNum(c.need7) ? '面談実施率 ' + fmtPct(p.rMeet) + ' で割った件数' : '');
-  setStep('v8', fmtCnt(c.need8), isNum(c.need8) ? 'アポ獲得率 ' + fmtPct(p.rAppt) + ' で割った件数' : '');
-  setStep('v9', fmtDay(c.perDay), isNum(c.perDay)
-    ? '1か月 ' + fmtDay(c.perMonth) + '／1週（5営業日） ' + fmtDay(c.perWeek) + '　この本数を毎営業日つづける、が答えです'
+  var pe = P(), p = effPlan(pe), c = calc(p);
+  setStep('s1', '', isNum(p.goal) ? '＝ ' + fmtYen(p.goal) : '金額を入れてください');
+  var keepTxt = isNum(c.keepRate) ? '手取り率 ' + fmtPct(p.takehome) + ' ×（100％ − 経費率 ' + fmtPct(p.expense) + '）＝ 手元に残る割合 ' + fmtPct(c.keepRate*100) : '';
+  setStep('s2', fmtYen(c.need2), isNum(c.need2) ? fmtYenFull(c.need2) + '　／　' + fmtYenFull(c.need1) + ' ÷ ' + keepTxt : keepTxt);
+  setStep('s3', fmtYen(c.need3), isNum(c.need3)
+    ? fmtYenFull(c.need3) + '　／　' + fmtYenFull(c.need2) + ' − 既にある ' + fmtYenFull(c.base) + (c.need3 === 0 ? '（既にある手数料収入で届く計算です）' : '')
+    : '');
+  setStep('s4', fmtYen(c.need4), isNum(c.need4) ? fmtYenFull(c.need4) + '　／　手数料率 ' + fmtPct(p.comm) + ' で割った額' : '');
+  setStep('s5', fmtCnt(c.need5), isNum(c.need5) ? '1件あたりの平均保険料 ' + fmtYen(p.apPer) + ' で割った件数' : '');
+  setStep('s6', fmtCnt(c.need6), isNum(c.need6) ? '成約 ' + fmtCnt(c.need5) + ' ÷ 成約率 ' + fmtPct(p.rClose) : '');
+  setStep('s7', fmtCnt(c.need7), isNum(c.need7) ? '提案 ' + fmtCnt(c.need6) + ' ÷ 提案化率 ' + fmtPct(p.rProp) : '');
+  setStep('s8', fmtCnt(c.need8), isNum(c.need8) ? '面談 ' + fmtCnt(c.need7) + ' ÷ 面談実施率 ' + fmtPct(p.rMeet) : '');
+  setStep('s9', fmtCnt(c.need9), isNum(c.need9) ? 'アポ ' + fmtCnt(c.need8) + ' ÷ アポ獲得率 ' + fmtPct(p.rAppt) : '');
+  setStep('s10', fmtDay(c.perDay), isNum(c.perDay)
+    ? '接触 ' + fmtCnt(c.need9) + ' ÷ ' + p.months + 'か月 ÷ ' + p.days + '営業日。1か月 ' + fmtDay(c.perMonth) + '／1週（5営業日） ' + fmtDay(c.perWeek) + '。この件数が、計画の前提になる目安です。率が変われば変わります'
     : '');
 
-  /* 計算できないときの理由。計算はできても現実に回らない本数のときは、そのことを言う */
+  /* 答えの箱（目標のすぐ下） */
+  $('aDay').textContent = fmtDay(c.perDay);
+  $('aMonth').textContent = fmtDay(c.perMonth);
+  $('aMonthDeal').textContent = fmtNumUnit(c.dealsMonth, '件');
+  $('aYearDeal').textContent = fmtCnt(c.need5);
+  $('amDay').textContent = fmtDay(c.perDay);
+  $('amSub').textContent = '1か月の接触 ' + fmtDay(c.perMonth) + '・成約 ' + fmtNumUnit(c.dealsMonth, '件');
+
   var blocker = planBlocker(p, c);
+  if (!blocker && c.need3 === 0) blocker = '既にある手数料収入で、手元に残したい額に届く計算です。新規の契約の件数は0件になります。';
   if (!blocker && isNum(c.perDay) && c.perDay > 100) {
     blocker = '1営業日に ' + fmtDay(c.perDay) + ' は、普通の営業日には収まりません。' +
       '目標か率、稼働日数のどれかを見直すか、紹介など接触1件の質を上げる前提に切り替えてください。';
@@ -1235,41 +1918,32 @@ function renderPlan(){
   $('planWarn').classList.toggle('hide', !blocker);
   $('planWarnTxt').textContent = blocker;
 
-  $('tMonth').textContent = fmtDay(c.perMonth);
-  $('tMonthSub').textContent = isNum(p.months) ? '稼働 ' + p.months + 'か月で割った数' : '稼働月数を入れてください';
-  $('tWeek').textContent = fmtDay(c.perWeek);
-  $('tWeekSub').textContent = '1営業日あたりの5日ぶん';
-  $('tDay').textContent = fmtDay(c.perDay);
-  $('tDaySub').textContent = isNum(p.days) ? '1か月 ' + p.days + '営業日で割った数' : '営業日数を入れてください';
-
-  renderFunnel('planFunnel', c.counts);
+  renderRealLocks();
+  ctlSummary();
+  renderFunnel('planFunnel', c.counts, null);
   renderEffect(p, c);
 }
 
-/* ファネル（棒の長さ＝件数） */
-function renderFunnel(elId, counts){
+/* ファネル（棒の長さ＝件数）。max を渡すと、2つの棒を同じものさしで描く */
+function funnelMax(counts){
+  var m = 0; STAGES.forEach(function(s){ var v = counts[s.k]; if (isNum(v) && v > m) m = v; }); return m;
+}
+function renderFunnel(elId, counts, max){
   var el = $(elId);
   if (!el) return;
-  var max = 0, any = false;
-  STAGES.forEach(function(s){
-    var v = counts[s.k];
-    if (isNum(v)) { any = true; if (v > max) max = v; }
-  });
-  if (!any) {
-    el.innerHTML = '<p class="lad-sub" style="grid-column:1/-1;">数字がそろうと、ここに棒が出ます。</p>';
-    return;
-  }
+  var any = STAGES.some(function(s){ return isNum(counts[s.k]); });
+  if (!isNum(max)) max = funnelMax(counts);
+  if (!any) { el.innerHTML = '<p class="lad-sub" style="grid-column:1/-1;">数字がそろうと、ここに棒が出ます。</p>'; return; }
   el.innerHTML = STAGES.map(function(s, i){
     var v = counts[s.k];
-    var w = (isNum(v) && v > 0 && max > 0) ? Math.max(v / max * 100, 3) : 0;
-    var txt = '<b>' + esc(fmtCnt(v)) + '</b>';
+    var w = (isNum(v) && v > 0 && max > 0) ? Math.max(v / max * 100, 2) : 0;
     return '<div class="fn-row"><span class="fn-label">' + esc(s.label) + '</span>' +
       '<span class="fn-track"><span class="fn-bar" style="width:' + w + '%;background:' + FUNNEL_COLORS[i] + ';"></span></span>' +
-      '<span class="fn-val">' + txt + '</span></div>';
+      '<span class="fn-val"><b>' + esc(fmtCnt(v)) + '</b></span></div>';
   }).join('');
 }
 
-/* 「この率が5ポイント上がったら1日の電話は何本減るか」 */
+/* 「この率が5ポイント上がったら1日の接触は何件減るか」 */
 function renderEffect(p, c){
   var base = c.perDay;
   var rows = STEPS.map(function(st){
@@ -1277,30 +1951,25 @@ function renderEffect(p, c){
     var o = { name:st.name + '（' + st.arrow + '）', cur:cur, next:null, day:null, gain:null, msg:'' };
     if (!isNum(cur)) { o.msg = '率が空です'; return o; }
     if (cur >= 100) { o.msg = '既に100％です'; o.next = 100; return o; }
-    var p2 = {}, k;
-    for (k in p) if (p.hasOwnProperty(k)) p2[k] = p[k];
+    var p2 = copyObj(p);
     p2[st.rate] = Math.min(100, cur + 5);
     o.next = p2[st.rate];
-    var c2 = calc(p2);
-    o.day = c2.perDay;
+    o.day = calc(p2).perDay;
     if (isNum(base) && isNum(o.day)) o.gain = base - o.day;
     return o;
   });
-  rows.sort(function(a, b){
-    var av = isNum(a.gain) ? a.gain : -1, bv = isNum(b.gain) ? b.gain : -1;
-    return bv - av;
-  });
+  rows.sort(function(a, b){ var av = isNum(a.gain) ? a.gain : -1, bv = isNum(b.gain) ? b.gain : -1; return bv - av; });
   $('effBody').innerHTML = rows.map(function(o){
-    return '<tr><td>' + esc(o.name) + '</td>' +
-      '<td class="num">' + esc(isNum(o.cur) ? fmtPct(o.cur) : DASH) + '</td>' +
-      '<td class="num">' + esc(isNum(o.next) ? fmtPct(o.next) : DASH) + '</td>' +
-      '<td class="num">' + esc(fmtDay(o.day)) + '</td>' +
-      '<td class="num"><b>' + (isNum(o.gain) && o.gain > 0 ? '−' + esc(fmtDay(o.gain)) : (o.msg ? esc(o.msg) : DASH)) + '</b></td></tr>';
+    return '<tr><td data-l="上げる率">' + esc(o.name) + '</td>' +
+      '<td class="num" data-l="今">' + esc(isNum(o.cur) ? fmtPct(o.cur) : DASH) + '</td>' +
+      '<td class="num" data-l="5ポイント上げると">' + esc(isNum(o.next) ? fmtPct(o.next) : DASH) + '</td>' +
+      '<td class="num" data-l="1日の接触">' + esc(fmtDay(o.day)) + '</td>' +
+      '<td class="num" data-l="減る件数"><b>' + (isNum(o.gain) && o.gain > 0.05 ? '−' + esc(fmtDay(o.gain)) : (o.msg ? esc(o.msg) : DASH)) + '</b></td></tr>';
   }).join('');
   var top = rows[0];
-  $('effNote').textContent = (isNum(base) && top && isNum(top.gain) && top.gain > 0)
+  $('effNote').textContent = (isNum(base) && base > 0 && top && isNum(top.gain) && top.gain > 0.05)
     ? '今の設定でいちばん効くのは「' + top.name + '」。5ポイント上げると1日の接触が ' + fmtDay(base) + ' から ' + fmtDay(top.day) + ' になります。'
-    : '年収の目標と率がそろうと、効き目の比較が出ます。';
+    : '金額と率がそろうと、効き目の比較が出ます。';
 }
 
 /* 逆算タブの入力を拾う */
@@ -1309,30 +1978,27 @@ function bindPlanInputs(){
     var lim = PLAN_LIMITS[k] || [0, 1000000000];
     var v = toNum(raw);
     if (v !== null) v = clamp(v, lim[0], lim[1]);
-    state.plan[k] = v;
-    /* 同じ項目のもう一方（スライダー／数値欄）を合わせる。
-       「今の実績」タブにも data-k="months" があるので、必ず .pin/.prange に絞ること */
-    document.querySelectorAll('.pin[data-k="' + k + '"], .prange[data-k="' + k + '"]').forEach(function(other){
+    if (k === 'base' && v === null) v = 0;
+    P().plan[k] = v;
+    document.querySelectorAll('.pin[data-k="' + k + '"], .prange[data-k="' + k + '"], .pmoney[data-k="' + k + '"]').forEach(function(other){
       if (other === el && !writeBack) return;
-      if (other.classList.contains('prange')) {
-        if (v !== null) other.value = Math.min(+other.max, Math.max(+other.min, v));
-      } else {
-        other.value = (v === null) ? '' : v;
-      }
+      if (other.classList.contains('prange')) { if (v !== null) other.value = Math.min(+other.max, Math.max(+other.min, v)); }
+      else if (other.classList.contains('pmoney')) other.value = fmtMoneyInput(v);
+      else other.value = (v === null) ? '' : v;
     });
     save();
     renderPlan();
   }
-  document.querySelectorAll('.pin').forEach(function(el){
+  document.querySelectorAll('.pin, .pmoney').forEach(function(el){
     var k = el.getAttribute('data-k');
     el.addEventListener('input', function(){ apply(k, el.value, false, el); });
-    el.addEventListener('change', function(){ apply(k, el.value, true, el); });   /* 範囲外は確定時に丸める */
+    el.addEventListener('change', function(){ apply(k, el.value, true, el); });   /* 範囲外・カンマは確定時に整える */
+    el.addEventListener('blur', function(){ if (el.classList.contains('pmoney')) el.value = fmtMoneyInput(P().plan[k]); });
   });
   document.querySelectorAll('.prange').forEach(function(el){
     var k = el.getAttribute('data-k');
     el.addEventListener('input', function(){ apply(k, el.value, true, el); });
   });
-  /* 年収の目標のよくある置き方（叩き台） */
   var picks = [4000000, 6000000, 8000000, 10000000, 15000000];
   $('goalChips').innerHTML = picks.map(function(v){
     return '<button type="button" class="chip" data-goal="' + v + '">' + esc(fmtYen(v)) + '</button>';
@@ -1342,83 +2008,81 @@ function bindPlanInputs(){
     if (!b) return;
     apply('goal', b.getAttribute('data-goal'), true, null);
   });
+  $('modeBack').addEventListener('click', backToPlanRates);
+}
+function backToPlanRates(){
+  var pe = P(); pe.useReal = false; saveNow();
+  renderPlan(); renderReal();
+  toast('計画の率に戻しました');
 }
 
 /* ============================================================
-   5. 今の実績とボトルネック
+   6. 今の実績とボトルネック
    ============================================================ */
 function syncRealInputs(){
+  var r = P().real;
   document.querySelectorAll('.rin').forEach(function(el){
-    var k = el.getAttribute('data-k');
-    var v = state.real[k];
-    el.value = (v === null || v === undefined) ? '' : v;
+    if (el === focusedInput) return;
+    var v = r[el.getAttribute('data-k')];
+    el.value = el.classList.contains('rmoney') ? fmtMoneyInput(v) : ((v === null || v === undefined) ? '' : v);
   });
 }
-/* 実績から段ごとの率を出す。分母が0・空なら null */
+/* 実績から段ごとの率を出す（小数1桁にそろえる）。分母が0・空なら null */
 function realRates(r){
   var out = {};
   STEPS.forEach(function(st){
     var a = r[st.from], b = r[st.to];
-    var v = (isNum(a) && isNum(b) && a > 0) ? (b / a * 100) : null;
-    out[st.rate] = (isNum(v) && isFinite(v)) ? v : null;
+    out[st.rate] = (isNum(a) && isNum(b) && a > 0) ? r1(b / a * 100) : null;
   });
   return out;
 }
-function renderReal(){
-  var r = state.real, p = state.plan;
+function realApPer(r){ return (isNum(r.ap) && r.ap > 0 && isNum(r.deals) && r.deals > 0) ? Math.round(r.ap / r.deals) : null; }
+var LV_TXT = { bad:'大きく足りない', warn:'やや足りない', near:'ほぼ計画どおり', ok:'計画どおりかそれ以上', na:'実数が足りません' };
+function judge(r, plan){
   var rr = realRates(r);
-
-  /* ---- 段ごとの比較 ---- */
-  /* 色分けは「差のポイント」だけで決めない。アポ獲得率のように率そのものが小さい段は、
-     4％と10％の差はたった6ポイントでも、必要な接触が2倍以上に増えるため。
-     ポイント差と「計画に対する割合」の両方を見て、悪いほうを採る。 */
-  var items = STEPS.map(function(st){
-    var act = rr[st.rate], plan = p[st.rate];
-    var gap = (isNum(act) && isNum(plan)) ? (act - plan) : null;
-    var ratio = (isNum(act) && isNum(plan) && plan > 0) ? (act / plan) : null;
+  return STEPS.map(function(st){
+    var act = rr[st.rate], pl = r1(plan[st.rate]);
+    var gap = (isNum(act) && isNum(pl)) ? r1(act - pl) : null;
+    var ratio = (isNum(act) && isNum(pl) && pl > 0) ? act / pl : null;
     var lv = 'na';
     if (isNum(gap)) {
       if (gap >= 0) lv = 'ok';
       else if (gap <= -10 || (isNum(ratio) && ratio < 0.7)) lv = 'bad';
       else if (gap <= -3 || (isNum(ratio) && ratio < 0.9)) lv = 'warn';
-      else lv = 'ok';
+      else lv = 'near';
     }
-    return { st:st, act:act, plan:plan, gap:gap, ratio:ratio, lv:lv,
-             from:r[st.from], to:r[st.to] };
+    return { st:st, act:act, plan:pl, gap:gap, ratio:ratio, lv:lv, from:r[st.from], to:r[st.to] };
   });
-  /* いちばん落ちている段＝計画に対する割合がいちばん低い段（ポイント差では小さい率が
-     過小評価されるため）。割合が出せないときはポイント差で決める。 */
-  var worst = null;
+}
+/* いちばん落ちている段＝「大きく足りない」「やや足りない」の段の中で、計画に対する割合がいちばん低い段 */
+function worstOf(items){
+  var w = null;
   items.forEach(function(it){
-    if (!isNum(it.gap) || it.gap >= 0) return;
-    if (!worst) { worst = it; return; }
-    var a = isNum(it.ratio) ? it.ratio : 9, b = isNum(worst.ratio) ? worst.ratio : 9;
-    if (a < b || (a === b && it.gap < worst.gap)) worst = it;
+    if (it.lv !== 'bad' && it.lv !== 'warn') return;
+    if (!w) { w = it; return; }
+    var a = isNum(it.ratio) ? it.ratio : 9, b = isNum(w.ratio) ? w.ratio : 9;
+    if ((it.lv === 'bad' && w.lv !== 'bad') || (it.lv === w.lv && (a < b || (a === b && it.gap < w.gap)))) w = it;
   });
-  /* 計画と比べられないときは、実績の率がいちばん低い段を見る材料として出す */
+  return w;
+}
+function renderReal(){
+  renderDash();
+  var pe = P(), r = pe.real, plan = pe.plan;
+  var items = judge(r, plan), worst = worstOf(items);
   var lowest = null;
-  items.forEach(function(it){
-    if (!isNum(it.act)) return;
-    if (!lowest || it.act < lowest.act) lowest = it;
-  });
+  items.forEach(function(it){ if (isNum(it.act) && (!lowest || it.act < lowest.act)) lowest = it; });
 
   var over = false;
   $('bnList').innerHTML = items.map(function(it){
     var isWorst = worst && it === worst;
-    var badge = it.lv === 'bad' ? '<span class="badge bd-bad">大きく足りない</span>'
-      : it.lv === 'warn' ? '<span class="badge bd-warn">やや足りない</span>'
-      : it.lv === 'ok' ? '<span class="badge bd-ok">計画どおり</span>'
-      : '<span class="badge bd-na">実数が足りません</span>';
+    var badge = '<span class="badge bd-' + it.lv + '">' + LV_TXT[it.lv] + '</span>';
     var msg;
-    if (!isNum(it.act)) {
-      msg = '「' + STAGES.filter(function(s){ return s.k === it.st.from; })[0].label + '」の実数が空か0のため、率が出せません。';
-    } else {
+    if (!isNum(it.act)) msg = '「' + stageLabel(it.st.from) + '」の実数が空か0のため、率が出せません。';
+    else {
       if (it.act > 100) over = true;
-      msg = STAGES.filter(function(s){ return s.k === it.st.from; })[0].label + ' ' +
-        (isNum(it.from) ? it.from.toLocaleString('ja-JP') : DASH) + '件 → ' +
-        STAGES.filter(function(s){ return s.k === it.st.to; })[0].label + ' ' +
-        (isNum(it.to) ? it.to.toLocaleString('ja-JP') : DASH) + '件' +
-        (isNum(it.gap) ? '　計画との差 ' + (it.gap >= 0 ? '＋' : '−') + fmtPct(Math.abs(it.gap)).replace('％','') + 'ポイント' : '');
+      msg = stageLabel(it.st.from) + ' ' + (isNum(it.from) ? it.from.toLocaleString('ja-JP') : DASH) + '件 → ' +
+        stageLabel(it.st.to) + ' ' + (isNum(it.to) ? it.to.toLocaleString('ja-JP') : DASH) + '件' +
+        (isNum(it.gap) ? '　計画との差 ' + fmtGap(it.gap) : '');
     }
     return '<div class="bn-row lv-' + it.lv + (isWorst ? ' worst' : '') + '">' +
       '<span class="bn-name">' + esc(it.st.name) + '（' + esc(it.st.arrow) + '）' +
@@ -1427,57 +2091,43 @@ function renderReal(){
       '<span class="bn-msg">' + esc(msg) + '</span></div>';
   }).join('');
 
-  var note = '';
-  if (worst) {
-    note = 'いちばん落ちているのは「' + worst.st.name + '（' + worst.st.arrow + '）」。ここを計画の ' + fmtPct(worst.plan) + ' まで戻すのが先です。';
-  } else if (lowest && isNum(lowest.act)) {
-    note = '計画を下回っている段はありません。率そのものがいちばん低いのは「' + lowest.st.name + '」（' + fmtPct(lowest.act) + '）です。';
-  } else {
-    note = '上の欄に実数を入れると、どの段で落ちているかが出ます。';
-  }
+  var note;
+  if (worst) note = 'いちばん落ちているのは「' + worst.st.name + '（' + worst.st.arrow + '）」。計画の ' + fmtPct(worst.plan) + ' に対して、実績は ' + fmtPct(worst.act) + ' です。ここを見直すところから考えます。';
+  else if (lowest) note = '計画を大きく下回っている段はありません。率そのものがいちばん低いのは「' + lowest.st.name + '」（' + fmtPct(lowest.act) + '）です。';
+  else note = '上の欄に実数を入れると、どの段で落ちているかが出ます。';
   if (over) note += '　※ 100％を超えている段があります。前の段より後ろの段が多い入力になっていないか確かめてください（期間のずれでも起こります）。';
   $('bnNote').textContent = note;
 
-  /* ---- ファネル2つ（計画1年 と 実績の年換算） ---- */
-  var c = calc(p);
-  renderFunnel('fnPlan', c.counts);
+  /* ファネル2つ（同じものさし） */
+  var c = calc(plan);
   var scale = (isNum(r.months) && r.months > 0) ? (12 / r.months) : null;
   var realCounts = {};
-  STAGES.forEach(function(s){
-    var v = r[s.k];
-    realCounts[s.k] = (isNum(v) && isNum(scale)) ? v * scale : null;
-  });
-  renderFunnel('fnReal', realCounts);
+  STAGES.forEach(function(s){ var v = r[s.k]; realCounts[s.k] = (isNum(v) && isNum(scale)) ? v * scale : null; });
+  var mx = Math.max(funnelMax(c.counts), funnelMax(realCounts));
+  renderFunnel('fnPlan', c.counts, mx);
+  renderFunnel('fnReal', realCounts, mx);
 
-  /* ---- 実績の率で計算し直したら1日何本か ---- */
+  /* 実績の率（小数1桁）で計算し直したら1日何本か */
   $('tPlanDay').textContent = fmtDay(c.perDay);
-  var p2 = {}, k;
-  for (k in p) if (p.hasOwnProperty(k)) p2[k] = p[k];
-  var used = 0;
-  STEPS.forEach(function(st){
-    var a = rr[st.rate];
-    if (isNum(a) && a > 0) { p2[st.rate] = Math.min(100, a); used++; }
-  });
-  /* 1件あたり平均APも実績が入っていれば置き換える */
-  var apUsed = false;
-  if (isNum(r.ap) && r.ap > 0 && isNum(r.deals) && r.deals > 0) {
-    p2.apPer = r.ap / r.deals;
-    apUsed = true;
-  }
+  var p2 = copyObj(plan), rr = realRates(r), used = 0;
+  STEPS.forEach(function(st){ var a = rr[st.rate]; if (isNum(a) && a > 0) { p2[st.rate] = Math.min(100, a); used++; } });
+  var apR = realApPer(r);
+  if (isNum(apR)) p2.apPer = clamp(apR, PLAN_LIMITS.apPer[0], PLAN_LIMITS.apPer[1]);
   var c2 = calc(p2);
   $('tRealDay').textContent = used ? fmtDay(c2.perDay) : DASH;
-  $('tRealYear').textContent = used ? fmtCnt(c2.need8) : DASH;
+  $('tRealYear').textContent = used ? fmtCnt(c2.need9) : DASH;
   $('tRealYearSub').textContent = used ? '接触の必要件数（実績の率で計算）' : '実数を入れると出ます';
   var d = $('tRealDelta');
   if (used && isNum(c.perDay) && isNum(c2.perDay)) {
-    var diff = c2.perDay - c.perDay;
-    d.className = 't-delta ' + (diff > 0.05 ? 'down' : (diff < -0.05 ? 'up' : 'flat'));
-    d.innerHTML = Math.abs(diff) <= 0.05 ? '計画とほぼ同じ'
-      : (diff > 0 ? ICO_UP : ICO_DN) + '計画より ' + esc(fmtDay(Math.abs(diff))) + (diff > 0 ? ' 多い' : ' 少ない');
+    var diff = r1(c2.perDay) - r1(c.perDay);
+    diff = r1(diff) || 0;
+    d.className = 't-delta ' + (diff > 0 ? 'down' : (diff < 0 ? 'up' : 'flat'));
+    d.innerHTML = diff === 0 ? '計画と同じ' : (diff > 0 ? ICO_UP : ICO_DN) + '計画より ' + esc(fmtDay(Math.abs(diff))) + (diff > 0 ? ' 多い' : ' 少ない');
   } else { d.className = 't-delta'; d.innerHTML = ''; }
   $('tRealDaySub').textContent = used
-    ? ('率' + used + '個を実績に置き換え' + (apUsed ? '・平均APも実績（' + fmtYen(p2.apPer) + '）' : ''))
+    ? ('率' + used + '個を実績に置き換え' + (isNum(apR) ? '・平均保険料も実績（' + fmtYen(p2.apPer) + '）' : ''))
     : '実数を入れると出ます';
+  $('realBack').classList.toggle('hide', !pe.useReal);
 }
 function bindRealInputs(){
   document.querySelectorAll('.rin').forEach(function(el){
@@ -1485,9 +2135,9 @@ function bindRealInputs(){
     function apply(writeBack){
       var lim = REAL_LIMITS[k] || [0, 100000000];
       var v = toNum(el.value);
-      if (v !== null) { v = clamp(v, lim[0], lim[1]); v = Math.round(v); }
-      state.real[k] = v;
-      if (writeBack) el.value = (v === null) ? '' : v;
+      if (v !== null) v = Math.round(clamp(v, lim[0], lim[1]));
+      P().real[k] = v;
+      if (writeBack) el.value = el.classList.contains('rmoney') ? fmtMoneyInput(v) : (v === null ? '' : v);
       save();
       renderReal();
     }
@@ -1495,34 +2145,133 @@ function bindRealInputs(){
     el.addEventListener('change', function(){ apply(true); });
   });
   $('clearReal').addEventListener('click', function(){
-    ['contacts','appts','meets','props','deals','ap'].forEach(function(k){ state.real[k] = null; });
+    var r = P().real;
+    ['contacts','appts','meets','props','deals','ap'].forEach(function(k){ r[k] = null; });
     syncRealInputs(); saveNow(); renderReal();
     $('applyNote').textContent = '実数を空にしました。';
   });
   $('applyRates').addEventListener('click', function(){
-    var rr = realRates(state.real), n = 0, msg = [];
+    var pe = P(), rr = realRates(pe.real), snap = {}, n = 0, msg = [];
     STEPS.forEach(function(st){
       var a = rr[st.rate];
-      if (isNum(a) && a > 0) {
-        var v = clamp(Math.round(a * 10) / 10, PLAN_LIMITS[st.rate][0], PLAN_LIMITS[st.rate][1]);
-        state.plan[st.rate] = v; n++;
-        msg.push(st.name + ' ' + fmtPct(v));
-      }
+      if (isNum(a) && a > 0) { snap[st.rate] = clamp(a, PLAN_LIMITS[st.rate][0], PLAN_LIMITS[st.rate][1]); n++; msg.push(st.name + ' ' + fmtPct(snap[st.rate])); }
     });
-    var r = state.real;
-    if (isNum(r.ap) && r.ap > 0 && isNum(r.deals) && r.deals > 0) {
-      var ap = clamp(Math.round(r.ap / r.deals), PLAN_LIMITS.apPer[0], PLAN_LIMITS.apPer[1]);
-      state.plan.apPer = ap; n++;
-      msg.push('1件あたり平均AP ' + fmtYen(ap));
-    }
-    if (!n) { $('applyNote').textContent = '取り込める率がありませんでした。前の段の実数（分母）が0か空になっていないか確かめてください。'; return; }
-    saveNow(); syncPlanInputs(); renderPlan(); renderReal();
-    $('applyNote').textContent = '「逆算」タブに取り込みました：' + msg.join('／');
+    var ap = realApPer(pe.real);
+    if (isNum(ap)) { snap.apPer = clamp(ap, PLAN_LIMITS.apPer[0], PLAN_LIMITS.apPer[1]); n++; msg.push('1件あたり平均保険料 ' + fmtYen(snap.apPer)); }
+    if (!n) { $('applyNote').textContent = '計算に使える率がありませんでした。前の段の実数（分母）が0か空になっていないか確かめてください。'; return; }
+    snap.at = nowStr();
+    pe.snap = cleanSnap(snap); pe.useReal = true;
+    saveNow(); renderPlan(); renderReal();
+    $('applyNote').textContent = '「逆算」をこの実績の率で計算しています：' + msg.join('／') + '。計画の率は書き換えていません。';
+  });
+  $('realBack').addEventListener('click', function(){ backToPlanRates(); $('applyNote').textContent = '計画の率に戻しました。'; });
+}
+
+/* ============================================================
+   6-2. 営業ダッシュボードの記録から数える（読むだけ・同じ端末の officem.hokenSales.v1）
+   ★数えた数は欄に入れるだけ（計画の率は変えない）。入れたあとも欄で直せる
+   ============================================================ */
+var DASH_KEY = 'officem.hokenSales.v1', DASH_MONTHS = [1, 3, 6, 12], DASH_STAGE = { AP:0, FF:1, PZ:2, CL:2, KY:3 };
+var DASH_YEAR = { m:12, h:2, y:1 };
+var dashN = null;
+function dashData(){
+  var o = null;
+  try { o = JSON.parse(localStorage.getItem(DASH_KEY) || 'null'); } catch (e) { o = null; }
+  if (!isObj(o)) return null;
+  var arr = function(a){ return Array.isArray(a) ? a.filter(function(x){ return isObj(x) && typeof x.id === 'string'; }) : []; };
+  var d = { acts: arr(o.activities).filter(function(a){ return !/^smp/.test(a.id); }), ks: arr(o.contracts), me: isObj(o.me) ? str(o.me.name, 40) : '' };
+  return (d.acts.length || d.ks.length) ? d : null;
+}
+function dashNk(x){
+  x = String(x == null ? '' : x);
+  try { x = x.normalize('NFKC'); } catch (e) {}
+  return x.replace(/[\s　]*(様|さま|殿|さん)[\s　]*$/, '').toLowerCase().replace(/[ァ-ヶ]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) - 0x60); }).replace(/[\s　・･.]/g, '');
+}
+function dashYmd(v){ return typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : ''; }
+function dashMonthsAgo(n){
+  var d = new Date(); d.setMonth(d.getMonth() - n); d.setDate(d.getDate() + 1);
+  return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+}
+/* start〜end の数。接触・アポは予定（今日より先）も含み、面談から先は今日まで */
+function dashCount(d, start, end){
+  var today = todayStr(), past = end < today ? end : today;
+  var reach = {}, reachPast = {};   // お客様ごとに、期間の中でいちばん先まで進んだ段（0＝接触〜3＝契約）
+  function who(cid, guest){ return cid ? 'c:' + cid : (guest ? 'g:' + dashNk(guest) : ''); }
+  function put(k, lv, date){
+    if (!k || !date || date < start || date > end) return;
+    if (!(k in reach) || reach[k] < lv) reach[k] = lv;
+    if (date <= past && (!(k in reachPast) || reachPast[k] < lv)) reachPast[k] = lv;
+  }
+  d.acts.forEach(function(a){ if (a.type in DASH_STAGE) put(who(a.cid, a.guest), DASH_STAGE[a.type], dashYmd(a.date)); });
+  var deals = 0, ap = 0, once = 0;
+  d.ks.forEach(function(k){
+    var dt = dashYmd(k.date);
+    put(who(k.cid, ''), 3, dt);
+    if (!dt || dt < start || dt > past) return;
+    deals++;
+    var amt = toNum(k.amt), m = DASH_YEAR[k.mode];
+    if (isNum(amt) && amt > 0) { if (m) ap += amt * m; else once++; }
+  });
+  var c = { contacts:0, appts:0, meets:0, props:0, deals:deals, ap: ap ? Math.round(ap) : null, once:once };
+  Object.keys(reach).forEach(function(k){ c.contacts++; if (reach[k] >= 1) c.appts++; });
+  Object.keys(reachPast).forEach(function(k){ if (reachPast[k] >= 1) c.meets++; if (reachPast[k] >= 2) c.props++; });
+  return c;
+}
+function renderDash(){
+  var d = dashData(), sec = $('dashSec');
+  $('mFromDash').classList.toggle('hide', !d);
+  if (!d) { sec.classList.add('hide'); return; }
+  sec.classList.remove('hide');
+  var r = P().real;
+  if (DASH_MONTHS.indexOf(dashN) < 0) dashN = DASH_MONTHS.indexOf(r.months) >= 0 ? r.months : 3;
+  var pn = P().name, me = d.me;
+  $('dashWho').innerHTML = 'この端末の営業ダッシュボード' + (me ? '（<b>' + esc(me) + '</b>さん）' : '') + 'の記録から数えます。' +
+    (pn !== '自分' && me && dashNk(pn) !== dashNk(me) ? '<br>いま選んでいる「' + esc(pn) + '」さんの記録ではありません。部下の方の数は、その方の端末で数えてください。' : '');
+  $('dashChips').innerHTML = DASH_MONTHS.map(function(n){
+    return '<button type="button" class="chip' + (n === dashN ? ' on' : '') + '" aria-pressed="' + (n === dashN) + '" data-dm="' + n + '">直近' + n + 'か月</button>';
+  }).join('');
+  var start = dashMonthsAgo(dashN), c = dashCount(d, start, '9999-12-31');
+  var tile = function(l, v, u, cls){ return '<div class="dash-n' + (cls ? ' ' + cls : '') + '"><span>' + l + '</span><b>' + esc(v) + '<small>' + u + '</small></b></div>'; };
+  $('dashNums').innerHTML = tile('接触', c.contacts.toLocaleString('ja-JP'), '人') + tile('アポ', c.appts.toLocaleString('ja-JP'), '人') +
+    tile('面談', c.meets.toLocaleString('ja-JP'), '人') + tile('提案', c.props.toLocaleString('ja-JP'), '人') + tile('成約', c.deals.toLocaleString('ja-JP'), '件') +
+    tile('年換算保険料', isNum(c.ap) ? fmtYenFull(c.ap) : DASH, '', 'wide');
+  $('dashSub').textContent = '期間：' + start.replace(/-/g, '/') + '〜今日（接触とアポは、これからの予定も含む）' + (c.once ? '。一時払いの契約' + c.once + '件は、年換算保険料に入れていません' : '') + '。';
+  dashLast = c;
+}
+var dashLast = null;
+function bindDash(){
+  $('dashChips').addEventListener('click', function(e){
+    var b = e.target.closest('[data-dm]'); if (!b) return;
+    dashN = +b.getAttribute('data-dm'); renderDash();
+  });
+  $('dashApply').addEventListener('click', function(){
+    if (!dashLast) return;
+    var r = P().real;
+    if (['contacts','appts','meets','props','deals'].some(function(k){ return isNum(r[k]); }) &&
+      !confirm('「直近の実数」に入っている数を、営業ダッシュボードの数（直近' + dashN + 'か月）に置き換えます。よろしいですか？')) return;
+    r.months = dashN;
+    ['contacts','appts','meets','props','deals'].forEach(function(k){ r[k] = dashLast[k]; });
+    r.ap = dashLast.ap;
+    syncRealInputs(); saveNow(); renderReal();
+    $('applyNote').textContent = '営業ダッシュボードの記録（直近' + dashN + 'か月）を入れました。電話・声かけなど記録していない接触があれば、欄で足してください。計画の率は書き換えていません。';
+    toast('営業ダッシュボードの数を入れました');
+    var rc = $('rContacts'); if (rc && rc.scrollIntoView) rc.scrollIntoView({ behavior:'smooth', block:'center' });
+  });
+  $('mFromDash').addEventListener('click', function(){
+    var d = dashData(); if (!d) return;
+    var ym = ($('mYm').value || '').slice(0, 7) || thisMonthStr();
+    if (!/^\d{4}-\d{2}$/.test(ym)) return;
+    var last = new Date(+ym.slice(0, 4), +ym.slice(5, 7), 0).getDate();
+    var c = dashCount(d, ym + '-01', ym + '-' + pad2(last));
+    $('mYm').value = ym;
+    Object.keys(M_FIELDS).forEach(function(k){ var v = c[k]; $(M_FIELDS[k]).value = isNum(v) ? (k === 'ap' ? fmtMoneyInput(v) : v) : ''; });
+    saveDraftM();
+    $('mSaved').textContent = ym.replace('-', '年') + '月の営業ダッシュボードの記録を入れました（その段まで進んだお客様の人数）。記録していない接触があれば足して、「この年月で保存」を押してください。';
   });
 }
 
 /* ============================================================
-   6. 記録・1on1
+   7. 記録・1対1の面談
    ============================================================ */
 function monthRates(m){
   var out = {};
@@ -1532,145 +2281,320 @@ function monthRates(m){
   });
   return out;
 }
-function deltaTxt(cur, prev, unit){
+function deltaTxt(cur, prev){
   if (!isNum(cur) || !isNum(prev)) return '';
   var d = cur - prev;
   if (d === 0) return '（±0）';
-  return '（' + (d > 0 ? '＋' : '−') + Math.abs(d).toLocaleString('ja-JP') + (unit || '') + '）';
+  return '（' + (d > 0 ? '＋' : '−') + Math.abs(d).toLocaleString('ja-JP') + '）';
 }
 function renderLog(){
-  var list = state.months.slice().sort(function(a, b){ return a.ym < b.ym ? 1 : (a.ym > b.ym ? -1 : 0); });
+  $('mFromDash').classList.toggle('hide', !dashData());
+  var pe = P();
+  var list = pe.months.slice().sort(function(a, b){ return a.ym < b.ym ? 1 : (a.ym > b.ym ? -1 : 0); });
   if (!list.length) {
     $('mTableWrap').innerHTML = '<div class="empty"><b>まだ記録がありません</b><p>上の欄に年月と件数を入れて「この年月で保存」を押すと、ここに月ごとに並びます。前の月との差も出ます。</p></div>';
   } else {
-    var head = '<thead><tr><th>年月</th><th class="num">接触</th><th class="num">AP</th><th class="num">FF</th><th class="num">プレゼン</th><th class="num">契約</th><th class="num">AP合計</th><th class="num">アポ獲得率</th><th class="num">成約率</th><th>ひとこと</th><th></th></tr></thead>';
+    var head = '<thead><tr><th>年月</th><th class="num">接触</th><th class="num">アポ</th><th class="num">面談</th><th class="num">提案</th><th class="num">成約</th><th class="num">年換算保険料</th><th class="num">アポ獲得率</th><th class="num">成約率</th><th>ひとこと</th><th class="no-print">操作</th></tr></thead>';
     var body = list.map(function(m, i){
-      var prev = list[i + 1];   /* 並びは新しい順なので、次の要素が前の月 */
-      var rr = monthRates(m);
-      function cell(k, unit){
-        var v = toNum(m[k]);
-        var pv = prev ? toNum(prev[k]) : null;
-        return '<td class="num">' + (isNum(v) ? esc(v.toLocaleString('ja-JP')) : DASH) +
-          '<small style="color:var(--muted);">' + esc(deltaTxt(v, pv, unit)) + '</small></td>';
+      var prev = list[i + 1], rr = monthRates(m);
+      function cell(k, lab){
+        var v = toNum(m[k]), pv = prev ? toNum(prev[k]) : null;
+        return '<td class="num" data-l="' + lab + '">' + (isNum(v) ? esc(v.toLocaleString('ja-JP')) : DASH) +
+          '<small>' + esc(deltaTxt(v, pv)) + '</small></td>';
       }
-      return '<tr><td><b>' + esc(m.ym) + '</b></td>' +
-        cell('contacts') + cell('appts') + cell('meets') + cell('props') + cell('deals') +
-        '<td class="num">' + esc(isNum(toNum(m.ap)) ? fmtYen(toNum(m.ap)) : DASH) + '</td>' +
-        '<td class="num">' + esc(fmtPct(rr.rAppt)) + '</td>' +
-        '<td class="num">' + esc(fmtPct(rr.rClose)) + '</td>' +
-        '<td style="white-space:normal;max-width:16em;">' + esc(m.memo || '') + '</td>' +
-        '<td><button class="btn btn-ghost btn-sm" data-medit="' + esc(m.ym) + '">直す</button> ' +
+      return '<tr><td data-l="年月" class="m-ym"><b>' + esc(m.ym) + '</b></td>' +
+        cell('contacts','接触') + cell('appts','アポ') + cell('meets','面談') + cell('props','提案') + cell('deals','成約') +
+        '<td class="num" data-l="年換算保険料">' + esc(isNum(toNum(m.ap)) ? fmtYen(toNum(m.ap)) : DASH) + '</td>' +
+        '<td class="num" data-l="アポ獲得率">' + esc(fmtPct(rr.rAppt)) + '</td>' +
+        '<td class="num" data-l="成約率">' + esc(fmtPct(rr.rClose)) + '</td>' +
+        '<td class="m-memo" data-l="ひとこと">' + esc(m.memo || '') + '</td>' +
+        '<td class="m-act no-print"><button class="btn btn-ghost btn-sm" data-medit="' + esc(m.ym) + '">直す</button>' +
             '<button class="btn btn-danger btn-sm" data-mdel="' + esc(m.ym) + '">消す</button></td></tr>';
     }).join('');
-    $('mTableWrap').innerHTML = '<table class="tbl">' + head + '<tbody>' + body + '</tbody></table>';
+    $('mTableWrap').innerHTML = '<table class="tbl" id="mTbl">' + head + '<tbody>' + body + '</tbody></table>';
   }
 
-  var ones = state.ones.slice().sort(function(a, b){ return (a.date || '') < (b.date || '') ? 1 : -1; });
+  var ones = pe.ones.slice().sort(function(a, b){ return (a.date || '') < (b.date || '') ? 1 : -1; });
   if (!ones.length) {
-    $('oList').innerHTML = '<div class="empty"><b>まだメモがありません</b><p>1on1で決めたことと宿題を残しておくと、次の面談で「先月なにを決めたか」からはじめられます。</p></div>';
+    $('oList').innerHTML = '<div class="empty"><b>まだメモがありません</b><p>1対1の面談で決めたことと宿題を残しておくと、次の面談で「先月なにを決めたか」からはじめられます。</p></div>';
   } else {
     $('oList').innerHTML = ones.map(function(o){
-      return '<div class="rec"><div class="rec-top"><span class="rec-date">' + esc(o.date || '') + '</span>' +
-        (o.who ? '<span class="rec-who">' + esc(o.who) + '</span>' : '') +
-        '<span class="rec-del"><button class="btn btn-danger btn-sm" data-odel="' + esc(o.id) + '">消す</button></span></div>' +
-        '<dl><dt>決めたこと</dt><dd>' + esc(o.decided || '') + '</dd>' +
-        '<dt>次回まで</dt><dd>' + esc(o.next || '') + '</dd></dl></div>';
+      return '<div class="rec' + (editingOne === o.id ? ' editing' : '') + '"><div class="rec-top"><span class="rec-date">' + esc(o.date || '日付なし') + '</span>' +
+        (o.who ? '<span class="rec-who">面談した人：' + esc(o.who) + '</span>' : '') + '</div>' +
+        '<dl><dt>決めたこと</dt><dd>' + esc(o.decided || '—') + '</dd>' +
+        '<dt>次回まで</dt><dd>' + esc(o.next || '—') + '</dd></dl>' +
+        '<div class="rec-act"><button class="btn btn-ghost btn-sm" data-oprint="' + esc(o.id) + '">この面談を印刷</button>' +
+        '<button class="btn btn-ghost btn-sm" data-oedit="' + esc(o.id) + '">直す</button>' +
+        '<button class="btn btn-danger btn-sm" data-odel="' + esc(o.id) + '">消す</button></div></div>';
     }).join('');
   }
+  $('oTitle').textContent = '1対1の面談のメモ（' + pe.name + '）';
 }
+
+/* ---- 書きかけ（人ごと。閉じても次に開いたときに戻る） ---- */
+var M_FIELDS = { contacts:'mContacts', appts:'mAppts', meets:'mMeets', props:'mProps', deals:'mDeals', ap:'mAp' };
+var editingOne = null;
+function draftOf(){ var d = state.drafts[state.cur]; if (!d) d = state.drafts[state.cur] = {}; return d; }
+function mHasContent(){
+  return Object.keys(M_FIELDS).some(function(k){ return ($(M_FIELDS[k]).value || '').trim() !== ''; }) || ($('mMemo').value || '').trim() !== '';
+}
+function oHasContent(){ return ($('oDecided').value || '').trim() !== '' || ($('oNext').value || '').trim() !== ''; }
+function saveDraftM(){
+  var d = draftOf();
+  if (!mHasContent()) { delete d.m; save(); return; }
+  d.m = { ym: ($('mYm').value || '').slice(0, 7), memo: ($('mMemo').value || '').slice(0, 200) };
+  Object.keys(M_FIELDS).forEach(function(k){ d.m[k] = ($(M_FIELDS[k]).value || '').slice(0, 20); });
+  save();
+}
+function saveDraftO(){
+  var d = draftOf();
+  if (!oHasContent() && !editingOne) { delete d.o; save(); return; }
+  d.o = { id: editingOne || '', date: $('oDate').value || '', who: ($('oWho').value || '').slice(0, 40),
+    decided: ($('oDecided').value || '').slice(0, 1000), next: ($('oNext').value || '').slice(0, 1000) };
+  save();
+}
+function fillForms(){
+  var d = state.drafts[state.cur] || {};
+  if (d.m) {
+    $('mYm').value = d.m.ym || thisMonthStr();
+    Object.keys(M_FIELDS).forEach(function(k){ $(M_FIELDS[k]).value = d.m[k] || ''; });
+    $('mMemo').value = d.m.memo || '';
+    $('mSaved').textContent = '書きかけの月の記録を戻しました。「この年月で保存」で残します。';
+  } else {
+    $('mYm').value = thisMonthStr();
+    Object.keys(M_FIELDS).forEach(function(k){ $(M_FIELDS[k]).value = ''; });
+    $('mMemo').value = '';
+  }
+  editingOne = null;
+  if (d.o) {
+    editingOne = (d.o.id && P().ones.some(function(x){ return x.id === d.o.id; })) ? d.o.id : null;
+    $('oDate').value = d.o.date || todayStr(); $('oWho').value = d.o.who || '';
+    $('oDecided').value = d.o.decided || ''; $('oNext').value = d.o.next || '';
+    $('oSaved').textContent = '書きかけの面談のメモを戻しました。';
+  } else {
+    $('oDate').value = todayStr(); $('oWho').value = ''; $('oDecided').value = ''; $('oNext').value = '';
+  }
+  setOneMode();
+}
+function setOneMode(){
+  $('oSave').textContent = editingOne ? 'メモを直して残す' : 'メモを残す';
+  $('oCancel').classList.toggle('hide', !editingOne);
+}
+window.addEventListener('beforeunload', function(e){
+  if (mHasContent() || oHasContent()) { saveDraftM(); saveDraftO(); saveNow(); e.preventDefault(); e.returnValue = ''; }
+});
+
 function bindLog(){
-  $('mYm').value = thisMonthStr();
-  $('oDate').value = todayStr();
+  ['mYm','mContacts','mAppts','mMeets','mProps','mDeals','mAp','mMemo'].forEach(function(id){ $(id).addEventListener('input', saveDraftM); });
+  $('mAp').addEventListener('blur', function(){ var v = toNum($('mAp').value); if (v !== null) $('mAp').value = fmtMoneyInput(Math.round(clamp(v, 0, 100000000000))); });
+  ['oDate','oWho','oDecided','oNext'].forEach(function(id){ $(id).addEventListener('input', saveDraftO); });
 
   $('mFromReal').addEventListener('click', function(){
-    var r = state.real;
-    /* 期間が2か月以上なら、月あたりに割って入れる */
-    var per = (isNum(r.months) && r.months > 0) ? r.months : 1;
-    function put(id, k){
+    var r = P().real, per = (isNum(r.months) && r.months > 0) ? r.months : 1;
+    Object.keys(M_FIELDS).forEach(function(k){
       var v = r[k];
-      $(id).value = isNum(v) ? Math.round(v / per) : '';
-    }
-    put('mContacts','contacts'); put('mAppts','appts'); put('mMeets','meets');
-    put('mProps','props'); put('mDeals','deals'); put('mAp','ap');
-    $('mSaved').textContent = per > 1 ? ('「今の実績」を' + per + 'か月で割って入れました。') : '「今の実績」を入れました。';
+      $(M_FIELDS[k]).value = isNum(v) ? (k === 'ap' ? fmtMoneyInput(Math.round(v / per)) : Math.round(v / per)) : '';
+    });
+    saveDraftM();
+    $('mSaved').textContent = per > 1 ? ('「今の実績」を' + per + 'か月で割って入れました。年月を確かめて保存してください。') : '「今の実績」を入れました。';
   });
-
+  $('mClear').addEventListener('click', function(){
+    if (mHasContent() && !confirm('書きかけの月の記録を消します。よろしいですか？')) return;
+    delete draftOf().m; save(); fillForms(); $('mSaved').textContent = '書きかけを消しました。';
+  });
   $('mSave').addEventListener('click', function(){
     var ym = ($('mYm').value || '').slice(0, 7);
-    if (!/^\d{4}-\d{2}$/.test(ym)) { $('mSaved').textContent = '年月を選んでください。'; return; }
-    function g(id, lim){
-      var v = toNum($(id).value);
-      if (v === null) return null;
-      return Math.round(clamp(v, 0, lim));
-    }
-    var rec = { ym:ym,
-      contacts:g('mContacts',100000000), appts:g('mAppts',100000000), meets:g('mMeets',100000000),
-      props:g('mProps',100000000), deals:g('mDeals',100000000), ap:g('mAp',100000000000),
-      memo:($('mMemo').value || '').slice(0, 200) };
+    if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(ym)) { $('mSaved').textContent = '年月を選んでください。'; $('mYm').focus(); return; }
+    if (!mHasContent()) { $('mSaved').textContent = '件数を1つ以上入れてください。'; $('mContacts').focus(); return; }
+    function g(id, lim){ var v = toNum($(id).value); return v === null ? null : Math.round(clamp(v, 0, lim)); }
+    var pe = P();
+    var rec = { ym:ym, contacts:g('mContacts',100000000), appts:g('mAppts',100000000), meets:g('mMeets',100000000),
+      props:g('mProps',100000000), deals:g('mDeals',100000000), ap:g('mAp',100000000000), memo:($('mMemo').value || '').slice(0, 200) };
     var found = -1;
-    for (var i = 0; i < state.months.length; i++) if (state.months[i].ym === ym) { found = i; break; }
-    if (found >= 0) state.months[found] = rec; else state.months.push(rec);
-    if (state.months.length > 400) state.months = state.months.slice(-400);
-    saveNow(); renderLog();
+    for (var i = 0; i < pe.months.length; i++) if (pe.months[i].ym === ym) { found = i; break; }
+    if (found >= 0 && !confirm(ym + ' の記録は既にあります。上書きしますか？')) return;
+    if (found >= 0) pe.months[found] = rec; else pe.months.push(rec);
+    if (pe.months.length > MAX_REC) pe.months = pe.months.slice(-MAX_REC);
+    delete draftOf().m;
+    saveNow(); fillForms(); renderLog();
     $('mSaved').textContent = ym + ' を保存しました。';
-    setTimeout(function(){ $('mSaved').textContent = ''; }, 4000);
   });
-
   $('mTableWrap').addEventListener('click', function(ev){
-    var t = ev.target.closest ? ev.target : null;
-    if (!t) return;
+    var t = ev.target;
     var e = t.closest('[data-medit]'), d = t.closest('[data-mdel]');
+    var pe = P();
     if (e) {
       var ym = e.getAttribute('data-medit');
-      var m = state.months.filter(function(x){ return x.ym === ym; })[0];
+      var m = pe.months.filter(function(x){ return x.ym === ym; })[0];
       if (!m) return;
+      if (mHasContent() && !confirm('書きかけの月の記録があります。' + ym + ' の記録に入れ替えますか？')) return;
       $('mYm').value = m.ym;
-      $('mContacts').value = isNum(toNum(m.contacts)) ? m.contacts : '';
-      $('mAppts').value = isNum(toNum(m.appts)) ? m.appts : '';
-      $('mMeets').value = isNum(toNum(m.meets)) ? m.meets : '';
-      $('mProps').value = isNum(toNum(m.props)) ? m.props : '';
-      $('mDeals').value = isNum(toNum(m.deals)) ? m.deals : '';
-      $('mAp').value = isNum(toNum(m.ap)) ? m.ap : '';
+      Object.keys(M_FIELDS).forEach(function(k){ var v = toNum(m[k]); $(M_FIELDS[k]).value = isNum(v) ? (k === 'ap' ? fmtMoneyInput(v) : v) : ''; });
       $('mMemo').value = m.memo || '';
+      saveDraftM();
       $('mSaved').textContent = m.ym + ' を読み込みました。直して「この年月で保存」を押してください。';
-      window.scrollTo(0, 0);
+      $('mForm').scrollIntoView({ block:'start' }); window.scrollBy(0, -80);
+      $('mContacts').focus({ preventScroll:true });
       return;
     }
     if (d) {
       var ym2 = d.getAttribute('data-mdel');
       if (!confirm(ym2 + ' の記録を消します。よろしいですか？')) return;
-      state.months = state.months.filter(function(x){ return x.ym !== ym2; });
+      pe.months = pe.months.filter(function(x){ return x.ym !== ym2; });
       saveNow(); renderLog();
     }
   });
 
   $('oSave').addEventListener('click', function(){
-    var decided = ($('oDecided').value || '').trim();
-    var next = ($('oNext').value || '').trim();
-    if (!decided && !next) { $('oSaved').textContent = '「決めたこと」か「次回まで」を書いてください。'; return; }
-    state.ones.push({ id:uid('o'), date:$('oDate').value || todayStr(),
-      who:($('oWho').value || '').slice(0, 40), decided:decided.slice(0, 1000), next:next.slice(0, 1000) });
-    if (state.ones.length > 400) state.ones = state.ones.slice(-400);
-    saveNow();
-    $('oDecided').value = ''; $('oNext').value = '';
-    renderLog();
-    $('oSaved').textContent = 'メモを足しました。';
-    setTimeout(function(){ $('oSaved').textContent = ''; }, 4000);
+    var decided = ($('oDecided').value || '').trim(), next = ($('oNext').value || '').trim();
+    if (!decided && !next) { $('oSaved').textContent = '「決めたこと」か「次回まで」を書いてください。'; $('oDecided').focus(); return; }
+    var pe = P();
+    var rec = { id: editingOne || uid('o'), date: /^\d{4}-\d{2}-\d{2}$/.test($('oDate').value) ? $('oDate').value : todayStr(),
+      who: ($('oWho').value || '').slice(0, 40), decided: decided.slice(0, 1000), next: next.slice(0, 1000) };
+    var idx = -1;
+    if (editingOne) for (var i = 0; i < pe.ones.length; i++) if (pe.ones[i].id === editingOne) { idx = i; break; }
+    if (idx >= 0) pe.ones[idx] = rec; else pe.ones.push(rec);
+    if (pe.ones.length > MAX_REC) pe.ones = pe.ones.slice(-MAX_REC);
+    var was = !!editingOne;
+    delete draftOf().o;
+    saveNow(); fillForms(); renderLog();
+    $('oSaved').textContent = was ? 'メモを直しました。' : 'メモを残しました。「この面談を印刷」で1枚にできます。';
   });
-
+  $('oCancel').addEventListener('click', function(){
+    delete draftOf().o; save(); fillForms(); renderLog(); $('oSaved').textContent = '直すのをやめました。';
+  });
   $('oList').addEventListener('click', function(ev){
-    var b = ev.target.closest ? ev.target.closest('[data-odel]') : null;
-    if (!b) return;
-    if (!confirm('このメモを消します。よろしいですか？')) return;
-    var id = b.getAttribute('data-odel');
-    state.ones = state.ones.filter(function(x){ return x.id !== id; });
-    saveNow(); renderLog();
+    var t = ev.target, pe = P();
+    var bp = t.closest('[data-oprint]'), be = t.closest('[data-oedit]'), bd = t.closest('[data-odel]');
+    if (bp) { var o = pe.ones.filter(function(x){ return x.id === bp.getAttribute('data-oprint'); })[0]; if (o) printOne(o); return; }
+    if (be) {
+      var oe = pe.ones.filter(function(x){ return x.id === be.getAttribute('data-oedit'); })[0];
+      if (!oe) return;
+      if (oHasContent() && editingOne !== oe.id && !confirm('書きかけの面談のメモがあります。このメモに入れ替えますか？')) return;
+      editingOne = oe.id;
+      $('oDate').value = oe.date || todayStr(); $('oWho').value = oe.who || '';
+      $('oDecided').value = oe.decided || ''; $('oNext').value = oe.next || '';
+      setOneMode(); saveDraftO(); renderLog();
+      $('oSaved').textContent = (oe.date || '') + ' のメモを直しています。直して「メモを直して残す」を押してください。';
+      $('oForm').scrollIntoView({ block:'start' }); window.scrollBy(0, -80);
+      $('oDecided').focus({ preventScroll:true });
+      return;
+    }
+    if (bd) {
+      if (!confirm('このメモを消します。よろしいですか？')) return;
+      var id = bd.getAttribute('data-odel');
+      pe.ones = pe.ones.filter(function(x){ return x.id !== id; });
+      if (editingOne === id) { editingOne = null; delete draftOf().o; fillForms(); }
+      saveNow(); renderLog();
+    }
   });
 }
 
 /* ============================================================
-   7. 書き出し・取り込み・消去
+   8. 人（部下ごとに記録を分ける）
    ============================================================ */
+function renderWho(){
+  var sel = $('whoSel');
+  sel.innerHTML = state.people.map(function(p){
+    return '<option value="' + esc(p.id) + '"' + (p.id === state.cur ? ' selected' : '') + '>' + esc(p.name) + '</option>';
+  }).join('');
+  document.querySelectorAll('.ph-who').forEach(function(e){ e.textContent = P().name; });
+  $('whoDel').disabled = state.people.length <= 1;
+}
+function switchPerson(id){
+  if (mHasContent()) saveDraftM();
+  if (oHasContent() || editingOne) saveDraftO();
+  state.cur = id; saveNow();
+  renderWho(); syncPlanInputs(); syncRealInputs(); fillForms();
+  showTab(state.lastTab, true);
+  toast('「' + P().name + '」の記録に切り替えました');
+}
+function askName(msg, cur){
+  var v = prompt(msg, cur || '');
+  if (v === null) return null;
+  v = String(v).replace(/\s+/g, ' ').trim().slice(0, 30);
+  if (!v) { alert('名前を入れてください。'); return null; }
+  return v;
+}
+function bindWho(){
+  $('whoSel').addEventListener('change', function(){ switchPerson($('whoSel').value); });
+  $('whoAdd').addEventListener('click', function(){
+    if (state.people.length >= MAX_PEOPLE) { alert('記録できるのは' + MAX_PEOPLE + '人までです。'); return; }
+    var name = askName('記録を分ける人の名前（部下の名前など・30字まで）', '');
+    if (!name) return;
+    var p = newPerson(name);
+    /* 目標や率の置き方は、いま開いている人のものを写して始める（記録・面談のメモは写さない） */
+    p.plan = copyObj(P().plan);
+    state.people.push(p);
+    switchPerson(p.id);
+  });
+  $('whoRename').addEventListener('click', function(){
+    var name = askName('「' + P().name + '」の新しい名前', P().name);
+    if (!name) return;
+    P().name = name; saveNow(); renderWho(); renderLog();
+  });
+  $('whoDel').addEventListener('click', function(){
+    if (state.people.length <= 1) return;
+    var pe = P();
+    if (!confirm('「' + pe.name + '」の目標・率・実績・月の記録・面談のメモを全て消します。よろしいですか？')) return;
+    if (!confirm('本当に消しますか？ 元に戻せません。先に控えを書き出しておくと戻せます。')) return;
+    state.people = state.people.filter(function(x){ return x.id !== pe.id; });
+    delete state.drafts[pe.id];
+    state.cur = state.people[0].id;
+    saveNow(); renderWho(); syncPlanInputs(); syncRealInputs(); fillForms(); showTab('log', true);
+    toast('「' + pe.name + '」の記録を消しました');
+  });
+}
+
+/* ============================================================
+   9. 印刷（1対1の面談の1枚）
+   ============================================================ */
+var sheetPrinting = false;
+window.addEventListener('beforeprint', function(){
+  if (!sheetPrinting) document.body.classList.remove('print-sheet');
+  sheetPrinting = false;
+  document.querySelectorAll('.ph-date').forEach(function(e){ e.textContent = todayStr(); });
+  document.querySelectorAll('.ph-who').forEach(function(e){ e.textContent = '記録する人：' + P().name; });
+});
+window.addEventListener('afterprint', function(){
+  document.body.classList.remove('print-sheet');
+  document.querySelectorAll('.ph-who').forEach(function(e){ e.textContent = P().name; });
+});
+function printOne(o){
+  var pe = P(), p = effPlan(pe), c = calc(p);
+  var items = judge(pe.real, pe.plan), worst = worstOf(items);
+  var anyReal = items.some(function(it){ return isNum(it.act); });
+  var h = '<div class="ps"><h1>1対1の面談の記録</h1>' +
+    '<div class="ps-meta"><span>名前：<b>' + esc(pe.name) + '</b></span><span>面談の日：' + esc(o.date || '—') + '</span>' +
+    (o.who ? '<span>面談した人：' + esc(o.who) + '</span>' : '') + '<span>印刷した日：' + todayStr() + '</span></div>';
+  h += '<h2>目標と答え</h2><table class="ps-key"><tbody>' +
+    '<tr><th>手元に残したい額</th><td>' + esc(fmtYenFull(p.goal)) + '（手取り・1年）</td></tr>' +
+    '<tr><th>計算に使った率</th><td>' + (pe.useReal && pe.snap ? '「今の実績」の率（' + esc(pe.snap.at || '') + ' に取り込み）' : '計画の率') + '：' +
+      'アポ獲得率 ' + esc(fmtPct(p.rAppt)) + '・面談実施率 ' + esc(fmtPct(p.rMeet)) + '・提案化率 ' + esc(fmtPct(p.rProp)) + '・成約率 ' + esc(fmtPct(p.rClose)) +
+      '・平均保険料 ' + esc(fmtYen(p.apPer)) + '・手数料率 ' + esc(fmtPct(p.comm)) + (p.base ? '・既にある手数料収入 ' + esc(fmtYen(p.base)) : '') + '</td></tr>' +
+    '<tr><th>1営業日の接触</th><td><b>' + esc(fmtDay(c.perDay)) + '</b>（1か月 ' + esc(fmtDay(c.perMonth)) + '・稼働 ' + esc(String(p.months)) + 'か月×' + esc(String(p.days)) + '営業日）</td></tr>' +
+    '<tr><th>1年の件数</th><td>接触 ' + esc(fmtCnt(c.need9)) + ' → アポ ' + esc(fmtCnt(c.need8)) + ' → 面談 ' + esc(fmtCnt(c.need7)) + ' → 提案 ' + esc(fmtCnt(c.need6)) + ' → 成約 ' + esc(fmtCnt(c.need5)) + '</td></tr>' +
+    '<tr><th>ボトルネック</th><td>' + (worst
+      ? esc(worst.st.name + '（' + worst.st.arrow + '）') + '：計画 ' + esc(fmtPct(worst.plan)) + ' に対して実績 ' + esc(fmtPct(worst.act)) + '（' + esc(LV_TXT[worst.lv]) + '）'
+      : (anyReal ? '計画を大きく下回っている段はありません' : '実績が入っていないため、判定していません')) + '</td></tr>' +
+    '</tbody></table>';
+  h += '<h2>決めたこと</h2><div class="ps-box">' + esc(o.decided || '—') + '</div>';
+  h += '<h2>次回まで（宿題）</h2><div class="ps-box">' + esc(o.next || '—') + '</div>';
+  h += '<div class="ps-sign"><div>本人の署名・日付</div><div>面談した人の署名・日付</div></div>';
+  h += '<p class="ps-note">計画を立てるための目安です。必ず達成する約束ではありません。率の初期値は仮の数字で、市場・時期・お客様の層で変わります。この記録は、この端末に残った記録から印刷したものです。</p></div>';
+  $('printArea').innerHTML = h;
+  document.body.classList.add('print-sheet');
+  sheetPrinting = true;
+  try { window.print(); } catch (e) {}
+}
+
+/* ============================================================
+   10. 控え（ファイル）の書き出し・戻す・消去（社内ツール共通の部品 C）
+   ============================================================ */
+var KIND_NAMES = { 'katatsugi-training':'保険知識トレーニング', 'katatsugi-shikaku':'保険資格試験トレーニング',
+  'katatsugi-kirikaeshi':'切り返し辞典', 'katatsugi-shiharai':'支払事例トレーニング', 'katatsugi-compknock':'コンプライアンス100本ノック',
+  'katatsugi-sales':'営業ダッシュボード', 'katatsugi-calendar':'満期・年齢到達カレンダー', 'katatsugi-all':'管理画面の「データの控え」（全ての記録）' };
+function omMarkBackup(id){ try{ var o=JSON.parse(localStorage.getItem('officem.backup.v1')||'{}'); o.tools=o.tools||{}; o.tools[id]=new Date().toISOString(); localStorage.setItem('officem.backup.v1', JSON.stringify(o)); }catch(e){} }
 function download(name, text, type){
   var blob = new Blob([text], { type: type || 'application/octet-stream' });
   var a = document.createElement('a');
@@ -1679,61 +2603,183 @@ function download(name, text, type){
   document.body.appendChild(a); a.click();
   setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
 }
+function countsOf(st){
+  var m = 0, o = 0;
+  st.people.forEach(function(p){ m += p.months.length; o += p.ones.length; });
+  return { people: st.people.length, months: m, ones: o };
+}
+function exportBackup(){
+  if (saveTimer) saveNow();
+  var data = packState();
+  download(TOOL_NAME + '_控え_' + todayStr() + '.json',
+    JSON.stringify({ kind: KIND, v: 1, tool: TOOL_NAME, exportedAt: new Date().toISOString(), data: data }, null, 1), 'application/json');
+  omMarkBackup('gyakusan');
+  var c = countsOf(state);
+  $('bkNote').textContent = nowStr() + ' に控えを書き出しました（' + c.people + '人・月の記録 ' + c.months + '件・面談のメモ ' + c.ones + '件）。';
+  toast('控えを書き出しました');
+}
+var pendingImport = null, lastFocus = null;
+function openImport(st, exportedAt){
+  pendingImport = st;
+  var a = countsOf(st), b = countsOf(state);
+  var when = (typeof exportedAt === 'string' && !isNaN(Date.parse(exportedAt))) ? (function(d){ return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate()) + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes()); })(new Date(exportedAt)) : '（日時の記録がありません）';
+  $('impBody').innerHTML = '<p class="sec-note" style="margin:0 0 10px;">いまのこの端末の記録を、控えの中身で<b>置き換えます</b>。いまの記録は残りません（先に控えを書き出しておくと戻せます）。</p>' +
+    '<table class="tbl"><thead><tr><th></th><th class="num">控え</th><th class="num">いま</th></tr></thead><tbody>' +
+    '<tr><th>書き出した日時</th><td class="num">' + esc(when) + '</td><td class="num">—</td></tr>' +
+    '<tr><th>人</th><td class="num">' + a.people + '人</td><td class="num">' + b.people + '人</td></tr>' +
+    '<tr><th>月の記録</th><td class="num">' + a.months + '件</td><td class="num">' + b.months + '件</td></tr>' +
+    '<tr><th>面談のメモ</th><td class="num">' + a.ones + '件</td><td class="num">' + b.ones + '件</td></tr>' +
+    '</tbody></table><p class="lad-sub" style="margin-top:8px;">控えの人：' + esc(st.people.map(function(p){ return p.name; }).join('・')) + '</p>';
+  lastFocus = document.activeElement;
+  $('impModal').classList.remove('hide');
+  $('impOk').focus();
+}
+function closeImport(){
+  pendingImport = null; $('impModal').classList.add('hide');
+  if (lastFocus && lastFocus.focus) try { lastFocus.focus(); } catch (e) {}
+}
 function bindData(){
-  $('expJson').addEventListener('click', function(){
-    saveNow();
-    download('hoken-gyakusan-backup-' + todayStr() + '.json', JSON.stringify(state, null, 1), 'application/json');
-  });
-  $('impJson').addEventListener('change', function(){
-    var f = this.files && this.files[0];
-    var self = this;
+  $('expBtn').addEventListener('click', exportBackup);
+  $('impLbl').addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('impFile').click(); } });
+  $('impFile').addEventListener('change', function(){
+    var f = this.files && this.files[0], self = this;
     if (!f) return;
+    if (f.size > 5 * 1024 * 1024) { alert('ファイルが大きすぎます。このツールで書き出した控えを選んでください。'); self.value = ''; return; }
     var reader = new FileReader();
     reader.onload = function(){
-      try {
-        var o = JSON.parse(reader.result);
-        if (!o || typeof o !== 'object' || !o.plan) throw new Error('bad');
-        if (!confirm('今のデータをこのバックアップで置き換えますか？（月の記録 ' +
-            ((o.months && o.months.length) || 0) + '件・1on1メモ ' + ((o.ones && o.ones.length) || 0) + '件）')) return;
-        localStorage.setItem(LS_KEY, JSON.stringify(o));
-        state = load();
-        syncPlanInputs(); syncRealInputs();
-        showTab('plan');
-        alert('読み込みました。');
-      } catch (e) { alert('読み込めませんでした。このツールで書き出したJSONファイルを選んでください。'); }
+      var o = null;
+      try { o = JSON.parse(reader.result); } catch (e) { o = null; }
+      self.value = '';
+      if (!isObj(o)) { alert('読み込めませんでした。このツールで書き出した控えのファイルを選んでください。'); return; }
+      if (typeof o.kind === 'string') {
+        if (o.kind !== KIND) {
+          var nm = KIND_NAMES[o.kind] || (typeof o.tool === 'string' && o.tool ? o.tool.slice(0, 40) : 'ほかのツール');
+          alert('これは「' + nm + '」の控えです。このツールでは読み込めません。');
+          return;
+        }
+        if (!isObj(o.data)) { alert('控えの中身が読めませんでした。'); return; }
+        openImport(cleanState(o.data), o.exportedAt);
+        return;
+      }
+      /* 印の無い前の形（「JSONで書き出す」で作ったファイル）は、形が合うものだけ受ける */
+      if (isObj(o.plan) || Array.isArray(o.people)) { openImport(cleanState(o), null); return; }
+      alert('読み込めませんでした。このツールで書き出した控えのファイルを選んでください。');
     };
     reader.onerror = function(){ alert('ファイルを読めませんでした。'); };
     reader.readAsText(f);
-    self.value = '';
+  });
+  $('impOk').addEventListener('click', function(){
+    if (!pendingImport) return;
+    state = pendingImport; closeImport();
+    staleOther = false; staleHold = false; $('omStale').classList.add('hide');
+    saveNow();
+    renderWho(); syncPlanInputs(); syncRealInputs(); fillForms();
+    showTab('plan');
+    toast('控えから戻しました');
+  });
+  $('impCancel').addEventListener('click', closeImport);
+  $('impModal').addEventListener('click', function(e){ if (e.target === $('impModal')) closeImport(); });
+  document.addEventListener('keydown', function(e){
+    if ($('impModal').classList.contains('hide')) return;
+    if (e.key === 'Escape') closeImport();
+    if (e.key === 'Tab') {   /* 窓の中だけで焦点を回す */
+      var f = [$('impOk'), $('impCancel')];
+      if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[1].focus(); }
+      else if (!e.shiftKey && document.activeElement === f[1]) { e.preventDefault(); f[0].focus(); }
+    }
   });
   $('wipeBtn').addEventListener('click', function(){
-    if (!confirm('目標・率・実績・月の記録・1on1メモを全て消します。よろしいですか？')) return;
-    if (!confirm('本当に消しますか？ 元に戻せません（先にJSONで書き出しておくと安心です）。')) return;
+    if (!confirm('全ての人の目標・率・実績・月の記録・面談のメモを消します。よろしいですか？')) return;
+    if (!confirm('本当に消しますか？ 元に戻せません（先に控えを書き出しておくと戻せます）。')) return;
     try { localStorage.removeItem(LS_KEY); } catch (e) {}
     state = defaultState();
     saveNow();
-    syncPlanInputs(); syncRealInputs();
+    renderWho(); syncPlanInputs(); syncRealInputs(); fillForms();
     showTab('plan');
   });
 }
 
 /* ============================================================
-   8. 起動
+   11. 起動
+   （このツールにパスワードは無い。入口の管理画面で合言葉を入れている前提）
    ============================================================ */
 function startApp(){
   state = load();
+  $('tbHome').href = hubHref();
+  $('tbBackup').href = hubHref('#backup');
+  $('logBackup').href = hubHref('#backup');
+  document.querySelectorAll('.ph-date').forEach(function(e){ e.textContent = todayStr(); });
   bindPlanInputs();
   bindRealInputs();
+  bindDash();
   bindLog();
+  bindWho();
   bindData();
   document.querySelectorAll('.lad-arrow').forEach(function(el){ el.innerHTML = ICO_DOWN_ARROW; });
+  /* 答えの箱が画面から外れたら、携帯では下に小さな答えを出す */
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function(es){ es.forEach(function(e){ $('ansMini').classList.toggle('on', !e.isIntersecting); }); }).observe($('ansBox'));
+  } else $('ansMini').classList.add('on');
+  renderWho();
   syncPlanInputs();
   syncRealInputs();
-  showTab('plan');
+  fillForms();
+  showTab(state.lastTab);
 }
-/* このツールにパスワードは無い（入口の管理画面で合言葉を入れている前提）。
-   開いたらそのまま本体を出す。記録はこの端末のブラウザにだけ残る。 */
 startApp();
 </script>
+<script>/* KTNAV-JS-BEGIN 社内ツールの切り替え（正本は hoken-newtools-src/tools-common/ktnav.html） */
+(function(){
+  /* 管理画面の行き先は、この画面の「管理画面へ」（#tbHome）から読む。
+     公開先は ../hoken-hub/、会社フォルダは ../（make_agency.py が OMHUBURL の行を差し替える）、手元は日本語のファイル名 */
+  var ME = document.documentElement.getAttribute('data-kt') || '';
+  var ICO = {
+    hub: '<path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/>',
+    sales: '<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/>',
+    kokyaku: '<rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/>',
+    cal: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+    comp: '<path d="M12 3 4.5 6v5.5c0 4.6 3.2 8.2 7.5 9.5 4.3-1.3 7.5-4.9 7.5-9.5V6z"/><path d="m8.8 12 2.2 2.2 4.4-4.4"/>',
+    gyaku: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'
+  };
+  var T = [
+    { k:'hub', w:'katatsugi-hub', f:'', p:'', h:'', n:'管理画面', d:'今日の仕事・お客様をさがす' },
+    { k:'sales', w:'katatsugi-sales', f:'保険営業管理ツール.html', p:'hoken-sales/', h:'', n:'営業ダッシュボード', d:'予定・お客様・契約の記録' },
+    { k:'kokyaku', w:'katatsugi-kokyaku', f:'保険顧客管理ツール.html', p:'hoken-kokyaku/', h:'', n:'顧客管理', d:'契約ごとの提出書類・代理店点検' },
+    { k:'comp', w:'katatsugi-hub', f:'', p:'', h:'#compliance', n:'コンプライアンスの記録', d:'意向把握・比較推奨・適合性・苦情' },
+    { k:'cal', w:'katatsugi-calendar', f:'保険満期カレンダー.html', p:'hoken-calendar/', h:'', n:'満期・年齢到達カレンダー', d:'満期・更新・誕生日の声かけ' },
+    { k:'gyaku', w:'katatsugi-gyakusan', f:'保険目標逆算プランナー.html', p:'hoken-gyakusan/', h:'', n:'目標逆算プランナー', d:'実績の数から1日の接触を逆算' }
+  ];
+  function local(){ var p = location.pathname; return /\.html$/.test(p) && !/\/index\.html$/.test(p); }
+  function hubBase(){
+    var a = document.getElementById('tbHome'), h = a ? (a.getAttribute('href') || '') : '';
+    h = h.split('#')[0];
+    if (!h) h = local() ? encodeURI('保険ツール管理画面.html') : '../hoken-hub/';
+    return h;
+  }
+  function href(t){
+    if (t.k === 'hub' || t.k === 'comp') return hubBase() + t.h;
+    return (local() ? encodeURI(t.f) : '../' + t.p) + t.h;
+  }
+  var me = null; T.forEach(function(t){ if (t.k === ME) me = t; });
+  // 同じツールは同じタブで開く。同じタブで別のツールへ移ったときは付け直す（ほかの名前の付いた窓は触らない）
+  if (me && (!window.name || /^katatsugi-/.test(window.name))) { try { window.name = me.w; } catch (e) {} }
+  var menu = document.getElementById('ktNavMenu'), box = document.getElementById('ktNav');
+  if (!menu || !box) return;
+  var esc = function(s){ return String(s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); };
+  function draw(){
+    menu.innerHTML = T.map(function(t, i){
+      var ico = '<span class="kt-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICO[t.k] + '</svg></span>';
+      var body = ico + '<b>' + esc(t.n) + '</b><small>' + esc(t.d) + '</small>';
+      return (i === 1 ? '<hr>' : '') + (t.k === ME ? '<span class="kt-cur" aria-current="page">' + body + '</span>'
+        : '<a href="' + esc(href(t)) + '" target="' + t.w + '" data-kt-go="' + t.k + '">' + body + '</a>');
+    }).join('');
+  }
+  draw();
+  box.addEventListener('toggle', function(){ if (box.open) draw(); });
+  menu.addEventListener('click', function(e){ if (e.target.closest('a')) box.open = false; });
+  document.addEventListener('click', function(e){ if (box.open && !box.contains(e.target)) box.open = false; });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && box.open) { box.open = false; var s = box.querySelector('summary'); if (s) s.focus(); } });
+})();
+/* KTNAV-JS-END */</script>
 </body>
 </html>

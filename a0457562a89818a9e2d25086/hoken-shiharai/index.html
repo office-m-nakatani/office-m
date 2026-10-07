@@ -11,13 +11,15 @@
 
   ■ これは何か
   募集人が「それは出ますよ」と言い過ぎる事故を防ぐための、支払い判断の練習台です。
-  支払いが「分かれる」場面だけを68件集めてあります。正解を覚えるためではなく、
-  即答してはいけない場面を体で覚えるためのものです。
+  支払いが分かれる場面を中心に87件集めてあります（2026-10-04 に68件 → 87件。
+  答えの内訳＝支払われる側26・支払われない側31・契約内容で分かれる30）。
+  正解を覚えるためではなく、即答してはいけない場面を体で覚えるためのものです。
 
   ■ 保存先と外部送信
   正誤・弱点・連続日数は、この端末のブラウザ（localStorage: officem.hokenShiharai.v1）
   にだけ残ります。サーバー送信は一切ありません。端末を変えると消えるので、
-  「記録・データ」タブのJSON書き出しでバックアップを取ってください。
+  「記録・控え」タブの「控えを書き出す（ファイル）」で控えを取ってください
+  （中身は { kind:'katatsugi-shiharai', v:1, tool, exportedAt, data }。別のツールの控えは断る）。
   共有PCでは使わないこと（誰の記録かの区別なく、その端末に残り続けます）。
 
   ■ 内容の限界（ここが最重要）
@@ -47,6 +49,21 @@
   ロック画面・パスワード判定のコードは持たせないこと。
   ただし記録がこの端末のブラウザにだけ残ることは変わらないので、
   共有パソコンでは使わない旨の注意書きは画面から外さないこと。
+
+  ■ 2026-10-04 の作り直し（辛口の点検 B と、社内ツール共通の部品 hoken-newtools-src/tools-common/SPEC.md）
+  - 答えの札を「支払われる側（一般に）／支払われない側（一般に）／契約内容で分かれる」に。
+    前の「出る」の説明（まず支払われます）は言い切りだったので外した。記録の値（in/out/dep）はそのまま
+  - 判定を重さで分けた：支払われる側と答えて違う＝言い過ぎ（赤・いちばん事故になる）／
+    支払われない側と答えて違う＝請求を止めかねない・決めつけ（珊瑚）／分かれると答えて違う＝確かめる側（琥珀）。
+    「おしい」は使わない。言い過ぎの回数は tot.ov と rec[id].v に残す
+  - 答えの偏りを直した（出る7・出ないことがある33・条件しだい28 → 26・31・30）。sh033・sh035 は
+    解説どおり「契約内容で分かれる」に。sh069〜sh087 の19件（支払われる側）を足した。
+    sh023・sh068 は問いが「支払われますか」では答えが割れるので、ケースごとの問い（ask）を持たせた
+  - 読み込みの守り：記録は全て形で確かめてから使う（cleanState）。画面に入れる値は全て esc() を通す
+  - 途中の問題は ses に残し、開き直したら「続きから」。最後に開いたタブ（lastTab）・印刷の名前（name）
+  - 管理画面へ戻る道（hubHref。会社フォルダで差し替える飛び先の行は1回だけ）・携帯のタブを5つ1画面に・保存の失敗と別の窓の知らせ
+  - 一覧の検索は文字をそろえ、漢字の言葉に読みを足してひらがなでも当たる。空白区切りは全て含むもの
+  - 研修の記録を1枚で印刷（名前・日付・期間・結果・言い過ぎ・弱かった分野・署名欄）
 
   ■ 見た目
   保険知識トレーニング（hoken-training）・保険ツール管理画面（hoken-hub）と同じ顔。
@@ -244,7 +261,7 @@ table.tbl th{background:var(--navy-soft);color:var(--navy);font-weight:700;white
 .btn-danger:hover{background:var(--red-bg);}
 /* 間違えた問題の件数（タブの見出しに出る小さな丸） */
 .unread-pill{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;
-  margin-left:7px;border-radius:999px;background:var(--coral-btn);color:#fff;font-size:11px;font-weight:800;line-height:20px;}
+  margin-left:7px;border-radius:999px;background:var(--coral-btn);color:#fff;font-size:13px;font-weight:800;line-height:20px;}
 /* 押せないチップ（結果画面の「つまずいた分野」）は指の形にしない */
 span.chip{cursor:default;}
 /* カードの中に入れる空状態は、二重の箱に見えないよう枠と地を消す */
@@ -359,9 +376,9 @@ footer{margin-top:var(--sp-8);border-top:1px solid var(--line);padding:var(--sp-
 @media(max-width:640px){
   /* 「今日の10問」の数字タイルは、狭い画面では3つ横並びの小さい形に。
      縦に積むと問題文が画面の下に押し出されてしまうため */
-  .tiles.compact .t-label{font-size:11px;letter-spacing:0;line-height:1.4;}
+  .tiles.compact .t-label{font-size:13px;letter-spacing:0;line-height:1.4;}
   .tiles.compact .t-value small{font-size:var(--fs-sm);}
-  .tiles.compact .t-sub{font-size:10.5px;line-height:1.5;}
+  .tiles.compact .t-sub{font-size:13px;line-height:1.45;}
   .catrow{flex-wrap:wrap;}
   .catrow .cr-name{flex:1 1 100%;}
   .catrow .cr-meter{flex:1;width:auto;}
@@ -370,6 +387,206 @@ footer{margin-top:var(--sp-8);border-top:1px solid var(--line);padding:var(--sp-
   .legend div{flex-wrap:wrap;}
   .exp-act .btn,.rowbtns .btn{flex:1 1 auto;}
 }
+
+/* ============================================================
+   2026-10-04 の作り直し（社内ツール共通の部品 SPEC.md ＋ 辛口の点検 B の直し）
+   ============================================================ */
+/* ---- 上の帯：ツール名は h1、右に「管理画面へ」 ---- */
+.tb-brand h1{display:block;font-family:var(--mincho);font-size:var(--fs-lg);letter-spacing:.06em;font-weight:600;line-height:1.35;color:var(--navy);}
+.tb-brand h1 .nw{white-space:nowrap;}
+a.tb-tag{text-decoration:none;min-height:44px;}
+a.tb-tag:hover{background:#fbe9c8;}
+.tb-home{display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:0 16px;border-radius:999px;
+  border:1px solid #cfe0ec;background:var(--white);color:var(--navy);font-weight:700;font-size:var(--fs-sm);
+  text-decoration:none;white-space:nowrap;flex:none;}
+.tb-home:hover{background:var(--navy-soft);}
+.tb-home svg{width:16px;height:16px;}
+.tb-home .s{display:none;}
+.tab .tl-s{display:none;}
+
+/* ---- 知らせの帯（保存できない＝赤／別の窓で変わった＝琥珀） ---- */
+.alerts .al{padding:10px 0;font-size:var(--fs-sm);font-weight:700;line-height:1.6;}
+.alerts .al .wrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.alerts .al-red{background:var(--red-bg);color:#8f2a25;border-top:2px solid var(--red-border);border-bottom:2px solid var(--red-border);}
+.alerts .al-amber{background:var(--amber-bg);color:#6e4a0f;border-top:1px solid var(--amber-border);border-bottom:1px solid var(--amber-border);}
+.alerts .al span{flex:1 1 260px;}
+.alerts .al .btn{min-height:44px;padding:8px 16px;font-size:var(--fs-sm);}
+
+/* ---- 押す場所 44px・字 13px ---- */
+.btn-sm{min-height:44px;}
+.chip{min-height:44px;display:inline-flex;align-items:center;}
+.unread-pill{font-size:.8125rem;min-width:22px;height:22px;line-height:22px;}
+.ansbtn .mk{font-size:13px;}
+.file-btn{cursor:pointer;position:relative;}
+.file-btn input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;}
+.file-btn:focus-within{outline:3px solid var(--navy-2);outline-offset:2px;}
+
+/* ---- 出題中：注意書きとタイルは畳み、問題を上に ---- */
+#dailyHost,#catHost,#weakHost{scroll-margin-top:80px;}
+.q-top .q-quit{margin-left:auto;}
+.q-quit{background:none;border:none;color:var(--muted);font-size:var(--fs-sm);font-weight:700;text-decoration:underline;
+  min-height:44px;padding:0 6px;cursor:pointer;}
+.q-mini{font-size:.8125rem;color:var(--muted);margin:-4px 0 10px;}
+.q-ask small{display:block;font-family:inherit;font-size:var(--fs-sm);font-weight:400;color:var(--muted);letter-spacing:0;margin-top:2px;}
+
+/* ---- 答えの判定：重さで色を分ける ---- */
+.verdict{display:flex;flex-direction:column;align-items:flex-start;gap:4px;border-radius:16px;padding:12px 16px;
+  font-size:var(--fs-base);font-weight:800;border:2px solid;margin-bottom:var(--sp-4);scroll-margin-top:80px;}
+.verdict .v-h{display:inline-flex;align-items:center;gap:8px;}
+.verdict .v-h svg{width:20px;height:20px;}
+.verdict .v-t{font-size:var(--fs-sm);font-weight:700;line-height:1.75;}
+.verdict:focus{outline:none;}
+.verdict:focus-visible{outline:3px solid var(--navy-2);outline-offset:2px;}
+.verdict.ok{background:var(--green-bg);border-color:var(--green-border);color:var(--green);}
+.verdict.over{background:#fbe3e1;border-color:var(--red);color:#9e2e29;}
+.verdict.stop{background:var(--coral-bg);border-color:var(--coral-border);color:var(--coral-text);}
+.verdict.safe{background:var(--amber-bg);border-color:var(--amber-border);color:#7a5210;}
+.ansbtn.is-over{background:#fbe3e1;border-color:var(--red);}
+.ansbtn.is-over .mk{border-color:var(--red);color:var(--red-text);background:#fff;}
+.ansbtn.is-over .ab-t{color:#9e2e29;}
+.ansbtn.is-safe{background:var(--amber-bg);border-color:var(--amber-border);}
+.ansbtn.is-safe .mk{border-color:var(--amber);color:var(--amber);background:#fff;}
+.ansbtn.is-safe .ab-t{color:#7a5210;}
+/* 「次の問題へ」は答えたら見える場所に（画面の下に貼る） */
+.exp-act.stick{position:sticky;bottom:0;z-index:5;background:linear-gradient(rgba(255,255,255,0),#fff 30%);
+  margin:var(--sp-4) calc(-1 * var(--sp-5)) calc(-1 * var(--sp-5));padding:18px var(--sp-5) var(--sp-4);border-radius:0 0 20px 20px;}
+.exp-act.stick .btn{min-height:48px;}
+
+/* ---- 続きから ---- */
+.resume{border:2px solid var(--sky-border);background:var(--sky-bg);border-radius:20px;padding:var(--sp-5);margin-bottom:var(--sp-4);}
+.resume b{display:block;font-family:var(--mincho);color:var(--navy);font-size:var(--fs-md);margin-bottom:4px;}
+.resume p{font-size:var(--fs-sm);color:var(--text);}
+.resume .exp-act{margin-top:var(--sp-3);}
+
+/* ---- 結果：つまずいた分野は押すとその分野を始める ---- */
+.wk-cats{display:grid;gap:8px;margin:6px 0 14px;}
+.wk-cat{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;text-align:left;cursor:pointer;
+  border:1px solid var(--coral-border);background:var(--white);border-radius:14px;padding:8px 14px;font-weight:700;color:var(--navy);}
+.wk-cat:hover{background:var(--coral-bg);}
+.wk-cat .nm{flex:1;min-width:0;}
+.wk-cat .n{color:var(--red-text);font-weight:800;white-space:nowrap;margin-left:6px;}
+.wk-cat .go{flex:none;margin-top:0;color:var(--coral-text);font-size:var(--fs-sm);white-space:nowrap;display:inline-flex;align-items:center;gap:4px;}
+.res-over{font-size:var(--fs-sm);font-weight:700;color:#9e2e29;background:#fbe3e1;border:1px solid var(--red-border);border-radius:12px;padding:8px 12px;margin:10px 0 12px;}
+.tile.t-over .t-value{color:#9e2e29;}
+
+/* ---- 一覧で読む ---- */
+.qbox{display:flex;align-items:center;gap:8px;background:var(--white);border:2px solid #dfd0c4;border-radius:16px;padding:0 6px 0 14px;box-shadow:var(--shadow-sm);}
+.qbox:focus-within{border-color:var(--coral);box-shadow:0 0 0 3px rgba(240,132,106,.22);}
+.qbox > svg{width:20px;height:20px;color:var(--muted);}
+.qbox input{flex:1;min-width:0;border:none;outline:none;background:none;font-size:1.0625rem;min-height:52px;padding:0;}
+.qbox input::-webkit-search-cancel-button{display:none;}
+.qx{flex:none;width:44px;height:44px;border:none;background:none;border-radius:50%;cursor:pointer;color:var(--muted);display:inline-flex;align-items:center;justify-content:center;}
+.qx:hover{background:var(--coral-bg);color:var(--coral-text);}
+.qx svg{width:18px;height:18px;}
+.q-hint{font-size:.8125rem;color:var(--muted);margin:6px 0 12px;}
+.list-chips{margin-bottom:12px;}
+.cat-sel{display:none;margin-bottom:12px;}
+.cat-sel select{min-height:44px;border:1px solid #dfd0c4;border-radius:12px;padding:8px 12px;background:var(--white);width:100%;}
+.list-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+.list-count{flex:1 1 240px;font-size:var(--fs-sm);color:var(--muted);}
+.list-acts{display:flex;gap:8px;flex-wrap:wrap;}
+.acc{scroll-margin-top:80px;}
+
+/* ---- 記録の表（携帯は分野ごとのカードに） ---- */
+table.rec-tbl th.num{text-align:right;}
+.bk-now{font-size:var(--fs-sm);color:var(--muted);margin:0 0 12px;}
+.print-head{display:none;}
+.print-sheet{display:none;}
+footer .foot-data{margin-top:6px;}
+.foot-data a{font-weight:700;display:inline-flex;align-items:center;min-height:44px;vertical-align:middle;}
+.foot-data button{background:none;border:none;color:var(--navy-2);text-decoration:underline;font-weight:700;cursor:pointer;font-size:inherit;min-height:44px;}
+
+/* ---- 確認の窓 ---- */
+.om-modal{position:fixed;inset:0;background:rgba(27,63,94,.42);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;}
+.om-modal .box{background:var(--white);border-radius:20px;max-width:540px;width:100%;padding:22px 22px 18px;box-shadow:0 18px 50px rgba(27,63,94,.3);max-height:calc(100vh - 32px);overflow:auto;}
+.om-modal h3{font-family:var(--mincho);color:var(--navy);font-size:var(--fs-md);margin-bottom:10px;}
+.om-modal .body{font-size:var(--fs-sm);line-height:1.8;}
+.om-modal table{width:100%;border-collapse:collapse;margin:10px 0;font-size:var(--fs-sm);}
+.om-modal th,.om-modal td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top;}
+.om-modal th{color:var(--navy);white-space:nowrap;}
+.om-modal .acts{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;margin-top:14px;}
+
+/* 長い段落は1行40字前後まで */
+/* 解説の箱は幅をそろえる（中の文だけ細くすると、箱ごとに幅が違って見える） */
+.exp .verdict,.pointbox,.ngbox,.disclaim{max-width:44rem;}
+.why,.q-ask,.notice > div,.legend span,.resume p{max-width:40em;}
+
+/* ---- 携帯 ---- */
+@media(max-width:600px){
+  .topbar .wrap{min-height:0;padding:8px 12px;gap:8px;flex-wrap:nowrap;}
+  .tb-brand{gap:8px;min-width:0;flex:1;}
+  .tb-brand .tb-art,.tb-brand .tb-art svg{width:38px;height:38px;}
+  .tb-brand h1{font-size:1rem;letter-spacing:.02em;line-height:1.3;}
+  .tb-brand small{display:none;}
+  a.tb-tag{display:none;}
+  .tb-home{padding:0 12px;}
+  .tb-home .l{display:none;}
+  .tb-home .s{display:inline;}
+  /* タブは5つを1画面に（横に送る作りにしない） */
+  .tabs .wrap{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;overflow:visible;padding:0 4px;}
+  .tab{flex-direction:column;justify-content:center;gap:3px;min-height:58px;padding:7px 2px 6px;white-space:normal;text-align:center;
+    font-size:13px;line-height:1.25;letter-spacing:0;position:relative;}
+  .tab .tl{display:none;}
+  .tab .tl-s{display:block;}
+  .tab .unread-pill{position:absolute;top:4px;right:calc(50% - 34px);margin:0;min-width:20px;height:20px;line-height:20px;font-size:13px;padding:0 5px;}
+  .sec{margin-top:var(--sp-5);}
+  .sec-head h2{font-size:1.4rem;}
+  .card{padding:var(--sp-4);}
+  .exp-act.stick{margin:var(--sp-4) calc(-1 * var(--sp-4)) calc(-1 * var(--sp-4));padding:16px var(--sp-4) var(--sp-3);}
+  .exp-act.stick .btn{flex:1 1 auto;}
+  .q-mini,.q-ask small{display:none;}
+  .list-chips{display:none !important;}
+  .cat-sel{display:block;}
+  .list-acts{flex:1 1 100%;}
+  .list-acts .btn{flex:1 1 0;}
+  /* 数字タイル：字は13px以上 */
+  .tiles.compact .t-label{font-size:13px;letter-spacing:0;line-height:1.4;}
+  .tiles.compact .t-sub{font-size:13px;line-height:1.45;}
+  /* 記録の表は、分野ごとのカードの形に */
+  table.rec-tbl thead{display:none;}
+  table.rec-tbl,table.rec-tbl tbody{display:block;width:100%;}
+  table.rec-tbl tr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px 8px;border:1px solid var(--line);border-radius:14px;padding:8px 12px;margin-bottom:10px;background:var(--white);}
+  table.rec-tbl td,table.rec-tbl td.num{border:none;padding:2px 0;text-align:left;font-weight:700;color:var(--navy);}
+  table.rec-tbl td::before{content:attr(data-l);display:block;color:var(--muted);font-weight:400;font-size:13px;line-height:1.4;}
+  table.rec-tbl td.cat-name{grid-column:1 / -1;font-family:var(--mincho);font-weight:700;color:var(--navy);font-size:var(--fs-md);padding-bottom:4px;border-bottom:1px dashed var(--line);margin-bottom:2px;}
+  table.rec-tbl td.cat-name::before{content:none;}
+}
+
+/* 背の低い携帯（360×640 など）は、答えの説明を畳んで3つの答えを最初の画面に入れる */
+@media(max-width:600px) and (max-height:700px){
+  .ansbtn small{display:none;}
+  .ansbtn{min-height:48px;padding:10px 14px;}
+  .scene{font-size:.95rem;line-height:1.8;}
+}
+
+/* ---- 印刷 ---- */
+@media print{
+  @page{size:A4 portrait;margin:14mm 12mm;}
+  body{background:#fff;padding:0;font-size:10.5pt;}
+  .topbar,.tabs,.alerts,.btn,.chips,.cat-sel,.qbox,.q-hint,.list-acts,.exp-act,.q-quit,footer,.om-modal,.toast,.resume,
+  #tab-rec .sec:not(:first-child),#dailyIntro,#dailyStats{display:none !important;}
+  .print-head{display:block;border-bottom:2px solid #1b3f5e;padding-bottom:6px;margin-bottom:10px;}
+  .print-head b{font-family:var(--mincho);font-size:14pt;color:#1b3f5e;}
+  .print-head span{float:right;font-size:9.5pt;color:#333;}
+  .wrap{max-width:none;padding:0;}
+  .sec{margin-top:10px;}
+  .card,.acc,.tile,.catrow{box-shadow:none !important;break-inside:avoid;}
+  .scene,.pointbox,.ngbox,.disclaim,.notice,.verdict{background:#fff !important;}
+  a{color:inherit;text-decoration:none;}
+  /* 「控えを印刷する」のときは、この1枚だけ */
+  body.print-sheet-on main > section,body.print-sheet-on .print-head{display:none !important;}
+  body.print-sheet-on .print-sheet{display:block;}
+}
+/* 印刷用の1枚の見た目 */
+.print-sheet h2{font-family:var(--mincho);font-size:16pt;color:#1b3f5e;border-bottom:2px solid #1b3f5e;padding-bottom:6px;margin-bottom:10px;}
+.print-sheet table{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:10pt;}
+.print-sheet th,.print-sheet td{border:1px solid #999;padding:5px 7px;text-align:left;vertical-align:top;}
+.print-sheet th{background:#eef3f7;color:#1b3f5e;white-space:nowrap;}
+.print-sheet td.num{text-align:right;}
+.print-sheet h3{font-size:11pt;color:#1b3f5e;margin:12px 0 4px;}
+.print-sheet p{font-size:9.5pt;line-height:1.7;}
+.print-sheet .sign{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px;}
+.print-sheet .sign div{border:1px solid #999;min-height:70px;padding:6px 8px;font-size:9.5pt;}
 </style>
 </head>
 <body>
@@ -389,9 +606,12 @@ html.omtrial-lock body > *:not(#omtrial){ display:none !important; }
 #omtrial p{ margin:0 0 12px; font-size:14px; color:#5d6b7c; line-height:1.95; }
 #omtrial .co{ margin-top:22px; font-size:12.5px; color:#7d8b9b; }
 #omtrial-pill{ position:fixed; left:12px; bottom:12px; z-index:2147483000; pointer-events:none;
-  background:rgba(31,59,87,.88); color:#fff; border-radius:999px; padding:7px 14px;
+  background:rgba(31,59,87,.92); color:#fff; border-radius:999px; padding:8px 15px;
   font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;
-  font-size:12px; font-weight:700; letter-spacing:.02em; }
+  font-size:13px; font-weight:700; letter-spacing:.02em; transition:opacity .6s ease; }
+/* 開いたときに数秒だけ出して消す（左下に置いたままだと、AI師匠の相談の欄やページの最後の行に重なった。2026-10-07） */
+#omtrial-pill.omtrial-fade{ opacity:0; }
+@media (prefers-reduced-motion: reduce){ #omtrial-pill{ transition:none; } }
 #omtrial-pill[hidden]{ display:none !important; }
 @media print{ #omtrial-pill{ display:none !important; } }
 </style>
@@ -437,37 +657,162 @@ html.omtrial-lock body > *:not(#omtrial){ display:none !important; }
   var rem = Math.max(1, Math.ceil((end - now) / 86400000));
   ready(function(){
     var p = document.getElementById('omtrial-pill');
-    if(p){ p.textContent = 'お試しのご利用です（あと' + rem + '日）'; p.hidden = false; }
+    if(!p) return;
+    p.textContent = 'お試しのご利用です（あと' + rem + '日）'; p.hidden = false;
+    setTimeout(function(){ p.className = 'omtrial-fade'; }, 6000);
+    setTimeout(function(){ p.hidden = true; }, 6800);
   });
 })();
 </script>
 <!-- OMTRIAL-END -->
 
+<!-- OMLOG-BEGIN ★学習の記録（量だけ）。正本は hoken-gate-src/katalog.html。ページ側を直接編集しないこと（apply_gate.py で入れ直すと消える） -->
+<script>
+/* ============================================================
+   学習の記録（2026-09-29 ユーザー指示）
+   「教育の記録を1枚の紙に」「使われているかが社長に見える」
+   「社長には内容が見えないようにだけして従業員のプライベートを守ってください」
+
+   ★記録するのは「量」だけ。中身は記録しない（記録していないものは、誰にも見せようがない）
+     残すもの   ＝ その日に1分以上ひらいた学習資料・社内ツールの id と題名／
+                  教材の問題を最後まで解いた id／資格の問題に答えた数／
+                  AI師匠への仕事の相談の回数（AI師匠の側が omLog('m') を呼ぶ）
+     残さないもの＝ 相談の文・返事・正解か不正解か・点数・時刻・どこを読んだか
+   ★置き場所はこの端末の localStorage 'officem.kataLog.v1' だけ。外へ送らない。
+     社長に届くのは、本人が管理画面で中身を見てから書き出して渡したときだけ
+   ★記録するのは「管理画面の合言葉を通した端末」（社員の端末）だけ。
+     お客様や共有リンクで開いた人の端末には何も残さない
+   ★日付は「日」まで。時刻は持たない。社長に渡るのは月ごとの合計（管理画面が作る）
+   ============================================================ */
+(function () {
+  if (window.omLog) return;                       /* 1ページに2回入っても1回だけ動く */
+  var KEY = 'officem.kataLog.v1';
+  var AUTH = 'officem.hokenHub.auth';
+  var KEEP_DAYS = 430;                            /* 13か月と少し。古い日は消す */
+  var OPEN_MS = 60000;                            /* 1分以上ひらいたら「ひらいた」と数える */
+  var TOOLS = /^hoken-(training|shiharai|kirikaeshi|compliance|shikaku|sales|gyakusan|calendar|mentor)$/;
+
+  function read(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } }
+  function staff() {
+    var a = read(AUTH);
+    return !!(a && typeof a.e === 'number' && a.e > Date.now() && /^[0-9a-f]{64}$/.test(String(a.h || '')));
+  }
+  function z(n) { return (n < 10 ? '0' : '') + n; }
+  function day(t) { var d = t ? new Date(t) : new Date(); return d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()); }
+  function load() {
+    var o = read(KEY);
+    if (!o || typeof o !== 'object' || o.v !== 1 || !o.d || typeof o.d !== 'object') o = { v: 1, d: {}, t: {} };
+    if (!o.t || typeof o.t !== 'object') o.t = {};
+    return o;
+  }
+  function save(o) {
+    var cut = day(Date.now() - KEEP_DAYS * 86400000);
+    Object.keys(o.d).forEach(function (k) { if (k < cut) delete o.d[k]; });
+    try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) { /* 残せなくても画面は止めない */ }
+  }
+  function pageId() {
+    var p = String(location.pathname).replace(/\/+$/, '');
+    return p.slice(p.lastIndexOf('/') + 1).replace(/\.html$/i, '');
+  }
+  function cleanTitle(s) {
+    s = String(s || '').replace(/\s+/g, ' ').replace(/[｜|].*$/, '').trim();
+    return s.slice(0, 60);
+  }
+
+  /* 記録の入口。kind：'p'＝ひらいた／'q'＝教材の問題を解き終えた（id）／'s'＝資格の問題（数）／'m'＝AI師匠への仕事の相談（数） */
+  function omLog(kind, id, n) {
+    if (!staff()) return;
+    if (!/^[pqsm]$/.test(kind)) return;
+    var o = load(), d = day(), r = o.d[d] || (o.d[d] = {});
+    if (kind === 'p' || kind === 'q') {
+      id = String(id || '').replace(/[^a-z0-9-]/g, '').slice(0, 64);
+      if (!id) return;
+      r[kind] = r[kind] || {};
+      r[kind][id] = 1;
+      if (kind === 'p' && document.title) o.t[id] = cleanTitle(document.title);
+    } else {
+      n = Math.max(1, Math.min(500, Math.round(+n || 1)));
+      r[kind] = (r[kind] || 0) + n;
+    }
+    save(o);
+  }
+  window.omLog = omLog;
+
+  var id = pageId();
+  var mine = /-check$/.test(id) || TOOLS.test(id);
+  if (!mine) return;
+
+  /* 1分以上ひらいたら「ひらいた」。画面が裏に回っている時間は数えない */
+  var seen = 0, done = false, tick = 5000;
+  var iv = setInterval(function () {
+    if (document.visibilityState && document.visibilityState !== 'visible') return;
+    seen += tick;
+    if (!done && seen >= OPEN_MS) { done = true; omLog('p', id); clearInterval(iv); }
+  }, tick);
+
+  /* 教材：問題を最後まで解くと #quizDone に .show が付く（kyozai-template.html）。
+     ★正解の数は見ない。「最後まで解いた」だけ */
+  function watchQuiz() {
+    var q = document.getElementById('quizDone');
+    if (!q || !window.MutationObserver) return;
+    var hit = false;
+    var mo = new MutationObserver(function () {
+      if (!hit && q.classList.contains('show')) { hit = true; omLog('q', id); mo.disconnect(); }
+    });
+    mo.observe(q, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  /* 資格試験対策ツール：通算の問題数（officem.shikaku.v1 の total）の増えた分だけ数える。
+     ★どの問題を解いたか・正解したかは見ない */
+  function shikakuTotal() { var s = read('officem.shikaku.v1'); return s && +s.total >= 0 ? +s.total : 0; }
+  if (id === 'hoken-shikaku') {
+    var base = shikakuTotal();
+    var flush = function () {
+      var cur = shikakuTotal();
+      if (cur > base) omLog('s', null, cur - base);
+      base = cur;
+    };
+    setInterval(flush, 15000);
+    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') flush(); });
+    window.addEventListener('pagehide', flush);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', watchQuiz);
+  else watchQuiz();
+})();
+</script>
+<!-- OMLOG-END -->
 
 <header class="topbar">
   <div class="wrap">
     <div class="tb-brand">
       <span class="tb-art"><svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#ffeee3"/><path d="M32 11 15 17.5v11.8c0 10.6 7.2 19.5 17 22.7 9.8-3.2 17-12.1 17-22.7V17.5Z" fill="#f0846a"/><path d="M32 23.5v10" fill="none" stroke="#fff" stroke-width="4.4" stroke-linecap="round"/><circle cx="32" cy="41" r="2.7" fill="#fff"/></svg></span>
-      <span><b>保険支払事例トレーニング</b><small>「それは出ますよ」と言い過ぎないための練習台</small></span>
+      <span><h1><span class="nw">保険支払事例</span><span class="nw">トレーニング</span></h1><small>「それは出ますよ」と言い過ぎないための練習台</small></span>
     </div>
-    <span class="tb-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>データはこの端末のみ・外部送信なし</span>
+    <a class="tb-tag" id="tbBackup" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>データはこの端末だけ・控えを取る</a>
+    <a class="tb-home" id="tbHome" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg><span class="l">管理画面へ</span><span class="s">管理画面</span></a>
   </div>
 </header>
 
 <nav class="tabs" aria-label="ページ切り替え">
   <div class="wrap" role="tablist">
-    <button class="tab" role="tab" data-tab="daily" aria-selected="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17M8.6 14.6l2.2 2.2 4.6-4.6"/></svg>今日の10問</button>
-    <button class="tab" role="tab" data-tab="cat" aria-selected="false">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="7" height="7" rx="1.8"/><rect x="13.5" y="4" width="7" height="7" rx="1.8"/><rect x="3.5" y="14" width="7" height="7" rx="1.8"/><rect x="13.5" y="14" width="7" height="7" rx="1.8"/></svg>分野別</button>
-    <button class="tab" role="tab" data-tab="weak" aria-selected="false">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5 3 19.5h18L12 4.5Z"/><path d="M12 10v4.2M12 17.2v.1"/></svg>間違えた問題<span id="weakBadge" class="unread-pill hide"></span></button>
-    <button class="tab" role="tab" data-tab="list" aria-selected="false">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5h9M4 12h16M4 18.5h12"/><circle cx="17.5" cy="6" r="3"/><path d="m20 8.4 1.6 1.6"/></svg>一覧で読む</button>
-    <button class="tab" role="tab" data-tab="rec" aria-selected="false">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg>記録・データ</button>
+    <button class="tab" role="tab" type="button" data-tab="daily" aria-selected="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17M8.6 14.6l2.2 2.2 4.6-4.6"/></svg><span class="tl">今日の10問</span><span class="tl-s">今日の<br>10問</span></button>
+    <button class="tab" role="tab" type="button" data-tab="cat" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4" width="7" height="7" rx="1.8"/><rect x="13.5" y="4" width="7" height="7" rx="1.8"/><rect x="3.5" y="14" width="7" height="7" rx="1.8"/><rect x="13.5" y="14" width="7" height="7" rx="1.8"/></svg><span class="tl">分野別</span><span class="tl-s">分野別</span></button>
+    <button class="tab" role="tab" type="button" data-tab="weak" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4.5 3 19.5h18L12 4.5Z"/><path d="M12 10v4.2M12 17.2v.1"/></svg><span class="tl">間違えた問題</span><span class="tl-s">間違えた<br>問題</span><span id="weakBadge" class="unread-pill hide"></span></button>
+    <button class="tab" role="tab" type="button" data-tab="list" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5h9M4 12h16M4 18.5h12"/><circle cx="17.5" cy="6" r="3"/><path d="m20 8.4 1.6 1.6"/></svg><span class="tl">一覧で読む</span><span class="tl-s">一覧で<br>読む</span></button>
+    <button class="tab" role="tab" type="button" data-tab="rec" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg><span class="tl">記録・控え</span><span class="tl-s">記録・<br>控え</span></button>
+  </div>
+  <div class="alerts" aria-live="polite">
+    <div class="al al-red hide" id="alSave" role="alert"><div class="wrap"><span>この端末に保存できませんでした。容量がいっぱいか、保存できない設定で開いています。いまの記録は、閉じると消えます。</span><button class="btn btn-primary" type="button" data-backup="export">控えを書き出す</button></div></div>
+    <div class="al al-amber hide" id="alOther"><div class="wrap"><span>別の窓でこのツールの記録が変わりました。読み直してから続けてください。</span><button class="btn btn-ghost" type="button" id="alOtherReload">読み直す</button></div></div>
   </div>
 </nav>
+<div class="wrap print-head" aria-hidden="true"><b>保険支払事例トレーニング</b><span id="printDate"></span></div>
 
 <main class="wrap">
 
@@ -477,16 +822,20 @@ html.omtrial-lock body > *:not(#omtrial){ display:none !important; }
       <div class="sec-head">
         <div><h2>今日の10問</h2><p>支払いが分かれる場面を、ランダムに10問</p></div>
       </div>
-      <div class="notice" style="margin-bottom:16px;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4.5 3 19.5h18L12 4.5Z"/><path d="M12 10v4.2M12 17.2v.1"/></svg>
-        <div><b>正解を当てる練習ではありません。</b>「その場で言い切ってはいけない場面」を見分ける練習です。判断するのは保険会社で、募集人の仕事は請求できる形を整えることです。</div>
-      </div>
-      <div class="tiles compact" style="margin-bottom:16px;">
-        <div class="tile"><div class="t-label">連続日数</div><div class="t-value" id="tlRun"></div><div class="t-sub" id="tlRunSub"></div></div>
-        <div class="tile"><div class="t-label">いまの連続正解</div><div class="t-value" id="tlStreak"></div><div class="t-sub" id="tlStreakSub"></div></div>
-        <div class="tile"><div class="t-label">これまでの正答率</div><div class="t-value" id="tlAcc"></div><div class="t-sub" id="tlAccSub"></div></div>
+      <div id="dailyIntro">
+        <div class="notice" style="margin-bottom:16px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4.5 3 19.5h18L12 4.5Z"/><path d="M12 10v4.2M12 17.2v.1"/></svg>
+          <div><b>「その場で言い切ってはいけない場面」を見分ける練習です。</b>判断するのは保険会社で、募集人の仕事は請求できる形を整えることです。いちばん重い間違いは、支払われない場面で「出ます」と言うことです。</div>
+        </div>
       </div>
       <div id="dailyHost"></div>
+      <div id="dailyStats">
+        <div class="tiles compact" style="margin-top:16px;">
+          <div class="tile"><div class="t-label">連続日数</div><div class="t-value" id="tlRun"></div><div class="t-sub" id="tlRunSub"></div></div>
+          <div class="tile"><div class="t-label">連続正解</div><div class="t-value" id="tlStreak"></div><div class="t-sub" id="tlStreakSub"></div></div>
+          <div class="tile"><div class="t-label">正答率</div><div class="t-value" id="tlAcc"></div><div class="t-sub" id="tlAccSub"></div></div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -494,8 +843,9 @@ html.omtrial-lock body > *:not(#omtrial){ display:none !important; }
   <section id="tab-cat" role="tabpanel" aria-label="分野別" class="hide">
     <div class="sec">
       <div class="sec-head">
-        <div><h2>分野別</h2><p>分野を選んで解く。正答率の低い分野から潰す</p></div>
+        <div><h2>分野別</h2><p>分野を選んで解く。正答率の低い分野から、順に確かめる</p></div>
       </div>
+      <div id="catResume"></div>
       <div id="catPick">
         <p class="sec-note">数字は「これまでの正答率／解いた回数」です。回数は解き直すたびに増えます。</p>
         <div class="catlist" id="catList"></div>
@@ -520,19 +870,27 @@ html.omtrial-lock body > *:not(#omtrial){ display:none !important; }
       <div class="sec-head">
         <div><h2>一覧で読む</h2><p>全ケースを学習ツールとして。面談前の下読みに</p></div>
       </div>
-      <div class="srch">
-        <input type="search" id="listQ" placeholder="言葉で探す（例：告知・上皮内・地震・日帰り）" aria-label="ケースを検索">
-        <button class="btn btn-ghost btn-sm" id="listOpenAll">全て開く</button>
-        <button class="btn btn-ghost btn-sm" id="listCloseAll">全て閉じる</button>
+      <div class="qbox">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
+        <input type="search" id="listQ" placeholder="言葉で探す（例：告知・上皮内・地震・日帰り）" aria-label="ケースを言葉で探す" autocomplete="off" enterkeyhint="search">
+        <button class="qx" id="listQClear" type="button" aria-label="言葉と分野の絞り込みを消す"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button>
       </div>
-      <div class="chips" id="listChips" style="margin-bottom:14px;"></div>
-      <p class="sec-note" id="listCount"></p>
+      <p class="q-hint">空白で区切ると、全ての言葉を含むものに絞ります。ひらがなでも探せます（例：こくち）。</p>
+      <div class="chips list-chips" id="listChips" role="group" aria-label="分野で絞る"></div>
+      <div class="cat-sel"><select id="listSel" aria-label="分野で絞る"></select></div>
+      <div class="list-bar">
+        <p class="list-count" id="listCount" aria-live="polite"></p>
+        <div class="list-acts">
+          <button class="btn btn-ghost btn-sm" type="button" id="listOpenAll">全て開く</button>
+          <button class="btn btn-ghost btn-sm" type="button" id="listCloseAll">全て閉じる</button>
+        </div>
+      </div>
       <div id="listHost"></div>
     </div>
   </section>
 
-  <!-- ================= 記録・データ ================= -->
-  <section id="tab-rec" role="tabpanel" aria-label="記録・データ" class="hide">
+  <!-- ================= 記録・控え ================= -->
+  <section id="tab-rec" role="tabpanel" aria-label="記録・控え" class="hide">
     <div class="sec">
       <div class="sec-head">
         <div><h2>記録</h2><p>正誤・弱点・連続日数はこの端末にだけ残ります</p></div>
@@ -540,36 +898,50 @@ html.omtrial-lock body > *:not(#omtrial){ display:none !important; }
       <div class="tiles">
         <div class="tile"><div class="t-label">解いた回数</div><div class="t-value" id="rcTotal"></div><div class="t-sub" id="rcTotalSub"></div></div>
         <div class="tile"><div class="t-label">正答率</div><div class="t-value" id="rcAcc"></div><div class="t-sub" id="rcAccSub"></div></div>
+        <div class="tile t-over"><div class="t-label">言い過ぎ</div><div class="t-value" id="rcOver"></div><div class="t-sub">「支払われる側」と答えて違った回数</div></div>
         <div class="tile"><div class="t-label">間違えたまま</div><div class="t-value" id="rcWeak"></div><div class="t-sub">最後の解答が不正解のケース</div></div>
         <div class="tile"><div class="t-label">連続日数</div><div class="t-value" id="rcRun"></div><div class="t-sub" id="rcRunSub"></div></div>
       </div>
       <div class="card" style="margin-top:16px;">
-        <h3 style="color:var(--navy);margin-bottom:12px;">分野ごとの成績</h3>
-        <div class="tw">
-          <table class="tbl" id="recTable">
-            <thead><tr><th>分野</th><th>ケース数</th><th>解いた</th><th>正解</th><th>正答率</th><th>未着手</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
+        <h3 style="color:var(--navy);margin-bottom:12px;">分野ごとの記録</h3>
+        <table class="tbl rec-tbl" id="recTable">
+          <thead><tr><th>分野</th><th class="num">ケース数</th><th class="num">解いた</th><th class="num">正解</th><th class="num">正答率</th><th class="num">言い過ぎ</th><th class="num">未着手</th></tr></thead>
+          <tbody></tbody>
+        </table>
       </div>
     </div>
 
     <div class="sec">
       <div class="sec-head">
-        <div><h2>データ</h2><p>端末を変えると消えます。バックアップを取ってください</p></div>
+        <div><h2>研修の記録を印刷する</h2><p>名前・日付・解いた期間・結果・弱かった分野・確認の署名欄を1枚に</p></div>
       </div>
       <div class="card">
-        <div class="notice" style="margin-bottom:16px;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-          <div>記録はこの端末のブラウザにだけ保存され、外部へ送信されることはありません。共有パソコンでは使わないでください。書き出したJSONの置き場所にも注意してください。</div>
+        <div class="fld" style="max-width:420px;">
+          <label for="psName">名前（紙に出す名前）</label>
+          <input type="text" id="psName" maxlength="40" autocomplete="name" placeholder="例：山田 太郎">
+          <div class="hint">名前はこの端末にだけ残ります。</div>
         </div>
+        <button class="btn btn-primary btn-sm" type="button" id="psPrint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="8" rx="2"/><path d="M7 14h10v6H7z"/></svg>控えを印刷する</button>
+      </div>
+    </div>
+
+    <div class="sec" id="backup">
+      <div class="sec-head">
+        <div><h2>控え（ファイル）</h2><p>端末を変える・ブラウザの記録を消すと、記録は消えます。控えを取っておくと戻せます</p></div>
+      </div>
+      <div class="card">
+        <div class="notice" style="margin-bottom:12px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+          <div>記録はこの端末のブラウザにだけ保存し、外部へは送りません。共有パソコンでは使わないでください。書き出した控えのファイルも、人の目に触れない場所に置いてください。</div>
+        </div>
+        <p class="bk-now" id="bkNow"></p>
         <div class="rowbtns">
-          <button class="btn btn-primary btn-sm" id="expBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M8 11l4 4 4-4M4 20h16"/></svg>記録を書き出す（JSON）</button>
-          <label class="btn btn-ghost btn-sm" style="cursor:pointer;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V8M8 12l4-4 4 4M4 20h16"/></svg>記録を読み込む
-            <input type="file" id="impBtn" accept="application/json,.json" style="display:none;">
+          <button class="btn btn-primary btn-sm" type="button" data-backup="export"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M8 11l4 4 4-4M4 20h16"/></svg>控えを書き出す（ファイル）</button>
+          <label class="btn btn-ghost btn-sm file-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V8M8 12l4-4 4 4M4 20h16"/></svg>控えから戻す
+            <input type="file" id="impBtn" accept="application/json,.json">
           </label>
-          <button class="btn btn-danger btn-sm" id="wipeBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6.5 7l1 12.5h9L18 7"/></svg>記録を消す</button>
+          <button class="btn btn-danger btn-sm" type="button" id="wipeBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V5h6v2M6.5 7l1 12.5h9L18 7"/></svg>記録を消す</button>
         </div>
       </div>
     </div>
@@ -580,9 +952,9 @@ html.omtrial-lock body > *:not(#omtrial){ display:none !important; }
       </div>
       <div class="card">
         <div class="legend" style="font-size:var(--fs-sm);line-height:1.85;">
-          <div><b>約款が優先します</b><span>ここでの説明は一般的な取り扱いです。実際の可否は、保険会社・商品・発売年ごとに違う約款と、お客様の契約内容（特約・支払限度・免責の定め）で決まります。</span></div>
+          <div><b>約款が優先します</b><span>ここでの説明は一般的な取り扱いです。実際の可否は、保険会社・商品・発売年ごとに違う約款と、お客様の契約内容（特約・支払限度・免責の定め）で決まります。「支払われる側」と答える問題でも、それは一般的な取り扱いの話です。</span></div>
           <div><b>判断するのは会社</b><span>支払いの可否を判断するのは保険会社です。募集人が「出ます」「出ません」と結論を出すことはできません。まず請求してもらい、会社の判断を仰いでください。</span></div>
-          <div><b>会社名・商品名は書きません</b><span>特定の会社・商品の取り扱いに触れると、社外に出たときの影響が大きいためです。自社商品との突き合わせは別の資料で行ってください。</span></div>
+          <div><b>一般的な取り扱いで書いています</b><span>特定の会社・商品の取り扱いには触れていません。社外に出たときの影響が大きいためです。自社商品との突き合わせは別の資料で行ってください。</span></div>
           <div><b>期間や日数は目安</b><span>待ち期間・免責期間・所定の状態の日数などは商品ごとに違います。本文でも「〜としている商品が多い」と書いています。断定して伝えないでください。</span></div>
           <div><b>見直しの目安</b><span>年1回（毎年4月ごろ）。入院・手術の定義、三大疾病の所定の状態、先進医療は動きやすい分野です。</span></div>
         </div>
@@ -590,8 +962,13 @@ html.omtrial-lock body > *:not(#omtrial){ display:none !important; }
     </div>
   </section>
 
+  <!-- 印刷用の1枚（「控えを印刷する」で中身を入れる。画面には出さない） -->
+  <div id="printSheet" class="print-sheet" aria-hidden="true"></div>
+
 </main>
-<footer>保険支払事例トレーニング｜社内利用専用｜記録はこの端末のブラウザにのみ保存されます（外部送信なし）<br>ここでの説明は一般的な取り扱いです。実際は約款とお客様の契約内容で確かめてください。</footer>
+<footer>保険支払事例トレーニング｜社内利用専用<br>ここでの説明は一般的な取り扱いです。実際は約款とお客様の契約内容で確かめてください。
+  <div class="foot-data">データはこの端末だけに残り、外部へは送りません。<button type="button" data-backup="export">控えを書き出す</button>／<a id="footBackup" href="#">管理画面の「データの控え」</a></div>
+</footer>
 
 <script>
 /* ============================================================
@@ -615,10 +992,11 @@ var CATS = [
   { k:'tsuin',   label:'通院給付' },
   { k:'sonpo',   label:'損害保険の免責' }
 ];
+/* 答えの値（in/out/dep）は記録に残っているので変えない。見せる札だけを替えた（2026-10-04） */
 var ANS = {
-  'in':  { label:'出る',            desc:'一般的な約款なら、まず支払われます' },
-  'out': { label:'出ないことがある', desc:'一般には支払われない側に転びやすい場面です' },
-  'dep': { label:'条件しだい',       desc:'商品・特約・契約内容で結論が分かれます' }
+  'in':  { label:'支払われる側（一般に）',   desc:'一般的な約款では、支払いの対象になる場面' },
+  'out': { label:'支払われない側（一般に）', desc:'一般的な約款では、支払いの対象にならない場面' },
+  'dep': { label:'契約内容で分かれる',       desc:'商品・特約・契約の型で、結論が変わる場面' }
 };
 var ANS_ORDER = ['in','out','dep'];
 
@@ -626,11 +1004,12 @@ var ANS_ORDER = ['in','out','dep'];
 var DISCLAIM = 'ここまでは一般的な取り扱いの説明です。実際に支払われるかどうかは、保険会社・商品ごとに違う約款と、お客様の契約内容（特約・支払限度・免責の定め）で決まります。必ず約款とご契約内容で確かめ、判断は保険会社に仰いでください。';
 
 /* ============================================================
-   2. ケース（68件）
+   2. ケース（87件）
    ------------------------------------------------------------
    ・特定の保険会社名・商品名は書かない
    ・期間や日数を書くときは「〜としている商品が多い」を添える
    ・条文番号は書かない（改正で動くため。仕組みと要件で説明する）
+   ・ask を書いたケースは、出題の問いをその文にする（「支払われますか」では答えが割れるもの）
    ============================================================ */
 var CASES = [
 /* ---------- 責任開始期 ---------- */
@@ -794,6 +1173,7 @@ var CASES = [
 
 { id:'sh023', cat:'nyuin',
   scene:'同じ病気で入院し、40日で退院。その2か月後に同じ病気が悪化して再び30日入院した。1入院の支払限度は60日型。',
+  ask:'2回目の入院の30日のうち、限度の60日を超える10日分は、一般的な約款では、どれにあたりますか。',
   ans:'out',
   why:'同じ原因による入院は、退院日の翌日から一定期間内（180日としている商品が多い）に再入院した場合、前回と合わせて1回の入院とみなし、支払限度日数を通算する定めが一般的です。この例では合計70日となり、60日型なら限度を超えた分は支払われません。転院した場合も、治療が続いていれば1回の入院として扱われることが多いです。「限度60日」は入院1回あたりの日数で、何度でも60日出る意味ではありません。',
   point:'限度日数は1入院あたり。同じ病気の再入院は通算されることがあります。',
@@ -867,7 +1247,7 @@ var CASES = [
 /* ---------- 三大疾病の所定の状態 ---------- */
 { id:'sh033', cat:'sandai',
   scene:'脳梗塞で入院し、軽い麻痺が残ったが、30日ほどでほぼ回復して職場に戻った。三大疾病保険金を請求したい。',
-  ans:'out',
+  ans:'dep',
   why:'三大疾病保障の脳卒中は、発病して他覚的な神経学的後遺症が60日以上継続したと医師に診断されたこと、という要件を置いている商品が多くあります。回復が早いと、病名が脳梗塞でも要件を満たしません。近年は、入院したこと、所定の手術を受けたこと、といった要件に変えた商品も増えています。お客様の契約がどちらの型かで結論が変わります。',
   point:'三大疾病は「病名」ではなく「所定の状態」で決まります。',
   ng:'「脳梗塞になったら一時金が出ます」とは言わない。' },
@@ -881,7 +1261,7 @@ var CASES = [
 
 { id:'sh035', cat:'sandai',
   scene:'狭心症でカテーテル治療（ステント留置）を受けた。三大疾病保険金を請求したい。',
-  ans:'out',
+  ans:'dep',
   why:'約款でいう急性心筋梗塞に、狭心症は含まれないのが一般的です。ただし、対象を心疾患まで広げた商品や、入院・所定の手術を要件にした商品では、支払いの対象になることがあります。同じ「心臓の治療」でも、契約している商品の定義しだいです。',
   point:'狭心症は急性心筋梗塞と別物として扱われるのが一般的です。',
   ng:'「心臓の手術をしたので出ます」と、病名を確かめずに言わない。' },
@@ -1119,11 +1499,148 @@ var CASES = [
   ng:'「飲酒運転なので、相手にも何も払えません」とは言わない。' },
 
 { id:'sh068', cat:'sonpo',
-  scene:'地震で自宅の壁にひびが入った。地震保険に加入しており、修理見積りは200万円だった。見積りどおり支払われるか。',
+  scene:'地震で自宅の壁にひびが入った。地震保険に加入しており、修理見積りは200万円だった。',
+  ask:'修理見積りの額が、そのまま支払われるか。一般的な約款では、どれにあたりますか。',
   ans:'out',
   why:'地震保険は、実際の修理費用をそのまま払う仕組みではなく、損害の程度を全損・大半損・小半損・一部損の区分で判定し、区分ごとに決まった割合の保険金を支払う仕組みです。そのため、修理費用と受け取る保険金は一致しません。生活の再建を支えるための保険であって、建物を元どおりにするための保険ではない、という前提を加入時に伝えておきます。',
   point:'地震保険は損害の区分で払います。修理見積りとは一致しません。',
-  ng:'「かかった修理費用が地震保険から出ます」とは言わない。' }
+  ng:'「かかった修理費用が地震保険から出ます」とは言わない。' },
+
+/* ---------- 2026-10-04 追加：支払われる側（一般に）の19件 ----------
+   「出る」側が7件しかなく、いつも「支払われない側」を押すだけで半分近く取れた（点検 B）。
+   どの件も「一般にはこう／ただし約款と契約内容で確かめる」の両方を書く。断定にしない */
+{ id:'sh069', cat:'start',
+  scene:'申込書と告知書を出し、第1回保険料もクレジットカードで払い込んだ。保険証券が届く前の週に、交通事故でケガをして入院した。',
+  ans:'in',
+  why:'生命保険の保障が始まるのは、申込み・告知（診査が必要な契約は診査）・第1回保険料（充当金）の払込の3つがそろったときとするのが一般的です。保険会社が引き受けを承諾すれば、保障はこの「そろったとき」に遡って始まる取扱いが一般的で、証券が届いたかどうかや、承諾の知らせを受け取った日では決まりません。この例は3つがそろったあとの入院なので、支払いの対象になる側です。ただし、会社が引き受けを承諾しなかった場合や、告知に誤りがあった場合は別の話になります。',
+  point:'証券が届いたかではなく、3つがそろったかで見ます。',
+  ng:'「証券が届くまでは、まだ保障はありません」とは言わない。' },
+
+{ id:'sh070', cat:'kokuchi',
+  scene:'2年前の胃炎の通院を、告知書に正しく書いた。保険会社は条件をつけずに引き受けた。加入の1年後、胃炎が悪化して入院した。',
+  ans:'in',
+  why:'加入する前からの病気（責任開始前の発病）による入院は対象外とするのが一般的ですが、その病気を告知書に正しく書き、会社がそれを知ったうえで条件をつけずに引き受けた場合は、支払いの対象とする定めを置いている商品が多くあります。正しく告知したことが、ここでお客様を守ります。引き受けのときに、特定の部位を保障の対象から外す条件（部位不担保）などがついていないかは、証券と通知の書面で確かめます。',
+  point:'正しく書いて、条件なしで引き受けられた病気は、対象になる側です。条件の有無は証券で確かめる。',
+  ng:'「加入前からの病気なので、入院しても出ません」と決めつけない。' },
+
+{ id:'sh071', cat:'nyuin',
+  scene:'約款に「日帰り入院から対象」とある医療保険に加入している。病気の治療で、入院日と退院日が同じ日の入院をした。入院基本料の支払いもあった。',
+  ans:'in',
+  why:'日帰り入院を対象にしている医療保険では、入院日と退院日が同じでも、入院基本料の支払いがあれば1日分の入院として扱う定めが一般的です。この例はその型の契約で、入院基本料の支払いもあるので、支払いの対象になる側です。一方、古い型の医療保険には、一定の日数以上続いた入院を要件にしたものもあります。請求の前に、証券で入院の要件を確かめます。',
+  point:'日帰り入院は、契約の型で決まります。対象の型なら、入院基本料の支払いがあれば1日分です。',
+  ng:'「日帰りは入院ではないので出ません」と決めつけない。' },
+
+{ id:'sh072', cat:'shujutsu',
+  scene:'妊娠する前から医療保険に加入していて、特定の部位を外す条件もついていない。出産のとき、帝王切開になった。',
+  ans:'in',
+  why:'帝王切開は公的医療保険の対象になる手術で、医療保険では手術給付金の対象とし、そのための入院も入院給付金の対象とする取扱いが一般的です。一方、いわゆる普通のお産（自然分娩）は病気ではないとして対象外とするのが一般的です。妊娠中に加入した場合や、前の出産で帝王切開をしていた場合は、子宮などの部位を一定の期間、保障の対象から外す条件がつくことがあるので、証券で確かめます。',
+  point:'帝王切開は、手術と入院の対象になる側です。部位を外す条件がないかは証券で確かめる。',
+  ng:'「出産は病気ではないので、何も出ません」と、帝王切開まで一緒にしない。' },
+
+{ id:'sh073', cat:'shujutsu',
+  scene:'骨折して、骨を金属のプレートで固定する手術を受けた。加入している医療保険は、公的医療保険で手術料が算定される手術を対象にする型。',
+  ans:'in',
+  why:'いまの医療保険の多くは、公的医療保険の制度で手術料の算定の対象として定められている手術を、手術給付金の対象にしています。骨折した骨を開いて固定する手術はこれにあたるのが一般的で、支払いの対象になる側です。ただし、同じ型でも、傷の処置（創傷処理）や、骨を開かずに整える処置など、対象から外している手術があります。古い型の契約では約款に並べた手術の一覧で判定するので、まず型を証券で確かめます。',
+  point:'公的医療保険と連動する型なら、骨折の手術は対象になる側です。',
+  ng:'「ケガの手術は対象外です」と決めつけない。' },
+
+{ id:'sh074', cat:'gan',
+  scene:'がん保険の待ち期間を過ぎてから、胃がんと診断確定された。手術はこれからで、まだ入院もしていない。診断給付金を請求したい。',
+  ans:'in',
+  why:'がん診断給付金は、がん（悪性新生物）と診断確定されたことを支払いの要件にしているのが一般的で、手術や入院を待つ必要はありません。診断確定は、病理組織の検査によるのが原則とされています。待ち期間（責任開始から90日または3か月としている商品が多い）を過ぎてからの診断確定なので、支払いの対象になる側です。治療費の準備に使えるよう、診断確定の段階で請求を案内します。上皮内新生物や2回目以降の診断には別の要件を置く商品が多いので、そこは約款で確かめます。',
+  point:'診断給付金は、診断確定の時点で請求できる側です。手術を待たない。',
+  ng:'「手術が終わってからでないと請求できません」とは言わない。' },
+
+{ id:'sh075', cat:'gan',
+  scene:'がんの治療で入院が長引き、60日を超えた。がん保険の入院給付金を、61日目以降の分も請求したい。',
+  ans:'in',
+  why:'がん保険の入院給付金は、1回の入院や通算の支払日数に上限を置かないとしている商品が多く、医療保険の「60日型」のような日数の限度とは別の作りです。この例は、がんの治療のための入院なので、61日目以降も支払いの対象になる側です。ただし、がん保険の中にも日数の上限を置いた商品や、入院給付金のない型（診断給付金だけの型など）があります。医療保険とがん保険のどちらから、どこまで出るのかを、証券を並べて確かめます。',
+  point:'がん保険の入院給付金は、日数の上限を置かない商品が多い。医療保険の限度とは分けて考える。',
+  ng:'「60日を超えたので、もう入院給付金は出ません」と、医療保険と混ぜて言わない。' },
+
+{ id:'sh076', cat:'sandai',
+  scene:'急性心筋梗塞で緊急入院し、カテーテル治療を受けた。加入している三大疾病保険は、急性心筋梗塞の治療を目的とした入院を支払いの要件にする型。',
+  ans:'in',
+  why:'三大疾病保障の急性心筋梗塞には、所定の状態（労働の制限が60日以上続いたこととしている商品が多い）を要件にする型と、治療を目的とした入院や所定の手術を要件にする型があります。この例は後者の型で、急性心筋梗塞の治療のための入院なので、支払いの対象になる側です。同じ病名でも、前者の型なら回復が早いと要件を満たさないことがあります。お客様の契約がどちらの型かを、まず証券で確かめます。',
+  point:'三大疾病は、契約の型で要件が変わります。入院を要件にする型なら、対象になる側です。',
+  ng:'「心筋梗塞は60日たたないと出ません」と、型を確かめずに言わない。' },
+
+{ id:'sh077', cat:'kodo',
+  scene:'病気で両眼の視力を失い、回復の見込みはないと医師に診断された。死亡保険金と同じ額の高度障害保険金がある契約に入っている。',
+  ans:'in',
+  why:'高度障害状態は約款に一覧で定められていて、両眼の視力を全く永久に失ったものは、その代表的な一つとして挙げられているのが一般的です。この例は回復の見込みがないと診断されているので、支払いの対象になる側です。高度障害保険金を受け取ると、その契約は消滅するのが一般的で、あとで死亡保険金は出ません。身体障害者手帳や公的年金の等級とは別の基準で判断されることも、あわせて伝えます。',
+  point:'高度障害は、約款の一覧で判断します。受け取ると契約が終わることも、あわせて伝える。',
+  ng:'「生きているうちは、生命保険からは何も出ません」とは言わない。' },
+
+{ id:'sh078', cat:'menseki',
+  scene:'責任開始から5年たって、被保険者が自ら命を絶った。保険金額の増額や転換はしていない。遺族が死亡保険金を請求したい。',
+  ans:'in',
+  why:'自殺による死亡は、責任開始から一定の期間（3年としている商品が多い）は支払わないとするのが一般的ですが、その期間を過ぎていれば、死亡保険金を支払う取扱いが一般的です。この例は期間を過ぎていて、増額や転換による数え直しもないので、支払いの対象になる側です。期間の長さは契約ごとに約款で確かめ、契約の経緯に特別な事情があるときは保険会社の判断になります。ご遺族への連絡は、手続きの話から入らず、まずお悔やみを伝え、急がなくてよいことを添えます。請求の書類や時期は、ご遺族の様子を見ながら、こちらから少しずつ案内します。',
+  point:'自殺の免責は期間の定めです。期間を過ぎていれば、支払われる側です。',
+  ng:'「自殺なので保険金は出ません」と決めつけない。' },
+
+{ id:'sh079', cat:'menseki',
+  scene:'大きな地震で家屋が倒れ、被保険者が亡くなった。遺族が生命保険の死亡保険金を請求したい。',
+  ans:'in',
+  why:'生命保険の約款には、地震や戦争などで多数の死亡が生じ、会社の経営に影響するときは、保険金を削ったり支払わなかったりできるという定めが置かれているのが一般的です。ただ、これまでの大きな震災では、生命保険各社はこの定めを使わず、死亡保険金を全額支払う扱いをしてきました。そのため、一般には支払われる側として考えます（そのときの扱いは、各社の案内と約款で確かめます）。地震を理由に請求をあきらめるお客様がいるので、まず請求してもらうことを案内します。火災保険が地震による損害を補償しない、という損害保険の扱いとは別の話です。',
+  point:'生命保険は、地震による死亡でも支払われる側として考えます。損害保険の地震の扱いと混ぜない。',
+  ng:'「地震なので、生命保険も出ません」と、火災保険の扱いと混ぜて言わない。' },
+
+{ id:'sh080', cat:'seikyu',
+  scene:'1年半前の入院の給付金を、請求し忘れていたことにお客様が気づいた。',
+  ans:'in',
+  why:'保険金や給付金を請求する権利は、支払事由が生じた日の翌日から3年で時効により消えるとしているのが一般的です。1年半前の入院は、まだその期間の中なので、請求できる側です。気づいた時点で、すぐに請求の手続きを案内します。診断書の取り寄せには時間がかかることがあるので、期間の終わりぎりぎりまで待たないようにします。',
+  point:'時効の前なら、思い出したときが請求の時です。',
+  ng:'「もう時間がたっているので出ません」と、期間を確かめずに言わない。' },
+
+{ id:'sh081', cat:'uketori',
+  scene:'被保険者は重い病気で入院中だが、本人には病名を伝えていない。契約には指定代理請求特約が付いていて、配偶者が指定代理請求人に指定されている。家族が本人に代わって給付金を請求したい。',
+  ans:'in',
+  why:'指定代理請求特約は、被保険者本人が請求できない特別な事情（病名を知らされていない、意思を表せない状態にあるなど）があるときに、あらかじめ指定した人が本人に代わって請求できる仕組みです。この例は指定代理請求人が決まっていて、本人が病名を知らされていない事情があるので、代わりに請求できる側です。支払われたお金は本人のものとして扱われるので、のちに本人が明細などから病名を知ることがある点も、ご家族に伝えておきます。指定がない、または指定できる人の範囲から外れている場合は、別の手続きになります。',
+  point:'指定代理請求人が決まっていれば、本人に代わって請求できる側です。指定の有無を証券で確かめる。',
+  ng:'「本人が請求しないと、ご家族では何もできません」と決めつけない。' },
+
+{ id:'sh082', cat:'senshin',
+  scene:'先進医療特約に加入している。治療を受けた時点で厚生労働大臣が定める先進医療にあたる治療を、その治療の届出をした医療機関で受けた。',
+  ans:'in',
+  why:'先進医療特約は、療養を受けた時点で厚生労働大臣が定める先進医療にあたり、その治療について届出をした医療機関で受けたものを対象にするのが一般的です。契約したときではなく、療養を受けた時点で判断します。この例はどちらの要件も満たしているので、技術料の支払いの対象になる側です。支払いの対象は先進医療の技術料で、通常の診療と共通する部分の費用は公的医療保険の扱いになります。通算の支払限度があるので、ほかの契約や過去の受け取りもあわせて確かめます。',
+  point:'先進医療は「受けた時点」と「届出のある医療機関」の2つで見ます。',
+  ng:'「先進医療は自費なので、保険からは出ません」とは言わない。' },
+
+{ id:'sh083', cat:'tsuin',
+  scene:'ケガで入院し、退院後の1か月、同じケガの治療で通院した。医療保険には、入院の前後の通院を対象にする通院特約が付いている。',
+  ans:'in',
+  why:'入院の前後の通院を対象にする通院特約では、入院の原因になった病気やケガの治療のために、入院前や退院後の所定の期間内に通院したものを支払いの対象にするのが一般的です。この例は、退院から間もない、同じケガの治療の通院なので、支払いの対象になる側です。所定の期間や支払日数の上限は商品ごとに違い、退院からかなり時間がたった通院は対象外になります。入院の請求のときに、通院の分も続けて請求できることを案内しておきます。',
+  point:'入院と同じ原因で、所定の期間内の通院なら、対象になる側です。',
+  ng:'「通院だけでは何も出ません」と、入院につながる通院まで一緒にしない。' },
+
+{ id:'sh084', cat:'sonpo',
+  scene:'隣の家から出た火事が燃え移り、自宅が焼けた。火元の家の過失は軽いものだった。自宅には火災保険をかけている。',
+  ans:'in',
+  why:'火事の原因が火元の軽い過失によるものなら、法律上、火元に損害の賠償を求められないのが原則です。そのため、もらい火の損害は自分でかけた火災保険で備えるのが基本で、この例は自分の火災保険から支払われる側です。建物と家財は別々に契約しているのが一般的なので、家財の補償があるかもあわせて確かめます。保険金額の決め方（時価か、建て直しにかかる額か）によって、受け取る額が変わることも伝えます。',
+  point:'もらい火は、自分の火災保険で備えます。火元に請求できないのが原則です。',
+  ng:'「火元のお隣が払うので、ご自分の保険は使いません」とは言わない。' },
+
+{ id:'sh085', cat:'sonpo',
+  scene:'交差点で、自分の不注意が大きい事故を起こし、自分がケガをした。自動車保険には人身傷害保険が付いている。',
+  ans:'in',
+  why:'人身傷害保険は、事故の過失の割合にかかわらず、約款の基準で計算した損害額を支払う仕組みが一般的です。自分の過失が大きい事故でも、自分のケガの治療費や休業による損害などが支払いの対象になる側です。ただし、計算は約款の基準によるので、実際にかかった額と一致しないことがあります。また、飲酒運転や無免許運転、故意による事故などは免責とするのが一般的です。',
+  point:'人身傷害は、過失が大きくても対象になる側です。計算は約款の基準による。',
+  ng:'「自分が悪い事故なので、自分のケガには何も出ません」と決めつけない。' },
+
+{ id:'sh086', cat:'sonpo',
+  scene:'自転車で走っていて歩行者とぶつかり、ケガをさせた。火災保険に、個人賠償責任の特約を付けている。',
+  ans:'in',
+  why:'個人賠償責任の補償は、日常生活の中の事故で他人にケガをさせたり、他人の物を壊したりして、法律上の賠償責任を負ったときに支払うのが一般的です。自転車の事故はその代表的な場面で、支払いの対象になる側です。補償される家族の範囲や、示談の交渉を保険会社が代わりに行うサービスの有無は、契約によって違います。相手の方と金額の約束をする前に、まず保険会社へ連絡するよう伝えます。',
+  point:'自転車で人にケガをさせた事故は、個人賠償の対象になる側です。示談の前に会社へ連絡。',
+  ng:'「自動車保険ではないので、自転車の事故は出ません」とは言わない。' },
+
+{ id:'sh087', cat:'shikkou',
+  scene:'保険料の未払いで失効した契約を、告知をして復活させ、会社が承諾した。復活の半年後、復活のあとに初めてかかった病気で入院した。',
+  ans:'in',
+  why:'復活は、失効した契約を元に戻す手続きで、改めて告知をし、会社が承諾すれば、元の契約が続いているものとして扱われます。復活のあとに初めてかかった病気による入院は、支払いの対象になる側です。一方、失効していた間に生じた病気やケガ、復活の告知に誤りがあった場合は別の扱いになります。がんの待ち期間や自殺の免責の期間は、復活の日から数え直すのが一般的です。',
+  point:'復活が承諾されれば、そのあとの病気は対象になる側です。数え直しになる期間はある。',
+  ng:'「一度失効した契約は、復活しても入院は出ません」と決めつけない。' }
 ];
 </script>
 
@@ -1139,56 +1656,168 @@ function pad2(n){ return (n < 10 ? '0' : '') + n; }
 function ymd(d){ return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
 function todayStr(){ return ymd(new Date()); }
 function daysAgoStr(n){ var d = new Date(); d.setDate(d.getDate() - n); return ymd(d); }
+function jaDate(s){ var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ''); return m ? (+m[1]) + '年' + (+m[2]) + '月' + (+m[3]) + '日' : ''; }
+function stampStr(t){
+  var d = new Date(t);
+  if (isNaN(d.getTime())) return '';
+  return d.getFullYear() + '/' + pad2(d.getMonth()+1) + '/' + pad2(d.getDate()) + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+}
 function shuffle(a){
   for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
   return a;
 }
 function pct(o, n){ return n > 0 ? Math.round(o * 100 / n) : 0; }
-function catLabel(k){ for (var i = 0; i < CATS.length; i++) if (CATS[i].k === k) return CATS[i].label; return k; }
+function catLabel(k){ for (var i = 0; i < CATS.length; i++) if (CATS[i].k === k) return CATS[i].label; return ''; }
+function catKnown(k){ for (var i = 0; i < CATS.length; i++) if (CATS[i].k === k) return true; return false; }
 var CASE_BY_ID = {};
 CASES.forEach(function(c){ CASE_BY_ID[c.id] = c; });
-function caseById(id){ return CASE_BY_ID[id]; }
+function caseById(id){ return Object.prototype.hasOwnProperty.call(CASE_BY_ID, id) ? CASE_BY_ID[id] : null; }
+function int(v, max){ v = Math.floor(Number(v)); if (!isFinite(v) || v < 0) return 0; return Math.min(v, max == null ? 1e7 : max); }
+function isDate(s){ return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(Date.parse(s)); }
 
 var IC = {
   bulb:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 18h5M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.5.4.8 1 .9 1.6h5.2c.1-.6.4-1.2.9-1.6A6 6 0 0 0 12 3Z"/></svg>',
   ban:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="m6.4 6.4 11.2 11.2"/></svg>',
-  book:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2 2 0 0 1 6 3.5h13v15H6a2 2 0 0 0-2 2Z"/><path d="M4 18.5V5.5"/></svg>',
   ok:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
   no:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>',
+  warn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4.2 21 19.5H3Z"/><path d="M12 10v4M12 17h.01"/></svg>',
+  hold:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5l3 2"/></svg>',
   down:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>'
 };
 
+/* ---- 管理画面へ戻る道（SPEC.md の A）----
+   ★次の行は形を変えない。会社フォルダでは make_agency.py が '../' に差し替える（ちょうど1回） */
+var HUB_URL = '../';   /* OMHUBURL */
+function hubHref(h){
+  var p = location.pathname;
+  var local = /\.html$/.test(p) && !/\/index\.html$/.test(p);
+  return (local ? encodeURI('保険ツール管理画面.html') : HUB_URL) + (h || '');
+}
+
+var toastTimer = null;
+function toast(msg){
+  var t = $('omToast');
+  if (!t) { t = document.createElement('div'); t.id = 'omToast'; t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+  t.textContent = msg; t.classList.add('on');
+  clearTimeout(toastTimer); toastTimer = setTimeout(function(){ t.classList.remove('on'); }, 2400);
+}
+/* 確認の窓（選択肢つき）。戻り値は Promise（押したボタンの v。閉じたら ''） */
+function omAsk(title, bodyHtml, buttons){
+  return new Promise(function(resolve){
+    var back = document.activeElement;
+    var m = document.createElement('div');
+    m.className = 'om-modal';
+    m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true'); m.setAttribute('aria-label', title);
+    var h = '<div class="box"><h3>' + esc(title) + '</h3><div class="body">' + bodyHtml + '</div><div class="acts">';
+    buttons.forEach(function(b){ h += '<button type="button" class="btn ' + (b.cls || 'btn-ghost') + '" data-v="' + esc(b.v) + '">' + esc(b.label) + '</button>'; });
+    m.innerHTML = h + '</div></div>';
+    function done(v){ document.removeEventListener('keydown', onKey); m.remove(); if (back && back.focus) try { back.focus(); } catch (e) {} resolve(v); }
+    function onKey(ev){ if (ev.key === 'Escape') done(''); }
+    m.addEventListener('click', function(ev){
+      if (ev.target === m) { done(''); return; }
+      var b = ev.target.closest ? ev.target.closest('[data-v]') : null;
+      if (b) done(b.getAttribute('data-v'));
+    });
+    document.addEventListener('keydown', onKey);
+    document.body.appendChild(m);
+    var f = m.querySelector('[data-v]'); if (f) f.focus();
+  });
+}
+function download(name, text, type){
+  var blob = new Blob([text], { type: type || 'application/octet-stream' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 800);
+}
+/* 控えを書き出した日を残す（管理画面の「データの控え」が読む） */
+function omMarkBackup(id){ try{ var o=JSON.parse(localStorage.getItem('officem.backup.v1')||'{}'); o.tools=o.tools||{}; o.tools[id]=new Date().toISOString(); localStorage.setItem('officem.backup.v1', JSON.stringify(o)); }catch(e){} }
+
 /* ============================================================
    4. 記録（この端末のブラウザにだけ残す）
+   ------------------------------------------------------------
+   読むときは中身を全て形で確かめる（控えのファイルから戻すときも同じ関数を通す）。
+   前の版の記録（rec・streak・day・tot・lastDaily）はそのまま読める。
+   足した項目＝tot.ov（言い過ぎの回数）・rec[id].v・lastTab・ses（途中の問題）・name（印刷の名前）
    ============================================================ */
 var LS_KEY = 'officem.hokenShiharai.v1';
+var TABS = ['daily','cat','weak','list','rec'];
+var MODES = ['daily','cat','weak'];
 var state = null;
+var stale = false;
 
 function defaultState(){
   return {
     v: 1,
-    rec: {},                              /* id -> {o:正解数, x:不正解数, l:'o'|'x', d:'YYYY-MM-DD'} */
+    rec: {},                              /* id -> {o:正解数, x:不正解数, l:'o'|'x', d:'YYYY-MM-DD', v:言い過ぎ} */
     streak: { cur: 0, best: 0 },          /* 連続正解 */
     day: { last: '', run: 0, best: 0 },   /* 連続日数 */
-    tot: { o: 0, x: 0 },
-    lastDaily: null                       /* 直近の「今日の10問」の結果 */
+    tot: { o: 0, x: 0, ov: 0 },
+    lastDaily: null,                      /* 直近の「今日の10問」の結果 */
+    lastTab: 'daily',
+    ses: {},                              /* 途中の問題（開き直したら「続きから」） */
+    name: ''
   };
 }
-function load(){
+function cleanSes(s){
+  if (!s || typeof s !== 'object' || !Array.isArray(s.ids)) return null;
+  var seen = {}, ids = [];
+  s.ids.slice(0, 100).forEach(function(id){ if (typeof id === 'string' && caseById(id) && !seen[id]) { seen[id] = 1; ids.push(id); } });
+  if (!ids.length) return null;
+  var i = int(s.i, ids.length);
+  if (i >= ids.length) return null;
+  var chosen = (typeof s.chosen === 'string' && ANS_ORDER.indexOf(s.chosen) >= 0) ? s.chosen : null;
+  var wrong = Array.isArray(s.wrongIds) ? s.wrongIds.filter(function(id){ return typeof id === 'string' && seen[id]; }).slice(0, ids.length) : [];
+  return {
+    ids: ids, i: i, chosen: chosen,
+    right: int(s.right, ids.length), wrongIds: wrong, ov: int(s.ov, ids.length),
+    title: typeof s.title === 'string' ? s.title.slice(0, 40) : '',
+    cat: (typeof s.cat === 'string' && catKnown(s.cat)) ? s.cat : null
+  };
+}
+function cleanState(o){
   var st = defaultState();
-  try {
-    var o = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
-    if (o && typeof o === 'object') {
-      if (o.rec && typeof o.rec === 'object') st.rec = o.rec;
-      if (o.streak) { st.streak.cur = +o.streak.cur || 0; st.streak.best = +o.streak.best || 0; }
-      if (o.day) { st.day.last = o.day.last || ''; st.day.run = +o.day.run || 0; st.day.best = +o.day.best || 0; }
-      if (o.tot) { st.tot.o = +o.tot.o || 0; st.tot.x = +o.tot.x || 0; }
-      if (o.lastDaily) st.lastDaily = o.lastDaily;
-    }
-  } catch (e) {}
+  if (!o || typeof o !== 'object' || Array.isArray(o)) return st;
+  if (o.rec && typeof o.rec === 'object' && !Array.isArray(o.rec)) {
+    Object.keys(o.rec).slice(0, 500).forEach(function(id){
+      var r = o.rec[id];
+      if (!caseById(id) || !r || typeof r !== 'object') return;
+      var c = { o: int(r.o), x: int(r.x), l: (r.l === 'o' || r.l === 'x') ? r.l : '', d: isDate(r.d) ? r.d : '', v: int(r.v) };
+      if (c.o + c.x > 0 || c.l) st.rec[id] = c;
+    });
+  }
+  if (o.streak && typeof o.streak === 'object') { st.streak.cur = int(o.streak.cur); st.streak.best = int(o.streak.best); }
+  if (o.day && typeof o.day === 'object') { st.day.last = isDate(o.day.last) ? o.day.last : ''; st.day.run = int(o.day.run); st.day.best = int(o.day.best); }
+  if (o.tot && typeof o.tot === 'object') { st.tot.o = int(o.tot.o); st.tot.x = int(o.tot.x); st.tot.ov = int(o.tot.ov); }
+  if (o.lastDaily && typeof o.lastDaily === 'object' && isDate(o.lastDaily.d)) {
+    var n = int(o.lastDaily.n, 100);
+    if (n > 0) st.lastDaily = { d: o.lastDaily.d, n: n, r: int(o.lastDaily.r, n) };
+  }
+  if (typeof o.lastTab === 'string' && TABS.indexOf(o.lastTab) >= 0) st.lastTab = o.lastTab;
+  if (o.ses && typeof o.ses === 'object') MODES.forEach(function(m){ var s = cleanSes(o.ses[m]); if (s) st.ses[m] = s; });
+  if (typeof o.name === 'string') st.name = o.name.slice(0, 40);
   return st;
 }
-function save(){ try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {} }
+function load(){
+  var o = null;
+  try { o = JSON.parse(localStorage.getItem(LS_KEY) || 'null'); } catch (e) { o = null; }
+  return cleanState(o);
+}
+function showAlert(id, on){ var el = $(id); if (el) el.classList.toggle('hide', !on); }
+/* quiet=true は「最後に開いたタブ」のような軽い記録。別の窓で変わっているときは黙って見送る */
+function save(quiet){
+  if (stale) {
+    if (quiet) return false;
+    if (!confirm('別の窓で、このツールの記録が変わっています。\nこのまま保存すると、別の窓の記録を上書きして消します。保存しますか。\n（「キャンセル」を選んで上の帯の「読み直す」を押すと、別の窓の記録を読み込めます）')) return false;
+    stale = false; showAlert('alOther', false);
+  }
+  /* 途中の問題も一緒に残す（開き直したら「続きから」） */
+  state.ses = {};
+  MODES.forEach(function(m){ var s = SES[m]; if (s && s.i < s.ids.length) state.ses[m] = { ids: s.ids, i: s.i, chosen: s.chosen, right: s.right, wrongIds: s.wrongIds, ov: s.ov, title: s.title, cat: s.cat }; });
+  try { localStorage.setItem(LS_KEY, JSON.stringify(state)); showAlert('alSave', false); return true; }
+  catch (e) { showAlert('alSave', true); return false; }
+}
 
 function bumpDay(){
   var t = todayStr(), d = state.day;
@@ -1197,31 +1826,33 @@ function bumpDay(){
   d.last = t;
   if (d.run > d.best) d.best = d.run;
 }
-function markAnswer(id, ok){
-  var r = state.rec[id] || { o:0, x:0, l:'', d:'' };
+function markAnswer(id, ok, over){
+  var r = state.rec[id] || { o:0, x:0, l:'', d:'', v:0 };
   if (ok) { r.o++; r.l = 'o'; state.tot.o++; } else { r.x++; r.l = 'x'; state.tot.x++; }
+  if (over) { r.v = (r.v || 0) + 1; state.tot.ov++; }
   r.d = todayStr();
   state.rec[id] = r;
   if (ok) { state.streak.cur++; if (state.streak.cur > state.streak.best) state.streak.best = state.streak.cur; }
   else { state.streak.cur = 0; }
   bumpDay();
-  save();
 }
 function weakIds(){
   return CASES.filter(function(c){ var r = state.rec[c.id]; return r && r.l === 'x'; }).map(function(c){ return c.id; });
 }
 function catStat(k){
   var all = CASES.filter(function(c){ return c.cat === k; });
-  var o = 0, x = 0, seen = 0;
-  all.forEach(function(c){ var r = state.rec[c.id]; if (r) { o += r.o; x += r.x; if (r.o + r.x > 0) seen++; } });
-  return { total: all.length, o:o, x:x, n:o + x, seen:seen, rate: pct(o, o + x) };
+  var o = 0, x = 0, v = 0, seen = 0;
+  all.forEach(function(c){ var r = state.rec[c.id]; if (r) { o += r.o; x += r.x; v += (r.v || 0); if (r.o + r.x > 0) seen++; } });
+  return { total: all.length, o:o, x:x, v:v, n:o + x, seen:seen, rate: pct(o, o + x) };
 }
 
 /* ============================================================
-   5. タブ
+   5. タブ（最後に開いたタブを覚える）
    ============================================================ */
-var TABS = ['daily','cat','weak','list','rec'];
-function showTab(key){
+var curTab = 'daily';
+function showTab(key, keepScroll){
+  if (TABS.indexOf(key) < 0) key = 'daily';
+  curTab = key;
   TABS.forEach(function(t){
     var sec = $('tab-' + t);
     if (sec) sec.classList.toggle('hide', t !== key);
@@ -1233,15 +1864,21 @@ function showTab(key){
   if (key === 'weak')  renderQuiz('weak');
   if (key === 'list')  renderList();
   if (key === 'rec')   renderRec();
-  window.scrollTo(0, 0);
+  if (state.lastTab !== key) { state.lastTab = key; save(true); }
+  if (!keepScroll) window.scrollTo(0, 0);
 }
 
 /* ============================================================
    6. 出題（今日の10問・分野別・間違えた問題で共通）
+   ------------------------------------------------------------
+   答えの判定は重さで分ける：
+     ok   正解
+     over 「支払われる側」と答えたが違う＝言い過ぎ（いちばん事故になる。赤）
+     stop 「支払われない側」と答えたが違う＝請求を止めかねない・決めつけ（珊瑚）
+     safe 「契約内容で分かれる」と答えたが違う＝確かめる側の答え（琥珀）
    ============================================================ */
 var SES = { daily:null, cat:null, weak:null };
 var HOST = { daily:'dailyHost', cat:'catHost', weak:'weakHost' };
-var catPicked = null;
 
 function priority(c){
   var r = state.rec[c.id];
@@ -1254,12 +1891,37 @@ function pickDaily(n){
   a.sort(function(p, q){ return priority(p) - priority(q); });
   return shuffle(a.slice(0, n).map(function(c){ return c.id; }));
 }
-function startSession(mode, ids, title){
+function catIds(k){ return CASES.filter(function(c){ return c.cat === k; }).map(function(c){ return c.id; }); }
+function startSession(mode, ids, title, cat){
   if (!ids.length) return;
-  SES[mode] = { mode:mode, ids:ids, i:0, chosen:null, right:0, wrongIds:[], title:title || '' };
+  SES[mode] = { mode:mode, ids:ids, i:0, chosen:null, right:0, wrongIds:[], ov:0, title:title || '', cat:cat || null, paused:false };
+  save();
   renderQuiz(mode);
+  focusQuestion(mode);
 }
-
+/* 途中の問題を捨てて始め直すときは確かめる（答えた分の記録は残る） */
+function leaveOk(mode){
+  var s = SES[mode];
+  if (!s || s.i >= s.ids.length) return true;
+  if (s.i === 0 && s.chosen == null) return true;
+  return confirm((s.title || '途中の問題') + 'の途中です（' + s.ids.length + '問中 ' + (s.i + 1) + '問目）。\nここで終えて、新しく始めますか。答えた分の記録は残ります。');
+}
+function verdictOf(ch, ans){
+  if (ch === ans) return 'ok';
+  if (ch === 'in') return 'over';
+  if (ch === 'out') return 'stop';
+  return 'safe';
+}
+function verdictHTML(v, c){
+  var right = '正しくは「' + esc(ANS[c.ans].label) + '」です。';
+  var h = '', t = '';
+  if (v === 'ok') { h = IC.ok + '正解です'; t = '面談でも、言い切らずに「約款とご契約内容で確かめます」を添えてください。'; }
+  if (v === 'over') { h = IC.warn + '言い過ぎです。いちばん事故になる間違い'; t = right + '「出ます」と言ったあとで支払われないと、お客様の予定も、募集人への信頼も崩れます。'; }
+  if (v === 'stop' && c.ans === 'in') { h = IC.no + '請求を止めかねない間違い'; t = right + '「出ません」と言うと、お客様が受け取れるはずのものを請求しないまま終わることがあります。'; }
+  if (v === 'stop' && c.ans !== 'in') { h = IC.no + '決めつけの間違い'; t = right + '言い切らずに、約款とご契約内容で確かめる場面です。'; }
+  if (v === 'safe') { h = IC.hold + '確かめる側の答え（安全な側）'; t = right + '確かめる姿勢はそのままに、一般的な取り扱いの理由を下で押さえてください。'; }
+  return '<div class="verdict ' + v + '" id="verdict-now" tabindex="-1" role="status"><span class="v-h">' + h + '</span><span class="v-t">' + t + '</span></div>';
+}
 function ansPill(a){
   var cls = a === 'in' ? 'a-in' : (a === 'out' ? 'a-out' : 'a-dep');
   return '<span class="ansline ' + cls + '">' + esc(ANS[a].label) + '</span>';
@@ -1271,53 +1933,71 @@ function expHtml(c){
     '<div class="ngbox"><div class="lb">' + IC.ban + '言ってはいけない</div><p>' + esc(c.ng) + '</p></div>' +
     '<div class="disclaim">' + esc(DISCLAIM) + '</div>';
 }
+function askOf(c){ return c.ask || 'この請求は、一般的な約款では、どれにあたりますか。'; }
 
 function renderQuiz(mode){
   var host = $(HOST[mode]);
   if (!host) return;
   var s = SES[mode];
+  var active = !!(s && !s.paused && s.i < s.ids.length);
 
-  /* --- 分野別は、出題中だけ分野の一覧を隠す --- */
-  if (mode === 'cat') $('catPick').classList.toggle('hide', !!s);
+  if (mode === 'cat') { $('catPick').classList.toggle('hide', !!s && !s.paused); $('catResume').innerHTML = (s && s.paused) ? resumeHTML('cat', s) : ''; }
+  if (mode === 'daily') { var fold = active || !!(s && s.i >= s.ids.length); $('dailyIntro').classList.toggle('hide', fold); $('dailyStats').classList.toggle('hide', fold); }
 
   if (!s) { host.innerHTML = startScreen(mode); return; }
+  if (s.paused) { host.innerHTML = mode === 'cat' ? '' : resumeHTML(mode, s); return; }
   if (s.i >= s.ids.length) { host.innerHTML = resultScreen(mode, s); return; }
 
   var c = caseById(s.ids[s.i]);
   var done = s.chosen != null;
+  var v = done ? verdictOf(s.chosen, c.ans) : '';
   var h = '<div class="card">';
   h += '<div class="q-top"><span class="q-count">' + (s.i + 1) + ' / ' + s.ids.length + '問目</span>' +
-       '<span class="cbadge">' + esc(catLabel(c.cat)) + '</span></div>';
+       '<span class="cbadge">' + esc(catLabel(c.cat)) + '</span>' +
+       '<button class="q-quit" type="button" data-act="quit" data-mode="' + mode + '">やめる</button></div>';
   h += '<div class="pbar"><i style="width:' + Math.round((s.i) * 100 / s.ids.length) + '%"></i></div>';
+  if (mode === 'daily') h += '<p class="q-mini">連続 ' + state.day.run + '日・連続正解 ' + state.streak.cur + '問・これまでの正答率 ' + pct(state.tot.o, state.tot.o + state.tot.x) + '％</p>';
   h += '<div class="scene">' + esc(c.scene) + '</div>';
-  h += '<p class="q-ask">この請求、支払われますか。</p>';
-  h += '<div class="ansbtns">';
-  ANS_ORDER.forEach(function(k){
+  h += '<p class="q-ask">' + esc(askOf(c)) + '<small>判断するのは保険会社です。ここでは、一般的な取り扱いがどちら側かを答えます。</small></p>';
+  h += '<div class="ansbtns" role="group" aria-label="答えを選ぶ">';
+  ANS_ORDER.forEach(function(k, idx){
     var cls = 'ansbtn';
     if (done) {
       if (k === c.ans) cls += ' is-right';
-      else if (k === s.chosen) cls += ' is-miss';
+      else if (k === s.chosen) cls += (v === 'over' ? ' is-over' : (v === 'safe' ? ' is-safe' : ' is-miss'));
       else cls += ' is-dim';
     }
-    var mk = done ? (k === c.ans ? IC.ok : (k === s.chosen ? IC.no : '')) : '';
-    h += '<button class="' + cls + '" data-act="ans" data-mode="' + mode + '" data-v="' + k + '"' + (done ? ' disabled' : '') + '>' +
-         '<span class="mk">' + (mk || '') + '</span>' +
+    var mk = done ? (k === c.ans ? IC.ok : (k === s.chosen ? IC.no : '')) : String(idx + 1);
+    h += '<button type="button" class="' + cls + '" data-act="ans" data-mode="' + mode + '" data-v="' + k + '"' + (done ? ' disabled' : '') + '>' +
+         '<span class="mk">' + mk + '</span>' +
          '<span class="ab-t">' + esc(ANS[k].label) + '<small>' + esc(ANS[k].desc) + '</small></span></button>';
   });
   h += '</div>';
 
   if (done) {
-    var ok = s.chosen === c.ans;
     h += '<div class="exp">';
-    h += '<span class="verdict ' + (ok ? 'ok' : 'no') + '">' + (ok ? IC.ok + '正解' : IC.no + 'おしい。正しくは「' + esc(ANS[c.ans].label) + '」') + '</span>';
+    h += verdictHTML(v, c);
     h += expHtml(c);
-    h += '<div class="exp-act"><button class="btn btn-primary" data-act="next" data-mode="' + mode + '">' +
-         (s.i + 1 >= s.ids.length ? '結果を見る' : '次の問題へ') + '</button>' +
-         '<button class="btn btn-ghost" data-act="quit" data-mode="' + mode + '">やめる</button></div>';
+    h += '<div class="exp-act stick"><button class="btn btn-primary" type="button" data-act="next" data-mode="' + mode + '">' +
+         (s.i + 1 >= s.ids.length ? '結果を見る' : '次の問題へ') + '</button></div>';
     h += '</div>';
   }
   h += '</div>';
   host.innerHTML = h;
+}
+/* 問題の頭へ送り、最初の選択肢に焦点を置く */
+function focusQuestion(mode){
+  var host = $(HOST[mode]); if (!host) return;
+  host.scrollIntoView({ block: 'start' });
+  var b = host.querySelector('.ansbtn:not(:disabled)') || host.querySelector('[data-act="next"]') || host.querySelector('.btn');
+  if (b) try { b.focus({ preventScroll: true }); } catch (e) {}
+}
+function resumeHTML(mode, s){
+  var label = mode === 'cat' ? '分野「' + (catLabel(s.cat) || s.title) + '」' : (s.title || '問題');
+  return '<div class="resume"><b>前回の続きがあります</b>' +
+    '<p>' + esc(label) + 'の途中です（' + s.ids.length + '問中 ' + (s.i + 1) + '問目から・ここまで ' + s.right + '問正解）。</p>' +
+    '<div class="exp-act"><button class="btn btn-primary" type="button" data-act="resume" data-mode="' + mode + '">続きから</button>' +
+    '<button class="btn btn-ghost" type="button" data-act="restart" data-mode="' + mode + '">' + (mode === 'cat' ? 'やめて分野を選ぶ' : 'はじめからやり直す') + '</button></div></div>';
 }
 
 function startScreen(mode){
@@ -1325,8 +2005,8 @@ function startScreen(mode){
     var last = state.lastDaily;
     var h = '<div class="card" style="text-align:center;">';
     h += '<p style="font-size:var(--fs-sm);color:var(--muted);margin-bottom:14px;">全' + CASES.length + '件から10問。間違えたまま・まだ解いていないケースが先に出ます。</p>';
-    if (last) h += '<p style="font-size:var(--fs-sm);color:var(--muted);margin-bottom:14px;">前回（' + esc(last.d) + '）は10問中' + last.r + '問正解でした。</p>';
-    h += '<button class="btn btn-primary" data-act="start" data-mode="daily">今日の10問を始める</button>';
+    if (last) h += '<p style="font-size:var(--fs-sm);color:var(--muted);margin-bottom:14px;">前回（' + esc(jaDate(last.d)) + '）は ' + esc(last.n) + '問中 ' + esc(last.r) + '問正解でした。</p>';
+    h += '<button class="btn btn-primary" type="button" data-act="start" data-mode="daily">今日の10問を始める</button>';
     h += '</div>';
     return h;
   }
@@ -1340,39 +2020,51 @@ function startScreen(mode){
     }
     return '<div class="card" style="text-align:center;">' +
       '<p style="font-size:var(--fs-sm);color:var(--muted);margin-bottom:14px;">最後の解答が不正解のまま残っているケースが<b style="color:var(--red-text);">' + ids.length + '件</b>あります。正解し直すと、この一覧から外れます。</p>' +
-      '<button class="btn btn-primary" data-act="start" data-mode="weak">間違えた問題を解き直す</button></div>';
+      '<button class="btn btn-primary" type="button" data-act="start" data-mode="weak">間違えた問題を解き直す</button></div>';
   }
   return '';   /* 分野別は分野の一覧（#catPick）が入口 */
 }
 
 function resultScreen(mode, s){
   var n = s.ids.length, r = s.right;
-  /* この回で間違えた分野を集計 */
   var byCat = {};
-  s.wrongIds.forEach(function(id){ var c = caseById(id); byCat[c.cat] = (byCat[c.cat] || 0) + 1; });
+  s.wrongIds.forEach(function(id){ var c = caseById(id); if (c) byCat[c.cat] = (byCat[c.cat] || 0) + 1; });
   var weakCats = Object.keys(byCat).sort(function(a, b){ return byCat[b] - byCat[a]; });
 
   var h = '<div class="card">';
   h += '<h3 style="color:var(--navy);margin-bottom:6px;">' + (s.title ? esc(s.title) + '　' : '') + n + '問中 ' + r + '問正解</h3>';
   h += '<div class="pbar" style="margin-top:10px;"><i style="width:' + pct(r, n) + '%"></i></div>';
+  if (s.ov > 0) h += '<p class="res-over">この回の言い過ぎ（「支払われる側」と答えて違ったもの）：' + s.ov + '問。ここがいちばん事故になります。解説をもう一度読んでください。</p>';
   if (weakCats.length) {
-    h += '<p style="font-size:var(--fs-sm);color:var(--muted);margin-bottom:6px;">この回でつまずいた分野</p><div class="chips" style="margin-bottom:14px;">';
-    weakCats.forEach(function(k){ h += '<span class="chip" aria-pressed="true">' + esc(catLabel(k)) + '（' + byCat[k] + '）</span>'; });
+    h += '<p style="font-size:var(--fs-sm);color:var(--muted);margin-bottom:6px;">この回でつまずいた分野（押すと、その分野を解けます）</p><div class="wk-cats">';
+    weakCats.forEach(function(k){
+      h += '<button type="button" class="wk-cat" data-act="startcat" data-cat="' + esc(k) + '"><span class="nm">' + esc(catLabel(k)) + '<span class="n">' + byCat[k] + '問</span></span>' +
+           '<span class="go">この分野を解く' + IC.down + '</span></button>';
+    });
     h += '</div>';
   } else {
     h += '<p style="font-size:var(--fs-sm);color:var(--green);font-weight:700;margin-bottom:14px;">全問正解です。それでも面談では「約款と契約内容で確かめます」を添えてください。</p>';
   }
   h += '<div class="notice" style="margin-bottom:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.8v.1"/></svg><div>' + esc(DISCLAIM) + '</div></div>';
   h += '<div class="exp-act">';
-  h += '<button class="btn btn-primary" data-act="again" data-mode="' + mode + '">もう一度</button>';
-  if (mode !== 'weak') h += '<button class="btn btn-ghost" data-act="goweak">間違えた問題へ</button>';
-  if (mode === 'cat') h += '<button class="btn btn-ghost" data-act="quit" data-mode="cat">分野を選び直す</button>';
+  h += '<button class="btn btn-primary" type="button" data-act="again" data-mode="' + mode + '">もう一度</button>';
+  if (mode !== 'weak') h += '<button class="btn btn-ghost" type="button" data-act="goweak">間違えた問題へ</button>';
+  if (mode === 'cat') h += '<button class="btn btn-ghost" type="button" data-act="quit" data-mode="cat">分野を選び直す</button>';
   h += '</div></div>';
   return h;
 }
 
+function startCat(k){
+  if (!catKnown(k)) return;
+  if (!leaveOk('cat')) return;
+  if (curTab !== 'cat') showTab('cat', true);
+  startSession('cat', shuffle(catIds(k)), catLabel(k), k);
+}
+
 /* ---- クリックの受け口（委任） ---- */
 document.addEventListener('click', function(ev){
+  var x = ev.target.closest ? ev.target.closest('[data-backup="export"]') : null;
+  if (x) { exportBackup(); return; }
   var el = ev.target.closest ? ev.target.closest('[data-act]') : null;
   if (!el) return;
   var act = el.getAttribute('data-act');
@@ -1383,10 +2075,20 @@ document.addEventListener('click', function(ev){
     if (mode === 'weak') startSession('weak', shuffle(weakIds()), '間違えた問題');
     return;
   }
-  if (act === 'startcat') {
-    catPicked = el.getAttribute('data-cat');
-    var ids = CASES.filter(function(c){ return c.cat === catPicked; }).map(function(c){ return c.id; });
-    startSession('cat', shuffle(ids), catLabel(catPicked));
+  if (act === 'startcat') { startCat(el.getAttribute('data-cat')); return; }
+  if (act === 'resume') {
+    var sr = SES[mode]; if (!sr) return;
+    sr.paused = false; renderQuiz(mode);
+    if (sr.chosen != null) { var vv = $('verdict-now'); if (vv) { vv.scrollIntoView({ block:'start' }); vv.focus({ preventScroll:true }); } }
+    else focusQuestion(mode);
+    return;
+  }
+  if (act === 'restart') {
+    var s0 = SES[mode]; if (!s0) return;
+    if (mode === 'cat') { SES.cat = null; save(); renderCatList(); renderQuiz('cat'); return; }
+    if (!confirm((s0.title || '途中の問題') + 'を、はじめからやり直しますか。答えた分の記録は残ります。')) return;
+    if (mode === 'daily') startSession('daily', pickDaily(10), '今日の10問');
+    if (mode === 'weak') { var w0 = weakIds(); if (w0.length) startSession('weak', shuffle(w0), '間違えた問題'); else { SES.weak = null; save(); renderQuiz('weak'); } }
     return;
   }
   if (act === 'ans') {
@@ -1394,38 +2096,46 @@ document.addEventListener('click', function(ev){
     if (!s || s.chosen != null) return;
     var c = caseById(s.ids[s.i]);
     s.chosen = el.getAttribute('data-v');
-    var ok = s.chosen === c.ans;
-    if (ok) s.right++; else s.wrongIds.push(c.id);
-    markAnswer(c.id, ok);
+    var v = verdictOf(s.chosen, c.ans);
+    if (v === 'ok') s.right++; else s.wrongIds.push(c.id);
+    if (v === 'over') s.ov++;
+    markAnswer(c.id, v === 'ok', v === 'over');
+    save();
     renderQuiz(mode);
-    renderTiles();
     renderWeakBadge();
+    /* 判定を画面の上へ送り、焦点も判定に置く（読み上げでも結果が先に届く） */
+    var vd = $('verdict-now');
+    if (vd) { vd.scrollIntoView({ block: 'start' }); try { vd.focus({ preventScroll: true }); } catch (e) {} }
     return;
   }
   if (act === 'next') {
     var s2 = SES[mode];
     if (!s2) return;
     s2.i++; s2.chosen = null;
-    if (s2.i >= s2.ids.length && mode === 'daily') {
-      state.lastDaily = { d: todayStr(), r: s2.right, n: s2.ids.length };
-      save();
-    }
+    if (s2.i >= s2.ids.length && mode === 'daily') state.lastDaily = { d: todayStr(), r: s2.right, n: s2.ids.length };
+    save();
     renderQuiz(mode);
+    if (mode === 'daily') renderTiles();
+    focusQuestion(mode);
+    return;
+  }
+  if (act === 'quit') {
+    var sq = SES[mode];
+    if (sq && sq.i < sq.ids.length && (sq.i > 0 || sq.chosen != null) && !confirm('ここでやめますか。答えた分の記録は残ります。')) return;
+    SES[mode] = null; save();
+    if (mode === 'cat') renderCatList();
+    renderQuiz(mode);
+    if (mode === 'daily') renderTiles();
     window.scrollTo(0, 0);
     return;
   }
-  if (act === 'quit') { SES[mode] = null; if (mode === 'cat') renderCatList(); renderQuiz(mode); return; }
   if (act === 'again') {
     if (mode === 'daily') startSession('daily', pickDaily(10), '今日の10問');
-    if (mode === 'weak') { var w = weakIds(); if (w.length) startSession('weak', shuffle(w), '間違えた問題'); else { SES.weak = null; renderQuiz('weak'); } }
-    if (mode === 'cat' && catPicked) {
-      var ids2 = CASES.filter(function(c){ return c.cat === catPicked; }).map(function(c){ return c.id; });
-      startSession('cat', shuffle(ids2), catLabel(catPicked));
-    }
-    window.scrollTo(0, 0);
+    if (mode === 'weak') { var w = weakIds(); if (w.length) startSession('weak', shuffle(w), '間違えた問題'); else { SES.weak = null; save(); renderQuiz('weak'); } }
+    if (mode === 'cat') { var sc = SES.cat; if (sc && sc.cat) startSession('cat', shuffle(catIds(sc.cat)), catLabel(sc.cat), sc.cat); }
     return;
   }
-  if (act === 'goweak') { SES.weak = null; showTab('weak'); return; }
+  if (act === 'goweak') { var sw = SES.weak; if (sw && !sw.paused && sw.i >= sw.ids.length) SES.weak = null; showTab('weak'); return; }
   if (act === 'acc') {
     var body = document.getElementById('accb-' + el.getAttribute('data-id'));
     if (body) {
@@ -1441,11 +2151,11 @@ document.addEventListener('click', function(ev){
    ============================================================ */
 function renderTiles(){
   var t = state.tot, n = t.o + t.x;
-  $('tlRun').innerHTML = state.day.run + '<small>日</small>';
+  $('tlRun').innerHTML = esc(state.day.run) + '<small>日</small>';
   $('tlRunSub').textContent = '最長 ' + state.day.best + '日';
-  $('tlStreak').innerHTML = state.streak.cur + '<small>問</small>';
+  $('tlStreak').innerHTML = esc(state.streak.cur) + '<small>問</small>';
   $('tlStreakSub').textContent = '最高 ' + state.streak.best + '問';
-  $('tlAcc').innerHTML = pct(t.o, n) + '<small>％</small>';
+  $('tlAcc').innerHTML = esc(pct(t.o, n)) + '<small>％</small>';
   $('tlAccSub').textContent = n + '回中 ' + t.o + '回正解';
 }
 function renderWeakBadge(){
@@ -1463,46 +2173,91 @@ function renderCatList(){
     var st = catStat(c.k);
     var cls = st.n === 0 ? '' : (st.rate >= 80 ? 'hi' : (st.rate >= 50 ? 'mid' : 'lo'));
     var w = st.n === 0 ? 0 : st.rate;
-    return '<button class="catrow" data-act="startcat" data-cat="' + c.k + '">' +
-      '<span class="cr-name">' + esc(c.label) + '<span style="font-weight:400;color:var(--muted);">（' + st.total + '件）</span></span>' +
-      '<span class="cr-meter"><span class="meter"><i class="' + cls + '" style="width:' + w + '%"></i></span></span>' +
-      '<span class="cr-num">' + (st.n === 0 ? '未着手' : st.rate + '％／' + st.n + '回') + '</span>' +
+    return '<button type="button" class="catrow" data-act="startcat" data-cat="' + esc(c.k) + '">' +
+      '<span class="cr-name">' + esc(c.label) + '<span style="font-weight:400;color:var(--muted);">（' + esc(st.total) + '件）</span></span>' +
+      '<span class="cr-meter"><span class="meter"><i class="' + cls + '" style="width:' + esc(w) + '%"></i></span></span>' +
+      '<span class="cr-num">' + (st.n === 0 ? '未着手' : esc(st.rate) + '％／' + esc(st.n) + '回') + '</span>' +
       '</button>';
   }).join('');
 }
 
 /* ============================================================
    9. 一覧で読む
+   ------------------------------------------------------------
+   文字をそろえてから探す（NFKC・カタカナ→ひらがな・句読点と空白を外す）。
+   漢字の言葉には読みを足しておき、ひらがなでも当たるようにする（こくち → 告知）。
+   空白で区切った語は全て含むもの
    ============================================================ */
 var listCat = 'all';
+var FOLD = [['子供','子ども'],['癌','がん'],['ガン','がん'],['頂','いただ'],['出来','でき']];
+var YOMI = { '告知':'こくち','上皮内':'じょうひない','地震':'じしん','日帰り':'ひがえり','入院':'にゅういん','手術':'しゅじゅつ','通院':'つういん',
+  '先進医療':'せんしんいりょう','自殺':'じさつ','免責':'めんせき','失効':'しっこう','復活':'ふっかつ','時効':'じこう','受取人':'うけとりにん',
+  '高度障害':'こうどしょうがい','払込免除':'はらいこみめんじょ','水災':'すいさい','火災':'かさい','火事':'かじ','車両':'しゃりょう','飲酒':'いんしゅ',
+  '心筋梗塞':'しんきんこうそく','脳梗塞':'のうこうそく','脳卒中':'のうそっちゅう','狭心症':'きょうしんしょう','三大疾病':'さんだいしっぺい','転換':'てんかん','特約':'とくやく',
+  '診断':'しんだん','給付金':'きゅうふきん','保険金':'ほけんきん','解約':'かいやく','増額':'ぞうがく','契約日':'けいやくび','責任開始':'せきにんかいし',
+  '代理請求':'だいりせいきゅう','介護':'かいご','認知症':'にんちしょう','帝王切開':'ていおうせっかい','骨折':'こっせつ','抗がん剤':'こうがんざい',
+  '放射線':'ほうしゃせん','内視鏡':'ないしきょう','個人賠償':'こじんばいしょう','自転車':'じてんしゃ','人身傷害':'じんしんしょうがい','待ち期間':'まちきかん',
+  '猶予期間':'ゆうよきかん','保険料':'ほけんりょう','診査':'しんさ','教唆':'きょうさ','戦争':'せんそう','離婚':'りこん','遺言':'ゆいごん','余命':'よめい',
+  '出産':'しゅっさん','妊娠':'にんしん','精神':'せいしん','外来':'がいらい','台風':'たいふう','浸水':'しんすい','配管':'はいかん','無免許':'むめんきょ',
+  '請求':'せいきゅう','死亡':'しぼう','障害':'しょうがい','視力':'しりょく','損害':'そんがい','賠償':'ばいしょう','傷害':'しょうがい','通算':'つうさん',
+  '限度':'げんど','部位':'ぶい','不担保':'ふたんぽ','既往症':'きおうしょう','持病':'じびょう','高血圧':'こうけつあつ','糖尿病':'とうにょうびょう' };
+var YOMI_KEYS = Object.keys(YOMI);
+function norm(s){
+  s = String(s == null ? '' : s).normalize('NFKC').toLowerCase();
+  s = s.replace(/[ァ-ヶ]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) - 0x60); });
+  for (var i = 0; i < FOLD.length; i++) s = s.split(FOLD[i][0]).join(FOLD[i][1]);
+  return s.replace(/[\s、。,.・…‥「」『』（）()［］\[\]【】〔〕!?:;"'“”‘’〜~\/／\\_*＊#＃&＆＝=+＋<>＜＞|｜]/g, '');
+}
+var LIX = {};
+function buildListIndex(){
+  CASES.forEach(function(c){
+    var raw = [c.scene, c.why, c.point, c.ng, catLabel(c.cat), ANS[c.ans].label, c.ask || ''].join('／');
+    var yomi = YOMI_KEYS.filter(function(k){ return raw.indexOf(k) >= 0; }).map(function(k){ return YOMI[k]; }).join('／');
+    LIX[c.id] = norm(raw) + '／' + norm(yomi);
+  });
+}
+function listRows(){
+  var q = ($('listQ').value || '').trim();
+  var words = q ? q.split(/[\s　]+/).map(norm).filter(Boolean) : [];
+  return CASES.filter(function(c){
+    if (listCat !== 'all' && c.cat !== listCat) return false;
+    var hay = LIX[c.id];
+    for (var i = 0; i < words.length; i++) if (hay.indexOf(words[i]) < 0) return false;
+    return true;
+  });
+}
 function renderListChips(){
   var defs = [{ k:'all', label:'全て' }].concat(CATS);
+  var cnt = function(k){ return k === 'all' ? CASES.length : CASES.filter(function(c){ return c.cat === k; }).length; };
   $('listChips').innerHTML = defs.map(function(d){
-    return '<button class="chip" data-lcat="' + d.k + '" aria-pressed="' + (listCat === d.k ? 'true' : 'false') + '">' + esc(d.label) + '</button>';
+    return '<button type="button" class="chip" data-lcat="' + esc(d.k) + '" aria-pressed="' + (listCat === d.k ? 'true' : 'false') + '">' + esc(d.label) + '（' + cnt(d.k) + '）</button>';
+  }).join('');
+  $('listSel').innerHTML = defs.map(function(d){
+    return '<option value="' + esc(d.k) + '"' + (listCat === d.k ? ' selected' : '') + '>分野：' + esc(d.label) + '（' + cnt(d.k) + '件）</option>';
   }).join('');
 }
+var OPEN_ALL_MAX = 20;
 function renderList(){
   renderListChips();
-  var q = ($('listQ').value || '').trim().toLowerCase();
-  var rows = CASES.filter(function(c){
-    if (listCat !== 'all' && c.cat !== listCat) return false;
-    if (!q) return true;
-    var hay = (c.scene + c.why + c.point + c.ng + catLabel(c.cat) + ANS[c.ans].label).toLowerCase();
-    return hay.indexOf(q) >= 0;
-  });
-  $('listCount').textContent = '全' + CASES.length + '件のうち ' + rows.length + '件を表示しています。カードを押すと解説が開きます。';
+  var rows = listRows();
+  var q = ($('listQ').value || '').trim();
+  var catTxt = listCat === 'all' ? '' : '（分野：' + catLabel(listCat) + '）';
+  $('listCount').textContent = (q ? '「' + q + '」で ' : '全' + CASES.length + '件のうち ') + rows.length + '件' + catTxt + '。カードを押すと解説が開きます。' +
+    (rows.length > OPEN_ALL_MAX ? '「全て開く」は' + OPEN_ALL_MAX + '件以下に絞ると使えます。' : '');
+  $('listOpenAll').disabled = !rows.length || rows.length > OPEN_ALL_MAX;
+  $('listCloseAll').disabled = !rows.length;
   if (!rows.length) {
-    $('listHost').innerHTML = '<div class="card"><div class="empty"><b>あてはまるケースがありません</b><p>言葉を短くするか、分野の絞り込みを「全て」に戻してみてください。</p></div></div>';
+    $('listHost').innerHTML = '<div class="card"><div class="empty"><b>あてはまるケースが見つかりませんでした</b><p>言葉を短くするか（例：「がん」「地震」「告知」）、分野の絞り込みを「全て」に戻してみてください。</p></div></div>';
     return;
   }
   $('listHost').innerHTML = rows.map(function(c){
     return '<div class="acc">' +
-      '<button class="acc-h" data-act="acc" data-id="' + c.id + '" aria-expanded="false" aria-controls="accb-' + c.id + '">' +
+      '<button type="button" class="acc-h" data-act="acc" data-id="' + esc(c.id) + '" aria-expanded="false" aria-controls="accb-' + esc(c.id) + '">' +
         '<span class="ah-mk">' + IC.down + '</span>' +
         '<span class="ah-body"><span class="ah-cat">' + esc(catLabel(c.cat)) + '</span>' +
-        '<span class="ah-txt">' + esc(c.scene) + '</span></span>' +
+        '<span class="ah-txt">' + esc(c.scene) + (c.ask ? '<br>' + esc(c.ask) : '') + '</span></span>' +
       '</button>' +
-      '<div class="acc-b hide" id="accb-' + c.id + '">' + ansPill(c.ans) + expHtml(c) + '</div>' +
+      '<div class="acc-b hide" id="accb-' + esc(c.id) + '">' + ansPill(c.ans) + expHtml(c) + '</div>' +
       '</div>';
   }).join('');
 }
@@ -1516,45 +2271,146 @@ function setAllAcc(open){
    ============================================================ */
 function renderRec(){
   var t = state.tot, n = t.o + t.x;
-  $('rcTotal').innerHTML = n + '<small>回</small>';
+  $('rcTotal').innerHTML = esc(n) + '<small>回</small>';
   var seen = CASES.filter(function(c){ return state.rec[c.id]; }).length;
   $('rcTotalSub').textContent = '全' + CASES.length + '件のうち ' + seen + '件に着手';
-  $('rcAcc').innerHTML = pct(t.o, n) + '<small>％</small>';
+  $('rcAcc').innerHTML = esc(pct(t.o, n)) + '<small>％</small>';
   $('rcAccSub').textContent = '正解 ' + t.o + '回／不正解 ' + t.x + '回';
-  $('rcWeak').innerHTML = weakIds().length + '<small>件</small>';
-  $('rcRun').innerHTML = state.day.run + '<small>日</small>';
+  $('rcOver').innerHTML = esc(t.ov) + '<small>回</small>';
+  $('rcWeak').innerHTML = esc(weakIds().length) + '<small>件</small>';
+  $('rcRun').innerHTML = esc(state.day.run) + '<small>日</small>';
   $('rcRunSub').textContent = '最長 ' + state.day.best + '日／連続正解の最高 ' + state.streak.best + '問';
 
   var tb = $('recTable').querySelector('tbody');
   tb.innerHTML = CATS.map(function(c){
     var s = catStat(c.k);
-    return '<tr><td>' + esc(c.label) + '</td>' +
-      '<td class="num">' + s.total + '</td>' +
-      '<td class="num">' + s.n + '</td>' +
-      '<td class="num">' + s.o + '</td>' +
-      '<td class="num">' + (s.n === 0 ? '—' : s.rate + '％') + '</td>' +
-      '<td class="num">' + (s.total - s.seen) + '</td></tr>';
+    return '<tr><td class="cat-name">' + esc(c.label) + '</td>' +
+      '<td class="num" data-l="ケース数">' + esc(s.total) + '</td>' +
+      '<td class="num" data-l="解いた">' + esc(s.n) + '</td>' +
+      '<td class="num" data-l="正解">' + esc(s.o) + '</td>' +
+      '<td class="num" data-l="正答率">' + (s.n === 0 ? '—' : esc(s.rate) + '％') + '</td>' +
+      '<td class="num" data-l="言い過ぎ">' + esc(s.v) + '</td>' +
+      '<td class="num" data-l="未着手">' + esc(s.total - s.seen) + '</td></tr>';
   }).join('');
   renderWeakBadge();
+  renderBackupNow();
+  if (document.activeElement !== $('psName')) $('psName').value = state.name || '';
 }
 
-/* ---- 書き出し・読み込み ---- */
-function download(name, text, type){
-  var blob = new Blob([text], { type: type || 'application/octet-stream' });
-  var a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = name;
-  document.body.appendChild(a); a.click();
-  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+/* ---- 控え（ファイル）---- */
+var KIND = 'katatsugi-shiharai';
+var KIND_NAME = { 'katatsugi-training':'保険知識トレーニング', 'katatsugi-shikaku':'保険資格試験トレーニング', 'katatsugi-kirikaeshi':'保険切り返し辞典',
+  'katatsugi-shiharai':'保険支払事例トレーニング', 'katatsugi-compknock':'コンプライアンス100本ノック', 'katatsugi-gyakusan':'目標逆算プランナー',
+  'katatsugi-sales':'営業ダッシュボード', 'katatsugi-calendar':'満期カレンダー' };
+function countLine(st){
+  var seen = Object.keys(st.rec).length;
+  return '解いたケース ' + seen + '件・解いた回数 ' + (st.tot.o + st.tot.x) + '回（正解 ' + st.tot.o + '回）';
 }
+function renderBackupNow(){
+  var el = $('bkNow'); if (!el) return;
+  var last = '';
+  try { var b = JSON.parse(localStorage.getItem('officem.backup.v1') || '{}'); if (b && b.tools && typeof b.tools.shiharai === 'string') last = stampStr(Date.parse(b.tools.shiharai)); } catch (e) {}
+  el.textContent = 'いまの記録：' + countLine(state) + '。' + (last ? '最後に控えを書き出したのは ' + last + '。' : 'まだ控えを書き出していません。');
+}
+function exportBackup(){
+  save(true);
+  var payload = { kind: KIND, v: 1, tool: '保険支払事例トレーニング', exportedAt: new Date().toISOString(), data: state };
+  download('保険支払事例トレーニング_控え_' + todayStr() + '.json', JSON.stringify(payload, null, 1), 'application/json');
+  omMarkBackup('shiharai');
+  toast('控えを書き出しました');
+  renderBackupNow();
+}
+function importBackup(text){
+  var o = null;
+  try { o = JSON.parse(text); } catch (e) { o = null; }
+  if (!o || typeof o !== 'object' || Array.isArray(o)) { alert('ファイルを読めませんでした。このツールで書き出した控えのファイルを選んでください。'); return; }
+  var data = null, when = '';
+  if (typeof o.kind === 'string') {
+    if (o.kind !== KIND) {
+      var nm = KIND_NAME[o.kind] || '別のツール';
+      alert('これは「' + nm + '」の控えです。このツール（保険支払事例トレーニング）では読み込めません。');
+      return;
+    }
+    data = o.data;
+    if (typeof o.exportedAt === 'string' && !isNaN(Date.parse(o.exportedAt))) when = stampStr(Date.parse(o.exportedAt));
+  } else if (o.rec && typeof o.rec === 'object') {
+    data = o;   /* 印の無い前の形。形を確かめて通るものだけ受ける */
+  } else {
+    alert('このツールの控えの形ではありません。読み込みませんでした。');
+    return;
+  }
+  var inc = cleanState(data);
+  if (!Object.keys(inc.rec).length && !(inc.tot.o + inc.tot.x)) { alert('控えの中に、読み込める記録がありませんでした。'); return; }
+  var body = '<table><tr><th>控え</th><td>' + esc(when ? when + ' に書き出したもの' : '書き出した日時の記録なし') + '<br>' + esc(countLine(inc)) + '</td></tr>' +
+    '<tr><th>いま</th><td>' + esc(countLine(state)) + '</td></tr></table>' +
+    '<p>「置き換える」を押すと、いまの記録を消して、控えの記録にします。元に戻すには、先にいまの記録の控えを書き出しておいてください。</p>';
+  omAsk('控えから戻す', body, [
+    { v:'replace', label:'置き換える', cls:'btn-primary' },
+    { v:'', label:'やめる', cls:'btn-ghost' }
+  ]).then(function(v){
+    if (v !== 'replace') return;
+    state = inc;
+    SES = { daily:null, cat:null, weak:null };
+    MODES.forEach(function(m){ if (state.ses[m]) { SES[m] = state.ses[m]; SES[m].mode = m; SES[m].paused = true; } });
+    stale = false; showAlert('alOther', false);
+    save();
+    renderWeakBadge();
+    showTab('rec', true);
+    toast('控えの記録に置き換えました');
+  });
+}
+
+/* ---- 研修の記録を印刷する（1枚） ---- */
+function printSheet(){
+  var name = ($('psName').value || '').trim().slice(0, 40);
+  state.name = name; save(true);
+  var dates = Object.keys(state.rec).map(function(id){ return state.rec[id].d; }).filter(isDate).sort();
+  var range = dates.length ? jaDate(dates[0]) + ' 〜 ' + jaDate(dates[dates.length - 1]) : '（まだ解いていません）';
+  var t = state.tot, n = t.o + t.x;
+  var seen = Object.keys(state.rec).length;
+  var h = '<h2>保険支払事例トレーニング　研修の記録</h2>';
+  h += '<table><tr><th>名前</th><td>' + esc(name || '（未記入）') + '</td><th>印刷した日</th><td>' + esc(jaDate(todayStr())) + '</td></tr>' +
+       '<tr><th>解いた期間</th><td colspan="3">' + esc(range) + '</td></tr>' +
+       '<tr><th>結果</th><td colspan="3">解いたケース ' + esc(seen) + '件／全' + CASES.length + '件・解いた回数 ' + esc(n) + '回・正解 ' + esc(t.o) + '回（正答率 ' + esc(pct(t.o, n)) + '％）</td></tr>' +
+       '<tr><th>言い過ぎ</th><td colspan="3">' + esc(t.ov) + '回（支払われない・分かれる場面で「支払われる側」と答えた回数）</td></tr>' +
+       '<tr><th>間違えたまま</th><td colspan="3">' + esc(weakIds().length) + '件</td></tr></table>';
+  h += '<h3>分野ごとの記録</h3><table><tr><th>分野</th><th>ケース数</th><th>解いた</th><th>正解</th><th>正答率</th><th>言い過ぎ</th></tr>';
+  var weakCats = [];
+  CATS.forEach(function(c){
+    var s = catStat(c.k);
+    if (s.n > 0 && s.rate < 70) weakCats.push(c.label + '（' + s.rate + '％）');
+    h += '<tr><td>' + esc(c.label) + '</td><td class="num">' + esc(s.total) + '</td><td class="num">' + esc(s.n) + '</td><td class="num">' + esc(s.o) + '</td><td class="num">' +
+         (s.n === 0 ? '—' : esc(s.rate) + '％') + '</td><td class="num">' + esc(s.v) + '</td></tr>';
+  });
+  h += '</table>';
+  h += '<h3>弱かった分野（正答率70％未満）</h3><p>' + esc(weakCats.length ? weakCats.join('、') : 'ありません') + '</p>';
+  h += '<p>この記録は、一般的な取り扱いを確かめる練習の記録です。実際の支払いの可否は、保険会社が約款とお客様の契約内容で判断します。</p>';
+  h += '<div class="sign"><div>本人の確認（日付・署名）</div><div>上長の確認（日付・署名）</div></div>';
+  $('printSheet').innerHTML = h;
+  document.body.classList.add('print-sheet-on');
+  setTimeout(function(){ window.print(); }, 60);
+}
+window.addEventListener('afterprint', function(){ document.body.classList.remove('print-sheet-on'); });
+function setPrintDate(){ var el = $('printDate'); if (el) el.textContent = '印刷した日 ' + jaDate(todayStr()); }
+window.addEventListener('beforeprint', setPrintDate);
 
 /* ============================================================
    11. 起動
    ============================================================ */
 function startApp(){
+  $('tbHome').href = hubHref();
+  $('tbBackup').href = hubHref('#backup');
+  $('footBackup').href = hubHref('#backup');
+  try { localStorage.setItem('officem.__shcheck', '1'); localStorage.removeItem('officem.__shcheck'); } catch (e) { showAlert('alSave', true); }
   state = load();
+  /* 途中の問題があれば「続きから」を出す */
+  MODES.forEach(function(m){ if (state.ses[m]) { SES[m] = state.ses[m]; SES[m].mode = m; SES[m].paused = true; } });
+  buildListIndex();
+  setPrintDate();
 
   $('listQ').addEventListener('input', renderList);
+  $('listQ').addEventListener('keydown', function(ev){ if (ev.key === 'Enter') { ev.preventDefault(); this.blur(); } });
+  $('listQClear').addEventListener('click', function(){ $('listQ').value = ''; listCat = 'all'; renderList(); $('listQ').focus(); });
   $('listOpenAll').addEventListener('click', function(){ setAllAcc(true); });
   $('listCloseAll').addEventListener('click', function(){ setAllAcc(false); });
   $('listChips').addEventListener('click', function(ev){
@@ -1563,46 +2419,45 @@ function startApp(){
     listCat = b.getAttribute('data-lcat');
     renderList();
   });
+  $('listSel').addEventListener('change', function(){ listCat = this.value; renderList(); });
 
-  $('expBtn').addEventListener('click', function(){
-    download('hoken-shiharai-kiroku-' + todayStr() + '.json', JSON.stringify(state, null, 1), 'application/json');
-  });
   $('impBtn').addEventListener('change', function(){
     var f = this.files && this.files[0];
-    if (!f) { return; }
+    if (!f) return;
+    if (f.size > 5 * 1024 * 1024) { alert('ファイルが大きすぎます。このツールで書き出した控えのファイルを選んでください。'); this.value = ''; return; }
     var reader = new FileReader();
-    reader.onload = function(){
-      try {
-        var o = JSON.parse(reader.result);
-        if (!o || typeof o !== 'object' || !o.rec) throw new Error('bad');
-        var cnt = Object.keys(o.rec).length;
-        if (!confirm('いまの記録を、読み込んだ記録で置き換えます。（' + cnt + '件のケースの記録）よろしいですか。')) return;
-        localStorage.setItem(LS_KEY, JSON.stringify(o));
-        state = load();
-        SES.daily = SES.cat = SES.weak = null;
-        showTab('rec');
-        alert('読み込みました。');
-      } catch (e) { alert('読み込めませんでした。このツールで書き出したJSONファイルを選んでください。'); }
-    };
+    reader.onload = function(){ importBackup(String(reader.result || '')); };
     reader.readAsText(f);
     this.value = '';
   });
   $('wipeBtn').addEventListener('click', function(){
-    if (!confirm('正誤・弱点・連続日数の記録を全て消します。よろしいですか。')) return;
-    if (!confirm('本当に消しますか。元に戻せません（先にJSONの書き出しをおすすめします）。')) return;
-    localStorage.removeItem(LS_KEY);
-    state = defaultState(); save();
-    SES.daily = SES.cat = SES.weak = null;
-    catPicked = null;
-    showTab('rec');
+    if (!confirm('正誤・弱点・連続日数・途中の問題の記録を、全て消します。\n先に「控えを書き出す」で控えを取っておくと、あとから戻せます。消しますか。')) return;
+    if (!confirm('元に戻せません。本当に消しますか。')) return;
+    var keepTab = state.lastTab, keepName = state.name;
+    state = defaultState(); state.lastTab = keepTab; state.name = keepName;
+    SES = { daily:null, cat:null, weak:null };
+    save();
+    showTab('rec', true);
+    toast('記録を消しました');
   });
+  $('psPrint').addEventListener('click', printSheet);
+  $('psName').addEventListener('change', function(){ state.name = this.value.trim().slice(0, 40); save(true); });
 
   document.querySelectorAll('.tab').forEach(function(btn){
     btn.addEventListener('click', function(){ showTab(btn.getAttribute('data-tab')); });
   });
+  window.addEventListener('storage', function(ev){
+    if (ev.key === LS_KEY || ev.key === null) { stale = true; showAlert('alOther', true); }
+  });
+  $('alOtherReload').addEventListener('click', function(){
+    state = load(); stale = false; showAlert('alOther', false);
+    SES = { daily:null, cat:null, weak:null };
+    MODES.forEach(function(m){ if (state.ses[m]) { SES[m] = state.ses[m]; SES[m].mode = m; SES[m].paused = true; } });
+    renderWeakBadge(); showTab(curTab, true); toast('読み直しました');
+  });
 
   renderWeakBadge();
-  showTab('daily');
+  showTab(state.lastTab || 'daily');
 }
 
 /* 合言葉は入口の管理画面（hoken-hub）で済んでいるので、ここでは聞かずにそのまま開く */
