@@ -1751,7 +1751,14 @@ var KKC = (function () {
   var SHU_OF = { shushin: '終身保険', teiki: '定期保険', iryo: '医療保険', gan: 'ガン保険' };
   var SET_DEF = { age: 70, rule: 'either' };
 
-  function rd(k) { try { var v = JSON.parse(localStorage.getItem(k) || 'null'); return v && typeof v === 'object' ? v : null; } catch (e) { return null; } }
+  /* SRC があるあいだは、この端末ではなく控えの中身（{鍵: 文字列}）から読む（会社の保管フォルダ・2026-10-25） */
+  var SRC = null;
+  function rd(k) {
+    try {
+      var raw = SRC ? (typeof SRC[k] === 'string' ? SRC[k] : null) : localStorage.getItem(k);
+      var v = JSON.parse(raw || 'null'); return v && typeof v === 'object' ? v : null;
+    } catch (e) { return null; }
+  }
   function str(v, n) { return typeof v === 'string' ? v.slice(0, n || 200) : ''; }
   function ymd(v) { return typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : ''; }
   function idOk(v) { return typeof v === 'string' && /^[A-Za-z0-9_@.\-]{1,80}$/.test(v) ? v : ''; }
@@ -2397,9 +2404,19 @@ var KKC = (function () {
     return { joined: !!c, waiting: !!(o && o.room && !c), send: cpsSt, name: cpsName() };
   }
   function cpsWatch(fn) { cpsOn.push(fn); }
+  /* 控えの中身から、管理職モードと同じ要約（予定・お客様・契約の提出書類）を作る。この端末の記録には触らない */
+  function cpsFromKeys(keys, td) {
+    if (!keys || typeof keys !== 'object') return { sales: null, kk: null };
+    var out = { sales: null, kk: null };
+    SRC = keys;
+    try { out.sales = cpsSales(td); } catch (e) { out.sales = null; }
+    try { out.kk = rd(SALES_KEY) ? cpsKk() : null; } catch (e) { out.kk = null; }
+    SRC = null;
+    return out;
+  }
 
   return {
-    cps: { cfg: cpsCfg, name: cpsName, payload: cpsPayload, seal: cpsSeal, push: cpsPush, queue: cpsQueue, status: cpsStatus, watch: cpsWatch, sales: cpsSales, kk: cpsKk,
+    cps: { cfg: cpsCfg, name: cpsName, payload: cpsPayload, seal: cpsSeal, push: cpsPush, queue: cpsQueue, status: cpsStatus, watch: cpsWatch, sales: cpsSales, kk: cpsKk, fromKeys: cpsFromKeys,
       TYPES: CPS_TYPES, STAGES: CPS_STAGES, KINDS: CPS_REC_KINDS }, KINDS: KINDS, NAME: NAME, STATUS: STATUS, SALES_KEY: SALES_KEY, FEED_KEY: FEED_KEY, TOOL_KEY: TOOL_KEY, SET_DEF: SET_DEF, FAM_RE: FAM_RE,
     nk: nk, dayDiff: dayDiff, ageAt: ageAt, today: today, contracts: contracts, feed: feed, tool: tool,
     cleanK: cleanK, feedFrom: feedFrom, toolFrom: toolFrom, cleanHist: cleanHist, cleanAlog: cleanAlog, histPush: histPush, meOf: meOf, track: track,
@@ -4961,13 +4978,14 @@ document.addEventListener('visibilitychange', function(){ if (!document.hidden) 
 setInterval(function(){ if (pend && !askDone) { pend = false; soft(); } }, 1500);
 
 /* 管理画面・営業ダッシュボードから開いたとき
-   #k=<契約の番号>：その契約を見せる／#bad：直すことがある契約だけ／#boss：上長の画面／#audit：代理店点検／#q=<お名前>：その名前で絞る */
+   #k=<契約の番号>：その契約を見せる／#bad：直すことがある契約だけ／#boss：上長の画面／#audit：代理店点検／#data：設定・控え／#q=<お名前>：その名前で絞る */
 function focusFromHash(){
   var h = decodeURIComponent(location.hash || '');
   var clear = function(){ try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} };
   if (h === '#bad') { view = { f: 'bad', q: '', n: 40, focus: '' }; $('listQ').value = ''; showTab('list'); clear(); return true; }
   if (h === '#boss') { showTab('boss'); clear(); return true; }
   if (h === '#audit') { showTab('audit'); clear(); return true; }
+  if (h === '#data') { showTab('data'); clear(); return true; }   /* 管理画面の「はじめの1週間」から（知らせの起点を決める） */
   /* #q=<お名前>（管理画面の「お客様をさがす」から）：その言葉で契約の一覧を絞る */
   var mq = /^#q=(.{1,80})$/.exec(h);
   if (mq) { view = { f: 'all', q: mq[1], n: 40, focus: '' }; $('listQ').value = mq[1]; showTab('list'); clear(); return true; }

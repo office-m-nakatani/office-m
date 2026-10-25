@@ -1109,6 +1109,13 @@ main.mt-main{ padding:4px 0 4px; }
 #mentor-modal .mt-bub ul.mt-acts.mt-hs-list > li::before{ background:#4a5966; }
 #mentor-modal .mt-bub ul.mt-acts.mt-hs-list > li b{ font-weight:800; color:#1f2d3a; }
 .mt-bub .mt-try-b:focus-visible{ outline:3px solid #e0a46a; outline-offset:2px; }
+/* KITAI-CSS-BEGIN 期待の置き方の一行（2026-10-25） */
+.mt-bub .mt-kitai{ display:block; margin-top:12px; padding-top:10px; border-top:1px solid #eadfd2; color:#4a5560; font-size:.92rem; line-height:1.7; }
+.mt-bub .mt-kitai-b{ display:inline-flex; align-items:center; min-height:44px; margin:6px 0 0; padding:6px 14px; border:1.5px solid #9fb6c8; border-radius:12px;
+  background:#f3f8fc; color:#1a4d70; font:inherit; font-size:.92rem; font-weight:700; cursor:pointer; }
+.mt-bub .mt-kitai-b:hover{ background:#e7f1f9; }
+.mt-bub .mt-kitai-b:focus-visible{ outline:3px solid #6c9dc4; outline-offset:2px; }
+/* KITAI-CSS-END */
 /* QFOLD 相談のきっかけを押したら一覧を畳む（2026-10-05）。高さと濃さを短く落とす */
 #mentor-modal .mt-quick-all.mt-qa-fold{ overflow:hidden; opacity:0; transition:max-height .24s ease, opacity .2s ease; }
 /* B5 写す（返事の右下）・会話を消す（帯の右） */
@@ -5022,6 +5029,16 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
                 : '保険の募集の線（言っていいこと・言ってはいけないこと）と、社内の決まりに合わせてある。'),
           esc(z ? '外の情報を取りに行きません。最新の数字や制度の細かいところは、公式の資料で確かめてください。'
                 : '外の情報を取りに行かない。最新の数字や制度の細かいところは、公式の資料で確かめろ。')]);
+        /* 期待の置き方（2026-10-25・代理店の目線 S4）＝得意なことと苦手なことを先に言う */
+        h += '<span class="mt-h">' + esc('得意なこと') + '</span>' + mtHsUl([
+          esc('保険・お金の仕組みと、どこで確かめるか'),
+          esc('面談の場面ごとの返し方（断り文句・紹介・更改）'),
+          esc('社内の決まり・コンプライアンスの線（言っていいか）'),
+          esc('今月の数字からの逆算と、今日やる1つ')]);
+        h += '<span class="mt-h">' + esc('苦手なこと') + '</span>' + mtHsUl([
+          esc('メールや提案書などの文章を、その場で自由に書くこと'),
+          esc('今日のニュース・相場・最新の制度の細かい数字'),
+          esc(z ? '中身に入っていない問い（そのときは、答えを持っていないと正直に言います）' : '中身に入っていない問い（そのときは、答えを持っていないと正直に言う）')]);
         tries = ['ここで何ができる？', '師匠は何冊読んでるの？'];
       } else if(kind === 'ai'){
         h += esc(say('人ではない。AIと呼ばれることもあるが、その場で文章を作り出す仕組みではない。入っている中身（先人の本の考え方・相談の型・よくある問いの答え・社内の決まり）から、書かれた言葉に合うものを選んで返している。だから、知らんことは知らんと言う。',
@@ -8714,6 +8731,14 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
     }
     /* OM100-B4 ★最初の画面＝3行の使い方と、押すだけで試せる相談3つ（2026-10-04・辛口評価のB4）。会話には残さない */
     const MT_TRY = ['今月あと3件足りない。残り8営業日', 'お客様に「考えておきます」と言われた', '高齢のお客様への募集で気をつけることは？'];
+    /* KITAI-BEGIN 期待の置き方（2026-10-25・代理店の目線 S4）＝何を返す相談役かを先に一行で。押すと生成AIとの違いを答える */
+    function mtKitaiHTML(z){
+      return '<span class="mt-kitai">' + esc(z
+          ? '入っている中身から選んでお返しする相談役です。メールなどの文章を自由に書くことと、今日のニュース・相場は苦手です。'
+          : '入っている中身から選んで返す相談役だ。メールなどの文章を自由に書くことと、今日のニュース・相場は苦手だ。')
+        + '<button type="button" class="mt-kitai-b" data-mtq="ChatGPTと何が違うの？">' + esc('生成AIとの違いを見る') + '</button></span>';
+    }
+    /* KITAI-END */
     function mtHelloHTML(P){
       const m = mtModeNow(), z = (m !== 'shisho');
       const head = (m === 'akogare') ? 'お疲れさまです。使い方は3つだけです。'
@@ -8727,7 +8752,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
            '迷ったら、下の流れる札を押せ。社内規定やコンプライアンスもここで聞ける。'];
       return mtFill(esc(head), P) + '<ol class="mt-howto">' + li.map(function(x){ return '<li>' + esc(x) + '</li>'; }).join('') + '</ol>'
         + '<span class="mt-h">' + esc(z ? 'まず押して試す' : 'まず押して試せ') + '</span><span class="mt-try">'
-        + MT_TRY.map(function(q){ return '<button type="button" class="mt-try-b" data-mtq="' + esc(q) + '">' + esc(q) + '</button>'; }).join('') + '</span>';
+        + MT_TRY.map(function(q){ return '<button type="button" class="mt-try-b" data-mtq="' + esc(q) + '">' + esc(q) + '</button>'; }).join('') + '</span>' + mtKitaiHTML(z);   /* KITAI-HELLO */
     }
     /* OM100-B5 ★返事を写す（クリップボードへ）。畳んだ中身も入れる。選択肢・ボタン・絵は入れない */
     function mtCopyReply(btn){
