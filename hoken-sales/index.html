@@ -297,7 +297,7 @@ a{color:var(--navy-2);}
 .day-row .day-go{flex:none;font-size:var(--fs-xs);font-weight:700;color:var(--coral-text);padding-top:3px;}
 .day-none{font-size:var(--fs-sm);color:var(--muted);}
 .head-action{margin-left:auto;white-space:nowrap;}
-/* ---------- 満期カレンダーの声かけ（満期・更新・契約応当日・払込満了・年金） ---------- */
+/* ---------- 更新・満期（2026-10-26 から：更新の登録と、契約の満期日・払込満了日。前は満期カレンダーの声かけ） ---------- */
 .bg-cf{background:#eef2f7;border-color:#cdd7e3;color:#34465d;}
 .cal-ev.cf{background:#eef2f7;border-color:#cdd7e3;border-left-color:#5a6f8a;color:#34465d;}
 .cal-ev.cf.cf-done{opacity:.7;}
@@ -306,6 +306,13 @@ a{color:var(--navy-2);}
 .day-row.cf .cf-over{color:var(--red-text);font-weight:700;}
 .day-row.cf .cf-done{color:#2c7a4b;font-weight:700;}
 .day-row.cf .day-body b{white-space:nowrap;}   /* お名前を語の途中で折らない */
+/* 「◯◯様 自動車保険の更新」を誕生日と同じく名前の後ろで折り返す。種類が長いときは末尾を…にする */
+.cal-ev.cf.rn{white-space:normal;text-overflow:clip;line-height:1.35;padding-top:3px;padding-bottom:3px;}
+.cal-ev.cf.rn .bd-n{display:inline-block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:bottom;}
+.rn-row .tl-date{line-height:1.45;}
+.rn-row.rn-editing{border-color:var(--navy-2);box-shadow:0 0 0 3px var(--navy-soft);}
+.rn-acts{display:flex;align-items:center;gap:6px;}
+.kv .rn-k{display:inline-block;}
 @media(max-width:760px){
   .day-row.cf{flex-wrap:wrap;}
   .day-row.cf .day-body{flex:1 1 calc(100% - 6em);}
@@ -857,6 +864,8 @@ a.tb-tag:hover{border-color:var(--navy-2);color:var(--navy);}
     padding:10px var(--sp-5);border-top:1px solid var(--line);border-radius:0 0 var(--r) var(--r);z-index:5;}
   .cf-actions .btn{flex:1 1 0;}
   .head-actions{display:grid;grid-template-columns:1fr 1fr;width:100%;margin-left:0;}
+  /* 3つ目の「更新の登録」を足したので、携帯はお誕生日登録と更新の登録を上に並べ、サンプルは下の段いっぱいに（2026-10-26） */
+  .head-actions #sampleBtn{order:3;grid-column:1 / -1;}
   .head-actions .head-action{width:auto;}
   .om-toast{left:12px;right:12px;transform:none;bottom:12px;}
   .pc-only{display:none !important;}
@@ -1464,7 +1473,7 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
     <div class="sec">
       <div class="sec-head">
         <span class="sh-art"><svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="18" cy="22" r="8" fill="#f7cdb4"/><path d="M6 50c0-8 5.4-14 12-14s12 6 12 14Z" fill="#63b8dd"/><circle cx="45" cy="22" r="8" fill="#f7cdb4"/><path d="M33 50c0-8 5.4-14 12-14s12 6 12 14Z" fill="#f0846a"/><circle cx="32" cy="38" r="6" fill="#f7cdb4"/><path d="M23 55c0-6 4-10 9-10s9 4 9 10Z" fill="#f7c34e"/></svg></span>
-        <div><h2>顧客検索</h2><p>お客様を探すのはここから。カルテから提出書類・コンプライアンスの記録・満期カレンダーまで開けます</p></div>
+        <div><h2>顧客検索</h2><p>お客様を探すのはここから。カルテから提出書類・コンプライアンスの記録・更新の登録まで開けます</p></div>
       </div>
 
       <!-- 引き継いだお客様の、これから30日（担当の引継ぎのファイルを読み込んだあと30日だけ。hoRender() が描く） -->
@@ -1518,7 +1527,7 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
         <!-- 登録していないお名前（ほかの記録にだけある方。2026-10-07：管理画面の「お客様をさがす」をここへ移した。renderOthers() が描く） -->
         <div class="guest-box hide" id="otherBox">
           <h3 style="color:var(--navy);font-size:var(--fs-md);margin-bottom:var(--sp-1);">ほかの記録にだけあるお名前</h3>
-          <p class="sec-note" style="margin-top:0;"><span class="nb">コンプライアンスの記録や</span><span class="nb">満期カレンダーにだけある</span><span class="nb">お名前です。</span><br><span class="nb">登録すると、</span><span class="nb">カルテでまとめて見られます。</span></p>
+          <p class="sec-note" style="margin-top:0;"><span class="nb">コンプライアンスの記録に</span><span class="nb">だけある</span><span class="nb">お名前です。</span><br><span class="nb">登録すると、</span><span class="nb">カルテでまとめて見られます。</span></p>
           <div id="otherList"></div>
         </div>
         <div class="empty hide" id="custEmpty">
@@ -1562,6 +1571,9 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
         <button class="btn btn-ghost btn-sm head-action" id="bdBtn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21h16v-7H4v7Z"/><path d="M4 14c1.6 0 1.6-1.4 3.2-1.4S8.8 14 10.4 14s1.6-1.4 3.2-1.4S15.2 14 16.8 14s1.6-1.4 3.2-1.4"/><path d="M8 9V7M12 9V6M16 9V7"/></svg>
           お誕生日登録</button>
+        <button class="btn btn-ghost btn-sm head-action" id="rnBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8"/><path d="M4 3.5V8h4.5"/><path d="M4 13a8 8 0 0 0 14.3 4.9L20 16"/><path d="M20 20.5V16h-4.5"/></svg>
+          更新の登録</button>
         </div>
       </div>
 
@@ -1587,7 +1599,7 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
           <span class="badge bg-KY">契約</span><span class="badge bg-TH">定期訪問</span>
           <span class="badge bg-BP">ビジネスパートナー訪問</span>
           <span class="badge bg-bd">誕生日（カルテから）</span>
-          <span class="badge bg-cf" id="legendCF">満期・更新など（満期カレンダーから）</span>
+          <span class="badge bg-cf" id="legendCF">更新・満期</span>
           <span class="badge bg-MT hide" id="legendMT">ミーティング</span>
           <span class="badge bg-HD hide" id="legendHD">休日出勤</span>
           <span class="badge bg-DK hide" id="legendDK">代休</span>
@@ -1868,6 +1880,50 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
   </div>
 </div>
 
+<!-- ================= 更新の登録（2026-10-26 ユーザー指示「お誕生日登録の横に更新の登録を追加。誰の何の保険の更新なのか分かるようにしてください」） ================= -->
+<div class="ovl hide" id="rnOvl" role="dialog" aria-modal="true" aria-labelledby="rnTitle">
+  <div class="sheet">
+    <div class="sheet-head">
+      <button class="icon-btn" id="rnClose" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+      <b id="rnTitle">更新の登録</b>
+    </div>
+    <div class="sheet-body">
+      <div class="frm">
+        <div class="fld full" style="position:relative;"><label for="rnName">お名前（どなたの保険か）</label>
+          <input type="text" id="rnName" autocomplete="off" placeholder="例：山田 花子">
+          <div class="cust-suggest hide" id="rnNameSuggest"></div>
+          <div class="hint">登録していない名前は、新しいお客様として登録します</div></div>
+        <div class="fld full hide" id="rnKonWrap"><label for="rnKon">この方の契約から選ぶ<span class="opt">（任意）</span></label>
+          <select id="rnKon"></select>
+          <div class="hint">選ぶと、保険会社と商品名が入ります</div></div>
+        <div class="fld"><label for="rnKind">保険の種類</label>
+          <select id="rnKind"></select></div>
+        <div class="fld"><label for="rnDate">更新日</label>
+          <div class="date-wrap"><input type="text" class="date-input" id="rnDate" readonly autocomplete="off" placeholder="押して日付を選ぶ"></div></div>
+        <div class="fld"><label for="rnCo">保険会社<span class="opt">（任意）</span></label>
+          <input type="text" id="rnCo" autocomplete="off" placeholder="例：〇〇損害保険"></div>
+        <div class="fld"><label for="rnPr">商品名<span class="opt">（任意）</span></label>
+          <input type="text" id="rnPr" autocomplete="off" placeholder="例：自家用車の総合保険"></div>
+        <div class="fld full"><label class="chk"><input type="checkbox" id="rnYear" checked><span>毎年、同じ日に更新する</span></label>
+          <div class="hint">自動車保険・火災保険のように毎年更新するものは入れたまま。10年ごとの更新などは外して、次の更新日を入れてください</div></div>
+        <div class="fld full"><label for="rnMemo">メモ<span class="opt">（任意）</span></label>
+          <input type="text" id="rnMemo" autocomplete="off" maxlength="200" placeholder="例：車の買い替えの予定あり"></div>
+      </div>
+      <div class="frm-actions" style="margin-top:var(--sp-3);">
+        <button class="btn btn-primary btn-sm" id="rnSave">登録する</button>
+        <button class="btn btn-ghost btn-sm hide" id="rnEditCancel">直すのをやめる</button>
+        <span id="rnErr" role="alert" style="font-weight:700;font-size:var(--fs-sm);align-self:center;"></span>
+      </div>
+      <h3 style="color:var(--navy);font-size:var(--fs-md);margin:var(--sp-5) 0 var(--sp-2);">登録済みの更新（次の更新日の近い順）</h3>
+      <div class="timeline" id="rnList"></div>
+    </div>
+    <div class="sheet-foot">
+      <button class="btn btn-ghost" id="rnCancel">閉じる</button>
+    </div>
+  </div>
+</div>
+
 <!-- ================= 活動の編集（カレンダーから開く） ================= -->
 <div class="ovl hide" id="aeOvl" role="dialog" aria-modal="true" aria-labelledby="aeTitle">
   <div class="sheet">
@@ -1970,7 +2026,7 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
             <div class="date-wrap"><input type="text" class="date-input" id="aeMat" readonly autocomplete="off" placeholder="押して日付を選ぶ"></div></div>
           <div class="fld"><label for="aePayEnd">払込満了日<span class="opt">（分かれば）</span></label>
             <div class="date-wrap"><input type="text" class="date-input" id="aePayEnd" readonly autocomplete="off" placeholder="押して日付を選ぶ"></div></div>
-          <p class="sec-note full" style="margin:0;">満期日・払込満了日を入れると、満期カレンダーとこのカレンダーに、声をかける日として出ます。</p>
+          <p class="sec-note full" style="margin:0;">満期日・払込満了日を入れると、営業活動のカレンダーに、声をかける日として出ます。</p>
         </div>
         <!-- 契約を記録する前に：この方の意向把握・比較推奨（管理画面の記録）と、ご高齢の方の確認（aeKyPreRender が描く） -->
         <div class="kk-pre hide" id="aeKyPre" aria-live="polite"></div>
@@ -2747,12 +2803,6 @@ function hubHref(h){
   var local = /\.html$/.test(p) && !/\/index\.html$/.test(p);
   return (local ? encodeURI('保険ツール管理画面.html') : HUB_URL) + (h || '');
 }
-/* 満期・年齢到達カレンダー（同じ場所の社内ツール） */
-function calendarHref(h){
-  var p = location.pathname;
-  var local = /\.html$/.test(p) && !/\/index\.html$/.test(p);
-  return (local ? encodeURI('保険満期カレンダー.html') : '../hoken-calendar/') + (h || '');
-}
 /* 顧客管理（契約ごとの提出書類。同じ場所の社内ツール） */
 function kokyakuHref(h){
   var p = location.pathname;
@@ -2949,7 +2999,7 @@ var DEFAULT_PRODUCTS = [
 
 var state = null;
 function defaultState(){
-  return { customers:[], activities:[], contracts:[],
+  return { customers:[], activities:[], contracts:[], renews:[],
     probs:{ AP:10, FF:25, PZ:50, CL:75 },
     rates: JSON.parse(JSON.stringify(DEFAULT_RATES)),
     products: JSON.parse(JSON.stringify(DEFAULT_PRODUCTS)),
@@ -2984,6 +3034,7 @@ function fromRaw(raw){
     o.board = o.board || [];
     o.contracts = o.contracts || [];
     o.activities = o.activities || [];
+    o.renews = Array.isArray(o.renews) ? o.renews : [];   /* 更新の登録（2026-10-26） */
     /* 段階・状態の無いお客様（前の版・取り込んだデータ）には既定を補う（一覧に空の札を出さない。ほかの項目は触らない） */
     o.customers.forEach(function(c){
       if (!c || typeof c !== 'object') return;
@@ -3027,7 +3078,7 @@ function mergeList(b, m, t, key){
 }
 function mergeStates(b, m, t){
   var out = t;
-  [['customers','id'],['activities','id'],['contracts','id'],['products','id'],['inbox','rid'],['board','pid']].forEach(function(p){
+  [['customers','id'],['activities','id'],['contracts','id'],['renews','id'],['products','id'],['inbox','rid'],['board','pid']].forEach(function(p){
     out[p[0]] = mergeList(b[p[0]], m[p[0]], t[p[0]], p[1]);
   });
   ['me','master','set','probs','rates'].forEach(function(k){ if (!jsonEq(m[k], b[k])) out[k] = m[k]; });
@@ -3089,6 +3140,7 @@ function reloadFromStorage(){
   otherWin = false; renderBars();
   if (!$('aeOvl').classList.contains('hide')) closeActEdit();
   if (!$('bdOvl').classList.contains('hide')) closeBdSheet();
+  if (!$('rnOvl').classList.contains('hide')) closeRnSheet();
   fillCustSelectors(); renderMe(); renderPicker('ae');
   refreshView();
 }
@@ -3187,7 +3239,7 @@ function cleanCon(k){
   if (!k || typeof k !== 'object' || !cId(k.id)) return null;
   var o = { id:k.id, cid:cId(k.cid), guest:cS(k.guest, 80), actId:cId(k.actId), date:cD(k.date), company:cS(k.company, 120), product:cS(k.product, 160),
     ptype:cS(k.ptype, 40), insured:cS(k.insured, 80), amt:Math.max(0, cN(k.amt)), mode:cOne(k.mode, ['m','h','y','s'], 'm'), payNote:cS(k.payNote, 200), pid:cId(k.pid) };
-  if (cD(k.mat)) o.mat = k.mat;          /* 満期日（2026-10-06。満期カレンダーへ写す） */
+  if (cD(k.mat)) o.mat = k.mat;          /* 満期日（2026-10-06。2026-10-26 からは営業活動のカレンダーに出す） */
   if (cD(k.payEnd)) o.payEnd = k.payEnd; /* 払込満了日 */
   if (k.src === 'csv') o.src = 'csv';    /* 保険会社の契約一覧（CSV）から取り込んだ契約（2026-10-24） */
   /* 前の版の項目（画面には出さないが、消さない） */
@@ -3221,6 +3273,7 @@ function cleanState(o){
   d.customers = cArr(o.customers, 5000, cleanCust);
   d.activities = cArr(o.activities, 50000, cleanAct);
   d.contracts = cArr(o.contracts, 20000, cleanCon);
+  d.renews = cArr(o.renews, 20000, cleanRn);   /* 更新の登録（2026-10-26） */
   if (Array.isArray(o.products)) d.products = cArr(o.products, 500, cleanProd);
   if (Array.isArray(o.rates) && o.rates.length) d.rates = cArr(o.rates, 20, function(r){
     return r && cS(r.id) ? { id:cS(r.id, 40), label:cS(r.label, 80), init:cN(r.init), renew:cN(r.renew), years:cN(r.years) } : null; });
@@ -3480,8 +3533,9 @@ function renderCust(){
 
 /* ---- 登録していないお名前（ほかの記録にだけある方。2026-10-07 ユーザー指示「学習教材と、顧客管理での調べるは別の検索できる場所に配置してください。
    顧客管理は営業ダッシュボードが中心で操作できるようにしてください」）。管理画面の「お客様をさがす」をここへ移した。
-   管理画面のコンプライアンスの記録（要約 KKC.feed()）と満期カレンダーの要約（calFeed()）にだけ残っているお名前を、
-   この検索で見つけ、記録を開く・満期カレンダーで見る・お客様として登録する、をここから行う。
+   管理画面のコンプライアンスの記録（要約 KKC.feed()）にだけ残っているお名前を、
+   この検索で見つけ、記録を開く・お客様として登録する、をここから行う。
+   （満期カレンダーの要約は 2026-10-26 に読むのをやめた。満期カレンダーを管理画面から外したため）
    ★登録済みのお客様と、活動だけの名前（下の「登録していない名前で残した記録」）は除く（同じお名前を二度出さない） ---- */
 function otherGroups(){
   var skip = {}, g = {};
@@ -3490,15 +3544,13 @@ function otherGroups(){
   function get(name){
     var k = nameKey(name);
     if (!k || skip[k]) return null;
-    return g[k] || (g[k] = { key: k, name: String(name).trim().replace(/[\s　]*(様|さま|殿)$/, ''), recs: [], cal: 0 });
+    return g[k] || (g[k] = { key: k, name: String(name).trim().replace(/[\s　]*(様|さま|殿)$/, ''), recs: [] });
   }
   var fd = typeof KKC !== 'undefined' ? KKC.feed() : null;
   if (fd) {
     fd.recs.forEach(function(r){ var o = get(r.no); if (o) o.recs.push(r); });
     fd.kujo.forEach(function(r){ var o = get(r.no); if (o) o.recs.push(r); });
   }
-  var cf = calFeed();
-  if (cf) cf.ev.forEach(function(e){ if (e.dn) return; var o = get(e.n); if (o) o.cal++; });
   return Object.keys(g).map(function(k){ return g[k]; }).sort(function(a, b){ return a.name < b.name ? -1 : 1; });
 }
 function renderOthers(toks){
@@ -3510,13 +3562,12 @@ function renderOthers(toks){
   $('otherList').innerHTML = list.slice(0, 8).map(function(o){
     var recs = o.recs.slice().sort(function(a, b){ return (KKC.recDate(b) || '') < (KKC.recDate(a) || '') ? -1 : 1; });
     return '<div class="guest-row"><span class="gr-t"><b>' + esc(o.name) + '様</b><br>' +
-      esc([recs.length ? 'コンプライアンスの記録 ' + recs.length + '件' : '', o.cal ? '満期カレンダー ' + o.cal + '件' : ''].filter(Boolean).join('・')) + '</span>' +
+      esc(recs.length ? 'コンプライアンスの記録 ' + recs.length + '件' : '') + '</span>' +
       recs.slice(0, 3).map(function(r){
         var d = KKC.recDate(r), nm = r.kind === 'kujo' ? '苦情・お申し出' : KKC.NAME[r.kind];
         return '<a class="btn btn-ghost btn-sm" href="' + esc(hubHref(KKC.openHash(r))) + '" target="katatsugi-hub">' + esc(nm + (d ? ' ' + fmtMd(d) : '')) +
           (r.miss && r.miss.length ? '（不備あり）' : '') + 'を開く</a>';
       }).join('') +
-      (o.cal ? '<a class="btn btn-ghost btn-sm" href="' + esc(calendarHref('#q=' + encodeURIComponent(o.name))) + '" target="katatsugi-calendar">満期カレンダーで見る</a>' : '') +
       '<button type="button" class="btn btn-primary btn-sm" data-onew="' + esc(o.name) + '">お客様として登録する</button></div>';
   }).join('') + (list.length > 8 ? '<p class="sec-note" style="margin:0;">ほか ' + (list.length - 8) + '人。お名前をもう少し入れてください。</p>' : '');
   return list.length;
@@ -3737,6 +3788,7 @@ function openDetail(id){
       '<dt>紹介元</dt><dd>' + esc(c.source || '—') + '</dd>' +
       lpfFamRows(c) +
       hoKarteRows(c) +
+      rnKarteRows(c) +
       '<dt>最後に会った日</dt><dd>' + esc(info.last ? fmtJpDate(info.last) : '記録なし') + '</dd>' +
       (info.next ? '<dt>次の予定</dt><dd>' + esc(fmtJpDate(info.next.date) + '・' + stageLabel(info.next.type)) + '</dd>' : '') +
       '<dt>次にやること</dt><dd>' + esc(c.next || '—') + '</dd>' +
@@ -3745,7 +3797,7 @@ function openDetail(id){
     '<div class="cd-actions">' +
       '<button class="btn btn-primary btn-sm" id="cdAct">この方の活動を記録する</button>' +
       '<button class="btn btn-ghost btn-sm" id="cdPrint">カルテを印刷</button>' +
-      '<a class="btn btn-ghost btn-sm" id="cdCal" href="' + esc(calendarHref('#q=' + encodeURIComponent(c.name))) + '" target="_blank" rel="noopener">満期カレンダーで探す</a>' +
+      '<button class="btn btn-ghost btn-sm" id="cdRn">この方の更新を登録する</button>' +
     '</div>' +
     '<div class="frm-actions">' +
       '<button class="btn btn-ghost btn-sm" id="cdEdit">編集</button>' +
@@ -3767,6 +3819,7 @@ function openDetail(id){
     b.addEventListener('click', function(){ openDetail(b.getAttribute('data-lpfam')); window.scrollTo(0, 0); });
   });
   $('cdPrint').addEventListener('click', function(){ window.print(); });
+  $('cdRn').addEventListener('click', function(){ openRnSheet('', id); });
   $('cdEdit').addEventListener('click', function(){ openCustForm(c); });
   var holdBtn = $('cdHold'), lostBtn = $('cdLost'), revBtn = $('cdRevive');
   if (holdBtn) holdBtn.addEventListener('click', function(){ c.status = 'hold'; save(); openDetail(id); });
@@ -3779,9 +3832,11 @@ function openDetail(id){
     state.customers = state.customers.filter(function(x){ return x.id !== id; });
     state.activities = state.activities.filter(function(a){ return a.cid !== id; });
     state.contracts = state.contracts.filter(function(k){ return k.cid !== id; });
+    var rns = (state.renews || []).filter(function(r){ return r.cid === id; });
+    state.renews = (state.renews || []).filter(function(r){ return r.cid !== id; });
     save(); detailCustId = null; renderCust();
     offerUndo('「' + c.name + '」様を削除しました。', function(){
-      putBack(state.customers, [c]); putBack(state.activities, acts); putBack(state.contracts, cons);
+      putBack(state.customers, [c]); putBack(state.activities, acts); putBack(state.contracts, cons); putBack(state.renews, rns);
     });
   });
 
@@ -4111,7 +4166,6 @@ function renderCal(){
   if (calY === null) { var t = new Date(); calY = t.getFullYear(); calM = t.getMonth(); }
   if (!selDate) selDate = todayStr();
   if (sampleMode) ensureSample();
-  $('legendCF').classList.toggle('hide', sampleMode || !calFeed());
   $('calTitle').textContent = calY + '年 ' + (calM + 1) + '月';
   /* 今週の動きをひと言（月曜はじまり）。サンプル表示中は実データと混ざらないよう何も出さない（断りの文も出さない＝2026-10-06 ユーザー指示） */
   if (sampleMode) {
@@ -4152,7 +4206,7 @@ function renderCal(){
     var s = ymd(d);
     var evs = actsOn(s);
     var bds = birthdaysOn(s);
-    var cfs = cfOn(s);   /* 満期カレンダーの声かけ（満期・更新など） */
+    var cfs = rnCalOn(s);   /* 更新の登録と、契約の満期日・払込満了日（2026-10-26） */
     var cls = ['cal-cell'];
     if (d.getMonth() !== calM) cls.push('out');
     if (d.getDay() === 0) cls.push('sun');
@@ -4166,7 +4220,7 @@ function renderCal(){
       '<button type="button" class="cal-pick" data-d="' + s + '"' +
       (s === selDate ? ' aria-current="date"' : '') +
       ' aria-label="' + esc(mdLabel + (evs.length ? '　記録' + evs.length + '件' : '　記録なし') +
-        (bds.length ? '　誕生日' + bds.length + '人' : '') + (cfs.length ? '　満期・更新など' + cfs.length + '件' : '') + (nAl ? '　要対応の契約' + nAl + '件' : '')) + '"></button>' +
+        (bds.length ? '　誕生日' + bds.length + '人' : '') + (cfs.length ? '　更新・満期' + cfs.length + '件' : '') + (nAl ? '　要対応の契約' + nAl + '件' : '')) + '"></button>' +
       '<button type="button" class="cal-add" data-add="' + s + '" aria-label="' + esc(mdLabel + 'に記録を追加') + '"><span class="ca-box">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>' +
       '</span></button>' +
@@ -4177,8 +4231,8 @@ function renderCal(){
           : '<span class="cal-ev bd">' + esc(o.c.name) + '様 <span class="bd-n">' + o.age + '歳お誕生日</span></span>';
       }).join('') +
       cfs.slice(0, Math.max(cap - bds.length - evs.length, 1)).map(function(e){
-        return narrow ? '<span class="cal-ev cf' + (e.dn ? ' cf-done' : '') + '" aria-hidden="true"></span>'
-          : '<span class="cal-ev cf' + (e.dn ? ' cf-done' : '') + '">' + esc(e.l) + ' ' + esc(cfName(e)) + '</span>';
+        return narrow ? '<span class="cal-ev cf" aria-hidden="true"></span>'
+          : '<span class="cal-ev cf rn">' + esc(e.n) + '様 <span class="bd-n">' + esc(e.w) + '</span></span>';
       }).join('') +
       evs.slice(0, Math.max(cap - bds.length, 1)).map(function(a){
         var al = actAl[a.id] || '', cl = 'cal-ev bg-' + a.type + (al ? ' kk-' + al : '');
@@ -4228,10 +4282,10 @@ function selectDate(s){
 function renderDay(){
   var evs = actsOn(selDate);
   var bds = birthdaysOn(selDate);
-  var cfs = cfOn(selDate), tdy = todayStr();
+  var cfs = rnCalOn(selDate);
   var html = '<div class="day-head"><b>' + esc(fmtJpDate(selDate)) + '</b>' +
     '<span class="day-n">' + (evs.length ? '記録' + evs.length + '件' : '記録なし') +
-    (bds.length ? '・誕生日' + bds.length + '人' : '') + (cfs.length ? '・満期・更新など' + cfs.length + '件' : '') + '</span>' +
+    (bds.length ? '・誕生日' + bds.length + '人' : '') + (cfs.length ? '・更新・満期' + cfs.length + '件' : '') + '</span>' +
     '<button class="btn btn-ghost btn-sm" id="dayAdd">この日に記録する</button></div>';
   html += bds.map(function(o){
     return '<div class="day-row bd">' +
@@ -4241,15 +4295,17 @@ function renderDay(){
       '<span class="tl-meta">' + (o.c.company ? esc(o.c.company) + '　' : '') + 'お祝いの連絡・保障の見直しのきっかけに</span></span>' +
       '<span class="day-go" style="color:var(--muted);">' + esc(fmtBirth(o.c.birth)) + '</span></div>';
   }).join('');
-  /* 満期カレンダーの声かけ：押すと満期カレンダーのその日を開く（連絡済みの印は満期カレンダーで付ける） */
+  /* 更新の登録（押すと登録の窓で直せる）と、契約の満期日・払込満了日（押すと契約の中身） */
   html += cfs.map(function(e){
-    var st = e.dn ? '<span class="tl-meta cf-done">連絡済み</span>'
-      : cfIsOver(e, tdy) ? '<span class="tl-meta cf-over">期限を過ぎて未連絡</span>' : '';
-    return '<a class="day-row cf" href="' + esc(cfHref(e)) + '" target="katatsugi-calendar">' +
+    var meta = e.t === 'rn' ? rnMeta(e.r) : [e.o.k.company, e.o.k.product].filter(Boolean).join('　');
+    var sub = e.t === 'rn' ? rnWhen(e.r) + (e.r.memo ? '　' + e.r.memo : '') : '契約の' + e.o.kl + '日（契約を記録したときの欄から）';
+    return '<button type="button" class="day-row cf" ' + (e.t === 'rn' ? 'data-rn="' + esc(e.r.id) + '"' : 'data-mk="' + esc(e.o.k.id) + '"') + '>' +
       '<span class="day-time">終日</span>' +
-      '<span class="day-body"><span>' + cfBadge(e) + ' ' + (cfName(e) ? '<b>' + esc(cfName(e)) + '</b>' : '') + '</span>' +
-      (e.p ? '<span class="tl-meta">' + esc(e.p) + '</span>' : '') + st + '</span>' +
-      '<span class="day-go">満期カレンダーで開く</span></a>';
+      '<span class="day-body"><span><span class="badge bg-cf">' + (e.t === 'rn' ? '更新' : esc(e.o.kl)) + '</span> ' +
+      '<b>' + esc(e.n) + '様</b> ' + esc(e.w) + '</span>' +
+      (meta ? '<span class="tl-meta">' + esc(meta) + '</span>' : '') +
+      '<span class="tl-meta">' + esc(sub) + '</span></span>' +
+      '<span class="day-go">' + (e.t === 'rn' ? '直す' : '契約を見る') + '</span></button>';
   }).join('');
   html += evs.map(function(a){
     var meta = [];
@@ -4279,6 +4335,17 @@ function renderDay(){
   $('dayAdd').addEventListener('click', function(){ openActNew(selDate); });
   $('dayPanel').querySelectorAll('button[data-e]').forEach(function(b){
     b.addEventListener('click', function(){ openEv(b.getAttribute('data-e'), { back: b }); });
+  });
+  $('dayPanel').querySelectorAll('button[data-rn]').forEach(function(b){
+    b.addEventListener('click', function(){ openRnSheet(b.getAttribute('data-rn')); });
+  });
+  $('dayPanel').querySelectorAll('button[data-mk]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var k = contractById(b.getAttribute('data-mk'));
+      if (!k) return;
+      if (k.actId && state.activities.some(function(a){ return a.id === k.actId; })) openEv(k.actId, { back: b });
+      else if (custById(k.cid)) { showTab('cust'); openDetail(k.cid); }
+    });
   });
 }
 
@@ -4727,48 +4794,16 @@ function renderAct(){
 }
 
 /* ============================================================
-   5-0. 満期カレンダーの声かけ（2026-10-06。今日の予定の箱は 2026-10-07 に外した）
-   ・満期カレンダーが書く要約（officem.hokenCalendar.feed.v1）を読むだけ。書き換えない
-   ・月の表に出すのは、ご契約の日（満期・更新・契約応当日・払込満了・年金の受取開始）だけ。
-     誕生日はこのツールのお客様から出しているので重ねない
+   5-0. カレンダーの「更新・満期」（2026-10-26）
+   ・前は満期カレンダーが書く声かけの要約（officem.hokenCalendar.feed.v1）を読んでいたが、
+     2026-10-26 ユーザー指示「写真2枚目の2ツールを削除」で満期カレンダーを管理画面から外したので、
+     このツールの記録（更新の登録・契約の満期日と払込満了日）から出す
    ============================================================ */
-var CF_KEY = 'officem.hokenCalendar.feed.v1';
-var CF_SHOW = { ann: 1, mat: 1, pay: 1, pen: 1 };
-var cfRaw = null, cfCache = null;
-function calFeed(){
-  var raw = null;
-  try { raw = localStorage.getItem(CF_KEY); } catch (e) { return null; }
-  if (raw === cfRaw) return cfCache;
-  cfRaw = raw; cfCache = null;
-  try {
-    var o = JSON.parse(raw || 'null');
-    if (o && typeof o === 'object' && Array.isArray(o.ev)) {
-      cfCache = { at: cS(o.at, 40), ev: o.ev.slice(0, 6000).filter(function(e){ return e && typeof e === 'object' && validYmd(e.d) && /^(bd|ann|mat|pay|pen|age)$/.test(e.t); })
-        .map(function(e){ return { d: e.d, t: e.t, l: cS(e.l, 40), n: cS(e.n, 80), p: cS(e.p, 200), cs: cS(e.cs, 80), dn: e.dn === 1 || e.dn === true, ov: e.ov === 1 || e.ov === true }; }) };
-    }
-  } catch (e) {}
-  return cfCache;
+function rnCalOn(s){
+  var out = rnOn(s).map(function(r){ return { t:'rn', r:r, n:custById(r.cid).name, w:rnWhat(r) + 'の更新' }; });
+  matOn(s).forEach(function(o){ out.push({ t:'mat', o:o, n:matName(o), w:matWhat(o) + 'の' + o.kl }); });
+  return out;
 }
-function cfOn(s){
-  var f = sampleMode ? null : calFeed();
-  return f ? f.ev.filter(function(e){ return e.d === s && CF_SHOW[e.t]; }) : [];
-}
-/* 期限を過ぎて、まだ連絡していないもの（満期カレンダーの「期限を過ぎて未連絡」と同じ考え方） */
-function cfIsOver(e, today){
-  if (e.dn) return false;
-  if (e.ov) return true;
-  if (e.d >= today) return false;
-  return e.t === 'mat' || e.t === 'pay' || e.t === 'pen' || (e.t === 'ann' && e.l === '更新の時期');
-}
-function cfBadge(e){ return '<span class="badge bg-cf">' + esc(e.l || '声かけ') + '</span>'; }
-function cfName(e){ return e.n ? e.n + '様' : ''; }
-function cfHref(e){ return calendarHref('#d=' + e.d); }
-
-/* 営業活動の頭の「今日」の箱（今日の予定と声かけ）は外した（2026-10-07 ユーザー指示「写真1枚目ここを削除」）。
-   予定はカレンダーとその日の一覧、声かけは月の表と満期カレンダーで見る */
-window.addEventListener('storage', function(e){
-  if (state && (e.key === CF_KEY || e.key === null) && curTab() === 'act') renderAct();
-});
 
 /* ============================================================
    5-1a. 契約の提出書類（顧客管理とつなぐ）
@@ -5409,7 +5444,7 @@ function kkTakeHash(){
     else offerUndo('このお客様は、この端末の営業ダッシュボードに見つかりませんでした。', null);
     return true;
   }
-  /* #q=お名前（満期カレンダーなどから）／#find（管理画面の「お客様をさがす」から）：顧客検索のタブで探す欄を開く。
+  /* #q=お名前（ほかの画面から）／#find（管理画面の「お客様をさがす」から）：顧客検索のタブで探す欄を開く。
      ★前は開いたときだけ読んでいた。開いたままのタブでも効くよう、ここで受ける */
   if (h === '#find' || h.indexOf('#q=') === 0) {
     var q = '';
@@ -5563,9 +5598,9 @@ document.addEventListener('keydown', function(ev){ if (ev.key === 'Escape' && tp
    生まれ年は type="date" だと打ちにくいので、和暦つきの年の一覧から選ぶ形にした。
    値は data-ymd に YYYY-MM-DD で持ち（保存はこれまでと同じ形）、見た目は「1993年6月3日」。
    ------------------------------------------------------------ */
-var DP_FIELDS = ['bdDate', 'cfBirth', 'aeDate', 'aeMat', 'aePayEnd'];
+var DP_FIELDS = ['bdDate', 'cfBirth', 'aeDate', 'aeMat', 'aePayEnd', 'rnDate'];
 var DP_MIN_YEAR = 1912;
-var DP_FUTURE = { aeDate: 1, aeMat: 80, aePayEnd: 80 };   /* 活動日は来年の予定まで・満期日と払込満了日は80年先まで選べる（誕生日は当年まで） */
+var DP_FUTURE = { aeDate: 1, aeMat: 80, aePayEnd: 80, rnDate: 10 };   /* 活動日は来年の予定まで・満期日と払込満了日は80年先・更新日は10年先まで選べる（誕生日は当年まで） */
 var dpField = null;    /* いま開いている誕生日欄のid */
 var dpView = null;     /* 一覧に出している年月 { y, m } */
 
@@ -5809,6 +5844,217 @@ $('bdSave').addEventListener('click', function(){
   err.style.color = 'var(--green)';
   err.textContent = isNew ? '「' + c.name + '」様を新しいお客様として登録し、誕生日を入れました。' : '「' + c.name + '」様の誕生日を登録しました。';
   setTimeout(function(){ err.textContent = ''; }, 4000);
+});
+
+/* ------------------------------------------------------------
+   更新の登録（2026-10-26 ユーザー指示「お誕生日登録の横に更新の登録を追加。誰の何の保険の更新なのか分かるようにしてください」）
+   ・1件＝どなたの（cid）・何の保険（kind 保険の種類・company 保険会社・product 商品名）・いつ（d 更新日）・毎年か（yr）
+   ・カレンダーのマスに「◯◯様／自動車保険の更新」、その日の一覧に保険会社と商品名まで出す
+   ・この方の契約から選ぶと、保険会社と商品名が入る（kid に契約の番号を残す）
+   ・あわせて、契約の満期日・払込満了日もこのカレンダーに出す（満期カレンダーを管理画面から外したため。2026-10-26）
+   ------------------------------------------------------------ */
+var RN_KINDS = ['自動車保険', '火災保険', '地震保険', '傷害保険', '賠償責任保険', '医療保険', 'がん保険', '定期保険', '収入保障保険', '介護保険', '終身保険', 'その他'];
+function cleanRn(r){
+  if (!r || typeof r !== 'object' || !cId(r.id) || !cId(r.cid) || !cD(r.d)) return null;
+  var o = { id:r.id, cid:r.cid, d:r.d, yr:r.yr !== false, kind:cS(r.kind, 40), company:cS(r.company, 120), product:cS(r.product, 160),
+    memo:cS(r.memo, 200), created:cN(r.created) };
+  if (cId(r.kid)) o.kid = r.kid;
+  return o;
+}
+function rnWhat(r){ return r.kind && r.kind !== 'その他' ? r.kind : (r.product || r.kind || '保険'); }
+function rnCust(r){ var c = custById(r.cid); return c && c.status !== 'lost' ? c : null; }
+/* その年の更新日（2月29日は、平年は2月28日に出す） */
+function rnDateIn(r, y){
+  var b = parseYmd(r.d), m = b.getMonth(), d = b.getDate();
+  if (m === 1 && d === 29 && !isLeap(y)) d = 28;
+  return ymd(new Date(y, m, d));
+}
+function rnOn(s){
+  var y = +s.slice(0, 4);
+  return (state.renews || []).filter(function(r){
+    if (!rnCust(r)) return false;
+    if (!r.yr) return r.d === s;
+    return s >= r.d && rnDateIn(r, y) === s;
+  });
+}
+function rnNext(r){
+  var t = todayStr();
+  if (!r.yr || r.d >= t) return r.d;
+  var y = +t.slice(0, 4), s = rnDateIn(r, y);
+  return s >= t ? s : rnDateIn(r, y + 1);
+}
+/* 契約の満期日・払込満了日（契約を記録したときの欄から） */
+function matOn(s){
+  var out = [];
+  state.contracts.forEach(function(k){
+    var c = custById(k.cid);
+    if (c && c.status === 'lost') return;
+    if (!c && !k.guest) return;
+    if (k.mat === s) out.push({ k:k, kl:'満期' });
+    if (k.payEnd === s) out.push({ k:k, kl:'払込満了' });
+  });
+  return out;
+}
+function matName(o){ var c = custById(o.k.cid); return c ? c.name : o.k.guest; }
+function matWhat(o){ return o.k.product || o.k.company || '契約'; }
+function rnMeta(r){
+  return [r.company, r.product && r.product !== rnWhat(r) ? r.product : ''].filter(Boolean).join('　');
+}
+function rnWhen(r){
+  var d = parseYmd(r.d);
+  return r.yr ? '毎年 ' + (d.getMonth() + 1) + '月' + d.getDate() + '日に更新' : (d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日の1回だけ');
+}
+/* カルテの「更新」の欄 */
+function rnKarteRows(c){
+  var list = (state.renews || []).filter(function(r){ return r.cid === c.id; })
+    .sort(function(a, b){ return rnNext(a) < rnNext(b) ? -1 : 1; });
+  if (!list.length) return '';
+  return '<dt>更新</dt><dd>' + list.map(function(r){
+    var n = parseYmd(rnNext(r));
+    return '<span class="rn-k">' + esc(rnWhat(r) + 'の更新') + (r.company ? '（' + esc(r.company) + '）' : '') + '　次は ' +
+      n.getFullYear() + '年' + (n.getMonth() + 1) + '月' + n.getDate() + '日</span>';
+  }).join('<br>') + '</dd>';
+}
+function renderRnList(){
+  var list = (state.renews || []).filter(function(r){ return !!custById(r.cid); })
+    .sort(function(a, b){ return rnNext(a) < rnNext(b) ? -1 : rnNext(a) > rnNext(b) ? 1 : (a.id < b.id ? -1 : 1); });
+  $('rnList').innerHTML = list.length ? list.map(function(r){
+    var c = custById(r.cid), n = parseYmd(rnNext(r)), meta = rnMeta(r);
+    return '<div class="tl-row rn-row' + (r.id === rnEditId ? ' rn-editing' : '') + '">' +
+      '<span class="tl-date">' + n.getFullYear() + '年<br>' + (n.getMonth() + 1) + '月' + n.getDate() + '日</span>' +
+      '<span class="tl-body"><b>' + esc(c.name) + '様</b> ' + esc(rnWhat(r)) + 'の更新' +
+      (meta ? '<div class="tl-meta">' + esc(meta) + '</div>' : '') +
+      '<div class="tl-meta">' + esc(rnWhen(r)) + (c.status === 'lost' ? '・失注のお客様のため、カレンダーには出していません' : '') + (r.memo ? '　' + esc(r.memo) : '') + '</div></span>' +
+      '<span class="tl-del rn-acts"><button type="button" class="btn btn-ghost btn-sm" data-rned="' + esc(r.id) + '">直す</button>' +
+      '<button class="icon-btn" data-rndel="' + esc(r.id) + '" aria-label="' + esc(c.name + '様の' + rnWhat(r) + 'の更新を消す') + '">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>' +
+      '</button></span></div>';
+  }).join('') : '<p class="day-none">まだ登録がありません。上の欄から登録できます。</p>';
+}
+$('rnList').addEventListener('click', function(ev){
+  var e = ev.target.closest('[data-rned]'), d = ev.target.closest('[data-rndel]');
+  if (e) { rnLoad(e.getAttribute('data-rned')); return; }
+  if (!d) return;
+  var id = d.getAttribute('data-rndel'), r = (state.renews || []).filter(function(x){ return x.id === id; })[0];
+  if (!r) return;
+  var c = custById(r.cid), nm = (c ? c.name + '様の' : '') + rnWhat(r) + 'の更新';
+  if (!confirm('「' + nm + '」を消しますか？（カルテと契約は残ります）')) return;
+  state.renews = state.renews.filter(function(x){ return x.id !== id; });
+  if (rnEditId === id) rnReset();
+  save(); renderRnList(); renderAct();
+  offerUndo('「' + nm + '」を消しました。', function(){ putBack(state.renews, [r]); if (!$('rnOvl').classList.contains('hide')) renderRnList(); });
+});
+var rnCid = '', rnKid = '', rnEditId = '';
+function rnFillKind(v){
+  $('rnKind').innerHTML = '<option value="">選んでください</option>' + RN_KINDS.map(function(k){
+    return '<option value="' + esc(k) + '">' + esc(k) + '</option>'; }).join('') +
+    (v && RN_KINDS.indexOf(v) < 0 ? '<option value="' + esc(v) + '">' + esc(v) + '</option>' : '');
+  $('rnKind').value = v || '';
+}
+/* この方の契約を選ぶ欄（契約が無い方は出さない） */
+function rnFillKon(){
+  var c = custById(rnCid);
+  var cons = c ? state.contracts.filter(function(k){ return k.cid === c.id; }).sort(function(a, b){ return (b.date || '') < (a.date || '') ? -1 : 1; }) : [];
+  $('rnKonWrap').classList.toggle('hide', !cons.length);
+  $('rnKon').innerHTML = '<option value="">選ばない</option>' + cons.map(function(k){
+    var lb = [k.date ? fmtMd(k.date) + '契約' : '', k.company, k.product].filter(Boolean).join('　') || '契約';
+    return '<option value="' + esc(k.id) + '">' + esc(lb) + '</option>';
+  }).join('');
+  $('rnKon').value = cons.some(function(k){ return k.id === rnKid; }) ? rnKid : '';
+}
+$('rnKon').addEventListener('change', function(){
+  rnKid = $('rnKon').value;
+  var k = rnKid ? contractById(rnKid) : null;
+  if (!k) return;
+  $('rnCo').value = k.company || '';
+  $('rnPr').value = k.product || '';
+});
+var rnSug = wireSuggest('rnName', 'rnNameSuggest',
+  function(c){ $('rnName').value = c.name; rnCid = c.id; rnKid = ''; rnFillKon(); },
+  function(){ rnCid = ''; rnKid = ''; rnFillKon(); });
+function rnReset(){
+  rnCid = ''; rnKid = ''; rnEditId = '';
+  ['rnName', 'rnCo', 'rnPr', 'rnMemo'].forEach(function(id){ $(id).value = ''; });
+  setDpValue('rnDate', ''); rnFillKind(''); $('rnYear').checked = true;
+  rnFillKon();
+  $('rnSave').textContent = '登録する';
+  $('rnEditCancel').classList.add('hide');
+  $('rnTitle').textContent = '更新の登録';
+}
+function rnLoad(id){
+  var r = (state.renews || []).filter(function(x){ return x.id === id; })[0], c = r && custById(r.cid);
+  if (!r || !c) return;
+  rnEditId = r.id; rnCid = c.id; rnKid = r.kid || '';
+  $('rnName').value = c.name; rnFillKon();
+  rnFillKind(r.kind); setDpValue('rnDate', r.d); $('rnYear').checked = r.yr;
+  $('rnCo').value = r.company; $('rnPr').value = r.product; $('rnMemo').value = r.memo;
+  $('rnSave').textContent = '直して保存';
+  $('rnEditCancel').classList.remove('hide');
+  $('rnTitle').textContent = '更新の登録を直す';
+  $('rnErr').textContent = '';
+  renderRnList();
+  $('rnOvl').querySelector('.sheet').scrollTop = 0;
+  $('rnName').focus();
+}
+function openRnSheet(editId, cid){
+  fillAeSelectors();
+  rnReset();
+  $('rnErr').textContent = '';
+  var pc = custById(cid);
+  if (pc) { $('rnName').value = pc.name; rnCid = pc.id; rnFillKon(); }
+  renderRnList();
+  $('rnOvl').classList.remove('hide');
+  document.body.style.overflow = 'hidden';
+  if (editId) rnLoad(editId); else $('rnName').focus();
+}
+function closeRnSheet(){
+  $('rnOvl').classList.add('hide');
+  document.body.style.overflow = '';
+  rnSug.hide();
+}
+$('rnBtn').addEventListener('click', function(){ openRnSheet(); });
+$('rnClose').addEventListener('click', closeRnSheet);
+$('rnCancel').addEventListener('click', closeRnSheet);
+$('rnEditCancel').addEventListener('click', function(){ rnReset(); $('rnErr').textContent = ''; renderRnList(); });
+$('rnOvl').addEventListener('click', function(ev){ if (ev.target === $('rnOvl')) closeRnSheet(); });
+document.addEventListener('keydown', function(ev){
+  if (ev.key === 'Escape' && !tpField && !dpField && !$('rnOvl').classList.contains('hide')) closeRnSheet();
+});
+$('rnSave').addEventListener('click', function(){
+  var err = $('rnErr');
+  err.style.color = 'var(--red-text)';
+  var name = $('rnName').value.trim();
+  if (!name) { err.textContent = 'どなたの保険か、お名前を入れてください。'; $('rnName').focus(); return; }
+  var kind = $('rnKind').value;
+  if (!kind) { err.textContent = '保険の種類を選んでください。'; $('rnKind').focus(); return; }
+  var d = dpValue('rnDate');
+  if (!d) { err.textContent = '更新日を選んでください。'; $('rnDate').focus(); return; }
+  var who = resolveWhoFor(name, rnCid);
+  if (who.dup) { err.textContent = '同じお名前の方が' + who.dup.length + '人います。お名前の候補から、会社名を見て選んでください。'; $('rnName').focus(); rnSug.show(); return; }
+  var c = who.cid ? custById(who.cid) : null;
+  var isNew = !c;
+  if (!c) {
+    c = { id: uid('c'), created: Date.now(), status:'active', name: name, kana:'', company:'', tel:'', birth:'',
+      source:'', stage:'AP', memo:'', next:'' };
+    state.customers.push(c);
+  }
+  if (!state.renews) state.renews = [];
+  var k = rnKid ? contractById(rnKid) : null;
+  var vals = { cid: c.id, d: d, yr: $('rnYear').checked, kind: kind, company: $('rnCo').value.trim().slice(0, 120),
+    product: $('rnPr').value.trim().slice(0, 160), memo: $('rnMemo').value.trim().slice(0, 200) };
+  var r = rnEditId ? state.renews.filter(function(x){ return x.id === rnEditId; })[0] : null;
+  var wasEdit = !!r;
+  if (!r) { r = { id: uid('rn'), created: Date.now() }; state.renews.push(r); }
+  Object.assign(r, vals);
+  if (k && k.cid === c.id) r.kid = k.id; else delete r.kid;
+  if (!save()) return;
+  fillCustSelectors(); fillAeSelectors();
+  rnReset(); renderRnList(); renderAct();
+  if (detailCustId === c.id && !$('custDetail').classList.contains('hide')) openDetail(c.id);
+  err.style.color = 'var(--green)';
+  err.textContent = (isNew ? '「' + c.name + '」様を新しいお客様として登録し、' : '「' + c.name + '」様の') +
+    rnWhat(r) + 'の更新を' + (wasEdit ? '直しました。' : '登録しました。') + 'カレンダーの' + fmtMd(rnNext(r)) + 'に出ます。';
+  setTimeout(function(){ err.textContent = ''; }, 5000);
 });
 
 /* ============================================================
@@ -6858,7 +7104,8 @@ function hoClean(o){
   var ks = cArr(o.contracts, 20000, cleanCon), kids = {};
   ks.forEach(function(k){ kids[k.id] = 1; });
   return { from:from, to:cS(o.to, 40).trim(), at:(typeof o.exportedAt === 'string' && !isNaN(Date.parse(o.exportedAt))) ? o.exportedAt : '', memo:o.memo === true,
-    customers:cust, activities:acts, contracts:ks, docs:hoCleanDocs(o.docs, kids), pno:hoCleanMap(o.pno, kids, 40), comp:hoCleanComp(o.comp, cs), lp:hoCleanMap(o.lp, cs),
+    customers:cust, activities:acts, contracts:ks, renews:cArr(o.renews, 20000, cleanRn).filter(function(r){ return cs[r.cid]; }),
+    docs:hoCleanDocs(o.docs, kids), pno:hoCleanMap(o.pno, kids, 40), comp:hoCleanComp(o.comp, cs), lp:hoCleanMap(o.lp, cs),
     kk:hoCleanKk(o.kk, kids) };
 }
 /* ライフプランとのつながり・上長の確認の印は、次の担当の端末に持ち込まない */
@@ -6911,8 +7158,12 @@ function hoBuild(cids, from, to, memo){
       comp.push({ cid:cid, kind:r.kind, date:r.date, ng:!!((r.miss && r.miss.length) || r.ng), open:r.open === true });
     });
   } catch (e) {}
+  /* 更新の登録（2026-10-26）。メモは連絡先と同じく、入れると選んだときだけ */
+  var rns = (state.renews || []).filter(function(r){ return set[r.cid]; }).map(function(r){
+    var o = JSON.parse(JSON.stringify(r)); if (!memo) o.memo = ''; return o;
+  });
   return { kind:HO_KIND, v:1, tool:TOOL_NAME, from:from, to:to, exportedAt:new Date().toISOString(), memo:!!memo,
-    customers:outC, activities:acts, contracts:ks, docs:docs, pno:pno, comp:comp, lp:lp, kk:kk };
+    customers:outC, activities:acts, contracts:ks, renews:rns, docs:docs, pno:pno, comp:comp, lp:lp, kk:kk };
 }
 var hoForm = null;
 function hoExport(err){
@@ -7009,6 +7260,10 @@ function hoMerge(d){
   d.activities.forEach(function(a){ if (haveA[a.id]) return; var o = JSON.parse(JSON.stringify(a)); o.cid = map[a.cid] || ''; state.activities.push(o); acts++; });
   var newK = {};
   d.contracts.forEach(function(k){ if (haveK[k.id]) return; var o = JSON.parse(JSON.stringify(k)); o.cid = map[k.cid] || ''; state.contracts.push(o); ks++; newK[k.id] = 1; });
+  /* 更新の登録（2026-10-26）。同じ番号は足さない。お客様は読み込んだ先の方へ付け替える */
+  if (!state.renews) state.renews = [];
+  var haveR = {}; state.renews.forEach(function(r){ haveR[r.id] = 1; });
+  (d.renews || []).forEach(function(r){ if (haveR[r.id] || !map[r.cid]) return; var o = JSON.parse(JSON.stringify(r)); o.cid = map[r.cid]; state.renews.push(o); });
   /* 証券番号と契約ごとの印は顧客管理の保存先へ（空のときだけ・足した契約だけ）。入れたことは是正の記録（hist）に残す */
   try {
     var kk = d.kk || { hen:{}, ex:{}, kh:{} }, now = new Date().toISOString();
@@ -7181,7 +7436,7 @@ function unwrapBackup(o){
   return { err: bad };
 }
 function countsOf(st){
-  return [['お客様', st.customers.length, '人'], ['活動の記録', st.activities.length, '件'], ['契約', st.contracts.length, '件'], ['取り扱い商品', st.products.length, '件']];
+  return [['お客様', st.customers.length, '人'], ['活動の記録', st.activities.length, '件'], ['契約', st.contracts.length, '件'], ['更新の登録', (st.renews || []).length, '件'], ['取り扱い商品', st.products.length, '件']];
 }
 function askImport(u){
   var cn = countsOf(u.data), cur = countsOf(state);
@@ -7214,7 +7469,7 @@ function askImport(u){
 /* 控えにだけある記録を足す（id が同じものは、いまのほうを残す） */
 function mergeAdd(cur, add){
   var out = {};
-  [['customers','id'],['activities','id'],['contracts','id'],['products','id'],['inbox','rid'],['board','pid']].forEach(function(p){
+  [['customers','id'],['activities','id'],['contracts','id'],['renews','id'],['products','id'],['inbox','rid'],['board','pid']].forEach(function(p){
     var have = {}; cur[p[0]].forEach(function(x){ have[x[p[1]]] = 1; });
     var n = 0;
     add[p[0]].forEach(function(x){ if (!have[x[p[1]]]) { cur[p[0]].push(x); n++; } });
@@ -7634,7 +7889,7 @@ function lpfNext(K, DK, nx, list, main, guest, seen){
 /* 書いている途中・窓を開いている途中は待つ（書きかけを崩さない） */
 function lpfBusy(){
   return !$('aeOvl').classList.contains('hide') || !$('evOvl').classList.contains('hide') || !$('bdOvl').classList.contains('hide') ||
-    !$('custForm').classList.contains('hide') || !!askDone;
+    !$('rnOvl').classList.contains('hide') || !$('custForm').classList.contains('hide') || !!askDone;
 }
 function lpfRun(){
   clearTimeout(lpfTimer);
@@ -7709,7 +7964,7 @@ function startApp(){
   refreshBoardTab();
   renderBackupInfo();
   /* マスタ取り込み時は設定タブの表示を上書きしない。
-     満期カレンダーなどから #q=お名前 で開いたときは、顧客検索のタブでその名前を探した形で開く */
+     ほかの画面から #q=お名前 で開いたときは、顧客検索のタブでその名前を探した形で開く */
   /* 顧客管理・管理画面から #ev=（記録の中身）／#cust=（カルテ）／#q=お名前・#find（顧客検索で探す）で開いたとき */
   if (kkTakeHash()) return;
   if (!takeSharedMaster()) {
@@ -7805,9 +8060,10 @@ if (isAuthed()) startApp(); else showLock();
     { k:'sales', w:'katatsugi-sales', f:'保険営業管理ツール.html', p:'hoken-sales/', h:'', n:'営業ダッシュボード', d:'予定・お客様・契約の記録' },
     { k:'kokyaku', w:'katatsugi-kokyaku', f:'保険顧客管理ツール.html', p:'hoken-kokyaku/', h:'', n:'顧客管理', d:'契約ごとの提出書類・代理店点検' },
     { k:'comp', w:'katatsugi-hub', f:'', p:'', h:'#compliance', n:'コンプライアンスの記録', d:'意向把握・比較推奨・適合性・苦情' },
-    { k:'cal', w:'katatsugi-calendar', f:'保険満期カレンダー.html', p:'hoken-calendar/', h:'', n:'満期・年齢到達カレンダー', d:'満期・更新・誕生日の声かけ' },
-    { k:'gyaku', w:'katatsugi-gyakusan', f:'保険目標逆算プランナー.html', p:'hoken-gyakusan/', h:'', n:'目標逆算プランナー', d:'実績の数から1日の接触を逆算' }
-  ];
+    /* x:1＝管理画面から外したツール（2026-10-26 ユーザー指示「写真2枚目の2ツールを削除」）。ほかの画面のメニューには出さず、そのツール自身を開いているときだけ「いまの画面」として出す */
+    { k:'cal', w:'katatsugi-calendar', f:'保険満期カレンダー.html', p:'hoken-calendar/', h:'', n:'満期・年齢到達カレンダー', d:'満期・更新・誕生日の声かけ', x:1 },
+    { k:'gyaku', w:'katatsugi-gyakusan', f:'保険目標逆算プランナー.html', p:'hoken-gyakusan/', h:'', n:'目標逆算プランナー', d:'実績の数から1日の接触を逆算', x:1 }
+  ].filter(function(t){ return !t.x || t.k === ME; });
   function local(){ var p = location.pathname; return /\.html$/.test(p) && !/\/index\.html$/.test(p); }
   function hubBase(){
     var a = document.getElementById('tbHome'), h = a ? (a.getAttribute('href') || '') : '';
