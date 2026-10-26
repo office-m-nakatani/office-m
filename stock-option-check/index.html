@@ -968,7 +968,7 @@ section .wrap .tsukami-q,section .wrap .age-note,section .wrap .caution{max-widt
 <!-- TOT-CSS-END -->
 </head>
 <body>
-<!-- OMGATE-BEGIN ★合言葉の扉。正本は hoken-gate-src/gate.html。ページ側を直接編集しないこと（apply_gate.py で入れ直すと消える） -->
+<!-- OMGATE-BEGIN ★IDとパスワードの扉。正本は hoken-gate-src/gate.html。ページ側を直接編集しないこと（apply_gate.py で入れ直すと消える） -->
 <style>
 /* ★中身は「開いていない限り隠す」＝ fail-closed。JavaScript が切られていても
    中身は出ない（class を足して隠す形にすると、JS 無しで素通りしてしまう） */
@@ -987,11 +987,12 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
 #omgate .og-ico svg{width:26px; height:26px}
 #omgate h1{margin:0; font-size:18px; font-weight:800; letter-spacing:.04em; line-height:1.6}
 #omgate .og-lead{margin:8px 0 20px; font-size:13px; color:#5d6b7c; line-height:1.9}
-#omgate input[type=password]{width:100%; font-family:inherit; font-size:17px; font-weight:500; letter-spacing:.06em;
+#omgate .og-lab{display:block; text-align:left; font-size:13px; font-weight:700; color:#33465c; margin:0 0 4px}
+#omgate input#omgate-i,#omgate input[type=password]{width:100%; font-family:inherit; font-size:17px; font-weight:500; letter-spacing:.06em;
   color:#2b3646; background:#fbfdff; border:1px solid #dae3ee; border-radius:13px; padding:14px 16px; outline:none;
-  text-align:center; transition:border-color .18s, box-shadow .18s}
-#omgate input[type=password]::placeholder{color:#8b9bad; font-weight:400; letter-spacing:.04em}
-#omgate input[type=password]:focus{border-color:#bed3f7; background:#fff; box-shadow:0 0 0 4px #eef4ff}
+  text-align:center; transition:border-color .18s, box-shadow .18s; min-height:50px; box-sizing:border-box}
+#omgate input#omgate-i{margin-bottom:12px; font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace}
+#omgate input#omgate-i:focus,#omgate input[type=password]:focus{border-color:#bed3f7; background:#fff; box-shadow:0 0 0 4px #eef4ff}
 #omgate .og-err{min-height:24px; font-size:13px; color:#b9645a; margin-top:8px}
 #omgate .og-keep{display:flex; align-items:center; justify-content:center; gap:8px; font-size:12.5px;
   color:#5d6b7c; margin:2px 0 16px; cursor:pointer}
@@ -1022,9 +1023,12 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
       </svg>
     </div>
     <h1 id="omgate-h">代理店さま専用のページです</h1>
-    <p class="og-lead">ご契約の代理店さまにお渡ししている<br>合言葉を入れてください。</p>
+    <p class="og-lead">ご契約の代理店さまにお渡ししている<br>IDとパスワードを入れてください。</p>
     <form id="omgate-f" autocomplete="off">
-      <input type="password" id="omgate-p" placeholder="合言葉" autocomplete="current-password" aria-label="合言葉">
+      <label class="og-lab" for="omgate-i">ID</label>
+      <input type="text" id="omgate-i" inputmode="numeric" autocomplete="username" autocapitalize="off" spellcheck="false" maxlength="20">
+      <label class="og-lab" for="omgate-p">パスワード</label>
+      <input type="password" id="omgate-p" autocomplete="current-password" maxlength="64">
       <div class="og-err" id="omgate-e" role="alert"></div>
       <label class="og-keep"><input type="checkbox" id="omgate-k" checked>この端末では30日間、次回から省略する</label>
       <button type="submit">開く</button>
@@ -1033,13 +1037,13 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
       <b>管理画面から開いた場合は、この画面は出ません。</b><br>
       <a href="https://office-m-nakatani.github.io/office-m/hoken-hub/">保険ツール管理画面をひらく</a><br><br>
       このページは代理店さまの社内学習用です。お客様への提示・転送はご遠慮ください。<br>
-      合言葉が分からないときは、ご契約時のご案内をご確認ください。
+      IDとパスワードが分からないときは、社内の管理者（社長・上長）にお尋ねください。
     </p>
   </div>
 </div>
 <script>
 /* ============================================================
-   合言葉の扉（2026-09-11 ユーザー指示）
+   IDとパスワードの扉（2026-09-11 ユーザー指示。2026-10-26 から合言葉1つではなくIDとパスワードの2つ）
    「URLをコピーして送付されたら情報が外に出てしまう。お客様専用の
      パスワードを入力してこのページに行った人でないと見れないように」
 
@@ -1049,10 +1053,10 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
 
    開いてよいのは次の3つ。どれも同じオリジン（office-m-nakatani.github.io）
    の中だけで完結する。
-     ① 管理画面（hoken-hub）で合言葉を入れた端末
+     ① 管理画面（hoken-hub）でログインした端末
         localStorage 'officem.hokenHub.auth'
         ★ハッシュの中身は照合しない。代理店ごとの専用管理画面
-          （make_agency.py が作る）は合言葉が違うので、
+          （make_agency.py が作る）はIDとパスワードが違うので、
           「どこかの管理画面が通した」ことだけを見る
      ② 共有リンクの枠の中（管理画面が iframe で開いたとき）
         sessionStorage 'officem.hokenGate.share'
@@ -1067,10 +1071,9 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
   var SHARE = 'officem.hokenGate.share';
   var TRIAL = 'officem.hokenGate.taiken';
   var SALT = 'officem-hoken-hub-2026|';
-  /* 受け付ける合言葉のソルト付きハッシュ（平文はどのファイルにも書かない）。
-     ★管理画面の PASS_HASHES と同じもの。ただし期限切れの臨時パスワードは入れていない */
-  var OKH = ['011b517160f7c9f0b9eb2007ad01cba186e7fd97f970fb12cdc299f5036f8292',
-             '438c03df96ee445897fee60e6c52ff454d3976192f6c3c4826a75e35d8dec226'];
+  /* 受け付ける印＝sha256(SALT + 'id:' + ID + '|pw:' + パスワード)（平文はどのファイルにも書かない）。
+     ★管理画面の PASS_HASHES と同じもの */
+  var OKH = ['edca5a0720eb230f3f1d4d319dd86c9dc79bdc9aea9f681c5557a4eedebd388b'];
   var DAYS = 30;
 
   function read(store, k) { try { return JSON.parse(store.getItem(k) || 'null'); } catch (e) { return null; } }
@@ -1107,14 +1110,15 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
 
   var f = document.getElementById('omgate-f');
   var inp = document.getElementById('omgate-p');
+  var idIn = document.getElementById('omgate-i');
   var err = document.getElementById('omgate-e');
   var keep = document.getElementById('omgate-k');
 
   /* crypto.subtle は https と localhost でしか使えない。無い環境では
-     合言葉を確かめられないので、入力欄を出さずに管理画面へ案内する */
+     IDとパスワードを確かめられないので、入力欄を出さずに管理画面へ案内する */
   var canHash = !!(window.crypto && window.crypto.subtle && window.TextEncoder);
   if (!canHash) {
-    if (f) f.innerHTML = '<div class="og-err">この画面では合言葉を確認できません。'
+    if (f) f.innerHTML = '<div class="og-err">この画面ではIDとパスワードを確認できません。'
       + 'お手数ですが、管理画面から開いてください。</div>';
     return;
   }
@@ -1129,27 +1133,29 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
 
   f.addEventListener('submit', function (e) {
     e.preventDefault();
-    var pw = (inp.value || '').trim();
-    if (!pw) { err.textContent = '合言葉を入れてください。'; return; }
+    var id = String(idIn.value || '').replace(/[０-９]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); }).replace(/[\s\u3000]/g, '');
+    var pw = inp.value || '';
+    if (!id) { err.textContent = 'IDを入れてください。'; idIn.focus(); return; }
+    if (!pw) { err.textContent = 'パスワードを入れてください。'; inp.focus(); return; }
     err.textContent = '';
-    sha256(SALT + pw).then(function (h) {
+    sha256(SALT + 'id:' + id + '|pw:' + pw).then(function (h) {
       if (OKH.indexOf(h) < 0) {
-        err.textContent = '合言葉がちがうようです。';
+        err.textContent = 'IDかパスワードが違います。';
         inp.value = ''; inp.focus();
         return;
       }
       try {
         if (keep && keep.checked) {
-          localStorage.setItem(AUTH, JSON.stringify({ h: h, e: Date.now() + DAYS * 86400000 }));
+          localStorage.setItem(AUTH, JSON.stringify({ h: h, e: Date.now() + DAYS * 86400000, i: id }));
         } else {
           sessionStorage.setItem(SHARE, JSON.stringify({ e: Date.now() + 12 * 3600000 }));
         }
       } catch (e2) { /* 保存できなくても、その場では開く */ }
       open_();
-    })['catch'](function () { err.textContent = 'この画面では合言葉を確認できませんでした。'; });
+    })['catch'](function () { err.textContent = 'この画面ではIDとパスワードを確認できませんでした。'; });
   });
 
-  setTimeout(function () { try { inp.focus(); } catch (e) {} }, 60);
+  setTimeout(function () { try { idIn.focus(); } catch (e) {} }, 60);
 })();
 </script>
 <!-- OMGATE-END -->
