@@ -1517,6 +1517,44 @@ svg.hub-mtface{clip-path:circle(50% at 50% 50%);}
 .cps-tocal .btn{min-height:44px;}
 tr.cps-lg-ng td{background:#fdf1ef;}
 tr.cps-lg-ng td:nth-child(4){color:#a8321f;font-weight:700;}
+/* 2026-10-27 入り方を2つだけに・人ごとのカード */
+@media (min-width:900px){ #auShare .cps-grid{grid-template-columns:1fr 1fr;align-items:start;} }
+#auShare .cps-who{display:inline-block;font-size:var(--fs-sm);font-weight:700;color:var(--coral-text);background:var(--coral-bg);border:1px solid var(--coral-border);border-radius:999px;padding:2px 12px;margin-bottom:8px;}
+#auShare .cps-step .cps-form{max-width:420px;}
+#auShare .cps-step .cps-form > .btn:not(.btn-sm){min-height:48px;padding-left:22px;padding-right:22px;}
+#auShare #cpsJoinIn,#auShare #cpsBossIn{font-size:1.15rem;letter-spacing:.06em;font-variant-numeric:tabular-nums;}
+#auShare .cps-mcode{flex:1 1 100%;display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;border-top:1px solid #e2e9ef;padding-top:10px;}
+#auShare .cps-mcode > span{font-size:var(--fs-sm);font-weight:700;color:var(--muted);}
+#auShare .cps-pw{font-size:1.3rem;letter-spacing:.06em;color:var(--navy);font-variant-numeric:tabular-nums;}
+.cps-pwbox{background:#fbfdff;border:1px solid #e2e9ef;border-radius:12px;padding:12px 14px;margin:0 0 12px;}
+.cps-pwbox.boss{background:#fffaf2;border-color:var(--amber-border);}
+.cps-pwbox h5{margin:0 0 4px;font-size:1rem;color:var(--navy);font-family:var(--mincho);font-weight:600;}
+.cps-pwbox .cps-code{margin:6px 0;font-size:1.5rem;letter-spacing:.08em;}
+.cps-pwbox .cps-small{font-size:var(--fs-sm);color:var(--muted);line-height:1.75;margin:4px 0;}
+#auShare .cps-pcs{display:grid;gap:14px;}
+@media (min-width:900px){ #auShare .cps-pcs{grid-template-columns:repeat(2,minmax(0,1fr));} }
+#auShare .cps-pc{background:var(--white);border:1px solid #e2e9ef;border-radius:14px;padding:14px 16px 12px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;}
+#auShare .cps-pc.has-bad,#auShare .cps-pc.bad{border-left:5px solid var(--coral-btn);}
+#auShare .cps-pc header{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;padding-bottom:8px;border-bottom:1px solid #edf1f4;}
+#auShare .cps-pc header b{font-size:1.12rem;color:var(--navy);}
+#auShare .cps-pc h5{margin:12px 0 4px;font-size:var(--fs-sm);font-weight:700;color:var(--muted);}
+#auShare .cps-pc-bad{color:var(--coral-text);}
+#auShare .cps-pc-l{list-style:none;margin:0;padding:0;}
+#auShare .cps-pc-l li{display:flex;flex-wrap:wrap;align-items:center;gap:2px 10px;padding:7px 0;border-bottom:1px dashed #edf1f4;line-height:1.6;}
+#auShare .cps-pc-l li:last-child{border-bottom:0;}
+#auShare .cps-pc-l .cps-miss{flex:1 1 100%;margin:0;}
+#auShare .cps-pc-l .au-mini{margin-left:auto;}
+#auShare .cps-pc-t{font-weight:700;}
+#auShare .cps-pc-s li{flex-wrap:nowrap;align-items:baseline;}
+#auShare .cps-pc-tm{flex:none;min-width:6.4em;font-variant-numeric:tabular-nums;color:var(--navy);font-weight:700;}
+#auShare .cps-pc-ty{flex:none;font-size:var(--fs-sm);color:var(--muted);min-width:5.5em;}
+#auShare .cps-pc-c{flex:1 1 auto;min-width:0;}
+#auShare .cps-pc-c .cps-note{display:block;}
+#auShare .cps-pc-ok{margin:4px 0;}
+#auShare .cps-pc footer{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding-top:10px;}
+@media (max-width:520px){ #auShare .cps-pc-s li{flex-wrap:wrap;} #auShare .cps-pc-ty{min-width:0;} #auShare .cps-pc-c{flex-basis:100%;} }
+#auShare p.cps-empty{max-width:40em}
+#auShare .cps-one{max-width:640px}
 /* CPSYNC-CSS-END */
 /* MEIBO-CSS-BEGIN 名簿と権限（2026-10-24）。色は管理画面の変数を借りる */
 .lock-card .l-back{font-size:var(--fs-sm);color:var(--navy);background:var(--sky-bg);border:1px solid var(--sky-border);border-radius:10px;padding:8px 12px;margin:-8px 0 16px;line-height:var(--lh-base);}
@@ -11206,11 +11244,21 @@ function auHandle(e) {
    ★記録は管理職の公開鍵で暗号化してから送る（ECDH P-256 → AES-GCM 256）。署名（ECDSA P-256）を付け、管理職の画面は端末ごとに最初に見た署名の鍵を覚えて照らす
    ★管理職の秘密の鍵は、管理職用の合言葉（PBKDF2 SHA-256 21万回）で包む。合言葉を忘れたら誰にも開けない（部屋を作り直す）
    ★管理職の画面で開いた中身はメモリの中だけ（保存しない）。「絶対に漏れません」とは説明しない
-   ★招待コード（部屋の番号）を知っている人は、記録を送れる（名前は本人が入れたもの）。権限の仕組みではない */
+   ★招待コード（部屋の番号）を知っている人は、記録を送れる（名前は本人が入れたもの）。権限の仕組みではない
+   ★★2026-10-27 に入り方を2つだけにした（ユーザー指示「もっとシンプルにしてください。今、クロームと携帯で作業しましたが、意味が分からなかったです。
+     管理職の人が発行したパスワードを従業員が入力すると、管理職の方から確認できるようにしてください。その際に名前を入力することで
+     誰が不備があって、誰が今日どのような動きをするかダッシュボードで確認できるようにしてください」）
+     ・管理職：「部下に渡すパスワードを発行する」を押すだけ。部下用パスワード（10文字）と管理職用パスワード（12文字）が出る。このパソコンは管理職用パスワードを覚え、次からは開くだけで管理職モード
+     ・部下：名前と部下用パスワードを入れて「つなぐ」だけ
+     ・部屋の番号は部下用パスワードから作る（PBKDF2 10万回）。管理職の秘密の鍵は管理職用パスワードで包み、管理職用パスワードから作った別の番号の場所（/kt/<番号>/cfg）に置く
+       ＝部下用パスワードを知っている人は記録を送れるが、ほかの人の記録は開けない（前と同じ線）
+     ・前の招待コード（32文字）でつないだ部下の端末は、そのまま送り続ける。前の作りの管理職モード（招待コード＋合言葉）は画面から外した
+     ・決まり（cpsync/rules.json）は変えていない */
 var CP_SYNC_URL = 'https://katatsugi-comp-default-rtdb.asia-southeast1.firebasedatabase.app';   /* OMCPSYNC */
 var CPS_KEY = 'officem.hokenHub.cpsync.v1', CPS_ITER = 210000, CPS_INFO = 'katatsugi-comp-v1';
 var cps = {}, cpsM = null, cpsSend = { st: 'idle', at: '', err: '' }, cpsT = null, cpsBusy = false, cpsAgain = false, cpsRetryT = null, cpsJoinCode = '', cpsPaintT = null;
 var cpsFilt = { who: '', bad: false, week: false };
+var CPS_ABC = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', CPS_MLEN = 10, CPS_BLEN = 12, CPS_DITER = 100000, cpsBossBusy = false;
 
 function cpsLoad() {
   var o = null;
@@ -11218,6 +11266,8 @@ function cpsLoad() {
   cps = o && typeof o === 'object' && !Array.isArray(o) ? o : {};
   if (!cpsRoomOk(cps.room) || !cps.mpub || !cps.sk || !cps.spk || !/^[0-9a-z]{16,40}$/.test(cps.dev || '')) { delete cps.room; delete cps.mpub; delete cps.sk; delete cps.spk; delete cps.dev; }
   if (!cpsRoomOk(cps.mroom)) delete cps.mroom;
+  /* 管理職のパソコンの覚え（2026-10-27）＝{ b: 管理職用パスワード, room, code: 部下用パスワード, at } */
+  if (!cps.boss || typeof cps.boss !== 'object' || !cpsCodeOk(cps.boss.b, CPS_BLEN) || !cpsRoomOk(cps.boss.room) || !cpsCodeOk(cps.boss.code, CPS_MLEN)) delete cps.boss;
   if (!cps.known || typeof cps.known !== 'object') cps.known = {};
   if (cps.last) cpsSend = { st: 'ok', at: cps.last, err: '' };
   /* 行き先の url を設定に写す（営業ダッシュボード・顧客管理が同じ部屋へ送るために読む。2026-10-24） */
@@ -11235,6 +11285,16 @@ function cpsRoomFrom(s) {
   return cpsRoomOk(s) ? s : '';
 }
 function cpsCodeFmt(r) { return String(r || '').replace(/(.{4})(?=.)/g, '$1-'); }
+/* パスワード（2026-10-27）＝間違えやすい字（I・O・0・1）を除いた英大文字と数字。全角・小文字・空白・ハイフンはそろえる */
+function cpsNorm(v) { var t = String(v || ''); try { t = t.normalize('NFKC'); } catch (e) {} return t.toUpperCase().replace(/[^A-Z0-9]/g, ''); }
+function cpsCodeOk(v, n) { return typeof v === 'string' && v.length === n && new RegExp('^[' + CPS_ABC + ']+$').test(v); }
+function cpsGen(n) { var a = cpsRand(n), t = ''; for (var i = 0; i < n; i++) t += CPS_ABC[a[i] % 32]; return t; }
+/* パスワードから部屋の番号を作る（部下用と管理職用で塩を分ける） */
+function cpsDerive(code, kind) {
+  return crypto.subtle.importKey('raw', cpsUtf(code), 'PBKDF2', false, ['deriveBits']).then(function (k) {
+    return crypto.subtle.deriveBits({ name: 'PBKDF2', salt: cpsUtf('katatsugi-comp-' + kind + '-v2'), iterations: CPS_DITER, hash: 'SHA-256' }, k, 128);
+  }).then(function (b) { return cpsHex(new Uint8Array(b)); });
+}
 function cpsUtf(s) { return new TextEncoder().encode(s); }
 function cpsRand(n) { var a = new Uint8Array(n); crypto.getRandomValues(a); return a; }
 function cpsHex(a) { var s = ''; for (var i = 0; i < a.length; i++) s += ('0' + a[i].toString(16)).slice(-2); return s; }
@@ -11250,6 +11310,8 @@ function cpsErrText(e) {
   var c = e && (e.code || e.message) || '';
   if (c === 'noroom') return 'この招待コードの部屋が見つかりません。招待コードを確かめてください';
   if (c === 'pass') return '合言葉が違います';
+  if (c === 'nomember') return 'このパスワードは見つかりません。管理職からもらったパスワード（英字と数字の10文字）を確かめてください';
+  if (c === 'noboss') return 'この管理職用パスワードは見つかりません。発行したときの12文字を確かめてください';
   if (c === 'denied') return '共有の行き先に書き込めませんでした（決まりで止められています）';
   if (c === 'keychg') return '管理職の鍵が、つないだときと変わっています。管理職に招待コードをもらい直してください';
   if (/^http/.test(c)) return '共有の行き先が応答しませんでした（' + c.replace('http', '') + '）';
@@ -11325,15 +11387,25 @@ function cpsCheckRoom() {
     else cpsPushNow();
   }, function () { cpsPushNow(); });
 }
-function cpsJoin(code) {
-  var room = cpsRoomFrom(code);
-  if (!room) { toast('招待コードは、英字と数字の32文字です（ハイフンは無くても構いません）'); return; }
-  if (!au.me.name) { toast('先に、この端末で記録する人の名前を入れてください'); cpMeInOpen(); return; }
-  var cfg = null;
+function cpsJoin(code, name) {
+  var raw = String(code || ''), legacy = cpsRoomFrom(raw), pass = cpsNorm(raw);
+  if (!legacy && pass.length === CPS_BLEN && cpsCodeOk(pass, CPS_BLEN)) { toast('これは管理職用のパスワードです。部下の方は、10文字の部下用パスワードを入れてください'); return; }
+  if (!legacy && !cpsCodeOk(pass, CPS_MLEN)) { toast('パスワードは、管理職からもらった英字と数字の10文字です（ハイフンは無くても構いません）'); return; }
+  /* 名前は、この画面で一緒に入れる（名簿で開いた方は名簿の名前） */
+  if (!mbMe()) {
+    var nm = cpName(name == null ? au.me.name : name);
+    if (!nm) { toast('名前を入れてください（管理職の画面に出る名前です）'); var ni = document.getElementById('cpsJoinName'); if (ni) ni.focus(); return; }
+    if (nm !== au.me.name) { au.me.name = nm; auSave(); }
+  }
+  if (!au.me.name) { toast('名前を入れてください（管理職の画面に出る名前です）'); return; }
+  var cfg = null, room = legacy;
   cpsBusyBtn('join', true);
-  cpsFetch(room + '/cfg').then(function (c) {
+  (legacy ? Promise.resolve(legacy) : cpsDerive(pass, 'room')).then(function (r) {
+    room = r;
+    return cpsFetch(room + '/cfg');
+  }).then(function (c) {
     cfg = c;
-    if (!cfg || !cfg.pub) throw cpsErr('noroom');
+    if (!cfg || !cfg.pub) throw cpsErr(legacy ? 'noroom' : 'nomember');
     return cpsImpPub(cfg.pub);
   }).then(function () {
     return crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, true, ['sign', 'verify']);
@@ -11343,7 +11415,7 @@ function cpsJoin(code) {
     cps.room = room; cps.mpub = cfg.pub; cps.dev = cpsHex(cpsRand(12)); cps.sk = cpsB64(ks[0]); cps.spk = cpsB64(ks[1]); cps.url = CP_SYNC_URL;
     cps.joined = cpNow(); delete cps.stop; delete cps.last; cpsSend = { st: 'idle', at: '', err: '' };
     cpsSave(); cpsJoinCode = '';
-    toast('管理職とつなぎました。記録を送ります');
+    toast('管理職とつなぎました。記録と予定を送ります');
     cpsRender(); cpsPushNow();
   }).catch(function (e) { cpsBusyBtn('join', false); toast(cpsErrText(e)); });
 }
@@ -11360,57 +11432,89 @@ function cpsLeave() {
   });
 }
 
-/* ---------- 管理職の方（部屋を作る・管理職モード） ---------- */
-function cpsCreate(name, pass, pass2) {
-  if (pass.length < 10) { toast('管理職用の合言葉は、10文字以上にしてください'); return; }
-  if (pass !== pass2) { toast('2回入れた合言葉が違います'); return; }
-  var kp, pub, salt = cpsRand(16), iv = cpsRand(12);
-  cpsBusyBtn('create', true);
+/* ---------- 管理職の方（パスワードを発行する・管理職モード）2026-10-27 ----------
+   部下用パスワード P（10文字）→ 部屋 room（部下が送る場所・管理職の公開鍵）
+   管理職用パスワード B（12文字）→ 番号 broom（管理職の秘密の鍵・room・P を B で包んだもの）。中身は前と同じ形の cfg（決まりは変えていない） */
+function cpsWrap(B, body) {
+  var salt = cpsRand(16), iv = cpsRand(12);
+  return cpsPassKey(B, salt, CPS_ITER).then(function (k) {
+    return crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, k, cpsUtf(JSON.stringify(body)));
+  }).then(function (ct) { return { salt: cpsB64(salt), iv: cpsB64(iv), ct: cpsB64(ct), it: CPS_ITER }; });
+}
+function cpsIssue() {
+  if (cpsBossBusy) return;
+  if (cps.boss && !confirm('このパソコンでは、もう発行してあります（部下用パスワード ' + cpsCodeFmt(cps.boss.code) + '）。\n新しく発行すると、部下の方には新しいパスワードでつなぎ直していただくことになります。発行しますか。')) return;
+  cpsBossBusy = true; cpsBusyBtn('issue', true);
+  var kp, pub, pk;
   crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveBits']).then(function (k) {
-    kp = k; return Promise.all([crypto.subtle.exportKey('pkcs8', k.privateKey), crypto.subtle.exportKey('raw', k.publicKey), cpsPassKey(pass, salt, CPS_ITER)]);
+    kp = k; return Promise.all([crypto.subtle.exportKey('pkcs8', k.privateKey), crypto.subtle.exportKey('raw', k.publicKey)]);
   }).then(function (x) {
-    pub = cpsB64(x[1]);
-    return crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, x[2], x[0]);
-  }).then(function (ct) {
-    var cfg = { v: 1, at: cpNow(), by: cpName(name || au.me.name || ''), pub: pub, salt: cpsB64(salt), iv: cpsB64(iv), ct: cpsB64(ct), it: CPS_ITER };
+    pk = cpsB64(x[0]); pub = cpsB64(x[1]);
     var tryPut = function (n) {
-      var room = cpsHex(cpsRand(16));
-      return cpsFetch(room + '/cfg', { method: 'PUT', body: JSON.stringify(cfg) }).then(function () { return room; }, function (e) {
-        if (e.code === 'denied' && n < 3) return tryPut(n + 1);   // 同じ番号の部屋が既にある（ほぼ起きない）
+      var P = cpsGen(CPS_MLEN), B = cpsGen(CPS_BLEN), room, broom;
+      return Promise.all([cpsDerive(P, 'room'), cpsDerive(B, 'boss')]).then(function (r) {
+        room = r[0]; broom = r[1];
+        return cpsWrap(B, { v: 2, room: room, pk: pk, code: P });
+      }).then(function (w) {
+        var cfg = { v: 2, at: cpNow(), by: cpName(au.me.name || ''), pub: pub, salt: w.salt, iv: w.iv, ct: w.ct, it: w.it };
+        return cpsFetch(broom + '/cfg', { method: 'PUT', body: JSON.stringify(cfg) }).then(function () {
+          return cpsFetch(room + '/cfg', { method: 'PUT', body: JSON.stringify(cfg) });
+        });
+      }).then(function () { return { P: P, B: B, room: room }; }, function (e) {
+        if (e.code === 'denied' && n < 3) return tryPut(n + 1);   // 同じ番号の場所が既にある（ほぼ起きない）
         throw e;
       });
     };
     return tryPut(1);
-  }).then(function (room) {
-    cps.mroom = room; cpsSave();
-    cpsM = cpsMNew(room, kp.privateKey, pub);
-    cpsMStart();
-    cpsRender();
-    cpsInvite();
-  }).catch(function (e) { cpsBusyBtn('create', false); toast(cpsErrText(e)); });
+  }).then(function (r) {
+    cps.boss = { b: r.B, room: r.room, code: r.P, at: cpNow() }; cpsSave();
+    if (cpsM && cpsM.es) { try { cpsM.es.close(); } catch (e) {} }
+    cpsM = cpsMNew(r.room, kp.privateKey, pub); cpsM.code = r.P;
+    cpsMStart(); cpsRender(); cpsInvite(true);
+  }).catch(function (e) { toast(cpsErrText(e)); })
+    .then(function () { cpsBossBusy = false; cpsBusyBtn('issue', false); });
 }
-function cpsEnter(code, pass) {
-  var room = cpsRoomFrom(code);
-  if (!room) { toast('招待コードは、英字と数字の32文字です'); return; }
-  if (!pass) { toast('管理職用の合言葉を入れてください'); return; }
-  var cfg;
-  cpsBusyBtn('enter', true);
-  cpsFetch(room + '/cfg').then(function (c) {
+/* 管理職用パスワードで管理職モードに入る（ほかのパソコン・このパソコンで開き直したとき）。quiet＝開いたときに自動で入る */
+function cpsBossEnter(raw, quiet) {
+  var B = cpsNorm(raw);
+  if (!cpsCodeOk(B, CPS_BLEN)) {
+    if (!quiet) toast(B.length === CPS_MLEN ? 'これは部下用のパスワードです。管理職用パスワード（12文字）を入れてください' : '管理職用パスワードは、英字と数字の12文字です');
+    return Promise.resolve();
+  }
+  if (cpsBossBusy) return Promise.resolve();
+  cpsBossBusy = true; cpsBusyBtn('benter', true);
+  var cfg, inner;
+  return cpsDerive(B, 'boss').then(function (broom) { return cpsFetch(broom + '/cfg'); }).then(function (c) {
     cfg = c;
-    if (!cfg || !cfg.pub || !cfg.salt || !cfg.ct) throw cpsErr('noroom');
+    if (!cfg || !cfg.pub || !cfg.salt || !cfg.ct) throw cpsErr('noboss');
     var it = Math.min(2000000, Math.max(100000, Number(cfg.it) || CPS_ITER));
-    return cpsPassKey(pass, cpsUnb64(cfg.salt), it);
+    return cpsPassKey(B, cpsUnb64(cfg.salt), it);
   }).then(function (k) {
-    return crypto.subtle.decrypt({ name: 'AES-GCM', iv: cpsUnb64(cfg.iv) }, k, cpsUnb64(cfg.ct)).catch(function () { throw cpsErr('pass'); });
-  }).then(function (pk) {
-    return crypto.subtle.importKey('pkcs8', pk, { name: 'ECDH', namedCurve: 'P-256' }, false, ['deriveBits']);
+    return crypto.subtle.decrypt({ name: 'AES-GCM', iv: cpsUnb64(cfg.iv) }, k, cpsUnb64(cfg.ct)).catch(function () { throw cpsErr('noboss'); });
+  }).then(function (pt) {
+    inner = JSON.parse(new TextDecoder().decode(pt));
+    if (!inner || !cpsRoomOk(inner.room) || !inner.pk || !cpsCodeOk(inner.code, CPS_MLEN)) throw cpsErr('noboss');
+    return crypto.subtle.importKey('pkcs8', cpsUnb64(inner.pk), { name: 'ECDH', namedCurve: 'P-256' }, false, ['deriveBits']);
   }).then(function (priv) {
-    cps.mroom = room; cpsSave();
-    cpsM = cpsMNew(room, priv, cfg.pub);
-    cpsMStart();
-    cpsRender();
-    toast('管理職モードに入りました');
-  }).catch(function (e) { cpsBusyBtn('enter', false); toast(cpsErrText(e)); });
+    cps.boss = { b: B, room: inner.room, code: inner.code, at: (cps.boss && cps.boss.b === B && cps.boss.at) || cpNow() }; cpsSave();
+    if (cpsM && cpsM.es) { try { cpsM.es.close(); } catch (e) {} }
+    cpsM = cpsMNew(inner.room, priv, cfg.pub); cpsM.code = inner.code;
+    cpsMStart(); cpsRender();
+    if (!quiet) toast('管理職モードに入りました');
+  }).catch(function (e) {
+    if (quiet) { cpsMOff = cpsErrText(e); cpsRender(); }
+    else toast(cpsErrText(e));
+  }).then(function () { cpsBossBusy = false; cpsBusyBtn('benter', false); });
+}
+var cpsMOff = '';
+/* このパソコンで管理職モードを使うのをやめる（覚えている管理職用パスワードを消す。部下の方の記録は消えない） */
+function cpsForget() {
+  var b = cps.boss ? cpsCodeFmt(cps.boss.b) : '';
+  if (!confirm('このパソコンで管理職モードを使うのをやめますか。\nもう一度見るときは、管理職用パスワード（' + b + '）が要ります。控えてから押してください。\n部下の方の記録と、部下の方のつながりはそのままです。')) return;
+  delete cps.boss; delete cps.mroom; cpsSave(); cpsMOff = '';
+  if (cpsM) { if (cpsM.es) { try { cpsM.es.close(); } catch (e) {} } clearTimeout(cpsM.rt); cpsM = null; }
+  toast('このパソコンでは、管理職モードを使わなくなりました（見ていた記録は、このパソコンに残していません）');
+  cpsRender(); cpsHomeLater();
 }
 function cpsMNew(room, priv, pub) { return { room: room, priv: priv, pub: pub, devs: {}, live: [], fresh: {}, st: 'wait', es: null, er: 0, loaded: false, seq: {}, open: '' }; }
 function cpsExit() {
@@ -11623,6 +11727,7 @@ function cpsTileFlags() {
     return out;
   }
   if (cps.room) return [cpsSend.st === 'err' ? cpFlagT('amber', '送れていません') : cpFlagT('ok', '管理職とつながっています')];
+  if (cps.boss) return ['<span>管理職モードに入っています…</span>'];
   return ['<span>まだつないでいません</span>'];
 }
 
@@ -11648,53 +11753,58 @@ function cpsRender() {
       '共有の行き先（データベース）が、まだ用意されていません。用意ができると、ここから使えます。') + '</p></div>';
   } else if (cpsM) {
     h = '<div class="cps-mtop"><div><h4 class="cps-mt">管理職モード</h4><span id="cpsMSt">' + cpsPill(cpsM.st) + '</span></div>' +
-      '<div class="cps-mbtns"><button type="button" class="btn btn-ghost btn-sm" data-cps="invite">招待コードを見る</button>' +
-      '<button type="button" class="btn btn-ghost btn-sm" data-cps="exit">管理職モードを出る</button></div></div>' +
+      '<div class="cps-mbtns"><button type="button" class="btn btn-ghost btn-sm" data-cps="invite">パスワードを見る</button>' +
+      '<button type="button" class="btn btn-ghost btn-sm" data-cps="forget">このパソコンではやめる</button></div>' +
+      (cpsM.code ? '<div class="cps-mcode"><span>部下に渡すパスワード</span><b class="cps-pw">' + esc(cpsCodeFmt(cpsM.code)) + '</b>' +
+        '<button type="button" class="btn btn-primary btn-sm" data-cps="copym">コピー</button></div>' : '') + '</div>' +
       '<div id="cpsMBody">' + cpsMBodyHTML() + '</div>';
+  } else if (cps.boss && !cpsMOff) {
+    h = '<div class="cps-card"><h4>管理職モード</h4><p class="cps-small" role="status">管理職モードに入っています…</p></div>';
   } else {
-    h = '<div class="cps-grid">' + cpsMemberHTML() + cpsBossHTML() + '</div>';
+    /* つないだ部下の端末は、管理職のカードを出さない（1枚だけにして迷わせない。共有をやめると2枚に戻る） */
+    h = cps.room ? '<div class="cps-one">' + cpsMemberHTML() + '</div>' : '<div class="cps-grid">' + cpsMemberHTML() + cpsBossHTML() + '</div>';
   }
-  h += '<div class="cp-about"><h3>この画面について</h3><p class="au-lead">部下の方がコンプライアンスの記録・営業ダッシュボードの予定・顧客管理の契約を保存すると、管理職のパソコンの画面に<b>すぐに届きます</b>（インターネットにつながっているあいだ）。' +
-    '管理職モードでは、部下の方ごとのスケジュール・お客様の段階（商談プロセス）・契約ごとの提出書類の状態・記録の不備が分かります（一般モード＝部下の方の画面は、今までどおりです）。記録を書いたり直したりできるのは、記録した本人の端末だけです。</p>' +
+  h += '<div class="cp-about"><h3>この画面について</h3><p class="au-lead">部下の方が、名前と<b>管理職から渡されたパスワード</b>を入れて「つなぐ」を押すと、コンプライアンスの記録・営業ダッシュボードの予定・顧客管理の契約を保存するたびに、管理職のパソコンの画面に<b>すぐに届きます</b>（インターネットにつながっているあいだ）。' +
+    '管理職モードでは、部下の方ごとの記録の不備・今日の予定・スケジュール・お客様の段階（商談プロセス）・契約ごとの提出書類の状態が分かります（部下の方の画面は、今までどおりです）。記録を書いたり直したりできるのは、記録した本人の端末だけです。</p>' +
     '<ul class="cps-ul"><li>届くのは要約です。予定の日時・種類・顧客名・場所・同席者、お客様の名前・会社名・段階・状態・次にやること、契約ごとの提出書類の状態と知らせ、コンプライアンスの記録。<b>活動の内容メモ・備考・お客様の連絡先・生年月日・保険料は届きません。</b></li>' +
-    '<li>送る中身は、管理職の鍵で暗号化してから送ります。開けるのは、管理職用の合言葉を知っている人だけです。それでも、お客様のお名前が入った記録を社外の場所に置くことになるので、所属保険会社の決まりと社内規則で扱いを確かめてください。</li>' +
-    '<li>管理職用の合言葉を忘れると、誰にも開けません（部屋を作り直し、部下の方につなぎ直していただきます）。上司・社長など何人かで見るときは、同じ招待コードと合言葉を口頭か紙でお伝えください（メールに一緒に書かないでください）。</li>' +
-    '<li>招待コードを知っている人は、記録を送ることができます。届いた記録の名前は、送った本人が入れたものです。この画面は権限の仕組みではありません。</li>' +
-    '<li>管理職の画面で見た記録は、そのパソコンに残しません（管理職モードを出るか、画面を閉じると消えます）。</li></ul></div>';
+    '<li>送る中身は、管理職の鍵で暗号化してから送ります。開けるのは、管理職用パスワードを知っている人だけです（部下用パスワードでは、ほかの方の記録は開けません）。それでも、お客様のお名前が入った記録を社外の場所に置くことになるので、所属保険会社の決まりと社内規則で扱いを確かめてください。</li>' +
+    '<li>管理職用パスワードは、発行したパソコンが覚えます（次からは、この画面を開くだけで管理職モードになります）。ほかの方と一緒に使うパソコンでは「このパソコンではやめる」を押してください。管理職用パスワードを忘れると誰にも開けないので、紙に控えてください。上司・社長など何人かで見るときは、管理職用パスワードを口頭か紙でお伝えください（メールに部下用パスワードと一緒に書かないでください）。</li>' +
+    '<li>部下用パスワードを知っている人は、記録を送ることができます。届いた記録の名前は、送った本人が入れたものです。この画面は権限の仕組みではありません。</li>' +
+    '<li>管理職の画面で見た記録は、そのパソコンに残しません（画面を閉じると消えます）。</li></ul></div>';
   host.innerHTML = h;
   auCardify(host);
 }
 function cpsMemberHTML() {
-  var h = '<div class="cps-card"><h4>営業の方：記録を管理職と共有する</h4>';
+  var h = '<div class="cps-card cps-step"><span class="cps-who">営業の方（部下）</span><h4>管理職とつなぐ</h4>';
   if (cps.room) {
     var stop = cps.stop ? '<p class="cps-warn">' + esc(cpsErrText(cpsErr(cps.stop))) + '</p>' : '';
-    h += '<p>この端末の記録を、管理職のパソコンへ送っています。保存するたびに、すぐ届きます。</p>' + stop +
+    h += '<p>この端末の記録と予定を、管理職のパソコンへ送っています。保存するたびに、すぐ届きます。</p>' + stop +
       '<div class="cps-row cps-stat" id="cpsSendSt">' + cpsSendHTML() + '</div>' +
-      '<p class="cps-small">つないだ部屋：' + esc(cps.room.slice(0, 4)) + '-…（招待コードの頭4文字）・記録する人：' + esc(au.me.name || '（未記入）') + '</p>' +
+      '<p class="cps-small">管理職の画面に出る名前：<b>' + esc(au.me.name || '（未記入）') + '</b></p>' +
       '<div class="cps-row"><button type="button" class="btn btn-primary btn-sm" data-cps="push">いますぐ送る</button>' +
       '<button type="button" class="btn btn-ghost btn-sm" data-cps="leave">共有をやめる</button></div>' +
       '<p class="cps-small">送るのは、この端末のコンプライアンスの記録（意向把握・比較推奨・適合性の確認・乗換と早期解約・苦情）と、営業ダッシュボードの予定・お客様の段階、顧客管理の契約ごとの提出書類の状態です。活動の内容メモ・備考・お客様の連絡先・生年月日・保険料は送りません。</p>';
   } else {
-    h += '<p>管理職からもらった<b>招待コード</b>を入れると、記録を保存するたびに、管理職のパソコンへすぐ届きます。</p>' +
-      (au.me.name ? '' : '<p class="cps-warn">先に、上の「名前を入れる」から、この端末で記録する人の名前を入れてください（管理職の画面に出る名前です）。</p>') +
-      '<div class="cps-row"><label class="cps-lab">招待コード<input type="text" id="cpsJoinIn" autocomplete="off" spellcheck="false" placeholder="例：1a2b-3c4d-…（32文字）" value="' + esc(cpsJoinCode) + '"></label>' +
-      '<button type="button" class="btn btn-primary btn-sm" data-cps="join">管理職とつなぐ</button></div>';
+    var me = mbMe();
+    h += '<p>名前と、管理職から渡された<b>パスワード</b>を入れて「つなぐ」を押してください。</p>' +
+      '<div class="cps-form">' +
+      (me ? '<p class="cps-small">名前：<b>' + esc(au.me.name) + '</b>（名簿の名前）</p>' :
+        '<label class="cps-lab">名前<input type="text" id="cpsJoinName" maxlength="40" autocomplete="name" placeholder="例：山田 太郎" value="' + esc(au.me.name || cpOtherName() || '') + '"></label>') +
+      '<label class="cps-lab">パスワード（英字と数字の10文字）<input type="text" id="cpsJoinIn" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="例：ABCD-EFGH-JK" value="' + esc(cpsJoinCode) + '"></label>' +
+      '<button type="button" class="btn btn-primary" data-cps="join">つなぐ</button></div>';
   }
   return h + '</div>';
 }
 function cpsBossHTML() {
-  if (!mbCan('mgr')) return '<div class="cps-card"><h4>管理職モード</h4><p>管理職モード（部下の方の記録・予定・提出書類を見る画面）は、名簿で上長・社長の方が使います。</p></div>';
-  return '<div class="cps-card"><h4>管理職の方：部下の記録を見る</h4>' +
-    '<div class="cps-boss-in' + (cps.mroom ? '' : ' two') + '"><div><p>招待コードと<b>管理職用の合言葉</b>で、管理職モードに入ります。部下の方の記録の不備と、追加・更新された記録が、その場で届きます。</p>' +
-    '<div class="cps-form"><label class="cps-lab">招待コード<input type="text" id="cpsEnCode" autocomplete="off" spellcheck="false" placeholder="32文字" value="' + esc(cps.mroom ? cpsCodeFmt(cps.mroom) : '') + '"></label>' +
-    '<label class="cps-lab">管理職用の合言葉<input type="password" id="cpsEnPass" autocomplete="current-password"></label>' +
-    '<button type="button" class="btn btn-primary btn-sm" data-cps="enter">管理職モードに入る</button></div></div>' +
-    '<details class="cps-new"' + (cps.mroom ? '' : ' open') + '><summary>はじめて使うとき：共有を始める（部屋を作る）</summary>' +
-    '<p>部屋を1つ作り、部下の方に渡す招待コードを出します。合言葉は10文字以上で、管理職の方だけが知るものにしてください。</p>' +
-    '<div class="cps-form"><label class="cps-lab">作る人の名前<input type="text" id="cpsNwName" maxlength="40" value="' + esc(au.me.name) + '"></label>' +
-    '<label class="cps-lab">管理職用の合言葉（10文字以上）<input type="password" id="cpsNwPass" autocomplete="new-password"></label>' +
-    '<label class="cps-lab">もう一度<input type="password" id="cpsNwPass2" autocomplete="new-password"></label>' +
-    '<button type="button" class="btn btn-ghost btn-sm" data-cps="create">共有を始める</button></div></details></div></div>';
+  if (!mbCan('mgr')) return '<div class="cps-card cps-step"><span class="cps-who">管理職の方</span><h4>管理職モード</h4><p>管理職モード（部下の方の記録・予定・提出書類を見る画面）は、名簿で上長・社長の方が使います。</p></div>';
+  return '<div class="cps-card cps-step"><span class="cps-who">管理職の方</span><h4>部下の動きを見る</h4>' +
+    (cpsMOff ? '<p class="cps-warn">' + esc(cpsMOff) + '</p>' : '') +
+    '<p>ボタンを押すと、<b>部下に渡すパスワード</b>が出ます。部下の方が名前とそのパスワードを入れると、誰の記録に不備があるか・今日どんな予定かが、この画面に出ます。</p>' +
+    '<div class="cps-form"><button type="button" class="btn btn-primary" data-cps="issue">部下に渡すパスワードを発行する</button></div>' +
+    '<details class="cps-new"><summary>ほかのパソコン（社長など）で見るとき</summary>' +
+    '<p class="cps-small">発行したときに出た<b>管理職用パスワード</b>（12文字）を入れてください。部下用のパスワードでは入れません。</p>' +
+    '<div class="cps-form"><label class="cps-lab">管理職用パスワード<input type="password" id="cpsBossIn" autocomplete="off" spellcheck="false" placeholder="例：ABCD-EFGH-JKLM"></label>' +
+    '<button type="button" class="btn btn-ghost btn-sm" data-cps="benter">管理職モードに入る</button></div></details></div>';
 }
 var CPS_TY = { add: '追加', upd: '更新', del: '削除', leave: '共有をやめた', sync: '予定・契約の要約' };
 /* ---------- 管理職モードの画面（2026-10-24）＝概要／スケジュール／商談プロセス／提出書類／記録／届いた流れ
@@ -11759,6 +11869,7 @@ function cpsDocChips(r) {
   return out;
 }
 function cpsSumHTML(ppl, s) {
+  /* 2026-10-27：人ごとのカード＝誰に不備があるか・今日どんな予定か（ユーザー指示「誰が不備があって、誰が今日どのような動きをするかダッシュボードで確認できるように」） */
   var M = cpsM, td = cpsToday(), todayN = 0, badK = 0, v1 = 0;
   ppl.forEach(function (p) {
     p.acts.forEach(function (a) { if (a.d === td) todayN++; });
@@ -11766,30 +11877,48 @@ function cpsSumHTML(ppl, s) {
     if (!p.hasSales && !p.hasKk) v1++;
   });
   var h = '<div class="cps-sum">' +
-    '<div><span>共有している人</span><b>' + s.ppl.length + '<small>人</small></b></div>' +
+    '<div><span>つないでいる人</span><b>' + s.ppl.length + '<small>人</small></b></div>' +
     '<div><span>今日の予定（全員）</span><b>' + todayN + '<small>件</small></b></div>' +
     '<div class="' + (badK ? 'bad' : '') + '"><span>要対応の契約</span><b>' + badK + '<small>件</small></b></div>' +
     '<div class="' + (s.bad ? 'bad' : '') + '"><span>不備のある記録</span><b>' + s.bad + '<small>件</small></b></div></div>';
-  if (!s.ppl.length) return h + '<p class="cps-empty">まだ誰の記録も届いていません。部下の方に招待コードを渡し、コンプライアンスの「管理職と共有」でつないでいただいてください。</p>';
-  /* 人ごと */
-  h += '<h4 class="cps-h">人ごとの状況</h4><div class="au-scroll"><table class="au-table cps-ppl"><thead><tr><th>名前</th><th>最後に届いた</th><th>今日の予定</th><th>進行中のお客様</th><th>契約と提出書類</th><th>記録</th><th>この7日の追加／更新</th><th></th></tr></thead><tbody>' +
-    s.ppl.map(function (p) {
-      var o = p.o;
-      if (o.bad) return '<tr><td>' + esc(o.name || '（名前の分からない端末）') + '</td><td>' + esc(cpTsFmt(o.at)) + '</td><td colspan="5">' +
-        cpFlagT('red', o.bad === 'keychg' ? '鍵が前と変わっています' : o.bad === 'sig' ? '署名が合いません' : '開けない記録です') +
-        '<span class="cps-note">' + (o.bad === 'keychg' ? '端末を入れ替えた・つなぎ直したときに起きます。本人に確かめてから受け取ってください。' : '本人の端末から送られたものか確かめられないので、中身を出していません。') + '</span></td>' +
-        '<td>' + (o.bad === 'keychg' ? '<button type="button" class="btn btn-ghost btn-sm au-mini" data-cps="trust" data-dev="' + esc(o.dev) + '">確かめたので受け取る</button>' : '') + '</td></tr>';
-      var q = ppl.filter(function (x) { return x.o.dev === o.dev; })[0] || { acts: [], custs: [], rows: [], hasSales: false, hasKk: false };
-      var tN = q.acts.filter(function (a) { return a.d === td; }).length, act = q.custs.filter(function (c) { return c.ss === 'active'; }).length;
-      var kb = q.rows.filter(function (r) { return cpsRowBad(r).length; }).length;
-      var kkTxt = !q.hasKk ? '<span class="cps-note">要約がまだ届いていません</span>' : (kb ? cpFlagT('red', '要対応 ' + kb + '件') : cpFlagT('ok', '要対応なし')) + '<span class="cps-note">' + q.rows.length + '件</span>';
-      return '<tr><td><b>' + esc(o.name) + '</b>' + (p.stale ? cpFlagT('amber', '14日以上届いていません') : '') + '</td><td>' + esc(cpTsFmt(o.at)) + '</td>' +
-        '<td>' + (q.hasSales ? tN + '件' : '<span class="cps-note">要約がまだ届いていません</span>') + '</td><td>' + (q.hasSales ? act + '人' : '―') + '</td><td>' + kkTxt + '</td>' +
-        '<td>' + o.recs.length + '件' + (p.miss ? cpFlagT('red', '不備 ' + p.miss + '件') : cpFlagT('ok', '不備なし')) + '</td><td>' + p.add7 + '件／' + p.upd7 + '件</td>' +
-        '<td><button type="button" class="btn btn-ghost btn-sm au-mini" data-cps="who" data-dev="' + esc(o.dev) + '">記録を見る</button></td></tr>';
-    }).join('') + '</tbody></table></div>';
-  if (v1) h += '<p class="cps-small">「要約がまだ届いていません」の方は、営業ダッシュボードか顧客管理で一度保存すると、予定と契約の提出書類が届きます（前の版の管理画面だけでつないでいる端末も同じです）。</p>';
-  /* 最近届いたもの（6件）。全部は「届いた流れ」の画面 */
+  if (!s.ppl.length) return h + '<p class="cps-empty">まだ誰もつないでいません。上の「部下に渡すパスワード」を部下の方に伝えて、部下の方の管理画面のコンプライアンス →「管理職と共有」で、名前とパスワードを入れていただいてください。</p>';
+  h += '<h4 class="cps-h">人ごと：不備と今日の予定（' + esc(cpsDayFmt(td)) + '）</h4><div class="cps-pcs">' + s.ppl.map(function (p) {
+    var o = p.o;
+    if (o.bad) return '<article class="cps-pc bad"><header><b>' + esc(o.name || '（名前の分からない端末）') + '</b><span class="cps-note">最後に届いた ' + esc(cpTsFmt(o.at)) + '</span></header>' +
+      '<p>' + cpFlagT('red', o.bad === 'keychg' ? '鍵が前と変わっています' : o.bad === 'sig' ? '署名が合いません' : '開けない記録です') + '</p>' +
+      '<p class="cps-small">' + (o.bad === 'keychg' ? '端末を入れ替えた・つなぎ直したときに起きます。本人に確かめてから受け取ってください。' : '本人の端末から送られたものか確かめられないので、中身を出していません。') + '</p>' +
+      (o.bad === 'keychg' ? '<button type="button" class="btn btn-ghost btn-sm" data-cps="trust" data-dev="' + esc(o.dev) + '">確かめたので受け取る</button>' : '') + '</article>';
+    var q = ppl.filter(function (x) { return x.o.dev === o.dev; })[0] || { acts: [], custs: [], rows: [], hasSales: false, hasKk: false };
+    /* 不備：記録の不備と、要対応の契約 */
+    var miss = o.recs.map(function (r) { return { r: r, m: cpMissing(r) }; }).filter(function (x) { return x.m.length; });
+    var kb = q.rows.filter(function (r) { return cpsRowBad(r).length; });
+    var nBad = miss.length + kb.length, items = [];
+    miss.forEach(function (x) {
+      items.push('<li><span class="cps-pc-t">' + esc(CP[x.r.kind].label) + (x.r.f.no ? '　' + esc(x.r.f.no) + ' 様' : '') + '</span><span class="cps-miss">' + esc(x.m.join('・')) + '</span>' +
+        '<button type="button" class="btn btn-ghost btn-sm au-mini" data-cps="rec" data-dev="' + esc(o.dev) + '" data-id="' + esc(x.r.id) + '">中身を見る</button></li>');
+    });
+    kb.forEach(function (r) {
+      items.push('<li><span class="cps-pc-t">契約　' + esc(r.f.name) + ' 様' + (r.f.date ? '（' + esc(auFmt(r.f.date)) + '）' : '') + '</span><span class="cps-miss">' + esc(cpsRowBad(r).map(function (a) { return a.t; }).join('・')) + '</span></li>');
+    });
+    var badHTML = nBad ? '<ul class="cps-pc-l">' + items.slice(0, 5).join('') + '</ul>' + (items.length > 5 ? '<p class="cps-small">ほか ' + (items.length - 5) + '件（「記録」「提出書類」の画面で全て見られます）</p>' : '') :
+      '<p class="cps-pc-ok">' + cpFlagT('ok', '不備なし') + '</p>';
+    /* 今日の予定 */
+    var acts = q.acts.filter(function (a) { return a.d === td; }).sort(function (x, y) { return (x.s || '99') < (y.s || '99') ? -1 : 1; });
+    var schedHTML = !q.hasSales ? '<p class="cps-small">予定は、営業ダッシュボードで一度保存すると届きます。</p>' :
+      acts.length ? '<ul class="cps-pc-l cps-pc-s">' + acts.slice(0, 6).map(function (a) {
+        var kk = a.t === 'KY' && a.k && q.byKid[a.k], red = kk && cpsRowBad(kk).length;
+        return '<li><span class="cps-pc-tm">' + esc(a.s ? a.s + (a.e ? '〜' + a.e : '') : '時刻なし') + '</span><span class="cps-pc-ty">' + esc(TD_TYPES[a.t] || a.t) + '</span>' +
+          '<span class="cps-pc-c">' + esc(a.c ? a.c + ' 様' : '―') + (a.p ? '<span class="cps-note">' + esc(a.p) + '</span>' : '') + '</span>' + (red ? cpFlagT('red', '提出書類 要対応') : '') + '</li>';
+      }).join('') + '</ul>' + (acts.length > 6 ? '<p class="cps-small">ほか ' + (acts.length - 6) + '件（「スケジュール」の画面で全て見られます）</p>' : '') :
+      '<p class="cps-small">今日の予定はありません。</p>';
+    return '<article class="cps-pc' + (nBad ? ' has-bad' : '') + '"><header><b>' + esc(o.name) + '</b>' + (p.stale ? cpFlagT('amber', '14日以上届いていません') : '') +
+      '<span class="cps-note">最後に届いた ' + esc(cpTsFmt(o.at)) + '</span></header>' +
+      '<h5>' + (nBad ? '<span class="cps-pc-bad">不備 ' + nBad + '件</span>' : '不備') + '</h5>' + badHTML +
+      '<h5>今日の予定' + (q.hasSales ? '（' + acts.length + '件）' : '') + '</h5>' + schedHTML +
+      '<footer><button type="button" class="btn btn-ghost btn-sm au-mini" data-cps="who" data-dev="' + esc(o.dev) + '">記録を全て見る</button>' +
+      (q.hasSales ? '<button type="button" class="btn btn-ghost btn-sm au-mini" data-cps="sched" data-dev="' + esc(o.dev) + '">予定を見る</button>' : '') + '</footer></article>';
+  }).join('') + '</div>';
+  if (v1) h += '<p class="cps-small">「予定は…届きます」の方は、営業ダッシュボードか顧客管理で一度保存すると、予定と契約の提出書類が届きます。</p>';
   h += cpsFeedHTML(M, s, 6, true);
   return h;
 }
@@ -12018,20 +12147,25 @@ function cpsCopy(text, done) {
   if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, function () { prompt('コピーしてください', text); });
   else prompt('コピーしてください', text);
 }
-function cpsInviteLink(room) { return location.href.split('#')[0] + '#compliance/share?join=' + room; }
-function cpsInvite() {
-  var room = cpsM ? cpsM.room : cps.mroom;
-  if (!room) return;
-  var root = modal('招待コード（部下の方に渡す）',
-    '<p class="cps-small">部下の方の管理画面で、コンプライアンス →「管理職と共有」→「招待コード」に入れていただきます。下のリンクを開いていただいても入ります。</p>' +
-    '<p class="cps-code" id="cpsCodeTxt">' + esc(cpsCodeFmt(room)) + '</p>' +
-    '<div class="cps-row"><button type="button" class="btn btn-primary btn-sm" id="cpsCopyCode">招待コードをコピー</button>' +
-    '<button type="button" class="btn btn-ghost btn-sm" id="cpsCopyLink">招待のリンクをコピー</button></div>' +
-    '<p class="cps-warn">管理職用の合言葉は、招待コードと一緒に送らないでください。部下の方には合言葉は要りません。上司・社長など、管理職モードを使う方にだけ、口頭か紙でお伝えください。</p>',
+function cpsInviteLink(code) { return location.href.split('#')[0] + '#compliance/share?join=' + code; }
+function cpsInvite(fresh) {
+  var b = cps.boss;
+  if (!b) return;
+  var P = cpsCodeFmt(b.code), B = cpsCodeFmt(b.b);
+  var root = modal(fresh ? 'パスワードを発行しました' : '発行したパスワード',
+    '<div class="cps-pwbox"><h5>部下に渡すパスワード</h5><p class="cps-code" id="cpsCodeTxt">' + esc(P) + '</p>' +
+    '<p class="cps-small">部下の方の管理画面で、コンプライアンス →「管理職と共有」を開き、名前とこのパスワードを入れて「つなぐ」を押していただきます。下のリンクを開いていただくと、パスワードが欄に入ります。</p>' +
+    '<div class="cps-row"><button type="button" class="btn btn-primary btn-sm" id="cpsCopyCode">パスワードをコピー</button>' +
+    '<button type="button" class="btn btn-ghost btn-sm" id="cpsCopyLink">つなぐリンクをコピー</button></div></div>' +
+    '<div class="cps-pwbox boss"><h5>管理職用パスワード（部下の方には渡さない）</h5><p class="cps-code" id="cpsBossTxt">' + esc(B) + '</p>' +
+    '<p class="cps-small">このパソコンは覚えているので、次からは開くだけで管理職モードになります。社長など<b>ほかのパソコンで見るとき</b>に、この12文字を入れます。忘れると誰にも開けないので、紙に控えてください。</p>' +
+    '<div class="cps-row"><button type="button" class="btn btn-ghost btn-sm" id="cpsCopyBoss">管理職用パスワードをコピー</button></div></div>' +
+    '<p class="cps-warn">2つのパスワードを、同じメールやメッセージに書かないでください。管理職用パスワードは、口頭か紙でお伝えください。</p>',
     '<button type="button" class="btn btn-ghost btn-sm" data-mclose>閉じる</button>');
   root.querySelector('.modal-box').classList.add('cps-inv-box');
-  document.getElementById('cpsCopyCode').onclick = function () { cpsCopy(cpsCodeFmt(room), '招待コードをコピーしました'); };
-  document.getElementById('cpsCopyLink').onclick = function () { cpsCopy(cpsInviteLink(room), '招待のリンクをコピーしました'); };
+  document.getElementById('cpsCopyCode').onclick = function () { cpsCopy(P, '部下に渡すパスワードをコピーしました'); };
+  document.getElementById('cpsCopyLink').onclick = function () { cpsCopy(cpsInviteLink(b.code), 'つなぐリンクをコピーしました'); };
+  document.getElementById('cpsCopyBoss').onclick = function () { cpsCopy(B, '管理職用パスワードをコピーしました'); };
 }
 function cpsRecModal(dev, id) {
   var o = cpsM && cpsM.devs[dev], r = o && o.recs.filter(function (x) { return x.id === id; })[0];
@@ -12062,14 +12196,21 @@ function cpsHandle(e) {
   var b = e.target.closest('[data-cps]');
   if (!b || b.disabled) return;
   var k = b.dataset.cps, v = function (id) { var n = document.getElementById(id); return n ? n.value : ''; };
-  if (k === 'join') cpsJoin(v('cpsJoinIn'));
+  if (k === 'join') cpsJoin(v('cpsJoinIn'), document.getElementById('cpsJoinName') ? v('cpsJoinName') : null);
   else if (k === 'push') { cps.stop ? cpsCheckRoom() : cpsPushNow(); }
   else if (k === 'leave') cpsLeave();
-  else if ((k === 'enter' || k === 'create') && !mbCan('mgr')) toast('管理職モードは、上長・社長の方が使います');
-  else if (k === 'enter') cpsEnter(v('cpsEnCode'), v('cpsEnPass'));
-  else if (k === 'create') cpsCreate(v('cpsNwName'), v('cpsNwPass'), v('cpsNwPass2'));
+  else if ((k === 'issue' || k === 'benter') && !mbCan('mgr')) toast('管理職モードは、上長・社長の方が使います');
+  else if (k === 'issue') cpsIssue();
+  else if (k === 'benter') cpsBossEnter(v('cpsBossIn'));
+  else if (k === 'forget') cpsForget();
   else if (k === 'exit') cpsExit();
-  else if (k === 'invite') cpsInvite();
+  else if (k === 'invite') cpsInvite(false);
+  else if (k === 'copym') { if (cpsM && cpsM.code) cpsCopy(cpsCodeFmt(cpsM.code), '部下に渡すパスワードをコピーしました'); }
+  else if (k === 'sched') {
+    cpsFilt.sw = b.dataset.dev; cpsFilt.sr = 'today'; cpsView = 'sched';
+    var bd2 = document.getElementById('cpsMBody');
+    if (bd2) { bd2.innerHTML = cpsMBodyHTML(); auCardify(bd2); bd2.scrollIntoView({ block: 'start' }); }
+  }
   else if (k === 'trust') cpsMTrust(b.dataset.dev);
   else if (k === 'rec') cpsRecModal(b.dataset.dev, b.dataset.id);
   else if (k === 'who') {
@@ -12095,11 +12236,13 @@ function cpsInit() {
     host.addEventListener('keydown', function (e) {
       if (e.key !== 'Enter' || e.isComposing) return;
       var id = e.target.id;
-      if (id === 'cpsJoinIn') { e.preventDefault(); cpsJoin(e.target.value); }
-      else if (id === 'cpsEnPass' || id === 'cpsEnCode') { e.preventDefault(); cpsEnter(document.getElementById('cpsEnCode').value, document.getElementById('cpsEnPass').value); }
+      if (id === 'cpsJoinIn' || id === 'cpsJoinName') { e.preventDefault(); var jn = document.getElementById('cpsJoinName'); cpsJoin(document.getElementById('cpsJoinIn').value, jn ? jn.value : null); }
+      else if (id === 'cpsBossIn') { e.preventDefault(); cpsBossEnter(e.target.value); }
     });
     window.addEventListener('online', function () { if (cps.room && cpsSend.st === 'err') cpsPushNow(); });
     cpsCheckRoom();
+    /* 管理職のパソコン：覚えている管理職用パスワードで、開いたときに管理職モードに入る（2026-10-27） */
+    if (cps.boss && mbCan('mgr') && cpsReady()) cpsBossEnter(cps.boss.b, true);
   }
 }
 /* TEAMBC-BEGIN 営業ダッシュボードのカレンダーへ、部下の方の予定を渡す（2026-10-26 ユーザー指示＋営業活動のカレンダーの画面写真
@@ -12235,11 +12378,14 @@ function cpDeepLink() {
   if (m[1] === 'hub') { cpHubTab = m[2] === 'hk' ? 'hk' : 'cust'; auSetTab('hub'); cpScrollLate(document.getElementById('auditSec')); return; }
   /* #compliance/share（?join=<招待コード>）＝管理職と共有（2026-10-17）。招待コードは欄に入れて待つ（押すのは本人） */
   if (m[1] === 'share') {
-    var jm = /(?:^|&)join=([0-9a-fA-F-]{32,40})/.exec(m[3] || '');
-    if (jm && !cps.room) cpsJoinCode = cpsCodeFmt(cpsRoomFrom(jm[1]));
+    var jm = /(?:^|&)join=([0-9A-Za-z-]{10,40})/.exec(m[3] || '');
+    if (jm && !cps.room) {
+      var jl = cpsRoomFrom(jm[1]), jp = cpsNorm(jm[1]);
+      cpsJoinCode = jl ? cpsCodeFmt(jl) : cpsCodeOk(jp, CPS_MLEN) ? cpsCodeFmt(jp) : '';
+    }
     auSetTab('share');
-    var ji = document.getElementById('cpsJoinIn');
-    if (ji && cpsJoinCode) { ji.focus(); toast('招待コードを入れました。「管理職とつなぐ」を押してください'); }
+    var ji = document.getElementById('cpsJoinIn'), jn = document.getElementById('cpsJoinName');
+    if (ji && cpsJoinCode) { (jn && !jn.value ? jn : ji).focus(); toast('パスワードを入れました。名前を確かめて「つなぐ」を押してください'); }
     cpScrollLate(document.getElementById('auditSec'));
     return;
   }
@@ -13367,6 +13513,9 @@ function auInitButtons() {
    ★お客様に見せる文言ではないが、効果の数字や断定（必ず・絶対）は書かない。
    ============================================================ */
 var UPDATES = [
+  { id: '2026-10-27-cpsimple', date: '2026-10-27', target: 'sec:auditSec',
+    title: 'コンプライアンス：管理職と共有を、パスワード1つでつなぐ形に',
+    body: '「管理職と共有」は、管理職の方が「部下に渡すパスワードを発行する」を押し、部下の方は名前とそのパスワードを入れて「つなぐ」を押すだけになりました。管理職モードの概要では、人ごとのカードで、誰の記録に不備があるかと、今日の予定が分かります。発行したパソコンは次から開くだけで管理職モードになり、ほかのパソコンでは管理職用パスワード（12文字）で入ります。前の招待コードでつないだ部下の方は、そのまま送れます。' },
   { id: '2026-10-26-idpw', date: '2026-10-26', target: 'sec:auditSec',
     title: 'ログイン：IDとパスワードの2つで開くように',
     body: '管理画面・営業ダッシュボード・学習資料の入口は、合言葉1つではなく「ID」と「パスワード」の2つを入れて開く形にしました。誰がいつログインしたかを、コンプライアンスの「名簿と権限」の「ログインの記録」で見られます（この端末の記録）。管理職モードと会社の保管フォルダでは、社員の方ごとのログインの記録も見られます。名簿を使う会社さまは、一人ずつ10桁のIDとパスワードになります。前に「次回から省略」で開いていた端末は、一度IDとパスワードを入れ直してください。' },
