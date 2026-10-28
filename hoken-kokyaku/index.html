@@ -2397,7 +2397,7 @@ var KKC = (function () {
   function cpsErrText(code) {
     if (code === 'denied') return '共有の行き先に書き込めませんでした（決まりで止められています）';
     if (/^http/.test(code)) return '共有の行き先が応答しませんでした（' + code.replace('http', '') + '）';
-    return 'つながりませんでした。インターネットの接続を確かめてください';
+    return '繋がりませんでした。インターネットの接続を確かめてください';
   }
   function cpsSay() { cpsOn.forEach(function (fn) { try { fn(cpsSt); } catch (e) {} }); }
   /* 送る（営業ダッシュボード・顧客管理から。管理画面は自分の CPSYNC で送る） */
@@ -4092,7 +4092,7 @@ function valHTML(d, v, f){
   var str = function(x){ return typeof x === 'string' ? x : typeof x === 'number' && isFinite(x) ? String(x) : ''; };
   switch (d.t) {
     case 'check': return v === true ? 'はい' : 'いいえ';
-    case 'checks': case 'whys': return Array.isArray(v) ? v.map(str).filter(Boolean).map(esc).join('、') : '';
+    case 'checks': case 'whys': return Array.isArray(v) ? v.map(str).filter(function(x){ return x && !/^その他（/.test(x); }).map(esc).join('、') : '';   // 「その他（下の欄に書く）」は、下の自由記述の欄で中身を出す
     case 'dates': return Array.isArray(v) ? v.filter(cD).map(fmtD).map(esc).join('、') : '';
     case 'date': return cD(v) ? esc(fmtD(v)) : '';
     case 'polpick': return esc(str(v)) + (str(f.polBody).trim() ? '<small>' + esc(str(f.polBody).trim()) + '</small>' : '');
@@ -4115,6 +4115,7 @@ function recHTML(r, def, linkTxt, miss){
     if (d.t === 'snap') { if (d.k === 'coList' && typeof f.coList === 'string' && f.coList.trim()) rows += '<tr><th>' + esc(d.l) + '</th><td>' + esc(f.coList.trim()) + '</td></tr>'; return; }
     var s = valHTML(d, f[d.k], f);
     if (!s && d.w) return;   // 要るときだけ出す欄（違う商品を選ばれた経緯など）は、空なら出さない
+    if (!s && d.t === 'checks') return;   // 選ぶ欄が空（前の版の文だけの記録・「その他」だけ）なら、行を出さない（2026-10-28 意向把握を選ぶ形に）
     rows += '<tr><th>' + esc(d.l) + '</th><td>' + (s || '―') + '</td></tr>';
   });
   if (!def) rows += '<tr><th>中身</th><td class="pf-none">管理画面を一度開くと、記録の中身もここに出ます（欄の名前を受け取ります）。</td></tr>';
@@ -4808,13 +4809,13 @@ function renderCpsLine(){
     var st = s.send.st === 'err' ? '<span class="cps-pill off">送れていません</span><span class="sec-note">' + esc(s.send.err) + '</span>' :
       s.send.st === 'sending' ? '<span class="cps-pill wait">送っています…</span>' :
       s.send.st === 'ok' ? '<span class="cps-pill on">管理職へ届いています</span><span class="sec-note">最後に送った時刻：' + esc(fmtStampY(s.send.at)) + '</span>' : '<span class="cps-pill wait">これから送ります</span>';
-    h = '<p class="sec-note">この端末は<b>管理職とつないであります</b>（一般モード）。契約ごとの提出書類の状態（提出済み・未提出・不備・ご高齢の方の確認）を保存するたびに、管理職のパソコンへ送ります。' +
+    h = '<p class="sec-note">この端末は<b>管理職と繋いであります</b>（一般モード）。契約ごとの提出書類の状態（提出済み・未提出・不備・ご高齢の方の確認）を保存するたびに、管理職のパソコンへ送ります。' +
       '<b>記録の中身（お伺いしたこと・お勧めした理由など）は、この要約には入りません。</b></p><div class="cps-stat">' + st + '</div>' +
       '<p class="sec-note">送る相手を変える・共有をやめるのは、<a href="' + hub + '" target="katatsugi-hub" rel="noopener">管理画面のコンプライアンス「管理職と共有」</a>からです。</p>';
   } else if (s.waiting) {
-    h = '<p class="sec-note">管理職とつないでありますが、いまは送れません（管理職の鍵が変わった、または部屋が見つかりません）。<a href="' + hub + '" target="katatsugi-hub" rel="noopener">管理画面の「管理職と共有」</a>で確かめてください。</p>';
+    h = '<p class="sec-note">管理職と繋いでありますが、いまは送れません（管理職の鍵が変わった、または部屋が見つかりません）。<a href="' + hub + '" target="katatsugi-hub" rel="noopener">管理画面の「管理職と共有」</a>で確かめてください。</p>';
   } else {
-    h = '<p class="sec-note">この端末は、管理職とつないでいません（記録はこの端末だけに残ります）。管理職から招待コードをもらったら、<a href="' + hub + '" target="katatsugi-hub" rel="noopener">管理画面のコンプライアンス「管理職と共有」</a>でつなぐと、契約ごとの提出書類の状態も管理職のパソコンへ届きます。</p>';
+    h = '<p class="sec-note">この端末は、管理職と繋いでいません（記録はこの端末だけに残ります）。管理職から部下用のパスワードをもらったら、<a href="' + hub + '" target="katatsugi-hub" rel="noopener">管理画面のコンプライアンス「管理職と共有」</a>で名前とパスワードを入れて繋ぐと、契約ごとの提出書類の状態も管理職のパソコンへ届きます。</p>';
   }
   host.innerHTML = h;
 }

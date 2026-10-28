@@ -158,8 +158,9 @@ a{color:var(--navy-2);}
 .np-more{margin-top:var(--sp-3);}
 .np-more summary{cursor:pointer;font-weight:700;color:var(--navy);font-size:var(--fs-sm);min-height:44px;display:flex;align-items:center;}
 .np-more[open] summary{margin-bottom:var(--sp-2);}
-/* カード・社内ツールのバナーに付ける「更新」の札（反映日から UPD_PILL_DAYS 日だけ） */
-.upd-pill{display:inline-block;vertical-align:middle;margin-left:6px;background:var(--coral-btn);color:#fff;
+/* カード・社内ツールのバナーに付ける「更新」の札（反映日から UPD_PILL_DAYS 日だけ）。
+   2026-10-28 ユーザー指示「更新と不備の色が一緒なので更新の色を変えて」＝赤い塗り（記録の不備の札）と分けて、淡い水色の地に濃い青の字と縁 */
+.upd-pill{display:inline-block;vertical-align:middle;margin-left:6px;background:var(--sky-bg);color:#1b5e8a;border:1px solid #9cc8e3;
   font-size:var(--fs-xs);font-weight:800;letter-spacing:.04em;border-radius:6px;padding:1px 7px;line-height:1.5;
   font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",YuGothic,Meiryo,"Noto Sans JP",sans-serif;}
 @media print{.news-bar,.news-panel,#btnNews,.upd-pill{display:none !important;}}
@@ -1048,6 +1049,9 @@ body.comp-open #admin .wrap{max-width:1360px;}
 .td-why{flex-basis:100%;font-size:var(--fs-xs);color:var(--coral-text);font-weight:700;line-height:1.5;}
 .td-none{font-size:var(--fs-sm);color:var(--muted);margin:0;}
 .td-sub{font-size:var(--fs-xs);font-weight:700;color:var(--muted);margin:4px 0 -2px;}
+.td-sub-mem{margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);color:var(--navy-2);}
+.td-tag.td-who{background:var(--navy-soft);color:var(--navy);border-color:#cfe0ec;}
+.td-row.td-mem{border-left:3px solid var(--coral-btn);}
 @media(max-width:960px){
   .td-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
   .td-grid > .td-tile:last-child:nth-child(odd){grid-column:1 / -1;}
@@ -1531,6 +1535,13 @@ tr.cps-lg-ng td:nth-child(4){color:#a8321f;font-weight:700;}
 .cps-pwbox h5{margin:0 0 4px;font-size:1rem;color:var(--navy);font-family:var(--mincho);font-weight:600;}
 .cps-pwbox .cps-code{margin:6px 0;font-size:1.5rem;letter-spacing:.08em;}
 .cps-pwbox .cps-small{font-size:var(--fs-sm);color:var(--muted);line-height:1.75;margin:4px 0;}
+/* 部下への伝え方は2つ（2026-10-28 ユーザー指示「パスワードをコピーと、つなぐリンクのコピーの違いが分からない」）。PC は横に2つ、携帯は縦に積む */
+.cps-ways{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:8px;}
+.cps-way{display:flex;flex-direction:column;gap:4px;background:#fff;border:1px solid #e2e9ef;border-radius:10px;padding:10px 12px;}
+.cps-way .btn{margin-top:auto;align-self:flex-start;min-height:44px;white-space:nowrap;}
+.cps-way-h{margin:0;font-weight:700;color:var(--navy);font-size:var(--fs-sm);display:flex;align-items:center;gap:8px;}
+.cps-way-n{flex:none;width:22px;height:22px;border-radius:50%;background:var(--navy-2);color:#fff;display:grid;place-items:center;font-size:var(--fs-xs);font-weight:800;}
+@media(max-width:640px){.cps-ways{grid-template-columns:minmax(0,1fr);}}
 #auShare .cps-pcs{display:grid;gap:14px;}
 @media (min-width:900px){ #auShare .cps-pcs{grid-template-columns:repeat(2,minmax(0,1fr));} }
 #auShare .cps-pc{background:var(--white);border:1px solid #e2e9ef;border-radius:14px;padding:14px 16px 12px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;}
@@ -1896,7 +1907,7 @@ body.comp-open #admin .wrap > #hokanNag.bk-nag{display:flex !important;}
       <datalist id="cpCmps"></datalist>
       <datalist id="cpCust"></datalist>
       <p class="au-note">記録は<b>この端末のブラウザに</b>残ります（ブラウザのデータを消すと消えます）。月に1回は「控えを書き出す」で保存してください。
-        「管理職と共有」でつないだときは、保存するたびに、暗号化した記録が管理職のパソコンにも届きます。
+        「管理職と共有」で繋いだときは、保存するたびに、暗号化した記録が管理職のパソコンにも届きます。
         <b>お客様は顧客名で残します（ご住所・ご連絡先は書かないでください）。</b>控えのファイルと印刷した紙にも顧客名が入るので、社外へ持ち出さず、社内の決まりに沿って扱ってください。
         記録は本人が書いたもので、書き換えを防ぐ仕組みはありません。この画面は記録の手助けで、点検・監査の結果を保証するものではありません。
         社内規則と所属保険会社の指示が優先します。登録番号・資格の要件・届出の方法は、所属保険会社・各協会の最新の案内で確かめてください。</p>
@@ -2593,7 +2604,7 @@ var KKC = (function () {
   function cpsErrText(code) {
     if (code === 'denied') return '共有の行き先に書き込めませんでした（決まりで止められています）';
     if (/^http/.test(code)) return '共有の行き先が応答しませんでした（' + code.replace('http', '') + '）';
-    return 'つながりませんでした。インターネットの接続を確かめてください';
+    return '繋がりませんでした。インターネットの接続を確かめてください';
   }
   function cpsSay() { cpsOn.forEach(function (fn) { try { fn(cpsSt); } catch (e) {} }); }
   /* 送る（営業ダッシュボード・顧客管理から。管理画面は自分の CPSYNC で送る） */
@@ -6076,7 +6087,7 @@ function hnWorkHTML() {
     .replace(/内容メモ・備考は届きません。/g, '内容メモ・備考は出しません。')
     .replace(/お客様の連絡先・メモは届きません。/g, 'お客様の連絡先・メモは出しません。')
     .replace(/ここには提出の状態と知らせだけが届きます。/g, 'ここには提出の状態と知らせだけを出します。')
-    .replace(/管理画面の記録とまだつながっていません/g, 'この控えには記録の要約が入っていません')
+    .replace(/管理画面の記録とまだ(?:つな|繋)がっていません/g, 'この控えには記録の要約が入っていません')
     .replace(/要約がまだ届いていません/g, '控えに入っていません')
     .replace(/部下の方の端末で、どのIDで/g, '社員の方の端末で、どのIDで').replace(/本人の端末の記録をそのまま映したもの/g, '保管フォルダの控えにある、本人の端末の記録')
     .replace(/部下の方が新しい版の管理画面か営業ダッシュボードでログインすると入ります。/g, '新しい版の管理画面でログインした方の控えから入ります。');
@@ -9195,6 +9206,21 @@ var CP_NK_RS_OTH = 'その他（下の欄に書く）';
 var CP_NK_RS = ['ご意向（ほしい保障の内容）が変わった', 'ご家族・お仕事などのご事情が変わった', '保険料・払い方を見直したい', '保障の重なりを整理したい',
   '保障の期間を変えたい', 'お客様からのご希望', CP_NK_RS_OTH];
 var CP_NK_HOW = ['所属保険会社の書面（様式）に記入していただいた', '面談の記録に残した（口頭）'];
+/* 意向把握の選択肢（2026-10-28 ユーザー指示「意向把握も比較推奨同様に選択して選べるように。その他で自由記述にできるように」）。
+   ★お客様のご意向（何に備えたいか）と、違ったときの事情で書く。「得・損」「有利・不利」の言い方にしない
+   ★前の形（文だけで書いた記録）は、選択肢が空のまま文だけで読む（不備にしない） */
+var CP_IKO_OTH = 'その他（下の欄に書く）';
+var CP_IKO_NEED = ['万一のときのご家族の生活費', '入院・手術への備え', 'がんへの備え', '働けなくなったときの収入', '介護への備え',
+  '老後の資金', 'お子さまの教育資金', '相続への備え', '会社（法人）の保障・退職金', '今の保険の見直し', CP_IKO_OTH];
+var CP_IKO_WHY = ['保険料を抑えたいとのご意向', '保障の額を変えた', '保障の期間を変えた', '特約を付けた・外した',
+  '告知の結果、条件が付いた・商品が変わった', 'ご家族と相談して決められた', '保険会社・商品を選び直された', CP_IKO_OTH];
+function cpIkoTxtReq(pk) { return function (f) { var a = f[pk] || []; return !a.length || a.indexOf(CP_IKO_OTH) >= 0; }; }
+function cpIkoDiff(f) { return f.same === '違う'; }
+/* 選んだ項目（「その他」は除く）と自由記述をつないだ一文（一覧・要点・ほかの画面で読む） */
+function cpIkoTxt(f, pk, tk) {
+  var a = (f[pk] || []).filter(function (x) { return x !== CP_IKO_OTH; }), t = String(f[tk] || '').trim();
+  return a.join('・') + (a.length && t ? '／' : '') + t;
+}
 function cpNkStop(f) { return f.pact !== CP_NK_ACT[3]; }   // 前の契約をそのまま続けるときは、やめるときの3つは要らない
 function cpNkEarly(f) { return !!f.early; }
 var CP = {
@@ -9203,11 +9229,17 @@ var CP = {
       '点検で最もよく見られるところです。お客様は<b>顧客名</b>で残します（ご住所・ご連絡先は書かないでください）。',
     f: [
       { k: 'date', t: 'date', l: '面談・申込の日', req: 1 }, CP_NO, CP_SHU_F, CP_HEN_NOTE,
-      { k: 'first', t: 'area', l: '最初のご意向', ph: '例：子どもが独立するまでの死亡保障を、今の家計で続けられる範囲で', req: 1 },
-      { k: 'final', t: 'area', l: '申込の内容（最終のご意向）', ph: '例：収入保障保険。お子さまが独立する年まで', req: 1 },
+      { k: 'firstp', t: 'checks', l: '最初のご意向（選ぶ）', fl: '最初のご意向（当てはまるものを全て選ぶ）', opts: CP_IKO_NEED, short: '最初のご意向' },
+      { k: 'first', t: 'area', l: '最初のご意向（その他・補足）', ph: '例：子どもが独立するまでの死亡保障を、今の家計で続けられる範囲で', rows: 2,
+        req: cpIkoTxtReq('firstp'), reqNote: '選ばないとき・「その他」のときは必須', short: '最初のご意向' },
+      { k: 'finalp', t: 'checks', l: '申込の内容で備えるもの（選ぶ）', fl: '申込の内容（最終のご意向）で備えるもの（当てはまるものを全て選ぶ）', opts: CP_IKO_NEED, short: '申込の内容' },
+      { k: 'final', t: 'area', l: '申込の内容（商品・保障の期間など）', ph: '例：収入保障保険。お子さまが独立する年まで', rows: 2,
+        req: cpIkoTxtReq('finalp'), reqNote: '選ばないとき・「その他」のときは必須', short: '申込の内容（最終のご意向）' },
       { k: 'same', t: 'select', l: '最初のご意向と申込の内容', opts: ['同じ', '違う'], req: 1, short: '同じか違うか' },
-      { k: 'why', t: 'area', l: '違った点と、その理由', ph: '例：保険料を抑えたいとのご要望で、保障の期間を短くした。違いをご説明し、了承をいただいた',
-        req: function (f) { return f.same === '違う'; }, reqNote: '違うときは必須', short: '違った理由' },
+      { k: 'whyp', t: 'checks', l: '違った点と、その理由（選ぶ）', fl: '違った点と、その理由（当てはまるものを全て選ぶ）', opts: CP_IKO_WHY,
+        when: cpIkoDiff, short: '違った理由' },
+      { k: 'why', t: 'area', l: '違った点と、その理由（その他・補足）', ph: '例：保険料を抑えたいとのご要望で、保障の期間を短くした。違いをご説明し、了承をいただいた', rows: 2,
+        req: function (f) { return cpIkoDiff(f) && cpIkoTxtReq('whyp')(f); }, when: cpIkoDiff, reqNote: '違うときに、選ばないとき・「その他」のときは必須', short: '違った理由' },
       { k: 'c1', t: 'check', l: '最終のご意向と申込の内容が合っていることを、お客様と一緒に確かめた', req: 1, short: 'お客様と確かめたチェック' },
       { k: 'c2', t: 'check', l: '意向を確かめる書面（所属保険会社の様式）を、お渡し・お預かりした', req: 1, short: '書面のチェック' },
       { k: 'memo', t: 'text', l: '面談の記録との対応（任意）', ph: '例：ライフプランの商談記録 9/12・9/26', wide: 1 }
@@ -9618,7 +9650,7 @@ function cpFlagsHTML(r) {
 }
 function cpGist(r) {
   var f = r.f;
-  if (r.kind === 'iko') return cpCut(f.first, 30) + ' → ' + cpCut(f.final, 30);
+  if (r.kind === 'iko') return cpCut(cpIkoTxt(f, 'firstp', 'first'), 30) + ' → ' + cpCut(cpIkoTxt(f, 'finalp', 'final'), 30);
   if (r.kind === 'hikaku') return (f.rcmp || '（未記入）') + (f.rprod ? ' ' + f.rprod : '') + '／' + cpCut(f.pol, 20);
   if (r.kind === 'shorui') return '募集人 ' + (f.boshu || '（未記入）') + '／直した ' + f.items.filter(function (s) { return s === '直した'; }).length + '項目';
   if (r.kind === 'tekigou') return (f.tshu || '（未記入）') + '／' + (f.res === CP_TK_RES[1] ? 'お勧めしなかった' : f.sub ? '確認書を提出' : '確認書はまだ');
@@ -9866,7 +9898,7 @@ function cpFormHTML(kind) {
     var x = cpField(d, f, d.t === 'head' ? ++step : 0);
     if (i === salesAt) x += '<div class="wide cp-sales hide" data-cp-sales="' + kind + '" aria-live="polite"></div>';   // 中身は cpSalesSync が入れる
     if (!d.when || !x) return x;
-    var on = f ? d.when(f) || !!f[d.k] : false;   // 要るときだけ出す（書いてあれば出したまま）
+    var on = f ? d.when(f) || (Array.isArray(f[d.k]) ? f[d.k].length > 0 : !!f[d.k]) : false;   // 要るときだけ出す（書いてあれば出したまま）
     return '<div class="wide cp-when' + (on ? '' : ' hide') + '" data-cp-when="' + (d.k || 'note') + '">' + x + '</div>';
   }).join('') + '</div>' +
     '<div class="au-actions"><button type="button" class="btn btn-primary btn-sm" data-cp-act="save" data-kind="' + kind + '">' + (r ? '直した内容で保存' : '記録する') + '</button>' +
@@ -9877,7 +9909,7 @@ function cpFormHTML(kind) {
 /* ---------- 一覧 ---------- */
 var CP_COLS = {
   iko: [['日付', function (r) { return esc(auFmt(r.f.date)); }], ['顧客名', function (r) { return auNm(r.f.no); }], ['種目', function (r) { return esc(r.f.shu); }],
-    ['最初のご意向 → 申込の内容', function (r) { return esc(cpCut(r.f.first, 34)) + '<br>→ ' + esc(cpCut(r.f.final, 34)); }], ['意向と申込', function (r) { return esc(r.f.same); }]],
+    ['最初のご意向 → 申込の内容', function (r) { return esc(cpCut(cpIkoTxt(r.f, 'firstp', 'first'), 34)) + '<br>→ ' + esc(cpCut(cpIkoTxt(r.f, 'finalp', 'final'), 34)); }], ['意向と申込', function (r) { return esc(r.f.same); }]],
   hikaku: [['日付', function (r) {
       var n = (r.f.mtgs || []).length;
       return '<span class="cp-nw">面談 ' + esc(auFmt(cpLastMtg(r.f)) || '―') + '</span>' + (n > 1 ? '<span class="cp-det-sub">これまで ' + n + '回</span>' : '') +
@@ -10920,7 +10952,8 @@ function cpWhenSync(form) {
   C.f.forEach(function (d) {
     if (!d.when) return;
     var box = form.querySelector('[data-cp-when="' + (d.k || 'note') + '"]');
-    if (box) box.classList.toggle('hide', !(d.when(f) || f[d.k]));
+    var has = Array.isArray(f[d.k]) ? f[d.k].length : f[d.k];
+    if (box) box.classList.toggle('hide', !(d.when(f) || has));
   });
 }
 function cpRenderAllCp() { CP_KINDS.forEach(cpRenderKind); cpRenderCommon(); if (typeof auTab !== 'undefined' && auTab === 'hub') cpRenderHub(); }
@@ -11249,10 +11282,10 @@ function auHandle(e) {
      管理職の人が発行したパスワードを従業員が入力すると、管理職の方から確認できるようにしてください。その際に名前を入力することで
      誰が不備があって、誰が今日どのような動きをするかダッシュボードで確認できるようにしてください」）
      ・管理職：「部下に渡すパスワードを発行する」を押すだけ。部下用パスワード（10文字）と管理職用パスワード（12文字）が出る。このパソコンは管理職用パスワードを覚え、次からは開くだけで管理職モード
-     ・部下：名前と部下用パスワードを入れて「つなぐ」だけ
+     ・部下：名前と部下用パスワードを入れて「繋ぐ」だけ
      ・部屋の番号は部下用パスワードから作る（PBKDF2 10万回）。管理職の秘密の鍵は管理職用パスワードで包み、管理職用パスワードから作った別の番号の場所（/kt/<番号>/cfg）に置く
        ＝部下用パスワードを知っている人は記録を送れるが、ほかの人の記録は開けない（前と同じ線）
-     ・前の招待コード（32文字）でつないだ部下の端末は、そのまま送り続ける。前の作りの管理職モード（招待コード＋合言葉）は画面から外した
+     ・前の招待コード（32文字）で繋いだ部下の端末は、そのまま送り続ける。前の作りの管理職モード（招待コード＋合言葉）は画面から外した
      ・決まり（cpsync/rules.json）は変えていない */
 var CP_SYNC_URL = 'https://katatsugi-comp-default-rtdb.asia-southeast1.firebasedatabase.app';   /* OMCPSYNC */
 var CPS_KEY = 'officem.hokenHub.cpsync.v1', CPS_ITER = 210000, CPS_INFO = 'katatsugi-comp-v1';
@@ -11313,9 +11346,9 @@ function cpsErrText(e) {
   if (c === 'nomember') return 'このパスワードは見つかりません。管理職からもらったパスワード（英字と数字の10文字）を確かめてください';
   if (c === 'noboss') return 'この管理職用パスワードは見つかりません。発行したときの12文字を確かめてください';
   if (c === 'denied') return '共有の行き先に書き込めませんでした（決まりで止められています）';
-  if (c === 'keychg') return '管理職の鍵が、つないだときと変わっています。管理職に招待コードをもらい直してください';
+  if (c === 'keychg') return '管理職の鍵が、繋いだときと変わっています。管理職に招待コードをもらい直してください';
   if (/^http/.test(c)) return '共有の行き先が応答しませんでした（' + c.replace('http', '') + '）';
-  return 'つながりませんでした。インターネットの接続を確かめてください';
+  return '繋がりませんでした。インターネットの接続を確かめてください';
 }
 function cpsFetch(path, opt) {
   opt = opt || {};
@@ -11371,11 +11404,11 @@ function cpsPushNow() {
     .then(function () { cpsSend = { st: 'ok', at: cpNow(), err: '' }; cps.last = cpsSend.at; cpsSave(); },
       function (e) {
         cpsSend = { st: 'err', at: cpsSend.at, err: cpsErrText(e) };
-        clearTimeout(cpsRetryT); cpsRetryT = setTimeout(cpsPushNow, 30000);   // つながりが戻ったら、もう一度送る
+        clearTimeout(cpsRetryT); cpsRetryT = setTimeout(cpsPushNow, 30000);   // 繋がりが戻ったら、もう一度送る
       })
     .then(function () { cpsBusy = false; cpsPaint(); if (cpsAgain) { cpsAgain = false; cpsQueue(); } });
 }
-/* 開いたときに、つないだ部屋の管理職の鍵が変わっていないかを確かめてから送る */
+/* 開いたときに、繋いだ部屋の管理職の鍵が変わっていないかを確かめてから送る */
 function cpsCheckRoom() {
   if (!cps.room || !cpsReady()) return;
   cpsFetch(cps.room + '/cfg').then(function (cfg) {
@@ -11415,7 +11448,7 @@ function cpsJoin(code, name) {
     cps.room = room; cps.mpub = cfg.pub; cps.dev = cpsHex(cpsRand(12)); cps.sk = cpsB64(ks[0]); cps.spk = cpsB64(ks[1]); cps.url = CP_SYNC_URL;
     cps.joined = cpNow(); delete cps.stop; delete cps.last; cpsSend = { st: 'idle', at: '', err: '' };
     cpsSave(); cpsJoinCode = '';
-    toast('管理職とつなぎました。記録と予定を送ります');
+    toast('管理職と繋ぎました。記録と予定を送ります');
     cpsRender(); cpsPushNow();
   }).catch(function (e) { cpsBusyBtn('join', false); toast(cpsErrText(e)); });
 }
@@ -11428,7 +11461,7 @@ function cpsLeave() {
     toast('共有をやめました'); cpsRender();
   };
   cpsFetch(cps.room + '/m/' + cps.dev, { method: 'DELETE' }).then(done, function () {
-    if (confirm('管理職の画面から消せませんでした（つながっていません）。\nこの端末だけ共有をやめますか（管理職の画面には、最後に送った記録が残ります）。')) done();
+    if (confirm('管理職の画面から消せませんでした（繋がっていません）。\nこの端末だけ共有をやめますか（管理職の画面には、最後に送った記録が残ります）。')) done();
   });
 }
 
@@ -11443,7 +11476,7 @@ function cpsWrap(B, body) {
 }
 function cpsIssue() {
   if (cpsBossBusy) return;
-  if (cps.boss && !confirm('このパソコンでは、もう発行してあります（部下用パスワード ' + cpsCodeFmt(cps.boss.code) + '）。\n新しく発行すると、部下の方には新しいパスワードでつなぎ直していただくことになります。発行しますか。')) return;
+  if (cps.boss && !confirm('このパソコンでは、もう発行してあります（部下用パスワード ' + cpsCodeFmt(cps.boss.code) + '）。\n新しく発行すると、部下の方には新しいパスワードで繋ぎ直していただくことになります。発行しますか。')) return;
   cpsBossBusy = true; cpsBusyBtn('issue', true);
   var kp, pub, pk;
   crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveBits']).then(function (k) {
@@ -11510,7 +11543,7 @@ var cpsMOff = '';
 /* このパソコンで管理職モードを使うのをやめる（覚えている管理職用パスワードを消す。部下の方の記録は消えない） */
 function cpsForget() {
   var b = cps.boss ? cpsCodeFmt(cps.boss.b) : '';
-  if (!confirm('このパソコンで管理職モードを使うのをやめますか。\nもう一度見るときは、管理職用パスワード（' + b + '）が要ります。控えてから押してください。\n部下の方の記録と、部下の方のつながりはそのままです。')) return;
+  if (!confirm('このパソコンで管理職モードを使うのをやめますか。\nもう一度見るときは、管理職用パスワード（' + b + '）が要ります。控えてから押してください。\n部下の方の記録と、部下の方の繋がりはそのままです。')) return;
   delete cps.boss; delete cps.mroom; cpsSave(); cpsMOff = '';
   if (cpsM) { if (cpsM.es) { try { cpsM.es.close(); } catch (e) {} } clearTimeout(cpsM.rt); cpsM = null; }
   toast('このパソコンでは、管理職モードを使わなくなりました（見ていた記録は、このパソコンに残していません）');
@@ -11525,7 +11558,7 @@ function cpsExit() {
   toast('管理職モードを出ました（見ていた記録は、この端末に残していません）');
   cpsRender(); cpsHomeLater();
 }
-/* 届いた記録を、その場で受ける（EventSource）。切れたら、少しずつ間をあけてつなぎ直す */
+/* 届いた記録を、その場で受ける（EventSource）。切れたら、少しずつ間をあけて繋ぎ直す */
 function cpsMStart() {
   var M = cpsM;
   if (!M) return;
@@ -11688,7 +11721,7 @@ function cpsMDiff(M, a, b) {
 function cpsMTrust(dev) {
   var M = cpsM, o = M && M.devs[dev];
   if (!o || !o.spk) return;
-  if (!confirm('この端末の記録を、新しい鍵で受け取りますか。\n部下の方が端末を入れ替えた・つなぎ直したことを、本人に確かめてから押してください。')) return;
+  if (!confirm('この端末の記録を、新しい鍵で受け取りますか。\n部下の方が端末を入れ替えた・繋ぎ直したことを、本人に確かめてから押してください。')) return;
   (cps.known[M.room] = cps.known[M.room] || {})[dev] = o.spk; cpsSave();
   cpsFetch(M.room + '/m/' + dev).then(function (v) { cpsMTake(M, dev, v, true); }, function () { toast(cpsErrText(cpsErr('net'))); });
 }
@@ -11726,14 +11759,14 @@ function cpsTileFlags() {
     if (s.bad) out.push(cpFlagT('red', '不備のある記録 ' + s.bad));
     return out;
   }
-  if (cps.room) return [cpsSend.st === 'err' ? cpFlagT('amber', '送れていません') : cpFlagT('ok', '管理職とつながっています')];
+  if (cps.room) return [cpsSend.st === 'err' ? cpFlagT('amber', '送れていません') : cpFlagT('ok', '管理職と繋がっています')];
   if (cps.boss) return ['<span>管理職モードに入っています…</span>'];
-  return ['<span>まだつないでいません</span>'];
+  return ['<span>まだ繋いでいません</span>'];
 }
 
 /* ---------- 画面 ---------- */
 function cpsPill(st) {
-  var t = { on: ['on', 'つながっています'], wait: ['wait', 'つないでいます…'], off: ['off', 'つながっていません。つなぎ直しています'] }[st] || ['wait', 'つないでいます…'];
+  var t = { on: ['on', '繋がっています'], wait: ['wait', '繋いでいます…'], off: ['off', '繋がっていません。繋ぎ直しています'] }[st] || ['wait', '繋いでいます…'];
   return '<span class="cps-pill ' + t[0] + '" role="status">' + t[1] + '</span>';
 }
 function cpsSendHTML() {
@@ -11761,10 +11794,10 @@ function cpsRender() {
   } else if (cps.boss && !cpsMOff) {
     h = '<div class="cps-card"><h4>管理職モード</h4><p class="cps-small" role="status">管理職モードに入っています…</p></div>';
   } else {
-    /* つないだ部下の端末は、管理職のカードを出さない（1枚だけにして迷わせない。共有をやめると2枚に戻る） */
+    /* 繋いだ部下の端末は、管理職のカードを出さない（1枚だけにして迷わせない。共有をやめると2枚に戻る） */
     h = cps.room ? '<div class="cps-one">' + cpsMemberHTML() + '</div>' : '<div class="cps-grid">' + cpsMemberHTML() + cpsBossHTML() + '</div>';
   }
-  h += '<div class="cp-about"><h3>この画面について</h3><p class="au-lead">部下の方が、名前と<b>管理職から渡されたパスワード</b>を入れて「つなぐ」を押すと、コンプライアンスの記録・営業ダッシュボードの予定・顧客管理の契約を保存するたびに、管理職のパソコンの画面に<b>すぐに届きます</b>（インターネットにつながっているあいだ）。' +
+  h += '<div class="cp-about"><h3>この画面について</h3><p class="au-lead">部下の方が、名前と<b>管理職から渡されたパスワード</b>を入れて「繋ぐ」を押すと、コンプライアンスの記録・営業ダッシュボードの予定・顧客管理の契約を保存するたびに、管理職のパソコンの画面に<b>すぐに届きます</b>（インターネットに繋がっているあいだ）。' +
     '管理職モードでは、部下の方ごとの記録の不備・今日の予定・スケジュール・お客様の段階（商談プロセス）・契約ごとの提出書類の状態が分かります（部下の方の画面は、今までどおりです）。記録を書いたり直したりできるのは、記録した本人の端末だけです。</p>' +
     '<ul class="cps-ul"><li>届くのは要約です。予定の日時・種類・顧客名・場所・同席者、お客様の名前・会社名・段階・状態・次にやること、契約ごとの提出書類の状態と知らせ、コンプライアンスの記録。<b>活動の内容メモ・備考・お客様の連絡先・生年月日・保険料は届きません。</b></li>' +
     '<li>送る中身は、管理職の鍵で暗号化してから送ります。開けるのは、管理職用パスワードを知っている人だけです（部下用パスワードでは、ほかの方の記録は開けません）。それでも、お客様のお名前が入った記録を社外の場所に置くことになるので、所属保険会社の決まりと社内規則で扱いを確かめてください。</li>' +
@@ -11775,7 +11808,7 @@ function cpsRender() {
   auCardify(host);
 }
 function cpsMemberHTML() {
-  var h = '<div class="cps-card cps-step"><span class="cps-who">営業の方（部下）</span><h4>管理職とつなぐ</h4>';
+  var h = '<div class="cps-card cps-step"><span class="cps-who">営業の方（部下）</span><h4>管理職と繋ぐ</h4>';
   if (cps.room) {
     var stop = cps.stop ? '<p class="cps-warn">' + esc(cpsErrText(cpsErr(cps.stop))) + '</p>' : '';
     h += '<p>この端末の記録と予定を、管理職のパソコンへ送っています。保存するたびに、すぐ届きます。</p>' + stop +
@@ -11786,12 +11819,12 @@ function cpsMemberHTML() {
       '<p class="cps-small">送るのは、この端末のコンプライアンスの記録（意向把握・比較推奨・適合性の確認・乗換と早期解約・苦情）と、営業ダッシュボードの予定・お客様の段階、顧客管理の契約ごとの提出書類の状態です。活動の内容メモ・備考・お客様の連絡先・生年月日・保険料は送りません。</p>';
   } else {
     var me = mbMe();
-    h += '<p>名前と、管理職から渡された<b>パスワード</b>を入れて「つなぐ」を押してください。</p>' +
+    h += '<p>名前と、管理職から渡された<b>パスワード</b>を入れて「繋ぐ」を押してください。</p>' +
       '<div class="cps-form">' +
       (me ? '<p class="cps-small">名前：<b>' + esc(au.me.name) + '</b>（名簿の名前）</p>' :
         '<label class="cps-lab">名前<input type="text" id="cpsJoinName" maxlength="40" autocomplete="name" placeholder="例：山田 太郎" value="' + esc(au.me.name || cpOtherName() || '') + '"></label>') +
       '<label class="cps-lab">パスワード（英字と数字の10文字）<input type="text" id="cpsJoinIn" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="例：ABCD-EFGH-JK" value="' + esc(cpsJoinCode) + '"></label>' +
-      '<button type="button" class="btn btn-primary" data-cps="join">つなぐ</button></div>';
+      '<button type="button" class="btn btn-primary" data-cps="join">繋ぐ</button></div>';
   }
   return h + '</div>';
 }
@@ -11877,16 +11910,16 @@ function cpsSumHTML(ppl, s) {
     if (!p.hasSales && !p.hasKk) v1++;
   });
   var h = '<div class="cps-sum">' +
-    '<div><span>つないでいる人</span><b>' + s.ppl.length + '<small>人</small></b></div>' +
+    '<div><span>繋いでいる人</span><b>' + s.ppl.length + '<small>人</small></b></div>' +
     '<div><span>今日の予定（全員）</span><b>' + todayN + '<small>件</small></b></div>' +
     '<div class="' + (badK ? 'bad' : '') + '"><span>要対応の契約</span><b>' + badK + '<small>件</small></b></div>' +
     '<div class="' + (s.bad ? 'bad' : '') + '"><span>不備のある記録</span><b>' + s.bad + '<small>件</small></b></div></div>';
-  if (!s.ppl.length) return h + '<p class="cps-empty">まだ誰もつないでいません。上の「部下に渡すパスワード」を部下の方に伝えて、部下の方の管理画面のコンプライアンス →「管理職と共有」で、名前とパスワードを入れていただいてください。</p>';
+  if (!s.ppl.length) return h + '<p class="cps-empty">まだ誰も繋いでいません。上の「部下に渡すパスワード」を部下の方に伝えて、部下の方の管理画面のコンプライアンス →「管理職と共有」で、名前とパスワードを入れていただいてください。</p>';
   h += '<h4 class="cps-h">人ごと：不備と今日の予定（' + esc(cpsDayFmt(td)) + '）</h4><div class="cps-pcs">' + s.ppl.map(function (p) {
     var o = p.o;
     if (o.bad) return '<article class="cps-pc bad"><header><b>' + esc(o.name || '（名前の分からない端末）') + '</b><span class="cps-note">最後に届いた ' + esc(cpTsFmt(o.at)) + '</span></header>' +
       '<p>' + cpFlagT('red', o.bad === 'keychg' ? '鍵が前と変わっています' : o.bad === 'sig' ? '署名が合いません' : '開けない記録です') + '</p>' +
-      '<p class="cps-small">' + (o.bad === 'keychg' ? '端末を入れ替えた・つなぎ直したときに起きます。本人に確かめてから受け取ってください。' : '本人の端末から送られたものか確かめられないので、中身を出していません。') + '</p>' +
+      '<p class="cps-small">' + (o.bad === 'keychg' ? '端末を入れ替えた・繋ぎ直したときに起きます。本人に確かめてから受け取ってください。' : '本人の端末から送られたものか確かめられないので、中身を出していません。') + '</p>' +
       (o.bad === 'keychg' ? '<button type="button" class="btn btn-ghost btn-sm" data-cps="trust" data-dev="' + esc(o.dev) + '">確かめたので受け取る</button>' : '') + '</article>';
     var q = ppl.filter(function (x) { return x.o.dev === o.dev; })[0] || { acts: [], custs: [], rows: [], hasSales: false, hasKk: false };
     /* 不備：記録の不備と、要対応の契約 */
@@ -11990,7 +12023,7 @@ function cpsSchedHTML(ppl) {
       h += '<h5 class="cps-day">' + esc(cpsDayFmt(a.d)) + '</h5><div class="au-scroll"><table class="au-table cps-sched"><thead><tr><th>時刻</th><th>人</th><th>種類</th><th>顧客名</th><th>場所</th><th>同席</th><th>提出書類</th></tr></thead><tbody>';
     }
     var kk = a.k && p.byKid[a.k], docs = '';
-    if (a.t === 'KY') docs = kk ? cpsDocChips(kk) : (p.hasKk ? '<span class="cps-note">契約の記録とつながっていません</span>' : '<span class="cps-note">要約がまだ届いていません</span>');
+    if (a.t === 'KY') docs = kk ? cpsDocChips(kk) : (p.hasKk ? '<span class="cps-note">契約の記録と繋がっていません</span>' : '<span class="cps-note">要約がまだ届いていません</span>');
     else docs = '<span class="cps-note">―</span>';
     h += '<tr><td class="cps-nw">' + esc(a.s ? a.s + (a.e ? '〜' + a.e : '') : '時刻なし') + '</td><td class="cps-nw">' + esc(p.o.name) + '</td><td class="cps-nw">' + esc(TD_TYPES[a.t] || a.t) + '</td>' +
       '<td>' + esc(a.c ? a.c + ' 様' : '―') + '</td><td>' + esc(a.p || '―') + '</td><td>' + esc(a.w || '―') + (a.f ? cpFlagT('ok', 'ご家族などが同席') : '') + '</td><td>' + docs + '</td></tr>';
@@ -12040,7 +12073,7 @@ function cpsDocsHTML(ppl) {
   h += '<div class="au-scroll"><table class="au-table cps-dsum"><thead><tr><th>人</th><th>契約</th><th>要対応</th><th>提出済み</th><th>起点より前</th><th>知らせの起点</th></tr></thead><tbody>' +
     any.map(function (p) {
       var bad = p.rows.filter(function (r) { return cpsRowBad(r).length; }).length, k = p.o.kk;
-      return '<tr><td class="cps-nw"><b>' + esc(p.o.name) + '</b>' + (p.feed ? '' : cpFlagT('amber', '管理画面の記録とまだつながっていません')) + '</td><td>' + k.n.all + '件</td><td>' + (bad ? cpFlagT('red', bad + '件') : cpFlagT('ok', 'なし')) + '</td><td>' + k.n.ok + '件</td><td>' + k.n.before + '件</td><td>' + esc(k.since ? auFmt(k.since) : '未設定（全ての契約を数えます）') + '</td></tr>';
+      return '<tr><td class="cps-nw"><b>' + esc(p.o.name) + '</b>' + (p.feed ? '' : cpFlagT('amber', '管理画面の記録とまだ繋がっていません')) + '</td><td>' + k.n.all + '件</td><td>' + (bad ? cpFlagT('red', bad + '件') : cpFlagT('ok', 'なし')) + '</td><td>' + k.n.ok + '件</td><td>' + k.n.before + '件</td><td>' + esc(k.since ? auFmt(k.since) : '未設定（全ての契約を数えます）') + '</td></tr>';
     }).join('') + '</tbody></table></div>';
   var list = [];
   any.forEach(function (p) {
@@ -12138,7 +12171,7 @@ function cpsPaint() {
 var cpsHomeT = null;
 function cpsHomeLater() {
   clearTimeout(cpsHomeT);
-  cpsHomeT = setTimeout(function () { if (auTab === 'home') try { cpRenderHome(); } catch (e) {} }, 400);
+  cpsHomeT = setTimeout(function () { if (auTab === 'home') try { cpRenderHome(); } catch (e) {} try { tdRender(); } catch (e) {} }, 400);
   if (typeof tbLater === 'function') tbLater();   /* TEAMBC 営業ダッシュボードのチームの予定へ */
 }
 function cpsBusyBtn(k, on) { var b = document.querySelector('#auShare [data-cps="' + k + '"]'); if (b) { b.disabled = on; b.classList.toggle('is-busy', on); } }
@@ -12154,17 +12187,22 @@ function cpsInvite(fresh) {
   var P = cpsCodeFmt(b.code), B = cpsCodeFmt(b.b);
   var root = modal(fresh ? 'パスワードを発行しました' : '発行したパスワード',
     '<div class="cps-pwbox"><h5>部下に渡すパスワード</h5><p class="cps-code" id="cpsCodeTxt">' + esc(P) + '</p>' +
-    '<p class="cps-small">部下の方の管理画面で、コンプライアンス →「管理職と共有」を開き、名前とこのパスワードを入れて「つなぐ」を押していただきます。下のリンクを開いていただくと、パスワードが欄に入ります。</p>' +
-    '<div class="cps-row"><button type="button" class="btn btn-primary btn-sm" id="cpsCopyCode">パスワードをコピー</button>' +
-    '<button type="button" class="btn btn-ghost btn-sm" id="cpsCopyLink">つなぐリンクをコピー</button></div></div>' +
+    '<p class="cps-small">部下の方は、管理画面のコンプライアンス →「管理職と共有」で名前とこのパスワードを入れ、「繋ぐ」を押します。伝え方は、次のどちらかです。</p>' +
+    '<div class="cps-ways">' +
+    '<div class="cps-way"><p class="cps-way-h"><span class="cps-way-n">1</span>パスワードの10文字を伝える</p>' +
+    '<p class="cps-small">部下の方が、上の10文字を画面に打ち込みます。口頭・紙・メッセージで伝えるときに。</p>' +
+    '<button type="button" class="btn btn-primary btn-sm" id="cpsCopyCode">パスワードをコピー</button></div>' +
+    '<div class="cps-way"><p class="cps-way-h"><span class="cps-way-n">2</span>開くだけのリンクを送る</p>' +
+    '<p class="cps-small">開くと、パスワードが入った状態で画面が開きます（打ち込みは要りません）。メール・チャットで送るときに。</p>' +
+    '<button type="button" class="btn btn-ghost btn-sm" id="cpsCopyLink">リンクをコピー</button></div></div></div>' +
     '<div class="cps-pwbox boss"><h5>管理職用パスワード（部下の方には渡さない）</h5><p class="cps-code" id="cpsBossTxt">' + esc(B) + '</p>' +
     '<p class="cps-small">このパソコンは覚えているので、次からは開くだけで管理職モードになります。社長など<b>ほかのパソコンで見るとき</b>に、この12文字を入れます。忘れると誰にも開けないので、紙に控えてください。</p>' +
     '<div class="cps-row"><button type="button" class="btn btn-ghost btn-sm" id="cpsCopyBoss">管理職用パスワードをコピー</button></div></div>' +
     '<p class="cps-warn">2つのパスワードを、同じメールやメッセージに書かないでください。管理職用パスワードは、口頭か紙でお伝えください。</p>',
     '<button type="button" class="btn btn-ghost btn-sm" data-mclose>閉じる</button>');
   root.querySelector('.modal-box').classList.add('cps-inv-box');
-  document.getElementById('cpsCopyCode').onclick = function () { cpsCopy(P, '部下に渡すパスワードをコピーしました'); };
-  document.getElementById('cpsCopyLink').onclick = function () { cpsCopy(cpsInviteLink(b.code), 'つなぐリンクをコピーしました'); };
+  document.getElementById('cpsCopyCode').onclick = function () { cpsCopy(P, '10文字のパスワードをコピーしました'); };
+  document.getElementById('cpsCopyLink').onclick = function () { cpsCopy(cpsInviteLink(b.code), 'パスワード入りのリンクをコピーしました'); };
   document.getElementById('cpsCopyBoss').onclick = function () { cpsCopy(B, '管理職用パスワードをコピーしました'); };
 }
 function cpsRecModal(dev, id) {
@@ -12385,7 +12423,7 @@ function cpDeepLink() {
     }
     auSetTab('share');
     var ji = document.getElementById('cpsJoinIn'), jn = document.getElementById('cpsJoinName');
-    if (ji && cpsJoinCode) { (jn && !jn.value ? jn : ji).focus(); toast('パスワードを入れました。名前を確かめて「つなぐ」を押してください'); }
+    if (ji && cpsJoinCode) { (jn && !jn.value ? jn : ji).focus(); toast('パスワードを入れました。名前を確かめて「繋ぐ」を押してください'); }
     cpScrollLate(document.getElementById('auditSec'));
     return;
   }
@@ -13164,6 +13202,23 @@ function tdCalSum(ev, today) {
   return { over: over, soon: soon };
 }
 function tdKk() { try { return KKC.compute(); } catch (e) { return null; } }
+/* 部下の方の不備（2026-10-28 ユーザー指示「部下ができていないこともこの画面でわかるようにエラー表示」）。
+   管理職モードに入っているときだけ、届いている記録（メモリの中）から数える。記録の不備＝rec／要対応の契約＝kk */
+function tdMem() {
+  var out = { rec: [], kk: [], on: false };
+  try {
+    if (typeof cpsM === 'undefined' || !cpsM) return out;
+    out.on = true;
+    cpsPeople().forEach(function (p) {
+      var o = p.o;
+      o.recs.forEach(function (r) { var m = cpMissing(r); if (m.length) out.rec.push({ who: o.name, dev: o.dev, r: r, m: m }); });
+      p.rows.forEach(function (r) { var b = cpsRowBad(r); if (b.length) out.kk.push({ who: o.name, dev: o.dev, r: r, b: b }); });
+    });
+    out.rec.sort(function (a, b) { return String(b.r.upd || '') < String(a.r.upd || '') ? -1 : 1; });
+  } catch (e) {}
+  return out;
+}
+function tdWho(n) { return '<span class="td-tag td-who">' + esc(tdStr(n || '名前の分からない端末', 40)) + 'さん</span>'; }
 function tdCpMiss() {
   return au.recs.filter(function (r) { return CP_KINDS.indexOf(r.kind) >= 0 && cpMissing(r).length; })
     .sort(function (a, b) { return String(b.upd || '') < String(a.upd || '') ? -1 : 1; });
@@ -13196,7 +13251,7 @@ function tdRender() {
   var ev = tdCalFeed(), cs = tdCalSum(ev, today), kk = tdKk(), miss = tdCpMiss();
   var acts = S.activities.filter(function (a) { return a.date === today && TD_TYPES[a.type]; })
     .sort(function (a, b) { return (a.start || '99') < (b.start || '99') ? -1 : 1; });
-  var any = S.customers.length || S.activities.length || au.recs.length;
+  var mem = tdMem(), any = S.customers.length || S.activities.length || au.recs.length || mem.on;
   sec.classList.toggle('hide', !any);
   var d = new Date();
   document.getElementById('todayDate').textContent = (d.getMonth() + 1) + '月' + d.getDate() + '日（' + TD_DOW[d.getDay()] + '）';
@@ -13230,7 +13285,14 @@ function tdRender() {
       }).join('') + '</ul>' + (al.length > 3 ? '<p class="td-none">ほか ' + (al.length - 3) + '件</p>' : '')
         : '<p class="td-none">全ての契約で提出済みです（' + kk.counts.all + '件）。</p>');
   }
-  h += tdTile('kk', 'kk', '提出書類', '顧客管理', kk && kk.rows.length ? nAl : null, '件', nAl > 0, b2,
+  if (mem.kk.length) {
+    b2 += '<p class="td-sub td-sub-mem">部下の方の要対応の契約（管理職モード）</p><ul class="td-list">' + mem.kk.slice(0, 3).map(function (x) {
+      return '<li><button type="button" class="td-row td-mem" data-tdmemk="' + esc(x.dev) + '">' + tdWho(x.who) + '<b>' + esc(x.r.f.name) + '様</b>' +
+        (x.r.f.date ? '<span class="td-when">契約 ' + esc(tdMd(x.r.f.date)) + '</span>' : '') + '<span class="td-why">' + esc(x.b[0].t.replace(/（.*$/, '')) + '</span></button></li>';
+    }).join('') + '</ul>' + (mem.kk.length > 3 ? '<p class="td-none">ほか ' + (mem.kk.length - 3) + '件（管理職モードの「提出書類」で全て見られます）</p>' : '');
+  }
+  var nKk = (kk && kk.rows.length ? nAl : 0) + mem.kk.length;
+  h += tdTile('kk', 'kk', '提出書類', '顧客管理', kk && kk.rows.length || mem.kk.length ? nKk : null, '件', nKk > 0, b2,
     { key: 'kokyaku', hash: nAl ? '#bad' : '', label: nAl ? '要対応の契約を顧客管理で開く' : '顧客管理を開く' });
   /* 声かけ（満期カレンダー）のカードは 2026-10-07 ユーザー指示「声かけを削除」で外した。満期カレンダーのカード（と札）も 2026-10-26 に外した（「2ツールを削除」） */
   /* 3 記録の不備 */
@@ -13246,8 +13308,16 @@ function tdRender() {
       return '<li><button type="button" class="td-row" data-tdrec="' + esc(r.id) + '"><span class="td-tag">' + esc(CP[r.kind].label) + '</span>' +
         (r.f.no ? '<b>' + esc(r.f.no) + '様</b>' : '') + '<span class="td-why">不備：' + esc(m.slice(0, 2).join('・') + (m.length > 2 ? ' ほか' : '')) + '</span></button></li>';
     }).join('') + '</ul>' + (miss.length > 3 ? '<p class="td-none">ほか ' + (miss.length - 3) + '件</p>' : '')
-      : '<p class="td-none">' + (au.recs.length ? '不備のある記録はありません。' : '意向把握・比較推奨などの記録はまだありません。') + '</p>');
-  h += tdTile('cp', 'cp', '記録の不備', 'コンプライアンス', miss.length, '件', miss.length > 0, b4,
+      : '<p class="td-none">' + (au.recs.length ? (mem.on ? 'あなたの記録に不備はありません。' : '不備のある記録はありません。') : (mem.on ? 'あなたの記録はまだありません。' : '意向把握・比較推奨などの記録はまだありません。')) + '</p>');
+  if (mem.on) {
+    b4 += '<p class="td-sub td-sub-mem">部下の方の不備（管理職モード）</p>' + (mem.rec.length ? '<ul class="td-list">' + mem.rec.slice(0, 4).map(function (x) {
+      return '<li><button type="button" class="td-row td-mem" data-tdmem="' + esc(x.dev) + '" data-id="' + esc(x.r.id) + '">' + tdWho(x.who) + '<span class="td-tag">' + esc(CP[x.r.kind] ? CP[x.r.kind].label : '記録') + '</span>' +
+        (x.r.f.no ? '<b>' + esc(x.r.f.no) + '様</b>' : '') + '<span class="td-why">不備：' + esc(x.m.slice(0, 2).join('・') + (x.m.length > 2 ? ' ほか' : '')) + '</span></button></li>';
+    }).join('') + '</ul>' + (mem.rec.length > 4 ? '<p class="td-none">ほか ' + (mem.rec.length - 4) + '件（管理職モードの「概要」で人ごとに見られます）</p>' : '')
+      : '<p class="td-none">届いている部下の方の記録に、不備はありません。</p>');
+  }
+  var nCp = miss.length + mem.rec.length;
+  h += tdTile('cp', 'cp', '記録の不備', 'コンプライアンス', nCp, '件', nCp > 0, b4,
     { cp: true, label: 'コンプライアンスを開く' });
   var grid = document.getElementById('todayGrid');
   grid.innerHTML = h;
@@ -13263,9 +13333,11 @@ function initToday() {
   if (!sec || sec._on) return;
   sec._on = true;
   sec.addEventListener('click', function (e) {
-    var b = e.target.closest('[data-tdrec],[data-tdcp]');
+    var b = e.target.closest('[data-tdrec],[data-tdcp],[data-tdmem],[data-tdmemk]');
     if (!b) return;
     if (b.hasAttribute('data-tdcp')) { document.getElementById('kirokuBanner').click(); return; }
+    if (b.hasAttribute('data-tdmem')) { cpsRecModal(b.getAttribute('data-tdmem'), b.getAttribute('data-id')); return; }
+    if (b.hasAttribute('data-tdmemk')) { cpsFilt.dw = b.getAttribute('data-tdmemk'); cpsView = 'docs'; tdCpGo('#compliance/share'); return; }
     var r = cpRec(b.getAttribute('data-tdrec'));
     if (r) tdCpGo('#compliance/' + r.kind + '/' + r.id);
   });
@@ -13513,9 +13585,12 @@ function auInitButtons() {
    ★お客様に見せる文言ではないが、効果の数字や断定（必ず・絶対）は書かない。
    ============================================================ */
 var UPDATES = [
+  { id: '2026-10-28-iko', date: '2026-10-28', target: 'sec:auditSec',
+    title: 'コンプライアンス：意向把握を選んで書く形に・部下の方の不備も今日の仕事に',
+    body: '意向把握の「最初のご意向」「申込の内容」「違った点と、その理由」は、比較推奨と同じく選択肢から選べるようになりました。当てはまるものが無いときは「その他」を選び、下の欄に書きます（前に文だけで書いた記録はそのまま読めます）。管理職モードで部下の方と繋いでいるときは、今日の仕事の「記録の不備」と「提出書類」に、部下の方の不備と要対応の契約も名前つきで出ます。押すと、その記録の中身が開きます。発行したパスワードの窓は「パスワードの10文字を伝える」と「開くだけのリンクを送る」の2つに分けました。社内ツールのカードの「更新」の札は、不備の赤と分けて淡い青にしました。' },
   { id: '2026-10-27-cpsimple', date: '2026-10-27', target: 'sec:auditSec',
-    title: 'コンプライアンス：管理職と共有を、パスワード1つでつなぐ形に',
-    body: '「管理職と共有」は、管理職の方が「部下に渡すパスワードを発行する」を押し、部下の方は名前とそのパスワードを入れて「つなぐ」を押すだけになりました。管理職モードの概要では、人ごとのカードで、誰の記録に不備があるかと、今日の予定が分かります。発行したパソコンは次から開くだけで管理職モードになり、ほかのパソコンでは管理職用パスワード（12文字）で入ります。前の招待コードでつないだ部下の方は、そのまま送れます。' },
+    title: 'コンプライアンス：管理職と共有を、パスワード1つで繋ぐ形に',
+    body: '「管理職と共有」は、管理職の方が「部下に渡すパスワードを発行する」を押し、部下の方は名前とそのパスワードを入れて「繋ぐ」を押すだけになりました。管理職モードの概要では、人ごとのカードで、誰の記録に不備があるかと、今日の予定が分かります。発行したパソコンは次から開くだけで管理職モードになり、ほかのパソコンでは管理職用パスワード（12文字）で入ります。前の招待コードで繋いだ部下の方は、そのまま送れます。' },
   { id: '2026-10-26-idpw', date: '2026-10-26', target: 'sec:auditSec',
     title: 'ログイン：IDとパスワードの2つで開くように',
     body: '管理画面・営業ダッシュボード・学習資料の入口は、合言葉1つではなく「ID」と「パスワード」の2つを入れて開く形にしました。誰がいつログインしたかを、コンプライアンスの「名簿と権限」の「ログインの記録」で見られます（この端末の記録）。管理職モードと会社の保管フォルダでは、社員の方ごとのログインの記録も見られます。名簿を使う会社さまは、一人ずつ10桁のIDとパスワードになります。前に「次回から省略」で開いていた端末は、一度IDとパスワードを入れ直してください。' },
@@ -13542,7 +13617,7 @@ var UPDATES = [
     body: '御社専用のフォルダの管理画面で、社長が名簿を作れるようにしました。一人ずつ別の合言葉（10文字）を発行し、立場（社長・上長・メンバー）を決めます。名簿をお送りいただくと当社で反映し、それからは会社で1つの合言葉では開かず、一人ずつの合言葉で開きます。辞めた方は名簿で止めて当社で反映すると、その方の合言葉では開かなくなります（その方の端末に残った保険の記録を消すこともできます）。メンバーは比較推奨の設定や苦情の目安を見るだけ、管理職モードと顧客管理の上長の画面は社長・上長だけです。社内ツール10個も、管理画面で合言葉を入れた端末だけが開けます。開いた・入れ間違い・止めた方が開こうとした、の利用の記録は端末ごとに残り、CSV に書き出せます。ブラウザの中で確かめる仕組みなので、記録のある端末を手にした人が中身を読むことまでは防げません。' },
   { id: '2026-10-24-kanri', date: '2026-10-24', target: 'sec:auditSec',
     title: 'コンプライアンス：管理職モードに、部下の方のスケジュール・商談プロセス・提出書類を追加',
-    body: '「管理職と共有」でつないでいる部下の方の端末から、コンプライアンスの記録に加えて、営業ダッシュボードの予定とお客様の段階、顧客管理の契約ごとの提出書類の状態（要約）も届くようにしました。管理職モードは 概要・スケジュール・商談プロセス・提出書類・記録・届いた流れ の6つの画面です。活動の内容メモ・備考・お客様の連絡先・生年月日・保険料は送りません。一般モード（部下の方の画面）は今までどおりで、記録を書く・直すのは記録した本人の端末だけです。行き先（データベース）が入るまでは「準備中」です。' },
+    body: '「管理職と共有」で繋いでいる部下の方の端末から、コンプライアンスの記録に加えて、営業ダッシュボードの予定とお客様の段階、顧客管理の契約ごとの提出書類の状態（要約）も届くようにしました。管理職モードは 概要・スケジュール・商談プロセス・提出書類・記録・届いた流れ の6つの画面です。活動の内容メモ・備考・お客様の連絡先・生年月日・保険料は送りません。一般モード（部下の方の画面）は今までどおりで、記録を書く・直すのは記録した本人の端末だけです。行き先（データベース）が入るまでは「準備中」です。' },
   { id: '2026-10-24-renkei', date: '2026-10-24', target: 'inh:sales',
     title: '営業ダッシュボード・顧客管理：記録のつなぎを点検して直しました',
     body: '乗換・早期解約の記録が、カルテ・契約の窓・顧客管理のお客様ファイル・点検用の記録に出るようにしました。契約の窓には「前の契約をやめる・減らす提案で預かった契約なら、乗換・早期解約の記録も作成します」の一行と「作成」（顧客名・契約の番号・新しい契約の会社と商品を写して開きます）を足しました。担当の引継ぎでは、提出不要にした理由・変額保険などの判定・ご高齢の方の確認を手で残した理由と、乗換の記録の要約も次の担当の方へ渡ります。記録する人の名前は、どれか一つの道具に入っていれば、ほかの道具（管理画面のコンプライアンス・営業ダッシュボード・顧客管理）でもその名前を使えます。' },
@@ -13557,7 +13632,7 @@ var UPDATES = [
     body: '記録の不備の札の横に「直し方」を置きました。押すと、不備の項目ごとに何を書けばよいかと、関係する学習資料・研修のセット・AI師匠に聞く問いが並びます。保存したあとの帯・記録の中身・顧客管理のやることの一覧からも開けます。' },
   { id: '2026-10-17-cpsync', date: '2026-10-17', target: 'sec:auditSec',
     title: 'コンプライアンス：「管理職と共有」と管理職モードを追加',
-    body: '部下の方が招待コードでつなぐと、コンプライアンスの記録を保存するたびに、上司・社長のパソコンの画面にすぐ届きます。管理職モード（管理職用の合言葉で入ります）では、人ごとの記録の不備と、追加・更新された記録が分かります。送る中身は管理職の鍵で暗号化してから送ります。お客様のお名前が入った記録を社外の場所に置くことになるので、所属保険会社の決まりと社内規則で扱いを確かめてからお使いください。' },
+    body: '部下の方が招待コードで繋ぐと、コンプライアンスの記録を保存するたびに、上司・社長のパソコンの画面にすぐ届きます。管理職モード（管理職用の合言葉で入ります）では、人ごとの記録の不備と、追加・更新された記録が分かります。送る中身は管理職の鍵で暗号化してから送ります。お客様のお名前が入った記録を社外の場所に置くことになるので、所属保険会社の決まりと社内規則で扱いを確かめてからお使いください。' },
   { id: '2026-10-16-mentor-role', date: '2026-10-16', target: 'inh:mentor',
     title: 'AI師匠：ロープレの相手役と、新人の30日の道すじを追加',
     body: '「ロープレ」を押すと、師匠がお客様の役で断り文句を一つ言います。返しを打つと、お客様の役が反応して会話が続き、最後にお手本の返しを見られます（点数や合否は出しません。打った文は残しません）。「30日の道すじ」は、新人が1日に学習資料を1つ・相談を1つ・明日の面談で使う問いを1つ進める道すじです。進み具合は％で出ます。2025年の保険業法改正についての問いにも答えます。' },
