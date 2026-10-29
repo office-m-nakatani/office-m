@@ -1840,7 +1840,7 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
         <!-- TEAMCAL-HTML-BEGIN 自分の予定／チームの予定（管理職モード）の切り替え（2026-10-26） -->
         <div class="tm-bar hide" id="tmBar" role="group" aria-label="カレンダーに出す予定">
           <button type="button" class="tm-seg on" data-tm="me" aria-pressed="true">自分の予定</button>
-          <button type="button" class="tm-seg" data-tm="team" aria-pressed="false">チームの予定<span class="tm-sub">（管理職モード）</span></button>
+          <button type="button" class="tm-seg" data-tm="team" aria-pressed="false">チームの予定</button>
         </div>
         <div class="tm-info hide" id="tmInfo" aria-live="polite"></div>
         <!-- TEAMCAL-HTML-END -->
@@ -2242,7 +2242,7 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
         </div>
         <h3 class="sh-h3">共有の予定（次の日が近い順）</h3>
         <div class="sh-list" id="shList"></div>
-        <p class="sh-note">予定は、端末で暗号化してから共有の場所（Firebase）を通ります。選んだ方の予定は、選んだ方の端末でしか開けません。「全員」の予定は、部下用パスワードを知っている方なら読めます。部下用パスワードを知っている方は、置き場所を壊すことと、同じお名前を名乗って繋ぐことはできてしまいます（ほかの方が入れた予定を書き換えることはできません）。権限の仕組みではありません。</p>
+        <p class="sh-note">予定は、端末で暗号化してから共有の場所（Firebase）を通ります。選んだ方の予定は、選んだ方の端末でしか開けません。「全員」の予定は、チーム用パスワードを知っている方なら読めます。チーム用パスワードを知っている方は、置き場所を壊すことと、同じお名前を名乗って繋ぐことはできてしまいます（ほかの方が入れた予定を書き換えることはできません）。権限の仕組みではありません。</p>
       </div>
     </div>
     <div class="sheet-foot">
@@ -2969,7 +2969,7 @@ var KKC = (function () {
 
   /* ---- 管理職と共有（2026-10-24）：営業カレンダー・顧客管理からも、管理画面と同じ部屋へ送る ----
      ユーザー指示「管理職モードと一般モードで顧客管理、行動管理、意向把握、比較推奨などの管理職が確認できるようなシステムに。
-       管理職モードでは、部下複数人分のスケジュールの確認や、商談プロセスを確認できるように。管理をしすぎたいというわけではなく、コンプラ面で監査をクリアするためです」
+       管理職モードでは、チームの複数人分のスケジュールの確認や、商談プロセスを確認できるように。管理をしすぎたいというわけではなく、コンプラ面で監査をクリアするためです」
      ★読むのは、管理画面のコンプライアンス「管理職と共有」でつないだ設定（officem.hokenHub.cpsync.v1＝部屋・管理職の公開鍵・この端末の署名の鍵・行き先の url）。
        つないでいない端末では何もしない（一般モードのまま）。行き先の url は管理画面がつないだときに書く
      ★送る中身（v2）＝名前・コンプライアンスの記録（前のまま）・営業カレンダーの要約（sales）・顧客管理の要約（kk）
@@ -3193,10 +3193,10 @@ var KKC = (function () {
     return /iPhone|iPod|iPad|Android.+Mobile|Mobile.+Firefox/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
   }
 
-  /* ---- 共有の予定（2026-10-29）：管理職と部下、部下どうしで、相手を選んで予定を入れる（Google カレンダーの予定の共有に近い形） ----
+  /* ---- 共有の予定（2026-10-29）：管理職とメンバー、メンバーどうしで、相手を選んで予定を入れる（Google カレンダーの予定の共有に近い形） ----
      ユーザー指示「管理職がメンバーのカレンダーに予定を記入できるように。メンバーからも管理職だけではなく、横並びのメンバーにも予定を入れれるように。
        使い方の用途としては、1週間に1度の定例ミーティングを忘れないようにするため。全員分に入れるのではなく、何人か指定して入れれるように」
-     ★同じ部屋（管理職と共有の部下用パスワード P から作る番号）の Firebase の2か所に置く
+     ★同じ部屋（管理職と共有のチーム用パスワード P から作る番号）の Firebase の2か所に置く
        /kt/<部屋>/d/<人の番号16桁>＝名簿の1行（名前・立場・この人あての鍵の公開鍵）／/kt/<部屋>/ev/<予定の番号28桁>＝予定
      ★暗号化＝全員あては P から作った部屋の鍵（ek）で。相手を選んだ予定は、その予定だけの鍵を作り、選んだ方（と作った人）の公開鍵でだけ包む
        ＝選ばれていない方の端末には、中身（題・日時・場所）が読めない形でしか届かない
@@ -3262,7 +3262,7 @@ var KKC = (function () {
   function calDec(key, iv, ct) {
     return crypto.subtle.decrypt({ name: 'AES-GCM', iv: cpsUnb64(iv) }, key, cpsUnb64(ct)).then(function (pt) { return JSON.parse(new TextDecoder().decode(pt)); });
   }
-  /* つなぐ。P＝部下用パスワード（管理画面が繋いだとき・発行したとき・管理職用パスワードで入ったときに渡す）。前に繋いだ同じ部屋なら、人の番号と鍵は前のまま */
+  /* つなぐ。P＝チーム用パスワード（管理画面が繋いだとき・発行したとき・管理職用パスワードで入ったときに渡す）。前に繋いだ同じ部屋なら、人の番号と鍵は前のまま */
   function calSetup(P, opt) {
     opt = opt || {};
     if (!cpsCan() || !P) return Promise.reject('nocrypto');
@@ -3529,7 +3529,7 @@ var KKC = (function () {
       canJoin: !!(cp && (/^[0-9a-f]{32}$/.test(cp.room || '') || (cp.boss && cp.boss.code)) && /^https?:\/\//.test(cp.url || '')),
       bossCode: !!(cp && cp.boss && cp.boss.code), room: cp ? (cp.room || (cp.boss && cp.boss.room) || '') : '', url: cp ? cp.url || '' : '' };
   }
-  /* 管理画面を開かなくても、営業カレンダーから繋ぐ（管理職のパソコン＝覚えているパスワード／部下＝パスワードを入れる） */
+  /* 管理画面を開かなくても、営業カレンダーから繋ぐ（管理職のパソコン＝覚えているパスワード／メンバー＝パスワードを入れる） */
   function calJoinHere(P) {
     var cp = rd(CPS_KEY) || {}, url = cp.url || '';
     if (!/^https?:\/\//.test(url)) return Promise.reject('nourl');
@@ -3993,7 +3993,7 @@ function daysSince(iso){
 /* ページの上の控えの帯は、PC では出さない（2026-10-06 ユーザー指示＋画面写真「注釈やサンプルと記載されていてなどが多すぎて見ずらい。無くしてください」）。
    控えは「設定・控え」の「控えを書き出す」と、管理画面の「データの控え」から書き出せる。
    ★携帯（とタブレット）だけ、最後に控えを取ってから7日を過ぎたら、上に一行と「控えを取る」を出す（2026-10-29 ユーザー指示「両方作ってください」
-     ＝「控えを取っていない日が続いたら、部下の端末で知らせる　携帯で、最後に控えてから7日を過ぎたら、上に一言と「控えを取る」のボタンを出します」）。
+     ＝「控えを取っていない日が続いたら、メンバーの端末で知らせる　携帯で、最後に控えてから7日を過ぎたら、上に一言と「控えを取る」のボタンを出します」）。
      押すと、管理画面の「データの控え」と同じ全ての記録の控え（katatsugi-all）を、その場で1回で書き出す（KKC.bk.exportAll）。
      まだ一度も控えていない端末は、記録が入った日から7日で出す（使い始めの日から出さない）。× で、この画面を閉じるまで隠す */
 var BKN_DAYS = 7, BKN_FIRST = 'officem.backupNag.first', BKN_HIDE = 'officem.backupNag.sales';
@@ -6022,7 +6022,7 @@ $('evEdit').addEventListener('click', function(){
    「ここも管理職モードで一般社員の動きが分かるようにしてください」）
    ・中身は、同じ端末・同じブラウザで開いている管理画面の管理職モード（または会社の保管フォルダ）から受け取る（BroadcastChannel 'katatsugi-team'）
    ・受け取った中身はこの画面のメモリの中だけ。端末に保存しない（管理画面を閉じる・この画面を閉じると消える）
-   ・読むだけ。部下の方の記録を直すのは、記録した本人の端末。内容メモ・備考・連絡先・生年月日・保険料は届かない
+   ・読むだけ。チームのメンバーの記録を直すのは、記録した本人の端末。内容メモ・備考・連絡先・生年月日・保険料は届かない
    ・名簿でメンバーとして開いた方には、切り替えを出さない */
 var TM_NAME = 'katatsugi-team', tmCh = null, tmMode = 'me', tmData = null, tmWho = '', tmWaitT = null, tmBeatT = null, tmWaiting = false, tmBack = null, tmCur = null;
 /* 送り元ごとの中身（2026-10-29）＝開いている管理画面のタブと、裏で開いた管理画面の両方から届くので、片方の「出せない」でもう片方の予定を消さない */
@@ -6033,7 +6033,7 @@ function tmPick(){
   return best;
 }
 var TM_SS = { active:'進行中', won:'成約', lost:'失注', hold:'保留' };
-/* 名簿でメンバーとして開いた方・管理職と共有で「部下として繋いだだけ」の端末（管理職のパスワードを覚えていない）には、切り替えを出さない（2026-10-29） */
+/* 名簿でメンバーとして開いた方・管理職と共有で「メンバーとして繋いだだけ」の端末（管理職のパスワードを覚えていない）には、切り替えを出さない（2026-10-29） */
 function tmMemberDev(){
   try { var o = JSON.parse(localStorage.getItem('officem.hokenHub.cpsync.v1') || 'null'); return !!(o && typeof o === 'object' && o.room && !o.boss); } catch (e) { return false; }
 }
@@ -6187,7 +6187,7 @@ function tmInfoHtml(){
     if (tmWaiting) return '<p class="tm-h" role="status">管理画面に問い合わせています…</p>';
     return '<p class="tm-h">チームの予定は、管理画面の<span class="nb">管理職モード</span>から届きます</p>' +
       (tmBgTried ? '<p class="tm-mute">この端末では、管理職モードに自動で繋げませんでした（管理職用パスワードを、この端末で発行・入力していないため）。</p>' : '') +
-      '<p>この端末で管理画面の「管理職モード」（または「会社の保管フォルダ」）を開くと、部下の方の予定がこのカレンダーに出ます。届いた予定はこの画面に保存しないので、管理画面を閉じると消えます。</p>' +
+      '<p>この端末で管理画面の「管理職モード」（または「会社の保管フォルダ」）を開くと、チームのメンバーの予定がこのカレンダーに出ます。届いた予定はこの画面に保存しないので、管理画面を閉じると消えます。</p>' +
       '<div class="tm-acts"><a class="btn btn-primary btn-sm" href="' + esc(hubHref('#compliance/share')) + '" target="katatsugi-hub" rel="noopener">管理職モードを開く</a>' +
       '<a class="btn btn-ghost btn-sm" href="' + esc(hubHref('#compliance/hokan')) + '" target="katatsugi-hub" rel="noopener">会社の保管フォルダを開く</a>' +
       '<button type="button" class="btn btn-ghost btn-sm" data-tm-again>もう一度問い合わせる</button></div>';
@@ -6200,7 +6200,7 @@ function tmInfoHtml(){
     (tmData.ppl.length ? '<label>人<select id="tmWho"><option value="">全員</option>' + tmData.ppl.map(function(p){
       return '<option value="' + esc(p.id) + '"' + (tmWho === p.id ? ' selected' : '') + '>' + esc(p.name) + '</option>'; }).join('') + '</select></label>' : '') +
     '<a class="btn btn-ghost btn-sm" href="' + esc(tmHubHref()) + '" target="katatsugi-hub" rel="noopener">管理画面で見る</a></div>';
-  if (!tmData.ppl.length) h += '<p>部下の方の予定は、まだ届いていません。部下の方が営業カレンダーで保存すると届きます。</p>';
+  if (!tmData.ppl.length) h += '<p>チームのメンバーの予定は、まだ届いていません。チームのメンバーが営業カレンダーで保存すると届きます。</p>';
   else h += '<p class="tm-mute">読むだけの表示です。内容メモ・備考・連絡先は届きません。直すのは、記録した本人の端末です。' +
     (tmData.live ? '' : '保管フォルダの控えの日の内容で、控えのあとに直した分は入っていません。') + '</p>';
   return h;
@@ -6951,7 +6951,7 @@ function shRepText(e){
 }
 function shErrText(e){
   if (e === 'noto') return '入れる相手を選んでください（「全員」でも構いません）';
-  if (e === 'nomatch') return 'このパスワードは、繋いでいる管理職のものではありません。管理職から受け取った部下用パスワード（10文字）を入れてください';
+  if (e === 'nomatch') return 'このパスワードは、繋いでいる管理職のものではありません。管理職から受け取ったチーム用パスワード（10文字）を入れてください';
   if (e === 'nourl') return 'この端末では、管理画面の「管理職と共有」がまだ繋がっていません';
   if (e === 'denied') return '共有の場所に書き込めませんでした。Firebase の決まりに、共有の予定の場所が足されているか確かめてください';
   if (e === 'notmine') return 'ほかの方が入れた予定は直せません（隠すことはできます）';
@@ -6976,7 +6976,7 @@ function shStart(){
   if (!shOk()) return;
   KKC.cal.watch(function(){ shRefresh(); });
   if (KKC.cal.cfg()) KKC.cal.start();
-  else if (KKC.cal.status().bossCode) KKC.cal.joinHere().catch(function(){});   /* 管理職のパソコンは、覚えている部下用パスワードで自動で繋ぐ */
+  else if (KKC.cal.status().bossCode) KKC.cal.joinHere().catch(function(){});   /* 管理職のパソコンは、覚えているチーム用パスワードで自動で繋ぐ */
   shRefresh();
 }
 function shRenderStatus(){
@@ -6996,18 +6996,18 @@ function shRenderSetup(force){
   host.setAttribute('data-k', key);
   if (!shOk() || !window.crypto || !crypto.subtle) { host.innerHTML = '<p>このブラウザでは、共有の予定を使えません（暗号化の機能がありません）。</p>'; return; }
   if (!st.canJoin) {
-    host.innerHTML = '<p><b>まず、管理画面の「管理職と共有」で繋いでください。</b>管理職は部下用パスワードを発行し、部下の方は名前とそのパスワードを入れて繋ぎます。繋いだ方どうしで、予定を入れ合えます。</p>' +
+    host.innerHTML = '<p><b>まず、管理画面の「管理職と共有」で繋いでください。</b>管理職はチーム用パスワードを発行し、チームのメンバーは名前とそのパスワードを入れて繋ぎます。繋いだ方どうしで、予定を入れ合えます。</p>' +
       '<a class="btn btn-primary btn-sm" href="' + esc(hubHref('#compliance/share')) + '" target="katatsugi-hub" rel="noopener">管理画面の「管理職と共有」を開く</a>';
     return;
   }
   if (st.bossCode) {
-    host.innerHTML = '<p>このパソコンは、部下用パスワードを発行した管理職のパソコンです。押すと繋ぎます。</p>' +
+    host.innerHTML = '<p>このパソコンは、チーム用パスワードを発行した管理職のパソコンです。押すと繋ぎます。</p>' +
       '<div class="sh-pw"><button type="button" class="btn btn-primary btn-sm" id="shBossGo">繋ぐ</button><span class="sh-err" id="shPwErr" role="alert"></span></div>';
     $('shBossGo').addEventListener('click', function(){ shJoin(''); });
     return;
   }
-  host.innerHTML = '<p>最初の1回だけ、<b>部下用パスワード（10文字）</b>を入れてください。管理画面の「管理職と共有」で繋いだときに、管理職から受け取ったものです。</p>' +
-    '<div class="sh-pw"><input type="text" id="shPw" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="20" placeholder="例：ABCD-EFGH-JK" aria-label="部下用パスワード">' +
+  host.innerHTML = '<p>最初の1回だけ、<b>チーム用パスワード（10文字）</b>を入れてください。管理画面の「管理職と共有」で繋いだときに、管理職から受け取ったものです。</p>' +
+    '<div class="sh-pw"><input type="text" id="shPw" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="20" placeholder="例：ABCD-EFGH-JK" aria-label="チーム用パスワード">' +
     '<button type="button" class="btn btn-primary btn-sm" id="shPwGo">繋ぐ</button><span class="sh-err" id="shPwErr" role="alert"></span></div>';
   $('shPwGo').addEventListener('click', function(){ shJoin($('shPw').value); });
   $('shPw').addEventListener('keydown', function(ev){ if (ev.key === 'Enter') { ev.preventDefault(); shJoin($('shPw').value); } });
@@ -7018,8 +7018,8 @@ function shJoin(raw){
   var P = '';
   if (raw) { try { P = String(raw).normalize('NFKC'); } catch (e) { P = String(raw); } P = P.toUpperCase().replace(/[^A-Z0-9]/g, ''); }
   var err = $('shPwErr');
-  if (!P && !KKC.cal.status().bossCode) { if (err) err.textContent = '部下用パスワード（10文字）を入れてください'; return; }
-  if (raw && P.length !== 10) { if (err) err.textContent = '部下用パスワードは、英字と数字の10文字です'; return; }
+  if (!P && !KKC.cal.status().bossCode) { if (err) err.textContent = 'チーム用パスワード（10文字）を入れてください'; return; }
+  if (raw && P.length !== 10) { if (err) err.textContent = 'チーム用パスワードは、英字と数字の10文字です'; return; }
   shBusy = true; if (err) err.textContent = '繋いでいます…';
   KKC.cal.joinHere(P || undefined).then(function(){
     shBusy = false; offerUndo('共有の予定に繋ぎました', null); shOpen();
@@ -8081,7 +8081,7 @@ function renderCpsLine(){
   } else if (s.waiting) {
     h = '<p class="sec-note" style="margin-top:0;">管理職と繋いでありますが、今は送れません（管理職の鍵が変わった、または部屋が見つかりません）。<a href="' + esc(hubHref()) + '#compliance/share" target="katatsugi-hub" rel="noopener">管理画面の「管理職と共有」</a>で確かめてください。</p>';
   } else {
-    h = '<p class="sec-note" style="margin-top:0;">この端末は、管理職と繋いでいません（記録はこの端末だけに残ります）。管理職から部下用のパスワードをもらったら、<a href="' + esc(hubHref()) + '#compliance/share" target="katatsugi-hub" rel="noopener">管理画面のコンプライアンス「管理職と共有」</a>で名前とパスワードを入れて繋ぐと、ここで記録した予定・お客様の段階・契約の提出書類の状態も管理職のパソコンへ届きます。</p>';
+    h = '<p class="sec-note" style="margin-top:0;">この端末は、管理職と繋いでいません（記録はこの端末だけに残ります）。管理職からチーム用のパスワードをもらったら、<a href="' + esc(hubHref()) + '#compliance/share" target="katatsugi-hub" rel="noopener">管理画面のコンプライアンス「管理職と共有」</a>で名前とパスワードを入れて繋ぐと、ここで記録した予定・お客様の段階・契約の提出書類の状態も管理職のパソコンへ届きます。</p>';
   }
   host.innerHTML = h;
 }
@@ -9587,7 +9587,7 @@ function bgHubFeedCheck(){
 }
 /* BGHUB-END */
 /* MODOSHI-BEGIN ---------- 管理職モードからの「記録の戻し」を受け取る（2026-10-29）----------
-   部下の方の新しい端末で、管理画面の「データの控え」→「控えから戻す」に記録の戻しのファイルを読み込むと、
+   チームのメンバーの新しい端末で、管理画面の「データの控え」→「控えから戻す」に記録の戻しのファイルを読み込むと、
    管理画面が MD_PENDING にお客様・予定・契約を置く。ここで開いたとき（と、ほかの窓が置いたとき）に入れて、置いたものを消す。
    同じ番号のお客様・予定・契約は足さない。同じお名前のお客様は足さずに紐付ける。今の記録は消さない（元に戻せる） */
 var MD_PENDING = 'officem.hokenSales.modoshi.v1';
