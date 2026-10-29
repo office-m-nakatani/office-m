@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
-<title>保険営業ダッシュボード｜顧客・営業活動の記録</title>
+<title>保険営業カレンダー｜顧客・営業活動の記録</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231c5cab'/%3E%3Cpath d='M7 25V15M13 25V8M19 25v-6M25 25V12' stroke='%23fff' stroke-width='3.4' stroke-linecap='round'/%3E%3C/svg%3E">
 <!--
   ⚠️ 社内利用専用ツール（顧客向けに配布しない）
@@ -337,24 +337,42 @@ a{color:var(--navy-2);}
 .chk.on,.fld label.chk.on{background:var(--navy-soft);border-color:var(--navy-2);color:var(--navy);}
 .chk span{letter-spacing:.02em;}
 
-/* ---------- 時刻の選択（時→分の順に押して決める） ---------- */
-.time-wrap{position:relative;}
-.time-input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px;
-  background:#fbfcfe;font-size:var(--fs-base);font-weight:700;color:var(--text);cursor:pointer;font-family:inherit;}
+/* ---------- 時刻の選択（2026-10-29 作り直し）----------
+   ユーザー指示「予定入力の際の時間の入力がやりにくい。使いやすくしてください」。
+   開始と終了を1行に並べ、押すと15分刻みの一覧が出て1回で決まる（打っても入る）。終了の一覧は長さつき。下に長さのボタン */
+.time-wrap{position:relative;min-width:0;}
+.time-input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;min-height:48px;
+  background:#fbfcfe;font-size:1.06rem;font-weight:700;color:var(--text);cursor:pointer;font-family:inherit;text-align:center;
+  font-variant-numeric:tabular-nums;letter-spacing:.02em;}
 .time-input:focus{border-color:var(--navy-2);outline:none;box-shadow:0 0 0 3px var(--navy-soft);}
 .time-input:disabled{background:#eef1f5;color:var(--muted);cursor:not-allowed;}
+.trow{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:8px;max-width:420px;}
+.trow-sep{font-weight:700;color:var(--muted);}
+.tdur-now{display:block;font-size:var(--fs-xs);color:var(--muted);font-weight:700;margin-top:6px;min-height:1.2em;}
+.tdur-now.bad{color:#b3261e;}
+.tdurs{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center;}
+.tdurs-l{display:none;}   /* 上の「長さ：◯」と二重になるので出さない（読み上げは群の名前「長さ」で足りる） */
+.tdur{min-height:40px;padding:0 12px;border:1.5px solid var(--line);background:var(--white);border-radius:999px;cursor:pointer;
+  font-size:var(--fs-sm);font-weight:700;color:var(--navy);font-family:inherit;}
+.tdur:hover{background:var(--navy-soft);}
+.tdur[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff;}
+.tdur:disabled{opacity:.45;cursor:not-allowed;}
+@media (max-width:600px){   /* 携帯：長さのボタン5つを1行に（見出しは上の「長さ：」の行が持つ） */
+  .tdurs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;}
+  .tdurs-l{display:none;}
+  .tdur{padding:0 2px;font-size:clamp(12.5px,3.6vw,14px);white-space:nowrap;}
+}
 .tp{position:absolute;top:calc(100% + 6px);left:0;z-index:70;background:var(--white);border:1.5px solid var(--line);
-  border-radius:14px;box-shadow:0 14px 34px rgba(60,40,30,.22);padding:var(--sp-3);width:320px;
-  max-width:min(320px,calc(100vw - 32px));}
+  border-radius:12px;box-shadow:0 14px 34px rgba(60,40,30,.22);padding:4px;width:max(100%,176px);
+  max-height:264px;overflow-y:auto;overscroll-behavior:contain;}
 .tp.right{left:auto;right:0;}
-.tp-h{font-size:var(--fs-xs);font-weight:700;color:var(--muted);margin:0 0 6px;}
-.tp-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;}
-.tp-btn{min-height:40px;border:1.5px solid var(--line);background:var(--white);border-radius:9px;cursor:pointer;
-  font-size:var(--fs-sm);font-weight:700;color:var(--navy);padding:0;font-family:inherit;}
-.tp-btn:hover{background:var(--navy-soft);}
-.tp-btn[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff;}
-.tp-foot{display:flex;gap:var(--sp-2);margin-top:var(--sp-3);}
-.tp-foot .btn{flex:1;justify-content:center;}
+.tp-opt{display:flex;align-items:baseline;gap:6px;width:100%;min-height:40px;border:0;background:none;border-radius:8px;cursor:pointer;
+  font-size:1rem;font-weight:700;color:var(--text);padding:0 12px;font-family:inherit;text-align:left;font-variant-numeric:tabular-nums;}
+.tp-opt:hover,.tp-opt.hi{background:var(--navy-soft);}
+.tp-opt[aria-selected="true"]{background:var(--navy);color:#fff;}
+.tp-opt .tp-d{font-size:var(--fs-xs);font-weight:700;color:var(--muted);}
+.tp-opt[aria-selected="true"] .tp-d{color:#e8eef5;}
+.tp-opt.hr{border-top:1px solid #eef1f5;}
 
 /* ---------- 顧客名の候補（未登録でもそのまま入力できる。あくまで候補で、選択を強制しない） ---------- */
 .cust-suggest{position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:70;background:var(--white);
@@ -577,7 +595,8 @@ a.tb-tag:hover{border-color:var(--navy-2);color:var(--navy);}
 .dp-d{min-height:44px;}
 .dp-d:disabled{color:#b3bcc6;cursor:not-allowed;background:#f4f6f8;text-decoration:line-through;}
 .dp-nav:disabled{opacity:.4;cursor:not-allowed;}
-.tp-btn{min-height:44px;}
+.tp-opt{min-height:44px;}
+.tdur{min-height:44px;}
 .pm-table input[type=text],.pm-table input[type=number],.pm-table select{min-height:44px;}
 .pm-chk{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;cursor:pointer;}
 .cust-suggest button{min-height:44px;padding:10px 12px;}
@@ -866,8 +885,9 @@ a.tb-tag:hover{border-color:var(--navy-2);color:var(--navy);}
     padding:10px var(--sp-5);border-top:1px solid var(--line);border-radius:0 0 var(--r) var(--r);z-index:5;}
   .cf-actions .btn{flex:1 1 0;}
   .head-actions{display:grid;grid-template-columns:1fr 1fr;width:100%;margin-left:0;}
-  /* 3つ目の「更新の登録」を足したので、携帯はお誕生日登録と更新の登録を上に並べ、サンプルは下の段いっぱいに（2026-10-26） */
-  .head-actions #sampleBtn{order:3;grid-column:1 / -1;}
+  /* 携帯は2つずつ＝上の段にお誕生日登録と更新の登録、下の段に予定を共有とサンプル（2026-10-26・10-29 に「予定を共有」を足した） */
+  .head-actions #shBtn{order:3;}
+  .head-actions #sampleBtn{order:4;}
   .head-actions .head-action{width:auto;}
   .om-toast{left:12px;right:12px;transform:none;bottom:12px;}
   .pc-only{display:none !important;}
@@ -1093,6 +1113,62 @@ a.tb-tag:hover{border-color:var(--amber);color:var(--amber);}
 @media (max-width:600px){ .ev-sum .es-top .es-docs{margin-left:0;} }
 iframe.bg-hub{position:absolute;left:-10000px;top:0;width:10px;height:10px;border:0;opacity:0;pointer-events:none;visibility:hidden;}
 /* DASHWIDE-END */
+/* SHCAL-CSS-BEGIN 共有の予定（2026-10-29）。色は青緑の点線の枠＝ほかの活動の色と形で見分ける（字は白地で 8 前後） */
+.bg-sh{background:#fff;border:1.5px dashed #2f7480;color:#1d5660;}
+.cal-ev.sh{background:#f2fafa;border:1.5px dashed #2f7480;border-left:3px solid #2f7480;color:#1d5660;}
+.cal-cell > button.cal-ev.sh{pointer-events:auto;}
+.cal-ev.sh .sh-ic{display:inline-block;width:13px;height:13px;margin-right:3px;vertical-align:-2px;}
+.cal-ev.sh.fresh{box-shadow:0 0 0 2px #fff,0 0 0 4px #2f7480;}
+.day-row.sh{border:1.5px dashed #9cc3c8;background:#f5fbfb;}
+.day-row.sh .day-go{color:#1d5660;}
+.day-row.sh .sh-new{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;background:#1d5660;color:#fff;font-size:var(--fs-xs);font-weight:700;}
+.sh-badge{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;margin-left:6px;border-radius:999px;background:#1d5660;color:#fff;font-size:12.5px;font-weight:700;line-height:1;}
+.sh-badge.hide{display:none;}
+.sh-sheet{max-width:720px;}
+.sd-sheet{max-width:560px;}
+.sh-lead{margin:0 0 var(--sp-3);color:var(--text);line-height:1.75;max-width:38em;}
+.sh-lbl{display:block;font-size:var(--fs-sm);font-weight:700;color:var(--navy);margin-bottom:6px;}
+.sh-seg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;max-width:520px;}
+.sh-segb{min-height:44px;padding:0 6px;border:1.5px solid var(--line);background:var(--white);border-radius:12px;font:inherit;font-weight:700;color:var(--text);cursor:pointer;white-space:nowrap;}
+.sh-segb:hover{background:var(--navy-soft);}
+.sh-segb[aria-checked="true"]{background:var(--navy);border-color:var(--navy);color:#fff;}
+.sh-clear{margin-top:6px;min-height:36px;padding:0 12px;border:1px solid var(--line);border-radius:999px;background:#fff;font:inherit;font-size:var(--fs-sm);font-weight:700;color:var(--navy);cursor:pointer;}
+.sh-clear.hide{display:none;}
+.sh-to{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-top:8px;}
+.sh-to .chk{width:100%;box-sizing:border-box;}
+.sh-to .chk .sh-role{font-weight:600;color:var(--muted);font-size:var(--fs-xs);margin-left:4px;white-space:nowrap;}
+.sh-to.off{opacity:.5;}
+.sh-err{font-weight:700;font-size:var(--fs-sm);align-self:center;color:var(--red-text);}
+.sh-h3{color:var(--navy);font-size:var(--fs-md);margin:var(--sp-5) 0 var(--sp-2);}
+.sh-list{display:grid;gap:8px;}
+.sh-it{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;align-items:center;padding:10px 12px;border:1.5px dashed #9cc3c8;border-radius:12px;background:#f5fbfb;}
+.sh-it.hid{opacity:.65;background:#fff;}
+.sh-it b{color:var(--navy);}
+.sh-it .sh-m{display:block;font-size:var(--fs-sm);color:var(--muted);margin-top:2px;}
+.sh-it .sh-acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;}
+.sh-it .sh-acts .btn{min-height:40px;}
+.sh-empty{color:var(--muted);margin:0;}
+.sh-note{margin:var(--sp-4) 0 0;font-size:var(--fs-sm);color:var(--muted);line-height:1.7;max-width:42em;}
+.sh-st{font-size:var(--fs-sm);color:var(--muted);font-weight:700;margin-right:auto;}
+.sh-st .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#9aa4ae;margin-right:6px;vertical-align:0;}
+.sh-st.ok .dot{background:#2c7a4b;} .sh-st.err{color:var(--red-text);} .sh-st.err .dot{background:var(--red-text);}
+.sh-setup{padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:#fbfcfd;line-height:1.75;}
+.sh-setup p{margin:0 0 10px;max-width:38em;}
+.sh-setup .sh-pw{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.sh-setup input{min-height:44px;font-size:1.06rem;letter-spacing:.06em;max-width:16em;}
+.sd-dl{display:grid;grid-template-columns:6em minmax(0,1fr);gap:8px 12px;margin:0;}
+.sd-dl dt{font-weight:700;color:var(--muted);font-size:var(--fs-sm);padding-top:2px;}
+.sd-dl dd{margin:0;color:var(--text);line-height:1.6;overflow-wrap:anywhere;}
+.sd-head{margin:0 0 12px;font-size:1.2rem;color:var(--navy);line-height:1.4;}
+#sdFoot{flex-wrap:wrap;gap:8px;}
+@media (max-width:600px){
+  .sh-seg{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .sh-it{grid-template-columns:minmax(0,1fr);}
+  .sh-it .sh-acts{justify-content:flex-start;}
+  .sd-dl{grid-template-columns:5em minmax(0,1fr);}
+}
+@media print{ .cal-ev.sh{background:#fff;} }
+/* SHCAL-CSS-END */
 /* 携帯の控えの一行（2026-10-29）。携帯で、最後に控えを取ってから7日を過ぎたときだけ出る */
 #omNote.bkn{display:grid;grid-template-columns:20px minmax(0,1fr) 44px;grid-template-areas:"i t x" ". g .";align-items:center;gap:4px 10px;margin:10px 0 4px;padding:8px 6px 10px 12px;border-radius:12px;
   background:#fff7e8;border:1px solid #f0d9a8;color:#5c4210;font-size:.92rem;line-height:1.6;}
@@ -1591,7 +1667,7 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
 <div id="lock" class="hide">
   <div class="card">
     <div class="lk-art"><svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#e8f4fb"/><rect x="11" y="8" width="42" height="48" rx="6" fill="#fffdf8" stroke="#27587f" stroke-width="3"/><rect x="24" y="4" width="16" height="8" rx="3" fill="#1b3f5e"/><rect x="19" y="38" width="7" height="10" rx="2" fill="#c6e2f2"/><rect x="29" y="31" width="7" height="17" rx="2" fill="#63b8dd"/><rect x="39" y="24" width="7" height="24" rx="2" fill="#f0846a"/><path d="M20 27l8-5 7 3 10-8" fill="none" stroke="#2c7a4b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M38 17h7v7" fill="none" stroke="#2c7a4b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-    <h1>保険営業ダッシュボード</h1>
+    <h1>保険営業カレンダー</h1>
     <p>社内利用専用です。<br>IDとパスワードを入れてください。</p>
     <label class="lk-lab" for="idInput">ID</label>
     <div class="fld"><input type="text" id="idInput" inputmode="numeric" autocomplete="username" autocapitalize="off" spellcheck="false" maxlength="20"></div>
@@ -1610,7 +1686,7 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
   <div class="wrap">
     <div class="tb-brand">
       <span class="tb-art"><svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#e8f4fb"/><rect x="11" y="8" width="42" height="48" rx="6" fill="#fffdf8" stroke="#27587f" stroke-width="3"/><rect x="24" y="4" width="16" height="8" rx="3" fill="#1b3f5e"/><rect x="19" y="38" width="7" height="10" rx="2" fill="#c6e2f2"/><rect x="29" y="31" width="7" height="17" rx="2" fill="#63b8dd"/><rect x="39" y="24" width="7" height="24" rx="2" fill="#f0846a"/><path d="M20 27l8-5 7 3 10-8" fill="none" stroke="#2c7a4b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M38 17h7v7" fill="none" stroke="#2c7a4b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-      <span><h1>保険営業ダッシュボード</h1><small>顧客と営業活動をこの1枚で</small></span>
+      <span><h1>保険営業カレンダー</h1><small>顧客と営業活動をこの1枚で</small></span>
     </div>
     <div class="tb-right">
       <a class="tb-tag" id="tbTag" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>データはこの端末だけ・控えを取る</a>
@@ -1751,6 +1827,10 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
         <button class="btn btn-ghost btn-sm head-action" id="rnBtn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8"/><path d="M4 3.5V8h4.5"/><path d="M4 13a8 8 0 0 0 14.3 4.9L20 16"/><path d="M20 20.5V16h-4.5"/></svg>
           更新の登録</button>
+        <!-- SHCAL-BTN 共有の予定（2026-10-29） -->
+        <button class="btn btn-ghost btn-sm head-action" id="shBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.6 6-5.6s6 2.3 6 5.6"/><circle cx="17" cy="9" r="2.6"/><path d="M15.8 14.6c.4-.1.8-.1 1.2-.1 2.5 0 4.5 1.8 4.5 4.6"/></svg>
+          予定を共有<span class="sh-badge hide" id="shBadge"></span></button>
         </div>
       </div>
 
@@ -1782,6 +1862,7 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
           <span class="badge bg-PZ">プレゼン</span><span class="badge bg-CL">クロージング</span>
           <span class="badge bg-KY">契約</span><span class="badge bg-TH">定期訪問</span>
           <span class="badge bg-BP">ビジネスパートナー訪問</span>
+          <span class="badge bg-sh hide" id="legendSH">共有の予定</span>
           <span class="badge bg-bd">誕生日（カルテから）</span>
           <span class="badge bg-cf" id="legendCF">更新・満期</span>
           <span class="badge bg-MT hide" id="legendMT">ミーティング</span>
@@ -2027,7 +2108,7 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
 
 </main>
 
-<footer>保険営業ダッシュボード｜データはこの端末だけに保存され、外部へは送りません（確認依頼・掲示板は、ご自分でリンクを送ったときだけ相手に渡ります）</footer>
+<footer>保険営業カレンダー｜データはこの端末だけに保存され、外部へは送りません（確認依頼・掲示板は、ご自分でリンクを送ったときだけ相手に渡ります）</footer>
 
 <!-- 足す／置き換える などを選ぶ窓・取り消しの知らせ（台本で中身を入れる） -->
 <div id="omAskHost"></div>
@@ -2108,6 +2189,81 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
   </div>
 </div>
 
+<!-- SHCAL-HTML-BEGIN ================= 共有の予定（2026-10-29 ユーザー指示「管理職がメンバーのカレンダーに予定を記入できるように。メンバーからも…横並びのメンバーにも予定を入れれるように。
+     1週間に1度の定例ミーティングを忘れないようにするため。全員分に入れるのではなく、何人か指定して入れれるように。Googleカレンダーの予定共有のような感じ」） ================= -->
+<div class="ovl hide" id="shOvl" role="dialog" aria-modal="true" aria-labelledby="shTitleH">
+  <div class="sheet sh-sheet">
+    <div class="sheet-head">
+      <button class="icon-btn" id="shClose" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+      <b id="shTitleH">予定を共有する</b>
+    </div>
+    <div class="sheet-body">
+      <p class="sh-lead">ほかの方の営業カレンダーに、予定を入れます。全員にも、選んだ方だけにも入れられます。毎週の定例ミーティングは「毎週」で一度入れるだけです。</p>
+      <div class="sh-setup hide" id="shSetup"></div>
+      <div id="shForm" class="hide">
+        <div class="frm">
+          <div class="fld full"><label for="shTitle">予定の名前</label>
+            <input type="text" id="shTitle" maxlength="60" autocomplete="off" placeholder="例：定例ミーティング"></div>
+          <div class="fld"><label for="shDate">日付<span class="opt" id="shDateOpt">（繰り返すときは1回目）</span></label>
+            <div class="date-wrap"><input type="text" class="date-input" id="shDate" readonly autocomplete="off" placeholder="押して日付を選ぶ"></div></div>
+          <div class="fld"><label for="shPlace">場所<span class="opt">（任意）</span></label>
+            <input type="text" id="shPlace" maxlength="80" autocomplete="off" placeholder="例：本社2階の会議室／オンライン"></div>
+          <div class="fld full"><label for="shStart">時刻（開始〜終了）<span class="opt">（空けると終日）</span></label>
+            <div class="trow">
+              <div class="time-wrap"><input type="text" class="time-input" id="shStart" inputmode="numeric" autocomplete="off" placeholder="開始" aria-label="開始時刻"></div>
+              <span class="trow-sep" aria-hidden="true">〜</span>
+              <div class="time-wrap"><input type="text" class="time-input" id="shEnd" inputmode="numeric" autocomplete="off" placeholder="終了" aria-label="終了時刻"></div>
+            </div>
+            <span class="tdur-now" id="shDurNow" aria-live="polite"></span>
+            <div class="tdurs" id="shDurs" role="group" aria-label="長さ"></div></div>
+          <div class="fld full"><span class="sh-lbl" id="shRepL">繰り返し</span>
+            <div class="sh-seg" id="shRep" role="radiogroup" aria-labelledby="shRepL">
+              <button type="button" class="sh-segb" data-rep="" role="radio" aria-checked="true">繰り返さない</button>
+              <button type="button" class="sh-segb" data-rep="w" role="radio" aria-checked="false">毎週</button>
+              <button type="button" class="sh-segb" data-rep="2w" role="radio" aria-checked="false">隔週</button>
+              <button type="button" class="sh-segb" data-rep="m" role="radio" aria-checked="false">毎月</button>
+            </div>
+            <div class="hint" id="shRepHint"></div></div>
+          <div class="fld hide" id="shUntilFld"><label for="shUntil">繰り返しの終わり<span class="opt">（任意）</span></label>
+            <div class="date-wrap"><input type="text" class="date-input" id="shUntil" readonly autocomplete="off" placeholder="決めない（2年先まで）"></div>
+            <button type="button" class="sh-clear hide" id="shUntilClear">終わりを決めない</button></div>
+          <div class="fld full"><span class="sh-lbl" id="shToL">入れる相手</span>
+            <label class="chk" id="shAllLabel"><input type="checkbox" id="shAll"><span>全員（繋いでいる全ての方）</span></label>
+            <div class="sh-to" id="shTo" role="group" aria-labelledby="shToL"></div>
+            <div class="hint" id="shToHint"></div></div>
+          <div class="fld full"><label for="shMemo">メモ<span class="opt">（任意）</span></label>
+            <input type="text" id="shMemo" maxlength="300" autocomplete="off" placeholder="例：今週の数字を持ってくる"></div>
+        </div>
+        <div class="frm-actions" style="margin-top:var(--sp-3);">
+          <button class="btn btn-primary btn-sm" id="shSave">予定を入れる</button>
+          <button class="btn btn-ghost btn-sm hide" id="shEditCancel">直すのをやめる</button>
+          <span id="shErr" role="alert" class="sh-err"></span>
+        </div>
+        <h3 class="sh-h3">共有の予定（次の日が近い順）</h3>
+        <div class="sh-list" id="shList"></div>
+        <p class="sh-note">予定は、端末で暗号化してから共有の場所（Firebase）を通ります。選んだ方の予定は、選んだ方の端末でしか開けません。「全員」の予定は、部下用パスワードを知っている方なら読めます。部下用パスワードを知っている方は、置き場所を壊すことと、同じお名前を名乗って繋ぐことはできてしまいます（ほかの方が入れた予定を書き換えることはできません）。権限の仕組みではありません。</p>
+      </div>
+    </div>
+    <div class="sheet-foot">
+      <span class="sh-st" id="shSt" aria-live="polite"></span>
+      <button class="btn btn-ghost" id="shCancel">閉じる</button>
+    </div>
+  </div>
+</div>
+<div class="ovl hide" id="sdOvl" role="dialog" aria-modal="true" aria-labelledby="sdTitle">
+  <div class="sheet sh-sheet sd-sheet">
+    <div class="sheet-head">
+      <button class="icon-btn" id="sdClose" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+      <b id="sdTitle">共有の予定</b>
+    </div>
+    <div class="sheet-body" id="sdBody"></div>
+    <div class="sheet-foot" id="sdFoot"></div>
+  </div>
+</div>
+<!-- SHCAL-HTML-END -->
+
 <!-- ================= 活動の編集（カレンダーから開く） ================= -->
 <div class="ovl hide" id="aeOvl" role="dialog" aria-modal="true" aria-labelledby="aeTitle">
   <div class="sheet">
@@ -2149,11 +2305,14 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
       <div class="frm">
         <div class="fld"><label for="aeDate">日付</label>
           <div class="date-wrap"><input type="text" class="date-input" id="aeDate" readonly autocomplete="off" placeholder="押して日付を選ぶ"></div></div>
-        <div class="fld"><label for="aeStart">開始時刻</label>
-          <div class="time-wrap"><input type="text" class="time-input" id="aeStart" inputmode="numeric" autocomplete="off" placeholder="例：10:00"></div></div>
-        <div class="fld"><label for="aeEnd">終了時刻</label>
-          <div class="time-wrap"><input type="text" class="time-input" id="aeEnd" inputmode="numeric" autocomplete="off" placeholder="例：12:00"></div>
-          <div class="hint">開始の2時間後が自動で入ります</div></div>
+        <div class="fld full"><label for="aeStart">時刻（開始〜終了）</label>
+          <div class="trow">
+            <div class="time-wrap"><input type="text" class="time-input" id="aeStart" inputmode="numeric" autocomplete="off" placeholder="開始" aria-label="開始時刻"></div>
+            <span class="trow-sep" aria-hidden="true">〜</span>
+            <div class="time-wrap"><input type="text" class="time-input" id="aeEnd" inputmode="numeric" autocomplete="off" placeholder="終了" aria-label="終了時刻"></div>
+          </div>
+          <span class="tdur-now" id="aeDurNow" aria-live="polite"></span>
+          <div class="tdurs" id="aeDurs" role="group" aria-label="長さ"></div></div>
         <div class="fld full"><label class="chk" id="aeAlldayLabel"><input type="checkbox" id="aeAllday"><span>終日にする（時刻を使わない）</span></label></div>
         <div class="fld full"><label for="aeNote">備考<span class="opt">（書かなくても保存できます）</span></label><input type="text" id="aeNote" maxlength="400" placeholder="例：駐車場あり、資料を持参"></div>
         <div class="fld full"><label for="aeMemo">内容メモ</label><textarea id="aeMemo" placeholder="話した内容・次のアクションなど"></textarea>
@@ -2273,7 +2432,7 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
      各契約顧客で提出できていない場合、アラームなどで知らせるようにしてください。あと、変額保険を契約するときは、適合性確認書類も一緒に提出するようにしてください。」
    2026-10-05 ユーザー指示「大手保険会社で使っている顧客管理システムのように、上長が確認できる仕組み、コンプラ遵守にできるようにアラートをかけるなどしてください。」
    ★読むのは同じ端末（同じ場所）の3つの保存先だけ。どれも書き換えない（顧客管理の保存先だけ、toolPatch で書く）
-     ・営業ダッシュボードの契約・お客様・活動（officem.hokenSales.v1）
+     ・営業カレンダーの契約・お客様・活動（officem.hokenSales.v1）
      ・管理画面が書き出す、コンプライアンスの記録の要約（officem.hokenHub.compFeed.v1。中身＝顧客名・日付・記録の欠けまで。苦情は対応中かどうかまで）
      ・顧客管理の保存先（officem.hokenKokyaku.v1。手でつないだ記録・対象外の理由・変額保険かどうか・知らせの起点の日・ご高齢の方の設定と確認・上長の確認・証券番号・
        契約ごとの履歴 hist と、いま出ている知らせの日時 alog＝2026-10-06）
@@ -2332,7 +2491,7 @@ var KKC = (function () {
     return a >= 0 && a < 130 ? a : null;
   }
 
-  /* 営業ダッシュボードの契約（読むだけ）
+  /* 営業カレンダーの契約（読むだけ）
      面談の日＝そのお客様のヒアリング・プレゼン・クロージング・契約の日（契約日まで）
      ご家族の同席＝契約日までの活動に「ご家族などが同席」の印か、同席者の欄にご家族の言葉があるか */
   function contracts(sales) {
@@ -2462,7 +2621,7 @@ var KKC = (function () {
     return out;
   }
   /* 証券番号（契約の番号ごと。2026-10-05 代理店点検：指摘された契約をすぐ探すため）。
-     ★営業ダッシュボードの契約には書かず、顧客管理の保存先に持つ（証券は契約のあとに届くので、顧客管理でも営業ダッシュボードでも入れられるように） */
+     ★営業カレンダーの契約には書かず、顧客管理の保存先に持つ（証券は契約のあとに届くので、顧客管理でも営業カレンダーでも入れられるように） */
   function pnoStr(v) { return str(v, 60).replace(/[\u0000-\u001f\u007f]/g, '').replace(/\s+/g, ' ').trim().slice(0, 40); }
   function cleanPno(v) {
     var out = {};
@@ -2513,7 +2672,7 @@ var KKC = (function () {
     return { links: cleanLinks(o.links), hen: cleanHen(o.hen), since: ymd(o.since), set: cleanSet(o.set), kh: cleanKh(o.kh), checks: cleanChecks(o.checks), pno: cleanPno(o.pno),
       hist: cleanHist(o.hist), alog: cleanAlog(o.alog), me: str(o.me, 40).trim() };
   }
-  /* 顧客管理の保存先を、読み直してから一か所だけ書き換える（営業ダッシュボードの窓からも使う） */
+  /* 顧客管理の保存先を、読み直してから一か所だけ書き換える（営業カレンダーの窓からも使う） */
   function toolPatch(fn) {
     var o = rd(TOOL_KEY) || { v: 1 };
     o.links = cleanLinks(o.links); o.hen = cleanHen(o.hen); o.kh = cleanKh(o.kh); o.pno = cleanPno(o.pno); o.hist = cleanHist(o.hist);
@@ -2808,12 +2967,12 @@ var KKC = (function () {
   }
   function openHash(r) { return '#compliance/' + r.kind + '/' + r.id; }
 
-  /* ---- 管理職と共有（2026-10-24）：営業ダッシュボード・顧客管理からも、管理画面と同じ部屋へ送る ----
+  /* ---- 管理職と共有（2026-10-24）：営業カレンダー・顧客管理からも、管理画面と同じ部屋へ送る ----
      ユーザー指示「管理職モードと一般モードで顧客管理、行動管理、意向把握、比較推奨などの管理職が確認できるようなシステムに。
        管理職モードでは、部下複数人分のスケジュールの確認や、商談プロセスを確認できるように。管理をしすぎたいというわけではなく、コンプラ面で監査をクリアするためです」
      ★読むのは、管理画面のコンプライアンス「管理職と共有」でつないだ設定（officem.hokenHub.cpsync.v1＝部屋・管理職の公開鍵・この端末の署名の鍵・行き先の url）。
        つないでいない端末では何もしない（一般モードのまま）。行き先の url は管理画面がつないだときに書く
-     ★送る中身（v2）＝名前・コンプライアンスの記録（前のまま）・営業ダッシュボードの要約（sales）・顧客管理の要約（kk）
+     ★送る中身（v2）＝名前・コンプライアンスの記録（前のまま）・営業カレンダーの要約（sales）・顧客管理の要約（kk）
        sales＝予定（日付・時刻・種類・顧客名・場所・同席者・ご家族の同席）と、お客様（名前・会社名・段階・状態・最後の活動の日・次にやること）
          ★活動の内容メモ・備考・電話・生年月日・お客様のメモ・上長のコメントは送らない
        kk＝契約ごとの事実（cleanFacts と同じ形＝上長への報告と同じ範囲）と知らせの文・上長の確認の状態。★保険料は送らない
@@ -2832,14 +2991,14 @@ var KKC = (function () {
   }
   function cpsCan() { return !!(typeof window !== 'undefined' && window.crypto && crypto.subtle && window.TextEncoder && typeof fetch === 'function'); }
   function cpsPatchCfg(fn) { var o = rd(CPS_KEY); if (!o) return; fn(o); try { localStorage.setItem(CPS_KEY, JSON.stringify(o)); } catch (e) {} }
-  /* 記録する人の名前＝管理画面のコンプライアンス → 営業ダッシュボード → 顧客管理（どれか一つに入っていればよい。2026-10-24 の寄せ方と同じ） */
+  /* 記録する人の名前＝管理画面のコンプライアンス → 営業カレンダー → 顧客管理（どれか一つに入っていればよい。2026-10-24 の寄せ方と同じ） */
   function cpsName() {
     var au = rd(AUD_KEY), s = rd(SALES_KEY), t = rd(TOOL_KEY);
     return str(au && au.me && au.me.name, 40).trim() || str(s && s.me && s.me.name, 40).trim() || str(t && t.me, 40).trim();
   }
   function hm(v) { return /^\d{2}:\d{2}$/.test(String(v || '')) ? v : ''; }
   function addDays(d, n) { var t = new Date(d + 'T00:00:00'); t.setDate(t.getDate() + n); return t.getFullYear() + '-' + pad(t.getMonth() + 1) + '-' + pad(t.getDate()); }
-  /* 営業ダッシュボードの要約（予定とお客様）。今日の60日前から120日先までの予定・近い日付から800件まで */
+  /* 営業カレンダーの要約（予定とお客様）。今日の60日前から120日先までの予定・近い日付から800件まで */
   function cpsSales(td) {
     var s = rd(SALES_KEY);
     if (!s || !Array.isArray(s.customers)) return null;
@@ -2876,7 +3035,7 @@ var KKC = (function () {
     return { since: res.tool.since, set: { age: res.tool.set.age, rule: res.tool.set.rule }, feed: !!res.feed, rows: rows,
       n: { all: res.counts.all, alarm: res.counts.alarm, ok: res.counts.ok, before: res.counts.before } };
   }
-  /* ログインの記録（管理画面・営業ダッシュボード・社内ツールが書く。この端末の分）を、管理職モードと保管フォルダへ渡す形にする（2026-10-26）。
+  /* ログインの記録（管理画面・営業カレンダー・社内ツールが書く。この端末の分）を、管理職モードと保管フォルダへ渡す形にする（2026-10-26）。
      渡すのは日時・何をしたか・ID・名簿の名前と立場・どの画面かだけ（補足の文は渡さない）。days 日まで・新しい max 件 */
   var LOGIN_KEY = 'officem.hokenHub.access.v1', LOGIN_EV = ['in', 'keep', 'fail', 'wait', 'stop', 'out'];
   function cleanLogins(a, max) {
@@ -2940,7 +3099,7 @@ var KKC = (function () {
     return '繋がりませんでした。インターネットの接続を確かめてください';
   }
   function cpsSay() { cpsOn.forEach(function (fn) { try { fn(cpsSt); } catch (e) {} }); }
-  /* 送る（営業ダッシュボード・顧客管理から。管理画面は自分の CPSYNC で送る） */
+  /* 送る（営業カレンダー・顧客管理から。管理画面は自分の CPSYNC で送る） */
   function cpsPush() {
     var cfg = cpsCfg();
     if (!cfg || !cpsCan()) return Promise.resolve();
@@ -2984,7 +3143,7 @@ var KKC = (function () {
     return out;
   }
 
-  /* 全ての記録の控え（2026-10-29）。営業ダッシュボードの携帯の知らせ「控えを取る」から、管理画面の「データの控え」と同じ控え（katatsugi-all）を1回で書き出す。
+  /* 全ての記録の控え（2026-10-29）。営業カレンダーの携帯の知らせ「控えを取る」から、管理画面の「データの控え」と同じ控え（katatsugi-all）を1回で書き出す。
      ★入れる記録の一覧は管理画面の BK_GROUPS と同じ（検査 modoshichk.js が照らす）。合言葉・鍵・お試しの記録は入れない。ほかの案件の記録は読まない */
   var BKA_GROUPS = [['hub', ['officem.hokenHub.v1', 'officem.hokenHub.newsSeen.v1']], ['comp', ['officem.hokenHub.audit.v1', 'officem.hokenHub.compFeed.v1']],
     ['study', ['officem.kataLog.v1', 'officem.kataLog.name']], ['mentor', ['lifeplan_ichijo_mentor_v1']], ['lifeplan', null, ['lifeplan_', 'lifeplan2_']],
@@ -3034,9 +3193,357 @@ var KKC = (function () {
     return /iPhone|iPod|iPad|Android.+Mobile|Mobile.+Firefox/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
   }
 
+  /* ---- 共有の予定（2026-10-29）：管理職と部下、部下どうしで、相手を選んで予定を入れる（Google カレンダーの予定の共有に近い形） ----
+     ユーザー指示「管理職がメンバーのカレンダーに予定を記入できるように。メンバーからも管理職だけではなく、横並びのメンバーにも予定を入れれるように。
+       使い方の用途としては、1週間に1度の定例ミーティングを忘れないようにするため。全員分に入れるのではなく、何人か指定して入れれるように」
+     ★同じ部屋（管理職と共有の部下用パスワード P から作る番号）の Firebase の2か所に置く
+       /kt/<部屋>/d/<人の番号16桁>＝名簿の1行（名前・立場・この人あての鍵の公開鍵）／/kt/<部屋>/ev/<予定の番号28桁>＝予定
+     ★暗号化＝全員あては P から作った部屋の鍵（ek）で。相手を選んだ予定は、その予定だけの鍵を作り、選んだ方（と作った人）の公開鍵でだけ包む
+       ＝選ばれていない方の端末には、中身（題・日時・場所）が読めない形でしか届かない
+     ★署名＝作った人の端末の鍵（ECDSA P-256）。名簿の鍵と合わない予定・書き換えた予定は出さない。消すのは「消した」の印を上書きする形
+     ★正直に言うこと＝P を知っている人は、全員あての予定を読める・予定の場所を壊すこと（読めない形にすること）と、同じお名前を名乗って繋ぐことはできる。ほかの方の予定の書き換えはできない。権限の仕組みではない */
+  var CAL_KEY = 'officem.hokenHub.shcal.v1', CALC_KEY = 'officem.hokenSales.shcal.v1', CAL_INFO = 'katatsugi-cal-v1';
+  var CAL_REP = ['', 'w', '2w', 'm'], CAL_REP_LABEL = { '': '繰り返さない', w: '毎週', '2w': '隔週（2週ごと）', m: '毎月（同じ日）' };
+  var calSt = { st: 'off', at: '', err: '' }, calOn = [], calES = [], calPollT = null, calRaw = { d: {}, ev: {} };
+  function calCfg() {
+    var o = rd(CAL_KEY);
+    if (!o || !/^[0-9a-f]{32}$/.test(o.room || '') || !o.ek || !/^[0-9a-f]{16}$/.test(o.cid || '') || !o.csk || !o.cspk || !o.cek || !o.cepk) return null;
+    if (!/^https?:\/\//.test(o.url || '')) return null;
+    return o;
+  }
+  function calWrite(k, o) { try { localStorage.setItem(k, JSON.stringify(o)); return true; } catch (e) { return false; } }
+  function calCache() {
+    var o = rd(CALC_KEY) || {};
+    if (!o || typeof o !== 'object') o = {};
+    ['evs', 'dir', 'seen', 'hide', 'keys'].forEach(function (k) { if (!o[k] || typeof o[k] !== 'object' || Array.isArray(o[k])) o[k] = {}; });
+    return o;
+  }
+  function calHex(a) { var s = ''; for (var i = 0; i < a.length; i++) s += ('0' + a[i].toString(16)).slice(-2); return s; }
+  function calDerive(P, salt, bits) {
+    return crypto.subtle.importKey('raw', cpsUtf(P), 'PBKDF2', false, ['deriveBits']).then(function (k) {
+      return crypto.subtle.deriveBits({ name: 'PBKDF2', salt: cpsUtf(salt), iterations: 100000, hash: 'SHA-256' }, k, bits);
+    }).then(function (b) { return new Uint8Array(b); });
+  }
+  function calAesFrom(bytes, info) {
+    return crypto.subtle.digest('SHA-256', cpsCat(bytes, cpsUtf(CAL_INFO + '|' + info))).then(function (h) {
+      return crypto.subtle.importKey('raw', h, { name: 'AES-GCM' }, false, ['encrypt', 'decrypt']);
+    });
+  }
+  function calFetch(cfg, path, opt) {
+    opt = opt || {};
+    var ctl = typeof AbortController === 'function' ? new AbortController() : null, tm = ctl ? setTimeout(function () { ctl.abort(); }, 20000) : null;
+    return fetch(cfg.url.replace(/\/+$/, '') + '/kt/' + cfg.room + '/' + path + '.json', { method: opt.method || 'GET', body: opt.body, cache: 'no-store', signal: ctl ? ctl.signal : undefined })
+      .then(function (res) {
+        clearTimeout(tm);
+        return res.text().then(function (t) {
+          if (!res.ok) throw (res.status === 401 || res.status === 403 ? 'denied' : 'http' + res.status);
+          try { return t ? JSON.parse(t) : null; } catch (e) { return null; }
+        });
+      }, function () { clearTimeout(tm); throw 'net'; });
+  }
+  function calSay() { calOn.forEach(function (fn) { try { fn(calSt); } catch (e) {} }); }
+  function calWkStr(wk) { return wk ? Object.keys(wk).sort().map(function (k) { return k + ':' + wk[k].iv + ':' + wk[k].ct; }).join(',') : ''; }
+  function calSigMsg(room, kind, id, b) { return [CAL_INFO, room, kind, id, b.at, b.iv, b.ct, b.spk, b.epk || '', calWkStr(b.wk)].join('|'); }
+  function calSign(cfg, kind, id, b) {
+    return crypto.subtle.importKey('pkcs8', cpsUnb64(cfg.csk), { name: 'ECDSA', namedCurve: 'P-256' }, false, ['sign'])
+      .then(function (sk) { return crypto.subtle.sign({ name: 'ECDSA', hash: 'SHA-256' }, sk, cpsUtf(calSigMsg(cfg.room, kind, id, b))); })
+      .then(function (sig) { b.sig = cpsB64(sig); return b; });
+  }
+  function calVerify(cfg, kind, id, b) {
+    if (!b || typeof b !== 'object' || typeof b.iv !== 'string' || typeof b.ct !== 'string' || typeof b.spk !== 'string' || typeof b.sig !== 'string' || typeof b.at !== 'string') return Promise.resolve(false);
+    return crypto.subtle.importKey('raw', cpsUnb64(b.spk), { name: 'ECDSA', namedCurve: 'P-256' }, false, ['verify'])
+      .then(function (pk) { return crypto.subtle.verify({ name: 'ECDSA', hash: 'SHA-256' }, pk, cpsUnb64(b.sig), cpsUtf(calSigMsg(cfg.room, kind, id, b))); })
+      .catch(function () { return false; });
+  }
+  function calEnc(key, obj) {
+    var iv = cpsRand(12);
+    return crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, key, cpsUtf(JSON.stringify(obj))).then(function (ct) { return { iv: cpsB64(iv), ct: cpsB64(ct) }; });
+  }
+  function calDec(key, iv, ct) {
+    return crypto.subtle.decrypt({ name: 'AES-GCM', iv: cpsUnb64(iv) }, key, cpsUnb64(ct)).then(function (pt) { return JSON.parse(new TextDecoder().decode(pt)); });
+  }
+  /* つなぐ。P＝部下用パスワード（管理画面が繋いだとき・発行したとき・管理職用パスワードで入ったときに渡す）。前に繋いだ同じ部屋なら、人の番号と鍵は前のまま */
+  function calSetup(P, opt) {
+    opt = opt || {};
+    if (!cpsCan() || !P) return Promise.reject('nocrypto');
+    var old = calCfg(), room, ek;
+    return Promise.all([calDerive(P, 'katatsugi-comp-room-v2', 128), calDerive(P, 'katatsugi-comp-cal-v2', 256)]).then(function (r) {
+      room = calHex(r[0]); ek = cpsB64(r[1]);
+      if (opt.room && opt.room !== room) throw 'nomatch';
+      if (old && old.room === room) return null;
+      return Promise.all([crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, true, ['sign', 'verify']), crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveBits'])])
+        .then(function (kp) { return Promise.all([crypto.subtle.exportKey('pkcs8', kp[0].privateKey), crypto.subtle.exportKey('raw', kp[0].publicKey), crypto.subtle.exportKey('pkcs8', kp[1].privateKey), crypto.subtle.exportKey('raw', kp[1].publicKey)]); });
+    }).then(function (ks) {
+      var o = ks ? { v: 1, room: room, ek: ek, cid: calHex(cpsRand(8)), csk: cpsB64(ks[0]), cspk: cpsB64(ks[1]), cek: cpsB64(ks[2]), cepk: cpsB64(ks[3]), at: new Date().toISOString() } : old;
+      o.url = opt.url || o.url || ''; o.ek = ek;
+      if (opt.name) o.name = str(opt.name, 40).trim();
+      if (opt.role === 'boss' || opt.role === 'member') o.role = opt.role;
+      if (ks) { var c = calCache(); c.evs = {}; c.dir = {}; c.keys = {}; c.seen = {}; c.hide = {}; c.room = room; calWrite(CALC_KEY, c); }
+      calWrite(CAL_KEY, o);
+      return calPublishMe().then(function () { if (opt.start !== false) calStart(); return o; });   // 管理画面は名簿に名前を書くだけ（予定は営業カレンダーで受ける）
+    });
+  }
+  function calForget() {
+    var cfg = calCfg();
+    var done = function () { try { localStorage.removeItem(CAL_KEY); localStorage.removeItem(CALC_KEY); } catch (e) {} calStop(); calSt = { st: 'off', at: '', err: '' }; calSay(); };
+    if (!cfg) { done(); return Promise.resolve(); }
+    /* 名簿から外れたことを、名簿の行に書いて知らせる（行そのものは消せない決まり） */
+    return calAesFrom(cpsUnb64(cfg.ek), 'd|' + cfg.cid).then(function (k) { return calEnc(k, { cid: cfg.cid, gone: true, at: new Date().toISOString() }); })
+      .then(function (x) { return calSign(cfg, 'd', cfg.cid, { v: 1, at: new Date().toISOString(), iv: x.iv, ct: x.ct, spk: cfg.cspk }); })
+      .then(function (b) { return calFetch(cfg, 'd/' + cfg.cid, { method: 'PUT', body: JSON.stringify(b) }); })
+      .then(done, done);
+  }
+  /* 名簿に自分の1行を書く（名前と立場が変わったときも） */
+  function calPublishMe() {
+    var cfg = calCfg(); if (!cfg) return Promise.resolve();
+    var name = str(cpsName() || cfg.name, 40).trim();
+    if (!name) { calSt = { st: 'err', at: calSt.at, err: '記録する人の名前を入れると、共有の予定が使えます' }; calSay(); return Promise.resolve(); }
+    var at = new Date().toISOString();
+    return calAesFrom(cpsUnb64(cfg.ek), 'd|' + cfg.cid).then(function (k) { return calEnc(k, { cid: cfg.cid, name: name, role: cfg.role || 'member', epk: cfg.cepk, at: at }); })
+      .then(function (x) { return calSign(cfg, 'd', cfg.cid, { v: 1, at: at, iv: x.iv, ct: x.ct, spk: cfg.cspk }); })
+      .then(function (b) { return calFetch(cfg, 'd/' + cfg.cid, { method: 'PUT', body: JSON.stringify(b) }); })
+      .then(function () { var o = calCfg(); if (o && o.name !== name) { o.name = name; calWrite(CAL_KEY, o); } var c = calCache(); c.dir[cfg.cid] = { cid: cfg.cid, name: name, role: cfg.role || 'member', epk: cfg.cepk, spk: cfg.cspk, at: at }; c.keys[cfg.cid] = cfg.cspk; calWrite(CALC_KEY, c); },
+        function (e) { calSt = { st: 'err', at: calSt.at, err: cpsErrText(typeof e === 'string' ? e : 'net') }; calSay(); });
+  }
+  /* 予定の中身の形をそろえる（届いたもの・保存するもの） */
+  function calClean(e) {
+    if (!e || typeof e !== 'object') return null;
+    var o = { id: str(e.id, 40), by: str(e.by, 16), byName: str(e.byName, 40).trim(), title: str(e.title, 60).trim(), d: ymd(e.d), s: hm(e.s), e: hm(e.e),
+      place: str(e.place, 80).trim(), memo: str(e.memo, 300).trim(), rep: CAL_REP.indexOf(e.rep) >= 0 ? e.rep : '', until: ymd(e.until),
+      ex: Array.isArray(e.ex) ? e.ex.filter(ymd).slice(0, 200) : [], all: e.all === true,
+      to: Array.isArray(e.to) ? e.to.filter(function (x) { return typeof x === 'string' && /^[0-9a-f]{16}$/.test(x); }).slice(0, 200) : [],
+      toN: Array.isArray(e.toN) ? e.toN.map(function (x) { return str(x, 40); }).slice(0, 200) : [],
+      at: iso(e.at), upd: iso(e.upd), del: e.del === true };
+    if (!/^[0-9a-f]{28}$/.test(o.id) || o.id.slice(0, 16) !== o.by) return null;
+    if (o.del) return o;
+    if (!o.title || !o.d) return null;
+    if (o.e && o.s && o.e <= o.s) o.e = '';
+    if (!o.s) o.e = '';
+    if (o.until && o.until < o.d) o.until = '';
+    return o;
+  }
+  /* 届いた名簿の1行を読む（署名・最初に見た鍵と同じか） */
+  function calTakeDir(cfg, c, cid, b) {
+    if (!/^[0-9a-f]{16}$/.test(cid)) return Promise.resolve(false);
+    if (c.keys[cid] && c.keys[cid] !== b.spk) return Promise.resolve(false);
+    return calVerify(cfg, 'd', cid, b).then(function (ok) {
+      if (!ok) return false;
+      return calAesFrom(cpsUnb64(cfg.ek), 'd|' + cid).then(function (k) { return calDec(k, b.iv, b.ct); }).then(function (x) {
+        if (!x || x.cid !== cid) return false;
+        var prev = c.dir[cid];
+        if (prev && prev.at && b.at < prev.at) return false;
+        c.keys[cid] = b.spk;
+        if (x.gone) { c.dir[cid] = { cid: cid, gone: true, spk: b.spk, at: b.at, name: prev ? prev.name : '' }; return true; }
+        c.dir[cid] = { cid: cid, name: str(x.name, 40).trim() || '（名前なし）', role: x.role === 'boss' ? 'boss' : 'member', epk: str(x.epk, 200), spk: b.spk, at: b.at };
+        return true;
+      });
+    }).catch(function () { return false; });
+  }
+  /* 届いた予定を読む。この端末あてでなければ（包んだ鍵が無ければ）、中身は読まずに捨てる */
+  function calTakeEv(cfg, c, eid, b) {
+    if (!/^[0-9a-f]{28}$/.test(eid)) return Promise.resolve(false);
+    var by = eid.slice(0, 16), spk = c.keys[by];
+    if (!spk || spk !== b.spk) return Promise.resolve(false);   // 名簿に無い人・鍵の違う人の予定は出さない
+    var prev = c.evs[eid];
+    if (prev && prev.at && b.at < prev.at) return Promise.resolve(false);   // 古い形に戻す書き込みは受けない
+    return calVerify(cfg, 'ev', eid, b).then(function (ok) {
+      if (!ok) return false;
+      var keyP;
+      if (b.wk) {
+        var w = b.wk[cfg.cid];
+        if (!w || !b.epk) { if (prev) { delete c.evs[eid]; return true; } return false; }   // 外された・初めからこの端末あてではない
+        keyP = Promise.all([crypto.subtle.importKey('pkcs8', cpsUnb64(cfg.cek), { name: 'ECDH', namedCurve: 'P-256' }, false, ['deriveBits']),
+          crypto.subtle.importKey('raw', cpsUnb64(b.epk), { name: 'ECDH', namedCurve: 'P-256' }, true, [])])
+          .then(function (k) { return crypto.subtle.deriveBits({ name: 'ECDH', public: k[1] }, k[0], 256); })
+          .then(function (bits) { return calAesFrom(new Uint8Array(bits), cfg.room + '|' + eid + '|' + cfg.cid); })
+          .then(function (kek) { return crypto.subtle.decrypt({ name: 'AES-GCM', iv: cpsUnb64(w.iv) }, kek, cpsUnb64(w.ct)); })
+          .then(function (raw) { return crypto.subtle.importKey('raw', raw, { name: 'AES-GCM' }, false, ['decrypt']); });
+      } else keyP = calAesFrom(cpsUnb64(cfg.ek), 'all|' + eid);
+      return keyP.then(function (k) { return calDec(k, b.iv, b.ct); }).then(function (x) {
+        var e = calClean(x);
+        if (!e || e.id !== eid || e.by !== by) return false;
+        c.evs[eid] = { e: e, at: b.at };
+        return true;
+      });
+    }).catch(function () { return false; });
+  }
+  function calTakeAll(kind, map) {
+    var cfg = calCfg(); if (!cfg || !map || typeof map !== 'object') return Promise.resolve(0);
+    var c = calCache();
+    if (c.room !== cfg.room) { c = { evs: {}, dir: {}, seen: c.seen || {}, hide: c.hide || {}, keys: {}, room: cfg.room }; }
+    var ids = Object.keys(map), n = 0;
+    var run = kind === 'd' ? ids.map(function (id) { return calTakeDir(cfg, c, id, map[id]).then(function (ok) { if (ok) n++; }); })
+      : ids.map(function (id) { return calTakeEv(cfg, c, id, map[id]).then(function (ok) { if (ok) n++; }); });
+    return Promise.all(run).then(function () {
+      if (kind === 'd') {   // 名簿が先に届いたら、名簿の鍵で待っていた予定を読み直す
+        var pend = calRaw.ev, more = Object.keys(pend).filter(function (id) { return !c.evs[id] && c.keys[id.slice(0, 16)]; });
+        return Promise.all(more.map(function (id) { return calTakeEv(cfg, c, id, pend[id]).then(function (ok) { if (ok) n++; }); }));
+      }
+    }).then(function () { c.at = new Date().toISOString(); calWrite(CALC_KEY, c); return n; });
+  }
+  /* その場で受ける（EventSource で d と ev の2つ）。受けられないときは1分ごとに読み直す */
+  function calStop() { calES.forEach(function (es) { try { es.close(); } catch (e) {} }); calES = []; clearInterval(calPollT); calPollT = null; }
+  function calPull() {
+    var cfg = calCfg(); if (!cfg) return Promise.resolve();
+    return calFetch(cfg, 'd').then(function (d) { calRaw.d = d || {}; return calTakeAll('d', calRaw.d); })
+      .then(function () { return calFetch(cfg, 'ev'); }).then(function (ev) { calRaw.ev = ev || {}; return calTakeAll('ev', calRaw.ev); })
+      .then(function () { calSt = { st: 'ok', at: new Date().toISOString(), err: '' }; calSay(); },
+        function (e) { calSt = { st: 'err', at: calSt.at, err: cpsErrText(typeof e === 'string' ? e : 'net') }; calSay(); });
+  }
+  function calListen(cfg, kind) {
+    var es;
+    try { es = new EventSource(cfg.url.replace(/\/+$/, '') + '/kt/' + cfg.room + '/' + kind + '.json'); } catch (e) { return false; }
+    var take = function (ev, patch) {
+      var m; try { m = JSON.parse(ev.data); } catch (e) { return; }
+      if (!m || typeof m.path !== 'string') return;
+      var seg = m.path.split('/').filter(Boolean), raw = calRaw[kind], got = {};
+      if (!seg.length) {
+        if (patch) Object.keys(m.data || {}).forEach(function (k) { raw[k] = m.data[k]; got[k] = m.data[k]; });
+        else { calRaw[kind] = raw = m.data || {}; got = raw; }
+      } else if (seg.length === 1) { if (m.data == null) delete raw[seg[0]]; else { raw[seg[0]] = m.data; got[seg[0]] = m.data; } }
+      else { calPull(); return; }
+      calTakeAll(kind, got).then(function () { calSt = { st: 'ok', at: new Date().toISOString(), err: '' }; calSay(); });
+    };
+    es.addEventListener('put', function (ev) { take(ev, false); });
+    es.addEventListener('patch', function (ev) { take(ev, true); });
+    es.addEventListener('cancel', function () { try { es.close(); } catch (e) {} });
+    es.onerror = function () { if (es.readyState === 2) { calSt = { st: 'wait', at: calSt.at, err: '' }; calSay(); } };
+    calES.push(es);
+    return true;
+  }
+  function calStart(fn) {
+    if (fn) calWatch(fn);
+    var cfg = calCfg(); if (!cfg || !cpsCan()) { calSt = { st: 'off', at: '', err: '' }; calSay(); return; }
+    calStop();
+    calSt = { st: 'wait', at: calSt.at, err: '' }; calSay();
+    var nm = cpsName(); if (nm && nm !== cfg.name) calPublishMe();   // 記録する人の名前が変わったら、名簿の1行も直す
+    var a = typeof EventSource === 'function' && calListen(cfg, 'd') && calListen(cfg, 'ev');
+    if (!a) calPull();
+    calPollT = setInterval(calPull, a ? 300000 : 60000);   // 知らせが切れても、ときどき読み直す
+  }
+  function calWatch(fn) { if (calOn.indexOf(fn) < 0) calOn.push(fn); }
+  /* 保存する（新しく作る・直す）。e＝{ title, d, s, e, place, memo, rep, until, all, to:[人の番号] }。返すのは保存した予定 */
+  function calSave(e, id) {
+    var cfg = calCfg(); if (!cfg) return Promise.reject('nocfg');
+    var c = calCache(), prev = id && c.evs[id] ? c.evs[id].e : null, now = new Date().toISOString();
+    if (id && (!prev || prev.by !== cfg.cid)) return Promise.reject('notmine');
+    var o = calClean({ id: id || (cfg.cid + calHex(cpsRand(6))), by: cfg.cid, byName: cfg.name || cpsName(), title: e.title, d: e.d, s: e.s, e: e.e, place: e.place, memo: e.memo,
+      rep: e.rep, until: e.until, ex: e.ex || (prev ? prev.ex : []), all: e.all === true, to: e.all ? [] : e.to, at: prev ? prev.at : now, upd: now, del: e.del === true });
+    if (!o) return Promise.reject('bad');
+    if (!o.del && !o.all) {
+      o.to = o.to.filter(function (x) { return x !== cfg.cid && c.dir[x] && !c.dir[x].gone && c.dir[x].epk; });
+      if (!o.to.length) return Promise.reject('noto');
+      o.toN = o.to.map(function (x) { return c.dir[x].name; });
+    }
+    var body = { v: 1, at: now, spk: cfg.cspk };
+    var sealP;
+    if (o.all || o.del) sealP = calAesFrom(cpsUnb64(cfg.ek), 'all|' + o.id).then(function (k) { return calEnc(k, o); });
+    else {
+      var raw = cpsRand(32), eph;
+      sealP = crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveBits']).then(function (kp) {
+        eph = kp; return crypto.subtle.exportKey('raw', kp.publicKey);
+      }).then(function (pub) {
+        body.epk = cpsB64(pub); body.wk = {};
+        var rcpt = o.to.concat([cfg.cid]);
+        return Promise.all(rcpt.map(function (cid) {
+          var epub = cid === cfg.cid ? cfg.cepk : c.dir[cid].epk;
+          return crypto.subtle.importKey('raw', cpsUnb64(epub), { name: 'ECDH', namedCurve: 'P-256' }, true, [])
+            .then(function (pk) { return crypto.subtle.deriveBits({ name: 'ECDH', public: pk }, eph.privateKey, 256); })
+            .then(function (bits) { return calAesFrom(new Uint8Array(bits), cfg.room + '|' + o.id + '|' + cid); })
+            .then(function (kek) { var iv = cpsRand(12); return crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, kek, raw).then(function (ct) { body.wk[cid] = { iv: cpsB64(iv), ct: cpsB64(ct) }; }); });
+        }));
+      }).then(function () { return crypto.subtle.importKey('raw', raw, { name: 'AES-GCM' }, false, ['encrypt']); })
+        .then(function (k) { return calEnc(k, o); });
+    }
+    return sealP.then(function (x) { body.iv = x.iv; body.ct = x.ct; return calSign(cfg, 'ev', o.id, body); })
+      .then(function (b) { return calFetch(cfg, 'ev/' + o.id, { method: 'PUT', body: JSON.stringify(b) }); })
+      .then(function () {
+        var c2 = calCache(); c2.evs[o.id] = { e: o, at: now }; c2.seen[o.id] = now; calWrite(CALC_KEY, c2);
+        calSt = { st: 'ok', at: now, err: '' }; calSay();
+        return o;
+      });
+  }
+  function calRemove(id) {
+    var c = calCache(), p = c.evs[id] && c.evs[id].e; if (!p) return Promise.reject('none');
+    return calSave({ title: '', d: '', del: true, all: true }, id);   // 消した印には題も日付も入れない
+  }
+  /* 繰り返しのうち1回だけ外す（作った人だけ） */
+  function calSkip(id, d) {
+    var c = calCache(), p = c.evs[id] && c.evs[id].e; if (!p || !ymd(d)) return Promise.reject('none');
+    var e = JSON.parse(JSON.stringify(p)); e.ex = (p.ex || []).concat([d]);
+    return calSave(e, id);
+  }
+  function calHide(id, on) { var c = calCache(); if (on) c.hide[id] = 1; else delete c.hide[id]; calWrite(CALC_KEY, c); calSay(); }
+  function calSeen(ids) { var c = calCache(); (ids || Object.keys(c.evs)).forEach(function (id) { if (c.evs[id]) c.seen[id] = c.evs[id].e.upd || c.evs[id].at; }); calWrite(CALC_KEY, c); }
+  /* その日に当たるか（繰り返し・外した日・終わりの日） */
+  function calHits(e, d) {
+    if (!e || e.del || !ymd(d) || d < e.d) return false;
+    if (e.until && d > e.until) return false;
+    if (e.ex && e.ex.indexOf(d) >= 0) return false;
+    if (d === e.d) return true;
+    var diff = dayDiff(d, e.d);
+    if (!e.until && diff > 731) return false;   // 終わりを決めていない繰り返しは、2年先まで
+    if (e.rep === 'w') return diff % 7 === 0;
+    if (e.rep === '2w') return diff % 14 === 0;
+    if (e.rep === 'm') return d.slice(8) === e.d.slice(8);
+    return false;
+  }
+  /* この端末で見える予定（自分が作った・全員あて・自分あて。消したもの・隠したものは除く） */
+  function calList(opt) {
+    opt = opt || {};
+    var cfg = calCfg(); if (!cfg) return [];
+    var c = calCache(), out = [];
+    Object.keys(c.evs).forEach(function (id) {
+      var e = c.evs[id].e;
+      if (!e || e.del) return;
+      if (!opt.hidden && c.hide[id]) return;
+      if (e.by !== cfg.cid && !e.all && e.to.indexOf(cfg.cid) < 0) return;
+      var x = JSON.parse(JSON.stringify(e));
+      x.mine = e.by === cfg.cid; x.hidden = !!c.hide[id];
+      x.fresh = !x.mine && (!c.seen[id] || c.seen[id] < (e.upd || ''));
+      var by = c.dir[e.by]; if (by && by.name) x.byName = by.name;
+      out.push(x);
+    });
+    return out;
+  }
+  /* from の日から先で、いちばん近い日（2年先まで） */
+  function calNext(e, from) {
+    if (!e || e.del) return '';
+    if (!e.rep) return e.d >= from ? e.d : '';
+    var t = from > e.d ? from : e.d;
+    for (var i = 0; i < 800; i++) { if (calHits(e, t)) return t; t = addDays(t, 1); if (e.until && t > e.until) return ''; }
+    return '';
+  }
+  function calDay(d) { return calList().filter(function (e) { return calHits(e, d); }).sort(function (a, b) { return (a.s || '') < (b.s || '') ? -1 : 1; }); }
+  function calDir() {
+    var cfg = calCfg(), c = calCache();
+    var seen = {};   // 同じお名前が2行あるとき（端末の記録を消して入り直した・新しい端末）は、新しいほうだけ
+    Object.keys(c.dir).forEach(function (k) { var x = c.dir[k]; if (!x || x.gone || !x.name || (cfg && x.cid === cfg.cid)) return; var p = seen[x.name]; if (!p || (x.at || '') > (p.at || '')) seen[x.name] = x; });
+    return Object.keys(c.dir).map(function (k) { return c.dir[k]; }).filter(function (x) { return x && !x.gone && x.name && ((cfg && x.cid === cfg.cid) || seen[x.name] === x); })
+      .map(function (x) { return { cid: x.cid, name: x.name, role: x.role, me: !!(cfg && x.cid === cfg.cid), can: !!x.epk }; })
+      .sort(function (a, b) { return a.me ? -1 : b.me ? 1 : (a.role === b.role ? (a.name < b.name ? -1 : 1) : a.role === 'boss' ? -1 : 1); });
+  }
+  function calStatus() {
+    var cfg = calCfg(), cp = rd(CPS_KEY);
+    return { on: !!cfg, st: calSt, me: cfg ? { cid: cfg.cid, name: cfg.name || cpsName(), role: cfg.role || 'member' } : null,
+      canJoin: !!(cp && (/^[0-9a-f]{32}$/.test(cp.room || '') || (cp.boss && cp.boss.code)) && /^https?:\/\//.test(cp.url || '')),
+      bossCode: !!(cp && cp.boss && cp.boss.code), room: cp ? (cp.room || (cp.boss && cp.boss.room) || '') : '', url: cp ? cp.url || '' : '' };
+  }
+  /* 管理画面を開かなくても、営業カレンダーから繋ぐ（管理職のパソコン＝覚えているパスワード／部下＝パスワードを入れる） */
+  function calJoinHere(P) {
+    var cp = rd(CPS_KEY) || {}, url = cp.url || '';
+    if (!/^https?:\/\//.test(url)) return Promise.reject('nourl');
+    var boss = cp.boss && cp.boss.code, code = P || boss;
+    if (!code) return Promise.reject('nocode');
+    var room = cp.room || (cp.boss && cp.boss.room) || '';
+    return calSetup(code, { url: url, room: room || undefined, role: boss && !P ? 'boss' : (cp.boss && P === cp.boss.code ? 'boss' : 'member'), name: cpsName() });
+  }
+
   return {
     cps: { cfg: cpsCfg, name: cpsName, payload: cpsPayload, seal: cpsSeal, push: cpsPush, queue: cpsQueue, status: cpsStatus, watch: cpsWatch, sales: cpsSales, kk: cpsKk, fromKeys: cpsFromKeys, logins: cpsLogins, cleanLogins: cleanLogins,
       TYPES: CPS_TYPES, STAGES: CPS_STAGES, KINDS: CPS_REC_KINDS },
+    cal: { setup: calSetup, forget: calForget, cfg: calCfg, publish: calPublishMe, start: calStart, stop: calStop, watch: calWatch, pull: calPull, save: calSave, remove: calRemove,
+      skip: calSkip, hide: calHide, seen: calSeen, hits: calHits, next: calNext, list: calList, day: calDay, dir: calDir, status: calStatus, joinHere: calJoinHere, REP: CAL_REP, REP_LABEL: CAL_REP_LABEL },
     bk: { groups: BKA_GROUPS, group: bkaGroup, collect: bkaCollect, last: bkaLast, exportAll: bkaExport, phone: bkaPhone }, KINDS: KINDS, NAME: NAME, STATUS: STATUS, SALES_KEY: SALES_KEY, FEED_KEY: FEED_KEY, TOOL_KEY: TOOL_KEY, SET_DEF: SET_DEF, FAM_RE: FAM_RE,
     nk: nk, dayDiff: dayDiff, ageAt: ageAt, today: today, contracts: contracts, feed: feed, tool: tool,
     cleanK: cleanK, feedFrom: feedFrom, toolFrom: toolFrom, cleanHist: cleanHist, cleanAlog: cleanAlog, histPush: histPush, meOf: meOf, track: track,
@@ -3450,11 +3957,11 @@ window.addEventListener('storage', function(e){
 });
 
 /* ---- 控え（ファイル）：どのツールの控えか分かる印を付ける ---- */
-var TOOL_ID = 'sales', TOOL_NAME = '保険営業ダッシュボード', BACKUP_KIND = 'katatsugi-sales';
+var TOOL_ID = 'sales', TOOL_NAME = '保険営業カレンダー', BACKUP_KIND = 'katatsugi-sales';
 var KIND_NAMES = {
   'katatsugi-training':'保険知識トレーニング', 'katatsugi-shikaku':'保険資格試験トレーニング', 'katatsugi-kirikaeshi':'切り返し辞典',
   'katatsugi-shiharai':'支払事例トレーニング', 'katatsugi-compknock':'コンプライアンス100本ノック', 'katatsugi-gyakusan':'目標逆算プランナー',
-  'katatsugi-sales':'保険営業ダッシュボード', 'katatsugi-calendar':'満期・年齢到達カレンダー', 'katatsugi-comp':'コンプライアンスの記録',
+  'katatsugi-sales':'保険営業カレンダー', 'katatsugi-calendar':'満期・年齢到達カレンダー', 'katatsugi-comp':'コンプライアンスの記録',
   'katatsugi-study':'学習の記録', 'officem-hoken-sales-master':'商品マスタの配布ファイル',
   'katatsugi-kokyaku':'顧客管理の控え', 'katatsugi-kokyaku-report':'顧客管理の報告', 'katatsugi-kokyaku-check':'顧客管理の上長の返信',
   'katatsugi-kokyaku-tenken':'点検用の記録', 'katatsugi-sales-hikitsugi':'担当の引継ぎ', 'katatsugi-modoshi':'記録の戻し（管理職モードから）'
@@ -3854,7 +4361,7 @@ function renderCust(){
 }
 
 /* ---- 登録していないお名前（ほかの記録にだけある方。2026-10-07 ユーザー指示「学習教材と、顧客管理での調べるは別の検索できる場所に配置してください。
-   顧客管理は営業ダッシュボードが中心で操作できるようにしてください」）。管理画面の「お客様をさがす」をここへ移した。
+   顧客管理は営業カレンダーが中心で操作できるようにしてください」）。管理画面の「お客様をさがす」をここへ移した。
    管理画面のコンプライアンスの記録（要約 KKC.feed()）にだけ残っているお名前を、
    この検索で見つけ、記録を開く・お客様として登録する、をここから行う。
    （満期カレンダーの要約は 2026-10-26 に読むのをやめた。満期カレンダーを管理画面から外したため）
@@ -4222,7 +4729,7 @@ function kkSetPno(kid, v){
   v = KKC.pnoStr(v || '');
   if (v === kkPno(kid)) return;
   var was = kkPno(kid);
-  KKC.toolPatch(function(o){ if (v) o.pno[kid] = v; else delete o.pno[kid]; KKC.histPush(o, kid, v ? (was ? '証券番号を修正した：' + was + ' → ' + v : '証券番号を入れた：' + v) + '（営業ダッシュボード）' : '証券番号を消した（営業ダッシュボード）'); });
+  KKC.toolPatch(function(o){ if (v) o.pno[kid] = v; else delete o.pno[kid]; KKC.histPush(o, kid, v ? (was ? '証券番号を修正した：' + was + ' → ' + v : '証券番号を入れた：' + v) + '（営業カレンダー）' : '証券番号を消した（営業カレンダー）'); });
 }
 function contractCardHtml(k){
   return '<div class="card" style="margin-bottom:var(--sp-3);">' +
@@ -4532,6 +5039,7 @@ function renderCal(){
     var evs = actsOn(s);
     var bds = birthdaysOn(s);
     var cfs = rnCalOn(s);   /* 更新の登録と、契約の満期日・払込満了日（2026-10-26） */
+    var shs = shOn(s);   /* 共有の予定（2026-10-29） */
     var cls = ['cal-cell'];
     if (d.getMonth() !== calM) cls.push('out');
     if (d.getDay() === 0) cls.push('sun');
@@ -4545,10 +5053,10 @@ function renderCal(){
     if (canAdd) cls.push('can-add');
     html += '<div class="' + cls.join(' ') + '" data-d="' + s + '">' +
       (canAdd ? '<button type="button" class="cal-zone" data-add="' + s + '" tabindex="-1" aria-hidden="true" title="' + esc(mdLabel + 'に記録する') + '"></button>' : '') +
-      '<button type="button" class="cal-pick" data-d="' + s + '"' + (narrow && !sampleMode && !tmOn() && !evs.length && !bds.length && !cfs.length ? ' data-empty="1"' : '') +
+      '<button type="button" class="cal-pick" data-d="' + s + '"' + (narrow && !sampleMode && !tmOn() && !evs.length && !bds.length && !cfs.length && !shs.length ? ' data-empty="1"' : '') +
       (s === selDate ? ' aria-current="date"' : '') +
       ' aria-label="' + esc(mdLabel + (canAdd ? 'を見る' : '') + (evs.length ? '　記録' + evs.length + '件' : '　記録なし') +
-        (bds.length ? '　誕生日' + bds.length + '人' : '') + (cfs.length ? '　更新・満期' + cfs.length + '件' : '') + (nAl ? '　要対応の契約' + nAl + '件' : '')) + '"></button>' +
+        (bds.length ? '　誕生日' + bds.length + '人' : '') + (shs.length ? '　共有の予定' + shs.length + '件' : '') + (cfs.length ? '　更新・満期' + cfs.length + '件' : '') + (nAl ? '　要対応の契約' + nAl + '件' : '')) + '"></button>' +
       '<button type="button" class="cal-add" data-add="' + s + '" aria-label="' + esc(mdLabel + 'に記録を追加') + '"><span class="ca-box">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>' +
       '</span></button>' +
@@ -4558,11 +5066,16 @@ function renderCal(){
         return narrow ? '<span class="cal-ev bd sp2" aria-hidden="true"><i class="ev-t">誕生日</i><span class="ev-n">' + spHtml(o.c.name) + '</span></span>'
           : '<span class="cal-ev bd">' + esc(o.c.name) + '様 <span class="bd-n">' + o.age + '歳お誕生日</span></span>';
       }).join('') +
-      cfs.slice(0, Math.max(cap - bds.length - evs.length, 1)).map(function(e){
+      shs.slice(0, Math.max(cap - bds.length, 1)).map(function(e){
+        if (narrow) return '<span class="cal-ev sh sp2' + (e.fresh ? ' fresh' : '') + '" aria-hidden="true"><i class="ev-t">' + esc(e.s || '終日') + '</i><span class="ev-n">' + esc(e.title) + '</span></span>';
+        return '<button type="button" class="cal-ev sh' + (e.fresh ? ' fresh' : '') + '" data-sh="' + esc(e.id) + '" data-shd="' + s + '" aria-label="' + esc(mdLabel + ' ' + (e.s ? e.s + ' ' : '') + '共有の予定 ' + e.title + (e.fresh ? '（新しく届いた予定）' : '') + '　中身を見る') + '">' +
+          SH_IC + (e.s ? '<i class="ev-t">' + esc(e.s) + '</i>' : '') + esc(e.title) + '</button>';
+      }).join('') +
+      cfs.slice(0, Math.max(cap - bds.length - shs.length - evs.length, 1)).map(function(e){
         return narrow ? '<span class="cal-ev cf rn sp2" aria-hidden="true"><i class="ev-t">' + (/払込/.test(e.w) ? '満了' : /満期/.test(e.w) ? '満期' : '更新') + '</i><span class="ev-n">' + spHtml(e.n) + '</span></span>'
           : '<span class="cal-ev cf rn">' + esc(e.n) + '様 <span class="bd-n">' + esc(e.w) + '</span></span>';
       }).join('') +
-      evs.slice(0, Math.max(cap - bds.length, 1)).map(function(a){
+      evs.slice(0, Math.max(cap - bds.length - shs.length, 1)).map(function(a){
         var al = actAl[a.id] || '', cl = 'cal-ev bg-' + a.type + (al ? ' kk-' + al : '');
         if (narrow) return '<span class="' + cl + ' sp2" aria-hidden="true">' + (al ? AL_SVG : '') + '<i class="ev-t">' + esc(a.start || '終日') + '</i><span class="ev-n">' + (a.type === 'MT' ? '会議' : spHtml(actName(a))) + '</span></span>';
         var inner = (al ? AL_SVG : '') + (a.start ? '<i class="ev-t">' + esc(a.start) + '</i>' : '') + esc(actName(a));
@@ -4571,8 +5084,8 @@ function renderCal(){
           stageLabel(a.type) + ' ' + actName(a) + (al === 'bad' ? '（要対応）' : al === 'bk' ? '（上長から差し戻されました）' : '') + '　中身を見る') + '">' + inner + '</button>';
       }).join('') +
       (function(){
-        var shown = Math.min(bds.length, cap) + Math.min(evs.length, Math.max(cap - bds.length, 1)) + Math.min(cfs.length, Math.max(cap - bds.length - evs.length, 1));
-        var rest = bds.length + evs.length + cfs.length - shown;
+        var shown = Math.min(bds.length, cap) + Math.min(shs.length, Math.max(cap - bds.length, 1)) + Math.min(evs.length, Math.max(cap - bds.length - shs.length, 1)) + Math.min(cfs.length, Math.max(cap - bds.length - shs.length - evs.length, 1));
+        var rest = bds.length + shs.length + evs.length + cfs.length - shown;
         return rest > 0 ? (narrow ? '<span class="cal-more">＋' + rest + '</span>'
           : '<button type="button" class="cal-more" data-more="' + s + '" aria-label="' + esc(mdLabel + 'のほかの' + rest + '件を見る') + '">ほか' + rest + '件</button>') : '';
       })() +
@@ -4594,7 +5107,10 @@ function renderCal(){
   $('calGrid').querySelectorAll('button.cal-more').forEach(function(b){
     b.addEventListener('click', function(ev){ ev.stopPropagation(); selectDate(b.getAttribute('data-more')); dayIntoView(); });
   });
-  $('calGrid').querySelectorAll('button.cal-ev').forEach(function(b){
+  $('calGrid').querySelectorAll('button.cal-ev.sh').forEach(function(b){
+    b.addEventListener('click', function(ev){ ev.stopPropagation(); var ds = b.getAttribute('data-shd'); if (ds !== selDate) selectDate(ds); openSd(b.getAttribute('data-sh'), ds); });
+  });
+  $('calGrid').querySelectorAll('button.cal-ev[data-ev]').forEach(function(b){
     b.addEventListener('click', function(ev){
       ev.stopPropagation();
       var id = b.getAttribute('data-ev'), ds = b.getAttribute('data-evd');
@@ -4632,9 +5148,10 @@ function renderDay(){
   var evs = actsOn(selDate);
   var bds = birthdaysOn(selDate);
   var cfs = rnCalOn(selDate);
+  var shs = shOn(selDate);
   var html = '<div class="day-head"><b>' + esc(fmtJpDate(selDate)) + '</b>' +
     '<span class="day-n">' + (evs.length ? '記録' + evs.length + '件' : '記録なし') +
-    (bds.length ? '・誕生日' + bds.length + '人' : '') + (cfs.length ? '・更新・満期' + cfs.length + '件' : '') + '</span>' +
+    (bds.length ? '・誕生日' + bds.length + '人' : '') + (shs.length ? '・共有の予定' + shs.length + '件' : '') + (cfs.length ? '・更新・満期' + cfs.length + '件' : '') + '</span>' +
     '<button class="btn btn-primary btn-sm" id="dayAdd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>この日に記録する</button></div>';
   html += bds.map(function(o){
     return '<div class="day-row bd">' +
@@ -4643,6 +5160,14 @@ function renderDay(){
       '<b>' + esc(o.c.name) + '様</b> ' + o.age + '歳お誕生日</span>' +
       '<span class="tl-meta">' + (o.c.company ? esc(o.c.company) + '　' : '') + 'お祝いの連絡・保障の見直しのきっかけに</span></span>' +
       '<span class="day-go" style="color:var(--muted);">' + esc(fmtBirth(o.c.birth)) + '</span></div>';
+  }).join('');
+  /* 共有の予定（2026-10-29）＝押すと中身（作った人は直す・この回だけ外す・消す） */
+  html += shs.map(function(e){
+    var meta = [e.place ? '場所：' + e.place : '', '入れた人：' + (e.mine ? 'あなた' : e.byName), '相手：' + shToText(e)].filter(Boolean);
+    return '<button type="button" class="day-row sh" data-sh="' + esc(e.id) + '"><span class="day-time">' + esc(shTime(e)) + '</span>' +
+      '<span class="day-body"><span><span class="badge bg-sh">共有の予定</span> <b>' + esc(e.title) + '</b>' + (e.fresh ? '<span class="sh-new">新しく届いた予定</span>' : '') + '</span>' +
+      '<span class="tl-meta">' + esc(meta.join('　')) + '</span>' + (e.rep ? '<span class="tl-meta">' + esc(shRepText(e)) + '</span>' : '') + '</span>' +
+      '<span class="day-go">中身を見る</span></button>';
   }).join('');
   /* 更新の登録（押すと登録の窓で直せる）と、契約の満期日・払込満了日（押すと契約の中身） */
   html += cfs.map(function(e){
@@ -4675,7 +5200,7 @@ function renderDay(){
       (a.fam === true ? '<span class="tl-meta">ご家族などが同席</span>' : '') +
       '</span><span class="day-go">中身を見る</span></' + tag + '>';
   }).join('');
-  if (!evs.length && !bds.length && !cfs.length) {
+  if (!evs.length && !bds.length && !cfs.length && !shs.length) {
     html += sampleMode
       ? '<p class="day-none">この日はお休みです（土日）。</p>'
       : '<p class="day-none">この日の記録はまだありません。カレンダーの日付の空いている所を押すか、「この日に記録する」から追加できます。</p>';
@@ -4684,6 +5209,9 @@ function renderDay(){
   $('dayAdd').addEventListener('click', function(){ openActNew(selDate); });
   $('dayPanel').querySelectorAll('button[data-e]').forEach(function(b){
     b.addEventListener('click', function(){ openEv(b.getAttribute('data-e'), { back: b }); });
+  });
+  $('dayPanel').querySelectorAll('button[data-sh]').forEach(function(b){
+    b.addEventListener('click', function(){ openSd(b.getAttribute('data-sh'), selDate); });
   });
   $('dayPanel').querySelectorAll('button[data-rn]').forEach(function(b){
     b.addEventListener('click', function(){ openRnSheet(b.getAttribute('data-rn')); });
@@ -4764,6 +5292,7 @@ function toggleAeTime(){
   $('aeAlldayLabel').classList.toggle('on', off);
   $('aeStart').disabled = off; $('aeEnd').disabled = off;
   if (off) { $('aeStart').value = ''; $('aeEnd').value = ''; }
+  tpSync('aeStart');
 }
 $('aeAllday').addEventListener('change', toggleAeTime);
 function aeFamSync(){ $('aeFamLabel').classList.toggle('on', $('aeFam').checked); }
@@ -4975,7 +5504,7 @@ function openActEdit(id){
   $('aeAllday').checked = !a.start;
   $('aeStart').value = a.start || '';
   $('aeEnd').value = a.end || '';
-  endTouched.aeEnd = !!a.end;
+  delete tpLen.aeStart; tpSync('aeStart');
   $('aePlace').value = a.place || '';
   $('aeWho').value = a.who || '';
   $('aeFam').checked = a.fam === true; aeFamSync();
@@ -5429,7 +5958,7 @@ function kkWireHen(host){
     var on = this.checked, kid = this.getAttribute('data-kid');
     kkCache = null;
     var row = kkRowOf(kkGet(), kid), auto = !!(row && row.hen.auto);
-    var ok = KKC.toolPatch(function(o){ if (on === auto) delete o.hen[kid]; else o.hen[kid] = on; KKC.histPush(o, kid, (on ? '変額保険などにした' : '変額保険などから外した') + '（営業ダッシュボード）'); });
+    var ok = KKC.toolPatch(function(o){ if (on === auto) delete o.hen[kid]; else o.hen[kid] = on; KKC.histPush(o, kid, (on ? '変額保険などにした' : '変額保険などから外した') + '（営業カレンダー）'); });
     if (!ok) { offerUndo('この端末に保存できませんでした。'); return; }
     kkRefresh();
     var c2 = $('kkHen'); if (c2) c2.focus();
@@ -5671,7 +6200,7 @@ function tmInfoHtml(){
     (tmData.ppl.length ? '<label>人<select id="tmWho"><option value="">全員</option>' + tmData.ppl.map(function(p){
       return '<option value="' + esc(p.id) + '"' + (tmWho === p.id ? ' selected' : '') + '>' + esc(p.name) + '</option>'; }).join('') + '</select></label>' : '') +
     '<a class="btn btn-ghost btn-sm" href="' + esc(tmHubHref()) + '" target="katatsugi-hub" rel="noopener">管理画面で見る</a></div>';
-  if (!tmData.ppl.length) h += '<p>部下の方の予定は、まだ届いていません。部下の方が営業ダッシュボードで保存すると届きます。</p>';
+  if (!tmData.ppl.length) h += '<p>部下の方の予定は、まだ届いていません。部下の方が営業カレンダーで保存すると届きます。</p>';
   else h += '<p class="tm-mute">読むだけの表示です。内容メモ・備考・連絡先は届きません。直すのは、記録した本人の端末です。' +
     (tmData.live ? '' : '保管フォルダの控えの日の内容で、控えのあとに直した分は入っていません。') + '</p>';
   return h;
@@ -6138,19 +6667,19 @@ function kkTakeHash(){
     history.replaceState(null, '', location.href.split('#')[0]);
     var a = state.activities.filter(function(x){ return x.id === m[1]; })[0];
     showTab('act');
-    if (!a) { offerUndo('この記録は、この端末の営業ダッシュボードに見つかりませんでした。', null); return true; }
+    if (!a) { offerUndo('この記録は、この端末の営業カレンダーに見つかりませんでした。', null); return true; }
     if (sampleMode) $('sampleBtn').click();
     selectDate(a.date);
     openEv(a.id, { back: document.querySelector('[data-e="' + a.id + '"]') });
     return true;
   }
-  /* #k=<契約の番号>（2026-10-07 管理画面で意向把握・比較推奨などを保存したあとの「営業ダッシュボードへ戻る」から）：その契約の中身（提出書類）を開く */
+  /* #k=<契約の番号>（2026-10-07 管理画面で意向把握・比較推奨などを保存したあとの「営業カレンダーへ戻る」から）：その契約の中身（提出書類）を開く */
   if ((m = /^#k=([A-Za-z0-9_@.\-]{1,80})$/.exec(h))) {
     history.replaceState(null, '', location.href.split('#')[0]);
     closeEv(true);
     showTab('act');
     var kc = (state.contracts || []).filter(function(x){ return x.id === m[1]; })[0];
-    if (!kc) { offerUndo('この契約は、この端末の営業ダッシュボードに見つかりませんでした。', null); return true; }
+    if (!kc) { offerUndo('この契約は、この端末の営業カレンダーに見つかりませんでした。', null); return true; }
     if (sampleMode) $('sampleBtn').click();
     var ka = state.activities.filter(function(x){ return x.contractId === kc.id; })[0];
     if (ka) selectDate(ka.date);
@@ -6162,12 +6691,12 @@ function kkTakeHash(){
     closeEv(true);
     showTab('cust');
     if (custById(m[1])) openDetail(m[1]);
-    else offerUndo('このお客様は、この端末の営業ダッシュボードに見つかりませんでした。', null);
+    else offerUndo('このお客様は、この端末の営業カレンダーに見つかりませんでした。', null);
     return true;
   }
   /* #q=お名前（ほかの画面から）／#find（管理画面の「お客様をさがす」から）：顧客検索のタブで探す欄を開く。
      ★前は開いたときだけ読んでいた。開いたままのタブでも効くよう、ここで受ける */
-  /* #team（管理画面の管理職モードの「営業ダッシュボードのカレンダーで見る」から）：チームの予定で開く（TEAMCAL） */
+  /* #team（管理画面の管理職モードの「営業カレンダーで見る」から）：チームの予定で開く（TEAMCAL） */
   if (h === '#team') {
     history.replaceState(null, '', location.href.split('#')[0]);
     closeEv(true);
@@ -6190,146 +6719,483 @@ function kkTakeHash(){
 }
 
 /* ============================================================
-   5-1b. 時刻の選択
-   クリックすると「何時か」を先に選ぶ（分は00が既定）。分はあとから直せる。
-   開始時刻を決めると、終了時刻は2時間後を自動で入れる（自分で直したらそのまま）。
+   5-1b. 時刻の選択（2026-10-29 作り直し）
+   ユーザー指示「予定入力の際の時間の入力がやりにくい。使いやすくしてください」。
+   前は「何時」24個と「何分」12個のボタンを2回押す形で、携帯では一覧が画面の下へはみ出し、終了の欄を隠していた。
+   ・開始と終了を1行に並べ、押すと15分刻みの一覧（9時ごろから見える）が出て、1回押せば決まる
+   ・打っても入る（「930」「9時半」「21」「２１：３０」も分かる）。↑↓で選び、Enter で決める
+   ・終了の一覧は開始のあとの時刻だけで、長さ（1時間など）を添える。下に長さのボタン
+   ・開始を動かすと、終了は長さを保って一緒に動く（長さが分からなければ既定の長さ）
+   ・値の形は前のまま（HH:MM）。保存・読み込み・検査の作りは変えていない
    ============================================================ */
-var TIME_PAIR = { aeStart:'aeEnd' };
-var endTouched = { aeEnd:false };
-var tpField = null;   /* いま開いている時刻欄のid */
+var TP_PAIRS = {};   /* 開始のid → { end, dur（既定の長さ・分）, durs:[長さの候補], now, chips } */
+var TP_END = {};     /* 終了のid → 開始のid */
+var endTouched = {}; /* 前の作りの名残（読むところが残っているので空のまま持つ） */
+var tpField = null;  /* いま開いている時刻欄のid */
+var tpLen = {};      /* 開始のid → いまの長さ（分）。開始を動かしたときに保つ */
 
 function pad2(n){ return ('0' + n).slice(-2); }
 function normTime(v){
   v = String(v == null ? '' : v).trim().replace(/[：]/g, ':').replace(/[０-９]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); });
+  v = v.replace(/\s+/g, '');
   if (!v) return '';
+  var pm = /^(午後|PM|pm)/.test(v) || /(pm|PM)$/.test(v);
+  v = v.replace(/^(午前|午後|AM|PM|am|pm)/, '').replace(/(am|pm|AM|PM)$/, '');
+  v = v.replace(/時半$/, ':30').replace(/時(\d{1,2})分?$/, ':$1').replace(/時$/, '').replace(/[.．]/g, ':');
   var m = v.match(/^(\d{1,2}):(\d{1,2})$/) || v.match(/^(\d{1,2})()$/) || v.match(/^(\d{1,2})(\d{2})$/);
   if (!m) return '';
   var h = +m[1], mi = +(m[2] || 0);
+  if (pm && h < 12) h += 12;
   if (h > 23 || mi > 59) return '';
   return pad2(h) + ':' + pad2(mi);
 }
-function addHours(t, n){
-  var p = String(t || '').split(':');
-  if (p.length !== 2) return '';
-  var total = (+p[0]) * 60 + (+p[1]) + n * 60;
-  if (total >= 24 * 60) total = 23 * 60 + 59;      /* 日をまたがない */
-  return pad2(Math.floor(total / 60)) + ':' + pad2(total % 60);
+function tpMin(t){ var p = String(t || '').split(':'); return p.length === 2 ? (+p[0]) * 60 + (+p[1]) : -1; }
+function tpHm(n){ n = Math.max(0, Math.min(23 * 60 + 59, n)); return pad2(Math.floor(n / 60)) + ':' + pad2(n % 60); }
+function addHours(t, n){ var m = tpMin(t); return m < 0 ? '' : tpHm(m + Math.round(n * 60)); }
+function tpDurText(n){
+  if (n <= 0) return '';
+  var h = Math.floor(n / 60), mi = n % 60;
+  if (!h) return mi + '分';
+  if (mi === 30) return h + '時間半';
+  return h + '時間' + (mi ? mi + '分' : '');
 }
-/* fromUser＝時間ボタンで選んだとき。終了時刻は「まだ自分で直していない」ときだけ2時間後にする。
-   入力中の欄を横から書き換えないよう、フォーカス中の欄には触らない。 */
-function setTime(id, val, fromUser){
-  $(id).value = val;
-  var endId = TIME_PAIR[id];
-  if (endId && val && !endTouched[endId] && !$(endId).disabled &&
-      document.activeElement !== $(endId) && (fromUser || !$(endId).value)) {
-    $(endId).value = addHours(val, 2);
+/* 長さの表示と、長さのボタンの押された印 */
+function tpSync(sid){
+  var o = TP_PAIRS[sid]; if (!o) return;
+  var s = normTime($(sid).value), e = normTime($(o.end).value), off = $(sid).disabled;
+  var ds = tpMin(s), de = tpMin(e), len = (ds >= 0 && de >= 0) ? de - ds : -1;
+  if (len > 0) tpLen[sid] = len;
+  var nw = o.now ? $(o.now) : null;
+  if (nw) {
+    nw.classList.toggle('bad', ds >= 0 && de >= 0 && len <= 0);
+    nw.textContent = off ? '' : (ds >= 0 && de >= 0 ? (len > 0 ? '長さ：' + tpDurText(len) : '終了が開始より前になっています') : ds >= 0 ? '終了は、長さのボタンか一覧から選べます' : '');
   }
-  if (fromUser && id === 'aeEnd') endTouched[id] = true;
+  var box = o.chips ? $(o.chips) : null;
+  if (box) box.querySelectorAll('.tdur').forEach(function(b){
+    b.disabled = off;
+    b.setAttribute('aria-pressed', String(len > 0 && +b.getAttribute('data-dur') === len));
+  });
 }
-function resetTimePair(px){ endTouched[px + 'End'] = false; }
+/* 値を入れる。開始を入れたときは、終了を長さを保って動かす */
+function setTime(id, val, fromUser){
+  var o = TP_PAIRS[id];
+  if (o) {
+    var oldS = tpMin(normTime($(id).value)), oldE = tpMin(normTime($(o.end).value));
+    var keep = tpLen[id] || ((oldS >= 0 && oldE > oldS) ? oldE - oldS : o.dur);   /* 欄に打った途中の値ではなく、最後に決まった長さを保つ */
+    $(id).value = val;
+    if (val && !$(o.end).disabled && (fromUser || !$(o.end).value)) $(o.end).value = tpHm(tpMin(val) + keep);
+    tpSync(id);
+    return;
+  }
+  $(id).value = val;
+  if (TP_END[id]) tpSync(TP_END[id]);
+}
+function resetTimePair(px){ var sid = px + 'Start'; delete tpLen[sid]; tpSync(sid); }
 
 function closeTimePicker(){
   var el = document.querySelector('.tp');
   if (el) el.parentNode.removeChild(el);
+  if (tpField && $(tpField)) $(tpField).setAttribute('aria-expanded', 'false');
   tpField = null;
+}
+/* 一覧の中身。終了の一覧は開始のあとの時刻だけ（長さつき） */
+function tpOpts(id){
+  var sid = TP_END[id], out = [];
+  if (sid) {
+    var s = tpMin(normTime($(sid).value));
+    if (s >= 0) {
+      for (var n = s + 15; n <= 23 * 60 + 45; n += 15) out.push({ t: tpHm(n), d: tpDurText(n - s) });
+      if (!out.length) out.push({ t: '23:59', d: tpDurText(23 * 60 + 59 - s) });
+      return out;
+    }
+  }
+  for (var m = 0; m < 24 * 60; m += 15) out.push({ t: tpHm(m), d: '' });
+  return out;
+}
+/* 一覧を開いたときに見せる位置：選んである時刻 → 打った時刻の近く → 開始なら9時（今日ならこのあと） → 終了なら既定の長さ */
+function tpAim(id, opts){
+  var cur = normTime($(id).value), aim = tpMin(cur);
+  if (aim < 0) {
+    var sid = TP_END[id];
+    if (sid) { var s = tpMin(normTime($(sid).value)); aim = s >= 0 ? s + (tpLen[sid] || TP_PAIRS[sid].dur) : -1; }
+    else aim = 9 * 60;
+  }
+  var best = 0, bd = 1e9;
+  opts.forEach(function(o, i){ var d = Math.abs(tpMin(o.t) - aim); if (d < bd) { bd = d; best = i; } });
+  return best;
 }
 function openTimePicker(id){
   if ($(id).disabled) return;
   if (tpField === id) return;
   closeTimePicker();
   tpField = id;
-  var cur = normTime($(id).value);
-  var curH = cur ? +cur.split(':')[0] : null;
-  var curM = cur ? +cur.split(':')[1] : null;
+  var opts = tpOpts(id), cur = normTime($(id).value);
   var pop = document.createElement('div');
   pop.className = 'tp';
-  var hours = '';
-  for (var h = 0; h < 24; h++) {
-    hours += '<button type="button" class="tp-btn" data-h="' + h + '" aria-pressed="' + (curH === h) + '">' + h + '時</button>';
-  }
-  var mins = '';
-  [0,5,10,15,20,25,30,35,40,45,50,55].forEach(function(mi){
-    mins += '<button type="button" class="tp-btn" data-m="' + mi + '" aria-pressed="' + (curM === mi) + '">' + pad2(mi) + '分</button>';
-  });
-  pop.innerHTML = '<p class="tp-h">時間を選ぶ（分は00になります）</p><div class="tp-grid">' + hours + '</div>' +
-    '<p class="tp-h" style="margin-top:10px;">分を選ぶ</p><div class="tp-grid">' + mins + '</div>' +
-    '<div class="tp-foot"><button type="button" class="btn btn-ghost btn-sm" data-tp="clear">空にする</button>' +
-    '<button type="button" class="btn btn-primary btn-sm" data-tp="close">決定</button></div>';
+  pop.id = id + 'List';
+  pop.setAttribute('role', 'listbox');
+  pop.setAttribute('aria-label', ($(id).getAttribute('aria-label') || '時刻') + 'を選ぶ');
+  pop.innerHTML = opts.map(function(o, i){
+    return '<button type="button" class="tp-opt' + (/:00$/.test(o.t) && i ? ' hr' : '') + '" role="option" tabindex="-1" data-t="' + o.t + '" aria-selected="' + (o.t === cur) + '">' +
+      o.t + (o.d ? '<span class="tp-d">（' + o.d + '）</span>' : '') + '</button>';
+  }).join('');
   $(id).parentNode.appendChild(pop);
-  /* シートやカードの右からはみ出すときは右寄せにする */
+  $(id).setAttribute('aria-expanded', 'true');
+  $(id).setAttribute('aria-controls', pop.id);
   var host = pop.closest('.sheet') || pop.closest('.card') || document.body;
   var limit = Math.min(window.innerWidth - 8, host.getBoundingClientRect().right - 8);
   if (pop.getBoundingClientRect().right > limit) pop.classList.add('right');
-
-  pop.querySelectorAll('[data-h]').forEach(function(b){
-    b.addEventListener('click', function(){
-      /* 何時かを選んだ時点では分は00。分はこのあと下の列で直せる */
-      setTime(id, pad2(+b.getAttribute('data-h')) + ':00', true);
-      openTimePickerRefresh(id);
-    });
+  var aim = tpAim(id, opts), btns = pop.querySelectorAll('.tp-opt');
+  if (btns[aim]) { pop.scrollTop = Math.max(0, btns[aim].offsetTop - 4); btns[aim].classList.add('hi'); }
+  /* 携帯：一覧が画面の下で切れないよう、見える所まで送る（窓の中だけ） */
+  try { pop.scrollIntoView({ block: 'nearest' }); } catch (e) {}
+  pop.addEventListener('mousedown', function(ev){ ev.preventDefault(); });   /* 押しても入力欄から焦点を外さない */
+  btns.forEach(function(b){
+    b.addEventListener('click', function(){ tpPick(id, b.getAttribute('data-t')); });
   });
-  pop.querySelectorAll('[data-m]').forEach(function(b){
-    b.addEventListener('click', function(){
-      var mm = +b.getAttribute('data-m');
-      var base = normTime($(id).value) || (pad2(new Date().getHours()) + ':00');
-      setTime(id, base.split(':')[0] + ':' + pad2(mm), true);
-      /* 分まで決まったら閉じる（開いたままだと下のボタンが押せない）。
-         ここで入力欄にフォーカスを戻すと、また一覧が開いてしまうので戻さない。 */
-      closeTimePicker();
-    });
-  });
-  pop.querySelector('[data-tp="clear"]').addEventListener('click', function(){
-    $(id).value = '';
-    if (TIME_PAIR[id] && !endTouched[TIME_PAIR[id]]) $(TIME_PAIR[id]).value = '';
-    closeTimePicker();
-  });
-  pop.querySelector('[data-tp="close"]').addEventListener('click', function(){ closeTimePicker(); });
 }
-/* 選び直したときに押されている場所を描き直す */
-function openTimePickerRefresh(id){
-  var cur = normTime($(id).value);
-  var curH = cur ? +cur.split(':')[0] : null, curM = cur ? +cur.split(':')[1] : null;
-  var pop = document.querySelector('.tp');
-  if (!pop) return;
-  pop.querySelectorAll('[data-h]').forEach(function(b){ b.setAttribute('aria-pressed', String(+b.getAttribute('data-h') === curH)); });
-  pop.querySelectorAll('[data-m]').forEach(function(b){ b.setAttribute('aria-pressed', String(+b.getAttribute('data-m') === curM)); });
+function tpPick(id, t){
+  setTime(id, t, true);
+  closeTimePicker();
+  /* 開始を選んだら、そのまま終了も選べるように終了の欄へ（終了は既に入っているので、選び直さなくてよい） */
+  var o = TP_PAIRS[id];
+  if (o && window.innerWidth > 640) { var e = $(o.end); try { e.focus({ preventScroll: true }); } catch (er) { e.focus(); } closeTimePicker(); }
 }
-
-['aeStart','aeEnd'].forEach(function(id){
-  var el = $(id);
-  el.addEventListener('focus', function(){ openTimePicker(id); });
-  el.addEventListener('click', function(){ openTimePicker(id); });
-  el.addEventListener('input', function(){
-    if (id === 'aeEnd') { endTouched[id] = true; return; }
-    /* 手で「10:00」まで打てた時点で、空の終了時刻に2時間後を入れておく */
-    var v = normTime(el.value);
-    var endId = TIME_PAIR[id];
-    if (v && endId && !endTouched[endId] && !$(endId).disabled && !$(endId).value &&
-        document.activeElement !== $(endId)) {
-      $(endId).value = addHours(v, 2);
-    }
+function tpMove(id, step){
+  var pop = document.querySelector('.tp'); if (!pop) { openTimePicker(id); return; }
+  var btns = [].slice.call(pop.querySelectorAll('.tp-opt')), i = btns.findIndex(function(b){ return b.classList.contains('hi'); });
+  i = Math.max(0, Math.min(btns.length - 1, (i < 0 ? 0 : i) + step));
+  btns.forEach(function(b, j){ b.classList.toggle('hi', j === i); });
+  var b = btns[i]; if (b.offsetTop < pop.scrollTop) pop.scrollTop = b.offsetTop - 4; else if (b.offsetTop + b.offsetHeight > pop.scrollTop + pop.clientHeight) pop.scrollTop = b.offsetTop + b.offsetHeight - pop.clientHeight + 4;
+}
+/* 打っている途中：近い時刻を一覧で光らせる */
+function tpFollow(id){
+  var pop = document.querySelector('.tp'); if (!pop) return;
+  var v = normTime($(id).value); if (!v) return;
+  var btns = [].slice.call(pop.querySelectorAll('.tp-opt')), m = tpMin(v), best = -1, bd = 1e9;
+  btns.forEach(function(b, j){ var d = Math.abs(tpMin(b.getAttribute('data-t')) - m); if (d < bd) { bd = d; best = j; } });
+  btns.forEach(function(b, j){ b.classList.toggle('hi', j === best); });
+  if (btns[best]) pop.scrollTop = Math.max(0, btns[best].offsetTop - 4);
+}
+/* 時刻の組を入れる。startId と endId の欄、now＝長さの表示、chips＝長さのボタンを入れる場所 */
+function tpInstall(sid, eid, opt){
+  opt = opt || {};
+  TP_PAIRS[sid] = { end: eid, dur: opt.dur || 60, durs: opt.durs || [30, 60, 90, 120], now: opt.now || '', chips: opt.chips || '' };
+  TP_END[eid] = sid;
+  if (opt.chips && $(opt.chips)) {
+    $(opt.chips).innerHTML = '<span class="tdurs-l">長さ</span>' + TP_PAIRS[sid].durs.map(function(n){
+      return '<button type="button" class="tdur" data-dur="' + n + '" aria-pressed="false">' + tpDurText(n) + '</button>';
+    }).join('');
+    $(opt.chips).addEventListener('click', function(ev){
+      var b = ev.target.closest('.tdur'); if (!b || b.disabled) return;
+      var n = +b.getAttribute('data-dur'), s = normTime($(sid).value);
+      if (!s) { s = '10:00'; $(sid).value = s; }
+      tpLen[sid] = n;
+      $(eid).value = tpHm(tpMin(s) + n);
+      tpSync(sid);
+    });
+  }
+  [sid, eid].forEach(function(id){
+    var el = $(id);
+    el.setAttribute('role', 'combobox');
+    el.setAttribute('aria-autocomplete', 'list');
+    el.setAttribute('aria-expanded', 'false');
+    el.addEventListener('focus', function(){ openTimePicker(id); });
+    el.addEventListener('click', function(){ openTimePicker(id); });
+    el.addEventListener('keydown', function(ev){
+      if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') { ev.preventDefault(); tpMove(id, ev.key === 'ArrowDown' ? 1 : -1); return; }
+      if (ev.key === 'Enter') {
+        var pop = document.querySelector('.tp'), hi = pop && pop.querySelector('.tp-opt.hi');
+        var typed = normTime(el.value);
+        /* 打った時刻がそのまま正しければそれを使う（10:10 のように15分刻みでない時刻も入る） */
+        if (typed && (!hi || hi.getAttribute('data-t') !== typed)) { ev.preventDefault(); tpPick(id, typed); return; }
+        if (hi) { ev.preventDefault(); tpPick(id, hi.getAttribute('data-t')); }
+        return;
+      }
+      if (ev.key === 'Tab') closeTimePicker();
+    });
+    el.addEventListener('input', function(){ if (tpField !== id) openTimePicker(id); tpFollow(id); });
+    el.addEventListener('change', function(){
+      var v = normTime(el.value);
+      if (el.value && !v) { el.value = ''; tpSync(sid); return; }
+      el.value = v;
+      if (v) setTime(id, v, id === sid); else tpSync(sid);
+    });
+    el.addEventListener('blur', function(){ setTimeout(function(){ if (tpField === id && document.activeElement !== el) closeTimePicker(); }, 120); });
   });
-  el.addEventListener('change', function(){
-    var v = normTime(el.value);
-    el.value = v;
-    if (v) setTime(id, v, false);
-  });
-});
+  tpSync(sid);
+}
+tpInstall('aeStart', 'aeEnd', { dur: 120, durs: [30, 60, 90, 120, 180], now: 'aeDurNow', chips: 'aeDurs' });
 document.addEventListener('click', function(ev){
   if (!tpField) return;
-  if (ev.target.closest && (ev.target.closest('.tp') || ev.target === $(tpField))) return;
+  var f = $(tpField), w = f && f.closest('.time-wrap');
+  if (ev.target.closest && (ev.target.closest('.tp') || ev.target === f || (w && w.contains(ev.target)))) return;   /* 押した瞬間に一覧が出て、押した先が欄の外枠になることがある */
   closeTimePicker();
 });
-document.addEventListener('keydown', function(ev){ if (ev.key === 'Escape' && tpField) { closeTimePicker(); document.activeElement.blur(); } });
+document.addEventListener('keydown', function(ev){ if (ev.key === 'Escape' && tpField) { var f = $(tpField); closeTimePicker(); if (f) f.blur(); } });
+/* SHCAL-BEGIN ---------- 共有の予定（2026-10-29）----------
+   予定を作った人が「全員」か「選んだ方」を決めて入れる。入れられた方の営業カレンダーに、点線の枠の札で出る。
+   中身の仕組み（暗号化・送り・受け取り・繰り返し）は共通の部品 KKC.cal（kokyaku/kkcore.js）。ここは画面だけ */
+var SH_IC = '<svg class="sh-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.6 6-5.6s6 2.3 6 5.6"/><circle cx="17" cy="9" r="2.6"/><path d="M15.8 14.6c.4-.1.8-.1 1.2-.1 2.5 0 4.5 1.8 4.5 4.6"/></svg>';
+var shEditId = null, shRepV = '', shBusy = false, shRefT = null, sdCur = null;
+function shOk(){ return typeof KKC !== 'undefined' && !!KKC.cal; }
+function shUse(){ return shOk() && !!KKC.cal.cfg(); }
+function shOn(d){ if (!shUse() || sampleMode || tmOn()) return []; try { return KKC.cal.day(d); } catch (e) { return []; } }
+function shTime(e){ return e.s ? e.s + (e.e ? '〜' + e.e : '') : '終日'; }
+function shToText(e){ return e.all ? '全員' : (e.toN && e.toN.length ? e.toN.join('・') : '（選んだ方）'); }
+function shRepText(e){
+  if (!e.rep) return '';
+  var d = parseYmd(e.d), w = DOW[d.getDay()] + '曜日';
+  var t = e.rep === 'w' ? '毎週 ' + w : e.rep === '2w' ? '2週ごとの ' + w : '毎月 ' + d.getDate() + '日';
+  return t + (e.until ? '（' + fmtJpDate(e.until) + 'まで）' : '');
+}
+function shErrText(e){
+  if (e === 'noto') return '入れる相手を選んでください（「全員」でも構いません）';
+  if (e === 'nomatch') return 'このパスワードは、繋いでいる管理職のものではありません。管理職から受け取った部下用パスワード（10文字）を入れてください';
+  if (e === 'nourl') return 'この端末では、管理画面の「管理職と共有」がまだ繋がっていません';
+  if (e === 'denied') return '共有の場所に書き込めませんでした。Firebase の決まりに、共有の予定の場所が足されているか確かめてください';
+  if (e === 'notmine') return 'ほかの方が入れた予定は直せません（隠すことはできます）';
+  if (e === 'nocrypto') return 'このブラウザでは使えません（暗号化の機能がありません）';
+  return '繋がりませんでした。インターネットの接続を確かめてください';
+}
+/* 新しく届いた予定の数（ボタンの札） */
+function shFreshN(){ if (!shUse()) return 0; try { return KKC.cal.list().filter(function(e){ return e.fresh && KKC.cal.next(e, todayStr()); }).length; } catch (e) { return 0; } }
+function shRefresh(){
+  clearTimeout(shRefT);
+  shRefT = setTimeout(function(){
+    var n = shFreshN(), b = $('shBadge');
+    b.textContent = n ? String(n) : ''; b.classList.toggle('hide', !n);
+    $('shBtn').setAttribute('aria-label', '予定を共有' + (n ? '（新しく届いた予定 ' + n + '件）' : ''));
+    $('legendSH').classList.toggle('hide', !shUse());
+    if (state && !$('tab-act').classList.contains('hide') && $('aeOvl').classList.contains('hide')) renderCal();
+    if (!$('shOvl').classList.contains('hide')) { shRenderStatus(); if (!shUse()) shRenderSetup(); else { shRenderList(); if (!shEditId && !$('shForm').classList.contains('hide')) shRenderTo(); } }
+    if (sdCur && !$('sdOvl').classList.contains('hide')) openSd(sdCur.id, sdCur.d, true);
+  }, 120);
+}
+function shStart(){
+  if (!shOk()) return;
+  KKC.cal.watch(function(){ shRefresh(); });
+  if (KKC.cal.cfg()) KKC.cal.start();
+  else if (KKC.cal.status().bossCode) KKC.cal.joinHere().catch(function(){});   /* 管理職のパソコンは、覚えている部下用パスワードで自動で繋ぐ */
+  shRefresh();
+}
+function shRenderStatus(){
+  var el = $('shSt'), st = shOk() ? KKC.cal.status() : null;
+  if (!st || !st.on) { el.className = 'sh-st'; el.innerHTML = ''; return; }
+  var s = st.st || {}, ok = s.st === 'ok';
+  el.className = 'sh-st' + (ok ? ' ok' : s.st === 'err' ? ' err' : '');
+  el.innerHTML = '<span class="dot" aria-hidden="true"></span>' + (ok ? '繋がっています' + (s.at ? '（' + esc(new Date(s.at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })) + '）' : '')
+    : s.st === 'err' ? esc(s.err || '繋がっていません') : '繋いでいます…') + '　' + esc((st.me && st.me.name) || '') + (st.me && st.me.role === 'boss' ? '（管理職）' : '');
+}
+function shRenderSetup(force){
+  var host = $('shSetup'), st = shOk() ? KKC.cal.status() : null;
+  $('shForm').classList.add('hide'); host.classList.remove('hide');
+  /* 裏で状態が届くたびに描き直すと、入れかけのパスワードが消える。中身の形が変わったときだけ描き直す */
+  var key = !shOk() || !window.crypto || !crypto.subtle ? 'x' : !st.canJoin ? 'n' : st.bossCode ? 'b' : 'p';
+  if (!force && host.getAttribute('data-k') === key && host.innerHTML) return;
+  host.setAttribute('data-k', key);
+  if (!shOk() || !window.crypto || !crypto.subtle) { host.innerHTML = '<p>このブラウザでは、共有の予定を使えません（暗号化の機能がありません）。</p>'; return; }
+  if (!st.canJoin) {
+    host.innerHTML = '<p><b>まず、管理画面の「管理職と共有」で繋いでください。</b>管理職は部下用パスワードを発行し、部下の方は名前とそのパスワードを入れて繋ぎます。繋いだ方どうしで、予定を入れ合えます。</p>' +
+      '<a class="btn btn-primary btn-sm" href="' + esc(hubHref('#compliance/share')) + '" target="katatsugi-hub" rel="noopener">管理画面の「管理職と共有」を開く</a>';
+    return;
+  }
+  if (st.bossCode) {
+    host.innerHTML = '<p>このパソコンは、部下用パスワードを発行した管理職のパソコンです。押すと繋ぎます。</p>' +
+      '<div class="sh-pw"><button type="button" class="btn btn-primary btn-sm" id="shBossGo">繋ぐ</button><span class="sh-err" id="shPwErr" role="alert"></span></div>';
+    $('shBossGo').addEventListener('click', function(){ shJoin(''); });
+    return;
+  }
+  host.innerHTML = '<p>最初の1回だけ、<b>部下用パスワード（10文字）</b>を入れてください。管理画面の「管理職と共有」で繋いだときに、管理職から受け取ったものです。</p>' +
+    '<div class="sh-pw"><input type="text" id="shPw" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="20" placeholder="例：ABCD-EFGH-JK" aria-label="部下用パスワード">' +
+    '<button type="button" class="btn btn-primary btn-sm" id="shPwGo">繋ぐ</button><span class="sh-err" id="shPwErr" role="alert"></span></div>';
+  $('shPwGo').addEventListener('click', function(){ shJoin($('shPw').value); });
+  $('shPw').addEventListener('keydown', function(ev){ if (ev.key === 'Enter') { ev.preventDefault(); shJoin($('shPw').value); } });
+  setTimeout(function(){ var i = $('shPw'); if (i) i.focus(); }, 30);
+}
+function shJoin(raw){
+  if (shBusy) return;
+  var P = '';
+  if (raw) { try { P = String(raw).normalize('NFKC'); } catch (e) { P = String(raw); } P = P.toUpperCase().replace(/[^A-Z0-9]/g, ''); }
+  var err = $('shPwErr');
+  if (!P && !KKC.cal.status().bossCode) { if (err) err.textContent = '部下用パスワード（10文字）を入れてください'; return; }
+  if (raw && P.length !== 10) { if (err) err.textContent = '部下用パスワードは、英字と数字の10文字です'; return; }
+  shBusy = true; if (err) err.textContent = '繋いでいます…';
+  KKC.cal.joinHere(P || undefined).then(function(){
+    shBusy = false; offerUndo('共有の予定に繋ぎました', null); shOpen();
+  }, function(e){ shBusy = false; if (err) err.textContent = shErrText(e); });
+}
+/* 入れる相手の一覧（繋いで、営業カレンダーを一度開いた方） */
+function shRenderTo(sel){
+  var all = $('shAll').checked, me = KKC.cal.status().me || {};
+  var keep = sel || [].slice.call(document.querySelectorAll('#shTo input[data-cid]:checked')).map(function(i){ return i.getAttribute('data-cid'); });
+  var dir = KKC.cal.dir().filter(function(x){ return !x.me && x.can; });
+  $('shTo').innerHTML = dir.map(function(x){
+    return '<label class="chk' + (keep.indexOf(x.cid) >= 0 ? ' on' : '') + '"><input type="checkbox" data-cid="' + esc(x.cid) + '"' + (keep.indexOf(x.cid) >= 0 ? ' checked' : '') + (all ? ' disabled' : '') + '>' +
+      '<span>' + esc(x.name) + (x.role === 'boss' ? '<span class="sh-role">（管理職）</span>' : '') + '</span></label>';
+  }).join('');
+  $('shTo').classList.toggle('off', all);
+  $('shToHint').textContent = !dir.length ? 'まだほかの方が出ていません。繋いだ方が営業カレンダーを一度開くと、ここに名前が出ます。今は「全員」で入れておくと、あとから繋いだ方にも出ます。'
+    : all ? '「全員」は、あとから繋いだ方にも出ます。' : '選んだ方と、' + (me.name || 'あなた') + 'さんのカレンダーに入ります。';
+  $('shTo').querySelectorAll('input[data-cid]').forEach(function(i){ i.addEventListener('change', function(){ i.closest('label').classList.toggle('on', i.checked); }); });
+}
+function shSetRep(v){
+  shRepV = v;
+  $('shRep').querySelectorAll('.sh-segb').forEach(function(b){ b.setAttribute('aria-checked', String(b.getAttribute('data-rep') === v)); });
+  $('shUntilFld').classList.toggle('hide', !v);
+  shRepHintSync();
+}
+function shRepHintSync(){
+  var d = dpValue('shDate'), h = $('shRepHint');
+  $('shUntilClear').classList.toggle('hide', !dpValue('shUntil'));
+  if (!shRepV || !d) { h.textContent = shRepV ? '日付を選ぶと、何曜日に入るかが出ます' : ''; return; }
+  var t = shRepText({ rep: shRepV, d: d, until: dpValue('shUntil') });
+  h.textContent = t + 'に入ります' + (shRepV === 'm' && +d.slice(8) > 28 ? '（その日が無い月は入りません）' : '') + (dpValue('shUntil') ? '' : '。終わりを決めないときは2年先まで出ます') + (shEditId ? '。直すと、全ての回が変わります' : '');
+}
+function shReset(){
+  shEditId = null;
+  $('shTitle').value = ''; $('shPlace').value = ''; $('shMemo').value = '';
+  setDpValue('shDate', selDate || todayStr()); setDpValue('shUntil', '');
+  $('shStart').value = ''; $('shEnd').value = ''; resetTimePair('sh');
+  $('shAll').checked = false; $('shAllLabel').classList.remove('on');
+  $('shSave').textContent = '予定を入れる'; $('shEditCancel').classList.add('hide');
+  $('shTitleH').textContent = '予定を共有する'; $('shErr').textContent = '';
+  shSetRep('');
+  shRenderTo([]);
+}
+function shLoad(id){
+  var e = KKC.cal.list({ hidden: true }).filter(function(x){ return x.id === id; })[0];
+  if (!e || !e.mine) return;
+  shEditId = id;
+  $('shTitle').value = e.title; $('shPlace').value = e.place || ''; $('shMemo').value = e.memo || '';
+  setDpValue('shDate', e.d); setDpValue('shUntil', e.until || '');
+  $('shStart').value = e.s || ''; $('shEnd').value = e.e || ''; resetTimePair('sh');
+  $('shAll').checked = e.all; $('shAllLabel').classList.toggle('on', e.all);
+  $('shSave').textContent = '直して保存'; $('shEditCancel').classList.remove('hide');
+  $('shTitleH').textContent = '共有の予定を直す'; $('shErr').textContent = '';
+  shSetRep(e.rep || '');
+  shRenderTo(e.to || []);
+  $('shOvl').querySelector('.sheet').scrollTop = 0;
+  $('shTitle').focus();
+}
+function shRenderList(){
+  var today = todayStr();
+  var list = KKC.cal.list({ hidden: true }).map(function(e){ e.nx = KKC.cal.next(e, today); return e; }).filter(function(e){ return e.nx; })
+    .sort(function(a, b){ return a.nx < b.nx ? -1 : a.nx > b.nx ? 1 : (a.s || '') < (b.s || '') ? -1 : 1; });
+  $('shList').innerHTML = list.length ? list.map(function(e){
+    var meta = [shRepText(e), e.place ? '場所：' + e.place : '', '入れた人：' + (e.mine ? 'あなた' : e.byName), '相手：' + shToText(e)].filter(Boolean);
+    return '<div class="sh-it' + (e.hidden ? ' hid' : '') + '"><div><b>' + esc(fmtJpDate(e.nx)) + '　' + esc(shTime(e)) + '　' + esc(e.title) + '</b>' +
+      (e.fresh ? ' <span class="badge bg-sh">新しく届いた予定</span>' : '') + (e.hidden ? ' <span class="badge bg-MT">カレンダーから隠しています</span>' : '') +
+      '<span class="sh-m">' + esc(meta.join('　')) + '</span></div><div class="sh-acts">' +
+      (e.mine ? '<button type="button" class="btn btn-ghost btn-sm" data-she="' + esc(e.id) + '">直す</button><button type="button" class="btn btn-ghost btn-sm" data-shx="' + esc(e.id) + '">消す</button>'
+        : '<button type="button" class="btn btn-ghost btn-sm" data-shh="' + esc(e.id) + '" data-on="' + (e.hidden ? '0' : '1') + '">' + (e.hidden ? 'カレンダーに戻す' : 'カレンダーから隠す') + '</button>') +
+      '</div></div>';
+  }).join('') : '<p class="sh-empty">これからの共有の予定はありません。</p>';
+  $('shList').querySelectorAll('[data-she]').forEach(function(b){ b.addEventListener('click', function(){ shLoad(b.getAttribute('data-she')); }); });
+  $('shList').querySelectorAll('[data-shx]').forEach(function(b){ b.addEventListener('click', function(){ shDel(b.getAttribute('data-shx')); }); });
+  $('shList').querySelectorAll('[data-shh]').forEach(function(b){ b.addEventListener('click', function(){ KKC.cal.hide(b.getAttribute('data-shh'), b.getAttribute('data-on') === '1'); }); });
+}
+function shOpen(editId){
+  $('shOvl').classList.remove('hide');
+  document.body.style.overflow = 'hidden';
+  shRenderStatus();
+  if (!shUse()) { shRenderSetup(true); return; }
+  $('shSetup').classList.add('hide'); $('shForm').classList.remove('hide');
+  shReset(); shRenderList();
+  KKC.cal.seen();   /* 開いたら「新しく届いた」の印を消す（一覧の札は、この窓を開いているあいだは残す） */
+  setTimeout(function(){ var b = $('shBadge'); b.classList.add('hide'); b.textContent = ''; }, 0);
+  if (editId) shLoad(editId); else $('shTitle').focus();
+}
+function closeShSheet(){ $('shOvl').classList.add('hide'); document.body.style.overflow = ''; shEditId = null; shRefresh(); }
+function shDel(id){
+  var e = KKC.cal.list({ hidden: true }).filter(function(x){ return x.id === id; })[0]; if (!e) return;
+  omAsk('共有の予定を消す', '<p>「' + esc(e.title) + '」を消しますか。' + (e.rep ? '繰り返しの全ての回が消えます。1回だけ休むときは、カレンダーの予定を押して「この回だけ外す」を使ってください。' : '') +
+    '<br>相手の方のカレンダーからも消えます。</p>', [{ label: 'やめる', value: '' }, { label: '消す', value: 'del', cls: 'btn-danger' }], function(v){
+    if (v !== 'del') return;
+    var keep = JSON.parse(JSON.stringify(e));
+    KKC.cal.remove(id).then(function(){
+      if (shEditId === id) shReset();
+      closeSd();
+      offerUndo('「' + e.title + '」を消しました（相手の方のカレンダーからも消えます）', function(){ KKC.cal.save(keep, id).catch(function(x){ offerUndo(shErrText(x), null); }); });
+      shRefresh();
+    }, function(x){ offerUndo(shErrText(x), null); });
+  });
+}
+$('shRep').addEventListener('click', function(ev){ var b = ev.target.closest('.sh-segb'); if (b) shSetRep(b.getAttribute('data-rep')); });
+$('shAll').addEventListener('change', function(){ $('shAllLabel').classList.toggle('on', $('shAll').checked); shRenderTo(); });
+$('shUntilClear').addEventListener('click', function(){ setDpValue('shUntil', ''); shRepHintSync(); });
+$('shSave').addEventListener('click', function(){
+  if (shBusy) return;
+  var err = $('shErr'); err.textContent = '';
+  var title = $('shTitle').value.trim(), d = dpValue('shDate'), s = normTime($('shStart').value), en = normTime($('shEnd').value), until = shRepV ? dpValue('shUntil') : '';
+  var all = $('shAll').checked, to = [].slice.call(document.querySelectorAll('#shTo input[data-cid]:checked')).map(function(i){ return i.getAttribute('data-cid'); });
+  if (!title) { err.textContent = '予定の名前を入れてください'; $('shTitle').focus(); return; }
+  if (!d) { err.textContent = '日付を選んでください'; return; }
+  if (en && !s) { err.textContent = '開始の時刻も入れてください'; return; }
+  if (s && en && en <= s) { err.textContent = '終了は開始より後の時刻にしてください'; return; }
+  if (until && until < d) { err.textContent = '繰り返しの終わりは、1回目の日より後にしてください'; return; }
+  if (!all && !to.length) { err.textContent = shErrText('noto'); return; }
+  shBusy = true; $('shSave').disabled = true; err.style.color = 'var(--muted)'; err.textContent = '入れています…';
+  var editing = shEditId;
+  KKC.cal.save({ title: title, d: d, s: s, e: en, place: $('shPlace').value, memo: $('shMemo').value, rep: shRepV, until: until, all: all, to: to }, editing || undefined).then(function(o){
+    shBusy = false; $('shSave').disabled = false; err.style.color = ''; err.textContent = '';
+    offerUndo((editing ? '直しました：' : '予定を入れました：') + o.title + '（' + (o.all ? '全員' : shToText(o)) + '）', null);
+    shReset(); shRenderList(); shRefresh();
+  }, function(x){ shBusy = false; $('shSave').disabled = false; err.style.color = ''; err.textContent = shErrText(x); });
+});
+$('shEditCancel').addEventListener('click', function(){ shReset(); });
+$('shBtn').addEventListener('click', function(){ shOpen(); });
+$('shClose').addEventListener('click', closeShSheet);
+$('shCancel').addEventListener('click', closeShSheet);
+$('shOvl').addEventListener('click', function(ev){ if (ev.target === $('shOvl')) closeShSheet(); });
+/* 予定1つの中身（カレンダーの札・その日の一覧から） */
+function openSd(id, d, again){
+  var e = KKC.cal.list({ hidden: true }).filter(function(x){ return x.id === id; })[0];
+  if (!e) { closeSd(); return; }
+  sdCur = { id: id, d: d };
+  var dl = [['日時', fmtJpDate(d) + '　' + shTime(e)], ['繰り返し', shRepText(e)], ['場所', e.place], ['入れた人', e.mine ? 'あなた（' + (KKC.cal.status().me.name || '') + '）' : e.byName], ['相手', shToText(e)], ['メモ', e.memo]]
+    .filter(function(r){ return r[1]; });
+  $('sdBody').innerHTML = '<h3 class="sd-head">' + esc(e.title) + '</h3><dl class="sd-dl">' + dl.map(function(r){ return '<dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd>'; }).join('') + '</dl>';
+  var btn = function(k, label, cls){ return '<button type="button" class="btn ' + (cls || 'btn-ghost') + ' btn-sm" data-sd="' + k + '">' + label + '</button>'; };
+  $('sdFoot').innerHTML = (e.mine ? btn('edit', '直す', 'btn-primary') + (e.rep ? btn('skip', 'この回だけ外す') : '') + btn('del', '消す') : btn('hide', 'カレンダーから隠す')) + btn('close', '閉じる');
+  $('sdFoot').querySelectorAll('[data-sd]').forEach(function(b){ b.addEventListener('click', function(){
+    var k = b.getAttribute('data-sd');
+    if (k === 'close') closeSd();
+    else if (k === 'edit') { closeSd(); shOpen(id); }
+    else if (k === 'del') shDel(id);
+    else if (k === 'hide') { KKC.cal.hide(id, true); closeSd(); offerUndo('「' + e.title + '」をカレンダーから隠しました（「予定を共有」の一覧から戻せます）', function(){ KKC.cal.hide(id, false); }); }
+    else if (k === 'skip') KKC.cal.skip(id, d).then(function(){ closeSd(); offerUndo(fmtJpDate(d) + 'の「' + e.title + '」を外しました', function(){
+        var x = KKC.cal.list({ hidden: true }).filter(function(y){ return y.id === id; })[0];
+        if (x) { x.ex = (x.ex || []).filter(function(z){ return z !== d; }); KKC.cal.save(x, id).catch(function(){}); }
+      }); }, function(x){ offerUndo(shErrText(x), null); });
+  }); });
+  if (!again) {
+    $('sdOvl').classList.remove('hide'); document.body.style.overflow = 'hidden';
+    if (e.fresh) KKC.cal.seen([id]);
+    var f = $('sdFoot').querySelector('[data-sd]'); if (f) f.focus();
+  }
+}
+function closeSd(){ if ($('sdOvl').classList.contains('hide')) return; $('sdOvl').classList.add('hide'); sdCur = null; if ($('shOvl').classList.contains('hide')) document.body.style.overflow = ''; shRefresh(); }
+$('sdClose').addEventListener('click', closeSd);
+$('sdOvl').addEventListener('click', function(ev){ if (ev.target === $('sdOvl')) closeSd(); });
+document.addEventListener('keydown', function(ev){
+  if (ev.key !== 'Escape' || tpField || dpField || askDone) return;
+  if (!$('sdOvl').classList.contains('hide')) { closeSd(); return; }
+  if (!$('shOvl').classList.contains('hide')) closeShSheet();
+});
+tpInstall('shStart', 'shEnd', { dur: 60, durs: [30, 60, 90, 120], now: 'shDurNow', chips: 'shDurs' });
+/* 書き直したら、前の注意の文（「相手を選んで」など）を消す */
+['input', 'change'].forEach(function(ev){ $('shForm').addEventListener(ev, function(e){ if (e.target && e.target.id === 'shPw') return; var er = $('shErr'); if (er && !shBusy) { er.textContent = ''; er.style.color = ''; } }); });
+/* SHCAL-END */
 
 /* ------------------------------------------------------------
    誕生日の選択（年・月を選んでから日を押す）
    生まれ年は type="date" だと打ちにくいので、和暦つきの年の一覧から選ぶ形にした。
    値は data-ymd に YYYY-MM-DD で持ち（保存はこれまでと同じ形）、見た目は「1993年6月3日」。
    ------------------------------------------------------------ */
-var DP_FIELDS = ['bdDate', 'cfBirth', 'aeDate', 'aeMat', 'aePayEnd', 'rnDate'];
+var DP_FIELDS = ['bdDate', 'cfBirth', 'aeDate', 'aeMat', 'aePayEnd', 'rnDate', 'shDate', 'shUntil'];
 var DP_MIN_YEAR = 1912;
-var DP_FUTURE = { aeDate: 1, aeMat: 80, aePayEnd: 80, rnDate: 10 };   /* 活動日は来年の予定まで・満期日と払込満了日は80年先・更新日は10年先まで選べる（誕生日は当年まで） */
+var DP_FUTURE = { aeDate: 1, aeMat: 80, aePayEnd: 80, rnDate: 10, shDate: 2, shUntil: 3 };   /* 活動日は来年の予定まで・満期日と払込満了日は80年先・更新日は10年先まで選べる（誕生日は当年まで） */
 var dpField = null;    /* いま開いている誕生日欄のid */
 var dpView = null;     /* 一覧に出している年月 { y, m } */
 
@@ -6356,6 +7222,7 @@ function setDpValue(id, s){
   }
   /* 活動シートの見出しの日付表示も連動させる */
   if (id === 'aeDate') $('aeWhen').textContent = s ? fmtJpDate(s) : '';
+  if ((id === 'shDate' || id === 'shUntil') && typeof shRepHintSync === 'function') shRepHintSync();   /* 共有の予定：何曜日に入るか */
 }
 function closeDatePicker(back){
   var el = document.querySelector('.dp');
@@ -8028,7 +8895,7 @@ $('hoImp').addEventListener('change', function(){
     var o = null;
     try { o = JSON.parse(reader.result); } catch (e) {}
     if (!o || typeof o !== 'object') { bad('このファイルは読めませんでした。「引継ぎのファイルを作る」で作ったファイルを選んでください。'); return; }
-    if (o.kind !== HO_KIND) { bad(o.kind === BACKUP_KIND ? 'これは営業ダッシュボードの控えです。下の「データの管理」の「控えから戻す」から読み込んでください。' : KIND_NAMES[o.kind] ? 'このファイルは「' + KIND_NAMES[o.kind] + '」のファイルです。引継ぎのファイルではありません。' : 'このファイルは、引継ぎのファイルではありません。'); return; }
+    if (o.kind !== HO_KIND) { bad(o.kind === BACKUP_KIND ? 'これは営業カレンダーの控えです。下の「データの管理」の「控えから戻す」から読み込んでください。' : KIND_NAMES[o.kind] ? 'このファイルは「' + KIND_NAMES[o.kind] + '」のファイルです。引継ぎのファイルではありません。' : 'このファイルは、引継ぎのファイルではありません。'); return; }
     var d = hoClean(o);
     if (!d) { bad('引継ぎのファイルの中身が読めませんでした。ファイルが壊れているかもしれません。'); return; }
     hoAskImport(d);
@@ -8791,6 +9658,7 @@ function startApp(){
   try { lpfImport(); } catch (e) {}   /* ライフプランで保存したお客様（ご家族）と商談記録を入れる */
   try { mdTake(); } catch (e) {}   /* 管理職モードからの記録の戻し（2026-10-29） */
   try { bgHubFeedCheck(); } catch (e) {}   /* 記録の要約が無い端末では、管理画面を裏で開いて読む（2026-10-29） */
+  try { shStart(); } catch (e) {}   /* 共有の予定を受け始める（2026-10-29） */
   fillCustSelectors();
   renderPicker('ae');
   renderMe();
@@ -8895,7 +9763,7 @@ if (isAuthed()) startApp(); else showLock();
   };
   var T = [
     { k:'hub', w:'katatsugi-hub', f:'', p:'', h:'', n:'管理画面', d:'今日の仕事・お客様を探す' },
-    { k:'sales', w:'katatsugi-sales', f:'保険営業管理ツール.html', p:'hoken-sales/', h:'', n:'営業ダッシュボード', d:'予定・お客様・契約の記録' },
+    { k:'sales', w:'katatsugi-sales', f:'保険営業管理ツール.html', p:'hoken-sales/', h:'', n:'営業カレンダー', d:'予定・お客様・契約の記録' },
     { k:'kokyaku', w:'katatsugi-kokyaku', f:'保険顧客管理ツール.html', p:'hoken-kokyaku/', h:'', n:'顧客管理', d:'契約ごとの提出書類・代理店点検' },
     { k:'comp', w:'katatsugi-hub', f:'', p:'', h:'#compliance', n:'コンプライアンスの記録', d:'意向把握・比較推奨・適合性・苦情' },
     /* x:1＝管理画面から外したツール（2026-10-26 ユーザー指示「写真2枚目の2ツールを削除」）。ほかの画面のメニューには出さず、そのツール自身を開いているときだけ「いまの画面」として出す */
