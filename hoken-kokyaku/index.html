@@ -2505,7 +2505,7 @@ var KKC = (function () {
      ★正直に言うこと＝P を知っている人は、全員あての予定を読める・予定の場所を壊すこと（読めない形にすること）と、同じお名前を名乗って繋ぐことはできる。ほかの方の予定の書き換えはできない。権限の仕組みではない */
   var CAL_KEY = 'officem.hokenHub.shcal.v1', CALC_KEY = 'officem.hokenSales.shcal.v1', CAL_INFO = 'katatsugi-cal-v1';
   var CAL_REP = ['', 'w', '2w', 'm'], CAL_REP_LABEL = { '': '繰り返さない', w: '毎週', '2w': '隔週（2週ごと）', m: '毎月（同じ日）' };
-  var calSt = { st: 'off', at: '', err: '' }, calOn = [], calES = [], calPollT = null, calRaw = { d: {}, ev: {} };
+  var calSt = { st: 'off', at: '', err: '' }, calOn = [], calES = [], calPollT = null, calRaw = { d: {}, ev: {}, bd: {} };
   function calCfg() {
     var o = rd(CAL_KEY);
     if (!o || !/^[0-9a-f]{32}$/.test(o.room || '') || !o.ek || !/^[0-9a-f]{16}$/.test(o.cid || '') || !o.csk || !o.cspk || !o.cek || !o.cepk) return null;
@@ -2516,7 +2516,7 @@ var KKC = (function () {
   function calCache() {
     var o = rd(CALC_KEY) || {};
     if (!o || typeof o !== 'object') o = {};
-    ['evs', 'dir', 'seen', 'hide', 'keys'].forEach(function (k) { if (!o[k] || typeof o[k] !== 'object' || Array.isArray(o[k])) o[k] = {}; });
+    ['evs', 'dir', 'seen', 'hide', 'keys', 'bd', 'bseen'].forEach(function (k) { if (!o[k] || typeof o[k] !== 'object' || Array.isArray(o[k])) o[k] = {}; });
     return o;
   }
   function calHex(a) { var s = ''; for (var i = 0; i < a.length; i++) s += ('0' + a[i].toString(16)).slice(-2); return s; }
@@ -2579,7 +2579,7 @@ var KKC = (function () {
       o.url = opt.url || o.url || ''; o.ek = ek;
       if (opt.name) o.name = str(opt.name, 40).trim();
       if (opt.role === 'boss' || opt.role === 'member') o.role = opt.role;
-      if (ks) { var c = calCache(); c.evs = {}; c.dir = {}; c.keys = {}; c.seen = {}; c.hide = {}; c.room = room; calWrite(CALC_KEY, c); }
+      if (ks) { var c = calCache(); c.evs = {}; c.dir = {}; c.keys = {}; c.seen = {}; c.hide = {}; c.bd = {}; c.bseen = {}; c.room = room; calWrite(CALC_KEY, c); }
       calWrite(CAL_KEY, o);
       return calPublishMe().then(function () { if (opt.start !== false) calStart(); return o; });   // 管理画面は名簿に名前を書くだけ（予定は営業カレンダーで受ける）
     });
@@ -2641,29 +2641,30 @@ var KKC = (function () {
     }).catch(function () { return false; });
   }
   /* 届いた予定を読む。この端末あてでなければ（包んだ鍵が無ければ）、中身は読まずに捨てる */
-  function calTakeEv(cfg, c, eid, b) {
+  function calTakeEv(cfg, c, eid, b, kind) {
+    kind = kind === 'bd' ? 'bd' : 'ev';
     if (!/^[0-9a-f]{28}$/.test(eid)) return Promise.resolve(false);
-    var by = eid.slice(0, 16), spk = c.keys[by];
+    var by = eid.slice(0, 16), spk = c.keys[by], store = kind === 'bd' ? c.bd : c.evs, pre = kind === 'bd' ? 'bd|' : '';
     if (!spk || spk !== b.spk) return Promise.resolve(false);   // 名簿に無い人・鍵の違う人の予定は出さない
-    var prev = c.evs[eid];
+    var prev = store[eid];
     if (prev && prev.at && b.at < prev.at) return Promise.resolve(false);   // 古い形に戻す書き込みは受けない
-    return calVerify(cfg, 'ev', eid, b).then(function (ok) {
+    return calVerify(cfg, kind, eid, b).then(function (ok) {
       if (!ok) return false;
       var keyP;
       if (b.wk) {
         var w = b.wk[cfg.cid];
-        if (!w || !b.epk) { if (prev) { delete c.evs[eid]; return true; } return false; }   // 外された・初めからこの端末あてではない
+        if (!w || !b.epk) { if (prev) { delete store[eid]; return true; } return false; }   // 外された・初めからこの端末あてではない
         keyP = Promise.all([crypto.subtle.importKey('pkcs8', cpsUnb64(cfg.cek), { name: 'ECDH', namedCurve: 'P-256' }, false, ['deriveBits']),
           crypto.subtle.importKey('raw', cpsUnb64(b.epk), { name: 'ECDH', namedCurve: 'P-256' }, true, [])])
           .then(function (k) { return crypto.subtle.deriveBits({ name: 'ECDH', public: k[1] }, k[0], 256); })
-          .then(function (bits) { return calAesFrom(new Uint8Array(bits), cfg.room + '|' + eid + '|' + cfg.cid); })
+          .then(function (bits) { return calAesFrom(new Uint8Array(bits), cfg.room + '|' + pre + eid + '|' + cfg.cid); })
           .then(function (kek) { return crypto.subtle.decrypt({ name: 'AES-GCM', iv: cpsUnb64(w.iv) }, kek, cpsUnb64(w.ct)); })
           .then(function (raw) { return crypto.subtle.importKey('raw', raw, { name: 'AES-GCM' }, false, ['decrypt']); });
-      } else keyP = calAesFrom(cpsUnb64(cfg.ek), 'all|' + eid);
+      } else keyP = calAesFrom(cpsUnb64(cfg.ek), (kind === 'bd' ? 'bd|' : 'all|') + eid);
       return keyP.then(function (k) { return calDec(k, b.iv, b.ct); }).then(function (x) {
-        var e = calClean(x);
+        var e = kind === 'bd' ? bdClean(x) : calClean(x);
         if (!e || e.id !== eid || e.by !== by) return false;
-        c.evs[eid] = { e: e, at: b.at };
+        store[eid] = { e: e, at: b.at };
         return true;
       });
     }).catch(function () { return false; });
@@ -2671,14 +2672,18 @@ var KKC = (function () {
   function calTakeAll(kind, map) {
     var cfg = calCfg(); if (!cfg || !map || typeof map !== 'object') return Promise.resolve(0);
     var c = calCache();
-    if (c.room !== cfg.room) { c = { evs: {}, dir: {}, seen: c.seen || {}, hide: c.hide || {}, keys: {}, room: cfg.room }; }
+    if (c.room !== cfg.room) { c = { evs: {}, dir: {}, seen: c.seen || {}, hide: c.hide || {}, keys: {}, bd: {}, bseen: c.bseen || {}, room: cfg.room }; }
     var ids = Object.keys(map), n = 0;
     var run = kind === 'd' ? ids.map(function (id) { return calTakeDir(cfg, c, id, map[id]).then(function (ok) { if (ok) n++; }); })
-      : ids.map(function (id) { return calTakeEv(cfg, c, id, map[id]).then(function (ok) { if (ok) n++; }); });
+      : ids.map(function (id) { return calTakeEv(cfg, c, id, map[id], kind).then(function (ok) { if (ok) n++; }); });
     return Promise.all(run).then(function () {
-      if (kind === 'd') {   // 名簿が先に届いたら、名簿の鍵で待っていた予定を読み直す
-        var pend = calRaw.ev, more = Object.keys(pend).filter(function (id) { return !c.evs[id] && c.keys[id.slice(0, 16)]; });
-        return Promise.all(more.map(function (id) { return calTakeEv(cfg, c, id, pend[id]).then(function (ok) { if (ok) n++; }); }));
+      if (kind === 'd') {   // 名簿が先に届いたら、名簿の鍵で待っていた予定と掲示を読み直す
+        var more = [];
+        ['ev', 'bd'].forEach(function (kd) {
+          var pend = calRaw[kd] || {}, st = kd === 'bd' ? c.bd : c.evs;
+          Object.keys(pend).forEach(function (id) { if (!st[id] && c.keys[id.slice(0, 16)]) more.push(calTakeEv(cfg, c, id, pend[id], kd).then(function (ok) { if (ok) n++; })); });
+        });
+        return Promise.all(more);
       }
     }).then(function () { c.at = new Date().toISOString(); calWrite(CALC_KEY, c); return n; });
   }
@@ -2688,6 +2693,7 @@ var KKC = (function () {
     var cfg = calCfg(); if (!cfg) return Promise.resolve();
     return calFetch(cfg, 'd').then(function (d) { calRaw.d = d || {}; return calTakeAll('d', calRaw.d); })
       .then(function () { return calFetch(cfg, 'ev'); }).then(function (ev) { calRaw.ev = ev || {}; return calTakeAll('ev', calRaw.ev); })
+      .then(function () { return calFetch(cfg, 'bd').then(function (bd) { calRaw.bd = bd || {}; return calTakeAll('bd', calRaw.bd); }, function () { return 0; }); })   // 掲示板の決まりを貼る前の場所でも、予定は読める
       .then(function () { calSt = { st: 'ok', at: new Date().toISOString(), err: '' }; calSay(); },
         function (e) { calSt = { st: 'err', at: calSt.at, err: cpsErrText(typeof e === 'string' ? e : 'net') }; calSay(); });
   }
@@ -2712,17 +2718,58 @@ var KKC = (function () {
     calES.push(es);
     return true;
   }
+  /* 見えていないタブは知らせの流れを閉じ、見えたら読み直してから開き直す（2026-10-29）。
+     1つの画面が d・ev・bd の3本を持つので、通り道が HTTP/1.1 に落ちる社内の中継（プロキシ）では、
+     管理画面・営業カレンダー・顧客管理を並べて開くと、1か所6本の上限で読み書きが止まるため */
+  var calHid = false, calVisOn = false;
+  function calVis() {
+    if (calVisOn || typeof document === 'undefined' || !document.addEventListener) return;
+    calVisOn = true;
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'hidden') { if (calES.length) { calHid = true; calStop(); } }
+      else if (calHid) { calHid = false; calStart(); }
+    });
+  }
   function calStart(fn) {
     if (fn) calWatch(fn);
     var cfg = calCfg(); if (!cfg || !cpsCan()) { calSt = { st: 'off', at: '', err: '' }; calSay(); return; }
     calStop();
+    calVis();
+    if (typeof document !== 'undefined' && document.visibilityState === 'hidden') { calHid = true; return; }   // 見えたときに開く
     calSt = { st: 'wait', at: calSt.at, err: '' }; calSay();
     var nm = cpsName(); if (nm && nm !== cfg.name) calPublishMe();   // 記録する人の名前が変わったら、名簿の1行も直す
     var a = typeof EventSource === 'function' && calListen(cfg, 'd') && calListen(cfg, 'ev');
+    if (a) calListen(cfg, 'bd');
     if (!a) calPull();
     calPollT = setInterval(calPull, a ? 300000 : 60000);   // 知らせが切れても、ときどき読み直す
   }
   function calWatch(fn) { if (calOn.indexOf(fn) < 0) calOn.push(fn); }
+  /* 暗号化して署名し、置き場所に書く（予定＝ev・掲示板と一言＝bd で同じ形）。全員あて・消した印は部屋の鍵、相手を選んだものは相手の公開鍵で包む */
+  function calSealPut(cfg, c, kind, o, now) {
+    var pre = kind === 'bd' ? 'bd|' : '';
+    var body = { v: 1, at: now, spk: cfg.cspk };
+    var sealP;
+    if (o.all || o.del) sealP = calAesFrom(cpsUnb64(cfg.ek), (kind === 'bd' ? 'bd|' : 'all|') + o.id).then(function (k) { return calEnc(k, o); });
+    else {
+      var raw = cpsRand(32), eph;
+      sealP = crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveBits']).then(function (kp) {
+        eph = kp; return crypto.subtle.exportKey('raw', kp.publicKey);
+      }).then(function (pub) {
+        body.epk = cpsB64(pub); body.wk = {};
+        var rcpt = o.to.concat([cfg.cid]);
+        return Promise.all(rcpt.map(function (cid) {
+          var epub = cid === cfg.cid ? cfg.cepk : c.dir[cid].epk;
+          return crypto.subtle.importKey('raw', cpsUnb64(epub), { name: 'ECDH', namedCurve: 'P-256' }, true, [])
+            .then(function (pk) { return crypto.subtle.deriveBits({ name: 'ECDH', public: pk }, eph.privateKey, 256); })
+            .then(function (bits) { return calAesFrom(new Uint8Array(bits), cfg.room + '|' + pre + o.id + '|' + cid); })
+            .then(function (kek) { var iv = cpsRand(12); return crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, kek, raw).then(function (ct) { body.wk[cid] = { iv: cpsB64(iv), ct: cpsB64(ct) }; }); });
+        }));
+      }).then(function () { return crypto.subtle.importKey('raw', raw, { name: 'AES-GCM' }, false, ['encrypt']); })
+        .then(function (k) { return calEnc(k, o); });
+    }
+    return sealP.then(function (x) { body.iv = x.iv; body.ct = x.ct; return calSign(cfg, kind, o.id, body); })
+      .then(function (b) { return calFetch(cfg, kind + '/' + o.id, { method: 'PUT', body: JSON.stringify(b) }); });
+  }
   /* 保存する（新しく作る・直す）。e＝{ title, d, s, e, place, memo, rep, until, all, to:[人の番号] }。返すのは保存した予定 */
   function calSave(e, id) {
     var cfg = calCfg(); if (!cfg) return Promise.reject('nocfg');
@@ -2736,28 +2783,7 @@ var KKC = (function () {
       if (!o.to.length) return Promise.reject('noto');
       o.toN = o.to.map(function (x) { return c.dir[x].name; });
     }
-    var body = { v: 1, at: now, spk: cfg.cspk };
-    var sealP;
-    if (o.all || o.del) sealP = calAesFrom(cpsUnb64(cfg.ek), 'all|' + o.id).then(function (k) { return calEnc(k, o); });
-    else {
-      var raw = cpsRand(32), eph;
-      sealP = crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveBits']).then(function (kp) {
-        eph = kp; return crypto.subtle.exportKey('raw', kp.publicKey);
-      }).then(function (pub) {
-        body.epk = cpsB64(pub); body.wk = {};
-        var rcpt = o.to.concat([cfg.cid]);
-        return Promise.all(rcpt.map(function (cid) {
-          var epub = cid === cfg.cid ? cfg.cepk : c.dir[cid].epk;
-          return crypto.subtle.importKey('raw', cpsUnb64(epub), { name: 'ECDH', namedCurve: 'P-256' }, true, [])
-            .then(function (pk) { return crypto.subtle.deriveBits({ name: 'ECDH', public: pk }, eph.privateKey, 256); })
-            .then(function (bits) { return calAesFrom(new Uint8Array(bits), cfg.room + '|' + o.id + '|' + cid); })
-            .then(function (kek) { var iv = cpsRand(12); return crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, kek, raw).then(function (ct) { body.wk[cid] = { iv: cpsB64(iv), ct: cpsB64(ct) }; }); });
-        }));
-      }).then(function () { return crypto.subtle.importKey('raw', raw, { name: 'AES-GCM' }, false, ['encrypt']); })
-        .then(function (k) { return calEnc(k, o); });
-    }
-    return sealP.then(function (x) { body.iv = x.iv; body.ct = x.ct; return calSign(cfg, 'ev', o.id, body); })
-      .then(function (b) { return calFetch(cfg, 'ev/' + o.id, { method: 'PUT', body: JSON.stringify(b) }); })
+    return calSealPut(cfg, c, 'ev', o, now)
       .then(function () {
         var c2 = calCache(); c2.evs[o.id] = { e: o, at: now }; c2.seen[o.id] = now; calWrite(CALC_KEY, c2);
         calSt = { st: 'ok', at: now, err: '' }; calSay();
@@ -2840,11 +2866,269 @@ var KKC = (function () {
     return calSetup(code, { url: url, room: room || undefined, role: boss && !P ? 'boss' : (cp.boss && P === cp.boss.code ? 'boss' : 'member'), name: cpsName() });
   }
 
+  /* ---- 掲示板と一言（2026-10-29）：管理職からチームへの周知・確認事項と、記録の不備に添える一言 ----
+     ユーザー指示「掲示板機能を追加し、メンバーへの確認事項などの周知事項ができるように」／「管理職からメンバーへ一言を返す」
+     ★共有の予定と同じ部屋・同じ名簿・同じ暗号（/kt/<部屋>/bd/<28桁>）。全員あては部屋の鍵、相手を選んだものは相手の公開鍵でだけ包む
+     ★種類＝post（掲示：件名・本文・確認をお願いするか・期限）／note（一言：200字・記録の不備に添える ref）／ack（確認しました・分かりました：作った人あて）
+     ★「確認しました」は、その時点の掲示に付く（あとで掲示を直すと、確認をお願いし直す）。記録そのもの・承認の印には触らない */
+  var BD_T = ['post', 'note', 'ack'];
+  function bdClean(x) {
+    if (!x || typeof x !== 'object') return null;
+    var o = { id: str(x.id, 40), t: BD_T.indexOf(x.t) >= 0 ? x.t : '', by: str(x.by, 16), byName: str(x.byName, 40).trim(), at: iso(x.at), upd: iso(x.upd), del: x.del === true,
+      all: x.all === true, to: Array.isArray(x.to) ? x.to.filter(function (v) { return typeof v === 'string' && /^[0-9a-f]{16}$/.test(v); }).slice(0, 200) : [],
+      toN: Array.isArray(x.toN) ? x.toN.map(function (v) { return str(v, 40); }).slice(0, 200) : [],
+      title: str(x.title, 60).trim(), body: str(x.body, 1000).trim(), need: x.need === true, due: ymd(x.due),
+      text: str(x.text, 200).trim(), of: typeof x.of === 'string' && /^[0-9a-f]{28}$/.test(x.of) ? x.of : '', ref: null };
+    if (x.ref && typeof x.ref === 'object' && str(x.ref.id, 40)) o.ref = { k: x.ref.k === 'kk' ? 'kk' : 'rec', id: str(x.ref.id, 40), no: str(x.ref.no, 40).trim(), lb: str(x.ref.lb, 60).trim() };
+    if (!/^[0-9a-f]{28}$/.test(o.id) || o.id.slice(0, 16) !== o.by) return null;
+    if (o.del) return o;
+    if (!o.t) return null;
+    if (o.t === 'post' && !o.title) return null;
+    if (o.t === 'note' && (!o.text || o.all || !o.to.length)) return null;
+    if (o.t === 'ack' && (!o.of || o.all || !o.to.length)) return null;
+    return o;
+  }
+  function bdSave(x, id) {
+    var cfg = calCfg(); if (!cfg) return Promise.reject('nocfg');
+    var c = calCache(), prev = id && c.bd[id] ? c.bd[id].e : null, now = new Date().toISOString();
+    if (id && prev && prev.by !== cfg.cid) return Promise.reject('notmine');
+    if (id && !prev && (!x || x.t !== 'ack')) return Promise.reject('none');
+    var o = bdClean({ id: id || (cfg.cid + calHex(cpsRand(6))), t: x.t, by: cfg.cid, byName: cfg.name || cpsName(), at: prev && !prev.del ? prev.at : now, upd: now, del: x.del === true,
+      all: x.all === true, to: x.all ? [] : x.to, title: x.title, body: x.body, need: x.need === true, due: x.due, text: x.text, of: x.of, ref: x.ref });
+    if (!o) return Promise.reject('bad');
+    if (!o.del && !o.all) {
+      o.to = o.to.filter(function (v) { return v !== cfg.cid && c.dir[v] && !c.dir[v].gone && c.dir[v].epk; });
+      if (!o.to.length) return Promise.reject('noto');
+      o.toN = o.to.map(function (v) { return c.dir[v].name; });
+    }
+    return calSealPut(cfg, c, 'bd', o, now).then(function () {
+      var c2 = calCache(); c2.bd[o.id] = { e: o, at: now }; c2.bseen[o.id] = now; calWrite(CALC_KEY, c2);
+      calSt = { st: 'ok', at: now, err: '' }; calSay();
+      return o;
+    });
+  }
+  function bdRemove(id) {
+    var c = calCache(), p = c.bd[id] && c.bd[id].e; if (!p || p.del) return Promise.reject('none');
+    return bdSave({ t: p.t, del: true, all: true }, id);   // 消した印には中身を入れない
+  }
+  /* 確認しました／分かりました＝作った人あての印。番号は「自分の番号＋掲示の番号から作った12桁」で決まる（押し直すと上書き） */
+  function bdAck(of) {
+    var cfg = calCfg(); if (!cfg) return Promise.reject('nocfg');
+    var c = calCache(), p = c.bd[of] && c.bd[of].e;
+    if (!p || p.del || p.by === cfg.cid) return Promise.reject('none');
+    return crypto.subtle.digest('SHA-256', cpsUtf('ack|' + of)).then(function (h) {
+      return bdSave({ t: 'ack', of: of, to: [p.by] }, cfg.cid + calHex(new Uint8Array(h)).slice(0, 12));
+    });
+  }
+  function bdSeen(ids) { var c = calCache(); (ids || Object.keys(c.bd)).forEach(function (id) { if (c.bd[id]) c.bseen[id] = c.bd[id].e.upd || c.bd[id].at; }); calWrite(CALC_KEY, c); }
+  /* この端末で見えるもの（自分が作った・全員あて・自分あて） */
+  function bdAll() {
+    var cfg = calCfg(); if (!cfg) return [];
+    var c = calCache(), out = [];
+    Object.keys(c.bd).forEach(function (id) {
+      var e = c.bd[id].e;
+      if (!e || e.del) return;
+      if (e.by !== cfg.cid && !e.all && e.to.indexOf(cfg.cid) < 0) return;
+      var x = JSON.parse(JSON.stringify(e)), by = c.dir[e.by];
+      x.mine = e.by === cfg.cid; if (by && by.name) x.byName = by.name;
+      x.fresh = !x.mine && (!c.bseen[id] || c.bseen[id] < (e.upd || ''));
+      out.push(x);
+    });
+    return out;
+  }
+  function bdAcks(all, of) {
+    var m = {};
+    all.forEach(function (a) { if (a.t === 'ack' && a.of === of) { var p = m[a.by]; if (!p || a.upd > p.upd) m[a.by] = a; } });
+    return m;
+  }
+  /* 掲示の一覧（新しい順）。自分の掲示には、確認した方・まだの方を添える */
+  function bdPosts() {
+    var cfg = calCfg(), all = bdAll(), dir = calDir();
+    return all.filter(function (x) { return x.t === 'post'; }).map(function (p) {
+      var acks = bdAcks(all, p.id), ok = function (a) { return a && a.upd >= p.upd; };
+      if (p.mine) {
+        var want = p.all ? dir.filter(function (d) { return !d.me; }).map(function (d) { return { cid: d.cid, name: d.name }; })
+          : p.to.map(function (cid, i) { var d = dir.filter(function (z) { return z.cid === cid; })[0]; return { cid: cid, name: d ? d.name : (p.toN[i] || '（名前なし）') }; });
+        p.done = []; p.wait = [];
+        want.forEach(function (w) { var a = acks[w.cid]; if (ok(a)) p.done.push({ name: w.name, at: a.upd }); else p.wait.push({ name: w.name, old: !!a }); });
+      } else {
+        var me = acks[cfg.cid]; p.acked = ok(me) ? me.upd : ''; p.reack = !!me && !ok(me);
+      }
+      return p;
+    }).sort(function (a, b) { return (b.at || '') < (a.at || '') ? -1 : 1; });
+  }
+  /* 一言（自分あて・自分が送ったもの）。分かりました の印を添える */
+  function bdNotes() {
+    var cfg = calCfg(), all = bdAll();
+    return all.filter(function (x) { return x.t === 'note'; }).map(function (n) {
+      var acks = bdAcks(all, n.id);
+      if (n.mine) { var a = acks[n.to[0]]; n.okAt = a && a.upd >= n.upd ? a.upd : ''; }
+      else { var m = acks[cfg.cid]; n.okAt = m && m.upd >= n.upd ? m.upd : ''; }
+      return n;
+    }).sort(function (a, b) { return (b.at || '') < (a.at || '') ? -1 : 1; });
+  }
+  /* まだ見ていない・確認していないもの（自分あて） */
+  function bdUnread() {
+    var p = bdPosts().filter(function (x) { return !x.mine && (x.need ? !x.acked : x.fresh); });
+    var n = bdNotes().filter(function (x) { return !x.mine && !x.okAt; });
+    return { posts: p, notes: n, n: p.length + n.length };
+  }
+  function bdErrText(e) {
+    return e === 'noto' ? '送れる相手がいません（相手の方が、新しい版で繋ぎ直すと送れます）' : e === 'nocfg' ? 'まだ繋いでいません' :
+      e === 'notmine' ? '作った方だけが直せます' : e === 'bad' ? '件名（一言は本文）を入れてください' : cpsErrText(typeof e === 'string' ? e : 'net');
+  }
+
+  /* ---- 掲示板の画面（営業カレンダーの掲示板のタブと、管理画面の管理職モードで同じものを使う） ----
+     opt＝{ off: 繋いでいないときの案内のHTML, title: 見出しを出すか } */
+  var BD_CSS = '.kkbd{--bd-ink:#2b2b2b;--bd-sub:#5d6670;--bd-line:#e3dfd8;--bd-blue:#1b5e8a;--bd-new:#b5481f;--bd-ok:#2e7d4f;font-size:15px;line-height:1.75;color:var(--bd-ink);}' +
+    '.kkbd h4{font-size:1.02rem;margin:22px 0 8px;color:var(--bd-ink);font-weight:700;}.kkbd h4:first-child{margin-top:4px;}' +
+    '.kkbd-st{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;font-size:.86rem;color:var(--bd-sub);margin:0 0 6px;}' +
+    '.kkbd-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#9aa3ab;margin-right:6px;vertical-align:1px;}.kkbd-dot.ok{background:var(--bd-ok);}.kkbd-dot.err{background:#c0392b;}' +
+    '.kkbd-off{background:#f6f9fc;border:1px solid #d7e3ee;border-radius:12px;padding:14px 16px;margin:0 0 10px;}' +
+    '.kkbd-list{display:grid;gap:12px;margin:0;padding:0;list-style:none;}' +
+    '.kkbd-p{background:#fff;border:1px solid var(--bd-line);border-radius:14px;padding:14px 16px;}' +
+    '.kkbd-p.fresh{border-color:#e7b9a3;box-shadow:inset 4px 0 0 var(--bd-new);}' +
+    '.kkbd-p header{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;}' +
+    '.kkbd-t{font-size:1.06rem;font-weight:700;}.kkbd-p.fresh .kkbd-t{font-weight:800;}' +
+    '.kkbd-tag{display:inline-block;font-size:.8rem;line-height:1.5;padding:1px 9px;border-radius:999px;border:1px solid #cfdbe6;background:#f3f7fb;color:var(--bd-blue);white-space:nowrap;}' +
+    '.kkbd-tag.need{background:#fff4e8;border-color:#efcfae;color:#8a4a12;}.kkbd-tag.new{background:var(--bd-new);border-color:var(--bd-new);color:#fff;}' +
+    '.kkbd-tag.ok{background:#eef7f1;border-color:#bfe0cb;color:var(--bd-ok);}.kkbd-tag.late{background:#fdeeee;border-color:#efc4c4;color:#a32b2b;}' +
+    '.kkbd-meta{margin:4px 0 0;font-size:.84rem;color:var(--bd-sub);}' +
+    '.kkbd-body{margin:8px 0 0;white-space:pre-wrap;overflow-wrap:anywhere;max-width:42em;}' +
+    '.kkbd-ft{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;margin-top:10px;}' +
+    '.kkbd-ft .btn{min-height:44px;}' +
+    '.kkbd-who{font-size:.86rem;color:var(--bd-sub);}.kkbd-who b{color:var(--bd-ink);font-weight:600;}' +
+    '.kkbd-n{list-style:none;margin:0;padding:0;display:grid;gap:10px;}' +
+    '.kkbd-n li{background:#f7faf7;border:1px solid #d6e7da;border-radius:12px;padding:12px 14px;}' +
+    '.kkbd-n li.wait{background:#fffaf3;border-color:#efd9bd;}' +
+    '.kkbd-n .kkbd-tx{margin:4px 0 0;white-space:pre-wrap;overflow-wrap:anywhere;}' +
+    '.kkbd-new{border:1px solid var(--bd-line);border-radius:14px;background:#fff;padding:4px 16px 14px;margin-top:6px;}' +
+    '.kkbd-new summary{cursor:pointer;font-weight:700;min-height:44px;display:flex;align-items:center;}' +
+    '.kkbd-f{display:grid;gap:12px;margin-top:6px;}.kkbd-f label{display:grid;gap:4px;font-size:.9rem;font-weight:600;}' +
+    '.kkbd-f input[type=text],.kkbd-f input[type=date],.kkbd-f textarea{font:inherit;font-weight:400;border:1.5px solid #d5d0c8;border-radius:10px;padding:9px 12px;min-height:44px;background:#fff;width:100%;box-sizing:border-box;}' +
+    '.kkbd-f textarea{min-height:110px;resize:vertical;}' +
+    '.kkbd-f .kkbd-row{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;font-weight:400;}' +
+    '.kkbd-f .kkbd-chk{display:inline-flex;gap:8px;align-items:center;min-height:44px;font-weight:400;}' +
+    '.kkbd-f .kkbd-chk input{width:20px;height:20px;}' +
+    '.kkbd-to{display:flex;flex-wrap:wrap;gap:4px 14px;padding:4px 0 0 4px;}' +
+    '.kkbd-to[hidden]{display:none !important;}' +
+    '.kkbd-note{font-size:.84rem;color:var(--bd-sub);margin:8px 0 0;}' +
+    '@media (min-width:960px){.kkbd-two{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:24px;align-items:start;}.kkbd-two > div > h4:first-child{margin-top:4px;}}';
+  function bdEsc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]; }); }
+  function bdTs(v) { var d = new Date(v); if (isNaN(d)) return ''; var y = d.getFullYear() !== new Date().getFullYear() ? d.getFullYear() + '年' : ''; return y + (d.getMonth() + 1) + '月' + d.getDate() + '日 ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+  function bdMd(v) { if (!ymd(v)) return ''; return (+v.slice(5, 7)) + '月' + (+v.slice(8, 10)) + '日'; }
+  function bdRefText(r) { return r ? (r.lb || '記録') + (r.no ? '（' + r.no + ' 様）' : '') : ''; }
+  function bdPostHTML(p) {
+    var late = p.due && p.due < today() && !p.mine && p.need && !p.acked;
+    var h = '<li class="kkbd-p' + (p.fresh && !p.mine ? ' fresh' : '') + '" data-bdid="' + bdEsc(p.id) + '"><header>' +
+      (p.need ? '<span class="kkbd-tag need">確認をお願いします</span>' : '<span class="kkbd-tag">周知</span>') +
+      (p.fresh && !p.mine ? '<span class="kkbd-tag new">新着</span>' : '') + '<b class="kkbd-t">' + bdEsc(p.title) + '</b></header>' +
+      '<p class="kkbd-meta">' + bdEsc(p.mine ? 'あなた' : p.byName || '（名前なし）') + '・' + bdEsc(bdTs(p.at)) + (p.upd && p.upd !== p.at ? '（' + bdEsc(bdTs(p.upd)) + ' に直しました）' : '') +
+      '・宛先 ' + bdEsc(p.all ? 'チーム全員' : p.toN.join('、')) + (p.due ? '・期限 ' + bdEsc(bdMd(p.due)) + 'まで' : '') + '</p>' +
+      (p.body ? '<div class="kkbd-body">' + bdEsc(p.body) + '</div>' : '') + '<div class="kkbd-ft">';
+    if (p.mine) {
+      if (p.need) h += '<span class="kkbd-tag ' + (p.wait.length ? 'need' : 'ok') + '">確認済み ' + p.done.length + '／' + (p.done.length + p.wait.length) + '人</span>' +
+        (p.done.length ? '<span class="kkbd-who">確認した方：<b>' + p.done.map(function (d) { return bdEsc(d.name); }).join('、') + '</b></span>' : '') +
+        (p.wait.length ? '<span class="kkbd-who">まだの方：<b>' + p.wait.map(function (d) { return bdEsc(d.name) + (d.old ? '（直す前に確認）' : ''); }).join('、') + '</b></span>' : '');
+      h += '<button type="button" class="btn btn-ghost btn-sm" data-bd="edit" data-id="' + bdEsc(p.id) + '">直す</button><button type="button" class="btn btn-ghost btn-sm" data-bd="del" data-id="' + bdEsc(p.id) + '">消す</button>';
+    } else if (p.need) {
+      h += p.acked ? '<span class="kkbd-tag ok">確認しました（' + bdEsc(bdTs(p.acked)) + '）</span>' :
+        (late ? '<span class="kkbd-tag late">期限を過ぎています</span>' : '') + (p.reack ? '<span class="kkbd-who">掲示が直されたので、もう一度お願いします</span>' : '') +
+        '<button type="button" class="btn btn-primary btn-sm" data-bd="ack" data-id="' + bdEsc(p.id) + '">確認しました</button>';
+    }
+    return h + '</div></li>';
+  }
+  function bdNoteHTML(n) {
+    if (n.mine) return '<li class="' + (n.okAt ? '' : 'wait') + '"><span class="kkbd-who"><b>' + bdEsc(n.toN[0] || '') + 'さん</b>へ・' + bdEsc(bdTs(n.at)) + (n.ref ? '・' + bdEsc(bdRefText(n.ref)) : '') + '</span>' +
+      '<p class="kkbd-tx">' + bdEsc(n.text) + '</p><div class="kkbd-ft">' + (n.okAt ? '<span class="kkbd-tag ok">分かりました（' + bdEsc(bdTs(n.okAt)) + '）</span>' : '<span class="kkbd-tag need">まだ読まれていません</span>') + '</div></li>';
+    return '<li class="' + (n.okAt ? '' : 'wait') + '"><span class="kkbd-who"><b>' + bdEsc(n.byName || '') + 'さん</b>から・' + bdEsc(bdTs(n.at)) + (n.ref ? '・' + bdEsc(bdRefText(n.ref)) : '') + '</span>' +
+      '<p class="kkbd-tx">' + bdEsc(n.text) + '</p><div class="kkbd-ft">' + (n.okAt ? '<span class="kkbd-tag ok">分かりました（' + bdEsc(bdTs(n.okAt)) + '）</span>' : '<button type="button" class="btn btn-primary btn-sm" data-bd="nok" data-id="' + bdEsc(n.id) + '">分かりました</button>') + '</div></li>';
+  }
+  function bdFormHTML(edit) {
+    var dir = calDir().filter(function (d) { return !d.me; }), e = edit || {};
+    var sel = !!(edit && !edit.all);
+    return '<details class="kkbd-new"' + (edit ? ' open' : '') + '><summary>' + (edit ? '掲示を直す' : '新しく掲示する') + '</summary><div class="kkbd-f">' +
+      '<label>件名<input type="text" id="kkbdTitle" maxlength="60" value="' + bdEsc(e.title || '') + '" placeholder="例：今月の意向把握の書き方の確認"></label>' +
+      '<label>本文<textarea id="kkbdBody" maxlength="1000" placeholder="伝えたいこと・確認していただきたいことを書きます">' + bdEsc(e.body || '') + '</textarea></label>' +
+      '<div class="kkbd-row"><label class="kkbd-chk"><input type="checkbox" id="kkbdNeed"' + (e.need || !edit ? ' checked' : '') + '>「確認しました」を押していただく</label>' +
+      '<label class="kkbd-chk">期限<input type="date" id="kkbdDue" value="' + bdEsc(e.due || '') + '" style="width:auto"></label></div>' +
+      '<div><div class="kkbd-row"><label class="kkbd-chk"><input type="radio" name="kkbdTo" value="all"' + (sel ? '' : ' checked') + '>チーム全員</label>' +
+      '<label class="kkbd-chk"><input type="radio" name="kkbdTo" value="sel"' + (sel ? ' checked' : '') + '>名前を選ぶ</label></div>' +
+      '<div class="kkbd-to" id="kkbdToList"' + (sel ? '' : ' hidden') + '>' + (dir.length ? dir.map(function (d) {
+        return '<label class="kkbd-chk"><input type="checkbox" value="' + bdEsc(d.cid) + '"' + (sel && e.to.indexOf(d.cid) >= 0 ? ' checked' : '') + (d.can ? '' : ' disabled') + '>' + bdEsc(d.name) + (d.role === 'boss' ? '（管理職）' : '') + '</label>';
+      }).join('') : '<span class="kkbd-note">まだほかの方が繋いでいません。</span>') + '</div></div>' +
+      '<div class="kkbd-ft"><button type="button" class="btn btn-primary btn-sm" data-bd="post"' + (edit ? ' data-id="' + bdEsc(edit.id) + '"' : '') + '>' + (edit ? 'この内容で直す' : '掲示する') + '</button>' +
+      (edit ? '<button type="button" class="btn btn-ghost btn-sm" data-bd="cancel">やめる</button>' : '') + '</div>' +
+      '<p class="kkbd-note">掲示は、チーム用パスワードで繋いだ方の端末に届きます。お客様のお名前・ご住所・ご連絡先は書かないでください。</p></div></details>';
+  }
+  function bdUi(host, opt) {
+    if (!host) return;
+    opt = opt || {};
+    if (!document.getElementById('kkbd-css')) { var st = document.createElement('style'); st.id = 'kkbd-css'; st.textContent = BD_CSS; document.head.appendChild(st); }
+    var edit = null, busy = false;
+    var draw = function () {
+      if (!host.isConnected) return;
+      var cfg = calCfg();
+      if (!cfg) { host.innerHTML = '<div class="kkbd">' + (opt.off || '<div class="kkbd-off">掲示板は、管理職と共有のチーム用パスワードで繋いだ方どうしで使えます。</div>') + '</div>'; return; }
+      var f = document.activeElement && host.contains(document.activeElement) && document.activeElement.id;
+      var keep = {}; ['kkbdTitle', 'kkbdBody', 'kkbdDue'].forEach(function (k) { var n = document.getElementById(k); if (n) keep[k] = n.value; });
+      var openForm = host.querySelector('.kkbd-new') && host.querySelector('.kkbd-new').open;
+      var posts = bdPosts(), notes = bdNotes(), toMe = notes.filter(function (n) { return !n.mine; }), sent = notes.filter(function (n) { return n.mine; });
+      var dirN = calDir().filter(function (d) { return !d.me; }).length;
+      var ss = calSt.st === 'ok' ? 'ok' : calSt.st === 'err' ? 'err' : '';
+      var h = '<div class="kkbd">' + (opt.title ? '<h3 class="kkbd-h">掲示板</h3>' : '') +
+        '<p class="kkbd-st"><span><span class="kkbd-dot ' + ss + '"></span>' + (ss === 'ok' ? '繋がっています' : ss === 'err' ? bdEsc(calSt.err || '繋がりませんでした') : '繋いでいます…') + '</span>' +
+        '<span>同じチームの方 ' + dirN + '人</span><span>あなた：' + bdEsc(cfg.name || cpsName() || '名前なし') + '</span></p>';
+      var unr = posts.filter(function (p) { return !p.mine && p.need && !p.acked; }).length + toMe.filter(function (n) { return !n.okAt; }).length;
+      h += '<div class="kkbd-two"><div>';
+      if (toMe.length) h += '<h4>あなたあての一言' + (unr ? '' : '') + '</h4><ul class="kkbd-n">' + toMe.slice(0, 20).map(bdNoteHTML).join('') + '</ul>';
+      h += '<h4>周知と確認事項</h4>' + (posts.length ? '<ul class="kkbd-list">' + posts.slice(0, 60).map(bdPostHTML).join('') + '</ul>' : '<p class="kkbd-note">まだ掲示はありません。</p>');
+      h += '</div><div>' + bdFormHTML(edit);
+      if (sent.length) h += '<h4>送った一言</h4><ul class="kkbd-n">' + sent.slice(0, 20).map(bdNoteHTML).join('') + '</ul>';
+      h += '</div></div></div>';
+      host.innerHTML = h;
+      if (openForm && !edit) { var dd = host.querySelector('.kkbd-new'); if (dd) dd.open = true; }
+      if (!edit) Object.keys(keep).forEach(function (k) { var n = document.getElementById(k); if (n) n.value = keep[k]; });
+      if (f) { var fn = document.getElementById(f); if (fn) fn.focus(); }
+      /* 見た掲示は既読に（確認をお願いする掲示は「確認しました」を押すまで数える） */
+      var see = posts.filter(function (p) { return p.fresh; }).map(function (p) { return p.id; });
+      if (see.length && host.offsetParent !== null) setTimeout(function () { bdSeen(see); if (opt.onChange) opt.onChange(); }, 1500);
+    };
+    host.addEventListener('change', function (e) {
+      if (e.target.name === 'kkbdTo') { var l = document.getElementById('kkbdToList'); if (l) l.hidden = e.target.value !== 'sel'; }
+    });
+    host.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-bd]'); if (!b || busy) return;
+      var k = b.getAttribute('data-bd'), id = b.getAttribute('data-id');
+      var done = function (msg) { busy = false; if (msg && opt.toast) opt.toast(msg); draw(); if (opt.onChange) opt.onChange(); };
+      var fail = function (er) { busy = false; b.disabled = false; if (opt.toast) opt.toast(bdErrText(er)); };
+      if (k === 'cancel') { edit = null; draw(); return; }
+      if (k === 'edit') { edit = bdPosts().filter(function (p) { return p.id === id; })[0] || null; draw(); var t = document.getElementById('kkbdTitle'); if (t) { t.focus(); t.scrollIntoView({ block: 'center' }); } return; }
+      if (k === 'del') { if (!confirm('この掲示を消しますか。届いた方の画面からも消えます。')) return; busy = true; bdRemove(id).then(function () { edit = null; done('掲示を消しました'); }, fail); return; }
+      if (k === 'ack' || k === 'nok') { busy = true; b.disabled = true; bdAck(id).then(function () { done(k === 'ack' ? '「確認しました」を送りました' : '「分かりました」を送りました'); }, fail); return; }
+      if (k === 'post') {
+        var v = function (x) { var n = document.getElementById(x); return n ? n.value : ''; };
+        var all = (host.querySelector('input[name="kkbdTo"]:checked') || {}).value !== 'sel';
+        var to = [].map.call(host.querySelectorAll('#kkbdToList input:checked'), function (n) { return n.value; });
+        if (!v('kkbdTitle').trim()) { if (opt.toast) opt.toast('件名を入れてください'); var t2 = document.getElementById('kkbdTitle'); if (t2) t2.focus(); return; }
+        if (!all && !to.length) { if (opt.toast) opt.toast('掲示する相手を選んでください'); return; }
+        busy = true; b.disabled = true;
+        bdSave({ t: 'post', title: v('kkbdTitle'), body: v('kkbdBody'), need: !!(document.getElementById('kkbdNeed') || {}).checked, due: v('kkbdDue'), all: all, to: to }, id || '')
+          .then(function () { var wasEdit = !!edit; edit = null; ['kkbdTitle', 'kkbdBody', 'kkbdDue'].forEach(function (x) { var n = document.getElementById(x); if (n) n.value = ''; });
+            var d0 = host.querySelector('.kkbd-new'); if (d0) d0.open = false; done(wasEdit ? '掲示を直しました' : '掲示しました'); }, fail);
+      }
+    });
+    calWatch(function () { if (!busy && !(document.activeElement && host.contains(document.activeElement) && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName))) draw(); });
+    draw();
+    return { draw: draw };
+  }
+
   return {
     cps: { cfg: cpsCfg, name: cpsName, payload: cpsPayload, seal: cpsSeal, push: cpsPush, queue: cpsQueue, status: cpsStatus, watch: cpsWatch, sales: cpsSales, kk: cpsKk, fromKeys: cpsFromKeys, logins: cpsLogins, cleanLogins: cleanLogins,
       TYPES: CPS_TYPES, STAGES: CPS_STAGES, KINDS: CPS_REC_KINDS },
     cal: { setup: calSetup, forget: calForget, cfg: calCfg, publish: calPublishMe, start: calStart, stop: calStop, watch: calWatch, pull: calPull, save: calSave, remove: calRemove,
       skip: calSkip, hide: calHide, seen: calSeen, hits: calHits, next: calNext, list: calList, day: calDay, dir: calDir, status: calStatus, joinHere: calJoinHere, REP: CAL_REP, REP_LABEL: CAL_REP_LABEL },
+    bd: { save: bdSave, remove: bdRemove, ack: bdAck, seen: bdSeen, all: bdAll, posts: bdPosts, notes: bdNotes, unread: bdUnread, ui: bdUi, errText: bdErrText, refText: bdRefText, ts: bdTs },
     bk: { groups: BKA_GROUPS, group: bkaGroup, collect: bkaCollect, last: bkaLast, exportAll: bkaExport, phone: bkaPhone }, KINDS: KINDS, NAME: NAME, STATUS: STATUS, SALES_KEY: SALES_KEY, FEED_KEY: FEED_KEY, TOOL_KEY: TOOL_KEY, SET_DEF: SET_DEF, FAM_RE: FAM_RE,
     nk: nk, dayDiff: dayDiff, ageAt: ageAt, today: today, contracts: contracts, feed: feed, tool: tool,
     cleanK: cleanK, feedFrom: feedFrom, toolFrom: toolFrom, cleanHist: cleanHist, cleanAlog: cleanAlog, histPush: histPush, meOf: meOf, track: track,
