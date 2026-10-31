@@ -662,6 +662,12 @@ details.pr-it > summary:hover{background:#f8fafc;}
 .pr-val.bad{color:var(--red-text);} .pr-val.ok{color:#215c39;} .pr-val.warn{color:#7d5413;} .pr-val.info{color:var(--muted);font-weight:400;}
 .pr-sub{padding:2px 14px 14px 52px;display:grid;gap:8px;}
 .pr-sub .pr-act{display:flex;flex-wrap:wrap;gap:8px;}
+.kj-rows{list-style:none;margin:0;padding:0;display:grid;gap:6px;}
+.kj-rows li{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;}
+.kj-rows .kj-t{flex:1 1 16em;min-width:0;font-size:var(--fs-sm);line-height:1.6;}
+.kj-rows .kj-t span{margin-left:8px;color:var(--muted);font-size:var(--fs-xs);}
+.kj-rows .kj-t small{display:block;color:var(--red-text);font-size:var(--fs-xs);}
+.pr-more{font-size:var(--fs-xs);color:var(--muted);margin:0;}
 .pr-k{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;font-size:var(--fs-sm);border:1px solid #e9eef3;border-radius:12px;padding:8px 12px;background:#fbfcfd;}
 .pr-k .pk-n{flex:1 1 220px;min-width:0;line-height:1.6;}
 .pr-k .pk-n b{color:var(--navy);}
@@ -693,6 +699,7 @@ details.pr-it > summary:hover{background:#f8fafc;}
 .tk-rec{display:grid;gap:4px;margin:0;padding:0;list-style:none;}
 .tk-rec li{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;font-size:var(--fs-sm);}
 .tk-rec .pr-ic svg{width:18px;height:18px;}
+.tk-rec .tk-prgo{margin-left:auto;min-height:44px;}
 .tk-rec .rv.bad{color:var(--red-text);font-weight:700;} .tk-rec .rv.ok{color:#215c39;} .tk-rec .rv.warn{color:#7d5413;font-weight:700;} .tk-rec .rv.info{color:var(--muted);}
 .tk-btns{display:flex;flex-wrap:wrap;gap:6px;}
 .tk-btns .btn{white-space:normal;text-align:left;line-height:1.4;}
@@ -922,10 +929,22 @@ p.pf-note{max-width:40em;}
 .kt-tbl tbody tr:first-child td{border-top:0;}
 .kt-tbl td small{color:var(--muted);font-size:var(--fs-xs);margin-left:2px;}
 .kt-tbl td.tm-bad{color:var(--red-text);font-weight:700;}
+.tm-badbtn{display:inline-flex;align-items:center;gap:2px;min-height:44px;padding:4px 10px;border:1px solid #efc3c3;border-radius:10px;background:var(--red-bg, #fdf1ef);
+  color:var(--red-text, #a3261c);font:inherit;font-weight:700;cursor:pointer;white-space:nowrap;}
+.tm-badbtn:hover{border-color:#d99a9a;}
+.tm-badbtn:focus-visible{outline:3px solid #1a5487;outline-offset:1px;}
+.tm-badbtn span{font-size:max(13px, .85em);}
+.tb-h{font-size:1rem;color:var(--navy, #1d3a57);margin:14px 0 6px;}
+.tb-list{list-style:none;margin:0;padding:0;display:grid;gap:8px;}
+.tb-list > li{border:1px solid var(--line, #e6ddd2);border-radius:10px;padding:10px 12px;background:#fff;}
+.tb-t{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;}
+.tb-t span{font-size:.88em;color:var(--muted, #5a6470);}
+.tb-al{margin:6px 0 6px;padding-left:1.3em;color:var(--red-text, #a3261c);font-weight:700;font-size:.92em;line-height:1.7;}
+.tb-note{font-size:.88em;color:var(--muted, #5a6470);margin-top:12px;max-width:40em;}
 .tm-who{color:var(--navy);display:block;}
 .tm-tag{display:block;font-size:var(--fs-xs);color:var(--muted);}
 .tm-tag.rep{color:#7d5413;}
-.tm-none{color:#8a96a3;}
+.tm-none{color:#5f6b78;}
 .mm-zero td{background:#fafbfc;}
 .mm-who{font-size:var(--fs-xs);color:var(--muted);margin-top:8px;line-height:1.7;}
 .mm-skip{display:none;font-size:var(--fs-xs);color:var(--muted);margin-top:4px;}
@@ -4167,7 +4186,7 @@ function renderBoss(){
       return '<tr><td data-l="メンバー"><span class="bm-name">' + esc(rp.name) + '</span>' + (rp.dev === meDev ? '<small>この端末</small>' : '') + '</td>' +
         '<td data-l="報告" class="bm-rep">' + (rp.at ? '<span class="nb">' + esc(fmtStamp(rp.at)) + '</span>' + (ag !== null ? '<small>' + (ag ? ag + '日前' : '今日') + '</small>' : '') : '日時不明') +
         (ag === null || ag >= th ? '<span class="bm-old">報告が古い</span>' : '') + '</td>' +
-        '<td data-l="契約" class="n">' + rp.rows.length + '件</td><td data-l="要対応" class="n' + (nb ? ' bad' : '') + '">' + nb + '件</td>' +
+        '<td data-l="契約" class="n">' + rp.rows.length + '件</td><td data-l="要対応" class="n' + (nb ? ' bad' : '') + '">' + (nb ? '<button type="button" class="tm-badbtn" data-bmbad="' + esc(rp.dev) + '" aria-label="' + esc(rp.name + 'さんの要対応の契約を下に出す') + '"><b>' + nb + '</b>件<span aria-hidden="true">　中身 ›</span></button>' : nb + '件') + '</td>' +
         '<td data-l="確認待ち" class="n">' + c(function(x){ return x.st === 'wait'; }) + '件</td><td data-l="確認済み" class="n">' + c(function(x){ return x.st === 'ok'; }) + '件</td>' +
         '<td data-l="差し戻し" class="n">' + c(function(x){ return x.st === 'back'; }) + '件</td>' +
         '<td class="bm-only"><div class="bm-acts">' + (u ? '<span class="bm-unsent">未送付の判断 ' + u + '件</span>' : '') +
@@ -4225,6 +4244,11 @@ function keepScroll(fn){ var y = window.scrollY; fn(); window.scrollTo(0, y); }
 $('bossHost').addEventListener('click', function(ev){
   var t;
   if ((t = ev.target.closest('[data-bf]'))) { bview.f = t.getAttribute('data-bf'); bview.n = 40; keepScroll(renderBoss); return; }
+  if ((t = ev.target.closest('[data-bmbad]'))) {   /* メンバーの表の「要対応 n件」＝その方の要対応の契約だけを下に出す（2026-10-31） */
+    bview.mem = t.getAttribute('data-bmbad'); bview.f = 'bad'; bview.n = 40; renderBoss();
+    var bl = $('bossHost').querySelector('.bk-list'); if (bl) bl.scrollIntoView({ block: 'start' });
+    return;
+  }
   if (ev.target.closest('[data-bmore]')) { bview.n += 40; keepScroll(renderBoss); return; }
   if ((t = ev.target.closest('[data-bopen]'))) {
     var bk0 = t.getAttribute('data-dev') + '|' + t.getAttribute('data-kid'), el0 = t.closest('.bk');
@@ -4614,7 +4638,7 @@ function cleanJdone(v){
 function jishu(){ var j = cleanJishu(rdTool().jishu); return j ? { items: j.items, sample: false, at: j.at, by: j.by } : { items: JISHU_SAMPLE.slice(), sample: true, at: '', by: '' }; }
 
 /* ---- 期間（契約日で数える） ---- */
-var pv = { p: '', smpN: 5, smp: [] }, prOpen = {};
+var pv = { p: '', smpN: 5, smp: [] }, prOpen = {}, prAll = {};
 function addMonths(d, n){ var p = d.split('-').map(Number), x = new Date(p[0], p[1] - 1 + n, p[2]); return x.getFullYear() + '-' + pad(x.getMonth() + 1) + '-' + pad(x.getDate()); }
 function period(){ var x = periodOf(pv.p); pv.p = x.p; return x; }
 function periodOf(p){
@@ -4971,7 +4995,7 @@ function prepItems(){
     var kOpen = kj.filter(function(r){ return r.open; }), kLate = kj.filter(function(r){ return r.late; }), kMiss = kj.filter(function(r){ return r.miss.length && !r.late; });
     it('kujo', 'kujo', '苦情・お申し出の台帳', '顧客名を入力した記録だけを数えます。受付から再発防止まで閉じているか', kLate.length || kMiss.length ? 'bad' : kOpen.length ? 'warn' : kj.length ? 'ok' : 'info',
       kj.length ? '受付 ' + kj.length + '件・対応中 ' + kOpen.length + '件' + (kLate.length ? '・初動の目安を過ぎた ' + kLate.length + '件' : '') + (kMiss.length ? '・不備 ' + kMiss.length + '件' : '') : '期間の受付なし',
-      [], kj.length ? '<div class="pr-act"><a class="btn btn-ghost btn-sm" href="' + esc(hubHref('#compliance/kujo')) + '" target="katatsugi-hub">苦情の台帳を開く</a></div>' : '');
+      [], kj.length ? kjRowsHTML(kLate.concat(kMiss, kOpen.filter(function(r){ return !r.late && !r.miss.length; }))) + '<div class="pr-act"><a class="btn btn-ghost btn-sm" href="' + esc(hubHref('#compliance/kujo')) + '" target="katatsugi-hub">苦情の台帳を開く</a></div>' : '');
   } else it('kujo', 'kujo', '苦情・お申し出の台帳', '', 'info', '管理画面を一度開くと数えます');
   /* 会社の台帳（管理画面） */
   var led = feedLed();
@@ -5028,7 +5052,7 @@ function prItemHTML(x){
   var row = '<span class="pr-ic ' + x.lv + '">' + PR_ICO[x.lv] + '</span><span class="pr-name">' + esc(x.name) + (x.sub ? '<small>' + esc(x.sub) + '</small>' : '') + '</span>' +
     '<span class="pr-val ' + x.lv + '">' + esc(x.val) + '</span>';
   if (x.list.length) return '<details class="pr-it" data-pr="' + esc(x.id) + '"' + (prOpen[x.id] ? ' open' : '') + '><summary class="pr-row">' + row + '</summary><div class="pr-sub">' +
-    x.list.slice(0, 60).map(prKHTML).join('') + (x.list.length > 60 ? '<p class="fd-more">ほか ' + (x.list.length - 60) + '件（「契約と提出書類」で見られます）</p>' : '') + '</div></details>';
+    x.list.slice(0, prAll[x.id] ? x.list.length : 60).map(prKHTML).join('') + (x.list.length > 60 && !prAll[x.id] ? '<p class="fd-more"><button type="button" class="btn btn-ghost btn-sm" data-prall="' + esc(x.id) + '">残りの ' + (x.list.length - 60) + '件も見る</button></p>' : '') + '</div></details>';
   return '<div class="pr-it"><div class="pr-row">' + row + '<span></span></div>' + (x.act ? '<div class="pr-sub">' + x.act + '</div>' : '') + '</div>';
 }
 /* ---- 自己点検の支度（2026-10-23）
@@ -5074,13 +5098,24 @@ function tkEvHref(h){
   if (m[1] === 'sales') return salesHref(m[2]);
   return '';
 }
+/* 苦情・お申し出の1件ずつ（初動の目安を過ぎた・不備・対応中）。押すと管理画面のその記録（2026-10-31） */
+function kjRowsHTML(L){
+  if (!L.length) return '';
+  return '<ul class="kj-rows">' + L.slice(0, 30).map(function(r){
+    var tag = r.late ? '<span class="pill ng">初動の目安を過ぎた</span>' : r.miss.length ? '<span class="pill ng">不備 ' + r.miss.length + 'つ</span>' : '<span class="pill ex">対応中</span>';
+    return '<li><span class="kj-t"><b>' + esc(r.no || '（顧客名なし）') + ' 様</b><span>' + esc([r.date ? '受付 ' + fmtD(r.date) : '', r.owner].filter(Boolean).join('　')) + '</span>' +
+      (r.miss.length ? '<small>' + esc(r.miss.join('・')) + '</small>' : '') + '</span>' + tag +
+      '<a class="btn btn-ghost btn-sm" href="' + esc(hubHref('#compliance/kujo/' + encodeURIComponent(r.id))) + '" target="katatsugi-hub">中身を見る</a></li>';
+  }).join('') + '</ul>' + (L.length > 30 ? '<p class="pr-more">ほか ' + (L.length - 30) + '件は、苦情の台帳で見られます。</p>' : '');
+}
 function tkCatHTML(c, D, jd, aud, open){
   var st = tkState(c, D, jd, aud), own = tkOwn(c.id), rows = D.items.filter(function(x){ return c.rec.indexOf(x.id) >= 0; });
   var ico = st.lv === 'bad' ? '<span class="pr-ic bad">' + ICO_NG + '</span>' : st.lv === 'ok' ? '<span class="pr-ic ok">' + ICO_OK + '</span>' : st.lv === 'warn' ? '<span class="pr-ic warn">' + ICO_WARN + '</span>' : '<span class="pr-ic info">' + ICO_DASH + '</span>';
   var h = '<details class="tk-cat" data-tk="' + esc(c.id) + '"' + (open ? ' open' : '') + '><summary>' + ico + '<span class="tk-nm">' + esc(c.label) + '</span><span class="tk-st ' + (st.lv === 'bad' ? 'warn' : st.lv) + '">' + esc(st.t) + '</span></summary><div class="tk-body">';
   h += '<p class="tk-look">' + esc(c.look) + '</p>';
   if (rows.length) h += '<div><p class="tk-h">この端末の記録</p><ul class="tk-rec">' + rows.map(function(x){
-    return '<li><span class="pr-ic ' + x.lv + '">' + PR_ICO[x.lv] + '</span><span>' + esc(x.name) + '</span><span class="rv ' + x.lv + '">' + esc(x.val) + '</span></li>'; }).join('') + '</ul></div>';
+    var go = (x.lv === 'bad' || x.lv === 'warn') && (x.list.length || x.act) ? '<button type="button" class="btn btn-ghost btn-sm tk-prgo" data-tkpr="' + esc(x.id) + '" aria-label="' + esc(x.name + 'の中身を点検の準備で見る') + '">中身を見る ›</button>' : '';   /* 2026-10-31 */
+    return '<li><span class="pr-ic ' + x.lv + '">' + PR_ICO[x.lv] + '</span><span>' + esc(x.name) + '</span><span class="rv ' + x.lv + '">' + esc(x.val) + '</span>' + go + '</li>'; }).join('') + '</ul></div>';
   if (c.ev.length) h += '<div><p class="tk-h">証拠の出し方</p><div class="tk-btns">' + c.ev.map(function(e){
     var href = tkEvHref(e.h);
     var inner = esc(e.t) + (e.d ? '<small>' + esc(e.d) + '</small>' : '');
@@ -5142,6 +5177,14 @@ function tkGo(h){
 $('tkHost').addEventListener('toggle', function(ev){ var d = ev.target; if (d && d.matches && d.matches('details[data-tk]')) tkOpen[d.getAttribute('data-tk')] = d.open; }, true);
 $('tkHost').addEventListener('click', function(ev){
   var e = ev.target.closest('[data-tkedit]'); if (e) { tkEdit(e.getAttribute('data-tkedit')); return; }
+  var pr = ev.target.closest('[data-tkpr]');
+  if (pr) {   /* 区分の中の記録の行＝点検の準備のその項目を開いて送る（2026-10-31） */
+    var pid = pr.getAttribute('data-tkpr'); prOpen[pid] = true; renderAudit();
+    var d = $('prHost').querySelector('[data-pr="' + pid + '"]') || $('prHost');
+    if (d.tagName === 'DETAILS') d.open = true;
+    d.scrollIntoView({ block: 'start' }); var sm = d.querySelector('summary'); if (sm) try { sm.focus({ preventScroll: true }); } catch (e) {}
+    return;
+  }
   var g = ev.target.closest('[data-tkgo]'); if (g) { tkGo(g.getAttribute('data-tkgo')); return; }
   var j = ev.target.closest('[data-tkd]'), jx = ev.target.closest('[data-tkx]');
   if (!j && !jx) return;
@@ -5194,6 +5237,7 @@ function renderAudit(){
 }
 $('prChips').addEventListener('click', function(ev){ var b = ev.target.closest('[data-pp]'); if (!b) return; pv.p = b.getAttribute('data-pp'); pv.smp = []; renderAudit(); });
 $('prDays').addEventListener('click', function(ev){ if (ev.target.closest('[data-aud]')) openAud(); });
+$('prHost').addEventListener('click', function(ev){ var b = ev.target.closest('[data-prall]'); if (!b) return; var id = b.getAttribute('data-prall'); prAll[id] = true; prOpen[id] = true; var y = window.scrollY; renderAudit(); window.scrollTo(0, y); });   /* 61件目から（2026-10-31） */
 $('prHost').addEventListener('toggle', function(ev){ var d = ev.target; if (d && d.matches && d.matches('details[data-pr]')) prOpen[d.getAttribute('data-pr')] = d.open; }, true);
 function rowAct(ev){
   var b = ev.target.closest('[data-pa]');
@@ -5320,16 +5364,18 @@ $('btnPrPrint').addEventListener('click', function(){
 function factItem(f, al, st, set){
   var need = f.hen ? KKC.KINDS : ['iko', 'hikaku'], good = function(x){ return x === 'ok' || x === 'ex'; };
   var odr = KKC.KINDS.some(function(k){ return f.odr[k]; }), ko = KKC.kourei(f, set);
-  return { date: f.date, before: f.before, bad: !f.before && al.some(function(a){ return a.lv === 'red'; }),
+  return { name: f.name, kid: f.kid, co: [f.company, f.product].filter(Boolean).join('　'), red: (al || []).filter(function(a){ return a.lv === 'red'; }).map(function(a){ return a.t; }),
+    date: f.date, before: f.before, bad: !f.before && al.some(function(a){ return a.lv === 'red'; }),
     doc: need.every(function(k){ return good(f.st[k]); }) && !odr, hen: f.hen, tek: f.hen && good(f.st.tekigou),
     koN: !!ko.need, koOk: !!(ko.need && ko.ok), chk: st === 'ok' };
 }
+var TM_LAST = [], MM_LAST = null;
 function teamUnits(){
   compute();
   var set = KKC.tool().set, devMe = cId(rdTool().dev), tfDev = {}, units = [];
   srcs().forEach(function(x){
     if (!x.own) tfDev[x.dev] = 1;
-    units.push({ who: whoOf(x), kind: x.own ? 'me' : 'tf', at: x.at, items: x.res.rows.map(function(r){ return factItem(r.f, r.alerts, ckState(r), set); }) });
+    units.push({ who: whoOf(x), kind: x.own ? 'me' : 'tf', at: x.at, items: x.res.rows.map(function(r){ var it = factItem(r.f, r.alerts, ckState(r), set); it.own = !!x.own; it.kid = it.kid || (r.k && r.k.id); return it; }) });
   });
   var B = bossData();
   B.reps.forEach(function(rp){
@@ -5343,21 +5389,49 @@ function statOf(L){
   return { all: L.length, live: live.length, doc: n(function(x){ return x.doc; }), bad: n(function(x){ return x.bad; }),
     koN: n(function(x){ return x.koN; }), koOk: n(function(x){ return x.koOk; }), hen: n(function(x){ return x.hen; }), tek: n(function(x){ return x.tek; }), chk: n(function(x){ return x.chk; }) };
 }
+/* 要対応の数を押すと、その契約の一覧と知らせの中身が出る（2026-10-31） */
+function badBtn(n, attr, label){
+  return n ? '<button type="button" class="tm-badbtn" ' + attr + ' aria-label="' + esc(label) + '"><b>' + n + '</b>件<span aria-hidden="true">　中身 ›</span></button>' : '<b>0</b>件';
+}
+function badListOpen(title, groups){
+  var h = groups.filter(function(g){ return g.items.length; }).map(function(g){
+    return (groups.length > 1 || g.who ? '<h4 class="tb-h">' + esc(g.who) + '</h4>' : '') + '<ul class="tb-list">' + g.items.map(function(x){
+      return '<li><div class="tb-t"><b>' + esc(x.name || '（顧客名なし）') + ' 様</b><span>' + esc([x.date ? '契約 ' + fmtD(x.date) : '', x.co].filter(Boolean).join('　')) + '</span></div>' +
+        '<ul class="tb-al">' + x.red.map(function(t){ return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>' +
+        (x.own && x.kid ? '<button type="button" class="btn btn-ghost btn-sm" data-tbopen="' + esc(x.kid) + '">契約を開く</button>' : '') + '</li>';
+    }).join('') + '</ul>';
+  }).join('');
+  omAsk(title, (h || '<p>要対応の契約はありません。</p>') + '<p class="tb-note">この端末の契約は「契約を開く」から直せます。読み込んだ記録・報告の契約は、記録した本人の端末で直していただきます。</p>',
+    [{ label: '閉じる', value: 'cancel' }], function(){}, true);
+}
+document.addEventListener('click', function(ev){
+  var b = ev.target.closest && ev.target.closest('[data-tmbad],[data-mmbad],[data-tbopen]');
+  if (!b) return;
+  if (b.hasAttribute('data-tbopen')) { var kid = b.getAttribute('data-tbopen'); if (askDone) askDone(''); showTab('list'); openRow(kid); return; }
+  if (b.hasAttribute('data-tmbad')) {
+    var u = TM_LAST[+b.getAttribute('data-tmbad')];
+    if (u) badListOpen(u.who + 'さんの要対応の契約', [{ who: '', items: u.items.filter(function(x){ return x.bad; }) }]);
+    return;
+  }
+  var m = b.getAttribute('data-mmbad'), D = MM_LAST;
+  if (!D) return;
+  badListOpen(fmtYM(m) + 'の要対応の契約', D.U.map(function(u){ return { who: u.who, items: u.items.filter(function(x){ return x.bad && (x.date || '').slice(0, 7) === m; }) }; }));
+});
 function ratioHTML(y, n){ return n ? '<b>' + y + '</b> / ' + n + '<small>（' + Math.round(y * 100 / n) + '%）</small>' : '<span class="tm-none">―</span>'; }
 function unitTag(u){
   return u.kind === 'me' ? 'この端末' : u.kind === 'tf' ? '点検用の記録' + (u.at ? '（' + fmtMD(u.at.slice(0, 10)) + '）' : '') : '上長への報告' + (u.at ? '（' + fmtMD(u.at.slice(0, 10)) + '）' : '');
 }
 var TM_HEAD = ['担当者', '契約', '要対応', '書類が提出済み', 'ご高齢の方の確認', '上長の確認済み'];
 function teamHTML(pr){
-  var U = teamUnits();
+  var U = teamUnits(); TM_LAST = U.map(function(u){ return { who: u.who, items: u.items.filter(function(x){ return inPeriod(x.date, pr); }) }; });
   if (U.length < 2 && !(U.length === 1 && U[0].kind !== 'me')) return '';
   var nRep = U.filter(function(u){ return u.kind === 'rep'; });
   return '<div class="pr-grp tm-grp"><h4>担当者ごと<small>期間の契約を、担当者ごとに数えます</small></h4><table class="kt-tbl tm-tbl"><thead><tr>' + TM_HEAD.map(function(h){ return '<th>' + esc(h) + '</th>'; }).join('') + '</tr></thead><tbody>' +
-    U.map(function(u){
+    U.map(function(u, ui){
       var st = statOf(u.items.filter(function(x){ return inPeriod(x.date, pr); }));
       return '<tr><td data-l="担当者"><b class="tm-who">' + esc(u.who) + '</b><small class="tm-tag ' + u.kind + '">' + esc(unitTag(u)) + '</small></td>' +
         '<td data-l="契約"><b>' + st.all + '</b>件</td>' +
-        '<td data-l="要対応"' + (st.bad ? ' class="tm-bad"' : '') + '><b>' + st.bad + '</b>件</td>' +
+        '<td data-l="要対応"' + (st.bad ? ' class="tm-bad"' : '') + '>' + badBtn(st.bad, 'data-tmbad="' + ui + '"', u.who + 'さんの要対応の契約を見る') + '</td>' +
         '<td data-l="書類が提出済み">' + ratioHTML(st.doc, st.live) + '</td>' +
         '<td data-l="ご高齢の方の確認">' + ratioHTML(st.koOk, st.koN) + '</td>' +
         '<td data-l="上長の確認済み">' + ratioHTML(st.chk, st.live) + '</td></tr>';
@@ -5377,7 +5451,7 @@ function monthRows(){
   return { U: U, rows: monthsBack(12).map(function(m){ return { m: m, st: statOf(all.filter(function(x){ return (x.date || '').slice(0, 7) === m; })) }; }) };
 }
 function renderMonths(){
-  var D = monthRows(), any = D.rows.some(function(r){ return r.st.all; });
+  var D = monthRows(), any = D.rows.some(function(r){ return r.st.all; }); MM_LAST = D;
   $('mmWho').textContent = '数えた担当者：' + D.U.map(function(u){ return u.who + '（' + unitTag(u) + '）'; }).join('・');
   $('mmHost').innerHTML = !any ? '<p class="fd-none">直近12か月の契約は、まだありません。</p>' :
     '<table class="kt-tbl mm-tbl"><thead><tr>' + MM_HEAD.map(function(h){ return '<th>' + esc(h) + '</th>'; }).join('') + '</tr></thead><tbody>' +
@@ -5385,7 +5459,7 @@ function renderMonths(){
       var st = r.st;
       if (!st.all) return '<tr class="mm-zero"><td data-l="月"><b>' + esc(fmtYM(r.m)) + '</b></td><td data-l="契約" colspan="6"><span class="tm-none">契約なし</span></td></tr>';
       return '<tr><td data-l="月"><b>' + esc(fmtYM(r.m)) + '</b></td><td data-l="契約"><b>' + st.all + '</b>件</td>' +
-        '<td data-l="要対応"' + (st.bad ? ' class="tm-bad"' : '') + '><b>' + st.bad + '</b>件</td>' +
+        '<td data-l="要対応"' + (st.bad ? ' class="tm-bad"' : '') + '>' + badBtn(st.bad, 'data-mmbad="' + esc(r.m) + '"', fmtYM(r.m) + 'の要対応の契約を見る') + '</td>' +
         '<td data-l="書類が提出済み">' + ratioHTML(st.doc, st.live) + '</td><td data-l="ご高齢の方の確認">' + ratioHTML(st.koOk, st.koN) + '</td>' +
         '<td data-l="適合性の確認">' + ratioHTML(st.tek, st.hen) + '</td><td data-l="上長の確認済み">' + ratioHTML(st.chk, st.live) + '</td></tr>';
     }).join('') + '</tbody></table>' + (D.rows.some(function(r){ return !r.st.all; }) ? '<p class="mm-skip">契約の無い月は省いています。</p>' : '');

@@ -816,7 +816,13 @@ a.tb-tag:hover{border-color:var(--navy-2);color:var(--navy);}
 .kk-cc .kk-ccb .btn{min-height:44px;}
 .kk-cstrip{border-radius:12px;padding:10px 14px;margin:var(--sp-3) 0 0;border:1px solid;font-size:var(--fs-sm);}
 .kk-cstrip b{display:block;font-size:var(--fs-base);}
-.kk-cstrip ul{margin:4px 0 0;padding-left:1.2em;}
+.kk-cstrip ul{margin:6px 0 0;padding:0;list-style:none;display:grid;gap:6px;}
+.kk-cs-row{display:flex;align-items:center;gap:6px 12px;flex-wrap:wrap;width:100%;min-height:44px;padding:8px 12px;text-align:left;font:inherit;color:inherit;
+  background:#fff;border:1px solid currentColor;border-color:rgba(0,0,0,.14);border-radius:10px;cursor:pointer;}
+.kk-cs-row > span:first-child{flex:1 1 16em;}
+.kk-cs-go{font-weight:700;white-space:nowrap;color:#1a5487;}
+.kk-cs-row:hover{border-color:rgba(0,0,0,.3);}
+.kk-cs-row:focus-visible{outline:3px solid #1a5487;outline-offset:1px;}
 .kk-cstrip.bad{background:var(--red-bg);border-color:#efc3c3;color:#8f1f1f;}
 .kk-cstrip.bk{background:var(--amber-bg);border-color:var(--amber-border);color:#6b4a0c;}
 .kk-recl{list-style:none;margin:0;padding:0;display:grid;gap:8px;}
@@ -6083,7 +6089,7 @@ function kkCustStripHtml(cid){
   if (!rs.length) return '';
   var bad = rs.some(function(r){ return r.alarm; });
   return '<div class="kk-cstrip ' + (bad ? 'bad' : 'bk') + '" role="note"><b>' + (bad ? 'この方の契約に、要対応の項目があります' : 'この方の契約が、上長から差し戻されています') + '</b><ul>' +
-    rs.map(function(r){ return '<li>' + esc((r.k.date ? fmtMd(r.k.date) + '　' : '') + kkAlertText(r, 3)) + '</li>'; }).join('') +
+    rs.map(function(r){ return '<li><button type="button" class="kk-cs-row" data-kkev="' + esc(r.k.id) + '"><span>' + esc((r.k.date ? fmtMd(r.k.date) + '　' : '') + kkAlertText(r, 3)) + '</span><span class="kk-cs-go">中身を見る ›</span></button></li>'; }).join('') +
     '</ul></div>';
 }
 /* 契約のカード（カルテ）：要る記録の状態・知らせ・上長の確認 */
@@ -6156,13 +6162,13 @@ function kkRenderAlarm(){
     (!res.feed ? '<br>' + (bgHubBusy('feed') ? '管理画面から記録の状態を読み込んでいます。' : '記録の状態をまだ読めていないため、書類の状態は数えていません。') : '') + '</span></div>' +
     '<a class="btn btn-primary btn-sm" href="' + esc(kokyakuHref('#bad')) + '" target="katatsugi-kokyaku">顧客管理で見る</a>' +
     '<details class="ka-list"' + (kkAlarmOpen ? ' open' : '') + '><summary>対象の契約を見る（' + list.length + '件）</summary><ul>' +
-    list.slice(0, 5).map(function(r){
+    list.slice(0, 30).map(function(r){
       return '<li><span class="kl-t"><b>' + esc(r.k.name) + ' 様</b>' +
         '<span class="kl-d">' + esc([r.k.date ? '契約日 ' + fmtMd(r.k.date) : '', [r.k.company, r.k.product || r.k.pname].filter(Boolean).join(' ')].filter(Boolean).join('　')) + '</span>' +
         '<span class="kl-a ' + (r.alarm ? 'bad' : 'bk') + '">' + esc(kkAlertText(r)) + '</span></span>' +
         '<button type="button" class="btn btn-ghost btn-sm" data-kkev="' + esc(r.k.id) + '">中身を見る</button></li>';
     }).join('') + '</ul>' +
-    (list.length > 5 ? '<p class="kl-more">ほか' + (list.length - 5) + '件は、顧客管理で見られます。</p>' : '') + '</details>';
+    (list.length > 30 ? '<p class="kl-more">ほか' + (list.length - 30) + '件は、顧客管理で見られます。</p>' : '') + '</details>';
   el.classList.toggle('amber', !c.alarm);
   el.classList.remove('hide');
   var det = el.querySelector('.ka-list');
@@ -6555,11 +6561,16 @@ function tmRenderCal(){
           esc(mdLabel + ' ' + (a.s ? a.s + ' ' : '') + x.p.name + ' ' + stageLabel(a.t) + ' ' + tmCustName(x) + (bad ? '（提出書類に要対応）' : '') + '　中身を見る') + '">' +
           (bad ? AL_SVG : '') + (a.s ? '<i class="ev-t">' + esc(a.s) + '</i>' : '') + '<span class="tm-nm">' + esc(tmShort(x.p.name)) + '</span>' + esc(tmCustName(x)) + '</button>';
       }).join('') +
-      (evs.length > cap ? '<span class="cal-more">' + (narrow ? '＋' + (evs.length - cap) : 'ほか' + (evs.length - cap) + '件') + '</span>' : '') +
+      (evs.length > cap ? (narrow ? '<span class="cal-more">＋' + (evs.length - cap) + '</span>'
+        : '<button type="button" class="cal-more" data-more="' + s + '" aria-label="' + esc(mdLabel + 'のチームの予定のほか' + (evs.length - cap) + '件を見る') + '">ほか' + (evs.length - cap) + '件</button>') : '') +
       '</div>';
   }
   $('calGrid').innerHTML = html;
   $('calGrid').querySelectorAll('.cal-pick').forEach(function(b){ b.addEventListener('click', function(){ selectDate(b.getAttribute('data-d')); }); });
+  /* PC の「ほか n件」もボタンに（2026-10-31。自分のカレンダーと同じ＝押すとその日の一覧へ） */
+  $('calGrid').querySelectorAll('button.cal-more').forEach(function(b){
+    b.addEventListener('click', function(ev){ ev.stopPropagation(); selectDate(b.getAttribute('data-more')); if (typeof dayIntoView === 'function') dayIntoView(); });
+  });
   $('calGrid').querySelectorAll('button.cal-ev').forEach(function(b){
     b.addEventListener('click', function(ev){
       ev.stopPropagation();
@@ -6891,7 +6902,13 @@ function evNameComp(a, c, name){
     h += '<p class="ev-line"><b>苦情・お申し出</b>' + (open.length
       ? '<span class="' + (open.some(function(r){ return r.late; }) ? 'bad' : 'bk') + '">対応中 ' + open.length + '件' + (open.some(function(r){ return r.late; }) ? '（初動の目安を過ぎたものがあります）' : '') + '</span>'
       : '<span class="mut">' + kj.length + '件（対応を終えています）</span>') +
-      '<a class="btn btn-ghost btn-sm" href="' + esc(hubHref(KKC.openHash(open[0] || kj[0]))) + '" target="katatsugi-hub">開く</a></p>';
+      (kj.length === 1 ? '<a class="btn btn-ghost btn-sm" href="' + esc(hubHref(KKC.openHash(kj[0]))) + '" target="katatsugi-hub">開く</a>' : '') + '</p>';
+    /* 2件以上なら1件ずつ開けるように並べる（2026-10-31。前は1件目しか開けなかった） */
+    if (kj.length > 1) h += '<ul class="kk-list ev-recs">' + open.concat(kj.filter(function(r){ return !r.open; })).map(function(r){
+      return '<li class="kk-it"><span class="kk-n">' + esc(KKC.recDate(r) ? '受付 ' + fmtMd(KKC.recDate(r)) : '日付なし') + '</span>' +
+        (r.open ? '<span class="kk-why">' + (r.late ? '対応中（初動の目安を過ぎています）' : '対応中') + '</span>' : '<span class="kk-d">対応を終えています</span>') +
+        '<a class="btn btn-ghost btn-sm" href="' + esc(hubHref(KKC.openHash(r))) + '" target="katatsugi-hub">開く</a></li>';
+    }).join('') + '</ul>';
   }
   var pre = kkKoureiPre(c, a.date);
   if (pre) h += '<p class="ev-line">' + kkKoureiPreHtml(pre, 'span') + '</p>';
