@@ -1,0 +1,1042 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="theme-color" content="#fdf1ea">
+<title>お金の言葉の辞書｜保険ツール</title>
+<!--
+  お金の言葉の辞書（社内ツール・2026-10-29）。
+  ★正本は smile24-demo の hoken-newtools-src/kanren/jisho-page.html と build_jisho_page.py。
+    この HTML（保険お金の言葉の辞書.html・office-m/hoken-jisho/index.html）を手で直さない。
+  - 言葉のデータはライフプランのものを読む（/lifeplan/vendor/lpjisho-data.js。同じ場所 office-m-nakatani.github.io）。二重に持たない
+  - 言葉ごとの AI師匠の問いは hoken-newtools-src/kanren/kanren.json の words から（この HTML に焼いてある）
+  - 公開先は office-m/hoken-jisho/。扉は apply_gate.py が入れる。会社フォルダは make_agency.py が写す（管理画面への行き先の行を ../ に）
+  - 学習ツールは公開の office-m/<id>/ にある。会社フォルダの中から開くときは ../../<id>/（管理画面への行き先の行が ../ のとき）
+-->
+<style>
+:root{
+  --navy:#1b3f5e; --navy-2:#27587f; --navy-soft:#eaf1f7;
+  --bg:#fff8f2; --white:#fff; --text:#33404d; --muted:#5c6874; --line:#efe2d8; --line-2:#e6d6c9;
+  --shadow:0 6px 20px rgba(130,100,80,.09);
+  --coral:#f0846a; --coral-text:#bd4523; --coral-bg:#fdeee9; --coral-border:#f4d0c6;
+  --green:#2c7a4b; --green-bg:#e8f6ef; --green-border:#c3e5d3;
+  --sky:#24729f; --sky-text:#1d5679; --sky-bg:#e8f4fb; --sky-border:#c6e2f2;
+  --berry:#8f4574; --berry-bg:#fbeef6; --berry-border:#eed2e2;
+  --violet:#3f2a7a; --violet-bg:#f5f1fc; --violet-border:#ddd0f2;
+  --mincho:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho",YuMincho,"游明朝体","游明朝","MS PMincho",serif;
+  --gothic:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",YuGothic,Meiryo,"Noto Sans JP",sans-serif;
+}
+*{box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;font-size:16px;}
+@media(min-width:640px){ html{font-size:16.5px;} }
+@media(min-width:1100px){ html{font-size:17px;} }
+body{margin:0;font-family:var(--gothic);color:var(--text);background:var(--bg);font-size:1rem;line-height:1.75;overflow-wrap:break-word;}
+h1,h2,h3,p,ol,ul{margin:0;}
+button,input{font-family:inherit;font-size:inherit;color:inherit;}
+a{color:var(--navy-2);}
+:focus-visible{outline:3px solid var(--navy-2);outline-offset:2px;border-radius:6px;}
+svg{width:1.05em;height:1.05em;vertical-align:-.16em;flex:none;}
+.vh{position:absolute !important;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+
+/* ---------- 上の帯（ほかの社内ツールと同じ顔） ---------- */
+.topbar{flex:none;background:linear-gradient(168deg,#fbe6e6 0%,#fdf1ea 46%,#ddf0fb 100%);border-bottom:1px solid var(--line);}
+.topbar .wrap{display:flex;align-items:center;gap:16px;min-height:74px;padding:10px 22px;}
+.tb-brand{display:flex;align-items:center;gap:12px;color:var(--navy);min-width:0;}
+.tb-art{width:46px;height:46px;flex:none;}
+.tb-art svg{width:46px;height:46px;}
+.tb-brand h1{font-family:var(--mincho);font-size:1.35rem;letter-spacing:.06em;font-weight:600;line-height:1.35;color:var(--navy);}
+.tb-brand small{display:block;font-size:.8125rem;color:var(--muted);letter-spacing:.02em;line-height:1.5;}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.tb-home{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:8px 18px;border-radius:999px;border:1.5px solid var(--navy-2);
+  background:var(--white);color:var(--navy);font-weight:700;font-size:.9rem;text-decoration:none;white-space:nowrap;}
+.tb-home:hover{background:var(--navy-soft);}
+.tb-home svg{width:18px;height:18px;}
+@media(max-width:600px){
+  .topbar .wrap{min-height:0;padding:8px 12px;gap:10px;}
+  .tb-art,.tb-art svg{width:38px;height:38px;}
+  .tb-brand h1{font-size:1.12rem;white-space:nowrap;letter-spacing:.04em;}
+  .tb-brand small{display:none;}
+  .tb-home{padding:8px 14px;}
+}
+@media(max-width:379px){ .tb-home .th-l{display:none;} }
+
+/* ---------- 画面の組み（PC＝左に一覧・右に中身／携帯＝縦） ---------- */
+.jp-app{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;}
+.jp{flex:1;display:block;}
+.jp-side{background:#fffdfb;}
+.jp-find{padding:14px 16px 12px;background:#fffdfb;border-bottom:1px solid var(--line);}
+.jp-qw{position:relative;}
+.jp-qw svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:20px;height:20px;color:var(--muted);pointer-events:none;}
+.jp-find input{width:100%;min-height:50px;padding:10px 14px 10px 44px;border:1.5px solid var(--line-2);border-radius:14px;background:#fff;font-size:1.02rem;color:var(--text);}
+.jp-find input::placeholder{color:#7a838c;}
+.jp-find input:focus{outline:none;border-color:var(--coral);box-shadow:0 0 0 3px rgba(240,132,106,.22);}
+.jp-list{padding:6px 12px 28px;}
+.jp-main{background:var(--bg);}
+.jp-det{max-width:900px;margin:0 auto;padding:24px 34px 48px;}
+@media(min-width:900px){
+  .jp-app{height:100vh;height:100dvh;}
+  .jp{min-height:0;display:grid;grid-template-columns:minmax(300px,380px) minmax(0,1fr);}
+  .jp-side{display:flex;flex-direction:column;min-height:0;border-right:1px solid var(--line);}
+  .jp-list{flex:1;min-height:0;overflow-y:auto;}
+  .jp-main{min-height:0;overflow-y:auto;}
+}
+@media(min-width:1400px){ .jp{grid-template-columns:420px minmax(0,1fr);} }
+@media(max-width:899px){
+  .jp-find{position:sticky;top:0;z-index:5;padding:10px 12px;}
+  .jp.det .jp-list{display:none;}
+  .jp:not(.det) .jp-main{display:none;}
+  .jp-list{padding:4px 10px 32px;}
+  .jp-det{padding:12px 12px 40px;}
+}
+
+/* ---------- 一覧 ---------- */
+.jp-sh{display:flex;align-items:center;gap:7px;font-size:.86rem;font-weight:700;color:var(--muted);margin:18px 6px 8px;letter-spacing:.04em;}
+.jp-sh svg{width:17px;height:17px;}
+.jp-gh{position:sticky;top:0;z-index:1;margin:0 -12px;padding:10px 18px 6px;font-family:var(--mincho);font-size:.98rem;font-weight:700;color:var(--navy);
+  background:#fffdfb;border-bottom:1px solid #f3e7dd;letter-spacing:.04em;line-height:1.5;}
+h3.jp-gh{font-size:.92rem;color:var(--navy-2);}
+@media(max-width:899px){ .jp-gh{position:static;margin:0 -10px;padding:12px 16px 6px;} }
+.jp-ul{list-style:none;margin:0;padding:4px 0 8px;}
+.jp-ul > li{content-visibility:auto;contain-intrinsic-size:auto 66px;}
+.jp-it{display:block;width:100%;text-align:left;border:0;border-left:3px solid transparent;background:transparent;padding:9px 10px 9px 12px;border-radius:10px;
+  cursor:pointer;min-height:44px;color:var(--text);text-decoration:none;line-height:1.5;}
+.jp-it:hover{background:var(--coral-bg);}
+.jp-it.on{background:var(--navy-soft);border-left-color:var(--navy-2);}
+.jp-it:focus-visible{outline-offset:-3px;}
+.jp-iw{display:block;font-weight:700;font-size:1rem;color:var(--navy);}
+.jp-is{display:block;font-size:.86rem;color:var(--muted);line-height:1.55;margin-top:2px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.jp-tag{display:inline-block;font-size:.8125rem;font-weight:700;line-height:1.45;border-radius:999px;padding:1px 9px;margin-right:7px;vertical-align:1px;}
+.jp-tag-f{color:var(--violet);background:#efe9fa;}
+.jp-tag-g{color:var(--green);background:var(--green-bg);}
+.jp-count{font-size:.86rem;color:var(--muted);margin:12px 6px 4px;line-height:1.6;}
+.jp-none,.jp-wait{margin:16px 8px;font-size:.95rem;line-height:1.8;color:var(--muted);}
+.jp-none b{color:var(--text);}
+.jp-chips{display:flex;flex-wrap:wrap;gap:8px;}
+.jp-list .jp-chips{margin:0 4px;}
+.jp-chip{display:inline-flex;align-items:center;min-height:44px;padding:6px 15px;border-radius:999px;border:1.5px solid var(--line-2);background:#fff;color:var(--navy);
+  font-size:.92rem;font-weight:700;cursor:pointer;max-width:100%;text-align:left;line-height:1.4;}
+.jp-chip:hover{border-color:var(--coral-border);background:var(--coral-bg);}
+.jp-kana{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:0 4px;}
+.jp-kana button{min-height:52px;border-radius:12px;border:1.5px solid var(--line-2);background:#fff;font-family:var(--mincho);font-size:1.18rem;font-weight:700;color:var(--navy);cursor:pointer;}
+.jp-kana button:hover{border-color:var(--coral-border);background:var(--coral-bg);}
+.jp-cats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 4px;}
+.jp-cats button{display:flex;align-items:center;min-height:48px;padding:7px 12px;border-radius:12px;border:1.5px solid var(--line-2);background:#fff;color:var(--navy);
+  font-size:.9rem;font-weight:700;line-height:1.4;text-align:left;cursor:pointer;word-break:keep-all;overflow-wrap:anywhere;}
+.jp-cats button:hover{border-color:var(--coral-border);background:var(--coral-bg);}
+.jp-rowtop{display:flex;align-items:center;flex-wrap:wrap;gap:4px 12px;margin:6px 0 2px;}
+.jp-rowtop h2{font-family:var(--mincho);font-size:1.2rem;color:var(--navy);font-weight:700;letter-spacing:.06em;}
+.jp-how{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 16px 14px;margin:12px 4px 4px;}
+.jp-how .jp-steps{font-size:.92rem;line-height:1.8;margin-top:4px;}
+
+/* ---------- 中身 ---------- */
+.jp-bar{display:flex;flex-wrap:wrap;gap:4px 10px;margin:0 0 8px -6px;min-height:0;}
+.jp-back{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:6px 12px 6px 8px;border:0;background:transparent;color:var(--navy-2);
+  font-size:.92rem;font-weight:700;cursor:pointer;border-radius:10px;max-width:100%;}
+.jp-back:hover{background:var(--navy-soft);}
+.jp-back span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.jp-back svg{width:18px;height:18px;}
+@media(min-width:900px){ .jp-back.sp{display:none;} }
+.jp-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px 30px 28px;box-shadow:var(--shadow);}
+@media(max-width:899px){ .jp-card{padding:18px 16px 22px;border-radius:16px;} }
+.jp-dcat{display:inline-block;font-size:.8125rem;font-weight:700;color:var(--navy-2);background:var(--navy-soft);border-radius:999px;padding:3px 12px;line-height:1.5;}
+.jp-dw{font-family:var(--mincho);font-size:1.85rem;font-weight:700;line-height:1.4;color:var(--navy);margin:10px 0 2px;letter-spacing:.03em;}
+.jp-start .jp-dw{margin-top:0;font-size:1.5rem;}
+@media(max-width:899px){ .jp-dw{font-size:1.5rem;} }
+.jp-dw:focus{outline:none;}
+.jp-dal{font-size:.88rem;color:var(--muted);margin:4px 0 0;line-height:1.6;}
+.jp-dal-w{display:inline-block;max-width:100%;}   /* 呼び名ごとに折らない（携帯で「ニ／ーサ」と語の途中で折れた。2026-10-31）。行より長い呼び名だけ中で折れる */
+.jp-imi{font-size:1.06rem;line-height:1.95;margin:16px 0 0;max-width:40em;}
+.jp-lk{display:inline;padding:0;margin:0;border:0;background:none;font:inherit;color:var(--navy-2);text-decoration:underline;text-decoration-style:dotted;
+  text-decoration-thickness:1.5px;text-underline-offset:4px;cursor:pointer;border-radius:3px;}
+.jp-lk:hover{text-decoration-style:solid;background:var(--navy-soft);}
+.jp-steps{margin:14px 0 0;padding-left:1.4em;line-height:1.9;font-size:1rem;max-width:40em;}
+.jp-sec{margin:26px 0 0;}
+.jp-sec-h{display:flex;align-items:center;gap:9px;margin:0 0 10px;font-family:var(--mincho);font-size:1.08rem;font-weight:700;color:var(--navy);line-height:1.5;letter-spacing:.03em;}
+.jp-sec-h .ic{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:var(--sb,#eef1f4);color:var(--sc,#4a5560);flex:none;}
+.jp-sec-h .ic svg{width:18px;height:18px;}
+.jp-sec.c-rel{--sb:var(--sky-bg);--sc:var(--sky);}
+.jp-sec.c-gk{--sb:var(--green-bg);--sc:var(--green);}
+.jp-sec.c-ask{--sb:var(--berry-bg);--sc:var(--berry);}
+.jp-sec.c-fx{--sb:#efe9fa;--sc:var(--violet);}
+.jp-sec.c-pop{--sb:var(--coral-bg);--sc:var(--coral-text);}
+.jp-sec.c-rel .jp-chip{border-color:var(--sky-border);background:#f7fbfe;color:var(--sky-text);}
+.jp-sec.c-rel .jp-chip:hover{border-color:var(--sky);background:var(--sky-bg);}
+.jp-fx{background:var(--violet-bg);border:1px solid var(--violet-border);border-radius:12px;padding:12px 14px;max-width:44em;}
+.jp-fx-b + .jp-fx-b{margin-top:14px;padding-top:12px;border-top:1px dashed #cdbfe9;}
+.jp-fx-t{font-size:.88rem;font-weight:700;color:var(--violet);margin:0 0 5px;line-height:1.5;}
+.jp-fx-f{font-size:1.04rem;font-weight:700;color:#2b1d57;line-height:1.9;padding:9px 13px;background:#fff;border:1px solid #e3d9f5;border-radius:8px;overflow-wrap:anywhere;}
+.jp-fx-n{font-size:.88rem;color:#4a4560;line-height:1.7;margin:6px 0 0;}
+.jp-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;}
+.jp-card2{display:flex;align-items:flex-start;gap:10px;min-height:56px;padding:11px 14px;border:1px solid var(--line);border-radius:14px;background:#fff;color:var(--text);text-decoration:none;line-height:1.55;}
+.jp-card2 b{display:block;font-size:.98rem;font-weight:700;color:var(--navy);}
+.jp-card2 small{display:block;font-size:.84rem;color:var(--muted);margin-top:2px;}
+.jp-card2 .t{min-width:0;display:block;}
+.jp-card2 .t b{overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.jp-card2 > svg{width:20px;height:20px;margin-top:2px;}
+.c-gk .jp-card2{border-color:var(--green-border);background:#fbfefc;}
+.c-gk .jp-card2:hover{border-color:var(--green);background:#f1faf4;}
+.c-gk .jp-card2 > svg{color:var(--green);}
+.c-ask .jp-card2{border-color:var(--berry-border);background:#fffbfd;}
+.c-ask .jp-card2:hover{border-color:var(--berry);background:#fdf3f8;}
+.c-ask .jp-card2 > svg{color:var(--berry);}
+.jp-snote{font-size:.84rem;color:var(--muted);line-height:1.7;margin:8px 0 0;}
+.jp-note{font-size:.84rem;color:var(--muted);line-height:1.75;margin:26px 0 0;padding-top:14px;border-top:1px dashed var(--line-2);max-width:44em;}
+@media print{
+  .jp-side,.tb-right,.jp-bar{display:none !important;}
+  .jp-app{height:auto !important;display:block;}
+  .jp{display:block !important;}
+  .jp-main{display:block !important;overflow:visible !important;}
+  .jp-card{box-shadow:none;}
+  body{background:#fff;}
+}
+</style>
+</head>
+<body>
+<!-- OMGATE-BEGIN ★IDとパスワードの扉。正本は hoken-gate-src/gate.html。ページ側を直接編集しないこと（apply_gate.py で入れ直すと消える） -->
+<style>
+/* ★中身は「開いていない限り隠す」＝ fail-closed。JavaScript が切られていても
+   中身は出ない（class を足して隠す形にすると、JS 無しで素通りしてしまう） */
+html:not(.omgate-open) body > *:not(#omgate){display:none !important}
+html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
+#omgate{position:fixed; inset:0; z-index:2147483000; display:grid; place-items:center; padding:22px;
+  background:linear-gradient(168deg,#f2f7fd 0%,#fdfbf7 54%,#f1f6fc 100%);
+  font-family:'Zen Kaku Gothic New',system-ui,-apple-system,'Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;
+  color:#2b3646; line-height:1.95; letter-spacing:.015em; -webkit-font-smoothing:antialiased}
+/* ★display を書くので [hidden] とセットで書く（この案件で4回目の詳細度事故） */
+#omgate[hidden]{display:none !important}
+#omgate .og-card{width:min(100%,432px); background:#fff; border:1px solid #e7edf5; border-radius:20px;
+  padding:34px 30px 28px; text-align:center; box-shadow:0 14px 44px rgba(43,54,70,.10)}
+#omgate .og-ico{width:56px; height:56px; margin:0 auto 16px; border-radius:50%; background:#eef4ff;
+  display:grid; place-items:center; color:#2f63c8}
+#omgate .og-ico svg{width:26px; height:26px}
+#omgate h1{margin:0; font-size:18px; font-weight:800; letter-spacing:.04em; line-height:1.6}
+#omgate .og-lead{margin:8px 0 20px; font-size:13px; color:#5d6b7c; line-height:1.9}
+#omgate .og-lab{display:block; text-align:left; font-size:13px; font-weight:700; color:#33465c; margin:0 0 4px}
+#omgate input#omgate-i,#omgate input[type=password]{width:100%; font-family:inherit; font-size:17px; font-weight:500; letter-spacing:.06em;
+  color:#2b3646; background:#fbfdff; border:1px solid #dae3ee; border-radius:13px; padding:14px 16px; outline:none;
+  text-align:center; transition:border-color .18s, box-shadow .18s; min-height:50px; box-sizing:border-box}
+#omgate input#omgate-i{margin-bottom:12px; font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace}
+#omgate input#omgate-i:focus,#omgate input[type=password]:focus{border-color:#bed3f7; background:#fff; box-shadow:0 0 0 4px #eef4ff}
+#omgate .og-err{min-height:24px; font-size:13px; color:#b9645a; margin-top:8px}
+#omgate .og-keep{display:flex; align-items:center; justify-content:center; gap:8px; font-size:12.5px;
+  color:#5d6b7c; margin:2px 0 16px; cursor:pointer}
+#omgate .og-keep input{width:18px; height:18px; accent-color:#0b5cff; cursor:pointer}
+#omgate button{width:100%; font-family:inherit; font-weight:700; font-size:16px; letter-spacing:.08em;
+  padding:15px; border:0; border-radius:14px; color:#fff; cursor:pointer;
+  background:linear-gradient(135deg,#2f74ff 0%,#0b5cff 58%,#0847c9 100%);
+  box-shadow:0 8px 22px rgba(11,92,255,.20); transition:transform .18s, box-shadow .18s, filter .18s}
+#omgate button:hover{filter:brightness(1.04); transform:translateY(-1px)}
+#omgate .og-note{margin:20px 0 0; padding-top:16px; border-top:1px solid #eef1f6;
+  font-size:12px; color:#7d8b9b; line-height:1.9; text-align:left}
+#omgate .og-note a{color:#2f63c8; font-weight:700}
+#omgate .og-note b{color:#5d6b7c}
+@media(max-width:420px){ #omgate .og-card{padding:28px 20px 24px} }
+@media(prefers-reduced-motion:reduce){ #omgate *{transition:none !important} }
+/* お客様が共有リンクで開いたとき（② の鍵で開いたとき）は、営業向けの部分を隠す（2026-10-04）。
+   面談の最初のひと言・ページ内の目次・30秒の核心・現場あるある・逆転劇場・明日の3つの問い。
+   解説の部分（もとの知識の節）とまとめだけが残る */
+html.omgate-cust .tot-first,html.omgate-cust .tot-nav,html.omgate-cust #tot-core,html.omgate-cust .tot-core,
+html.omgate-cust .tot-sec,html.omgate-cust #toi,html.omgate-cust .tot-toi,html.omgate-cust .tot-modal{display:none !important}
+html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
+</style>
+<div id="omgate" role="dialog" aria-modal="true" aria-labelledby="omgate-h">
+  <div class="og-card">
+    <div class="og-ico" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="4" y="10.5" width="16" height="10.5" rx="2.6"/><path d="M8 10.5V7.4a4 4 0 0 1 8 0v3.1"/><circle cx="12" cy="15.7" r="1.15"/>
+      </svg>
+    </div>
+    <h1 id="omgate-h">代理店さま専用のページです</h1>
+    <p class="og-lead">ご契約の代理店さまにお渡ししている<br>IDとパスワードを入れてください。</p>
+    <form id="omgate-f" autocomplete="off">
+      <label class="og-lab" for="omgate-i">ID</label>
+      <input type="text" id="omgate-i" inputmode="numeric" autocomplete="username" autocapitalize="off" spellcheck="false" maxlength="20">
+      <label class="og-lab" for="omgate-p">パスワード</label>
+      <input type="password" id="omgate-p" autocomplete="current-password" maxlength="64">
+      <div class="og-err" id="omgate-e" role="alert"></div>
+      <label class="og-keep"><input type="checkbox" id="omgate-k" checked>この端末では30日間、次回から省略する</label>
+      <button type="submit">開く</button>
+    </form>
+    <p class="og-note">
+      <b>管理画面から開いた場合は、この画面は出ません。</b><br>
+      <a href="https://office-m-nakatani.github.io/office-m/hoken-hub/">保険ツール管理画面をひらく</a><br><br>
+      このページは代理店さまの社内学習用です。お客様への提示・転送はご遠慮ください。<br>
+      IDとパスワードが分からないときは、社内の管理者（社長・上長）にお尋ねください。
+    </p>
+  </div>
+</div>
+<script>
+/* ============================================================
+   IDとパスワードの扉（2026-09-11 ユーザー指示。2026-10-26 から合言葉1つではなくIDとパスワードの2つ）
+   「URLをコピーして送付されたら情報が外に出てしまう。お客様専用の
+     パスワードを入力してこのページに行った人でないと見れないように」
+
+   ★これはブラウザの中だけで確かめるしくみで、堅牢な認証ではない。
+     URLを受け取っただけの人をそっと止めるための扉（利用規約 第6条5項に
+     明記してあるとおり）。この扉を「暗号化」「本当のロック」と説明しないこと。
+
+   開いてよいのは次の3つ。どれも同じオリジン（office-m-nakatani.github.io）
+   の中だけで完結する。
+     ① 管理画面（hoken-hub）でログインした端末
+        localStorage 'officem.hokenHub.auth'
+        ★ハッシュの中身は照合しない。代理店ごとの専用管理画面
+          （make_agency.py が作る）はIDとパスワードが違うので、
+          「どこかの管理画面が通した」ことだけを見る
+        ★この扉で「次回から省略」を外して入った担当者は sessionStorage 'officem.hokenGate.staff'
+          （タブを閉じると消える）。2026-10-29 まではお客様の共有リンクと同じ鍵を書いていたので、
+          そのタブで次のページを開くとお客様向けの形になっていた。鍵を分けた
+     ② 共有リンクの枠の中（管理画面が iframe で開いたとき）
+        sessionStorage 'officem.hokenGate.share'
+        ★sessionStorage はタブ単位。枠の中のURLをコピーして
+          別の人に送っても、その人のタブには無いので開かない
+     ③ 体験版（3日間）が配った鍵。ページを名指しで許す
+        localStorage 'officem.hokenGate.taiken' = {e:期限, ids:[…]}
+   ============================================================ */
+(function () {
+  var R = document.documentElement;
+  var AUTH = 'officem.hokenHub.auth';
+  var SHARE = 'officem.hokenGate.share';
+  var STAFF = 'officem.hokenGate.staff';
+  var TRIAL = 'officem.hokenGate.taiken';
+  var SALT = 'officem-hoken-hub-2026|';
+  /* 受け付ける印＝sha256(SALT + 'id:' + ID + '|pw:' + パスワード)（平文はどのファイルにも書かない）。
+     ★管理画面の PASS_HASHES と同じもの */
+  var OKH = ['edca5a0720eb230f3f1d4d319dd86c9dc79bdc9aea9f681c5557a4eedebd388b'];
+  var DAYS = 30;
+
+  function read(store, k) { try { return JSON.parse(store.getItem(k) || 'null'); } catch (e) { return null; } }
+  function live(o) { return !!(o && typeof o.e === 'number' && o.e > Date.now()); }
+  function pageId() {
+    var p = String(location.pathname).replace(/\/+$/, '');
+    return p.slice(p.lastIndexOf('/') + 1).replace(/\.html$/i, '');
+  }
+  /* どの鍵で開いたかを返す（'auth'＝管理画面・'staff'＝この扉で入った担当者（次回から省略なし）・'share'＝共有リンク・'trial'＝体験版・''＝開けない） */
+  function allowed() {
+    try {
+      var a = read(localStorage, AUTH);
+      if (live(a) && /^[0-9a-f]{64}$/.test(String(a.h || ''))) return 'auth';
+    } catch (e) {}
+    try { if (live(read(sessionStorage, STAFF))) return 'staff'; } catch (e) {}
+    try { if (live(read(sessionStorage, SHARE))) return 'share'; } catch (e) {}
+    try {
+      var t = read(localStorage, TRIAL);
+      if (live(t) && t.ids && t.ids.join && t.ids.indexOf(pageId()) >= 0) return 'trial';
+    } catch (e) {}
+    return '';
+  }
+  function open_() {
+    R.className += ' omgate-open';
+    var g = document.getElementById('omgate');
+    if (g) g.hidden = true;
+  }
+
+  var how = allowed();
+  if (how) {
+    /* 共有リンク（お客様）で開いたときは、営業向けの部分を隠す印を付ける */
+    if (how === 'share') R.className += ' omgate-cust';
+    open_(); return;
+  }
+
+  var f = document.getElementById('omgate-f');
+  var inp = document.getElementById('omgate-p');
+  var idIn = document.getElementById('omgate-i');
+  var err = document.getElementById('omgate-e');
+  var keep = document.getElementById('omgate-k');
+
+  /* crypto.subtle は https と localhost でしか使えない。無い環境では
+     IDとパスワードを確かめられないので、入力欄を出さずに管理画面へ案内する */
+  var canHash = !!(window.crypto && window.crypto.subtle && window.TextEncoder);
+  if (!canHash) {
+    if (f) f.innerHTML = '<div class="og-err">この画面ではIDとパスワードを確認できません。'
+      + 'お手数ですが、管理画面から開いてください。</div>';
+    return;
+  }
+
+  function sha256(str) {
+    return crypto.subtle.digest('SHA-256', new TextEncoder().encode(str)).then(function (buf) {
+      var b = new Uint8Array(buf), out = '', i;
+      for (i = 0; i < b.length; i++) out += ('0' + b[i].toString(16)).slice(-2);
+      return out;
+    });
+  }
+
+  f.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var id = String(idIn.value || '').replace(/[０-９]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); }).replace(/[\s\u3000]/g, '');
+    var pw = inp.value || '';
+    if (!id) { err.textContent = 'IDを入れてください。'; idIn.focus(); return; }
+    if (!pw) { err.textContent = 'パスワードを入れてください。'; inp.focus(); return; }
+    err.textContent = '';
+    sha256(SALT + 'id:' + id + '|pw:' + pw).then(function (h) {
+      if (OKH.indexOf(h) < 0) {
+        err.textContent = 'IDかパスワードが違います。';
+        inp.value = ''; inp.focus();
+        return;
+      }
+      try {
+        if (keep && keep.checked) {
+          localStorage.setItem(AUTH, JSON.stringify({ h: h, e: Date.now() + DAYS * 86400000, i: id }));
+        } else {
+          sessionStorage.setItem(STAFF, JSON.stringify({ e: Date.now() + 12 * 3600000 }));
+        }
+      } catch (e2) { /* 保存できなくても、その場では開く */ }
+      open_();
+    })['catch'](function () { err.textContent = 'この画面ではIDとパスワードを確認できませんでした。'; });
+  });
+
+  setTimeout(function () { try { idIn.focus(); } catch (e) {} }, 60);
+})();
+</script>
+<!-- OMGATE-END -->
+<!-- OMLOG-BEGIN ★学習の記録（量だけ）。正本は hoken-gate-src/katalog.html。ページ側を直接編集しないこと（apply_gate.py で入れ直すと消える） -->
+<script>
+/* ============================================================
+   学習の記録（2026-09-29 ユーザー指示）
+   「教育の記録を1枚の紙に」「使われているかが社長に見える」
+   「社長には内容が見えないようにだけして従業員のプライベートを守ってください」
+
+   ★記録するのは「量」だけ。中身は記録しない（記録していないものは、誰にも見せようがない）
+     残すもの   ＝ その日に1分以上ひらいた学習資料・社内ツールの id と題名／
+                  教材の問題を最後まで解いた id／資格の問題に答えた数／
+                  AI師匠への仕事の相談の回数（AI師匠の側が omLog('m') を呼ぶ）
+     残さないもの＝ 相談の文・返事・正解か不正解か・点数・時刻・どこを読んだか
+   ★置き場所はこの端末の localStorage 'officem.kataLog.v1' だけ。外へ送らない。
+     社長に届くのは、本人が管理画面で中身を見てから書き出して渡したときだけ
+   ★記録するのは「管理画面の合言葉を通した端末」（社員の端末）だけ。
+     お客様や共有リンクで開いた人の端末には何も残さない
+   ★日付は「日」まで。時刻は持たない。社長に渡るのは月ごとの合計（管理画面が作る）
+   ============================================================ */
+(function () {
+  if (window.omLog) return;                       /* 1ページに2回入っても1回だけ動く */
+  var KEY = 'officem.kataLog.v1';
+  var AUTH = 'officem.hokenHub.auth';
+  var KEEP_DAYS = 430;                            /* 13か月と少し。古い日は消す */
+  var OPEN_MS = 60000;                            /* 1分以上ひらいたら「ひらいた」と数える */
+  var TOOLS = /^hoken-(training|shiharai|kirikaeshi|compliance|shikaku|sales|gyakusan|calendar|mentor|jisho)$/;   /* 2026-10-29 にお金の言葉の辞書（hoken-jisho）を足した */
+
+  function read(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } }
+  function staff() {
+    var a = read(AUTH);
+    return !!(a && typeof a.e === 'number' && a.e > Date.now() && /^[0-9a-f]{64}$/.test(String(a.h || '')));
+  }
+  function z(n) { return (n < 10 ? '0' : '') + n; }
+  function day(t) { var d = t ? new Date(t) : new Date(); return d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()); }
+  function load() {
+    var o = read(KEY);
+    if (!o || typeof o !== 'object' || o.v !== 1 || !o.d || typeof o.d !== 'object') o = { v: 1, d: {}, t: {} };
+    if (!o.t || typeof o.t !== 'object') o.t = {};
+    return o;
+  }
+  function save(o) {
+    var cut = day(Date.now() - KEEP_DAYS * 86400000);
+    Object.keys(o.d).forEach(function (k) { if (k < cut) delete o.d[k]; });
+    try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) { /* 残せなくても画面は止めない */ }
+  }
+  function pageId() {
+    var p = String(location.pathname).replace(/\/+$/, '');
+    return p.slice(p.lastIndexOf('/') + 1).replace(/\.html$/i, '');
+  }
+  function cleanTitle(s) {
+    s = String(s || '').replace(/\s+/g, ' ').replace(/[｜|].*$/, '').trim();
+    return s.slice(0, 60);
+  }
+
+  /* 記録の入口。kind：'p'＝ひらいた／'q'＝教材の問題を解き終えた（id）／'s'＝資格の問題（数）／'m'＝AI師匠への仕事の相談（数） */
+  function omLog(kind, id, n) {
+    if (!staff()) return;
+    if (!/^[pqsm]$/.test(kind)) return;
+    var o = load(), d = day(), r = o.d[d] || (o.d[d] = {});
+    if (kind === 'p' || kind === 'q') {
+      id = String(id || '').replace(/[^a-z0-9-]/g, '').slice(0, 64);
+      if (!id) return;
+      r[kind] = r[kind] || {};
+      r[kind][id] = 1;
+      if (kind === 'p' && document.title) o.t[id] = cleanTitle(document.title);
+    } else {
+      n = Math.max(1, Math.min(500, Math.round(+n || 1)));
+      r[kind] = (r[kind] || 0) + n;
+    }
+    save(o);
+  }
+  window.omLog = omLog;
+
+  var id = pageId();
+  var mine = /-check$/.test(id) || TOOLS.test(id);
+  if (!mine) return;
+
+  /* 1分以上ひらいたら「ひらいた」。画面が裏に回っている時間は数えない */
+  var seen = 0, done = false, tick = 5000;
+  var iv = setInterval(function () {
+    if (document.visibilityState && document.visibilityState !== 'visible') return;
+    seen += tick;
+    if (!done && seen >= OPEN_MS) { done = true; omLog('p', id); clearInterval(iv); }
+  }, tick);
+
+  /* 教材：問題を最後まで解くと #quizDone に .show が付く（kyozai-template.html）。
+     ★正解の数は見ない。「最後まで解いた」だけ */
+  function watchQuiz() {
+    var q = document.getElementById('quizDone');
+    if (!q || !window.MutationObserver) return;
+    var hit = false;
+    var mo = new MutationObserver(function () {
+      if (!hit && q.classList.contains('show')) { hit = true; omLog('q', id); mo.disconnect(); }
+    });
+    mo.observe(q, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  /* 資格試験対策ツール：通算の問題数（officem.shikaku.v1 の total）の増えた分だけ数える。
+     ★どの問題を解いたか・正解したかは見ない */
+  function shikakuTotal() { var s = read('officem.shikaku.v1'); return s && +s.total >= 0 ? +s.total : 0; }
+  if (id === 'hoken-shikaku') {
+    var base = shikakuTotal();
+    var flush = function () {
+      var cur = shikakuTotal();
+      if (cur > base) omLog('s', null, cur - base);
+      base = cur;
+    };
+    setInterval(flush, 15000);
+    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') flush(); });
+    window.addEventListener('pagehide', flush);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', watchQuiz);
+  else watchQuiz();
+})();
+</script>
+<!-- OMLOG-END -->
+
+<div class="jp-app" id="jpApp">
+<header class="topbar">
+  <div class="wrap">
+    <div class="tb-brand">
+      <span class="tb-art"><svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#e8f4fb"/><path d="M12 19c6.5-2.2 13-1.2 20 3.2V49c-7-4.2-13.5-5.2-20-3.2Z" fill="#fffdf8" stroke="#24729f" stroke-width="2.4" stroke-linejoin="round"/><path d="M52 19c-6.5-2.2-13-1.2-20 3.2V49c7-4.2 13.5-5.2 20-3.2Z" fill="#fffdf8" stroke="#24729f" stroke-width="2.4" stroke-linejoin="round"/><path d="M16.5 26.5c3.2-.7 6.4-.3 9.8 1.2M16.5 32.5c3.2-.7 6.4-.3 9.8 1.2M37.7 27.7c3.4-1.5 6.6-1.9 9.8-1.2" stroke="#a9cfe6" stroke-width="2.2" stroke-linecap="round"/><circle cx="46" cy="45" r="10" fill="#1b3f5e"/><circle cx="44.6" cy="43.6" r="4.2" fill="none" stroke="#fff" stroke-width="2.3"/><path d="m47.8 46.8 3.3 3.3" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></span>
+      <span><h1>お金の言葉の辞書</h1><small>保険・お金・税・住まい・医療・法律の言葉を引いて、学習ツールとAI師匠へ</small></span>
+    </div>
+    <div class="tb-right">
+      <a class="tb-home" id="tbHome" href="../hoken-hub/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg><span>管理画面<span class="th-l">へ</span></span></a>
+    </div>
+  </div>
+</header>
+<main class="jp" id="jp">
+  <section class="jp-side" aria-label="言葉を引く">
+    <div class="jp-find"><label class="vh" for="jpQ">辞書で引く言葉</label><div class="jp-qw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg><input type="search" id="jpQ" placeholder="言葉を入れて引く（例：一時所得）" autocomplete="off" enterkeyhint="search" aria-controls="jpList"></div></div>
+    <div class="jp-list" id="jpList" aria-label="言葉の一覧"><p class="jp-wait">辞書を読み込んでいます…</p></div>
+  </section>
+  <section class="jp-main" id="jpMain" aria-label="言葉の中身">
+    <div class="jp-det" id="jpDet" aria-live="polite"></div>
+  </section>
+</main>
+</div>
+<script>
+(function(){
+'use strict';
+/* ★HUB_URL は公開版＝../hoken-hub/。会社フォルダでは make_agency.py が ../ に差し替える（行の形を変えない） */
+var HUB_URL = '../hoken-hub/';   /* OMHUBURL */
+var PUB = 'https://office-m-nakatani.github.io/office-m/';
+/* 言葉のデータ（ライフプランのもの）。同じ場所から読み、読めなければ公開先から */
+var SRC = ["/lifeplan/vendor/lpjisho-data.js?v=ba9809d9", "https://office-m-nakatani.github.io/lifeplan/vendor/lpjisho-data.js?v=ba9809d9"];
+/* 言葉ごとの AI師匠の問い（kanren.json の words）。KQ[言葉] = KQT の番号 */
+var KQT = ["ETFとは？","FXや信用取引について聞かれたら？","KPIとは？","M&Aは誰に相談すればいい？","M&Aで会社を引き継ぐとは？","経営陣や社員が株を買い取る（MBO・EBO）とは？","NISAで売ったら枠は戻る？","NISAで毎月いくら積み立てればいい？","PDCAとは？","面談の前に、お客様のことをSNSで調べてもいい？","お客様とインスタやフェイスブックでつながってもいい？","株価指数とは？","保険業法の改正の中身は、どこで確かめる？","iDeCoはどうやって始める？","iDeCoはいつ受け取れる？","iDeCoの手数料はかかる？","がんの治療には、どんなお金がかかる？","がんと分かったときの一時金に税金はかかる？","がん保険と医療保険の違いは？","法人で医療保険やがん保険に入ったら経理は？","NISAのつみたて投資枠と成長投資枠の違いは？","ねんきん定期便の見方を教えて","ライフプランを作るとき、お客様に何を用意してもらう？","ふるさと納税とは","ふるさと納税の返礼品に税金はかかる？","アカウント型保険とは？","アサーションとは？","ポートフォリオとは？","大学生の子がアルバイトで稼いだら扶養はどうなる？","アンカリング効果とは？","アンダーライティングとは？","インフレになると、お金の価値はどうなる？","お客様の通帳やキャッシュカードを預かってもいい？","キャッシュフロー表とは","会社のキャッシュフローとは？","保険料をクレジットカードで払える？","国民年金の保険料をまとめて払う方法は？","クーリング・オフしたいと言われたら、引き止めていい？","クーリング・オフはどうやって申し出る？","ゴルファー保険はどんな補償？","サイバー保険はどんなときに使う？","サンクコスト効果とは？","ソルベンシー・マージン比率とは？","デフレとは？","ドルコスト平均法はどう説明する？","育児休業給付とは？","ヒューリスティックとは？","FPって何をする人？","ファミリーバイク特約とは？","自営業やフリーランスのiDeCoは？","フレーミング効果とは？","プロスペクト理論とは？","ペット保険はどんな仕組み？","保険会社からマイナンバーの提出を求められた","入院の前に、窓口の支払いを上限までにする手続きは？","心の会計とは？","モラルリスクとは？","ライフイベントは、どう入れればいい？","持ち家の修繕費は、ライフプランにどう入れる？","ライフプランって何？","ライフプランは、どのくらいの頻度で見直す？","リスク許容度とは？","リバランスとは？","リバースモーゲージとは","リビングニーズ特約はどんな仕組み？","リビングニーズ特約で受け取ったお金に税金は？","自動車保険のロードサービスで何ができる？","一時所得の特別控除とは？","生存給付金やお祝い金は一時所得になる？","定期預金と一時払いの保険の違いは？","お客様が一時払いの保険料を現金で持ってきた","一時払終身保険はどんな仕組み？","一時払終身保険を相続の備えに使うときの線は？","特定口座とは？","一部保険とは？","自社株の評価が上がるのはなぜ？","類似業種比準方式とは？","中小企業退職金共済（中退共）とは？","中断証明書とは？","中高齢寡婦加算とは？","乗合代理店と専属代理店の違いは？","乗合代理店で特定の会社ばかり勧めるのはだめ？","予定事業費率とは？","予定利率とは何ですか","予定利率が上がった今、終身保険に入るのは得？","予定死亡率とは？","予定納税とは？","事前確定届出給与とは？","副業の所得は事業所得と雑所得のどちら？","事業承継の進め方を知りたい","事業承継のタイミングはいつがいい？","事業承継・引継ぎ支援センターとは？","事業承継税制とは？","事業承継税制を使う流れは？","事業承継計画とは？何を書く？","株式譲渡と事業譲渡の違いは？","為替とは何ですか","人身傷害保険の死亡保険金に税金はかかる？","年金の振込額が思ったより少ないのはなぜ？","入金サイトと支払サイトとは？","運転資金とは？","純保険料と付加保険料の違いは？","付加年金と国民年金基金とは？","公的年金を増やす方法はある？","代償分割と生命保険の関係は？","代理と媒介は、どう違う？","指定代理請求で家族が受け取った給付金に税金は？","代襲相続とは？","国民年金の任意加入とは？","iDeCoに入れる人と掛金の上限は？","退職金で住宅ローンを一括で返すべき？","住宅ローンの返済額はいつ見直される？","源泉徴収税額がゼロなのはなぜ？","遺族年金の請求はどうする？","住民税とは？","住民税の決定通知書はどこを見ればいい？","保有効果とは？","社員に会社を継いでもらうときの注意は？","暗号資産（仮想通貨）について聞かれたら？","契約者・被保険者・受取人の関係は？","逆選択とは？","支払事由とは？","請求権代位とは？","保険代理店とは？","保険代理店を始めるには、何が要る？","保険仲立人（ブローカー）とは？","保険料を計算する年齢はどう決まる？","保険料払込免除特約はどんな仕組み？","保険期間と払込期間の違いは？","逓増定期保険とは？","保険業法とは？","改正保険業法はいつから施行？","保険法とは？","保険金や給付金の請求に、期限（時効）はある？","保険証券のどこを見ればいい？","初回の面談で、お客様が保険証券を持ってこなかった","保険会社の格付けとは？","逓減定期保険はどんな仕組み？","保険金額の減額はどんな仕組み？","中途増額とは？","信用保証協会とは？","確定申告を間違えたらどうする？","個人事業主の保険料は経費になる？","個人事業主にも事業承継税制はある？","個人年金保険の確定年金と終身年金の違いは？","個人年金保険料控除を受けるための条件は？","変額個人年金保険は個人年金保険料控除になる？","個人情報の取扱いの同意書は、何のために取る？","路線価とは？","経営セーフティ共済とは？","住宅ローンの借り換えはどう考える？","役員借入金とは？","債券とはどんな仕組み？","債券の価格と金利の関係は？","団信でなくなった住宅ローンは相続税の債務控除になる？","債務超過とは？","傷害保険はどんなときに出る？","飛行機が落ちたら保険は出る？","災害割増特約とは？","傷病手当金はどれくらいの期間もらえる？","傷病手当金とは？","元利均等と元金均等の違いは？","先取り貯蓄は、どう始めればいい？","先進医療の給付金は、どう請求する？","先進医療の技術料は医療費控除になる？","先進医療特約はどんな仕組み？","免責期間や待ち期間って何？","免責金額とは？","児童手当を子どもの将来に取っておくには？","入院の日数はどう数える？","何年も前の入院を、今から請求できる？","亡くなったあとに残った入院給付金は、誰が請求する？","亡くなったあとに支払われた入院給付金は相続財産？","公務員の年金は会社員と違う？","公務員はiDeCoに入れる？","遺言があるかどうか、どう調べる？","国民年金と厚生年金の違いは？","個人年金に公的年金等控除は使える？","公的年金は何所得になる？","NPOや赤十字への寄付も税金が戻る？","共済と保険の違いは？","共済の掛金も生命保険料控除になる？","内発的動機づけと外発的動機づけの違いは？","内縁の妻に財産を残すには？","再保険とは？","出産育児一時金と出産手当金の違いは？","自社株が親族に分散していると何が困る？","分散投資とはどんな考え方？","総合課税と分離課税の違いは？","障害年金の仕組みを教えて","障害年金の請求は自分でできる？","離れて暮らす親を扶養に入れられる？","利回りとは？","物価上昇率や利回りの前提は、どう決める？","三利源とは？","金利とは何ですか","金（ゴールド）の投資について聞かれたら？","法人で保険料を年払いにしたときの経理は？","加給年金とは？","加給年金が付かない・止まるのはどんなとき？","補助金と助成金の違いは？","労災保険の仕組みを教えて","労災の上乗せの保険はどう説明する？","勤労学生控除とは？","医師のお客様への提案の入り方は？","クーリング・オフができない場合は？","医療保険は要るかどうか、どう考える？","医療費控除とは？","限定承認とは？","厚生年金に少しだけ入っていた期間も年金になる？","参考純率とは？","反社会的勢力かもしれないお客様が来た","収入保障保険はどんな仕組み？","収入保障保険を年金で受け取ると税金は？","収支相等の原則とは？","貯金を取り崩したあと、どう立て直す？","資産に計上した保険料はその後どうなる？","取消しと無効と解除は、どう違う？","合算対象期間とは？","口座振替の手続きは、お客様にどう案内する？","社会保険労務士や司法書士の先生とは、どう組めばいい？","合計所得金額とは？","実質金利とは？","名義株とは？","名義預金の問題とは？","贈与で保険料を払う形は何に気をつける？","告知妨害や不告知教唆とは？","告知を受け取る権限は、募集人にある？","告知義務って何？","粗利・営業利益・経常利益の違いは？","団体信用生命保険の保険料は控除になる？","遺留分の民法特例（除外合意・固定合意）とは？","家計の見直しは、どんな順番で進める？","会社の手元資金はどれくらい持てばいい？","住宅ローンの変動金利と固定金利の違いは？","満期金を受け取ると国民健康保険料は上がる？","国民年金を払わないとどうなる？","確定申告はスマホでできる？","株式保有特定会社・土地保有特定会社とは？","在職老齢年金とは？","年金制度の改正で何が変わる？","地震保険料控除の対象になるのはどんな建物？","火災保険の保険金に税金はかかる？","生命保険料控除は住民税にもある？","住民税の均等割と所得割とは？","埋葬料とは？","雇用保険の基本手当とは？","基準価額とは？","基礎控除とは？","所得税と住民税で控除の額は違う？","売掛金の回収が遅れたらどうなる？","株を後継者に集めるにはどうする？","会社を売ったら法人契約の保険はどうなる？","変額保険って何？","変額保険の運用先はどう選ぶ？","海外の保険会社の保険料は控除になる？","外貨建て保険の為替と費用はどう説明する？","外貨建て保険の死亡保険金や解約返戻金は円でどう計算する？","相続人が海外に住んでいるときは？","大数の法則とは？","失効したままの契約は、どうなっている？","失効と解約は何が違う？","契約内容登録制度とは？","契約応当日とは？","責任開始日とは？保障はいつから始まる？","契約概要と注意喚起情報はどう説明する？","法人保険の提案で顧問税理士に何を渡す？","毎年届く契約内容のお知らせは、何を確かめる？","契約者貸付はどんな仕組み？","契約者貸付を受けたら税金はかかる？","女性特有の病気の保障はどう説明する？","親の年金の手続きを子が代わりにできる？","離婚したら年金は分けられる？","学資保険はどんな仕組み？","学資保険の保険料はどの控除に入る？","定年を迎える方への話の入り方は？","定年したら保険はどうする？","定期同額給与の仕組みは？","相続人等に対する売渡請求とは？","属人的株式とは？","相続人になれない人はいる？","相続人の一人の行方が分からないときは？","家族信託とはどんな仕組み？","火災保険は建物と家財が別なのはなぜ？","社宅や借り上げ社宅の仕組みは？","不動産投資をしたいとお客様に言われた","寄与分とは？","ワンストップ特例の申請を出し忘れたら？","寡婦年金とは？","現状プランと将来プランは、どう使い分ける？","小規模企業共済とは？","小規模宅地等の特例とは？","少額短期保険とは","少額短期保険の保険料は控除になる？","就業不能保険はどんな仕組み？","募集人の登録と届出はどういう仕組み？","保険募集人とは？","市場価格調整とは？","扶養とは？税と社会保険で違う？","年末調整とは","年末調整で出す書類は何がある？","年金の相談はどこでできる？","年金原資とは？","年金受給権を相続したら税金はどうなる？","年金生活者支援給付金とは？","年金をもらい始める手続きは？","運転者の範囲と年齢条件はどう説明する？","確定申告の期限に遅れたらどうなる？","払済保険と延長保険の違いは？","払済保険や延長保険から、もとの契約に戻せる？","弁護士費用特約はどんなときに使う？","相続の分け方の相談に乗ってもいい？","部位不担保とは？","会社の借入にはどんな種類がある？","役員報酬とは？","後期高齢者医療制度とは？","後知恵バイアスとは？","従業員持株会とは？","失効した契約は、復活と入り直しのどちらがいい？","復興特別所得税とは？","心理的安全性とは？","給与所得控除とは？","事故で受け取った賠償金や車両保険金に税金は？","受取人が認知症で、保険金の請求ができないときは？","相続人に認知症の方がいると遺産分割はどうなる？","相続の手続きで、戸籍はどこまで集める？","法定相続情報の一覧図とは？","所得から差し引ける控除の種類は？","所得控除と税額控除の違いは？","iDeCoはやったほうがいい？","所得税とは？","所得税と住民税の違いは？","所得補償保険はどんな仕組み？","所得補償保険の保険金に税金はかかる？","所得金額調整控除とは？","ライフプランは、額面と手取りのどちらで考える？","源泉徴収票の支払金額は手取りのこと？","手術給付金の対象になる手術は、どう決まる？","請求漏れを防ぐにはどうする？","入院給付金や手術給付金に税金はかかる？","払済保険にしたら税金はかかる？","終身保険の払込期間は短期払と終身払のどちらにする？","満期金を受け取ったら扶養から外れる？","共働きで子どもの扶養控除はどちらが受ける？","扶養控除は子どもの年齢で変わる？","投資信託って何？","投資信託の費用はどう説明する？","保険に質権を設定したいと言われた","承継のために持株会社を作る話をされたら？","インデックスとアクティブの違いは？","保険金の振込先は、どの口座にできる？","据置期間とは？","貯蓄型と掛け捨てと投資、どれがいいの？","iDeCoを始めたら掛金は変えられる？","旧長期損害保険料の控除とは？","生命保険と損害保険の違いは？","損益分岐点とは？","損益計算書とは？","損益通算とは？","損金と益金とは？","赤字の欠損金は翌年以降どうなる？","保険の支払調書とは？","契約者を変えたら支払調書は出る？","医療保険の支払限度日数はどう説明する？","うちの代理店は特定大規模に当たる？","政策金利とは？","教育資金の準備はどう考える？","2016年の改正と、今回の改正の違いは？","火災保険の新価と時価の違いは？","年金の請求を忘れていたらどうなる？","住民税の特別徴収と普通徴収の違いは？","ライフプランツールに入れたお客様の情報は、どこに保存される？","損保でいう更改とは？","更改は郵送で済ませたいと言われた","更新型と全期型の違いは？","最高解約返戻率とは？","2019年の法人保険の見直しで何が変わった？","保険料を前納したら控除はどの年に入る？","年金をもらっている親が亡くなったら手続きは？","繰下げを待っている間に亡くなったらどうなる？","配当還元方式とは？","黄金株（拒否権付き株式）とは？","法人の保険の加入や退職金で議事録は要る？","社長に自社株の株価対策を聞かれたら？","株式とは何ですか","検認の手続きとは？","自宅で遺言書が見つかったらどうする？","標準報酬月額とは？","正常性バイアスとは？","iDeCoの加入者が亡くなったら？","死亡保障はいくら必要？","死亡退職金と弔慰金の規程はどう整える？","比較推奨販売の規制はいつから適用される？","比較推奨販売の見直しとは？","経営承継円滑化法とは？","民間の介護保険の支払い条件は？","民間の介護保険はどんな仕組み？","火災保険の水災はどう説明する？","法人のお客様の決算月は、なぜ知っておく？","決算が終わった社長との面談では、何を話す？","決算書を見せてもらうには？","決算書のどこから見ればいい？","歯の治療は、保険でどこまで出る？","法人保険の経理処理を知りたい","決算のあと法人税を払うお金はいつ要る？","遺言書を法務局に預ける制度とは？","法定福利と法定外福利の違いは？","任意後見と法定後見の違いは？","法定相続分はどう決まる？","流動性とは？","流動比率とは？","相続人がいないと財産はどうなる？","減価償却とは？","満期保険金の一時所得はどう計算する？","源泉徴収とは？","源泉徴収票をなくしたらどうする？","準確定申告で亡くなった方の保険料はどこまで控除？","家具をぶつけて壁に穴があいた。火災保険で出る？","地震で起きた火事は、火災保険で出る？","外貨預金はどう説明する？","無選択型の保険とは？","年金の額は毎年変わる？","相続人に未成年の子どもがいるときは？","変額保険の運用中に増えた分に税金はかかる？","死亡保険金は特別受益になる？","特別支給の老齢厚生年金とは？","特定保険契約とは何？","主契約と特約の違いは？","特約だけを外したり、あとから付けたりできる？","払込の猶予期間中に亡くなったら保険金は出る？","現状維持バイアスとは？","生命保険って何のためにあるの？","契約者が亡くなって契約が続くとき、相続税はどう評価される？","受取人が親族でない保険も生命保険料控除になる？","生存給付金とは？","生活保護を受けると保険は解約？","単身赴任で二重の生活費がかかる家計は、どう見る？","塾や習い事の費用は、ライフプランにどう入れる？","PL保険（生産物賠償責任保険）とは？","ひとり親控除とは？","担当が病院に問い合わせてもいい？","どんな入院なら、入院給付金の対象になる？","青色申告とは？","法人が受け取った入院給付金はどうなる？","不動産を多く持つお客様の相続の話は、どこから入る？","相続人は誰になる？順番を知りたい","会ったことのない相続人がいたら？","相続放棄しても死亡保険金は受け取れる？","相続の手続きにはどんな期限がある？","相続税は、どういう順番で計算する？","自社株の相続税を納めるお金はどう考える？","相続税の延納とは？","iDeCoは転職や退職をしたらどうなる？","確定申告って何？","確証バイアスとは？","代理店が示談交渉をしてもいいの？","社会保険とは？","役員報酬と社会保険料・年金のつながりは？","社員を一人増やすと会社にどんなお金がかかる？","海外に住んでいる間の年金はどうなる？","代理店に備えておく社内規程には、どんなものがある？","個人で事業を始めたら税務署に何を届ける？","種類株式とは？承継でどう使う？","第3号被保険者とは？","第三分野の保険とは？","約款って何？","死亡保険金はいつ振り込まれる？","資本金と純資産の違いは？","自己資本比率とは？","純資産価額方式とは？","100歳まで生きたら終身保険はどうなる？","低解約返戻金型の終身保険はどんな仕組み？","経営者保証に関するガイドラインとは？","海外で入院したときの給付金の請求は？","住宅ローンの繰上げ返済はどう考える？","老齢厚生年金の額は何で決まる？","障害年金と老齢年金は両方もらえる？","老齢基礎年金の額は何で決まる？","自動振替貸付とは？どんな仕組み？","自動車保険の更改で確かめることは？","自動車保険の使用目的はどう決める？","自己効力感とは？","お客様が自己破産したら保険はどうなる？","無保険車傷害と自損事故保険とは？","被保険利益とは？","受取人を変えるのに被保険者の同意は要る？","被保険者の同意はどう確かめる？","複利とはどんな仕組み？","未成年の子どもが契約者になれる？","受取人が未成年のとき、保険金の請求は誰がする？","解約したあとで、取り消したいと言われた","法人保険の解約のタイミングはどう考える？","解約控除とは何ですか","今の解約返戻金の額を知りたいと言われた","解約返戻金が払った保険料より少ないのはなぜ？","告知義務違反の解除には期間の決まりがある？","NISAの口座はどこで作ればいい？","試算表とは？","社長が認知症になったら会社はどうなる？","認知的不協和とは？","社長が急に亡くなったら自社株はどうなる？","譲渡所得とは？","責任準備金とは？","貸借対照表とは？","決算書の保険積立金とは？","山で遭難したら救助費用は保険で出る？","資金繰り表はどう作る？","会社の一年のお金の予定表はどう作る？","契約者と被保険者と受取人が全員違うと何の税金になる？","個人年金の年金受取人が契約者と違うとどうなる？","車両保険の一般型とエコノミー型の違いは？","募集人が退職するとき、事務で何をする？","退職所得とは？","社員の退職金制度にはどんな形がある？","社長の退職金の話を、どう切り出す？","退職金の受け取り方は一時金と年金で何が違う？","退職金規程が無い会社に保険を提案するときは？","入院中でも給付金は請求できる？","逆ざやとは？","毎月の引き落としを洗い出すには？","医療保険の通院の保障はどう説明する？","通院給付金の請求に要る書類は？","社長の連帯保証はどう考える？","事故の過失割合は誰がどう決める？","適合性の原則とは？","子どもがいない妻の遺族年金は？","妻が亡くなったら、夫は遺族年金をもらえる？","遺族年金の仕組みを教えて","遺産分割協議はどう進む？","遺留分とは何？","後継者が遺留分を払うお金はどう用意する？","遺言執行者とは？","配偶者の税額軽減とは？","配偶者控除と配偶者特別控除の違いは？","積み立てた配当金を引き出したいと言われた","株の配当とは何ですか","重大事由による解除とは？","重複保険とは？","金利が上がると、何が変わる？","会社が自社株を買い取る（金庫株）とは？","顧客本位の業務運営とは何ですか","長期投資とは？","障害年金はずっともらえる？","障害者控除は手帳がなくても受けられる？","障害年金はさかのぼってもらえる？","法人契約の解約返戻金を受け取ったら経理は？","雑損控除で保険金はどう扱う？","離婚したら受取人はどうなる？","預金保険制度とは","台風で屋根が壊れたら火災保険で出る？","福利厚生の養老保険で気をつけることは？","高度障害保険金はどんなときに出る？","高度障害保険金に税金はかかる？"];
+var KQ = {"ETF":[0],"FX":[1],"KGI":[2],"KPI":[2],"M&A":[3,4],"MBO":[5],"NISA":[6,7],"PDCAサイクル":[8],"SNS":[9,10],"TOPIX":[11],"e-Gov":[12],"iDeCo":[13,14],"iDeCoの手数料":[15],"がん":[16,17],"がん保険":[18,19],"つみたて投資枠":[20],"ねんきん定期便":[21,22],"ふるさと納税":[23,24],"アカウント型保険":[25],"アサーション":[26],"アセット・アロケーション":[27],"アルバイト":[28],"アンカリング効果":[29],"アンダーライティング":[30],"インフレ":[31],"キャッシュカード":[32],"キャッシュフロー表":[33],"キャッシュフロー計算書":[34],"クレジットカード":[35,36],"クーリング・オフ":[37,38],"ゴルファー保険":[39],"サイバー保険":[40],"サンクコスト効果":[41],"ソルベンシー・マージン比率":[42],"デフレスパイラル":[43],"デフレーション":[43],"ドル・コスト平均法":[44],"ハローワーク":[45],"ヒューリスティック":[46],"ファイナンシャル・プランナー":[47],"ファミリーバイク特約":[48],"フリーランス":[49],"フレーミング効果":[50],"プロスペクト理論":[51],"ペット保険":[52],"ポートフォリオ":[27],"マイナンバー":[53],"マイナ保険証":[54],"メンタル・アカウンティング":[55],"モラルハザード":[56],"ライフイベント":[57,58],"ライフプラン":[59,60],"リスク許容度":[61],"リバランス":[62],"リバースモーゲージ":[63],"リビング・ニーズ特約":[64,65],"ロードサービス":[66],"一時所得":[67,68],"一時払い":[69,70],"一時払終身保険":[71,72],"一般口座":[73],"一部保険":[74],"上場":[75,76],"中小企業退職金共済":[77],"中断証明書":[78],"中高齢寡婦加算":[79],"乗合代理店":[80,81],"予定事業費率":[82],"予定利率":[83,84],"予定死亡率":[85],"予定納税":[86],"事前確定届出給与":[87],"事業所得":[88],"事業承継":[89,90],"事業承継・引継ぎ支援センター":[91],"事業承継税制":[92,93],"事業承継計画":[94],"事業譲渡":[95],"交換":[96],"人身傷害保険":[97],"介護保険料":[98],"仕入":[99,100],"付加保険料":[101],"付加年金":[102,103],"代償分割":[104],"代理":[105,106],"代襲相続":[107],"任意加入":[108,103],"企業年金":[109],"住宅ローン":[110,111],"住宅ローン控除":[112],"住民票":[113],"住民税":[114,115],"保有効果":[116],"保証":[117,118],"保険の対象":[119,120],"保険事故":[121],"保険代位":[122],"保険代理店":[123,124],"保険仲立人":[125],"保険年齢":[126],"保険料払込免除":[127],"保険期間":[128,129],"保険業法":[130,131],"保険法":[132,133],"保険証券":[134,135],"保険財務力格付け":[136],"保険金額":[137,138],"保険金額の増額":[139],"保険金額の減額":[138],"信用保証協会":[140],"信用取引":[1],"修正申告":[141],"修繕費":[58],"個人事業主":[142,143],"個人年金保険":[144],"個人年金保険料控除":[145,146],"個人情報":[147],"倍率方式":[148],"倒産":[149],"借り換え":[150],"借入金":[151],"債券":[152,153],"債務控除":[154],"債務超過":[155],"傷害保険":[156,157],"傷害特約":[158],"傷病手当金":[159,160],"元利均等返済":[161],"元金均等返済":[161],"先取り貯蓄":[162],"先進医療":[163,164],"先進医療特約":[165],"免責期間":[166],"免責金額":[167],"児童手当":[168],"入院":[169,170],"入院給付金":[171,172],"全部保険":[74],"公務員":[173,174],"公正証書遺言":[175],"公的年金":[103,176],"公的年金等控除":[177,178],"公益法人":[179],"公証役場":[175],"共済":[180,181],"内発的動機づけ":[182],"内縁":[183],"再保険":[184],"出産手当金":[185],"出産育児一時金":[185],"分散":[186,187],"分散投資":[187],"分離課税":[188],"初診日":[189,190],"別居":[191],"利回り":[192,193],"利差益":[194],"利息":[195,196],"前払費用":[197],"加給年金":[198,199],"助成金":[200],"労災保険":[201,202],"勤労学生控除":[203],"勤務医":[204],"医師":[204,205],"医療保険":[206,18],"医療費控除":[207,164],"単純承認":[208],"厚生年金":[176,209],"参考純率":[210],"反社会的勢力":[211],"収入保障保険":[212,213],"収支相等の原則":[214],"収益":[192],"取り崩し":[215,216],"取消しと無効":[217],"受給資格期間":[218],"口座振替":[219,36],"司法書士":[220],"合算対象期間":[218],"合計所得金額":[221],"名目と実質":[222],"名義株":[223],"名義預金":[224,225],"告知妨害":[226],"告知書":[227],"告知義務":[228],"営業キャッシュ・フロー":[34],"営業利益":[229],"団体信用生命保険":[230],"固定合意":[231],"固定費":[232,233],"固定金利":[234],"国民健康保険料":[235],"国民年金":[236,176],"国民年金基金":[102,49],"国税庁":[237],"土地保有特定会社":[238],"在職老齢年金":[239,240],"地震保険":[241,242],"地震保険料控除":[241,243],"均等割":[244,115],"埋没費用":[41],"埋葬料":[245],"基本手当":[246],"基準価額":[247],"基準料率":[210],"基礎控除":[248,249],"売上総利益":[229],"売掛金":[250],"売買":[251,252],"変動金利":[234],"変額保険":[253,254],"外国為替":[96],"外発的動機づけ":[182],"外貨建て":[255],"外貨建て保険":[256,257],"大使館":[258],"大数の法則":[259],"失効":[260,261],"契約内容登録制度":[262],"契約応当日":[263],"契約日":[263,264],"契約概要":[265,266],"契約者・被保険者・受取人":[119,267],"契約者貸付":[268,269],"妊娠":[270],"委任":[271],"婚姻":[272],"学資保険":[273,274],"定年":[275,276],"定期保険":[137,129],"定期同額給与":[277],"定期預金":[69],"定款":[278,279],"実質利回り":[192],"実質賃金":[222],"実質金利":[222],"家庭裁判所":[280,281],"家族信託":[282],"家財":[283,241],"家賃":[284,285],"寄与分":[286],"寄附金控除":[287],"寡婦年金":[288],"将来プラン":[289],"小規模企業共済":[290],"小規模宅地等の特例":[291],"少額短期保険":[292,293],"就業不能保険":[294],"届出":[295,296],"属人的株式":[279],"市場価格調整":[297],"年収の壁":[298],"年末調整":[299,300],"年金事務所":[301,113],"年金原資":[302],"年金受給権":[303],"年金生活者支援給付金":[304],"年金請求書":[305,113],"年齢条件":[306],"延滞税":[307],"延長保険":[308,309],"弁護士":[310,311],"弁護士費用特約":[310],"引受け":[312,262],"当座貸越":[313],"当期純利益":[229],"役員給与":[314],"待ち期間":[166],"後期高齢者医療制度":[315],"後知恵バイアス":[316],"従業員持株会":[317],"復活":[318],"復興特別所得税":[319],"心理的安全性":[320],"必要経費":[321],"感染症":[158],"慰謝料":[322],"成年後見人":[323,324],"成長投資枠":[20],"戸籍":[325,326],"所得":[327,221],"所得控除":[328,329],"所得税":[330,331],"所得補償保険":[332,333],"所得金額調整控除":[334],"手取り":[335,336],"手形貸付":[313],"手術":[337,338],"手術給付金":[337,339],"払済保険":[340,308],"払込期間":[128,341],"扶養":[298,342],"扶養控除":[343,344],"扶養控除等申告書":[300],"投資信託":[345,346],"担保":[63,347],"持株会社":[348],"指数":[349],"振替加算":[198],"振込":[98,350],"据置期間":[351],"掛け捨て":[352],"掛金":[353,181],"損害保険":[354,355],"損害保険料率算出機構":[210],"損益分岐点":[356],"損益計算書":[357],"損益通算":[358],"損金":[359,360],"損金不算入":[359],"支払調書":[361,362],"支払限度日数":[363],"政令":[364],"政党":[179],"政策金利":[365],"教育資金":[366],"施行":[131,367],"日本銀行":[365],"日経平均株価":[11],"時価":[368],"時効":[133,369],"普通徴収":[370],"暗号化":[371],"暗号資産":[118],"更改":[372,373],"更新型":[374],"更正の請求":[141],"最高解約返戻率":[375,376],"期日":[377],"未支給年金":[378,379],"本来の相続財産":[172],"株主":[380,279],"株主名簿":[223],"株主総会":[381,382],"株価":[383,11],"株価指数":[11],"株式":[384,95],"格付け":[136],"検認":[385,386],"標準報酬月額":[387],"標準賞与額":[387],"正常性バイアス":[388],"死亡一時金":[288,389],"死亡保障":[390,71],"死亡退職金":[391],"死差益":[194],"比例てん補":[74],"比較推奨販売":[392,393],"民法":[394,231],"民間の介護保険":[395,396],"水災":[397],"決算":[398,399],"決算書":[400,401],"治療":[16,402],"法人保険":[403,266],"法人税":[404,359],"法令":[295,12],"法務局":[405,326],"法定外福利":[406],"法定後見":[407],"法定相続分":[408],"法律":[132,130],"注意喚起情報":[265],"流動性リスク":[409],"流動比率":[410],"清算人":[411],"減価償却":[412],"満期保険金":[413],"源泉徴収":[414,112],"源泉徴収票":[415,414],"準確定申告":[416],"火災保険":[417,418],"災害割増特約":[158],"為替":[96,419],"為替ヘッジ":[96],"無選択型保険":[420],"物価":[31,421],"物価上昇率":[193],"特別代理人":[422],"特別勘定":[254,423],"特別受益":[424],"特別寄与料":[286],"特別徴収":[370],"特別支給の老齢厚生年金":[425],"特定の評価会社":[238],"特定保険契約":[426],"特定口座":[73],"特約":[427,428],"猶予期間":[429],"現状プラン":[289],"現状維持バイアス":[430],"生命保険":[431,355],"生命保険契約に関する権利":[432],"生命保険料控除":[243,433],"生存給付金":[434,68],"生活保護":[435],"生活費":[436,437],"生産物賠償責任保険":[438],"生計を一にする":[439,241],"病院":[440,441],"白色申告":[442],"益金":[359,443],"相続":[444,311],"相続人":[445,446],"相続人等に対する売渡請求":[278],"相続放棄":[447],"相続登記":[448],"相続税":[449,450],"相続税の延納":[451],"相続税の物納":[451],"相続税路線価":[148],"破損・汚損":[417],"確定年金":[144],"確定拠出年金":[452],"確定申告":[453,237],"確証バイアス":[454],"示談":[455],"社会保険":[456,298],"社会保険労務士":[220],"社会保険料":[457,458],"社会保障協定":[459],"社内規程":[460],"社宅":[284],"福祉事務所":[435],"税務署":[461,361],"税額控除":[328],"種類株式":[462],"第3号被保険者":[463],"第一分野":[464],"第三分野":[464,355],"第二分野":[464],"約款":[465,466],"純保険料":[101],"純資産":[467,468],"純資産価額方式":[469],"終身保険":[470,471],"終身年金":[144],"経営セーフティ共済":[149],"経営承継円滑化法":[394],"経営者保証に関するガイドライン":[472],"経常利益":[229],"給与所得":[334],"給与所得控除":[321,334],"給付金の請求":[133,473],"総合課税":[188],"繰上げ返済":[474],"老齢厚生年金":[475,476],"老齢基礎年金":[477,102],"育児休業":[45],"育児休業給付":[45],"自動振替貸付":[478],"自動車保険":[479,480],"自己効力感":[481],"自己破産":[482],"自己資本比率":[468],"自損事故保険":[483],"表面利回り":[192],"被保険利益":[484],"被保険者の同意":[485,486],"裁判所":[407],"補助":[200],"複利":[487],"要介護認定":[395],"規則":[12],"親族":[433,186],"親権者":[488,489],"解約":[490,491],"解約控除":[492],"解約返戻金":[493,494],"解除":[495,217],"証券会社":[496,73],"証券取引所":[0],"証書貸付":[313],"試算表":[497],"認知バイアス":[46],"認知症":[324,498],"認知的不協和":[499],"調書":[362],"諸費用":[150],"議決権":[279,500],"譲渡所得":[501],"負債":[155],"責任準備金":[502],"責任開始日":[264],"貸借対照表":[503,504],"費差益":[194],"費用":[505,346],"賃金":[421],"資本金":[467],"資産":[216,62],"資金繰り表":[506],"賞与":[87,507],"質権":[347],"贈与税":[508,509],"超過保険":[74],"路線価方式":[148],"車両保険":[510,322],"追納":[103],"退職":[511,275],"退職所得":[512,221],"退職所得の受給に関する申告書":[512],"退職金":[513,514],"退職金の受け取り方":[515],"退職金規程":[516],"退院":[169,517],"逆ざや":[518],"逆選択":[120],"逓増定期保険":[129],"逓減定期保険":[137],"通帳":[32,519],"通院":[520,521],"通院給付金":[521],"連帯保証":[522],"運転者の範囲":[306],"運転資金":[100],"過失割合":[523],"適合性の原則":[524],"遺族厚生年金":[79,525],"遺族基礎年金":[525,526],"遺族年金":[527,113],"遺産分割協議":[528],"遺留分":[529,530],"遺言執行者":[531],"遺言書":[386,405],"還付申告":[453],"都道府県":[91,93],"配偶者":[463,445],"配偶者の税額軽減":[532],"配偶者控除":[533,300],"配偶者特別控除":[533],"配当還元方式":[380],"配当金":[534,535],"重大事由による解除":[536],"重複保険":[537],"金利":[195,538],"金庫株":[539],"金融庁":[540,392],"金融政策":[365],"長期投資":[541],"開業医":[204],"限定承認":[208],"除外合意":[231],"障害年金":[189,542],"障害者手帳":[543],"障害者控除":[543],"障害認定日":[544],"雇用保険":[246,45],"雑収入":[545,443],"雑所得":[88,178],"雑損失":[545],"雑損控除":[546],"離婚":[547,272],"青色事業専従者給与":[442],"青色申告":[442,461],"青色申告特別控除":[442],"預金":[548,224],"預金保険制度":[548],"額面":[335],"類似業種比準方式":[76],"風災・雹災・雪災":[549],"養老保険":[550],"高度障害保険金":[551,552]};
+var RKEY = 'officem.hokenJisho.recent.v1';
+var BASE_TITLE = document.title;
+/* 説明の中で押せる言葉にしない2字の語（よく出てきて、押せる言葉だらけになるため。ライフプランの辞書と同じ） */
+var STOP2 = { '保険':1, '税金':1, '年金':1, '所得':1, '控除':1, '相続':1, '贈与':1, '金利':1, '預金':1, '収入':1, '費用':1, '資産':1,
+  '負債':1, '利益':1, '家計':1, '住宅':1, '土地':1, '建物':1, '契約':1, '給付':1, '保障':1, '補償':1, '手当':1, '制度':1, '申告':1,
+  '課税':1, '財産':1, '株式':1, '債券':1, '投資':1, '融資':1, '返済':1, '元本':1, '利息':1, '配当':1, '税率':1, '期間':1, '貯蓄':1,
+  '物価':1, '景気':1, '為替':1, '売上':1, '経費':1, '賃金':1, '給与':1, '賞与':1, '退職':1, '遺言':1, '遺産':1, '登記':1, '家賃':1 };
+var ROWS = [['あ','あいうえお'],['か','かきくけこ'],['さ','さしすせそ'],['た','たちつてと'],['な','なにぬねの'],
+  ['は','はひふへほ'],['ま','まみむめも'],['や','やゆよ'],['ら','らりるれろ'],['わ','わをん']];
+var SMALL = { 'ぁ':'あ','ぃ':'い','ぅ':'う','ぇ':'え','ぉ':'お','っ':'つ','ゃ':'や','ゅ':'ゆ','ょ':'よ','ゎ':'わ','ゕ':'か','ゖ':'け' };
+function sv(p){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + p + '</svg>'; }
+var IC = {
+  list: sv('<path d="M8.5 6H21M8.5 12H21M8.5 18H21"/><path d="M3.5 6h.01M3.5 12h.01M3.5 18h.01"/>'),
+  left: sv('<path d="M19 12H5"/><path d="m11.5 18.5-6.5-6.5 6.5-6.5"/>'),
+  link: sv('<path d="M10 13.5a4.5 4.5 0 0 0 6.4.2l3-3a4.5 4.5 0 0 0-6.4-6.4l-1.4 1.4"/><path d="M14 10.5a4.5 4.5 0 0 0-6.4-.2l-3 3a4.5 4.5 0 0 0 6.4 6.4l1.4-1.4"/>'),
+  cap: sv('<path d="M2.5 9.5 12 5l9.5 4.5L12 14Z"/><path d="M6.5 11.6v4.4c0 1.4 2.5 2.9 5.5 2.9s5.5-1.5 5.5-2.9v-4.4"/><path d="M21.5 9.5v5"/>'),
+  chat: sv('<path d="M20.5 12a8 8 0 0 1-11.7 7.1L4 20.4l1.3-4.4A8 8 0 1 1 20.5 12Z"/><path d="M8.5 11h7M8.5 14.5h4.5"/>'),
+  calc: sv('<rect x="5" y="3" width="14" height="18" rx="2.2"/><path d="M8.5 7.2h7"/><path d="M8.5 11.2h.01M12 11.2h.01M15.5 11.2h.01M8.5 14.6h.01M12 14.6h.01M15.5 14.6h.01M8.5 18h.01M12 18h3.5"/>'),
+  clock: sv('<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>'),
+  star: sv('<path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9Z"/>'),
+  kana: sv('<path d="M4.5 5.5h15v13h-15Z"/><path d="M9 5.5v13M4.5 10h15M4.5 14.5h15"/>'),
+  book: sv('<path d="M4 19V5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5 2.5 2.5 0 0 0 6.5 23H20v-5"/><path d="M8.5 7.5h7"/>'),
+  grid: sv('<rect x="4" y="4" width="6.5" height="6.5" rx="1.4"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.4"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.4"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.4"/>')
+};
+function E(id){ return document.getElementById(id); }
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function nz(s){
+  s = String(s || '');
+  try{ s = s.normalize('NFKC'); }catch(e){}
+  s = s.toLowerCase().replace(/[ァ-ヶ]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) - 0x60); });
+  return s.replace(/[\s・･（）()「」『』、。,.\-ー－〜~]/g, '');
+}
+function first(s){ var m = String(s || '').match(/^[^。]*。/); return m ? m[0] : String(s || ''); }
+function wide(){ try{ return window.matchMedia('(min-width:900px)').matches; }catch(e){ return window.innerWidth >= 900; } }
+/* 行き先（手元のプレビューは公開先と名前が違う） */
+function isLocal(){ var p = location.pathname; return /\.html$/.test(p) && !/\/index\.html$/.test(p); }
+function hubHref(h){ return (isLocal() ? encodeURI('保険ツール管理画面.html') : HUB_URL) + (h || ''); }
+/* 学習ツールは公開の office-m/<id>/。会社フォルダ（管理画面への行き先が ../）の中からは ../../<id>/ */
+function learnHref(id){
+  id = String(id || '');
+  if(id.indexOf(PUB) === 0) id = id.slice(PUB.length);
+  id = id.replace(/\/+$/, '');
+  return (isLocal() ? PUB : (HUB_URL === '../' ? '../../' : '../')) + encodeURIComponent(id) + '/';
+}
+function mentorHref(q){ return (isLocal() ? encodeURI('保険AI師匠.html') : '../hoken-mentor/') + '#q=' + encodeURIComponent(q); }
+
+var D = null, W = [], GK = [], GIDX = [], CATN = {}, IDX = null, BYW = {}, TRIE = null, ROWL = null, CATL = null;
+var st = { q:'', row:-1, cat:'', cur:-1, hist:[], failed:false, loading:false, cbs:[], listTop:0 };
+/* 「このツールの言葉」はライフプランツールの言葉（説明の「このツール」もライフプランのこと）なので、このページではそう名乗る */
+var CAT_SHOW = { tool:'ライフプランツールの言葉' };
+
+function fxText(it){ return (it.fx || []).map(function(b){ return [b.t, b.f, b.n].join(' '); }).join(' '); }
+function init(){
+  D = window.LPJISHO_DATA; W = D.words || []; GK = D.gaku || [];
+  GIDX = GK.map(function(p){ return { t:nz(p.t), s:nz(p.s), k:p.k || '' }; });
+  (D.cats || []).forEach(function(c){ CATN[c[0]] = CAT_SHOW[c[0]] || c[1]; });
+  IDX = W.map(function(it, i){ BYW[it.w] = i; return { k:[it.w, it.y].concat(it.al || []).map(nz).filter(Boolean), b:nz(it.imi + ' ' + fxText(it)) }; });
+}
+function flush(){ var c = st.cbs; st.cbs = []; c.forEach(function(f){ try{ f(); }catch(e){} }); }
+function load(cb){
+  if(D){ cb(); return; }
+  st.cbs.push(cb);
+  if(st.loading) return;
+  if(window.LPJISHO_DATA){ try{ init(); }catch(e){ D = null; } st.failed = !D; flush(); return; }
+  st.loading = true; st.failed = false;
+  var k = 0, list = SRC.slice();
+  /* 手元のプレビュー（8899 の正本）だけ、8905 のライフプランからも読む */
+  if(isLocal() && /^(127\.0\.0\.1|localhost)$/.test(location.hostname)) list.splice(1, 0, 'http://' + location.hostname + ':8905' + SRC[0].replace(/^\/lifeplan/, ''));
+  (function next(){
+    if(k >= list.length){ st.loading = false; st.failed = true; flush(); return; }
+    var sc = document.createElement('script');
+    sc.src = list[k++]; sc.async = true;
+    sc.onload = function(){
+      if(window.LPJISHO_DATA){ try{ init(); }catch(e){ D = null; } }
+      if(D){ st.loading = false; flush(); } else next();
+    };
+    sc.onerror = function(){ if(sc.parentNode) sc.parentNode.removeChild(sc); next(); };
+    document.head.appendChild(sc);
+  })();
+}
+
+/* ---------- 説明の中の言葉を見つける（長い言葉から先に当てる） ---------- */
+function trie(){
+  if(TRIE) return TRIE;
+  var m = {};
+  W.forEach(function(it, i){
+    [it.w].concat(it.al || []).forEach(function(a, j){
+      a = String(a || '');
+      if(a.length < 2) return;
+      if(a.length === 2 && (j > 0 || !/^[一-龥々ァ-ヶー]+$/.test(a) || STOP2[a])) return;
+      var c = a.charAt(0); (m[c] = m[c] || []).push([a, i]);
+    });
+  });
+  Object.keys(m).forEach(function(c){ m[c].sort(function(x, y){ return y[0].length - x[0].length; }); });
+  TRIE = m; return m;
+}
+function scan(s, self, max, onHit, onText){
+  s = String(s || ''); var T = trie(), used = {}, n = 0, i = 0, buf = '';
+  if(self >= 0) used[self] = 1;
+  while(i < s.length){
+    var lst = T[s.charAt(i)], hit = null;
+    if(lst){ for(var k = 0; k < lst.length; k++){ if(s.substr(i, lst[k][0].length) === lst[k][0]){ hit = lst[k]; break; } } }
+    if(hit && !used[hit[1]] && n < max){
+      if(buf){ onText(buf); buf = ''; }
+      onHit(hit[0], hit[1]); used[hit[1]] = 1; n++; i += hit[0].length;
+    }else if(hit){ buf += hit[0]; i += hit[0].length; }
+    else { buf += s.charAt(i); i++; }
+  }
+  if(buf) onText(buf);
+}
+function linkify(s, self, max){
+  var out = '';
+  scan(s, self, max, function(t, i){ out += '<button type="button" class="jp-lk" data-jp-i="' + i + '">' + esc(t) + '</button>'; }, function(t){ out += esc(t); });
+  return out;
+}
+
+/* ---------- 引く：見出し・別の呼び名・読みと同じ＝100、頭が同じ＝60、途中にある＝40、引いた言葉の中に見出しがある＝30 ---------- */
+function find(n){
+  var out = [];
+  if(!n) return out;
+  IDX.forEach(function(x, i){
+    var sc = 0;
+    x.k.forEach(function(k){
+      if(k === n) sc = Math.max(sc, 100);
+      else if(k.indexOf(n) === 0) sc = Math.max(sc, 60);
+      else if(k.indexOf(n) >= 0) sc = Math.max(sc, 40);
+      else if(n.length >= 3 && k.length >= 2 && n.indexOf(k) >= 0) sc = Math.max(sc, 30);
+    });
+    if(sc) out.push([sc, i]);
+  });
+  out.sort(function(a, b){ return b[0] - a[0] || a[1] - b[1]; });
+  return out;
+}
+/* 説明の中に出てくる言葉。空白で区切った語は、全てを含むもの */
+function findBody(terms, skip){
+  var out = [];
+  terms = terms.filter(function(z){ return z.length >= (terms.length > 1 ? 1 : 2); });
+  if(!terms.length) return out;
+  IDX.forEach(function(x, i){
+    if(skip[i]) return;
+    var all = x.k.join(' ') + ' ' + x.b;
+    for(var k = 0; k < terms.length; k++){ if((terms.length > 1 ? all : x.b).indexOf(terms[k]) < 0) return; }
+    out.push(i);
+  });
+  return out;
+}
+function snip(i, n){
+  var it = W[i], ps = String(it.imi).split('。');
+  for(var k = 0; k < ps.length; k++){ if(ps[k] && nz(ps[k]).indexOf(n) >= 0) return ps[k] + '。'; }
+  return first(it.imi);
+}
+/* 0件のときの近い言葉（2字ずつの重なり） */
+function bg(s){ var o = {}, n = 0; for(var i = 0; i < s.length - 1; i++){ var g = s.substr(i, 2); if(!o[g]){ o[g] = 1; n++; } } return { o:o, n:n }; }
+function near(n){
+  if(n.length < 2) return [];
+  var q = bg(n); if(!q.n) return [];
+  var out = [];
+  IDX.forEach(function(x, i){
+    var best = 0;
+    x.k.forEach(function(k){
+      if(k.length < 2) return;
+      var b = bg(k), c = 0;
+      for(var g in q.o){ if(b.o[g]) c++; }
+      var d = 2 * c / (q.n + b.n);
+      if(d > best) best = d;
+    });
+    if(best >= 0.34) out.push([best, i]);
+  });
+  out.sort(function(a, b){ return b[0] - a[0] || a[1] - b[1]; });
+  return out.slice(0, 8);
+}
+/* 学習ツール：題・名前・検索の語で当たるもの＋辞書の言葉に結びつけたもの（ライフプランの辞書と同じ当て方） */
+function gFind(terms){
+  var out = [];
+  GIDX.forEach(function(x, i){
+    var sc = 0;
+    terms.forEach(function(n, j){
+      if(!n || n.length < 2) return;
+      var s = 0;
+      if(x.s === n) s = 90; else if(x.t.indexOf(n) >= 0 || x.s.indexOf(n) >= 0) s = 70; else if(x.k.indexOf(n) >= 0) s = 45;
+      sc = Math.max(sc, j === 0 ? s : s * 0.8);
+    });
+    if(sc) out.push([sc, i]);
+  });
+  out.sort(function(a, b){ return b[0] - a[0] || a[1] - b[1]; });
+  return out;
+}
+function gOfWord(i, max){
+  var it = W[i], out = (it.gk || []).filter(function(j){ return !!GK[j]; }).slice(0, max);
+  if(out.length < max){
+    var terms = [it.w].concat(it.al || []).map(nz).filter(function(z){ return z.length >= 3; });
+    gFind(terms).forEach(function(a){ if(a[0] >= 70 && out.length < max && out.indexOf(a[1]) < 0) out.push(a[1]); });
+  }
+  return out;
+}
+function asksOf(i){
+  var it = W[i], out = [it.w + 'とは？'];
+  (KQ[it.w] || []).forEach(function(n){ var q = KQT[n]; if(q && out.indexOf(q) < 0) out.push(q); });
+  return out.slice(0, 3);
+}
+/* 五十音の行（データは読みの順に並んでいる） */
+function kanaBase(c){ c = SMALL[c] || c; try{ c = c.normalize('NFD').charAt(0); }catch(e){} return c; }
+function rowsOf(){
+  if(ROWL) return ROWL;
+  ROWL = ROWS.map(function(){ return []; });
+  W.forEach(function(it, i){
+    var c = kanaBase(String(it.y || '').charAt(0)), r = ROWS.length - 1;
+    for(var k = 0; k < ROWS.length; k++){ if(ROWS[k][1].indexOf(c) >= 0){ r = k; break; } }
+    ROWL[r].push(i);
+  });
+  return ROWL;
+}
+/* 分野ごとの言葉（データの読みの順のまま） */
+function catsOf(){
+  if(CATL) return CATL;
+  CATL = {};
+  W.forEach(function(it, i){ (CATL[it.cat] = CATL[it.cat] || []).push(i); });
+  return CATL;
+}
+function popular(){ return ((D && D.pop) || []).map(function(w){ return BYW[w]; }).filter(function(x){ return x >= 0; }); }
+function recent(){
+  try{ var a = JSON.parse(localStorage.getItem(RKEY) || '[]'); if(!Array.isArray(a)) return []; return a.map(function(w){ return BYW[w]; }).filter(function(x){ return x >= 0; }).slice(0, 8); }catch(e){ return []; }
+}
+function addRecent(w){
+  try{ var a = JSON.parse(localStorage.getItem(RKEY) || '[]'); if(!Array.isArray(a)) a = []; a = [w].concat(a.filter(function(x){ return x !== w; })).slice(0, 8); localStorage.setItem(RKEY, JSON.stringify(a)); }catch(e){}
+}
+
+/* ---------- 部品 ---------- */
+function wItem(i, sub){
+  var it = W[i];
+  return '<li><button type="button" class="jp-it" data-jp-i="' + i + '"><span class="jp-iw">' + (it.fx ? '<span class="jp-tag jp-tag-f">計算式</span>' : '') + esc(it.w)
+    + '</span><span class="jp-is">' + esc(sub || first(it.imi)) + '</span></button></li>';
+}
+function gItem(j){
+  var p = GK[j];
+  return '<li><a class="jp-it jp-gk" href="' + esc(learnHref(p.i)) + '"><span class="jp-iw"><span class="jp-tag jp-tag-g">学習</span>' + esc(p.t) + '</span><span class="jp-is">' + esc(p.c) + 'の学習ツール</span></a></li>';
+}
+function chip(i){ return '<button type="button" class="jp-chip" data-jp-i="' + i + '">' + esc(W[i].w) + '</button>'; }
+function sec(c, ic, t, body){ return '<div class="jp-sec c-' + c + '"><h3 class="jp-sec-h"><span class="ic">' + ic + '</span>' + esc(t) + '</h3>' + body + '</div>'; }
+function gCard(j){ var p = GK[j]; return '<a class="jp-card2" href="' + esc(learnHref(p.i)) + '">' + IC.cap + '<span class="t"><b>' + esc(p.t) + '</b><small>' + esc(p.c) + 'の学習ツール</small></span></a>'; }
+function askCard(q){ return '<a class="jp-card2" href="' + esc(mentorHref(q)) + '">' + IC.chat + '<span class="t"><b>' + esc(q) + '</b><small>AI師匠に聞く</small></span></a>'; }
+function fxHTML(it){
+  if(!it.fx || !it.fx.length) return '';
+  return sec('fx', IC.calc, '計算のしかた（一般的な式）', '<div class="jp-fx">' + it.fx.map(function(b){
+    return '<div class="jp-fx-b">' + (b.t ? '<p class="jp-fx-t">' + esc(b.t) + '</p>' : '') + '<p class="jp-fx-f">' + esc(b.f) + '</p>' + (b.n ? '<p class="jp-fx-n">' + esc(b.n) + '</p>' : '') + '</div>';
+  }).join('') + '</div>');
+}
+function stepsHTML(){
+  return '<ol class="jp-steps"><li>「言葉を入れて引く」の欄に言葉を入れます。ひらがな・カタカナ・英字・別の呼び名でも引けます。</li>'
+    + '<li>説明の中で下線の付いた言葉を押すと、その言葉へ移ります。</li>'
+    + '<li>言葉ごとに「学習ツールで詳しく」と「AI師匠に聞く」から、続きへ進めます。</li></ol>';
+}
+function noteHTML(){
+  return '<p class="jp-note">意味は一般的な説明で、制度は改正で変わることがあります。お客様に説明するときは、所属保険会社の資料と最新の制度で確かめてください。病気や治療は医師・薬剤師に、税は税理士に、法律上の判断は弁護士にご確認ください。</p>';
+}
+function failHTML(){
+  return '<div class="jp-none"><b>辞書を読み込めませんでした。</b><br>通信の具合を確かめて、もう一度お試しください。<br><button type="button" class="jp-chip" data-jp-retry style="margin-top:10px">もう一度読み込む</button></div>';
+}
+
+/* ---------- 一覧 ---------- */
+function startListHTML(){
+  var h = '';
+  if(!wide()) h += '<div class="jp-how"><p class="jp-sh" style="margin:0">' + IC.book + '辞書の引き方</p>' + stepsHTML() + '</div>';
+  var rc = recent();
+  if(rc.length) h += '<p class="jp-sh">' + IC.clock + '最近引いた言葉</p><div class="jp-chips">' + rc.map(chip).join('') + '</div>';
+  if(!wide()){ var pop = popular(); if(pop.length) h += '<p class="jp-sh">' + IC.star + 'よく使う言葉</p><div class="jp-chips">' + pop.map(chip).join('') + '</div>'; }
+  h += '<p class="jp-sh">' + IC.kana + '五十音で探す</p><div class="jp-kana">' + ROWS.map(function(r, k){
+    return '<button type="button" data-jp-row="' + k + '" aria-label="' + r[0] + '行の言葉を見る">' + r[0] + '</button>';
+  }).join('') + '</div>';
+  var cl = catsOf();
+  h += '<p class="jp-sh">' + IC.grid + '分野で探す</p><div class="jp-cats">' + (D.cats || []).filter(function(c){ return cl[c[0]]; }).map(function(c){
+    /* 折り返すのは「・」の後ろと「の言葉」の前だけ（語の途中で折らない） */
+    return '<button type="button" data-jp-cat="' + esc(c[0]) + '">' + esc(CATN[c[0]]).replace(/・/g, '・<wbr>').replace(/の言葉$/, '<wbr>の言葉') + '</button>';
+  }).join('') + '</div>';
+  return h;
+}
+/* 言葉の並びを、読みの頭の字ごとに区切って出す（五十音の行・分野の一覧） */
+function groupedHTML(L){
+  var cur = '', h = '';
+  L.forEach(function(i){
+    var c = kanaBase(String(W[i].y || '').charAt(0));
+    if(c !== cur){ if(cur) h += '</ul>'; cur = c; h += '<h3 class="jp-gh">' + esc(c) + '</h3><ul class="jp-ul">'; }
+    h += wItem(i);
+  });
+  return cur ? h + '</ul>' : h;
+}
+function topHTML(t){ return '<div class="jp-rowtop"><button type="button" class="jp-back" data-jp-rows>' + IC.left + '<span>最初の画面へ戻る</span></button><h2>' + esc(t) + '</h2></div>'; }
+function rowHTML(r){ return topHTML(ROWS[r][0] + '行') + groupedHTML(rowsOf()[r]); }
+function catHTML(k){ return topHTML(CATN[k] || '') + groupedHTML(catsOf()[k] || []); }
+function searchHTML(){
+  var raw = st.q, n = nz(raw), parts = [], h = '';
+  var hit = find(n), skip = {};
+  hit.forEach(function(a){ skip[a[1]] = 1; });
+  var terms = [n];
+  if(hit.length && hit[0][0] >= 60){ var t = W[hit[0][1]]; [t.w].concat(t.al || []).forEach(function(a){ var z = nz(a); if(z && terms.indexOf(z) < 0) terms.push(z); }); }
+  var multi = raw.split(/[\s　]+/).map(nz).filter(Boolean);
+  var body = findBody(multi.length > 1 ? multi : [n], skip);
+  var LIM = 80, LIMB = 30;
+  var gs = [], gd = gFind(terms);
+  /* 題や名前がそのまま当たるものを先に、次に当たった言葉に結びつけたもの、最後に検索の語で当たったもの */
+  gd.forEach(function(a){ if(a[0] >= 70 && gs.indexOf(a[1]) < 0) gs.push(a[1]); });
+  hit.slice(0, 3).forEach(function(a){ gOfWord(a[1], 3).forEach(function(j){ if(gs.indexOf(j) < 0) gs.push(j); }); });
+  gd.forEach(function(a){ if(gs.indexOf(a[1]) < 0) gs.push(a[1]); });
+  if(gs.length){
+    gs = gs.slice(0, 3);
+    parts.push('学習ツール ' + gs.length + '件');
+    h += '<h2 class="jp-gh">学習ツール（' + gs.length + '）</h2><ul class="jp-ul">' + gs.map(gItem).join('') + '</ul>';
+  }
+  if(hit.length){
+    parts.push('言葉 ' + hit.length + '件');
+    h += '<h2 class="jp-gh">言葉（' + hit.length + '）</h2><ul class="jp-ul">' + hit.slice(0, LIM).map(function(a){ return wItem(a[1]); }).join('') + '</ul>'
+      + (hit.length > LIM ? '<p class="jp-count">ほか ' + (hit.length - LIM) + '件。言葉を長くすると絞れます。</p>' : '');
+  }
+  if(body.length){
+    parts.push('説明の中 ' + body.length + '件');
+    h += '<h2 class="jp-gh">説明に出てくる言葉（' + body.length + '）</h2><ul class="jp-ul">' + body.slice(0, LIMB).map(function(i){ return wItem(i, snip(i, multi[0] || n)); }).join('') + '</ul>'
+      + (body.length > LIMB ? '<p class="jp-count">ほか ' + (body.length - LIMB) + '件。</p>' : '');
+  }
+  if(!h){
+    var nr = near(n);
+    return '<div class="jp-none"><b>「' + esc(raw) + '」は、この辞書にまだ入っていません。</b><br>言葉を短くするか、別の呼び名で引いてください。</div>'
+      + (nr.length ? '<h2 class="jp-gh">近い言葉</h2><ul class="jp-ul">' + nr.map(function(a){ return wItem(a[1]); }).join('') + '</ul>' : '');
+  }
+  return '<p class="jp-count">「' + esc(raw) + '」で ' + parts.join('・') + '</p>' + h;
+}
+function listHTML(){
+  if(st.failed) return failHTML();
+  if(!D) return '<p class="jp-wait">辞書を読み込んでいます…</p>';
+  if(st.q) return searchHTML();
+  if(st.row >= 0) return rowHTML(st.row);
+  if(st.cat && catsOf()[st.cat]) return catHTML(st.cat);
+  return startListHTML();
+}
+function markOn(scroll){
+  var bs = E('jpList').querySelectorAll('.jp-it[data-jp-i]'), hit = null;
+  for(var k = 0; k < bs.length; k++){
+    var b = bs[k], on = +b.getAttribute('data-jp-i') === st.cur;
+    b.classList.toggle('on', on);
+    if(on){ b.setAttribute('aria-current', 'true'); if(!hit) hit = b; } else b.removeAttribute('aria-current');
+  }
+  if(scroll && hit && wide()) try{ hit.scrollIntoView({ block:'nearest' }); }catch(e){}
+}
+function renderList(){ E('jpList').innerHTML = listHTML(); markOn(false); }
+
+/* ---------- 中身 ---------- */
+function barHTML(){
+  var back = st.q ? '検索結果へ戻る' : st.row >= 0 ? ROWS[st.row][0] + '行の一覧へ戻る' : st.cat && CATN[st.cat] ? CATN[st.cat] + 'の一覧へ戻る' : '一覧へ戻る';
+  var h = '<div class="jp-bar"><button type="button" class="jp-back sp" data-jp-back>' + IC.list + '<span>' + back + '</span></button>';
+  if(st.hist.length) h += '<button type="button" class="jp-back" data-jp-hb>' + IC.left + '<span>「' + esc(W[st.hist[st.hist.length - 1]].w) + '」へ戻る</span></button>';
+  return h + '</div>';
+}
+function detHTML(i){
+  var it = W[i];
+  /* 別の呼び名のうち、ひらがなだけのもの（読み）は引くためのもの。画面には出さない */
+  var als = (it.al || []).filter(function(a){ return !/^[ぁ-ゟー・\s]+$/.test(a); });
+  var h = barHTML() + '<article class="jp-card" aria-labelledby="jpDw">'
+    + (CATN[it.cat] ? '<span class="jp-dcat">' + esc(CATN[it.cat]) + '</span>' : '')
+    + '<h2 class="jp-dw" id="jpDw" tabindex="-1">' + esc(it.w) + '</h2>'
+    + (als.length ? '<p class="jp-dal">別の呼び名：' + als.map(function(a, k){ return '<span class="jp-dal-w">' + esc(a) + (k < als.length - 1 ? '・' : '') + '</span>'; }).join('') + '</p>' : '')
+    + '<p class="jp-imi">' + linkify(it.imi, i, 6) + '</p>' + fxHTML(it);
+  var rel = (it.rel || []).map(function(w){ return BYW[w]; }).filter(function(x){ return x >= 0; });
+  if(rel.length) h += sec('rel', IC.link, '関係する言葉', '<div class="jp-chips">' + rel.map(chip).join('') + '</div>');
+  var gl = gOfWord(i, 3);
+  if(gl.length) h += sec('gk', IC.cap, '学習ツールで詳しく', '<div class="jp-cards">' + gl.map(gCard).join('') + '</div>');
+  h += sec('ask', IC.chat, 'AI師匠に聞く', '<div class="jp-cards">' + asksOf(i).map(askCard).join('') + '</div><p class="jp-snote">AI師匠の画面が開き、この問いをそのまま送ります。</p>');
+  return h + noteHTML() + '</article>';
+}
+function startDetHTML(){
+  var pop = popular();
+  return '<article class="jp-card jp-start" aria-labelledby="jpDw"><h2 class="jp-dw" id="jpDw" tabindex="-1">辞書の引き方</h2>' + stepsHTML()
+    + (pop.length ? sec('pop', IC.star, 'よく使う言葉', '<div class="jp-chips">' + pop.map(chip).join('') + '</div>') : '')
+    + noteHTML() + '</article>';
+}
+function renderDet(){ E('jpDet').innerHTML = st.cur >= 0 && D ? detHTML(st.cur) : startDetHTML(); }
+
+/* ---------- 開く・戻る（アドレスの #w=<言葉> とそろえる） ---------- */
+function setHash(w, push){
+  var url = location.pathname + location.search + (w ? '#w=' + encodeURIComponent(w) : '');
+  try{ if(push) history.pushState({ jw:w || '' }, '', url); else history.replaceState({ jw:w || '' }, '', url); }catch(e){}
+}
+function show(i, how){
+  if(!W[i]) return;
+  if(how === 'push' && st.cur >= 0 && st.cur !== i){ st.hist.push(st.cur); if(st.hist.length > 30) st.hist.shift(); }
+  if(how === 'fresh' || how === 'pop' || how === 'init') st.hist = [];
+  if(!wide() && st.cur < 0) st.listTop = window.pageYOffset || 0;
+  st.cur = i;
+  addRecent(W[i].w);
+  E('jp').classList.add('det');
+  E('jpDet').innerHTML = detHTML(i);
+  markOn(true);
+  document.title = W[i].w + '｜お金の言葉の辞書';
+  if(how === 'fresh' || how === 'push' || how === 'hb') setHash(W[i].w, true);
+  if(wide()) E('jpMain').scrollTop = 0; else window.scrollTo(0, 0);
+  var hd = E('jpDw'); if(hd) try{ hd.focus({ preventScroll:true }); }catch(e){}
+}
+function goBack(){ var c = st.hist.pop(); if(c >= 0) show(c, 'hb'); }
+function clearDet(push){
+  st.cur = -1; st.hist = [];
+  E('jp').classList.remove('det');
+  renderDet(); markOn(false);
+  document.title = BASE_TITLE;
+  if(push !== null) setHash('', push);
+}
+function toList(){
+  clearDet(true);
+  window.scrollTo(0, st.listTop || 0);
+  var on = E('jpList').querySelector('.jp-it[data-jp-i="' + st.last + '"]');
+  try{ (on || E('jpQ')).focus({ preventScroll:true }); }catch(e){}
+}
+function hashWord(){
+  var m = /(?:^#|[#&])w=([^&]*)/.exec(location.hash || '');
+  if(!m) return null;
+  try{ return decodeURIComponent(m[1]); }catch(e){ return m[1]; }
+}
+function resolve(w){
+  if(BYW[w] >= 0) return BYW[w];
+  var n = nz(w); if(!n) return -1;
+  var h = find(n);
+  return h.length && h[0][0] === 100 ? h[0][1] : -1;
+}
+function route(how){
+  if(!D) return;
+  var w = hashWord();
+  if(w === null || w === ''){ if(st.cur >= 0) clearDet(null); return; }
+  var i = resolve(w);
+  if(i >= 0){ if(i !== st.cur) show(i, how); return; }
+  /* 見出しに無い言葉は、引いた形で一覧に出す */
+  E('jpQ').value = w; st.q = w.trim(); st.row = -1; st.cat = '';
+  clearDet(null); renderList();
+}
+
+/* ---------- 操作 ---------- */
+document.addEventListener('click', function(e){
+  var t = e.target.closest ? e.target.closest('[data-jp-i],[data-jp-row],[data-jp-cat],[data-jp-rows],[data-jp-back],[data-jp-hb],[data-jp-retry]') : null;
+  if(!t) return;
+  if(t.hasAttribute('data-jp-retry')){ st.failed = false; renderList(); load(function(){ renderList(); renderDet(); route('init'); }); return; }
+  if(t.hasAttribute('data-jp-back')){ st.last = st.cur; toList(); return; }
+  if(t.hasAttribute('data-jp-hb')){ goBack(); return; }
+  if(t.hasAttribute('data-jp-row') || t.hasAttribute('data-jp-cat')){
+    st.row = t.hasAttribute('data-jp-row') ? +t.getAttribute('data-jp-row') : -1;
+    st.cat = t.getAttribute('data-jp-cat') || '';
+    renderList(); E('jpList').scrollTop = 0; if(!wide()) window.scrollTo(0, 0);
+    var b = E('jpList').querySelector('[data-jp-rows]'); if(b) try{ b.focus({ preventScroll:true }); }catch(e2){}
+    return;
+  }
+  if(t.hasAttribute('data-jp-rows')){ st.row = -1; st.cat = ''; renderList(); E('jpList').scrollTop = 0; if(!wide()) window.scrollTo(0, 0); return; }
+  var i = +t.getAttribute('data-jp-i');
+  show(i, E('jpList').contains(t) ? 'fresh' : 'push');
+});
+E('jpQ').addEventListener('input', function(){
+  st.q = this.value.trim(); st.row = -1; st.cat = '';
+  if(!wide() && st.cur >= 0) clearDet(false);
+  load(function(){ renderList(); E('jpList').scrollTop = 0; });
+});
+document.addEventListener('keydown', function(e){
+  var tg = e.target;
+  if(tg && tg.id === 'jpQ'){
+    if(e.key === 'Enter'){ var f = E('jpList').querySelector('.jp-it[data-jp-i]'); if(f){ e.preventDefault(); f.click(); } return; }
+    if(e.key === 'ArrowDown'){ var f2 = E('jpList').querySelector('.jp-it, .jp-chip, .jp-kana button'); if(f2){ e.preventDefault(); try{ f2.focus(); }catch(e2){} } return; }
+    if(e.key === 'Escape' && tg.value){ e.preventDefault(); tg.value = ''; st.q = ''; renderList(); return; }
+  }
+  if(tg && tg.classList && tg.classList.contains('jp-it') && (e.key === 'ArrowDown' || e.key === 'ArrowUp')){
+    var its = Array.prototype.slice.call(E('jpList').querySelectorAll('.jp-it'));
+    var p = its.indexOf(tg), nx = e.key === 'ArrowDown' ? p + 1 : p - 1;
+    e.preventDefault();
+    if(nx < 0){ try{ E('jpQ').focus(); }catch(e3){} return; }
+    if(its[nx]) try{ its[nx].focus(); }catch(e4){}
+  }
+});
+window.addEventListener('popstate', function(){ route('pop'); });
+window.addEventListener('hashchange', function(){ route('pop'); });
+try{
+  window.matchMedia('(min-width:900px)').addEventListener('change', function(){ if(D){ renderList(); if(st.cur < 0) renderDet(); } });
+}catch(e){}
+
+function boot(){
+  E('tbHome').href = hubHref();
+  renderDet();
+  load(function(){
+    renderList();
+    if(D){ renderDet(); route('init'); }
+  });
+}
+/* 扉（apply_gate.py が入れる）と会社フォルダの鍵（make_agency.py が入れる）が開くまで、辞書のデータを読まない */
+function gateOpen(){
+  var c = document.documentElement.className;
+  if(/(^|\s)omauth-lock(\s|$)/.test(c)) return false;
+  return !E('omgate') || /(^|\s)omgate-open(\s|$)/.test(c);
+}
+if(gateOpen()) boot();
+else {
+  try{
+    var mo = new MutationObserver(function(){ if(gateOpen()){ mo.disconnect(); boot(); } });
+    mo.observe(document.documentElement, { attributes:true, attributeFilter:['class'] });
+  }catch(e){ boot(); }
+}
+})();
+</script>
+</body>
+</html>

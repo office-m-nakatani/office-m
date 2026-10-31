@@ -1004,6 +1004,9 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
         ★ハッシュの中身は照合しない。代理店ごとの専用管理画面
           （make_agency.py が作る）はIDとパスワードが違うので、
           「どこかの管理画面が通した」ことだけを見る
+        ★この扉で「次回から省略」を外して入った担当者は sessionStorage 'officem.hokenGate.staff'
+          （タブを閉じると消える）。2026-10-29 まではお客様の共有リンクと同じ鍵を書いていたので、
+          そのタブで次のページを開くとお客様向けの形になっていた。鍵を分けた
      ② 共有リンクの枠の中（管理画面が iframe で開いたとき）
         sessionStorage 'officem.hokenGate.share'
         ★sessionStorage はタブ単位。枠の中のURLをコピーして
@@ -1015,6 +1018,7 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
   var R = document.documentElement;
   var AUTH = 'officem.hokenHub.auth';
   var SHARE = 'officem.hokenGate.share';
+  var STAFF = 'officem.hokenGate.staff';
   var TRIAL = 'officem.hokenGate.taiken';
   var SALT = 'officem-hoken-hub-2026|';
   /* 受け付ける印＝sha256(SALT + 'id:' + ID + '|pw:' + パスワード)（平文はどのファイルにも書かない）。
@@ -1028,12 +1032,13 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
     var p = String(location.pathname).replace(/\/+$/, '');
     return p.slice(p.lastIndexOf('/') + 1).replace(/\.html$/i, '');
   }
-  /* どの鍵で開いたかを返す（'auth'＝管理画面・'share'＝共有リンク・'trial'＝体験版・''＝開けない） */
+  /* どの鍵で開いたかを返す（'auth'＝管理画面・'staff'＝この扉で入った担当者（次回から省略なし）・'share'＝共有リンク・'trial'＝体験版・''＝開けない） */
   function allowed() {
     try {
       var a = read(localStorage, AUTH);
       if (live(a) && /^[0-9a-f]{64}$/.test(String(a.h || ''))) return 'auth';
     } catch (e) {}
+    try { if (live(read(sessionStorage, STAFF))) return 'staff'; } catch (e) {}
     try { if (live(read(sessionStorage, SHARE))) return 'share'; } catch (e) {}
     try {
       var t = read(localStorage, TRIAL);
@@ -1094,7 +1099,7 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
         if (keep && keep.checked) {
           localStorage.setItem(AUTH, JSON.stringify({ h: h, e: Date.now() + DAYS * 86400000, i: id }));
         } else {
-          sessionStorage.setItem(SHARE, JSON.stringify({ e: Date.now() + 12 * 3600000 }));
+          sessionStorage.setItem(STAFF, JSON.stringify({ e: Date.now() + 12 * 3600000 }));
         }
       } catch (e2) { /* 保存できなくても、その場では開く */ }
       open_();
@@ -1129,7 +1134,7 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
   var AUTH = 'officem.hokenHub.auth';
   var KEEP_DAYS = 430;                            /* 13か月と少し。古い日は消す */
   var OPEN_MS = 60000;                            /* 1分以上ひらいたら「ひらいた」と数える */
-  var TOOLS = /^hoken-(training|shiharai|kirikaeshi|compliance|shikaku|sales|gyakusan|calendar|mentor)$/;
+  var TOOLS = /^hoken-(training|shiharai|kirikaeshi|compliance|shikaku|sales|gyakusan|calendar|mentor|jisho)$/;   /* 2026-10-29 にお金の言葉の辞書（hoken-jisho）を足した */
 
   function read(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } }
   function staff() {
@@ -1562,6 +1567,67 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
   </div>
 </section>
 
+<!-- OMKANREN-BEGIN 学習ツールの「関連」の欄（hoken-newtools-src/kanren/kanren_panel.py の部品を apply_gate.py が入れる。ここを手で直さない。中身は kanren.json の pages） -->
+<style id="omkanren-css">
+#omkanren,#omkanren *{box-sizing:border-box;}
+#omkanren{display:block;max-width:900px;margin:36px auto 8px;padding:0 16px;font-size:1rem;line-height:1.7;letter-spacing:.02em;color:var(--text,#33404d);text-align:left;}
+#omkanren[hidden],html.omgate-cust #omkanren{display:none !important;}
+#omkanren .omk-in{background:#fff;border:1px solid var(--line,#efe2d8);border-radius:18px;padding:22px 24px 24px;box-shadow:var(--shadow-sm,0 3px 10px rgba(130,100,80,.07));}
+#omkanren h2.omk-h{font-family:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho",YuMincho,"游明朝体","游明朝","MS PMincho",serif;font-size:1.3rem;font-weight:700;line-height:1.5;letter-spacing:.06em;color:var(--navy,#1b3f5e);margin:0 0 16px;padding:0;border:0;background:none;position:static;text-align:left;}
+#omkanren h3.omk-ch{display:flex;align-items:center;gap:9px;font-family:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho",YuMincho,"游明朝体","游明朝","MS PMincho",serif;font-size:1.04rem;font-weight:700;line-height:1.5;letter-spacing:.03em;color:var(--navy,#1b3f5e);margin:0 0 10px;padding:0;border:0;background:none;position:static;text-align:left;}
+#omkanren h2.omk-h::before,#omkanren h2.omk-h::after,#omkanren h3.omk-ch::before,#omkanren h3.omk-ch::after,#omkanren li::before,#omkanren li::after{content:none !important;display:none !important;}
+#omkanren .omk-ic{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;flex:none;background:var(--omk-b,#eef1f4);color:var(--omk-c,#4a5560);}
+#omkanren svg.omk-svg{display:inline-block;width:18px;height:18px;flex:none;max-width:none;}
+#omkanren .omk-cols{display:grid;gap:22px;}
+#omkanren .omk-col{min-width:0;}
+#omkanren .omk-c-gk{--omk-b:var(--green-bg,#e8f6ef);--omk-c:var(--green,#2c7a4b);}
+#omkanren .omk-c-w{--omk-b:var(--sky-bg,#e8f4fb);--omk-c:var(--sky,#24729f);}
+#omkanren .omk-c-q{--omk-b:var(--berry-bg,#fbeef6);--omk-c:var(--berry,#8f4574);}
+#omkanren ul.omk-list{list-style:none;margin:0;padding:0;display:grid;gap:8px;}
+#omkanren ul.omk-list > li{display:flex;margin:0;padding:0;max-width:none;list-style:none;}
+#omkanren a.omk-a{flex:1 1 auto;width:100%;display:flex;align-items:center;gap:10px;min-height:52px;padding:9px 12px;border-radius:12px;border:1px solid var(--line,#efe2d8);background:#fff;color:var(--text,#33404d);text-decoration:none;line-height:1.5;}
+#omkanren a.omk-a .omk-t{flex:1;min-width:0;display:block;}
+#omkanren a.omk-a b{display:block;font-size:.98rem;font-weight:700;color:var(--navy,#1b3f5e);overflow-wrap:anywhere;}
+#omkanren a.omk-a small{display:block;font-size:.84rem;color:var(--muted,#5c6874);line-height:1.5;margin-top:1px;}
+#omkanren a.omk-a > svg.omk-svg{color:var(--omk-c,#4a5560);}
+#omkanren .omk-c-gk a.omk-a{border-color:var(--green-border,#c3e5d3);background:#fbfefc;}
+#omkanren .omk-c-gk a.omk-a:hover{border-color:var(--green,#2c7a4b);background:#f1faf4;}
+#omkanren .omk-c-q a.omk-a{border-color:#eed2e2;background:#fffbfd;}
+#omkanren .omk-c-q a.omk-a:hover{border-color:var(--berry,#8f4574);background:#fdf3f8;}
+#omkanren .omk-chips{display:flex;flex-wrap:wrap;gap:8px;}
+#omkanren a.omk-chip{display:inline-flex;align-items:center;min-height:44px;max-width:100%;padding:6px 15px;border-radius:999px;border:1.5px solid var(--sky-border,#c6e2f2);background:#f7fbfe;color:var(--sky,#24729f);font-size:.94rem;font-weight:700;line-height:1.4;text-decoration:none;overflow-wrap:anywhere;}
+#omkanren a.omk-chip:hover{border-color:var(--sky,#24729f);background:var(--sky-bg,#e8f4fb);}
+#omkanren a:focus-visible{outline:3px solid var(--navy-2,#27587f);outline-offset:2px;}
+/* PC は、まとまりごとに横一列（学習ツール3つ・言葉・AI師匠への問い3つ）。列ごとに中身の量が違うので、まとまりを縦の列にしない */
+@media(min-width:720px){#omkanren ul.omk-list{grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;}}
+@media(max-width:600px){#omkanren{margin-top:28px;padding:0 12px;}#omkanren .omk-in{padding:18px 14px 20px;border-radius:16px;}#omkanren h2.omk-h{font-size:1.22rem;}}
+@media print{#omkanren{display:none !important;}}
+</style>
+<aside id="omkanren" aria-labelledby="omk-h" hidden><div class="omk-in"><h2 class="omk-h" id="omk-h">あわせて学ぶ</h2><div class="omk-cols"><div class="omk-col omk-c-gk" role="group" aria-labelledby="omk-h-gk"><h3 class="omk-ch" id="omk-h-gk"><span class="omk-ic"><svg class="omk-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 9.5 12 5l9.5 4.5L12 14Z"/><path d="M6.5 11.6v4.4c0 1.4 2.5 2.9 5.5 2.9s5.5-1.5 5.5-2.9v-4.4"/><path d="M21.5 9.5v5"/></svg></span>関係する学習ツール</h3><ul class="omk-list"><li><a class="omk-a" href="../jigyoshokei-check/"><span class="omk-t"><b>事業承継</b><small>生命保険</small></span><svg class="omk-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9.5 6 6 6-6 6"/></svg></a></li><li><a class="omk-a" href="../kabunushi-check/"><span class="omk-t"><b>株主構成</b><small>法人・経営</small></span><svg class="omk-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9.5 6 6 6-6 6"/></svg></a></li><li><a class="omk-a" href="../jigyoshokei-benkyokai/"><span class="omk-t"><b>事業承継勉強会</b><small>法人・経営</small></span><svg class="omk-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9.5 6 6 6-6 6"/></svg></a></li></ul></div><div class="omk-col omk-c-w" role="group" aria-labelledby="omk-h-w"><h3 class="omk-ch" id="omk-h-w"><span class="omk-ic"><svg class="omk-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5"/><path d="M8.5 7.5h7M8.5 11h5"/></svg></span>辞書で言葉を調べる</h3><div class="omk-chips"><a class="omk-chip" href="../hoken-jisho/#w=%E7%B4%8D%E7%A8%8E%E7%8C%B6%E4%BA%88%E3%81%AE%E5%8F%96%E6%B6%88%E3%81%97">納税猶予の取消し</a><a class="omk-chip" href="../hoken-jisho/#w=%E5%8F%96%E5%BC%95%E7%9B%B8%E5%A0%B4%E3%81%AE%E3%81%AA%E3%81%84%E6%A0%AA%E5%BC%8F">取引相場のない株式</a><a class="omk-chip" href="../hoken-jisho/#w=%E4%BA%8B%E6%A5%AD%E6%89%BF%E7%B6%99">事業承継</a><a class="omk-chip" href="../hoken-jisho/#w=%E5%88%A9%E5%AD%90%E7%A8%8E">利子税</a><a class="omk-chip" href="../hoken-jisho/#w=%E7%89%B9%E4%BE%8B%E6%89%BF%E7%B6%99%E8%A8%88%E7%94%BB">特例承継計画</a><a class="omk-chip" href="../hoken-jisho/#w=%E4%BA%8B%E6%A5%AD%E6%89%BF%E7%B6%99%E7%A8%8E%E5%88%B6">事業承継税制</a></div></div><div class="omk-col omk-c-q" role="group" aria-labelledby="omk-h-q"><h3 class="omk-ch" id="omk-h-q"><span class="omk-ic"><svg class="omk-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 12a8 8 0 0 1-11.7 7.1L4 20.4l1.3-4.4A8 8 0 1 1 20.5 12Z"/><path d="M8.5 11h7M8.5 14.5h4.5"/></svg></span>AI師匠に聞く</h3><ul class="omk-list"><li><a class="omk-a" href="../hoken-mentor/#q=%E4%BA%8B%E6%A5%AD%E6%89%BF%E7%B6%99%E7%A8%8E%E5%88%B6%E3%81%A8%E3%81%AF%EF%BC%9F"><span class="omk-t"><b>事業承継税制とは？</b></span><svg class="omk-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 12a8 8 0 0 1-11.7 7.1L4 20.4l1.3-4.4A8 8 0 1 1 20.5 12Z"/><path d="M8.5 11h7M8.5 14.5h4.5"/></svg></a></li><li><a class="omk-a" href="../hoken-mentor/#q=%E4%BA%8B%E6%A5%AD%E6%89%BF%E7%B6%99%E7%A8%8E%E5%88%B6%E3%81%AE%E7%8C%B6%E4%BA%88%E3%81%8C%E6%89%93%E3%81%A1%E5%88%87%E3%82%89%E3%82%8C%E3%82%8B%E3%81%AE%E3%81%AF%E3%81%A9%E3%82%93%E3%81%AA%E3%81%A8%E3%81%8D%EF%BC%9F"><span class="omk-t"><b>事業承継税制の猶予が打ち切られるのはどんなとき？</b></span><svg class="omk-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 12a8 8 0 0 1-11.7 7.1L4 20.4l1.3-4.4A8 8 0 1 1 20.5 12Z"/><path d="M8.5 11h7M8.5 14.5h4.5"/></svg></a></li><li><a class="omk-a" href="../hoken-mentor/#q=%E4%BA%8B%E6%A5%AD%E6%89%BF%E7%B6%99%E7%A8%8E%E5%88%B6%E3%82%92%E4%BD%BF%E3%81%88%E3%81%B0%E4%BF%9D%E9%99%BA%E3%81%AF%E8%A6%81%E3%82%89%E3%81%AA%E3%81%84%EF%BC%9F"><span class="omk-t"><b>事業承継税制を使えば保険は要らない？</b></span><svg class="omk-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 12a8 8 0 0 1-11.7 7.1L4 20.4l1.3-4.4A8 8 0 1 1 20.5 12Z"/><path d="M8.5 11h7M8.5 14.5h4.5"/></svg></a></li></ul></div></div></div></aside>
+<script>
+(function(){
+  var R = document.documentElement, el = document.getElementById('omkanren');
+  if (!el) return;
+  function ok(){
+    if (/(^|\s)omgate-cust(\s|$)/.test(R.className)) return false;
+    try {
+      var a = JSON.parse(localStorage.getItem('officem.hokenHub.auth') || 'null');
+      if (a && typeof a.e === 'number' && a.e > Date.now() && /^[0-9a-f]{64}$/.test(String(a.h || ''))) return true;
+    } catch (e) {}
+    /* 扉で「次回から省略」を付けずに入った担当者（そのタブだけの鍵・2026-10-29） */
+    try {
+      var s = JSON.parse(sessionStorage.getItem('officem.hokenGate.staff') || 'null');
+      return !!(s && typeof s.e === 'number' && s.e > Date.now());
+    } catch (e) { return false; }
+  }
+  function upd(){ el.hidden = !ok(); return !el.hidden; }
+  if (upd() || !window.MutationObserver) return;
+  /* 扉でIDとパスワードを入れて開いたとき（次回から省略を付けたとき）に出す */
+  var mo = new MutationObserver(function(){ if (upd()) mo.disconnect(); });
+  mo.observe(R, { attributes: true, attributeFilter: ['class'] });
+})();
+</script>
+<!-- OMKANREN-END -->
 <!-- 本ツールは事業承継税制（自社株の納税猶予）という税務・法務の一般的なしくみの解説であり、保険の募集・勧誘には直接関わらないトピックのため、SPEC.md §1-2の例外規定に基づき募集文書審査の未了事項コメントは省略します。 -->
 <footer class="disclaimer">
   <p>本資料は、株式会社Office-Mが事業承継税制（非上場株式等についての相続税・贈与税の納税猶予及び免除の特例）の一般的なしくみをご理解いただくために作成した情報提供資料です。特定の商品・サービスの推奨や勧誘を目的とするものではありません。制度の説明は作成時点（2026年8月）の法令にもとづく一般的な解説であり、今後の税制改正や個別の事実関係により、適用の可否・猶予割合・取消事由の該当有無などの結論が変わることがあります。「猶予」に関する記述は納付の先送りを含む一般的な説明であり、税負担の消滅を保証するものではありません。特例承継計画の提出をはじめ、この制度には期限が定められている手続きが複数あります（延長の経緯もあるため、現時点の期限は認定支援機関・税理士にご確認ください）。個別の適用可否・税務判断は、顧問税理士、所轄の税務署、または認定経営革新等支援機関にご確認ください。</p>

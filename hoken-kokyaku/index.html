@@ -1176,6 +1176,9 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
         ★ハッシュの中身は照合しない。代理店ごとの専用管理画面
           （make_agency.py が作る）はIDとパスワードが違うので、
           「どこかの管理画面が通した」ことだけを見る
+        ★この扉で「次回から省略」を外して入った担当者は sessionStorage 'officem.hokenGate.staff'
+          （タブを閉じると消える）。2026-10-29 まではお客様の共有リンクと同じ鍵を書いていたので、
+          そのタブで次のページを開くとお客様向けの形になっていた。鍵を分けた
      ② 共有リンクの枠の中（管理画面が iframe で開いたとき）
         sessionStorage 'officem.hokenGate.share'
         ★sessionStorage はタブ単位。枠の中のURLをコピーして
@@ -1187,6 +1190,7 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
   var R = document.documentElement;
   var AUTH = 'officem.hokenHub.auth';
   var SHARE = 'officem.hokenGate.share';
+  var STAFF = 'officem.hokenGate.staff';
   var TRIAL = 'officem.hokenGate.taiken';
   var SALT = 'officem-hoken-hub-2026|';
   /* 受け付ける印＝sha256(SALT + 'id:' + ID + '|pw:' + パスワード)（平文はどのファイルにも書かない）。
@@ -1200,12 +1204,13 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
     var p = String(location.pathname).replace(/\/+$/, '');
     return p.slice(p.lastIndexOf('/') + 1).replace(/\.html$/i, '');
   }
-  /* どの鍵で開いたかを返す（'auth'＝管理画面・'share'＝共有リンク・'trial'＝体験版・''＝開けない） */
+  /* どの鍵で開いたかを返す（'auth'＝管理画面・'staff'＝この扉で入った担当者（次回から省略なし）・'share'＝共有リンク・'trial'＝体験版・''＝開けない） */
   function allowed() {
     try {
       var a = read(localStorage, AUTH);
       if (live(a) && /^[0-9a-f]{64}$/.test(String(a.h || ''))) return 'auth';
     } catch (e) {}
+    try { if (live(read(sessionStorage, STAFF))) return 'staff'; } catch (e) {}
     try { if (live(read(sessionStorage, SHARE))) return 'share'; } catch (e) {}
     try {
       var t = read(localStorage, TRIAL);
@@ -1266,7 +1271,7 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
         if (keep && keep.checked) {
           localStorage.setItem(AUTH, JSON.stringify({ h: h, e: Date.now() + DAYS * 86400000, i: id }));
         } else {
-          sessionStorage.setItem(SHARE, JSON.stringify({ e: Date.now() + 12 * 3600000 }));
+          sessionStorage.setItem(STAFF, JSON.stringify({ e: Date.now() + 12 * 3600000 }));
         }
       } catch (e2) { /* 保存できなくても、その場では開く */ }
       open_();
@@ -1301,7 +1306,7 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
   var AUTH = 'officem.hokenHub.auth';
   var KEEP_DAYS = 430;                            /* 13か月と少し。古い日は消す */
   var OPEN_MS = 60000;                            /* 1分以上ひらいたら「ひらいた」と数える */
-  var TOOLS = /^hoken-(training|shiharai|kirikaeshi|compliance|shikaku|sales|gyakusan|calendar|mentor)$/;
+  var TOOLS = /^hoken-(training|shiharai|kirikaeshi|compliance|shikaku|sales|gyakusan|calendar|mentor|jisho)$/;   /* 2026-10-29 にお金の言葉の辞書（hoken-jisho）を足した */
 
   function read(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } }
   function staff() {

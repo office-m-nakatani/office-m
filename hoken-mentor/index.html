@@ -1583,6 +1583,9 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
         ★ハッシュの中身は照合しない。代理店ごとの専用管理画面
           （make_agency.py が作る）はIDとパスワードが違うので、
           「どこかの管理画面が通した」ことだけを見る
+        ★この扉で「次回から省略」を外して入った担当者は sessionStorage 'officem.hokenGate.staff'
+          （タブを閉じると消える）。2026-10-29 まではお客様の共有リンクと同じ鍵を書いていたので、
+          そのタブで次のページを開くとお客様向けの形になっていた。鍵を分けた
      ② 共有リンクの枠の中（管理画面が iframe で開いたとき）
         sessionStorage 'officem.hokenGate.share'
         ★sessionStorage はタブ単位。枠の中のURLをコピーして
@@ -1594,6 +1597,7 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
   var R = document.documentElement;
   var AUTH = 'officem.hokenHub.auth';
   var SHARE = 'officem.hokenGate.share';
+  var STAFF = 'officem.hokenGate.staff';
   var TRIAL = 'officem.hokenGate.taiken';
   var SALT = 'officem-hoken-hub-2026|';
   /* 受け付ける印＝sha256(SALT + 'id:' + ID + '|pw:' + パスワード)（平文はどのファイルにも書かない）。
@@ -1607,12 +1611,13 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
     var p = String(location.pathname).replace(/\/+$/, '');
     return p.slice(p.lastIndexOf('/') + 1).replace(/\.html$/i, '');
   }
-  /* どの鍵で開いたかを返す（'auth'＝管理画面・'share'＝共有リンク・'trial'＝体験版・''＝開けない） */
+  /* どの鍵で開いたかを返す（'auth'＝管理画面・'staff'＝この扉で入った担当者（次回から省略なし）・'share'＝共有リンク・'trial'＝体験版・''＝開けない） */
   function allowed() {
     try {
       var a = read(localStorage, AUTH);
       if (live(a) && /^[0-9a-f]{64}$/.test(String(a.h || ''))) return 'auth';
     } catch (e) {}
+    try { if (live(read(sessionStorage, STAFF))) return 'staff'; } catch (e) {}
     try { if (live(read(sessionStorage, SHARE))) return 'share'; } catch (e) {}
     try {
       var t = read(localStorage, TRIAL);
@@ -1673,7 +1678,7 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
         if (keep && keep.checked) {
           localStorage.setItem(AUTH, JSON.stringify({ h: h, e: Date.now() + DAYS * 86400000, i: id }));
         } else {
-          sessionStorage.setItem(SHARE, JSON.stringify({ e: Date.now() + 12 * 3600000 }));
+          sessionStorage.setItem(STAFF, JSON.stringify({ e: Date.now() + 12 * 3600000 }));
         }
       } catch (e2) { /* 保存できなくても、その場では開く */ }
       open_();
@@ -1708,7 +1713,7 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
   var AUTH = 'officem.hokenHub.auth';
   var KEEP_DAYS = 430;                            /* 13か月と少し。古い日は消す */
   var OPEN_MS = 60000;                            /* 1分以上ひらいたら「ひらいた」と数える */
-  var TOOLS = /^hoken-(training|shiharai|kirikaeshi|compliance|shikaku|sales|gyakusan|calendar|mentor)$/;
+  var TOOLS = /^hoken-(training|shiharai|kirikaeshi|compliance|shikaku|sales|gyakusan|calendar|mentor|jisho)$/;   /* 2026-10-29 にお金の言葉の辞書（hoken-jisho）を足した */
 
   function read(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } }
   function staff() {
@@ -3060,6 +3065,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
             /* 漫画の絵の名前（2026-09-11）。名前だけを通し、絵そのものは描画のあとに mtArtFill が
                信頼済みのSVGを差し込む。★ここで SVG を通す形にしないこと（保存されたHTMLの書き換え対策） */
             if(c.tagName === 'SPAN' && a.name === 'data-mtart' && /^[a-z]+-[a-z]+$/.test(a.value)) return;
+            if(c.tagName === 'BUTTON' && ((a.name === 'data-mtkg' && /^[a-z0-9][a-z0-9-]{0,60}$/.test(a.value)) || (a.name === 'data-mtkw' && /^[^<>"]{1,60}$/.test(a.value)))) return;   /* MTKANREN-SAN 学習ツールと辞書へ（2026-10-29） */
             c.removeAttribute(a.name);
           });
         });
@@ -3074,15 +3080,29 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
     function mtHasKw(t, kws){ let n = 0; (kws || []).forEach(function(k){ if(k && t.indexOf(mtNorm(k)) >= 0) n++; }); return n; }
 
     /* ---------- 判定 ---------- */
+    /* ★反応の決まりは、本人の状態・本人のしたことに当てる。お客様・部下などの言葉には当てない（2026-10-31）。
+       「お客様に『今は仕事が忙しくて、ゆっくり話せません』と言われた」に「それは説明ではない、言い訳だ」、
+       「お客様に『先に言っておいてくれれば良かった』と怒られた」に「先に言ったな。それは説明だ」、
+       「お客様に『勉強になりました』と言われた」に「思考止まりは三流だ」が出ていた（公開中の版から）。
+       ①「」『』“”"" の中を外す。ただし「…」と思う・感じる（本人の気持ち）と、「…」と伝えた・報告した（本人の言葉）は残す
+       ②引用符の無い書き方＝お客様・部下・上司などに（から・が）「…と言われた・断られた・怒られた・言ってくる」の中身も外す
+       止める側（ng）はこれまでどおり文全体で見る（家族・体調の話には当てない） */
+    const MT_REACT_KEEPQ = '(?!\\s*(?:と|って)\\s*(?:思|感じ|考え|先に|事前に|伝え|お伝え|報告し|連絡し))';
+    const MT_REACT_QUOTE = new RegExp('「[^「」]*」' + MT_REACT_KEEPQ + '|『[^『』]*』' + MT_REACT_KEEPQ + '|“[^“”]*”' + MT_REACT_KEEPQ + '|"[^"]*"' + MT_REACT_KEEPQ, 'g');
+    const MT_REACT_SAID = /(お客様|お客さん|お客さま|先方|相手|社長|奥様|ご主人|ご家族|見込み客|部下|後輩|新人|メンバー|上司|上長|先輩|部長|課長|支社長|所長|店長)(に|から|が)[^。]*?(と|って)(言われ|断られ|返され|怒られ|叱られ|言って|言う|言い訳|おっしゃ)/g;
+    function mtReactSelf(t){
+      return String(t).replace(MT_REACT_QUOTE, '　').replace(MT_REACT_SAID, '$1$2　$3$4');
+    }
     function mtDetectReact(t, P){
       const out = [];
+      const tq = mtReactSelf(t);
       MT_REACT_RULES.forEach(function(r){
         if(r.flag && !(P.strict && P.strict[r.flag])) return;
         /* ★仕事の場面の叱責を、家庭・体調の話に当てない（2026-09-24・9回目の検証）。
            「子どもの運動会に行けませんでした」に「それは説明ではない、言い訳だ。理由は聞かん」が
            返っていた。これを読んだ人は、二度と私生活の話を書かない */
         if(r.ng && r.ng.test(t)) return;
-        if(r.re.test(t)) out.push(r);
+        if(r.re.test(tq)) out.push(r);
       });
       return out;
     }
@@ -3169,7 +3189,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
         /* ★社内の人と比べられるつらさが「他社比較で負けた」に吸われていた（2026-09-24・8回目の検証） */
         if(shanaiHito && s > 0 && /他社|比較/.test(it.name)) s = 0;
         /* ★名刺を受け取ってもらえない段階の相談に、交換したあとの型（名刺の裏に書け）が返っていた */
-        if(meishiNG && s > 0 && /名刺交換|交換のあと/.test(it.name)) s = 0;
+        if(meishiNG && s > 0 && /名刺交換|交換のあと/.test(it.name)) s = 0;/* MTMORE-MGUSE */if(it.role === 'mgmt' && s > 0 && /^mg_x/.test(it.key || '') && mtNorm(it.name).replace(/[。、\s]/g, '') !== flat && !mtMoreMgCue(t)) s = 0;/* /MTMORE-MGUSE */
         if(it.role === 'life' && bizTalk && s < 5) s = 0;
         else if(it.role === 'life' && lifeTalk && s > 0) s += 0.8;   /* ★暮らしの合図があるときは暮らしの型を採る */
         return { it:it, s:s }; })
@@ -3373,7 +3393,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
                                nm_kikenai:'naimu', nm_yatte_ii:'naimu', nm_tetsuzuki:'naimu', nm_nagare:'naimu',
                                /* 既にある管理職側の型も、内務の知識を見にいかせる（答えの中身は同じ棚にある） */
                                mg_compliance:'naimu', mg_backoffice:'naimu', mg_handover:'naimu' };
-      const prefKind = {};
+      const prefKind = {};/* MTMORE-PREF */if(window.__mtMorePref) (intents || []).forEach(function(i){ var k = window.__mtMorePref[i.key]; if(!k || MT_INTENT_PREF[i.key]) return; (Array.isArray(k) ? k : [k]).forEach(function(x){ prefKind[x] = 1; }); });/* /MTMORE-PREF */
       (intents || []).forEach(function(i){ const k = MT_INTENT_PREF[i.key]; if(!k) return; (Array.isArray(k) ? k : [k]).forEach(function(x){ prefKind[x] = 1; }); });
       const intentKw = [].concat.apply([], intents.map(function(i){ return i.kw; })).join(' ');
       /* ★同じ相談でも毎回違う原則を出す（2026-09-07・ユーザー指示）。直近に出したものは点を4割にして、
@@ -4039,11 +4059,11 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
     }
     /* お客様の断り文句を相談文から拾う。文句そのもの（「。」抜き）が入っていれば確定、
        言い換え（kw）だけなら「言われた」「お客様が」などの手がかりがあるときだけ */
-    function mtFindKotowari(t){
+    function mtFindKotowari(t){/* MTMORE-KKP */t = String(t).replace(/[。、！!？?…]/g, '');/* /MTMORE-KKP */
       if(!MT_KOTOWARI.length) return null;
       const cue = /言われ|と言う|言って(き|る|た|ま)|返され|お客(様|さん|さま)?|客(が|に|は|から)|先方|お断り|断られ|断り文句|奥さん|旦那|ご主人|社長(が|に|から)|そうです|とのこと|だそうだ|提案先|訪問先/.test(t);
       let best = null, bs = 0;
-      MT_KOTOWARI.forEach(function(k){
+      /* MTMORE-KK */(window.__mtMoreKK && window.__mtMoreKK.length ? MT_KOTOWARI.concat(window.__mtMoreKK) : MT_KOTOWARI)/* /MTMORE-KK */.forEach(function(k){
         let s = 0;
         const said = mtNorm(k.said).replace(/[。、！!？?…]/g, '');
         const core = said.replace(/[（(][^）)]*[）)]/g, '');
@@ -6953,7 +6973,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
         note:'補償の上限や対象は制度の改正で変わることがある。必ず最新の資料で確かめる。' },
 
       { key:'kuyami',
-        re:/(ご家族|ご主人|奥様|お子|息子|娘|親|父|母)[^。]{0,6}(自殺|自死)(され|し)|(亡くなり|亡くなっ|亡くなら|亡くなる|急逝|急死|永眠|逝去|ご逝去|お亡くなり|訃報|他界|喪中)|(お身内|ご家族|ご親族|お父様|お母様|ご主人様?|奥様)に(ご)?不幸|(葬儀|お通夜|通夜|告別式|ご焼香|香典)[^。]{0,10}(参列|伺|行っ|出た|出る|包む|どう)/,
+        re:/(ご家族|ご主人|奥様|お子|息子|娘|親|父|母)[^。]{0,6}(自殺|自死)(され|し)|(亡くなり|亡くなっ|亡くなら|亡くなる|急逝|急死|永眠|逝去|ご逝去|お亡くなり|訃報|他界|喪中)|(お身内|ご家族|ご親族|お父様|お母様|ご主人様?|奥様)に(ご)?不幸|(家族|親戚|親類)に(ご)?不幸(?!があったら|があった場合)|ご不幸が(あり|あっ)(?!たら|た場合|たとき|た時|た際)|(葬儀|お通夜|通夜|告別式|ご焼香|香典)[^。]{0,10}(参列|伺|行っ|出た|出る|包む|どう)/,
         ng:/受取人(が|は|の方が)[^。]{0,10}(先に|既に|すでに|前に)[^。]{0,6}(亡くな|死亡|他界)|亡くなったら|亡くなった場合|亡くなると|亡くなる前|亡くなるまで|死んだら|死亡したら|亡くなっても|亡くなったとき|亡くなった時|死んでも/,   /* OM100 B2 受取人が先に亡くなったときの仕組みの問い（faq_uketori_shibou） */
         head:'まず、お悔やみを。',
         body:'こういうときに正解の言葉はありません。長く話す必要もありません。'
@@ -7991,7 +8011,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
     }
     /* GOCUSHION-END */
     let mtJoLastKey = '';   /* 先人の2冊を添えるかを決めるため、当たった受け皿の key を覚えておく（SENJIN） */
-    function mtJoushikiHTML(t, tone, P, force){
+    /* MTMORE-KOSAID */var MT_KOJO_KEEP = /^(renraku_funou|tsurai_tsuzuku|tsurai|gan_jibun|gan_shigoto|gan_shindan|genkai|kyukyu|kyaku_kiki|hito_kiki|jisatsu_menseki|kuyami|ninchi|pawahara_kagai|hara|kasuhara|tsuho|byoki|kega|naita|taichou|chojikan)$/, MT_KO_CUE = /言われ|と言って|と言う|お客(様|さん|さま)|先方|取引先|断られ|返され|そうです|とのこと|客(が|に|は|から)/, MT_KO_SHANAI = /同僚|同期|先輩|後輩|上司|部下|社内|うちの(支社|支部|部署|チーム|営業所)|他の人と比べ|人と比べ|比べられ/; function mtMoreKoSaid(t, key){ var p = String(t).replace(/[。、！!？?…]/g, ''), best = 0, bestOld = false, nO = MT_KOTOWARI.length, L = (window.__mtMoreKK && window.__mtMoreKK.length ? MT_KOTOWARI.concat(window.__mtMoreKK) : MT_KOTOWARI); for(var i = 0; i < L.length; i++){ var s = mtNorm(L[i].said || '').replace(/[。、！!？?…]/g, ''), c = s.replace(/[（(][^）)]*[）)]/g, ''), m = (s.length >= 4 && p.indexOf(s) >= 0) ? s.length : ((c.length >= 4 && p.indexOf(c) >= 0) ? c.length : 0); if(m > best){ best = m; bestOld = i < nO; } } if(!best || (bestOld && !/_x/.test(String(key || ''))) || !mtFindKotowari(t) || MT_KO_SHANAI.test(t)) return false; try{ if(mtFindKitei(t, false)) return false; }catch(e){} if(MT_KO_CUE.test(t)) return true; var it = mtScoreIntents(t); return !(it && it[0] && it[0].role === 'life'); }/* /MTMORE-KOSAID *//* MTMORE-MGCUE */var MT_MGMT_CUE = /チーム|メンバー|部下|後輩|新人|新卒|若手|育成|育て|指導|教え方|教えても|教えたのに|教える|任せ(?!て(もら|いただ|くれ))|面倒を見|管理職|マネジメント|(課長|部長|所長|支店長|支社長|店長|リーダー|マネージャー|マネジャー)(として|になっ|になり|を任され|の立場|の仕事|一年目|1年目)|上に立|上司として|上司にな|人を採用|採用活動|中途採用|新卒採用|1on1|ワンオンワン|(行か|やら|組ま|出さ|回ら|書か|話さ|覚えさ|続けさ)せ(?!て(もら|いただ|くれ|くださ))/, MT_MGMT_OFF = /(私|僕|ぼく|自分|わたし)(は|も|が)?(まだ)?(新人|新卒|若手|一年目|二年目|三年目)|(新人|新卒|若手|一年目|二年目|三年目)(です|でして|なので|なんです|の(私|僕|自分)|の頃|のころ|のとき|の時)|お任せ|子育て|指導(を受け|され|が厳し)|教え(てほし|て欲し|てくださ|てもら)/g, mtMoreMgT = null, mtMoreMgV = false; function mtMoreMgCue(t){ if(!MT_MGMT_CUE) return true; t = String(t || ''); if(t === mtMoreMgT) return mtMoreMgV; mtMoreMgT = t; return (mtMoreMgV = MT_MGMT_CUE.test(t.replace(MT_MGMT_OFF, '　'))); }/* /MTMORE-MGCUE */function mtJoushikiHTML(t, tone, P, force){
       const z = (tone === 'zsedai');
       mtJoLastKey = '';
       /* ★命に関わる言葉は、受け皿で受けずに、下の危機の受け止めへ回す（2026-09-24・12回目） */
@@ -8005,7 +8025,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
         if(j.ng && j.ng.test(t)) return;   /* ★お客様の話は、本人の話の受け皿で受けない */
         hit = j;
       });
-      if(!hit) return '';
+      if(!hit) return '';/* MTMORE-KOJO */if(!force && !MT_KOJO_KEEP.test(hit.key) && mtMoreKoSaid(t, hit.key)) return '';/* /MTMORE-KOJO */
       mtJoLastKey = hit.key;
       let h = '<span class="mt-h">答え</span>';
       h += '<b>' + esc(hit.head) + '</b>' + esc(hit.body);
@@ -8980,7 +9000,11 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       const fp = (lifeMode || (intents[0] && intents[0].role === 'self')) ? [] : mtFindFP(t, intents, 2, null);
       // 部下・チームの相談なら「上長としての当てはめ」（mgmt）を、それ以外は営業担当の行動（sales）を使う
       // 相談の型が営業側でも、文の主語が部下なら上長としての当てはめ（「部下が生前贈与の話を勝手に進めている」など）
-      const useMgmt = !!(intents[0] && (intents[0].key === 'staff' || intents[0].role === 'mgmt')) || /部下|メンバー|新人|若手|うちの担当|担当者が|後輩/.test(t);
+      /* ★お客様の一言として断り文句を受けたときは、お客様の言葉の外（相談した人自身の言葉）に部下・メンバーの話があるときだけ上長の言い方にする（2026-10-31）。
+         型の点はお客様の言葉の中の語でも付くので、「いったん持ち帰ります」が『残業が多い・休めないメンバー』に当たり、上長の言い方で返していた */
+      const koSelfT = (ko && saidCue) ? mtReactSelf(t) : t;
+      const koBoss = /部下|メンバー|新人|若手|うちの担当|担当者が|後輩/.test(koSelfT);
+      const useMgmt = (ko && saidCue) ? koBoss : (!!(intents[0] && (intents[0].key === 'staff' || intents[0].role === 'mgmt')) || koBoss);
       const K = mtKpiFromText(t, {}), c = mtKpiCalc(K);   /* MTMODE：今月の数字の欄は隠れたので、相談の文に書いた数字だけで逆算する（隠れた欄の古い数字は使わない） */
       if(c && !lifeMode){ try{ mtSnapKpi(K); }catch(eSnap){} }   /* MTMODE：相談の文に書いた数字で、その月の控え（数字の推移）を残す */
       const hasNum = /[0-9０-９]/.test(t);
@@ -9101,7 +9125,30 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
          ＝募集人本人の家計の話になっていた。返し方は出ているのに、頭が本人の不安の話で始まる */
       /* ★断り文句を受けているのに『家族との時間が取れない』（本人の話）が結論に来ていた。
          お客様の話なので、はっきり当たった型しか主役にしない */
-      const pool0 = ko ? intents2.filter(function(i){ return i._s >= MT_SURE; }) : intents;
+      /* ★お客様の一言として断り文句を受けたときは、結論にお客様との場面の型だけを使う（2026-10-31・公開中の版からあった課題）。
+         型の点はお客様の言葉の中の語でも付くので、「ランキングで1位の商品にします」に『同期に抜かれた』、
+         「実家が保険会社の人と付き合いがあって」に『お酒・付き合い』、「今は仕事が忙しくて」に『今日の段取りを組みたい』、
+         「いったん持ち帰ります」に『残業が多い・休めないメンバー』が結論と「話を整理すると」に来ていた。
+         使うのは＝お客様との場面の型（sales）と、役割の無い型のうちお客様との場面のもの（MT_KO_MAIN_OK）と、
+         お客様の言葉を外した文（相談した人自身の言葉＝mtReactSelf）でもはっきり当たる型（自分の気持ちの話。部下の話は、部下・メンバーの語があるときだけ）。
+         ほかは型を使わず、断り文句の返し方で始める */
+      const MT_KO_MAIN_OK = ['rejected', 'referral', 'talk', 'wealthy', 'trust', 'seiho', 'nisa', 'retention', 'approach'];
+      const koOwn = [];
+      if(ko && saidCue){
+        /* mtScoreIntents は当たった型に点（_s）を書き込むので、数える前の点を控えて戻す（ほかの所が読む点を変えない） */
+        const keepS = MT_INTENTS.map(function(i){ return i._s; });
+        mtScoreIntents(koSelfT).forEach(function(i){
+          if(i.role === 'life' || i._s < MT_SURE) return;
+          if((i.role === 'mgmt' || i.key === 'staff') && !koBoss) return;   /* 管理職の型は、部下・メンバーの話をしているときだけ */
+          koOwn.push(i.key);
+        });
+        MT_INTENTS.forEach(function(i, n){ if(keepS[n] === undefined) delete i._s; else i._s = keepS[n]; });
+      }
+      const pool0 = ko ? intents2.filter(function(i){
+        if(i._s < MT_SURE) return false;
+        if(!saidCue) return true;
+        return i.role === 'sales' || (!i.role && MT_KO_MAIN_OK.indexOf(i.key) >= 0) || koOwn.indexOf(i.key) >= 0;
+      }) : intents;
       const main = (softOnly || (emo && !strongType)) ? null : (pool0[0] || null);
       // 同じ話が3分以上・3回以上続いたら、ここで切って「結局なに？」と聞く
       const nowT = Date.now();
@@ -10098,7 +10145,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       L.forEach(function(m){ if(!m || typeof m !== 'object') return; mtAdd(m.w === 'user' ? 'user' : 'bot', mtSanitize(m.h), false); });
       mtScrollLast();   // 開き直したときも、最後の返事の頭から読める位置にする
     }
-    function mtSend(q){
+    function mtSend(q){/* MTMORE-SEND */if(window.__mtMoreHold && window.__mtMoreHold(q)) return;/* /MTMORE-SEND */
       q = (q || '').trim(); if(!q) return;
       /* OMLOG-M3 */mtOmWork = false;/* /OMLOG-M3 */
       const P = mtP();
@@ -10929,6 +10976,177 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
     })();
     /* ==== MENTOR-KB-END ==== */
 
+/* MTMORE-BEGIN 増やした中身を、起動のあと裏で読む（2026-10-29・ユーザー指示「AI師匠の内容と返答を今の三倍の量にしてください」）。
+   増やした中身はページを重くしないため別のファイル＝mt-more-1.js（よくある問いの答え）・mt-more-2.js（相談の型・断り文句・知識・
+   ファイナンシャルプランナーの目・心理の型）・mt-more-3.js（例え話）。1つずつ順に読み、読めた分から今の配列に足す（同じ key は足さない）。
+   1と2を読み終わる前に送られた相談は預かり、読み終わったら（長くても MT_MORE_WAIT ミリ秒で）答える。命に関わる言葉の相談は預からない。
+   ファイルが無い・遅い・止められたときは、今の中身のまま答える。
+   ★一覧の行（MTMORE-FILES）は mentor_more_pack.py が書く。この塊は apply_mentor_moreload.py が書く。手で直さない */
+var MT_MORE_FILES = ['mt-more-1.js?v=c23d7ba4ae', 'mt-more-2.js?v=afc69d57e0', 'mt-more-3.js?v=ff37d55608'];   /* MTMORE-FILES */
+var MT_MORE_WAIT = 3000;
+(function(){
+  if(window.__mtMoreS) return;   /* 二度読まない */
+  var S = window.__mtMoreS = { st:'off', base:'', list:[], t0:Date.now(), t1:0, t2:0, done:{}, skip:0, err:[], q:[], open:false, tmr:0,
+    rel:[], drain:false, pass:false,
+    n:{ faq:0, intents:0, pref:0, kk:0, know:0, fp:0, psy:0, tatoe:0 } };
+  window.__mtMoreKK = window.__mtMoreKK || [];
+  window.__mtMorePref = window.__mtMorePref || {};
+  function knowArr(g){
+    switch(g){
+      case 'hoken':  return typeof MT_HOKEN  !== 'undefined' ? MT_HOKEN  : null;
+      case 'kinyu':  return typeof MT_KINYU  !== 'undefined' ? MT_KINYU  : null;
+      case 'shinri': return typeof MT_SHINRI !== 'undefined' ? MT_SHINRI : null;
+      case 'keiei':  return typeof MT_KEIEI  !== 'undefined' ? MT_KEIEI  : null;
+      case 'naimu':  return typeof MT_NAIMU  !== 'undefined' ? MT_NAIMU  : null;
+      case 'eigyo':  return typeof MT_EIGYO  !== 'undefined' ? MT_EIGYO  : null;
+      case 'suji':   return typeof MT_SUJI   !== 'undefined' ? MT_SUJI   : null;
+      case 'jikan':  return typeof MT_JIKAN  !== 'undefined' ? MT_JIKAN  : null;
+      case 'jinsei': return typeof MT_JINSEI !== 'undefined' ? MT_JINSEI : null;
+      case 'mgmt':   return typeof MT_MGMT   !== 'undefined' ? MT_MGMT   : null;
+      case 'tot':    return typeof MT_TOT    !== 'undefined' ? MT_TOT    : null;
+    }
+    return null;
+  }
+  /* 読む場所。手元の控え（保険AI師匠.html）と手元の体験版は横にファイルが無いので読まない。体験版は師匠のフォルダから読む */
+  function where(){
+    var p = String(location.pathname || ''), f = p.slice(p.lastIndexOf('/') + 1);
+    try{ f = decodeURIComponent(f); }catch(e){}
+    if(/\.html?$/i.test(f) && !/^index\.html?$/i.test(f)) return null;
+    return document.getElementById('tk-app') ? '../hoken-mentor/' : './';
+  }
+  function num(f){ return +String(f).charAt(8); }
+  function addTo(arr, items, kf){
+    if(!arr || !items || !items.length) return 0;
+    var have = {}, c = 0;
+    arr.forEach(function(x){ if(x && x[kf] != null) have[x[kf]] = 1; });
+    items.forEach(function(x){
+      if(!x || x[kf] == null || have[x[kf]]){ S.skip++; return; }
+      have[x[kf]] = 1; arr.push(x); c++;
+    });
+    return c;
+  }
+  function merge(n, D){
+    if(n === 1){ S.n.faq += addTo(MT_JOUSHIKI, D.faq, 'key'); return; }
+    if(n === 2){
+      S.n.intents += addTo(MT_INTENTS, D.intents, 'key');
+      var pf = D.pref || {};
+      Object.keys(pf).forEach(function(k){ if(window.__mtMorePref[k] == null){ window.__mtMorePref[k] = pf[k]; S.n.pref++; } });
+      var ids = {};
+      MT_KOTOWARI.concat(window.__mtMoreKK).forEach(function(k){ if(k && k.id) ids[k.id] = 1; });
+      (D.kk || []).forEach(function(k){
+        if(!k || !k.id || ids[k.id]){ S.skip++; return; }
+        ids[k.id] = 1; window.__mtMoreKK.push(k); S.n.kk++;
+      });
+      var kn = D.know || {};
+      Object.keys(kn).forEach(function(g){
+        var a = knowArr(g);
+        if(!a){ S.skip += (kn[g] || []).length; return; }
+        S.n.know += addTo(a, kn[g], 'key');
+      });
+      if(typeof MT_FP !== 'undefined') S.n.fp += addTo(MT_FP, D.fp, 'key');
+      if(typeof MT_PSY !== 'undefined') S.n.psy += addTo(MT_PSY, D.psy, 'key');
+      return;
+    }
+    if(n === 3){
+      (D.tatoe || []).forEach(function(x){
+        if(!x || !x.key){ S.skip++; return; }
+        x.id = x.key + '#' + MT_TATOE.length;
+        MT_TATOE.push(x);
+        (MT_TATOE_MAP[x.key] = MT_TATOE_MAP[x.key] || []).push(x);
+        S.n.tatoe++;
+      });
+    }
+  }
+  window.__mtMoreTake = function(n, D){
+    if(S.done[n] === 'ok') return;   /* 二度足さない */
+    try{ merge(n, D || {}); S.done[n] = 'ok'; }
+    catch(e){ S.done[n] = 'bad'; S.err.push('take' + n + ': ' + (e && e.message)); if(window.console) console.error('[AI師匠] 増やした中身を足せなかった', e); }
+    /* 作り置きを捨てる（受け皿の並び・近い答えの索引）。次に使うときに作り直される */
+    try{ mtJoOrderC = null; }catch(e){}
+    try{ mtHrIdx = null; }catch(e){}
+  };
+  function note(on){
+    var d = document.getElementById('mt-more-wait'), b = document.getElementById('mt-send');
+    if(on){
+      var log = document.getElementById('mt-log');
+      if(!d && log){
+        d = document.createElement('div');
+        d.id = 'mt-more-wait'; d.className = 'mt-early'; d.setAttribute('role', 'status');
+        d.textContent = '答えの中身を読み込んでいます。読み終わったら、すぐにお送りします。';
+        log.appendChild(d);
+        try{ log.scrollTop = log.scrollHeight; }catch(e){}
+      }
+      if(b) b.classList.add('mt-early-wait');
+    } else {
+      if(d && d.parentNode) d.parentNode.removeChild(d);
+      if(b) b.classList.remove('mt-early-wait');
+    }
+  }
+  /* 預かった相談は1つずつ順に送る（2026-10-31）。前の返事の考え中の印が消えてから次を送るので、答えの順が入れ替わらない。
+     考え中の印は返事が出ると消える（500〜1200ミリ秒）。長くても4秒で次へ進む。送っているあいだに来た相談も、その後ろに並べる */
+  function release(){
+    if(S.open) return;
+    S.open = true;
+    if(S.tmr){ clearTimeout(S.tmr); S.tmr = 0; }
+    note(false);
+    S.rel = S.q; S.q = [];
+    drain();
+  }
+  function drain(){
+    var q = S.rel.shift();
+    if(q == null){ S.drain = false; return; }
+    S.drain = true; S.pass = true;
+    try{ mtSend(q); }catch(e){ if(window.console) console.error('[AI師匠]', e); }
+    S.pass = false;
+    var t0 = Date.now();
+    (function wait(){
+      var log = document.getElementById('mt-log');
+      if(log && log.querySelector('.typing') && Date.now() - t0 < 4000){ setTimeout(wait, 120); return; }
+      drain();
+    })();
+  }
+  window.__mtMoreHold = function(q){
+    if(S.pass) return false;
+    if(!S.drain && (S.open || S.st !== 'load')) return false;
+    q = String(q == null ? '' : q).trim();
+    if(!q) return false;
+    var t = q;
+    try{ t = mtNorm(typeof mtYomi === 'function' ? mtYomi(q) : q); }catch(e){}
+    /* 命に関わる言葉の相談は預からない（待たせない）。預かっていた相談は、その順のまま送り始める */
+    try{ if(typeof mtIsCrisis === 'function' && mtIsCrisis(t)){ if(!S.drain) release(); return false; } }catch(e){}
+    if(S.drain){ if(S.rel.indexOf(q) < 0) S.rel.push(q); return true; }
+    if(S.q.indexOf(q) < 0) S.q.push(q);
+    note(true);
+    return true;
+  };
+  function fin(){
+    if(!S.t1 && S.list.every(function(f){ return num(f) > 2 || S.done[num(f)]; })){ S.t1 = Date.now() - S.t0; release(); }
+    if(S.list.every(function(f){ return S.done[num(f)]; })){ if(!S.t2) S.t2 = Date.now() - S.t0; S.st = 'done'; }
+  }
+  function go(){
+    var i = 0;
+    (function next(){
+      if(i >= S.list.length) return;
+      var f = S.list[i++], n = num(f);
+      var el = document.createElement('script');
+      el.async = false;
+      el.onload = function(){ if(!S.done[n]) S.done[n] = 'none'; fin(); next(); };
+      el.onerror = function(){ if(!S.done[n]) S.done[n] = 'err'; S.err.push(f); fin(); next(); };
+      el.src = S.base + f;
+      (document.head || document.documentElement).appendChild(el);
+    })();
+  }
+  var b = where();
+  var list = (typeof MT_MORE_FILES !== 'undefined' && MT_MORE_FILES && MT_MORE_FILES.filter) ? MT_MORE_FILES.filter(function(f){
+    return /^mt-more-[123]\.js(\?v=[0-9a-f]{10})?$/.test(String(f)); }) : [];
+  (window.__mtMorePending || []).forEach(function(p){ window.__mtMoreTake(p[0], p[1]); });
+  window.__mtMorePending = [];
+  if(b === null || !list.length){ S.st = 'off'; S.open = true; return; }
+  S.base = b; S.list = list; S.st = 'load';
+  S.tmr = setTimeout(release, MT_MORE_WAIT);
+  setTimeout(go, 0);   /* 起動（__mtReady）が終わってから読み始める */
+})();
+/* MTMORE-END */
 /* 単独ページなので、読み込んだ時点で開いた状態にする（モーダルの開閉は無い） */
 try{ mtOpen(); }catch(e){ if(window.console) console.error('[AI師匠]', e); }
 /* OM100-B9 準備ができた：準備中のひと言を外し、待っていた相談を送る */
@@ -10993,6 +11211,421 @@ window.__mtReady = true;
    #mt-quick-more・#mt-quick-all を持つ静的HTMLに対して配線している（2026-09-12）。
    ここでは何もしない（前は単独ページ用に動的生成していたが、二重管理をやめて一本化した） */
 </script>
+<!-- MTKANREN-BEGIN ★2026-10-29 答えの下の「あわせて見る」（学習ツール・辞書）と、辞書の意味で答える（apply_mentor_kanren.py が書く。手で直さない） -->
+<style>
+/* 返事の下の「あわせて見る」（学習ツール・辞書）。墨と灰だけ（赤・橙・青の役の色は使わない） */
+.mt-bub .mt-kr{ display:block; margin-top:14px; padding-top:10px; border-top:1px solid #dfe6e2; }
+.mt-bub .mt-kr-cap{ display:block; font-size:.8rem; line-height:1.5; color:#5b6470; }
+.mt-bub .mt-kr-row{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:8px; }
+.mt-bub .mt-kr-rl{ flex:0 0 auto; min-width:5.4em; font-size:.8rem; font-weight:700; color:#5b6470; line-height:1.4; }
+.mt-bub .mt-kr-rl .mt-kr-ls{ display:none; }
+.mt-bub button.mt-kr-b{ font:inherit; font-size:.88rem; line-height:1.4; min-height:44px; margin:0; padding:6px 15px; border:1px solid #c9d3da; border-radius:22px;
+  background:#fff; color:#26323b; cursor:pointer; display:inline-flex; align-items:center; gap:8px; max-width:100%; text-align:left; box-shadow:none; }
+.mt-bub button.mt-kr-b:hover{ background:#f3f6f8; border-color:#aebdc8; }
+.mt-bub button.mt-kr-b:focus-visible{ outline:3px solid #8aa3b5; outline-offset:2px; }
+.mt-bub button.mt-kr-b i{ flex:0 0 auto; color:#6b7884; font-size:.86em; }
+.mt-bub .mt-kr-t{ word-break:auto-phrase; overflow-wrap:anywhere; }
+/* 辞書の意味で答えるとき */
+.mt-bub .mt-kr-mean{ display:block; margin-top:4px; }
+.mt-bub details.mt-more.mt-kr-fold{ margin-top:12px; }
+/* ふだんの返事＝いちばん下の「コピー」と同じ行（返事の長さを変えない） */
+.mt-bub .mt-kr-foot{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:6px; }
+.mt-bub .mt-kr-foot > .mt-copy{ order:3; margin:0 0 0 auto; }
+.mt-bub .mt-kr-foot > .mt-kr-tog{ order:2; }
+.mt-bub .mt-kr-foot .mt-kr-in, .mt-bub .mt-kr-foot .mt-kr-tb, .mt-bub .mt-kr-foot .mt-kr-note{ display:none; }
+.mt-bub .mt-kr-foot .mt-kr-lab{ font-size:.8rem; font-weight:700; color:#5b6470; line-height:1.4; white-space:nowrap; }
+.mt-bub .mt-kr-foot .mt-kr-rl{ min-width:0; white-space:nowrap; }
+.mt-bub .mt-kr-foot button.mt-kr-b{ white-space:nowrap; }
+.mt-bub .mt-kr-foot .mt-kr-chev{ font-size:.78em; transition:transform .15s ease; }
+/* 1行に入るとき（全て＝fits・一部＝part）と、幅を測るあいだ（meas） */
+.mt-bub .mt-kr-foot.mt-kr-fits .mt-kr-in, .mt-bub .mt-kr-foot.mt-kr-part .mt-kr-in, .mt-bub .mt-kr-foot.mt-kr-meas .mt-kr-in,
+.mt-bub .mt-kr-foot.mt-kr-fits .mt-kr-grp, .mt-bub .mt-kr-foot.mt-kr-part .mt-kr-grp, .mt-bub .mt-kr-foot.mt-kr-meas .mt-kr-grp{ display:contents; }
+.mt-bub .mt-kr-foot.mt-kr-fits > .mt-kr-tog{ display:none; }
+.mt-bub .mt-kr-foot.mt-kr-part .mt-kr-ta, .mt-bub .mt-kr-foot.mt-kr-meas .mt-kr-ta{ display:none; }
+.mt-bub .mt-kr-foot.mt-kr-part .mt-kr-tb, .mt-bub .mt-kr-foot.mt-kr-meas .mt-kr-tb{ display:inline; }
+.mt-bub .mt-kr-foot.mt-kr-part .mt-kr-hid, .mt-bub .mt-kr-foot.mt-kr-part .mt-kr-grp.mt-kr-gh{ display:none; }
+.mt-bub .mt-kr-foot.mt-kr-meas{ flex-wrap:nowrap; overflow:hidden; }
+.mt-bub .mt-kr-foot.mt-kr-meas > *, .mt-bub .mt-kr-foot.mt-kr-meas .mt-kr-in > *, .mt-bub .mt-kr-foot.mt-kr-meas .mt-kr-grp > *{ flex-shrink:0; }
+/* 開いたとき＝札を下に段で並べる */
+.mt-bub .mt-kr-foot.mt-kr-open .mt-kr-in{ display:flex; flex-direction:column; gap:8px; order:4; flex:1 0 100%; margin-top:2px; padding-top:10px; border-top:1px solid #dfe6e2; }
+.mt-bub .mt-kr-foot.mt-kr-open .mt-kr-grp{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+.mt-bub .mt-kr-foot.mt-kr-open .mt-kr-rl{ min-width:5.4em; }
+.mt-bub .mt-kr-foot.mt-kr-open .mt-kr-lab{ display:none; }
+.mt-bub .mt-kr-foot.mt-kr-open .mt-kr-note{ display:block; font-size:.8rem; line-height:1.5; color:#5b6470; }
+.mt-bub .mt-kr-foot.mt-kr-open button.mt-kr-b{ white-space:normal; }
+.mt-bub .mt-kr-foot.mt-kr-open .mt-kr-chev{ transform:rotate(180deg); }
+@media (max-width:520px){
+  .mt-bub .mt-kr-row{ display:grid; grid-template-columns:2.4em minmax(0,1fr) minmax(0,1fr); gap:8px; align-items:stretch; }
+  .mt-bub .mt-kr-rl{ min-width:0; align-self:center; }
+  .mt-bub .mt-kr-rl .mt-kr-lw{ display:none; }
+  .mt-bub .mt-kr-rl .mt-kr-ls{ display:inline; }
+  .mt-bub button.mt-kr-b{ padding:6px 10px; font-size:.84rem; border-radius:14px; gap:6px; }
+  .mt-bub .mt-kr-row button.mt-kr-b:nth-of-type(n+3){ display:none; }
+  .mt-bub .mt-kr-row button.mt-kr-b:only-of-type{ grid-column:2 / -1; }   /* 札が1つだけの行は行いっぱい（半分の幅で「耐震と／ハザード」と2行になり、右が空いた。2026-10-31） */
+  .mt-bub .mt-kr-row button.mt-kr-term{ grid-column:2 / -1; }          /* 「辞書で『◯◯』を開く」は行いっぱい。同じ行のほかの言葉は開いた辞書から */
+  .mt-bub .mt-kr-row button.mt-kr-term ~ button.mt-kr-b{ display:none; }
+  .mt-bub .mt-kr-foot.mt-kr-open .mt-kr-rl{ min-width:2.4em; }
+}
+@media print{ .mt-bub .mt-kr, .mt-bub .mt-kr-tog, .mt-bub .mt-kr-in{ display:none !important; } }
+</style>
+<script>
+(function(){
+  'use strict';
+  var VER = 'b00808e385';   /* MTKANREN-VER（mt-kanren.js の版） */
+  if(!VER || typeof mtAnswer !== 'function' || typeof mtAdd !== 'function' || typeof mtSanitize !== 'function') return;
+  if(document.getElementById('tk-app') || (typeof MT_KEY === 'string' && /taiken/.test(MT_KEY))) return;   /* 体験版には出さない */
+  if(/\.html$/.test(location.pathname) && !/\/index\.html$/.test(location.pathname)) return;               /* 手元の控え（保険AI師匠.html）には出さない */
+  var CO = (typeof MT_HUB_URL === 'string' && MT_HUB_URL === '../');   /* 会社フォルダ（管理画面がフォルダの頭）では、学習ツールは一つ上 */
+  var GAKU = CO ? '../../' : '../', JISHO = '../hoken-jisho/';
+  var ID_RE = /^[a-z0-9][a-z0-9-]{0,60}$/, W_RE = /^[^<>"]{1,60}$/;
+  function E(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
+  function own(o, k){ return !!o && Object.prototype.hasOwnProperty.call(o, k); }
+  /* 言葉のそろえ方（辞書のページ hoken-jisho の nz と同じ。★片方だけ直さない） */
+  function nz(s){
+    s = String(s || '');
+    try{ s = s.normalize('NFKC'); }catch(e){}
+    s = s.toLowerCase().replace(/[ァ-ヶ]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) - 0x60); });
+    return s.replace(/[\s・･（）()「」『』、。,.\-ー－〜~]/g, '');
+  }
+  function fnv(k){ var h = 0x811c9dc5; for(var i = 0; i < k.length; i++){ h ^= k.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; } return h; }
+
+  /* ---------- データ（起動が終わってから裏で読む。読めなければ何も足さない） ---------- */
+  var D = null, ST = 0, PG = {}, SH = {}, SS = {};
+  window.__mtKanrenTake = function(d){
+    if(!d || d.v !== 1 || !d.n || !d.jv || !Array.isArray(d.pg) || !Array.isArray(d.wd) || !d.fq) return;
+    D = d; PG = {}; d.pg.forEach(function(x){ if(x && ID_RE.test(x[0])) PG[x[0]] = String(x[1] || ''); });
+  };
+  window.__mtJishoTake = function(i, o){ if(typeof i === 'number' && o && typeof o === 'object') SH[i] = o; };
+  function addScript(src, ok, ng){
+    var s = document.createElement('script'); s.src = src; s.async = true;
+    try{ s.fetchPriority = 'low'; }catch(e){}
+    s.onload = ok; s.onerror = ng;
+    (document.head || document.documentElement).appendChild(s);
+  }
+  function loadData(){
+    if(ST) return; ST = 1;
+    addScript('mt-kanren.js?v=' + VER, function(){ ST = D ? 2 : 3; kick(); }, function(){ ST = 3; kick(); });
+  }
+  function shard(i){
+    if(SS[i]) return; SS[i] = 1;
+    addScript('mt-jisho/' + i + '.js?v=' + D.jv, function(){ SS[i] = own(SH, i) ? 2 : 3; kick(); }, function(){ SS[i] = 3; kick(); });
+  }
+  /* 言葉を引く。undefined＝まだ読み込み中／null＝辞書に無い／中身 */
+  function look1(k){
+    var i = fnv(k) % D.n;
+    if(SS[i] !== 2){ if(!SS[i]) shard(i); return SS[i] === 3 ? null : undefined; }
+    return own(SH[i], k) ? SH[i][k] : null;
+  }
+  function look(t){
+    if(ST === 3) return null;
+    if(ST !== 2) return undefined;
+    var k = nz(t); if(k.length < 2 && !/^[\u4e00-\u9fff]$/.test(k)) return null;
+    var v = look1(k);
+    if(typeof v === 'string'){ var k2 = nz(v); v = (k2.length >= 2 || /^[\u4e00-\u9fff]$/.test(k2)) ? look1(k2) : null; }
+    if(v === undefined || v === null) return v;
+    return (typeof v === 'object' && typeof v.w === 'string' && typeof v.m === 'string') ? v : null;
+  }
+  function find(t){
+    var r = look(t);
+    if(r === null){ var y = ''; try{ y = mtYomi(t); }catch(e){} if(y && y !== t) r = look(y); }
+    return r;
+  }
+
+  /* ---------- 問いから言葉を取り出す ---------- */
+  var DEF_RE = /^(?:そもそも|ところで|ちなみに)?[、,\s]*(.+?)\s*(?:とは(?:何|なに|なん)?(?:です|でしょう)?か?|とは(?:どういう|どんな)(?:意味|こと|もの)(?:です|でしょう)?か?|って(?:何|なに|なん)(?:です|でしょう)?か?|って(?:どういう|どんな)(?:意味|こと|もの)(?:です|でしょう)?か?|の意味(?:は|を教えて(?:ください)?|って何(?:ですか)?)?|って)[?？。!！\s]*$/;
+  function clean(t){ return String(t || '').replace(/^[「『"'“”]+|[」』"'“”]+$/g, '').trim(); }
+  function defTerm(q){
+    var s = String(q || '').trim(); try{ s = s.normalize('NFKC'); }catch(e){}
+    var m = DEF_RE.exec(s); if(!m) return '';
+    var t = clean(m[1]);
+    return ((t.length >= 2 || /^[\u4e00-\u9fff]$/.test(t)) && t.length <= 24 && !/[。、?!！？\s]/.test(t)) ? t : '';
+  }
+  function bareTerm(q){
+    var s = String(q || '').trim(); try{ s = s.normalize('NFKC'); }catch(e){}
+    s = clean(s.replace(/[?？。!！]+$/, ''));
+    return (s.length >= 2 && s.length <= 20 && !/[。、,.?!！？\s]/.test(s)) ? s : '';
+  }
+
+  /* ---------- 答えの見分け ---------- */
+  var SAFE = [];
+  try{ Object.keys(MT_OKURI_SAFE).forEach(function(k){ var o = MT_OKURI_SAFE[k] || {}; Object.keys(o).forEach(function(j){ if(typeof o[j] === 'string' && o[j].length >= 8) SAFE.push(o[j]); }); }); }catch(e){}
+  var NO_NEAR = /mt-near-lead/, NO_LOW = /まだ決まった答えを持っていな|ここには入っていな/, NO_TANGO = /ひと言だけだと/;
+  var NO_GEN = /当たるものが見つかりませんでした|当たるもんが見つからん|的が絞れ|もう少しだけ場面を教えて|決めきれ|型と重なる言葉が無かった|こっちの型と重なる/;
+  function txt(h){ return String(h || '').replace(/<[^>]*>/g, ' ').replace(/&[a-z#0-9]+;/gi, ' '); }
+  function noAns(h){
+    if(NO_NEAR.test(h)) return 'near';
+    if(NO_LOW.test(h)) return 'low';
+    var head = txt(h).replace(/\s+/g, '').slice(0, 260);
+    if(NO_TANGO.test(head)) return 'tango';
+    if(NO_GEN.test(head)) return 'gen';
+    return '';
+  }
+
+  /* ---------- 答えを組み立てる関数を包む ---------- */
+  var depth = 0, FL = {}, JOBS = {}, JN = 0;
+  ['mtSmallTalkHTML', 'mtHiroiSelfHTML', 'mtZatsuHTML', 'mtAboutHTML', 'mtKiteiHTML'].forEach(function(n){
+    var f = window[n]; if(typeof f !== 'function') return;
+    window[n] = function(){ var r = f.apply(this, arguments); if(r && depth > 0) FL.ex = 1; return r; };
+  });
+  function job(q, h, P){
+    h = String(h || '');
+    if(!h || FL.ex) return null;
+    if(/mt-net|いのちの電話|119番|<span class="mt-src">社内規定/.test(h)) return null;
+    for(var i = 0; i < SAFE.length; i++) if(h.indexOf(SAFE[i]) >= 0) return null;
+    var t = String(q || '');
+    try{ if(typeof mtIsCrisis === 'function' && mtIsCrisis(mtNorm(mtYomi(t)))) return null; }catch(e){}
+    var key = ''; try{ key = String(mtJoLastKey || ''); }catch(e){}
+    try{ if(key && MT_SENJIN_JO_SKIP.indexOf(key) >= 0) return null; }catch(e){}
+    var faq = /^faq_/.test(key) ? key : '', term = defTerm(t), bare = term ? '' : bareTerm(t);
+    if(!faq && !term && !bare) return null;
+    var tone = 'shisho'; try{ tone = mtTone(P || mtP()); }catch(e){}
+    var no = noAns(h);
+    if(key && (no === 'gen' || no === 'low')) no = '';   /* 受け皿・よくある問いで答えたときは、中の言い回しで「答えが無い」と見ない */
+    /* 待つのは長くて＝「とは」1.5秒・よくある問い0.8秒・言葉だけ0.6秒（返事はもともと0.5〜1.2秒あとに出るので、ふだんは待たない） */
+    return { faq:faq, jo:!!key, jk:key, term:term, bare:bare, tone:tone, no:no, t:Date.now(), lim:term ? 1500 : (faq ? 800 : 600) };
+  }
+  var baseAnswer = mtAnswer;
+  mtAnswer = function(q, P, o){
+    if(depth > 0) return baseAnswer.apply(this, arguments);
+    depth++; FL = {};
+    try{ mtJoLastKey = ''; }catch(e){}
+    var h;
+    try{ h = baseAnswer.apply(this, arguments); }
+    finally{ depth--; }
+    try{
+      var j = job(q, h, P);
+      if(j){ var n = ++JN; JOBS[n] = j; h = String(h) + '<!--MTKR:' + n + '-->'; loadData(); ready(j); }
+    }catch(e){}
+    return h;
+  };
+  function ready(j){
+    if(ST === 3) return true;
+    if(ST !== 2) return false;
+    var t = j.term || j.bare;
+    return !t || find(t) !== undefined;
+  }
+
+  /* ---------- 「あわせて見る」と、辞書の意味の答え ---------- */
+  function rowLab(w, s){ return '<span class="mt-kr-rl"><span class="mt-kr-lw">' + E(w) + '</span><span class="mt-kr-ls">' + E(s) + '</span></span>'; }
+  function gBtn(id){ return '<button type="button" class="mt-kr-b mt-kr-g" data-mtkg="' + E(id) + '"><i class="fa-solid fa-graduation-cap"></i><span class="mt-kr-t">' + E(PG[id]) + '</span></button>'; }
+  function wBtn(w, label){ return '<button type="button" class="mt-kr-b mt-kr-w' + (label ? ' mt-kr-term' : '') + '" data-mtkw="' + E(w) + '"><i class="fa-solid fa-book"></i><span class="mt-kr-t">' + E(label || w) + '</span></button>'; }
+  /* 出す札を選ぶ＝学習ツール3つまで・辞書3つまで（「辞書で『◯◯』を開く」が先頭） */
+  function pick(gk, ws, term){
+    var seen = {}, w = [];
+    gk = (gk || []).filter(function(id){ if(seen[id] || !ID_RE.test(id) || !own(PG, id)) return false; seen[id] = 1; return true; }).slice(0, 3);
+    if(term && W_RE.test(term)){ w.push(wBtn(term, '辞書で『' + term + '』を開く')); seen['w:' + term] = 1; }
+    (ws || []).forEach(function(x){ if(w.length < 3 && W_RE.test(x) && !seen['w:' + x]){ seen['w:' + x] = 1; w.push(wBtn(x)); } });
+    return { g:gk.map(gBtn), w:w };
+  }
+  /* 辞書の意味で答えたとき＝答えの中に段で並べて見せる */
+  function block(gk, ws, term){
+    var s = pick(gk, ws, term);
+    if(!s.g.length && !s.w.length) return '';
+    var h = '<span class="mt-kr mt-kr-x"><span class="mt-kr-cap">' + E('あわせて見る（別の画面で開きます）') + '</span>';
+    if(s.g.length) h += '<span class="mt-kr-row">' + rowLab('学習ツール', '学習') + s.g.join('') + '</span>';
+    if(s.w.length) h += '<span class="mt-kr-row">' + rowLab('辞書', '辞書') + s.w.join('') + '</span>';
+    return h + '</span>';
+  }
+  /* ふだんの返事＝いちばん下の「コピー」と同じ行に、入るだけ札を並べる（返事を長くしない）。
+     入らない分は「ほか◯件」、1つも入らない幅では「あわせて見る（n）」の札だけにして、押すと下に開く */
+  function foot(gk, ws, term){
+    var s = pick(gk, ws, term), n = s.g.length + s.w.length;
+    if(!n) return '';
+    var gG = s.g.length ? '<span class="mt-kr-grp">' + rowLab('学習ツール', '学習') + s.g.join('') + '</span>' : '';
+    var gW = s.w.length ? '<span class="mt-kr-grp">' + rowLab('辞書', '辞書') + s.w.join('') + '</span>' : '';
+    var h = '<span class="mt-kr-foot"><button type="button" class="mt-kr-b mt-kr-tog mt-kr-x"><i class="fa-solid fa-book-open"></i><span class="mt-kr-t">'
+      + '<span class="mt-kr-ta">' + E('あわせて見る（' + n + '）') + '</span><span class="mt-kr-tb">' + E('ほか') + '<span class="mt-kr-tn">' + n + '</span>' + E('件') + '</span>'
+      + '</span><i class="fa-solid fa-chevron-down mt-kr-chev"></i></button>';
+    h += '<span class="mt-kr-in mt-kr-x"><span class="mt-kr-lab">' + E('あわせて見る') + '</span>';
+    h += term ? gW + gG : gG + gW;   /* 言葉を聞かれたときは「辞書で『◯◯』を開く」を先に */
+    h += '<span class="mt-kr-note">' + E('別の画面で開きます。') + '</span>';
+    return h + '</span></span>';
+  }
+  function hasTerm(h, e, t){
+    var s = nz(txt(h));
+    return [e.w, t].some(function(w){ var k = nz(w); return k.length >= 2 && s.indexOf(k) >= 0; });
+  }
+  /* よくある問い・受け皿で答えたとき、その答えの代表の問い（q）に聞いた言葉が入っていれば、その言葉を扱う答えと見る（2026-10-31）。
+     見つからない・読めないときは前のまま（師匠の答えを残す）。q を持たない受け皿は、答えの中に言葉があるかだけで見る */
+  function qHas(k, e, t){
+    if(!k) return true;
+    var it = null;
+    try{ for(var i = 0; i < MT_JOUSHIKI.length; i++) if(MT_JOUSHIKI[i] && MT_JOUSHIKI[i].key === k){ it = MT_JOUSHIKI[i]; break; } }catch(x){ return true; }
+    if(!it) return true;
+    var s = nz(it.q || '');
+    return !!s && [e.w, t].some(function(w){ var z = nz(w); return z.length >= 2 && s.indexOf(z) >= 0; });
+  }
+  function dictHTML(e, z, t){
+    /* 聞かれた言葉と辞書の見出しが違うとき（路線価→相続税路線価）は、取り違えたように読めないよう一言添える */
+    var al = (t && nz(t) !== nz(e.w) && !/診断|クイズ|TOT|ＴＯＴ|引用|見立て|部下/.test(t)) ? (z ? '「' + t + '」は、辞書では「' + e.w + '」として載っています。' : '「' + t + '」は、辞書では「' + e.w + '」として載っている。') : '';
+    var h = '<span class="mt-note mt-kr-lead">' + E((z ? '決まった答えはまだ持っていません。お金の言葉の辞書の説明をお出しします。'
+                                                    : '決まった答えはまだ持っていない。お金の言葉の辞書の説明を出す。') + al) + '</span>';
+    h += '<span class="mt-h">' + E('「' + e.w + '」の意味') + '</span>';
+    h += '<span class="mt-kr-mean">' + E(e.m) + '</span>';
+    if(e.k) h += '<span class="mt-guard"><b>' + E('ここは確認が必要です') + '</b>' + E(e.k) + '</span>';
+    h += '<span class="mt-src">' + E('出どころ：お金の言葉の辞書' + (e.c ? '（' + e.c + '）' : '') + '。意味は一般的な説明です。') + '</span>';
+    return h;
+  }
+  function decorate(j, before){
+    if(ST !== 2 || !D) return before;
+    var gk = [], ws = [], f = own(D.fq, j.faq) ? D.fq[j.faq] : null;
+    if(f){
+      gk = (f[0] || []).map(function(i){ return D.pg[i] && D.pg[i][0]; }).filter(Boolean);
+      ws = (f[1] || []).map(function(i){ return D.wd[i]; }).filter(function(w){ return typeof w === 'string'; });
+    }
+    var t = j.term || j.bare, e = t ? find(t) : null;
+    if(!e || typeof e !== 'object') e = null;
+    /* ★2026-10-31：よくある問い・受け皿で答えても、答えの中にも代表の問いにも聞いた言葉が無ければ、取り違えと見て辞書の意味を先に出し、答えは「近い答えも見る」に畳む
+       （「耐震等級とは？」に自動車保険の等級、「準確定申告とは？」に確定申告、「ステントグラフト内挿術とは？」にグラフの見せ方を返していた） */
+    if(e && j.term && !e.x && (j.no || (!hasTerm(before, e, j.term) && (!j.jo || !qHas(j.jk, e, j.term))))){
+      var fold = (j.no === 'near' || j.no === 'tango' || !j.no);
+      var h = dictHTML(e, j.tone === 'zsedai', j.term) + block(e.g, e.r, e.w);
+      if(fold) h += '<details class="mt-more mt-kr-fold"><summary>' + E('近い答えも見る') + '</summary>' + before + '</details>';
+      else{ try{ mtPend = null; }catch(x){} try{ if(mtLast) mtLast.faq = ''; }catch(x){} }
+      return h;
+    }
+    if(!gk.length && e && e.g) gk = e.g;
+    return before + foot(gk, ws, (e && e.x !== 2) ? e.w : '');
+  }
+  /* 描いたあと＝「コピー」を同じ行へ移し、その1行に入るだけ札を並べる（描き直し・幅が変わったときも） */
+  function wd(x){ return x ? x.getBoundingClientRect().width : 0; }
+  function each(f, sel, fn){ [].slice.call(f.querySelectorAll(sel)).forEach(fn); }
+  function fit(f){
+    if(!f || !f.isConnected) return;
+    var cl = f.classList;
+    if(cl.contains('mt-kr-open')) return;
+    cl.remove('mt-kr-fits', 'mt-kr-part');
+    each(f, '.mt-kr-hid, .mt-kr-gh', function(x){ x.classList.remove('mt-kr-hid', 'mt-kr-gh'); });
+    var W = wd(f); f.__mtkrW = W;
+    if(!W) return;                                   /* まだ見えていない＝「あわせて見る（n）」の札のまま（見えたら測り直す） */
+    var chips = [].slice.call(f.querySelectorAll('.mt-kr-in .mt-kr-b')), n = chips.length;
+    if(!n) return;
+    var G = 8, tg = f.querySelector('.mt-kr-tog'), tn = f.querySelector('.mt-kr-tn');
+    cl.add('mt-kr-meas');                            /* 1行のまま全ての幅を測る（高さは変えない） */
+    var base = wd(f.querySelector('.mt-kr-lab')) + G + wd(f.querySelector('.mt-copy')), tgw = G + wd(tg);
+    var cw = chips.map(function(x){ return G + wd(x); });
+    var rw = chips.map(function(x, i){ var g = x.parentNode; return (i && chips[i - 1].parentNode === g) ? 0 : G + wd(g.querySelector('.mt-kr-rl')); });
+    cl.remove('mt-kr-meas');
+    function need(k){ var s = base; for(var i = 0; i < k; i++) s += cw[i] + rw[i]; return s + (k < n ? tgw : 0); }
+    function put(k){
+      cl.remove('mt-kr-fits', 'mt-kr-part');
+      each(f, '.mt-kr-hid, .mt-kr-gh', function(x){ x.classList.remove('mt-kr-hid', 'mt-kr-gh'); });
+      if(!k) return;
+      if(k >= n){ cl.add('mt-kr-fits'); return; }
+      cl.add('mt-kr-part');
+      chips.forEach(function(x, i){ if(i >= k) x.classList.add('mt-kr-hid'); });
+      each(f, '.mt-kr-grp', function(g){ if(!g.querySelector('.mt-kr-b:not(.mt-kr-hid)')) g.classList.add('mt-kr-gh'); });
+      if(tn) tn.textContent = String(n - k);
+    }
+    var k = n;
+    while(k > 0 && need(k) > W - 2) k--;
+    put(k);
+    while(k > 0 && f.getBoundingClientRect().height > 62){ k--; put(k); }   /* 丸めの差で2行になったら1つ減らす */
+  }
+  function tidy(d, now){
+    try{
+      var bb = d && d.querySelector ? d.querySelector('.chat-bubble') : null; if(!bb) return;
+      var f = bb.querySelector('.mt-kr-foot'); if(!f) return;
+      var cp = bb.querySelector('.mt-copy');
+      if(cp && cp.parentNode !== f) f.appendChild(cp);
+      var tg = f.querySelector('.mt-kr-tog'); if(tg) tg.setAttribute('aria-expanded', f.classList.contains('mt-kr-open') ? 'true' : 'false');
+      if(now !== false) fit(f);
+    }catch(e){}
+  }
+  var RT = 0, BUSY = 0;
+  function fitAll(all){
+    RT = 0;
+    if(mtLog) each(mtLog, '.mt-kr-foot', function(f){ if(all || wd(f) !== f.__mtkrW) fit(f); });
+  }
+  function later(all){ if(RT) return; RT = 1; setTimeout(function(){ fitAll(all === true); }, 120); }
+
+  /* ---------- 返事を足すところ（データを待つのは長くて1秒ほど。待つあいだは打っている印） ---------- */
+  var baseAdd = mtAdd, WT = null;
+  function add(self, who, html, save){
+    var r = baseAdd.call(self, who, html, save);
+    if(who === 'bot' && mtLog) tidy(mtLog.lastElementChild, !BUSY);
+    return r;
+  }
+  function finish(){
+    if(!WT) return;
+    var w = WT; WT = null;
+    clearTimeout(w.tm);
+    if(w.el && w.el.parentNode) w.el.parentNode.removeChild(w.el);
+    var out; try{ out = decorate(w.j, w.before) + w.after; }catch(e){ out = w.before + w.after; }
+    add(null, w.who, out, w.save);
+  }
+  function kick(){
+    Object.keys(JOBS).forEach(function(n){ var j = JOBS[n]; if(Date.now() - j.t > 60000) delete JOBS[n]; else ready(j); });
+    if(WT && ready(WT.j)) finish();
+  }
+  mtAdd = function(who, html, save){
+    if(WT) finish();
+    if(who !== 'bot' || typeof html !== 'string' || html.indexOf('<!--MTKR:') < 0) return add(this, who, html, save);
+    var m = /<!--MTKR:(\d+)-->/.exec(html);
+    var before = html.slice(0, m.index).replace(/<!--MTKR:\d+-->/g, ''), after = html.slice(m.index + m[0].length).replace(/<!--MTKR:\d+-->/g, '');
+    var j = JOBS[m[1]]; delete JOBS[m[1]];
+    if(!j || save === false) return add(this, who, before + after, save);
+    if(ready(j)){ var out; try{ out = decorate(j, before) + after; }catch(e){ out = before + after; } return add(this, who, out, save); }
+    var el = document.createElement('div'); el.className = 'chat-msg bot';
+    try{ el.innerHTML = mtAvaHTML() + '<div class="chat-bubble mt-bub"><span class="typing"><span></span><span></span><span></span></span></div>'; }catch(e){}
+    if(mtLog){ mtLog.appendChild(el); mtLog.scrollTop = mtLog.scrollHeight; }
+    WT = { who:who, save:save, j:j, before:before, after:after, el:el, tm:setTimeout(finish, Math.max(0, j.lim - (Date.now() - j.t))) };
+  };
+  if(typeof mtRenderLog === 'function'){
+    var baseRender = mtRenderLog;
+    mtRenderLog = function(){
+      if(WT) finish();
+      BUSY++;
+      try{ return baseRender.apply(this, arguments); }
+      finally{ BUSY--; if(!BUSY) fitAll(true); }   /* 描き直しは、描き終わってからまとめて測る */
+    };
+  }
+  /* 「コピー」には入れない（あわせて見るの札と、畳んだ近い答え） */
+  if(typeof mtCopyReply === 'function'){
+    var baseCopy = mtCopyReply;
+    mtCopyReply = function(btn){
+      var bb = btn && btn.closest ? btn.closest('.chat-bubble') : null, kept = [];
+      if(bb) [].slice.call(bb.querySelectorAll('.mt-kr-x, .mt-kr-fold')).forEach(function(x){ if(x.parentNode){ kept.push([x, x.parentNode, x.nextSibling]); x.parentNode.removeChild(x); } });
+      try{ return baseCopy.apply(this, arguments); }
+      finally{ kept.reverse().forEach(function(k){ k[1].insertBefore(k[0], k[2]); }); }
+    };
+  }
+  /* 押したとき（名前つきの窓で開く。飛び先はもう一度確かめる） */
+  if(mtLog) mtLog.addEventListener('click', function(ev){
+    var tg = ev.target && ev.target.closest ? ev.target.closest('.mt-kr-tog') : null;
+    if(tg && mtLog.contains(tg)){
+      var f = tg.closest('.mt-kr-foot'); if(!f) return;
+      var op = !f.classList.contains('mt-kr-open');
+      if(op){
+        f.classList.remove('mt-kr-fits', 'mt-kr-part');
+        each(f, '.mt-kr-hid, .mt-kr-gh', function(x){ x.classList.remove('mt-kr-hid', 'mt-kr-gh'); });
+      }
+      f.classList.toggle('mt-kr-open', op); tg.setAttribute('aria-expanded', op ? 'true' : 'false');
+      if(!op) fit(f);
+      return;
+    }
+    var b = ev.target && ev.target.closest ? ev.target.closest('[data-mtkg], [data-mtkw]') : null;
+    if(!b || !mtLog.contains(b)) return;
+    var url = '', name = '', v;
+    if(b.hasAttribute('data-mtkg')){ v = b.getAttribute('data-mtkg'); if(!ID_RE.test(v)) return; url = GAKU + v + '/'; name = 'katatsugi-gaku'; }
+    else{ v = b.getAttribute('data-mtkw'); if(!W_RE.test(v)) return; url = JISHO + '#w=' + encodeURIComponent(v); name = 'katatsugi-jisho'; }
+    var w = null; try{ w = window.open(url, name); }catch(e){}
+    if(w){ try{ w.focus(); }catch(e){} }
+  });
+  /* 会話の枠の幅が変わったら（画面の回転・窓の大きさ・板を開いたとき）測り直す */
+  try{ if(window.ResizeObserver && mtLog) new ResizeObserver(function(){ later(false); }).observe(mtLog); else window.addEventListener('resize', function(){ later(false); }); }catch(e){}
+  try{
+    if(document.fonts){
+      if(document.fonts.ready) document.fonts.ready.then(function(){ later(true); });
+      if(document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', function(){ later(true); });   /* 絵の文字（アイコン）が届くと札の幅が変わる */
+    }
+  }catch(e){}
+  /* 起動のときに描いた会話（開き直したときの保存した返事）にも、同じ手当てをする */
+  try{ if(mtLog){ each(mtLog, '.chat-msg.bot', function(d){ tidy(d, false); }); fitAll(true); } }catch(e){}
+  if(window.requestIdleCallback) window.requestIdleCallback(loadData, { timeout:2000 }); else setTimeout(loadData, 300);
+})();
+</script>
+<!-- MTKANREN-END -->
 <!-- MTROLE-JS-BEGIN ★2026-10-16 ロープレの相手役・新人の30日の道すじ（apply_mentor_role.py が書く。手で直さない） -->
 <script>
 (function(){

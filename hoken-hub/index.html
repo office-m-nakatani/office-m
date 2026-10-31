@@ -1145,6 +1145,35 @@ body.comp-open #admin .wrap{max-width:1360px;}
 .ts-row .ts-go.pend{color:var(--muted);}
 .ts-none{background:var(--white);border:1px dashed var(--line);border-radius:14px;padding:var(--sp-5);
   text-align:center;color:var(--muted);font-size:var(--fs-sm);line-height:var(--lh-base);}
+/* 辞書の言葉・AI師匠に聞く（2026-10-29 kanren/SPEC.md 4章）。学習ツール・辞書・AI師匠のまとまりごとに見出しを立てる。
+   辞書の行は辞書のカードと同じ藍、AI師匠の行は師匠のカードと同じ琥珀の札。行は <a>（押すと別の画面で開く） */
+a.ts-row{text-decoration:none;color:inherit;}
+.ts-row.r-jisho .ts-chip{background:#efedf8;color:#4b4390;}
+.ts-row.r-mentor .ts-chip{background:var(--amber-bg);color:#8a6410;}
+.ts-blk{margin-top:var(--sp-6);scroll-margin-top:16px;}
+.ts-blk:first-child,.ts-count + .ts-blk,.ts-jumps + .ts-blk{margin-top:0;}
+.ts-blk-h{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;font-family:var(--mincho);font-size:var(--fs-lg);
+  font-weight:700;color:var(--navy);letter-spacing:.04em;line-height:var(--lh-tight);margin:0 0 var(--sp-2);}
+.ts-blk-h small{font-family:inherit;font-size:var(--fs-sm);font-weight:700;color:var(--muted);letter-spacing:0;}
+.ts-blk-h:focus{outline:none;}
+.ts-blk-h:focus-visible{outline:3px solid var(--navy-2);outline-offset:3px;}
+.ts-blk-n{font-size:var(--fs-sm);color:var(--muted);line-height:1.6;margin:0 0 var(--sp-3);max-width:44em;}
+.ts-blk .ts-none{margin-bottom:var(--sp-3);}
+.ts-blk-more,.ts-jump{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:8px 18px;border-radius:999px;
+  border:1px solid var(--line);background:var(--white);color:var(--navy-2);font-family:inherit;font-size:var(--fs-sm);
+  font-weight:700;cursor:pointer;transition:.15s;}
+.ts-blk-more{margin-top:var(--sp-3);border-style:dashed;}
+.ts-blk-more:hover,.ts-jump:hover{border-color:#cfe0ec;background:var(--navy-soft);}
+.ts-jump svg{width:14px;height:14px;}
+.ts-jumps{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 var(--sp-4);}
+.ts-kn-note{font-size:var(--fs-sm);color:var(--muted);margin-top:var(--sp-5);line-height:1.6;}
+.ts-kn-note .ts-blk-more{margin:0 0 0 8px;}
+/* 結果の短い文（見出し・副題・説明の一行・件数）は、語の途中で折らない（Chrome・Edge は語句の切れ目で折る。長い説明 .ts-sub は今までどおり） */
+.ts-res .ts-row .ts-h,.ts-res .ts-row .ts-sub2,.ts-blk-n,.ts-kn-note{word-break:auto-phrase;overflow-wrap:anywhere;}
+.ts-count .ts-ci{white-space:nowrap;}
+@media(min-width:760px){ .ts-list2{grid-template-columns:repeat(2,minmax(0,1fr));} }
+/* 携帯では師匠の顔もほかの絵と同じ大きさに（後ろの .ts-row .ts-art svg.hub-mtface{44px} に負けないよう、強さで勝つ） */
+@media(max-width:480px){ .ts-res .ts-row .ts-art svg.hub-mtface{width:34px;height:34px;} }
 /* スマホでは見出しの文字に幅を回す（アイコンと「開く」を小さめに） */
 @media(max-width:480px){
   .ts-row{padding:11px 13px;gap:var(--sp-2);}
@@ -1331,6 +1360,9 @@ svg.hub-mtface{clip-path:circle(50% at 50% 50%);}
 .training-banner.b-amber .t-go{color:#8a6410;}
 .training-banner.b-navy{background:linear-gradient(160deg,#eaf1f7 0%,#fff8f2 70%);border-color:#c9dbe8;}
 .training-banner.b-navy .t-go{color:var(--navy-2);}
+/* お金の言葉の辞書（2026-10-29）。隣の100本ノック（紺）・営業カレンダー（空色）と分けて藍にする */
+.training-banner.b-indigo{background:linear-gradient(160deg,#efedf8 0%,#fff8f2 70%);border-color:#d9d4ef;}
+.training-banner.b-indigo .t-go{color:#4b4390;}
 /* 公開URLがまだ無いとき（Web上では開けない）の表示 */
 .training-banner .t-soon{display:inline-flex;align-items:center;gap:7px;font-size:var(--fs-base);font-weight:700;
   color:var(--amber);white-space:nowrap;}
@@ -1914,6 +1946,15 @@ body.comp-open #admin .wrap > #hokanNag.bk-nag{display:flex !important;}
           <span class="t-body"><h3>代理店コンプライアンス100本ノック</h3>
           <p>代理店の実務ルール100問。意向把握・比較推奨・告知・乗換募集など。監査で聞かれることと、用意しておく証拠92件の一覧つき。</p></span>
           <span class="t-go" id="compGo"></span>
+        </div>
+        <!-- お金の言葉の辞書（2026-10-29 ユーザー指示「AI師匠、ライフプランツールの辞書など、今ある保険ツール内と関連を持たせれるようにしてください」。kanren/SPEC.md 2章・4章）。
+             中身はライフプランの辞書と同じデータ（lifeplan/vendor/lpjisho-data.js）を読む単独ページ（office-m/hoken-jisho・正本 保険お金の言葉の辞書.html）。
+             会社フォルダでは make_agency.py が行き先（INHOUSE の url）をフォルダの中へ差し替える。言葉の数は画面に書かない（足すたびに直さない） -->
+        <div class="training-banner b-indigo" id="jishoBanner" tabindex="0" role="button" aria-label="お金の言葉の辞書を開く">
+          <span class="t-art"><svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#efedf8"/><path d="M15 13h21a7 7 0 0 1 7 7v29H22a7 7 0 0 1-7-7Z" fill="#fffdf8" stroke="#4b4390" stroke-width="2.8" stroke-linejoin="round"/><path d="M15 42a7 7 0 0 1 7-7h21" fill="none" stroke="#4b4390" stroke-width="2.8" stroke-linejoin="round"/><path d="M22 20h13M22 26h9" stroke="#8b83c9" stroke-width="2.6" stroke-linecap="round"/><circle cx="44" cy="43" r="7.5" fill="#fffdf8" stroke="#1b3f5e" stroke-width="2.8"/><path d="m49.5 48.5 5 5" stroke="#1b3f5e" stroke-width="3.4" stroke-linecap="round"/></svg></span>
+          <span class="t-body"><h3>お金の言葉の辞書</h3>
+          <p>お金・税金・保険・不動産から、医療・法律・行政まで、仕事で出会う言葉の意味を引く辞書。言葉ごとに、関係する学習ツールとAI師匠への問いに進めます。</p></span>
+          <span class="t-go" id="jishoGo"></span>
         </div>
         <div class="inhouse-group">数字と顧客を管理する</div>
         <div class="training-banner b-sales" id="salesBanner" tabindex="0" role="button" aria-label="保険営業カレンダーを開く">
@@ -5599,6 +5640,8 @@ var INHOUSE = {
   plan:     { local: '保険目標逆算プランナー.html', url: 'https://office-m-nakatani.github.io/office-m/hoken-gyakusan/' },
   cal:      { local: '保険満期カレンダー.html', url: 'https://office-m-nakatani.github.io/office-m/hoken-calendar/' },
   kokyaku:  { local: '保険顧客管理ツール.html', url: 'https://office-m-nakatani.github.io/office-m/hoken-kokyaku/' },
+  /* お金の言葉の辞書（2026-10-29 kanren/SPEC.md 2章）。#w=<言葉> でその言葉を開く。「言葉でさがす」の辞書の行もここへ行く */
+  jisho:    { local: '保険お金の言葉の辞書.html', url: 'https://office-m-nakatani.github.io/office-m/hoken-jisho/' },
   /* AI師匠は単独ページ（ビルド生成物）。中身の正本は lifeplan/ichijo.html のAI師匠で、
      hoken-mentor-src/build.py が 保険AI師匠.html を作る。ライフプランの中の画面とは保存先を共有する */
   mentor:   { local: '保険AI師匠.html', url: 'https://office-m-nakatani.github.io/office-m/hoken-mentor/' }
@@ -5627,6 +5670,9 @@ var INHOUSE_SEARCH = [
   { key: 'comp', name: '代理店コンプライアンス100本ノック（社内）',
     label: '代理店の実務ルール100問と、監査の想定問答・用意しておく証拠',
     keys: '社内 コンプライアンス コンプラ 法令 保険業法 監査 業務品質 意向把握 比較推奨 情報提供義務 高齢者募集 告知受領権 乗換募集 特別利益 断定的判断 誇大表示 募集文書 個人情報 体制整備 苦情 反社 帳簿' },
+  { key: 'jisho', name: 'お金の言葉の辞書（社内）',
+    label: 'お金・税金・保険・不動産から、医療・法律・行政まで、言葉の意味を引く。言葉ごとに、関係する学習ツールとAI師匠への問いへ',
+    keys: '社内 辞書 用語 用語集 言葉 言葉の意味 意味 調べる 引く 読み方 別の呼び名 計算式 計算のしかた' },
   { key: 'shikaku', name: '保険資格試験トレーニング（社内）',
     label: '生保協会（大学課程まで）・損保（大学課程まで）・FP3〜1級のテキスト＋想定問題6,000問以上／赤文字と赤シート・蛍光ペン・読了の記録／FP1級・CFPのAI相談室',
     keys: '社内 資格 試験 試験対策 問題集 過去問 想定問題 模試 模擬テスト テキスト 教科書 一般課程 専門課程 変額 応用課程 大学課程 損保 基礎単位 商品単位 FP ファイナンシャルプランナー 3級 2級 1級 CFP AFP AI相談 相談 免除 勉強 学習 合格 赤文字 赤シート 蛍光ペン マーカー 線を引く 読了 しおり 続きから 図解' },
@@ -5646,7 +5692,7 @@ function inhousePseudo(s) {
 var INHOUSE_BANNER = {
   cpsec:'kirokuBanner',
   training:'trainingBanner', case:'caseBanner', talk:'talkBanner', comp:'compBanner',
-  shikaku:'shikakuBanner', mentor:'mentorBanner',
+  shikaku:'shikakuBanner', mentor:'mentorBanner', jisho:'jishoBanner',
   sales:'salesBanner', kokyaku:'kokyakuBanner'
 };
 function inhouseArt(id) {
@@ -6504,7 +6550,7 @@ function mbLogHTML() {
 }
 var MB_TOOL_NAME = { 'hoken-sales': '営業カレンダー', 'hoken-kokyaku': '顧客管理', 'hoken-calendar': '満期カレンダー', 'hoken-mentor': 'AI師匠',
   'hoken-training': '保険知識トレーニング', 'hoken-shikaku': '資格試験', 'hoken-kirikaeshi': '切り返し辞典', 'hoken-shiharai': '支払事例',
-  'hoken-compliance': '100本ノック', 'hoken-gyakusan': '目標逆算' };
+  'hoken-compliance': '100本ノック', 'hoken-gyakusan': '目標逆算', 'hoken-jisho': '言葉の辞書' };
 function mbToolName(p) { return MB_TOOL_NAME[p] || p; }
 
 /* IDとパスワードの控え（1度だけ見せる窓）。c＝{ id, pw } */
@@ -8933,18 +8979,15 @@ function renderSearch() {
   });
   var res = document.getElementById('searchRes');
   if (!on) { res.innerHTML = ''; return; }
+  if (!knrState) knrLoad();   /* 探し始めたときに、辞書の言葉とAI師匠の問いの索引を読む（読めたら描き直す） */
 
   var hits = searchHits(q);
-  if (!hits.length) {
-    var near = nearHits(q);
-    res.innerHTML = '<div class="ts-none"><b>「' + esc(q.trim()) + '」の言葉どおりのものは見つかりませんでした。</b><br>' +
-      (near.length ? '似た言葉の入っているものを出しています。違うときは、短い言葉（がん・相続・地震など）でお試しください。'
-                   : '短い言葉（がん・相続・地震など）か、下の「よく使う言葉」でお試しください。') + '</div>' +
-      (near.length ? '<p class="ts-count">似た言葉のもの <b>' + near.length + '件</b></p><div class="ts-list">' + near.map(tsRowHTML).join('') + '</div>' : '');
-    return;
-  }
-  res.innerHTML = '<p class="ts-count">「' + esc(q.trim()) + '」に近いもの <b>' + hits.length + '件</b>　開きたいものを選んでください</p>' +
-    '<div class="ts-list">' + hits.map(tsRowHTML).join('') + '</div>';
+  var kf = knrFind(q);       /* 索引をまだ読んでいなければ null */
+  var extra = kf ? knrToolHits(kf, hits) : [];
+  var near = hits.length ? [] : nearHits(q).filter(function (h) {
+    return !extra.some(function (x) { return x.t.id === h.t.id; });
+  });
+  res.innerHTML = knrResultHTML(q, hits, extra, near, kf);
 }
 function tsRowHTML(h) {
       var ready = toolReady(h.t);
@@ -8968,6 +9011,263 @@ function tsRowHTML(h) {
                  : '<span class="ts-go pend">' + ICO.clock + '準備中</span>') +
         '</span>' +
       '</div>';
+}
+
+/* ------------------------------------------------------------
+   辞書の言葉・AI師匠に聞く（2026-10-29 kanren/SPEC.md 4章）
+   探し始めたとき（検索の欄に焦点が来たとき・言葉を入れたとき）に、軽い索引 kanren-search.js を読む（ふだんの表示では読まない）。
+   索引の正本は hoken-newtools-src/kanren/build_hub_search.py（辞書の言葉・別の呼び名・読み・学習ツールの id・AI師匠の問い）。
+   置き場所＝公開先と会社フォルダ（管理画面が index.html）はこの画面と同じフォルダ、手元の正本（保険ツール管理画面.html）は hoken-hub-kanren/。
+   KNR_VER は索引の版（道具が書き換える。読むときの ?v=）。辞書の行は辞書のページの #w=、AI師匠の行は師匠の #q= を別の画面で開く。
+   探す言葉のそろえ方は学習ツールと同じ（normQ・qAlts）。索引の側は道具が同じそろえ方で書いてある
+   ------------------------------------------------------------ */
+var KNR_VER = '0eeb2841';   /* OMKNRVER */
+var KNR = null, knrState = 0;   /* 0＝まだ 1＝読んでいる 2＝読めた 3＝読めなかった */
+var knrOpen = { q: '', w: false, m: false };
+var KNR_W = 6, KNR_WMAX = 40, KNR_M = 4, KNR_MMAX = 12;
+var KNR_DOWN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>';
+function knrDir() {
+  var p = location.pathname;
+  return (/\.html$/.test(p) && !/\/index\.html$/.test(p)) ? 'hoken-hub-kanren/' : '';
+}
+function knrLoad() {
+  if (knrState === 1 || knrState === 2) return;
+  if (window.KANREN_SEARCH) { knrReady(); return; }
+  knrState = 1;
+  var s = document.createElement('script');
+  s.src = knrDir() + 'kanren-search.js' + (KNR_VER ? '?v=' + KNR_VER : '');
+  s.async = true;
+  s.onload = function () { if (window.KANREN_SEARCH) knrReady(); else { knrState = 3; renderSearch(); } };
+  s.onerror = function () { knrState = 3; if (s.parentNode) s.parentNode.removeChild(s); renderSearch(); };
+  document.head.appendChild(s);
+}
+function knrReady() {
+  var d = window.KANREN_SEARCH || {};
+  try {
+    var C = d.c || [];
+    KNR = {
+      w: (d.w || []).map(function (e, i) {
+        var al = e[3] || [];
+        return { w: e[0], c: C[e[1]] || '', n: e[2] || e[0], al: al,
+                 a: '\n' + al.join('\n') + (e[4] ? '\n' + e[4] : '') + '\n',
+                 y: e[5] || '', g: e[6] || [], q: e[7] || [], i: i };
+      }),
+      q: (d.q || []).map(function (t) { return { t: t, n: normQ(t) }; })
+    };
+    knrState = 2;
+  } catch (err) { KNR = null; knrState = 3; }
+  renderSearch();
+}
+/* 探す言葉を区切って、語ごとに言い方の候補（読みなら漢字も）を並べる。学習ツールの探し方（searchHits）と同じ */
+function knrTerms(q) {
+  return String(q == null ? '' : q).split(/[\s　・,、.。/／]+/).filter(function (w) { return normQ(w); }).map(qAlts);
+}
+/* 辞書の言葉1つと語1つの近さ。見出しそのもの＞別の呼び名そのもの＞読みそのもの＞見出しの頭＞別の呼び名の頭＞途中に入っている。
+   85点以上＝その言葉そのもの（いちばん上に「◯◯とは？」を出す目安）。
+   短い語（ひらがな2字まで）は読みの頭や途中に入っているだけでは拾わない（「がん」で「眼科（がんか）」を出さないため） */
+function knrTermScore(e, alts) {
+  var best = 0;
+  for (var j = 0; j < alts.length; j++) {
+    var t = alts[j], L = t.length, s = 0;
+    if (!L) continue;
+    var kana = /^[ぁ-ゖ]+$/.test(t);
+    if (e.n === t) s = 100;
+    else if (e.a.indexOf('\n' + t + '\n') >= 0) s = 90;
+    else if (e.y && e.y === t) s = 85;
+    else if (e.n.indexOf(t) === 0 && (L >= 2 || !kana)) s = 80;
+    else if (L >= 2 && e.a.indexOf('\n' + t) >= 0) s = 50;
+    else if (L >= 3 && e.y && e.y.indexOf(t) === 0) s = 40;
+    else if ((L >= 2 || !kana) && e.n.indexOf(t) > 0) s = 30;
+    else if (L >= 3 && e.a.indexOf(t) >= 0) s = 20;
+    else if (L >= 3 && e.y && e.y.indexOf(t) > 0) s = 10;
+    if (s > best) best = s;
+  }
+  return best;
+}
+function knrFindW(terms) {
+  var out = [];
+  KNR.w.forEach(function (e) {
+    var sum = 0, min = 999;
+    for (var i = 0; i < terms.length; i++) {
+      var s = knrTermScore(e, terms[i]);
+      if (!s) return;
+      sum += s; if (s < min) min = s;
+    }
+    out.push({ e: e, s: sum / terms.length, min: min });
+  });
+  out.sort(function (a, b) { return b.s - a.s || a.e.n.length - b.e.n.length || a.e.i - b.e.i; });
+  return out;
+}
+/* AI師匠の問い：語が全て入っている問い（入れた言葉か辞書の言葉がそのまま続いているもの・頭に近いもの・短いものを先に）
+   のあとに、当たった辞書の言葉に結びついた問い（索引 kanren.json の言葉ごとの問い）を足す */
+function knrFindQ(terms, wholes, wl) {
+  var out = [], seen = {};
+  KNR.q.forEach(function (x, i) {
+    var pos = -1;
+    for (var k = 0; k < terms.length; k++) {
+      var p = -1;
+      for (var j = 0; j < terms[k].length; j++) {
+        var t = terms[k][j];
+        if (!t) continue;
+        var pp = x.n.indexOf(t);
+        if (pp >= 0 && (p < 0 || pp < p)) p = pp;
+      }
+      if (p < 0) return;
+      if (k === 0) pos = p;
+    }
+    seen[i] = 1;
+    var whole = wholes.some(function (wq) { return wq && x.n.indexOf(wq) >= 0; }) ? 1 : 0;
+    out.push({ i: i, t: x.t, whole: whole, pos: pos, len: x.n.length });
+  });
+  out.sort(function (a, b) { return b.whole - a.whole || a.pos - b.pos || a.len - b.len || a.i - b.i; });
+  wl.slice(0, 3).forEach(function (h) {
+    if (h.min < 80) return;
+    (h.e.q || []).forEach(function (i) {
+      if (seen[i] || !KNR.q[i]) return;
+      seen[i] = 1;
+      out.push({ i: i, t: KNR.q[i].t, via: h.e.w });
+    });
+  });
+  return out;
+}
+/* 索引を読めていれば { w: 辞書の言葉, q: 問い, ask: いちばん上に出す聞き方 } を返す（読めていなければ null） */
+function knrFind(q) {
+  if (knrState !== 2 || !KNR) return null;
+  var terms = knrTerms(q);
+  if (!terms.length) return null;
+  var qn = normQ(q);
+  var wl = knrFindW(terms);
+  var top = wl[0], exact = !!(top && terms.length === 1 && top.min >= 85);
+  var tn = top ? normQ(top.e.w) : '', qterms = terms;
+  if (exact) {
+    /* 入れた言葉が辞書の言葉そのもの（別の呼び名・読みも）なら、問いは辞書の見出しと別の呼び名でも探す（「イデコ」で iDeCo の問いも） */
+    var more = [tn].concat(top.e.a.split('\n').filter(function (a) { return a.length >= 2 && a === normQ(a); }));
+    qterms = [terms[0].concat(more.filter(function (a, i, arr) { return terms[0].indexOf(a) < 0 && arr.indexOf(a) === i; }))];
+  }
+  var ql = (qn.length < 2 && /^[ぁ-ゖ]$/.test(qn)) ? [] : knrFindQ(qterms, exact ? [qn, tn] : [qn], wl);
+  var ask = null;
+  if (exact) {
+    /* いちばん上は「◯◯とは？」。よくある問いに「◯◯とは？」「◯◯って何？」があれば、その問いを上げる */
+    var same = -1;
+    for (var i = 0; i < KNR.q.length && same < 0; i++) {
+      var x = KNR.q[i].n;
+      if (x.indexOf(tn) === 0 && /^(とは|って)(何|なに|何です|なんです|何のこと|なんのこと)?(か)?$/.test(x.slice(tn.length))) same = i;
+    }
+    if (same < 0) ask = { t: top.e.w + 'とは？', w: top.e.w };
+    else {
+      ask = { t: KNR.q[same].t, w: top.e.w };
+      ql = ql.filter(function (y) { return y.i !== same; });
+    }
+  } else if (!wl.length && !ql.length && qn.length >= 2) {
+    ask = { t: String(q).trim(), raw: true };   /* 辞書にも問いにも無いときは、入れた言葉のまま聞ける */
+  }
+  return { w: wl, q: ql, ask: ask };
+}
+/* 辞書の言葉に結びついた学習ツール（言葉どおりでは当たらなかったもの）を、学習ツールの並びの後ろに足す */
+function knrToolHits(kf, hits) {
+  var have = {}, out = [];
+  hits.forEach(function (h) { have[h.t.id] = 1; });
+  kf.w.slice(0, 3).forEach(function (h) {
+    if (h.min < 80) return;
+    (h.e.g || []).forEach(function (id) {
+      if (have[id]) return;
+      var t = tool(id);
+      if (!t) return;
+      have[id] = 1;
+      out.push({ t: t, label: '辞書の言葉「' + h.e.w + '」に関係する学習ツール', score: 0.5 });
+    });
+  });
+  return out;
+}
+function knrJishoHref(w) { var t = inhouseTarget('jisho'); return t ? t + '#w=' + encodeURIComponent(w) : ''; }
+function knrWRowHTML(h) {
+  var e = h.e, al = e.al.slice(0, 3);
+  return '<a class="ts-row ts-kn r-jisho" href="' + esc(knrJishoHref(e.w)) + '" target="_blank" rel="noopener"' +
+      ' aria-label="' + esc('「' + e.w + '」を辞書で開く') + '">' +
+    '<span class="ts-art">' + inhouseArt('inh-jisho') + '</span>' +
+    '<span class="ts-main">' +
+      '<span class="ts-h">' + esc(e.w) + '</span>' +
+      (al.length ? '<span class="ts-sub2">別の呼び名：' + al.map(esc).join('・') + (e.al.length > 3 ? ' ほか' : '') + '</span>' : '') +
+      (e.c ? '<span class="ts-sub"><span class="ts-chip">' + esc(e.c) + '</span></span>' : '') +
+    '</span>' +
+    '<span class="ts-actions"><span class="ts-go">' + ICO.open + '辞書で開く</span></span>' +
+  '</a>';
+}
+function knrMRowHTML(x) {
+  var sub = x.raw ? '入れた言葉のまま聞きます' : x.w ? '辞書の言葉「' + x.w + '」の意味を聞く' : x.via ? '辞書の言葉「' + x.via + '」に関係する問い' : '';
+  return '<a class="ts-row ts-kn r-mentor" href="' + esc(cpMentorHref(x.t)) + '" target="_blank" rel="noopener"' +
+      ' aria-label="' + esc('AI師匠に「' + x.t + '」と聞く') + '">' +
+    '<span class="ts-art">' + inhouseArt('inh-mentor') + '</span>' +
+    '<span class="ts-main">' +
+      '<span class="ts-h">' + esc(x.raw ? '「' + x.t + '」' : x.t) + '</span>' +
+      (sub ? '<span class="ts-sub2">' + esc(sub) + '</span>' : '') +
+    '</span>' +
+    '<span class="ts-actions"><span class="ts-go">' + ICO.open + '聞く</span></span>' +
+  '</a>';
+}
+function knrBlockHTML(id, head, cnt, note, rows, list2, more) {
+  return '<section class="ts-blk" id="' + id + '">' +
+    '<h3 class="ts-blk-h" tabindex="-1">' + head + '<small>' + cnt + '</small></h3>' +
+    (note ? '<p class="ts-blk-n">' + note + '</p>' : '') +
+    (rows ? '<div class="ts-list' + (list2 ? ' ts-list2' : '') + '">' + rows + '</div>' : '') +
+    (more || '') +
+  '</section>';
+}
+/* 結果の全体＝件数の一行 → （学習ツールが多いときは）辞書・AI師匠へ移るボタン → 学習ツール → 辞書の言葉 → AI師匠に聞く */
+function knrResultHTML(q, hits, extra, near, kf) {
+  var qs = esc(String(q).trim()), qn = normQ(q);
+  if (knrOpen.q !== qn) knrOpen = { q: qn, w: false, m: false };
+  var tl = hits.concat(extra);
+  var wl = kf ? kf.w : [];
+  var ml = kf ? (kf.ask ? [kf.ask] : []).concat(kf.q) : [];
+  if (!tl.length && !near.length && (!kf || (!wl.length && !ml.length)) && knrState !== 1) {
+    return '<div class="ts-none"><b>「' + qs + '」の言葉どおりのものは見つかりませんでした。</b><br>' +
+      '短い言葉（がん・相続・地震など）か、下の「よく使う言葉」でお試しください。</div>' + knrStateHTML();
+  }
+  var tHead = tl.some(function (h) { return h.t.cat === 'inhouse'; }) ? '学習ツール・社内ツール' : '学習ツール';
+  var ci = function (t) { return '<span class="ts-ci">' + t + '</span>'; };
+  var cnt = [ci(tl.length ? '学習ツール <b>' + tl.length + '件</b>' : (near.length ? '似た学習ツール <b>' + near.length + '件</b>' : '学習ツール <b>0件</b>'))];
+  if (kf) cnt.push(ci('辞書の言葉 <b>' + wl.length + '語</b>'), ci('AI師匠に聞く <b>' + ml.length + '問</b>'));
+  var h = '<p class="ts-count">「' + qs + '」に近いもの　' + cnt.join('・') + '</p>';
+  if (tl.length > 3 && (wl.length || ml.length)) {
+    h += '<div class="ts-jumps">' +
+      (wl.length ? '<button type="button" class="ts-jump" data-tsjump="knrBlkW">' + KNR_DOWN + '辞書の言葉へ</button>' : '') +
+      (ml.length ? '<button type="button" class="ts-jump" data-tsjump="knrBlkM">' + KNR_DOWN + 'AI師匠に聞くへ</button>' : '') +
+    '</div>';
+  }
+  /* 学習ツール */
+  if (tl.length) {
+    h += knrBlockHTML('knrBlkT', tHead, tl.length + '件', '', tl.map(tsRowHTML).join(''));
+  } else if (near.length) {
+    h += knrBlockHTML('knrBlkT', '学習ツール', '似たもの ' + near.length + '件',
+      '学習ツールには「' + qs + '」の言葉どおりのものはありませんでした。似た言葉の入っているものを出しています。違うときは、短い言葉（がん・相続・地震など）でお試しください。',
+      near.map(tsRowHTML).join(''));
+  } else {
+    h += knrBlockHTML('knrBlkT', '学習ツール', '0件', '学習ツールには「' + qs + '」の言葉どおりのものはありませんでした。', '');
+  }
+  /* 辞書の言葉 */
+  if (wl.length) {
+    var capW = Math.min(wl.length, KNR_WMAX), showW = knrOpen.w ? capW : Math.min(capW, KNR_W);
+    h += knrBlockHTML('knrBlkW', '辞書の言葉', wl.length + '語', '押すと、お金の言葉の辞書がその言葉の意味を、別の画面で開きます。',
+      wl.slice(0, showW).map(knrWRowHTML).join(''), true,
+      (showW < capW ? '<button type="button" class="ts-blk-more" data-knrmore="w">ほかの' + (capW - showW) + '語も見る</button>' : '') +
+      (knrOpen.w && wl.length > capW ? '<p class="ts-blk-n">近い順に' + capW + '語までを出しています。言葉を足すと絞り込めます。</p>' : ''));
+  }
+  /* AI師匠に聞く */
+  if (ml.length) {
+    var capM = Math.min(ml.length, KNR_MMAX), showM = knrOpen.m ? capM : Math.min(capM, KNR_M);
+    h += knrBlockHTML('knrBlkM', 'AI師匠に聞く', ml.length + '問', '押すと、AI師匠が別の画面で開き、その問いを送ります。',
+      ml.slice(0, showM).map(knrMRowHTML).join(''), false,
+      (showM < capM ? '<button type="button" class="ts-blk-more" data-knrmore="m">ほかの' + (capM - showM) + '問も見る</button>' : '') +
+      (knrOpen.m && ml.length > capM ? '<p class="ts-blk-n">近い順に' + capM + '問までを出しています。言葉を足すと絞り込めます。</p>' : ''));
+  }
+  return h + knrStateHTML();
+}
+function knrStateHTML() {
+  if (knrState === 1) return '<p class="ts-kn-note" role="status">辞書の言葉とAI師匠の問いも探しています…</p>';
+  if (knrState === 3) return '<p class="ts-kn-note" role="status">辞書の言葉とAI師匠の問いの一覧を読み込めませんでした。' +
+    '<button type="button" class="ts-blk-more" data-knrretry="1">もう一度読み込む</button></p>';
+  return '';
 }
 
 function renderSearchTags() {
@@ -9228,6 +9528,29 @@ function bindAdmin() {
   var tsBox = document.getElementById('toolSearch');
   tsBox.addEventListener('input', renderSearch);
   tsBox.addEventListener('search', renderSearch);      /* 入力欄の×やEscで消したとき */
+  tsBox.addEventListener('focus', knrLoad);            /* 探し始めたら、辞書の言葉とAI師匠の問いの索引を読み始める（2026-10-29） */
+  /* 辞書の言葉・AI師匠に聞くの「ほかの◯も見る」・まとまりへ移るボタン・読み直し */
+  document.getElementById('searchRes').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-knrmore],[data-tsjump],[data-knrretry]');
+    if (!b) return;
+    if (b.hasAttribute('data-knrmore')) {
+      var k = b.getAttribute('data-knrmore'), sel = k === 'w' ? '#knrBlkW' : '#knrBlkM';
+      var before = document.querySelectorAll(sel + ' .ts-list > .ts-row').length;
+      knrOpen[k] = true;
+      renderSearch();
+      var rows = document.querySelectorAll(sel + ' .ts-list > .ts-row');
+      if (rows[before]) rows[before].focus();
+    } else if (b.hasAttribute('data-tsjump')) {
+      var blk = document.getElementById(b.getAttribute('data-tsjump'));
+      if (!blk) return;
+      var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      blk.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'start' });
+      var hd = blk.querySelector('.ts-blk-h');
+      if (hd) setTimeout(function () { try { hd.focus({ preventScroll: true }); } catch (e2) {} }, calm ? 0 : 450);
+    } else {
+      knrState = 0; knrLoad(); renderSearch();
+    }
+  });
   document.getElementById('toolSearchClear').addEventListener('click', function () {
     tsBox.value = ''; renderSearch(); tsBox.focus();
   });
@@ -12792,7 +13115,7 @@ function cpsSumHTML(ppl, s) {
 /* ログインの記録（2026-10-26）。チームのメンバーの端末で、誰が（ID）・いつ開いたか・入れ間違い。管理職モードと保管フォルダで使う（ppl[].lg） */
 var CPS_LG_EV = { 'in': 'ログインした', keep: '次回から省略で開いた', fail: 'IDかパスワードが違った', wait: '入れ間違いが続いて待ちになった', stop: '止められたIDで開こうとした', out: 'ロックした' };
 var CPS_LG_P = { 'hoken-sales': '営業カレンダー', 'hoken-kokyaku': '顧客管理', 'hoken-mentor': 'AI師匠', 'hoken-calendar': '満期カレンダー', 'hoken-shikaku': '資格試験',
-  'hoken-training': '保険知識トレーニング', 'hoken-shiharai': '支払事例', 'hoken-kirikaeshi': '切り返し辞典', 'hoken-compliance': '100本ノック', 'hoken-gyakusan': '目標逆算' };
+  'hoken-training': '保険知識トレーニング', 'hoken-shiharai': '支払事例', 'hoken-kirikaeshi': '切り返し辞典', 'hoken-compliance': '100本ノック', 'hoken-gyakusan': '目標逆算', 'hoken-jisho': '言葉の辞書' };
 function cpsLoginHTML(ppl) {
   var days = cpsFilt.lgd === '90' ? 90 : 30, lim = Date.now() - days * 86400000, who = cpsFilt.lgw || '';
   var h = '<h4 class="cps-h">ログインの記録</h4><p class="cps-small">チームのメンバーの端末で、どのIDで・いつ開いたか、IDかパスワードを間違えたかの記録です（本人の端末の記録をそのまま映したもの。中身の文は入っていません）。' +
@@ -15281,6 +15604,12 @@ function auInitButtons() {
    ★お客様に見せる文言ではないが、効果の数字や断定（必ず・絶対）は書かない。
    ============================================================ */
 var UPDATES = [
+  { id: '2026-10-31-mentor-more', date: '2026-10-31', target: 'inh:mentor',
+    title: 'AI師匠：答えられる問いと返事の種類を増やしました',
+    body: 'よくある問いの答え・相談の型・断り文句の返し・知識・例え話を大きく足しました。1つの返事の長さは今までどおりです。よくある問いの答えの下には「あわせて見る」で、その話の学習ツールとお金の言葉の辞書の言葉が並び、押すと別の画面で開きます。「◯◯とは？」と聞いたとき、師匠が決まった答えを持っていない言葉でも、辞書にある言葉なら、辞書の意味と確かめる先で答えます。' },
+  { id: '2026-10-29-kanren', date: '2026-10-29', target: 'inh:jisho',
+    title: '辞書と学習ツール・AI師匠が繋がりました',
+    body: '「言葉で探す」に言葉を入れると、学習ツールに加えて、お金の言葉の辞書の言葉と、AI師匠への問いも並びます。押すと別の画面が開き、辞書はその言葉の意味を、AI師匠はその問いへの答えを出します。社内ツールの「学ぶ・鍛える」に「お金の言葉の辞書」のカードも足しました。' },
   { id: '2026-10-29-bd', date: '2026-10-29', target: 'sec:auditSec',
     title: '管理職モード：掲示板・一言・契約一覧の照合・月の点検の記録',
     body: '管理職と共有で繋いでいるチームに、掲示板で周知事項と確認事項を届けられます（確認が要る投稿は、誰が「確認しました」を押したかが分かります）。管理職モードの概要からは、メンバーの記録の不備に一言（200字まで）を添えられ、メンバーの今日の仕事のその行の下に出ます。一言は承認ではなく、記録は変わりません。あわせて、保険会社の契約一覧（CSV）をチーム全員の要約と突き合わせ、意向把握・比較推奨の記録が無い契約を人ごとに出す「契約一覧の照合」と、月ごとの数（作成率・不備・提出の遅れ・面談・ログイン）を前の月と並べて確認を残せる「月の点検」を足しました。月の点検の数は管理のための数で、評価の資料ではありません。' },
