@@ -1090,11 +1090,37 @@ button.cp-tile.cp-tile-go:focus-visible{outline:3px solid #1a5487;outline-offset
 }
 @media(max-width:960px){
   .td-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
-  .td-grid > .td-tile:last-child:nth-child(odd){grid-column:1 / -1;}
+  .td-grid > .td-tile[data-td="cp"]{grid-column:1 / -1;}
 }
 @media(max-width:760px){
   .td-grid{grid-template-columns:minmax(0,1fr);}
   .td-find{margin-left:0;}
+}
+/* カードは小さく、押すと一覧が開く（2026-10-31 ユーザー指示「ここが縦長になりすぎており、見にくい。クリックしたら今日の予定や不備の一覧が出てくるように」）。
+   一覧の箱（.td-panel）は横いっぱいで、押したカードの段のすぐ下に入る。空のときの文は出さない */
+.td-tile{padding:14px 16px;gap:8px;justify-content:center;}   /* 同じ段のカードは高さがそろうので、札の無いカードは中身を上下の真ん中に（下だけ空かない） */
+.td-tile.td-on{border-color:var(--navy-2);box-shadow:var(--shadow);}
+.td-tile.td-on .td-chev{background:var(--navy-2);color:#fff;}
+.td-tile.td-fold .td-chev svg{transition:transform .18s;}
+.td-tile.td-on .td-chev svg{transform:rotate(90deg);}
+.td-flags{display:flex;flex-wrap:wrap;gap:6px;padding-left:44px;}
+.td-flag{display:inline-block;border-radius:999px;padding:1px 10px;font-size:var(--fs-xs);font-weight:700;white-space:nowrap;
+  background:var(--navy-soft);color:var(--navy);border:1px solid #cfe0ec;}
+.td-flag.bad{background:#fdecea;color:#a3261c;border-color:#f3c9c4;}
+.td-flag.td-fnote{background:var(--sky-bg);color:#1b5e8a;border-color:var(--sky-border);}
+.td-panel{grid-column:1 / -1;background:var(--white);border:1px solid var(--navy-2);border-radius:16px;box-shadow:var(--shadow-sm);padding:14px 16px;min-width:0;}
+.td-panel[hidden]{display:none !important;}
+.td-pbody{display:flex;flex-direction:column;gap:8px;}
+.td-panel .td-list{pointer-events:auto;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));}
+.td-pfoot{display:flex;justify-content:flex-end;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);}
+.td-go2{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:8px 16px;border-radius:999px;border:1px solid var(--line);
+  background:var(--white);color:var(--navy);font:inherit;font-size:var(--fs-sm);font-weight:700;text-decoration:none;cursor:pointer;}
+.td-go2:hover{border-color:#cfe0ec;background:var(--navy-soft);}
+.td-go2:focus-visible{outline:3px solid var(--navy-2);outline-offset:2px;}
+.td-go2 .td-rchev{margin-left:0;}
+@media(max-width:760px){
+  .td-pfoot{justify-content:stretch;}
+  .td-go2{width:100%;justify-content:center;}
 }
 /* 管理職からの一言と掲示の帯（2026-10-29）。一言は不備の行の下に添え、行の上に出して押せるようにする */
 .td-note{position:relative;z-index:1;pointer-events:auto;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin:4px 0 2px 12px;padding:8px 12px;
@@ -1297,6 +1323,13 @@ a.ts-row{text-decoration:none;color:inherit;}
 .filter:hover{border-color:#cfe0ec;}
 .filter.on{background:var(--navy);border-color:var(--navy);color:#fff;}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:var(--sp-4);}
+/* ツールカードの組の見出し（2026-10-31）。格子の横いっぱい・明朝の小さな見出しと件数。カードの並べ替えの邪魔をしない */
+.grid > .tgrp{grid-column:1 / -1;display:flex;align-items:baseline;gap:10px;margin:var(--sp-3) 0 calc(var(--sp-1) * -1);padding:0 2px 6px;border-bottom:1px solid var(--line);}
+.grid > .tgrp:first-child,.grid > .tgrp-reset + .tgrp{margin-top:0;}
+.tgrp-n{font-family:var(--mincho);font-size:var(--fs-md);font-weight:600;color:var(--navy);letter-spacing:.04em;}
+.tgrp-c{font-size:var(--fs-xs);font-weight:700;color:var(--muted);}
+.grid > .tgrp-reset{grid-column:1 / -1;display:flex;justify-content:flex-end;margin-bottom:calc(var(--sp-2) * -1);}
+.grid > .tgrp-reset .btn{min-height:44px;}
 .card{background:var(--white);border:1px solid var(--line);border-radius:20px;padding:var(--sp-5);
   box-shadow:var(--shadow-sm);display:flex;flex-direction:column;align-items:center;text-align:center;
   cursor:pointer;transition:.16s;position:relative;overflow:hidden;}
@@ -5778,6 +5811,7 @@ function inhouseArt(id) {
    2. 保存データ
    ============================================================ */
 var STORE_KEY = 'officem.hokenHub.v1';
+var TOOL_ORDER_VER = 2;   /* 2026-10-31 に組の並びにした。前に保存した並び（toolOrder）は一度だけ外して、新しい初めの並びを見せる */
 var MAX_DAYS = 7;            /* 閲覧期限の上限。1週間を超えるリンクは発行しない */
 var state = {
   urls: {},                  /* toolId → 公開URL */
@@ -5785,6 +5819,7 @@ var state = {
   favs: [],                  /* お気に入りに入れたツールのid。押した順に並ぶ */
   catOrder: [],              /* 分野カードの並び順（ドラッグで入れ替えた結果）*/
   toolOrder: {},             /* 分野ごとのツールカードの並び順（catId → idの配列）。お気に入りはfavsの並びそのものを使う */
+  orderVer: TOOL_ORDER_VER,  /* ツールの並びの版（2026-10-31 に組の並びにした＝2） */
   inhOrder: {},              /* 社内ツールの並び順（見出しごと。「学ぶ・鍛える」「数字と顧客を管理する」→ keyの配列）*/
   /* 差出人と連絡先は、お客様の共有ページに出る。初めは空にして、共有リンクを作る前に入れていただく
      （2026-10-04 辛口の点検：初期値の「株式会社Office-M」とそのメールが、代理店さまのお客様の画面に出ていた） */
@@ -5801,6 +5836,9 @@ function load() {
     if (Object.prototype.toString.call(o.favs) === '[object Array]') state.favs = o.favs;
     if (Object.prototype.toString.call(o.catOrder) === '[object Array]') state.catOrder = o.catOrder;
     if (Object.prototype.toString.call(o.toolOrder) === '[object Object]') state.toolOrder = o.toolOrder;
+    /* 2026-10-31：組の並びにしたので、前に保存した分野ごとの並びは一度だけ外す（お気に入りの並びはそのまま） */
+    if ((+o.orderVer || 0) < TOOL_ORDER_VER) { state.toolOrder = {}; state.orderVer = TOOL_ORDER_VER; try { localStorage.setItem(STORE_KEY, JSON.stringify(Object.assign({}, o, { toolOrder: {}, orderVer: TOOL_ORDER_VER }))); } catch (e2) {} }
+    else state.orderVer = +o.orderVer;
     if (Object.prototype.toString.call(o.inhOrder) === '[object Object]') state.inhOrder = o.inhOrder;
     if (o.settings) for (var k in o.settings) state.settings[k] = o.settings[k];
   } catch (e) {
@@ -8726,6 +8764,110 @@ function orderedCats() {
 }
 var dragCatId = null;
 
+/* ツールカードの組（2026-10-31 ユーザー指示「関連性のあるものが近くになるように順番を変えてください。生命保険に関しては医療保険、死亡保険、年金保険、
+   その他のような流れで順番を見やすいように変更してください。引き続き順番は入れ替えができるようにしてください。その他の学習ツールに関しても似たようなものを近くに」）。
+   分野ごとに、組の順・組の中の順がそのまま「初めの並び」になる。組が途切れずに並んでいるあいだは、組の頭に小さな見出しを出す。
+   並べ替え（ドラッグ）はこれまでどおり。動かして組が途切れたら見出しは出さない。「並びを初めの形に戻す」で、組の順へ戻る。
+   ★新しいツールを足したら、ここにも id を足す（書かなかったものは、その分野の最後に並ぶ） */
+var TOOL_GROUPS = {
+  life: [
+    ["医療保険", ["iryouhoken-check", "iryohoken-yami-check", "gan-hoken-check", "gan-shindankyufu-check", "seimei", "sandai-shugyofuno-check", "josei-iryohoken-check", "josei-hoken-check", "shugyoufunou-check", "shugyofuno-menseki-check", "kodoshougai-check", "hoken-fukusu-chofuku-check", "kaigo-minkan-check", "kaigo-ichiji-check", "ninchisho-hoken-check", "ninchishou-check", "kaigo", "kourei"]],
+    ["死亡保険", ["shibou", "teikaiyaku-shushin-check", "teiki-shuushin-check", "teiki-koushin-check", "tenkan-check", "shuunyuuhoshou-check", "shunyuhosho-teigen-check", "hitsuyouhoshougaku-check", "dokushin-hoken-check", "uketorinin-check", "shibouhokenkin-uketori-check", "hengaku-check", "hengaku-tokubetsukanjo-check"]],
+    ["年金保険・貯める保険", ["nenkin", "nenkinseido", "kojinnenkin-check", "kojinnenkin-kojo-check", "tameru-hoken-check", "gakushi-check", "shushin-gakushi-check", "gaika", "gaika-kawase-taisaku-check", "yoteiriritsu-check", "haitou-check", "nisahoken"]],
+    ["保険のしくみと手続き", ["hokenryo-shikumi-check", "hokenryo-haraikata-check", "keiyakubi-check", "hoken-kimari-check", "kokuchi-check", "kanwagata-check", "jukoubunsho-check", "seikyuu-check", "hokenshosho-funshitsu-check", "shikkou-check", "tokuyaku-check", "minaoshi-check", "hoken-norikae-check", "kyousai-check", "gurupu-hoken-check", "hokengaisha-hatan-check", "shakaihoshou", "koyou"]],
+    ["保険と税金・相続", ["seimeihokenryou-kojo-check", "hokenkin-zeikin-check", "keiyakusha-hihokensha-check", "hoken-meigihenko-check", "hoken-souzoku-check", "souzoku", "souzokufudo"]],
+    ["法人の保険", ["hojin", "hojinsim", "shacho", "shunyuhosho-halftax-check", "jigyoshokei"]]
+  ],
+  sonpo: [
+    ["自動車", ["jidousha-ippan-check", "sonpo-koukai-check", "jinshinshougai-check", "jidousha-toukyuu-check", "mubohoken-check", "jiko-taio-check", "sonpo-jikorenraku-check", "jidousha", "senjo-kousuitai-check", "rentaru-check", "baiku-check", "denkijidousha-check"]],
+    ["住まい（火災・地震）", ["kasaihoken-check", "jishin", "nankai", "jishin-hiyou-check", "shizensaigai-check", "mizumore-check", "dorobou-check", "chuukosha-check", "shakuyanin-check"]],
+    ["暮らしのけがと賠償", ["kojinbaishou-check", "jitensha-check", "shougai-hoken-check", "gorufu-check", "kaigairyokou-check", "pet-hoken-check"]],
+    ["事業の保険", ["sonpo-houjinbaisho-check", "shisetsu-baishou-check", "pl", "ukeoi", "kensetsu-koji-check", "kamotsu-hoken-check", "senmonshoku-check", "kaigo-jigyousha-check", "do-hoken-check", "cyber-hoken-check", "kigyou-hiyou-check", "rousai"]],
+    ["保険金と税金", ["sonpo-zeikin-check"]]
+  ],
+  zei: [
+    ["税金の全体", ["zeimap", "zeikin-calendar-check", "zeimuchousa-check"]],
+    ["給与と所得税", ["shotokuzei-check", "juuminzei-check", "gensenchoushuu-check", "nenmatsuchousei-check", "kakuteishinkoku-check"]],
+    ["控除", ["iryouhi-kojo-check", "haiguusha-kojo-check", "fuyou-kojo-check", "fuyou-kabe-check", "shakaihokenryou-kojo-check", "jishin-kojo-check", "furusato-kihon-check", "furusato-check"]],
+    ["事業と副業", ["jigyousho-zei-check", "fukugyou-zei-check", "shohizei-kojin-check", "invoice-check", "hojinzei", "keihi", "shoukibo-kyousai-check", "kigyoukyousai-check"]],
+    ["投資・住まいの税金", ["kabu-zei-check", "ichiji", "juutaku", "jouto-shotoku-check"]],
+    ["相続と贈与", ["souzokuzei", "zoyozei", "seizen-zoyo-check", "meigi-yokin-check", "souzoku-shinkoku-check"]]
+  ],
+  money: [
+    ["家計の基本", ["kakei-check", "kyuuyo-check", "wakamono-check", "kyaria-check", "shakkin-check"]],
+    ["住まいと教育のお金", ["juutaku-loan-check", "danshin-check", "kyouiku-shikin-check"]],
+    ["貯め方とお金の考え方", ["chokin-goal-check", "beikoku-nihon-chochiku-check", "kinri-check", "infure-check", "risuku-check"]],
+    ["投資と制度", ["nisa", "ideco", "kigyougata-dc-check", "toushin-check", "gaika-yokin-check", "souba-check", "kinyuu-sagi-check"]],
+    ["老後のお金", ["shiteki-nenkin-check", "ideco-hoken-uketori-check", "torikuzushi-check", "torikuzushi-shinri-check", "taishokukin-check"]],
+    ["不動産", ["fudousan-toushi-check", "fudosan-unyou-kouritsu-check", "fudosan-risk-return-check"]]
+  ],
+  houjin: [
+    ["社長の万一と事業保障", ["jigyohoshoshikin-check", "kariiremkin-seimeihoken-check", "rentaihoshonin-hoken-check", "keieisha-hoshou-check", "keieisha-taishokukin-check", "keieisha-hoken-minaoshi-check", "houjin-iryohoken-check"]],
+    ["法人保険の経理と出口", ["setsuzei-check", "songeissannyu-shikinguri-check", "houjin-kaiyaku-peak-check", "teizoteiki-deguchi-check", "hengaku-teiki-check", "yoro-halftax-check", "houjin-meigihenko-plan-check", "tousanboshi-kaiyakuzei-check", "shokibokigyokyosai-uketori-check"]],
+    ["役員の報酬と退職金", ["yakuin-hoshuu-check", "yakuin-taishoku-check"]],
+    ["事業承継", ["jigyoshokei-benkyokai", "jishakabu-nozeiyuyo-check", "kabunushi-check", "ma-check", "haigyou-check"]],
+    ["医療法人", ["iryohojin-fudosan-hoken-check", "iryohojin-check"]],
+    ["事業のリスクと保険", ["gyoumuitaku-rosai-check", "franchise-kanmei-hoken-check", "jigyoyofudousan-kasai-check", "houjin-shogakutanki-check", "shayosha-nini-check", "keiyakusho-check"]],
+    ["人と労務", ["fukurikousei-check", "shakaihoken-houjin-check", "stock-option-check", "saiyou-check", "roumu-check"]],
+    ["決算と資金繰り", ["kessansho-check", "shikinguri-check", "yuushi-check", "keiei-keikaku-check", "genka-shoukyaku-check", "zaiko-check", "denshichoubo-check", "hojokin-check"]]
+  ],
+  souzoku: [
+    ["相続の基本と手続き", ["souzokunin-check", "souzoku-houki-check", "yokin-touketsu-check", "souzoku-touki-check"]],
+    ["遺言と分け方", ["yuigon-check", "isanbunkatsu-check", "iryuubun-check"]],
+    ["実家と不動産", ["jitaku-souzoku-check", "souzoku-fudousan-hyouka-check", "fudosan-souzoku-hoken-check"]],
+    ["生前の備えと終活", ["seinenkouken-check", "oyako-money-check", "shuukatsu-check", "osoushiki-check", "digital-isan-check", "petto-souzoku-check"]]
+  ],
+  sumai: [
+    ["家を買う・住む", ["juutaku-point-check", "juutaku-daiji-check", "juutaku-kounyuu-check", "chintai-vs-kounyuu-check", "mansion-shuuzen-check", "hikkoshi-check"]],
+    ["家の性能と手入れ", ["taishin-check", "dannetsu-check", "taiyoukou-check", "reform-check"]],
+    ["土地・空き家・賃貸経営", ["tochi-check", "akiya-check", "chintai-keiei-check"]],
+    ["くるま", ["kuruma-ijihi-check", "kuruma-kaikae-check", "chuuko-kuruma-check", "koureisha-unten-check"]]
+  ],
+  kurashi: [
+    ["子育てと教育", ["shussan-hiyou-check", "hoikuen-check", "kyouiku-mushouka-check", "juken-check", "daigaku-hiyou-check", "shougakukin-check", "seinen-check", "money-kyouiku-check", "kodomo-jiko-check"]],
+    ["介護と老後", ["kaigo-hajime-check", "kaigo-hiyou-check", "shisetsu-erabi-check", "daburu-kea-check", "single-senior-check", "koureisha-sagi-check"]],
+    ["健康と保険", ["kenkoushindan-check", "seikatsushuukan-check", "tabako-check", "kenkou-nenrei-check", "mental-check", "kenkoujumyou-check", "shougai-iryouhi-check"]],
+    ["家計と備え", ["toukei-check", "kakei-boueki-check", "saigai-sonae-check"]]
+  ],
+  kouteki: [
+    ["医療（健康保険）", ["kenkouhoken-check", "kougakuryouyou-check", "taishoku-hoken-check"]],
+    ["年金", ["kokumin-nenkin-check", "nenkin-teikibin-check", "shougainenkin-check", "izokunenkin-check", "koureisha-koyou-check"]],
+    ["出産と子育て", ["shussan-check", "ikuji-check", "jidouteate-check", "hitorioya-check"]],
+    ["介護", ["kaigokyuugyou-check", "kaigo-hokenryou-check"]],
+    ["働き方と会社", ["shakaihoken-tekiyou-check", "rousai-tokubetsu-check", "anzeneisei-check"]],
+    ["困ったときの制度", ["shougaisha-check", "seikatsuhogo-check", "juutaku-kakuho-check"]]
+  ],
+  manabi: [
+    ["保険の実務", ["hoshou-konkyo-check", "kaisei2025-check", "houjin-iriguchi-check", "houjin-okiba-check", "jishakabu-souzoku-check", "shokei-nenrei-check", "taishokukin-zei-check"]],
+    ["伝え方と心理", ["kanjou-ronri-check", "tatoe-check", "shinri-kodokeizai-check", "shinri-kodo-check", "shinri-taijin-check", "shinri-bamen-check"]],
+    ["営業の土台", ["eigyo-jikan-check", "eigyo-kiku-check", "eigyo-shukan-check", "eigyo-handan-check", "eigyo-tachiichi-check", "eigyo-gyakkyou-check", "bungyou-team-check", "ai-jidai-check"]]
+  ]
+};
+var TOOL_GIDX = (function () {
+  var o = {};
+  Object.keys(TOOL_GROUPS).forEach(function (c) { TOOL_GROUPS[c].forEach(function (g, gi) { g[1].forEach(function (id, i) { o[id] = { g: gi, i: i, name: g[0] }; }); }); });
+  return o;
+})();
+/* 初めの並び＝組の順。同じ組の中は公開ずみを先に、準備中をあとに */
+function groupSortTools(list) {
+  return list.map(function (t, i) { var x = TOOL_GIDX[t.id]; return { t: t, i: i, g: x ? x.g : 999, gi: x ? x.i : i, ready: toolReady(t) }; })
+    .sort(function (a, b) { return a.g - b.g || (b.ready ? 1 : 0) - (a.ready ? 1 : 0) || a.gi - b.gi || a.i - b.i; })
+    .map(function (o) { return o.t; });
+}
+/* 組が途切れずに並んでいれば、組の見出しの位置（index → 組の名前と件数）を返す。途切れていれば null */
+function toolGroupHeads(list) {
+  if (!list.length || !TOOL_GROUPS[list[0].cat]) return null;
+  var heads = {}, seen = {}, prev = null, cnt = {};
+  for (var i = 0; i < list.length; i++) {
+    var x = TOOL_GIDX[list[i].id], g = x ? x.name : 'その他';
+    cnt[g] = (cnt[g] || 0) + 1;
+    if (g !== prev) { if (seen[g]) return null; seen[g] = true; heads[i] = g; prev = g; }
+  }
+  if (Object.keys(heads).length < 2) return null;
+  Object.keys(heads).forEach(function (k) { heads[k] = { name: heads[k], n: cnt[heads[k]] }; });
+  return heads;
+}
+
 /* ツールカードの並び順。保存した順を先に、動かしていないものは元の順のまま後ろに続ける */
 function applyToolOrder(list, saved) {
   if (!saved || !saved.length) return list;
@@ -9427,10 +9569,12 @@ function renderTools() {
     list = state.favs.map(function (id) { return tool(id); }).filter(Boolean);
   } else {
     list = TOOLS.filter(function (t) { return curCat === 'all' || t.cat === curCat; });
-    /* 公開ずみを先に、準備中を最後に。同じ状態のなかでは TOOLS に書いた順のまま */
-    list = list.map(function (t, i) { return { t: t, i: i, ready: toolReady(t) }; })
-      .sort(function (a, b) { return (b.ready ? 1 : 0) - (a.ready ? 1 : 0) || a.i - b.i; })
-      .map(function (o) { return o.t; });
+    if (curCat === 'all') {
+      /* 公開ずみを先に、準備中を最後に。同じ状態のなかでは TOOLS に書いた順のまま */
+      list = list.map(function (t, i) { return { t: t, i: i, ready: toolReady(t) }; })
+        .sort(function (a, b) { return (b.ready ? 1 : 0) - (a.ready ? 1 : 0) || a.i - b.i; })
+        .map(function (o) { return o.t; });
+    } else list = groupSortTools(list);   /* 似たもの同士を組にして並べる（TOOL_GROUPS） */
     /* この分野でドラッグ並べ替えをしたことがあれば、その並びを優先する */
     list = applyToolOrder(list, state.toolOrder[curCat]);
   }
@@ -9439,10 +9583,14 @@ function renderTools() {
       'まだお気に入りはありません。<br>ツールのカードにある「' + ICO.star + ' お気に入り」から追加してください。</div>';
     return;
   }
-  host.innerHTML = list.map(function (t) {
+  var heads = curCat === 'fav' || curCat === 'all' ? null : toolGroupHeads(list);
+  var custom = curCat !== 'fav' && curCat !== 'all' && TOOL_GROUPS[curCat] && state.toolOrder[curCat] && state.toolOrder[curCat].length;
+  host.innerHTML = (custom ? '<div class="tgrp-reset"><button type="button" class="btn btn-ghost btn-sm" data-tordreset="1">並びを初めの形に戻す</button></div>' : '') +
+    list.map(function (t, ti) {
     var ready = toolReady(t);
+    var gh = heads && heads[ti] ? '<div class="tgrp" role="heading" aria-level="3"><span class="tgrp-n">' + esc(heads[ti].name) + '</span><span class="tgrp-c">' + heads[ti].n + '件</span></div>' : '';
     var isFav = state.favs.indexOf(t.id) >= 0;
-    return '<div class="card c-' + t.cat + (ready ? '' : ' pending') + '" data-card="' + t.id + '" draggable="true" tabindex="0" role="button" ' +
+    return gh + '<div class="card c-' + t.cat + (ready ? '' : ' pending') + '" data-card="' + t.id + '" draggable="true" tabindex="0" role="button" ' +
       'aria-label="' + esc(t.name) + (ready ? ' を開く' : '（準備中）') + '（つかんで動かす、スマホは長押ししてから動かすと並べ替えできます）">' +
       '<div class="card-art">' + (TOOL_ART[t.id] || '') + '</div>' +
       '<h3>' + esc(t.short) + updPill('tool:' + t.id) + '</h3>' +
@@ -9735,6 +9883,11 @@ function bindAdmin() {
     applyToolReorder(dragToolId, c.dataset.card);
   });
   bindTouchReorder(gridEl, '.card[draggable="true"]', function (c) { return c.dataset.card; }, applyToolReorder);
+  gridEl.addEventListener('click', function (e) {
+    if (!e.target.closest('[data-tordreset]')) return;
+    e.stopPropagation();
+    delete state.toolOrder[curCat]; save(); renderTools(); toast('並びを初めの形に戻しました');
+  });
 
   document.getElementById('admin').addEventListener('click', function (e) {
     var b = e.target.closest('[data-open],[data-share],[data-cat],[data-lcopy],[data-lmsg],[data-ldel],[data-fav]');
@@ -15464,19 +15617,69 @@ function tdCpGo(hash) {
   try { history.replaceState(null, '', location.pathname + location.search + hash); } catch (e) {}
   cpDeepLink();
 }
-/* カードは白い枠ごと押して開く（2026-10-07 ユーザー指示「ダッシュボードをひらくをクリックするのではなくこの白の枠をクリックするとひらくように」）。
-   見出しをリンク（またはボタン）にして、その ::after を枠いっぱいに広げる。中の1行（.td-row）は、それぞれの記録を開く別のリンクのまま。
+/* カード（2026-10-31 ユーザー指示「ここが縦長になりすぎており、見にくい。クリックしたら今日の予定や不備の一覧が出てくるように」）。
+   カードは見出し・件数・札だけの小さな形。一覧があるカードは、押すと横いっぱいの一覧（#tdPanel）が、押したカードの段のすぐ下に開く。
+   もう一度押すと閉じる（開くのは1つずつ）。一覧が無いカードは、前のとおり枠ごと押すとその道具が開く（2026-10-07 の作り）。
+   一覧の下に「◯◯を開く」。中の1行（.td-row）は、前のとおり中身の窓を開く。
    go＝{ key, hash, label }（社内ツールを別の窓で開く）または { cp: true, label }（この画面のコンプライアンスを開く） */
 var TD_CHEV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg>';
-function tdTile(c, ico, title, from, n, unit, bad, body, go) {
-  var head = '<span class="td-tt">' + title + '<span class="td-from">' + from + '</span></span><span class="sr-only">（' + go.label + '）</span>';
-  var href = go.cp ? '' : tdHref(go.key, go.hash), can = go.cp || !!href;
-  var open = go.cp ? '<button type="button" class="td-open" data-tdcp="1">' + head + '</button>'
-    : href ? '<a class="td-open" href="' + esc(href) + '" target="' + TD_WIN[go.key] + '" rel="noopener">' + head + '</a>'
-    : '<span class="td-open">' + head + '</span>';
-  return '<div class="td-tile' + (can ? '' : ' td-static') + '" data-td="' + c + '"><div class="td-th"><span class="td-ico c-' + ico + '" aria-hidden="true">' + TD_ICO[ico] + '</span>' + open +
+var tdOpenKey = '', tdBodies = {};
+function tdGoHTML(go) {
+  if (go.cp) return '<button type="button" class="td-go2" data-tdcp="1">' + esc(go.label) + TD_RCHEV + '</button>';
+  var href = tdHref(go.key, go.hash);
+  return href ? '<a class="td-go2" href="' + esc(href) + '" target="' + TD_WIN[go.key] + '" rel="noopener">' + esc(go.label) + TD_RCHEV + '</a>' : '';
+}
+function tdTile(c, ico, title, from, n, unit, bad, body, go, flag) {
+  var head = '<span class="td-tt">' + title + '<span class="td-from">' + from + '</span></span>';
+  var has = !!String(body || '').replace(/\s+/g, '');
+  var href = go.cp ? '' : tdHref(go.key, go.hash), can = has || go.cp || !!href, open;
+  if (has) {
+    tdBodies[c] = { body: body, go: go, title: title };
+    open = '<button type="button" class="td-open" data-tdtog="' + c + '" aria-expanded="false" aria-controls="tdPanel">' + head + '<span class="sr-only">（一覧を開く）</span></button>';
+  } else {
+    open = go.cp ? '<button type="button" class="td-open" data-tdcp="1">' + head + '<span class="sr-only">（' + go.label + '）</span></button>'
+      : href ? '<a class="td-open" href="' + esc(href) + '" target="' + TD_WIN[go.key] + '" rel="noopener">' + head + '<span class="sr-only">（' + go.label + '）</span></a>'
+      : '<span class="td-open">' + head + '</span>';
+  }
+  return '<div class="td-tile' + (can ? '' : ' td-static') + (has ? ' td-fold' : '') + '" data-td="' + c + '"><div class="td-th"><span class="td-ico c-' + ico + '" aria-hidden="true">' + TD_ICO[ico] + '</span>' + open +
     (n === null ? '' : '<span class="td-n' + (bad ? ' bad' : '') + '">' + n + '<small>' + unit + '</small></span>') +
-    (can ? '<span class="td-chev" aria-hidden="true">' + TD_CHEV + '</span>' : '') + '</div>' + body + '</div>';
+    (can ? '<span class="td-chev" aria-hidden="true">' + TD_CHEV + '</span>' : '') + '</div>' + tdFlags(flag, body) + '</div>';
+}
+/* カードの札（押す前に分かること）。fl＝[文, 赤なら true] の並び。一言が付いた行があれば「一言 n件」 */
+function tdFlags(fl, body) {
+  var a = (fl || []).slice(), nn = (String(body || '').match(/class="td-note"/g) || []).length;
+  if (nn) a.push(['一言 ' + nn + '件', false, 'td-fnote']);
+  return a.length ? '<div class="td-flags">' + a.map(function (x) { return '<span class="td-flag' + (x[1] ? ' bad' : '') + (x[2] ? ' ' + x[2] : '') + '">' + esc(x[0]) + '</span>'; }).join('') + '</div>' : '';
+}
+/* 一覧の箱を、押したカードの段の最後のカードのすぐ後ろへ置く（幅が変わったら置き直す） */
+function tdPlace() {
+  var grid = document.getElementById('todayGrid'), pn = document.getElementById('tdPanel');
+  if (!grid || !pn) return;
+  var t = tdOpenKey && grid.querySelector('.td-tile[data-td="' + tdOpenKey + '"]');
+  if (!t) { pn.hidden = true; return; }
+  if (pn.parentNode) pn.parentNode.removeChild(pn);
+  var last = t;
+  grid.querySelectorAll('.td-tile').forEach(function (x) { if (Math.abs(x.offsetTop - t.offsetTop) < 4) last = x; });
+  last.parentNode.insertBefore(pn, last.nextSibling);
+}
+function tdShow(c, focus) {
+  var grid = document.getElementById('todayGrid');
+  if (!grid) return;
+  var pn = document.getElementById('tdPanel');
+  if (!pn) { pn = document.createElement('div'); pn.id = 'tdPanel'; pn.className = 'td-panel'; pn.setAttribute('role', 'region'); pn.hidden = true; grid.appendChild(pn); }
+  tdOpenKey = c && tdBodies[c] ? c : '';
+  grid.querySelectorAll('[data-tdtog]').forEach(function (b) {
+    var on = b.getAttribute('data-tdtog') === tdOpenKey;
+    b.setAttribute('aria-expanded', on ? 'true' : 'false');
+    b.closest('.td-tile').classList.toggle('td-on', on);
+  });
+  if (!tdOpenKey) { pn.hidden = true; pn.innerHTML = ''; return; }
+  var o = tdBodies[tdOpenKey];
+  pn.setAttribute('aria-label', o.title + 'の一覧');
+  pn.innerHTML = '<div class="td-pbody">' + o.body + '</div><div class="td-pfoot">' + tdGoHTML(o.go) + '</div>';
+  pn.hidden = false;
+  tdPlace();
+  if (focus) { var r = pn.getBoundingClientRect(); if (r.bottom > window.innerHeight) pn.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
 }
 function tdRender() {
   var sec = document.getElementById('todaySec');
@@ -15485,6 +15688,7 @@ function tdRender() {
   S.customers.forEach(function (c) { cust[c.id] = c; });
   var nm = function (a) { var c = cust[a.cid]; return c ? tdStr(c.name, 80) : tdStr(a.guest, 80); };
   var ev = tdCalFeed(), cs = tdCalSum(ev, today), kk = tdKk(), miss = tdCpMiss();
+  tdBodies = {};
   var acts = S.activities.filter(function (a) { return a.date === today && TD_TYPES[a.type]; })
     .sort(function (a, b) { return (a.start || '99') < (b.start || '99') ? -1 : 1; });
   var mem = tdMem(), B = tdBd(), any = S.customers.length || S.activities.length || au.recs.length || mem.on || B.notes.length || B.posts.length;
@@ -15500,16 +15704,17 @@ function tdRender() {
   if (acts.length) {
     b1 = '<ul class="td-list">' + acts.slice(0, 3).map(function (a) { return row(a, a.start || '終日'); }).join('') + '</ul>' +
       (acts.length > 3 ? '<p class="td-none">ほか ' + (acts.length - 3) + '件</p>' : '');
-  } else b1 = '<p class="td-none">今日の予定はありません。</p>';
+  } else b1 = '';
   /* 次の予定（明日から先。今日が少ない日は2件、多い日は出さない） */
   var nxs = acts.length >= 3 ? [] : S.activities.filter(function (a) { return a.date > today && TD_TYPES[a.type]; }).sort(function (a, b) {
     return a.date !== b.date ? (a.date < b.date ? -1 : 1) : ((a.start || '99') < (b.start || '99') ? -1 : 1); }).slice(0, 2);
   if (nxs.length) b1 += '<p class="td-sub">次の予定</p><ul class="td-list">' + nxs.map(function (a) { return row(a, tdMd(a.date) + (a.start ? ' ' + a.start : '')); }).join('') + '</ul>';
   var h = tdTile('sales', 'sales', '今日の予定', '営業カレンダー', acts.length, '件', false, b1,
-    { key: 'sales', hash: '', label: '営業カレンダーを開く' });
+    { key: 'sales', hash: '', label: '営業カレンダーを開く' },
+    !acts.length && nxs.length ? [['次の予定 ' + tdMd(nxs[0].date), false]] : []);
   /* 2 提出書類 */
   var b2, nAl = 0;
-  if (!kk || !kk.rows.length) b2 = '<p class="td-none">契約の記録はまだありません。営業カレンダーで契約を記録すると、提出書類の状態がここに出ます。</p>';
+  if (!kk || !kk.rows.length) b2 = '';
   else {
     var al = kk.rows.filter(function (r) { return r.alarm && !r.before; }).sort(function (a, b) { return (b.days || 0) - (a.days || 0); });
     nAl = al.length;
@@ -15520,7 +15725,7 @@ function tdRender() {
           (rd.length ? '<span class="td-cnt">要対応 ' + rd.length + 'つ</span>' : '') + TD_RCHEV +
           (a1 ? '<span class="td-why">' + esc(a1.t.replace(/（.*$/, '')) + tdMore(rd.length - 1, 'つ') + '</span>' : '') + '</button>' + tdNoteFor(B, 'kk', r.k.id) + '</li>';
       }).join('') + '</ul>' + (al.length > 3 ? '<p class="td-none">ほか ' + (al.length - 3) + '件</p>' : '')
-        : '<p class="td-none">全ての契約で提出済みです（' + kk.counts.all + '件）。</p>');
+        : '');
   }
   if (mem.kk.length) {
     b2 += '<p class="td-sub td-sub-mem">チームの要対応の契約</p><ul class="td-list">' + mem.kk.slice(0, 3).map(function (x) {
@@ -15531,7 +15736,8 @@ function tdRender() {
   }
   var nKk = (kk && kk.rows.length ? nAl : 0) + mem.kk.length;
   h += tdTile('kk', 'kk', '提出書類', '顧客管理', kk && kk.rows.length || mem.kk.length ? nKk : null, '件', nKk > 0, b2,
-    { key: 'kokyaku', hash: nAl ? '#bad' : '', label: nAl ? '要対応の契約を顧客管理で開く' : '顧客管理を開く' });
+    { key: 'kokyaku', hash: nAl ? '#bad' : '', label: nAl ? '要対応の契約を顧客管理で開く' : '顧客管理を開く' },
+    (kk && kk.counts.back ? [['差し戻し ' + kk.counts.back + '件', false]] : []).concat(mem.kk.length ? [['チーム ' + mem.kk.length + '件', true]] : []));
   /* 声かけ（満期カレンダー）のカードは 2026-10-07 ユーザー指示「声かけを削除」で外した。満期カレンダーのカード（と札）も 2026-10-26 に外した（「2ツールを削除」） */
   /* 3 記録の不備 */
   var kj = au.recs.filter(function (r) { return r.kind === 'kujo' && !r.f.done; });
@@ -15546,19 +15752,21 @@ function tdRender() {
       return '<li><button type="button" class="td-row" data-tdrec="' + esc(r.id) + '"><span class="td-tag">' + esc(CP[r.kind].label) + '</span>' +
         (r.f.no ? '<b>' + esc(r.f.no) + '様</b>' : '') + '<span class="td-cnt">不備 ' + m.length + 'つ</span>' + TD_RCHEV + '<span class="td-why">不備：' + esc(m.slice(0, 2).join('・')) + tdMore(m.length - 2, 'つ') + '</span></button>' + tdNoteFor(B, 'rec', r.id) + '</li>';
     }).join('') + '</ul>' + (miss.length > 3 ? '<p class="td-none">ほか ' + (miss.length - 3) + '件</p>' : '')
-      : '<p class="td-none">' + (au.recs.length ? (mem.on ? 'あなたの記録に不備はありません。' : '不備のある記録はありません。') : (mem.on ? 'あなたの記録はまだありません。' : '意向把握・比較推奨などの記録はまだありません。')) + '</p>');
-  if (mem.on) {
+      : '');
+  if (mem.on && mem.rec.length) {
     b4 += '<p class="td-sub td-sub-mem">チームの不備</p>' + (mem.rec.length ? '<ul class="td-list">' + mem.rec.slice(0, 4).map(function (x) {
       return '<li><button type="button" class="td-row td-mem" data-tdmem="' + esc(x.dev) + '" data-id="' + esc(x.r.id) + '">' + tdWho(x.who) + '<span class="td-tag">' + esc(CP[x.r.kind] ? CP[x.r.kind].label : '記録') + '</span>' +
         (x.r.f.no ? '<b>' + esc(x.r.f.no) + '様</b>' : '') + '<span class="td-cnt">不備 ' + x.m.length + 'つ</span>' + TD_RCHEV + '<span class="td-why">不備：' + esc(x.m.slice(0, 2).join('・')) + tdMore(x.m.length - 2, 'つ') + '</span></button></li>';
     }).join('') + '</ul>' + (mem.rec.length > 4 ? '<p class="td-none">ほか ' + (mem.rec.length - 4) + '件（管理職モードの「概要」で人ごとに見られます）</p>' : '')
-      : '<p class="td-none">届いているチームのメンバーの記録に、不備はありません。</p>');
+      : '');
   }
   var nCp = miss.length + mem.rec.length;
   h += tdTile('cp', 'cp', '記録の不備', 'コンプライアンス', nCp, '件', nCp > 0, b4,
-    { cp: true, label: 'コンプライアンスを開く' });
+    { cp: true, label: 'コンプライアンスを開く' },
+    (kj.length ? [['苦情の対応中 ' + kj.length + '件', false]] : []).concat(mem.rec.length ? [['チーム ' + mem.rec.length + '件', true]] : []));
   var grid = document.getElementById('todayGrid');
   grid.innerHTML = h;
+  tdShow(tdOpenKey, false);
   /* 掲示板の帯（一言のうち、不備の行の下に出せなかったものもここに） */
   var bdb = document.getElementById('todayBd');
   if (bdb) { var bh = B.on ? tdBdHTML(B) : ''; bdb.innerHTML = bh; bdb.hidden = !bh; }
@@ -15574,8 +15782,9 @@ function initToday() {
   if (!sec || sec._on) return;
   sec._on = true;
   sec.addEventListener('click', function (e) {
-    var b = e.target.closest('[data-tdrec],[data-tdkk],[data-tdcp],[data-tdmem],[data-tdmemk],[data-tdnok],[data-tdbdv],[data-tdbdack]');
+    var b = e.target.closest('[data-tdtog],[data-tdrec],[data-tdkk],[data-tdcp],[data-tdmem],[data-tdmemk],[data-tdnok],[data-tdbdv],[data-tdbdack]');
     if (!b) return;
+    if (b.hasAttribute('data-tdtog')) { var k = b.getAttribute('data-tdtog'); tdShow(tdOpenKey === k ? '' : k, true); return; }
     if (b.hasAttribute('data-tdnok') || b.hasAttribute('data-tdbdack')) {
       e.preventDefault(); e.stopPropagation();
       var nid = b.getAttribute('data-tdnok') || b.getAttribute('data-tdbdack'), isN = b.hasAttribute('data-tdnok');
@@ -15595,6 +15804,9 @@ function initToday() {
     if (e.key === null || e.key === 'officem.hokenSales.v1' || e.key === TD_CAL_FEED || e.key === KKC.TOOL_KEY) tdRender();
   });
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') tdRender(); });
+  var tdRz = 0;
+  window.addEventListener('resize', function () { cancelAnimationFrame(tdRz); tdRz = requestAnimationFrame(tdPlace); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && tdOpenKey && !document.getElementById('mOverlay')) { var k = tdOpenKey; tdShow('', false); var b = document.querySelector('[data-tdtog="' + k + '"]'); if (b) b.focus(); } });
   tdRender();
 }
 
@@ -15834,6 +16046,9 @@ function auInitButtons() {
    ★お客様に見せる文言ではないが、効果の数字や断定（必ず・絶対）は書かない。
    ============================================================ */
 var UPDATES = [
+  { id: '2026-10-31-narabi', date: '2026-10-31', target: 'sec:todaySec',
+    title: '今日の仕事を短く、学習ツールを似たもの同士の並びに',
+    body: '今日の仕事は、3つのカードに件数と札（要対応・不備・チームの分など）だけを出し、押すとその下に一覧が開く形にしました。もう一度押すと閉じます。学習ツールは、分野ごとに似たもの同士を近くに並べ、組の名前の見出しを付けました。生命保険は、医療保険・死亡保険・年金保険と貯める保険・保険のしくみと手続き・保険と税金と相続・法人の保険の順です。これまでどおり、つかんで動かすと並べ替えられます。並べ替えた分野には「並びを初めの形に戻す」が出ます。前に並べ替えていた方も、今回だけ新しい並びで開きます（お気に入りはそのままです）。' },
   { id: '2026-10-31-seimei6', date: '2026-10-31', target: 'cat:life',
     title: '生命保険：学習資料を6つ足しました',
     body: '生命保険の分野に、保険料のしくみ（純保険料と付加保険料・三つの予定率）、保険料の払い方（前納・一時払い・払込期間）、契約日と保険年齢（責任開始日・契約応当日・介入権）、貯める保険の見分け方（死亡・生存・生死混合）、定期付終身と転換、保険の決まり（保険法と保険業法）を足しました。入口・30秒の核心・現場あるある・逆転劇場・明日の問いは、ほかの生命保険のページと同じ作りです。お金の言葉の辞書でこれらの言葉を引くと、このページにも飛べます。' },
