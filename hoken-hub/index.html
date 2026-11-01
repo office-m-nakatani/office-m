@@ -1097,7 +1097,9 @@ button.cp-tile.cp-tile-go:focus-visible{outline:3px solid #1a5487;outline-offset
   .td-find{margin-left:0;}
 }
 /* カードは小さく、押すと一覧が開く（2026-10-31 ユーザー指示「ここが縦長になりすぎており、見にくい。クリックしたら今日の予定や不備の一覧が出てくるように」）。
-   一覧の箱（.td-panel）は横いっぱいで、押したカードの段のすぐ下に入る。空のときの文は出さない */
+   一覧の箱（.td-panel）は横いっぱいで、いつもカードの並びのすぐ下の同じ場所に1つだけ。別のカードを押すと中身が入れ替わる
+   （2026-11-01 ユーザー指示「提出書類の後に、記録の不備をクリックすると、続けて下に表示されるようになっている。1つずつ切り替えるようにしてください」。
+   前は押したカードの段の下へ箱を動かしていたので、2列・1列の幅では箱が下へ飛んで、続けて出たように見えた）。空のときの文は出さない */
 .td-tile{padding:14px 16px;gap:8px;justify-content:center;}   /* 同じ段のカードは高さがそろうので、札の無いカードは中身を上下の真ん中に（下だけ空かない） */
 .td-tile.td-on{border-color:var(--navy-2);box-shadow:var(--shadow);}
 .td-tile.td-on .td-chev{background:var(--navy-2);color:#fff;}
@@ -1110,6 +1112,18 @@ button.cp-tile.cp-tile-go:focus-visible{outline:3px solid #1a5487;outline-offset
 .td-flag.td-fnote{background:var(--sky-bg);color:#1b5e8a;border-color:var(--sky-border);}
 .td-panel{grid-column:1 / -1;background:var(--white);border:1px solid var(--navy-2);border-radius:16px;box-shadow:var(--shadow-sm);padding:14px 16px;min-width:0;}
 .td-panel[hidden]{display:none !important;}
+.td-phead{display:flex;align-items:center;gap:10px;margin:-4px 0 10px;padding-bottom:8px;border-bottom:1px solid var(--line);}
+.td-phead .td-ico{width:30px;height:30px;}
+.td-phead .td-ico svg{width:17px;height:17px;}
+.td-ptt{font-family:var(--mincho);font-size:var(--fs-md);font-weight:600;color:var(--navy);line-height:1.35;flex:1;min-width:0;}
+.td-ptt small{font-family:inherit;font-size:var(--fs-sm);font-weight:600;color:var(--muted);margin-left:2px;}
+.td-pclose{flex:none;width:44px;height:44px;margin:-6px -8px -6px 0;border:0;border-radius:50%;background:transparent;color:var(--navy);cursor:pointer;display:grid;place-items:center;}
+.td-pclose:hover{background:var(--navy-soft);}
+.td-pclose:focus-visible{outline:3px solid var(--navy-2);outline-offset:1px;}
+.td-pclose svg{width:18px;height:18px;}
+.td-panel.td-swap .td-pbody{animation:tdSwap .22s ease-out;}
+@keyframes tdSwap{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.td-panel.td-swap .td-pbody{animation:none;}}
 .td-pbody{display:flex;flex-direction:column;gap:8px;}
 .td-panel .td-list{pointer-events:auto;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));}
 .td-pfoot{display:flex;justify-content:flex-end;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);}
@@ -15634,7 +15648,7 @@ function tdTile(c, ico, title, from, n, unit, bad, body, go, flag) {
   var has = !!String(body || '').replace(/\s+/g, '');
   var href = go.cp ? '' : tdHref(go.key, go.hash), can = has || go.cp || !!href, open;
   if (has) {
-    tdBodies[c] = { body: body, go: go, title: title };
+    tdBodies[c] = { body: body, go: go, title: title, ico: ico };
     open = '<button type="button" class="td-open" data-tdtog="' + c + '" aria-expanded="false" aria-controls="tdPanel">' + head + '<span class="sr-only">（一覧を開く）</span></button>';
   } else {
     open = go.cp ? '<button type="button" class="td-open" data-tdcp="1">' + head + '<span class="sr-only">（' + go.label + '）</span></button>'
@@ -15651,22 +15665,20 @@ function tdFlags(fl, body) {
   if (nn) a.push(['一言 ' + nn + '件', false, 'td-fnote']);
   return a.length ? '<div class="td-flags">' + a.map(function (x) { return '<span class="td-flag' + (x[1] ? ' bad' : '') + (x[2] ? ' ' + x[2] : '') + '">' + esc(x[0]) + '</span>'; }).join('') + '</div>' : '';
 }
-/* 一覧の箱を、押したカードの段の最後のカードのすぐ後ろへ置く（幅が変わったら置き直す） */
+/* 一覧の箱は、いつもカードの並びのすぐ下（最後のカードの後ろ）の同じ場所に1つだけ置く。
+   どのカードを押しても箱は動かず、中身だけが入れ替わる（2026-11-01「1つずつ切り替えるように」） */
 function tdPlace() {
   var grid = document.getElementById('todayGrid'), pn = document.getElementById('tdPanel');
   if (!grid || !pn) return;
-  var t = tdOpenKey && grid.querySelector('.td-tile[data-td="' + tdOpenKey + '"]');
-  if (!t) { pn.hidden = true; return; }
-  if (pn.parentNode) pn.parentNode.removeChild(pn);
-  var last = t;
-  grid.querySelectorAll('.td-tile').forEach(function (x) { if (Math.abs(x.offsetTop - t.offsetTop) < 4) last = x; });
-  last.parentNode.insertBefore(pn, last.nextSibling);
+  document.querySelectorAll('.td-panel').forEach(function (x) { if (x !== pn && x.parentNode) x.parentNode.removeChild(x); });
+  if (pn.parentNode !== grid || grid.lastElementChild !== pn) grid.appendChild(pn);
 }
 function tdShow(c, focus) {
   var grid = document.getElementById('todayGrid');
   if (!grid) return;
   var pn = document.getElementById('tdPanel');
   if (!pn) { pn = document.createElement('div'); pn.id = 'tdPanel'; pn.className = 'td-panel'; pn.setAttribute('role', 'region'); pn.hidden = true; grid.appendChild(pn); }
+  var prev = tdOpenKey;
   tdOpenKey = c && tdBodies[c] ? c : '';
   grid.querySelectorAll('[data-tdtog]').forEach(function (b) {
     var on = b.getAttribute('data-tdtog') === tdOpenKey;
@@ -15676,7 +15688,12 @@ function tdShow(c, focus) {
   if (!tdOpenKey) { pn.hidden = true; pn.innerHTML = ''; return; }
   var o = tdBodies[tdOpenKey];
   pn.setAttribute('aria-label', o.title + 'の一覧');
-  pn.innerHTML = '<div class="td-pbody">' + o.body + '</div><div class="td-pfoot">' + tdGoHTML(o.go) + '</div>';
+  pn.innerHTML = '<div class="td-phead"><span class="td-ico c-' + o.ico + '" aria-hidden="true">' + TD_ICO[o.ico] + '</span>' +
+    '<span class="td-ptt">' + o.title + '<small>の一覧</small></span>' +
+    '<button type="button" class="td-pclose" data-tdclose="1" aria-label="' + esc(o.title) + 'の一覧を閉じる"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>' +
+    '<div class="td-pbody">' + o.body + '</div><div class="td-pfoot">' + tdGoHTML(o.go) + '</div>';
+  pn.classList.remove('td-swap');
+  if (prev && prev !== tdOpenKey && focus) { void pn.offsetWidth; pn.classList.add('td-swap'); }
   pn.hidden = false;
   tdPlace();
   if (focus) { var r = pn.getBoundingClientRect(); if (r.bottom > window.innerHeight) pn.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
@@ -15782,8 +15799,9 @@ function initToday() {
   if (!sec || sec._on) return;
   sec._on = true;
   sec.addEventListener('click', function (e) {
-    var b = e.target.closest('[data-tdtog],[data-tdrec],[data-tdkk],[data-tdcp],[data-tdmem],[data-tdmemk],[data-tdnok],[data-tdbdv],[data-tdbdack]');
+    var b = e.target.closest('[data-tdtog],[data-tdclose],[data-tdrec],[data-tdkk],[data-tdcp],[data-tdmem],[data-tdmemk],[data-tdnok],[data-tdbdv],[data-tdbdack]');
     if (!b) return;
+    if (b.hasAttribute('data-tdclose')) { var ck = tdOpenKey; tdShow('', false); var cb = document.querySelector('[data-tdtog="' + ck + '"]'); if (cb) cb.focus(); return; }
     if (b.hasAttribute('data-tdtog')) { var k = b.getAttribute('data-tdtog'); tdShow(tdOpenKey === k ? '' : k, true); return; }
     if (b.hasAttribute('data-tdnok') || b.hasAttribute('data-tdbdack')) {
       e.preventDefault(); e.stopPropagation();
