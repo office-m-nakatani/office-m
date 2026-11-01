@@ -1536,6 +1536,9 @@ a.ts-row{text-decoration:none;color:inherit;}
 .card .desc{font-size:var(--fs-sm);color:var(--muted);line-height:var(--lh-base);flex:1;margin:var(--sp-3) 0;text-align:left;}
 /* 説明文は4行まで（長い1枚だけ背が伸びて並びが崩れないように）。全文は開いた先のページにある */
 .card .desc{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;line-clamp:4;overflow:hidden;align-self:stretch;}
+/* 2026-11-01 欄の背が伸びると、今の Chrome は4行で切ったあとの5行目を見せてしまう（副題が1行のカード）。高さも4行ぶんで止め、下の段は底へ寄せる */
+.card .desc{flex:0 1 auto;max-height:calc(var(--lh-base) * 4em);}
+.card-foot{margin-top:auto;}
 /* 携帯：カードを横長の1枚に詰める（絵を左・名前と副題を右・説明は2行）。前は1枚 410〜478px で、67枚の一覧が 35,000px あった */
 @media(max-width:560px){
   .grid{gap:var(--sp-3);}
@@ -1546,7 +1549,7 @@ a.ts-row{text-decoration:none;color:inherit;}
   .card-art svg{width:38px;height:38px;}
   .card h3{grid-column:2;font-size:var(--fs-md);line-height:1.4;}
   .card .sub-title{grid-column:2;margin-top:3px;}
-  .card .desc{grid-column:1 / -1;margin:10px 0 6px;-webkit-line-clamp:2;line-clamp:2;}
+  .card .desc{grid-column:1 / -1;margin:10px 0 6px;-webkit-line-clamp:2;line-clamp:2;max-height:calc(var(--lh-base) * 2em);}
   .card-foot{grid-column:1 / -1;padding-top:8px;}
   .card:hover{transform:none;}
 }
@@ -1609,7 +1612,7 @@ svg.hub-mtface{clip-path:circle(50% at 50% 50%);}
 .training-banner.b-amber .t-go{color:#8a6410;}
 .training-banner.b-navy{background:linear-gradient(160deg,#eaf1f7 0%,#fff8f2 70%);border-color:#c9dbe8;}
 .training-banner.b-navy .t-go{color:var(--navy-2);}
-/* お金の言葉の辞書（2026-10-29）。隣の100本ノック（紺）・営業カレンダー（空色）と分けて藍にする */
+/* 金融の言葉辞書（2026-10-29）。隣の100本ノック（紺）・営業カレンダー（空色）と分けて藍にする */
 .training-banner.b-indigo{background:linear-gradient(160deg,#efedf8 0%,#fff8f2 70%);border-color:#d9d4ef;}
 .training-banner.b-indigo .t-go{color:#4b4390;}
 /* 公開URLがまだ無いとき（Web上では開けない）の表示 */
@@ -2215,12 +2218,12 @@ body.comp-open #admin .wrap > #hokanNag.bk-nag{display:flex !important;}
           <p>代理店の実務ルール100問。意向把握・比較推奨・告知・乗換募集など。監査で聞かれることと、用意しておく証拠92件の一覧つき。</p></span>
           <span class="t-go" id="compGo"></span>
         </div>
-        <!-- お金の言葉の辞書（2026-10-29 ユーザー指示「AI師匠、ライフプランツールの辞書など、今ある保険ツール内と関連を持たせれるようにしてください」。kanren/SPEC.md 2章・4章）。
+        <!-- 金融の言葉辞書（2026-10-29 ユーザー指示「AI師匠、ライフプランツールの辞書など、今ある保険ツール内と関連を持たせれるようにしてください」。kanren/SPEC.md 2章・4章）。
              中身はライフプランの辞書と同じデータ（lifeplan/vendor/lpjisho-data.js）を読む単独ページ（office-m/hoken-jisho・正本 保険お金の言葉の辞書.html）。
              会社フォルダでは make_agency.py が行き先（INHOUSE の url）をフォルダの中へ差し替える。言葉の数は画面に書かない（足すたびに直さない） -->
-        <div class="training-banner b-indigo" id="jishoBanner" tabindex="0" role="button" aria-label="お金の言葉の辞書を開く">
+        <div class="training-banner b-indigo" id="jishoBanner" tabindex="0" role="button" aria-label="金融の言葉辞書を開く">
           <span class="t-art"><svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#efedf8"/><path d="M15 13h21a7 7 0 0 1 7 7v29H22a7 7 0 0 1-7-7Z" fill="#fffdf8" stroke="#4b4390" stroke-width="2.8" stroke-linejoin="round"/><path d="M15 42a7 7 0 0 1 7-7h21" fill="none" stroke="#4b4390" stroke-width="2.8" stroke-linejoin="round"/><path d="M22 20h13M22 26h9" stroke="#8b83c9" stroke-width="2.6" stroke-linecap="round"/><circle cx="44" cy="43" r="7.5" fill="#fffdf8" stroke="#1b3f5e" stroke-width="2.8"/><path d="m49.5 48.5 5 5" stroke="#1b3f5e" stroke-width="3.4" stroke-linecap="round"/></svg></span>
-          <span class="t-body"><h3>お金の言葉の辞書</h3>
+          <span class="t-body"><h3>金融の言葉辞書</h3>
           <p>お金・税金・保険・不動産から、医療・法律・行政まで、仕事で出会う言葉の意味を引く辞書。言葉ごとに、関係する学習ツールとAI師匠への問いに進めます。</p></span>
           <span class="t-go" id="jishoGo"></span>
         </div>
@@ -5644,6 +5647,84 @@ var TOOLS = [
     url: 'https://office-m-nakatani.github.io/office-m/eigyo-gyakkyou-check/',
     desc: '数字が止まる時期は誰にでも来ます。そこで何をしたかが、そのあとの数年を決めます。やることは気合いを入れ直すことではありません。悪い知らせを早く出すこと、答えの無い問いを決め切ること、体と時間を守ること。現場に先に出る兆しの拾い方と、休みを段取りに入れる考え方まで整理します。'
   },
+  {
+    id: 'eigyo-mikomi-check', short: '見込み客', cat: 'manabi', name: '営業の「見込み客」チェック',
+    owner: '株式会社Office-M', local: 'eigyo-mikomi-check/index.html',
+    url: 'https://office-m-nakatani.github.io/office-m/eigyo-mikomi-check/',
+    desc: '見込みのお客様の名簿は、放っておくと自然に細っていきます。今月の数字だけを追うと、先の仕事の種まきが止まり、その影響は数か月遅れて出てきます。名簿を今月の話・先の話・まだ種の方に分けて持つこと、毎日少しずつ足すこと、紹介はお願いの言い方より紹介したくなる仕事と専門家とのつながりから生まれること、迷惑な連絡にしない線までを、12の問題と7つの逆転劇場で身につけます。'
+  },
+  {
+    id: 'eigyo-junbi-check', short: '準備と仮説', cat: 'manabi', name: '営業の「準備と仮説」チェック',
+    owner: '株式会社Office-M', local: 'eigyo-junbi-check/index.html',
+    url: 'https://office-m-nakatani.github.io/office-m/eigyo-junbi-check/',
+    desc: '高い成果を上げ続けている人ほど、連絡の前に相手を調べています。業界や会社のこと、暮らしの節目、前回の記録。調べたうえで、この面談で確かめたいことを三つに絞って会います。仮説は当てるためではなく、聞くことを絞るための道具です。外れたら捨てて聞き直し、決めつけて話さない。調べたことの渡し方と、調べすぎない線まで、12の問題と7つの逆転劇場で身につけます。'
+  },
+  {
+    id: 'eigyo-shitsumon-check', short: '質問の順番', cat: 'manabi', name: '営業の「質問の順番」チェック',
+    owner: '株式会社Office-M', local: 'eigyo-shitsumon-check/index.html',
+    url: 'https://office-m-nakatani.github.io/office-m/eigyo-shitsumon-check/',
+    desc: '質問の数を増やしても、話は深まりません。今どうなっているかを確かめる質問は欠かせませんが、それだけを重ねると尋問になります。困っていることを伺い、それが何につながるかを相手が自分で気づけるように尋ね、整ったら何が楽になるかを相手自身の言葉で話していただく。悪い場面を積み上げて不安で押さない線、聞く時間のふり返り方まで、12の問題と7つの逆転劇場で身につけます。'
+  },
+  {
+    id: 'eigyo-mikata-check', short: '新しい見方', cat: 'manabi', name: '営業の「新しい見方」チェック',
+    owner: '株式会社Office-M', local: 'eigyo-mikata-check/index.html',
+    url: 'https://office-m-nakatani.github.io/office-m/eigyo-mikata-check/',
+    desc: '役に立っても新しくない情報は、お客様の考えを動かしません。動くのは、お客様ご自身の事実と制度の仕組みを並べたときに、まだ持っていなかった見方が一つ増えたときです。見方の材料の選び方、差し出す前のひと言、相手の立場ごとの入口の変え方、外れたときの引っ込め方、次に確かめることの決め方まで、12の問題と7つの逆転劇場で身につけます。決めるのは、いつもお客様です。'
+  },
+  {
+    id: 'eigyo-shinrai-check', short: '信頼の式', cat: 'manabi', name: '営業の「信頼の式」チェック',
+    owner: '株式会社Office-M', local: 'eigyo-shinrai-check/index.html',
+    url: 'https://office-m-nakatani.github.io/office-m/eigyo-shinrai-check/',
+    desc: '信頼は、言うことが確かか、言ったとおりにするか、打ち明けても大丈夫か、の三つが重なって生まれます。けれども、どれだけそろっていても、月末の数字や商品の話を急ぐ気配が見えた瞬間に崩れます。分からないことの返し方、小さな約束の守り方、聞いた話の扱い方、自分の都合が見える瞬間の点検、与えるのは情報と時間までという線まで、12の問題と7つの逆転劇場で身につけます。'
+  },
+  {
+    id: 'eigyo-kosho-check', short: '断りと交渉', cat: 'manabi', name: '営業の「断りと交渉」チェック',
+    owner: '株式会社Office-M', local: 'eigyo-kosho-check/index.html',
+    url: 'https://office-m-nakatani.github.io/office-m/eigyo-kosho-check/',
+    desc: '断りの言葉は、言い返すための合図ではなく、相手の事情を知る入口です。最後まで言い切っていただくこと、相手の言葉を言い直して合っているかを確かめること、「いいえ」と答えやすい問いを置いて本音を守ること、急いで折り合わずに隠れた事情を探すことを順番に身につけます。押し切った契約は、あとで解約や苦情として戻ってきます。相手の判断を助ける側の交渉を、12の問題と7つの逆転劇場で学びます。'
+  },
+  {
+    id: 'keiei-kokyaku-check', short: 'お客様が先', cat: 'manabi', name: '経営の「お客様が先」チェック',
+    owner: '株式会社Office-M', local: 'keiei-kokyaku-check/index.html',
+    url: 'https://office-m-nakatani.github.io/office-m/keiei-kokyaku-check/',
+    desc: 'サービスが先、利益は後。利益を考えないという意味ではなく、順番の話です。お客様は来てくださるものではない、という謙虚さを持ち、ご契約のあとのご連絡・保全・更新・ご請求の手伝いといった、すぐにお金にならない仕事の水準を先に決めます。続けてくださるお客様とご紹介が会社を支える仕組みと、社長のお客様に長いお客様の理由をうかがう問いまで、12の問題と7つの逆転劇場で身につけます。'
+  },
+  {
+    id: 'keiei-senryaku-check', short: '何をしないか', cat: 'manabi', name: '経営の「何をしないか」チェック',
+    owner: '株式会社Office-M', local: 'keiei-senryaku-check/index.html',
+    url: 'https://office-m-nakatani.github.io/office-m/keiei-senryaku-check/',
+    desc: '戦略とは、何をしないかを決めることです。全てのお客様・全ての仕事を同じ熱で追うと、強みが薄まり、まねされやすくなります。もう一つは、仕事の流れの速さはいちばん細い所で決まるという見方です。細くない所をいくら忙しくしても、全体は進みません。小さな代理店や小さな会社が「全部やる」から抜ける順番を、お預かりした契約を守る線と、競う相手を下げない線とあわせて、12の問題と7つの逆転劇場で身につけます。'
+  },
+  {
+    id: 'keiei-nekime-check', short: '値決めと備え', cat: 'manabi', name: '経営の「値決めと備え」チェック',
+    owner: '株式会社Office-M', local: 'keiei-nekime-check/index.html',
+    url: 'https://office-m-nakatani.github.io/office-m/keiei-nekime-check/',
+    desc: '値決めは、高く売る技術ではありません。お客様が喜んで払える所と、こちらが続けられる所の重なりを探す、経営の中心の仕事です。良い年に余力を残して悪い年に備える考え方、利益ではなく現金の出入りの時期で会社を見る見方とあわせて、自分の仕事の回し方と、社長のお客様との話し方の両方に落とします。税の効果から話を始めない線引きまで、12の問題と7つの逆転劇場で身につけます。'
+  },
+  {
+    id: 'keiei-mokuhyo-check', short: '目標と数字', cat: 'manabi', name: '経営の「目標と数字」チェック',
+    owner: '株式会社Office-M', local: 'keiei-mokuhyo-check/index.html',
+    url: 'https://office-m-nakatani.github.io/office-m/keiei-mokuhyo-check/',
+    desc: '目標は、向かう先を言葉にした部分と、そこへ進んだかを確かめる数に分けると扱いやすくなります。数は少なく絞り、毎週同じ時間に同じ表で見る。結果の数より先に、自分で動かせる行動の数を置く。数で人を比べず、詰まりを見つける道具として使う考え方と、社長のお客様の目標をうかがう問いまで、12の問題と7つの逆転劇場で身につけます。'
+  },
+  {
+    id: 'keiei-shikumi-check', short: '仕組みで回す', cat: 'manabi', name: '経営の「仕組みで回す」チェック',
+    owner: '株式会社Office-M', local: 'keiei-shikumi-check/index.html',
+    url: 'https://office-m-nakatani.github.io/office-m/keiei-shikumi-check/',
+    desc: '小さな会社の多くは、腕のいい人が始めた会社です。腕がいいほど現場の仕事に追われ、仕事の流れそのものを作る時間が後回しになります。いちばん上手な人の順番を書き写す、外してはいけない点だけをそろえる、仕事ごとに名前を一つ書く、毎週同じ形で少しの数字と課題を確かめる。手順は人を縛るためではなく、お客様に同じ質を届けるためのものです。社長のお客様との面談で使える問いまで、12の問題と7つの逆転劇場で身につけます。'
+  },
+  {
+    id: 'keiei-team-check', short: 'チームの信頼', cat: 'manabi', name: '経営の「チームの信頼」チェック',
+    owner: '株式会社Office-M', local: 'keiei-team-check/index.html',
+    url: 'https://office-m-nakatani.github.io/office-m/keiei-team-check/',
+    desc: 'チームが動くかどうかは、弱みを見せても大丈夫だと思える信頼から積み上がります。信頼があると意見をぶつけ合え、ぶつけ合ったから決めたことに関われ、関わったから互いに確かめ合えます。気にかけることとはっきり言うことを同時に行う伝え方、全員の知恵を集める場の作り方、記録の不備を責めずに早く直すための共有まで、12の問題と7つの逆転劇場で身につけます。'
+  },
+  {
+    id: 'keiei-shin-check', short: '変えない芯', cat: 'manabi', name: '経営の「変えない芯」チェック',
+    owner: '株式会社Office-M', local: 'keiei-shin-check/index.html',
+    url: 'https://office-m-nakatani.github.io/office-m/keiei-shin-check/',
+    desc: '長く続く会社は、大事にする考えと何のためにやるかという芯を守りながら、それ以外のやり方を変え続けています。芯は額に飾るものではなく、迷ったときと断るときの判断の基準です。掲げただけで選ばれるものでもありません。考え方・熱意・能力の掛け算で考え方の向きだけはマイナスにもなるという見方も、根性で補う話ではなく、向きを点検する話として扱います。社長のお客様に芯を聞く問いまで、12の問題と7つの逆転劇場で身につけます。'
+  },
   /* ★2026-09-13 心理学編（"type": "psy"）。★○×クイズと体感シミュレーターは置かない指示。
      ②営業あるある＋③逆転劇場の二本立て。体裁の正本は hoken-kyozai-src/kyozai2-template.html */
   {
@@ -5956,7 +6037,7 @@ var INHOUSE = {
   plan:     { local: '保険目標逆算プランナー.html', url: 'https://office-m-nakatani.github.io/office-m/hoken-gyakusan/' },
   cal:      { local: '保険満期カレンダー.html', url: 'https://office-m-nakatani.github.io/office-m/hoken-calendar/' },
   kokyaku:  { local: '保険顧客管理ツール.html', url: 'https://office-m-nakatani.github.io/office-m/hoken-kokyaku/' },
-  /* お金の言葉の辞書（2026-10-29 kanren/SPEC.md 2章）。#w=<言葉> でその言葉を開く。「言葉でさがす」の辞書の行もここへ行く */
+  /* 金融の言葉辞書（2026-10-29 kanren/SPEC.md 2章）。#w=<言葉> でその言葉を開く。「言葉でさがす」の辞書の行もここへ行く */
   jisho:    { local: '保険お金の言葉の辞書.html', url: 'https://office-m-nakatani.github.io/office-m/hoken-jisho/' },
   /* AI師匠は単独ページ（ビルド生成物）。中身の正本は lifeplan/ichijo.html のAI師匠で、
      hoken-mentor-src/build.py が 保険AI師匠.html を作る。ライフプランの中の画面とは保存先を共有する */
@@ -5986,9 +6067,9 @@ var INHOUSE_SEARCH = [
   { key: 'comp', name: '代理店コンプライアンス100本ノック（社内）',
     label: '代理店の実務ルール100問と、監査の想定問答・用意しておく証拠',
     keys: '社内 コンプライアンス コンプラ 法令 保険業法 監査 業務品質 意向把握 比較推奨 情報提供義務 高齢者募集 告知受領権 乗換募集 特別利益 断定的判断 誇大表示 募集文書 個人情報 体制整備 苦情 反社 帳簿' },
-  { key: 'jisho', name: 'お金の言葉の辞書（社内）',
+  { key: 'jisho', name: '金融の言葉辞書（社内）',
     label: 'お金・税金・保険・不動産から、医療・法律・行政まで、言葉の意味を引く。言葉ごとに、関係する学習ツールとAI師匠への問いへ',
-    keys: '社内 辞書 用語 用語集 言葉 言葉の意味 意味 調べる 引く 読み方 別の呼び名 計算式 計算のしかた' },
+    keys: '社内 辞書 金融の言葉辞書 金融 お金の言葉の辞書 お金の辞書 用語 用語集 言葉 言葉の意味 意味 調べる 引く 読み方 別の呼び名 計算式 計算のしかた' },
   { key: 'shikaku', name: '保険資格試験トレーニング（社内）',
     label: '生保協会（大学課程まで）・損保（大学課程まで）・FP3〜1級のテキスト＋想定問題6,000問以上／赤文字と赤シート・蛍光ペン・読了の記録／FP1級・CFPのAI相談室',
     keys: '社内 資格 試験 試験対策 問題集 過去問 想定問題 模試 模擬テスト テキスト 教科書 一般課程 専門課程 変額 応用課程 大学課程 損保 基礎単位 商品単位 FP ファイナンシャルプランナー 3級 2級 1級 CFP AFP AI相談 相談 免除 勉強 学習 合格 赤文字 赤シート 蛍光ペン マーカー 線を引く 読了 しおり 続きから 図解' },
@@ -7708,6 +7789,19 @@ var TOOL_ART = {
   'eigyo-handan-check': '<svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#fdeee9"/><path d="M30 10v10M30 20H12M30 20h18" fill="none" stroke="#1b3f5e" stroke-width="2.8" stroke-linecap="round"/><rect x="25" y="40" width="10" height="14" rx="2.5" fill="#1b3f5e"/><path d="M18 56h24" stroke="#1b3f5e" stroke-width="3.2" stroke-linecap="round"/><path d="M12 20 5 36h14Z" fill="#fbd8c6" stroke="#c2453f" stroke-width="2.2" stroke-linejoin="round"/><path d="M48 20l-7 12h14Z" fill="#cfe3f2" stroke="#24729f" stroke-width="2.2" stroke-linejoin="round"/><circle cx="48" cy="44" r="9" fill="none" stroke="#2c7a4b" stroke-width="2.8"/><path d="M54 50l6 6" stroke="#2c7a4b" stroke-width="3" stroke-linecap="round"/></svg>',
   'eigyo-tachiichi-check': '<svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#fdf3e2"/><circle cx="24" cy="26" r="16" fill="#cfe3f2" opacity=".8" stroke="#24729f" stroke-width="2.2"/><circle cx="40" cy="26" r="16" fill="#cfe6d7" opacity=".8" stroke="#2c7a4b" stroke-width="2.2"/><circle cx="32" cy="40" r="16" fill="#fbe6bd" opacity=".8" stroke="#a8701a" stroke-width="2.2"/><circle cx="32" cy="31" r="5" fill="#c2453f"/></svg>',
   'eigyo-gyakkyou-check': '<svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#e8f4fb"/><path d="M8 52V14M8 52h48" fill="none" stroke="#1b3f5e" stroke-width="2.8" stroke-linecap="round"/><path d="M13 26c7 0 10 6 14 13" fill="none" stroke="#c2453f" stroke-width="3.2" stroke-linecap="round"/><path d="M27 39c5 0 9-6 13-13 3-5 6-8 10-9" fill="none" stroke="#2c7a4b" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="5 4"/><circle cx="27" cy="39" r="5" fill="#f7c34e" stroke="#a8701a" stroke-width="2.2"/><circle cx="52" cy="16" r="5" fill="#2c7a4b"/></svg>',
+  'eigyo-mikomi-check': '<svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#eef6e0"/><rect x="7" y="12" width="24" height="32" rx="4" fill="#fffdf8" stroke="#1b3f5e" stroke-width="2.6"/><rect x="11" y="18" width="5" height="5" rx="1.5" fill="#fbd8c6"/><rect x="11" y="26" width="5" height="5" rx="1.5" fill="#cfe6d7"/><rect x="11" y="34" width="5" height="5" rx="1.5" fill="#fbe6bd"/><path d="M19 20.5h8M19 28.5h6M19 36.5h8" stroke="#d9cfc4" stroke-width="2.2" stroke-linecap="round"/><path d="M30 54h28" stroke="#a8701a" stroke-width="3" stroke-linecap="round"/><ellipse cx="36" cy="52" rx="2.6" ry="1.8" fill="#8a5a2b"/><path d="M45 53v-7" stroke="#2c7a4b" stroke-width="2.4" stroke-linecap="round"/><path d="M45 48c-4-1-6-4-6-7 4 .5 6 3 6 7ZM45 47c3.5-1.5 6-4.5 6-8-4 1-6 4-6 8Z" fill="#5fb37a"/><path d="M54 53V30" stroke="#2c7a4b" stroke-width="2.6" stroke-linecap="round"/><path d="M54 46c-5-1-8-5-8-9 5 .5 8 4 8 9ZM54 39c5-2 8-6 8-11-5 1.5-8 5-8 11Z" fill="#5fb37a"/><circle cx="54" cy="27" r="3.6" fill="#f7c34e" stroke="#a8701a" stroke-width="1.8"/></svg>',
+  'eigyo-junbi-check': '<svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#eef3fb"/><rect x="9" y="25" width="16" height="27" rx="2" fill="#cfe3f2" stroke="#24729f" stroke-width="2.4"/><path d="M13 31h3M18 31h3M13 37h3M18 37h3M13 43h3M18 43h3" stroke="#24729f" stroke-width="2" stroke-linecap="round"/><path d="M27 37l9-8 9 8v15H27Z" fill="#fbd8c6" stroke="#c2453f" stroke-width="2.4" stroke-linejoin="round"/><rect x="33" y="43" width="6" height="9" fill="#fffdf8" stroke="#c2453f" stroke-width="1.8"/><circle cx="42" cy="21" r="10" fill="#fffdf8" stroke="#1b3f5e" stroke-width="3"/><path d="M49 28l7 7" stroke="#1b3f5e" stroke-width="4" stroke-linecap="round"/><circle cx="38" cy="21" r="1.8" fill="#2c7a4b"/><circle cx="42" cy="21" r="1.8" fill="#2c7a4b"/><circle cx="46" cy="21" r="1.8" fill="#2c7a4b"/></svg>',
+  'eigyo-shitsumon-check': '<svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#f7f2e4"/><rect x="7" y="38" width="11" height="12" rx="2" fill="#cfe3f2" stroke="#24729f" stroke-width="2.2"/><rect x="19" y="31" width="11" height="19" rx="2" fill="#cfe6d7" stroke="#2c7a4b" stroke-width="2.2"/><rect x="31" y="24" width="11" height="26" rx="2" fill="#fbe6bd" stroke="#a8701a" stroke-width="2.2"/><rect x="43" y="17" width="11" height="33" rx="2" fill="#fbd8c6" stroke="#c2453f" stroke-width="2.2"/><path d="M12 33c4-6 8-8 12-8M24 26c4-6 8-8 12-8M36 19c4-6 8-8 12-8" fill="none" stroke="#1b3f5e" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 3"/></svg>',
+  'eigyo-mikata-check': '<svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#f1eefa"/><rect x="7" y="16" width="34" height="34" rx="4" fill="#fffdf8" stroke="#1b3f5e" stroke-width="2.6"/><path d="M12 27h24M12 40h24" stroke="#d9cfc4" stroke-width="2.2" stroke-linecap="round"/><circle cx="16" cy="27" r="3.4" fill="#cfe3f2" stroke="#24729f" stroke-width="2"/><circle cx="31" cy="40" r="3.4" fill="#fbe6bd" stroke="#a8701a" stroke-width="2"/><path d="M18 30c2 6 7 9 11 9" fill="none" stroke="#c2453f" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="3.5 3"/><path d="M50 12c-6 0-10 4.6-10 10 0 4 2 6 4 8 1.4 1.4 2 2.8 2 5h8c0-2.2.6-3.6 2-5 2-2 4-4 4-8 0-5.4-4-10-10-10Z" fill="#fff3c9" stroke="#a8701a" stroke-width="2.4" stroke-linejoin="round"/><path d="M46.5 39h7M47.5 43h5" stroke="#a8701a" stroke-width="2.4" stroke-linecap="round"/></svg>',
+  'eigyo-shinrai-check': '<svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#fdf0f5"/><rect x="8" y="13" width="14" height="14" rx="3.5" fill="#cfe3f2" stroke="#24729f" stroke-width="2.2"/><rect x="25" y="13" width="14" height="14" rx="3.5" fill="#cfe6d7" stroke="#2c7a4b" stroke-width="2.2"/><rect x="42" y="13" width="14" height="14" rx="3.5" fill="#fbe6bd" stroke="#a8701a" stroke-width="2.2"/><path d="M8 35h48" stroke="#1b3f5e" stroke-width="3.2" stroke-linecap="round"/><rect x="26.5" y="42" width="11" height="10" rx="3" fill="#fdeee9" stroke="#c2453f" stroke-width="2.2"/></svg>',
+  'eigyo-kosho-check': '<svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#e6f4f2"/><path d="M10 9h28a5 5 0 0 1 5 5v14a5 5 0 0 1-5 5H22l-9 7v-7h-3a5 5 0 0 1-5-5V14a5 5 0 0 1 5-5Z" fill="#fdeee9" stroke="#c2453f" stroke-width="2.4" stroke-linejoin="round"/><path d="M11 17h24M11 25h15" stroke="#e8b4a4" stroke-width="3.2" stroke-linecap="round"/><path d="M54 30H28a5 5 0 0 0-5 5v12a5 5 0 0 0 5 5h14l8 6v-6h4a5 5 0 0 0 5-5V35a5 5 0 0 0-5-5Z" fill="#fffdf8" stroke="#1f7a72" stroke-width="2.4" stroke-linejoin="round"/><path d="M28 38h15" stroke="#9fd1ca" stroke-width="3.2" stroke-linecap="round"/><path d="M45 43l3.2 3.4 6-6.6" fill="none" stroke="#2c7a4b" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M28 46h9" stroke="#9fd1ca" stroke-width="3.2" stroke-linecap="round"/></svg>',
+  'keiei-kokyaku-check': '<svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#f3efe8"/><g transform="translate(-5 0)"><path d="M10 30 30 14l20 16" fill="none" stroke="#1b3f5e" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><rect x="15" y="28" width="30" height="24" rx="2.5" fill="#fffdf8" stroke="#1b3f5e" stroke-width="2.6"/><rect x="26" y="38" width="9" height="14" rx="1.8" fill="#27587f"/><path d="M30 33c-3.4-2.4-5-4-5-6 0-1.5 1.1-2.6 2.5-2.6 1 0 1.9.6 2.5 1.5.6-.9 1.5-1.5 2.5-1.5 1.4 0 2.5 1.1 2.5 2.6 0 2-1.6 3.6-5 6Z" fill="#c2453f"/></g><g transform="translate(6 -2)"><path d="M50 40a9 9 0 1 1-4-7.5" fill="none" stroke="#2c7a4b" stroke-width="2.8" stroke-linecap="round"/><path d="M44 29l3 4-4.6 1.4" fill="none" stroke="#2c7a4b" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></g></svg>',
+  'keiei-senryaku-check': '<svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#f5e6ec"/><path d="M9 16h22l-7 14v4l7 14H9l7-14v-4Z" fill="#cfe3f2" stroke="#1b3f5e" stroke-width="2.6" stroke-linejoin="round"/><circle cx="20" cy="32" r="3.4" fill="#c2453f"/><rect x="37" y="16" width="15" height="8" rx="3" fill="#fffdf8" stroke="#a89c91" stroke-width="2"/><path d="M39 20h11" stroke="#a89c91" stroke-width="2" stroke-linecap="round"/><rect x="37" y="28" width="15" height="8" rx="3" fill="#fffdf8" stroke="#a89c91" stroke-width="2"/><path d="M39 32h11" stroke="#a89c91" stroke-width="2" stroke-linecap="round"/><rect x="37" y="40" width="15" height="8" rx="3" fill="#cfe6d7" stroke="#2c7a4b" stroke-width="2.4"/><path d="M41 44l2.4 2.4 4-4.6" fill="none" stroke="#2c7a4b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  'keiei-nekime-check': '<svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#e3e9f6"/><path d="M20 18v34M12 52h16M9 20h22" fill="none" stroke="#1b3f5e" stroke-width="2.6" stroke-linecap="round"/><circle cx="20" cy="19" r="3" fill="#f7c34e" stroke="#a8701a" stroke-width="1.8"/><path d="M9 20l-4 12M9 20l4 12M31 20l-4 12M31 20l4 12" stroke="#8a9bab" stroke-width="1.5"/><path d="M4 32h10a5 4 0 0 1-10 0Z" fill="#cfe6d7" stroke="#2c7a4b" stroke-width="2" stroke-linejoin="round"/><path d="M26 32h10a5 4 0 0 1-10 0Z" fill="#fbd8c6" stroke="#c2453f" stroke-width="2" stroke-linejoin="round"/><rect x="41" y="26" width="16" height="26" rx="3" fill="#fffdf8" stroke="#24729f" stroke-width="2.4"/><path d="M43 50V40c3 1.6 9 1.6 12 0v10Z" fill="#a9cde6"/><path d="M57 32h3M57 38h3M57 44h3" stroke="#24729f" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  'keiei-mokuhyo-check': '<svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#f9f6dc"/><path d="M14 10v26" stroke="#1b3f5e" stroke-width="2.8" stroke-linecap="round"/><path d="M15 11h20l-5 6 5 6H15Z" fill="#c2453f" stroke="#a8322d" stroke-width="1.6" stroke-linejoin="round"/><path d="M8 54h48" stroke="#1b3f5e" stroke-width="2.8" stroke-linecap="round"/><rect x="24" y="42" width="6" height="12" rx="1.6" fill="#a9cde6"/><rect x="33" y="36" width="6" height="18" rx="1.6" fill="#a9cde6"/><rect x="42" y="39" width="6" height="15" rx="1.6" fill="#a9cde6"/><rect x="51" y="30" width="6" height="24" rx="1.6" fill="#24729f"/><circle cx="14" cy="45" r="7" fill="#fffdf8" stroke="#2c7a4b" stroke-width="2.4"/><path d="M10.6 45l2.4 2.6 4.2-4.8" fill="none" stroke="#2c7a4b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  'keiei-shikumi-check': '<svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#e7f3fa"/><rect x="6" y="16" width="14" height="14" rx="3.5" fill="#cfe6d7" stroke="#2c7a4b" stroke-width="2.2"/><rect x="25" y="16" width="14" height="14" rx="3.5" fill="#fbe6bd" stroke="#a8701a" stroke-width="2.2"/><rect x="44" y="16" width="14" height="14" rx="3.5" fill="#cfe3f2" stroke="#24729f" stroke-width="2.2"/><path d="M20.5 23h3.5M39.5 23h3.5" stroke="#1b3f5e" stroke-width="2.4" stroke-linecap="round"/><path d="M51 33v5c0 6-4 10-10 10H23c-6 0-10-4-10-10v-5" fill="none" stroke="#c2453f" stroke-width="2.6" stroke-linecap="round"/><path d="M9.5 36.5 13 32.5l3.5 4" fill="none" stroke="#c2453f" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M28 48l3.2 3.4 6-6.6" fill="none" stroke="#2c7a4b" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" transform="translate(-0.5 -3)"/></svg>',
+  'keiei-team-check': '<svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#f1eefb"/><rect x="8" y="46" width="34" height="8" rx="2.5" fill="#2c7a4b"/><rect x="12" y="37" width="26" height="8" rx="2.5" fill="#a9cde6"/><rect x="16" y="28" width="18" height="8" rx="2.5" fill="#cfe3f2" stroke="#24729f" stroke-width="1.6"/><rect x="19" y="19" width="12" height="8" rx="2.5" fill="#fbe6bd" stroke="#a8701a" stroke-width="1.6"/><rect x="22" y="10" width="6" height="8" rx="2" fill="#fbd8c6" stroke="#c2453f" stroke-width="1.6"/><path d="M42 12h14a4 4 0 0 1 4 4v8a4 4 0 0 1-4 4h-7l-6 5v-5a4 4 0 0 1-4-4v-8a4 4 0 0 1 3-4Z" fill="#fffdf8" stroke="#6b4fa0" stroke-width="2.4" stroke-linejoin="round"/><circle cx="51" cy="44" r="5" fill="#f7cdb4"/><path d="M44 58c0-6 3-9 7-9s7 3 7 9Z" fill="#1b3f5e"/></svg>',
+  'keiei-shin-check': '<svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#fbf0e6"/><path d="M10 52h44" stroke="#8a5a3c" stroke-width="2.6" stroke-linecap="round"/><path d="M28 52c1-9 1-17 .5-25h7c-.5 8-.5 16 .5 25Z" fill="#a8703f"/><path d="M32 50V29" stroke="#c2453f" stroke-width="2.4" stroke-linecap="round"/><path d="M27 52c-3 2-7 3-10 3M37 52c3 2 7 3 10 3" fill="none" stroke="#8a5a3c" stroke-width="2.2" stroke-linecap="round"/><circle cx="21" cy="25" r="9" fill="#b3e3b8"/><circle cx="43" cy="24" r="9.5" fill="#cfe6d7"/><circle cx="32" cy="16" r="10.5" fill="#9fd4a6"/><circle cx="18" cy="22" r="2.4" fill="#f7c34e"/><circle cx="46" cy="20" r="2.4" fill="#fbd8c6"/><circle cx="35" cy="11" r="2.2" fill="#cfe3f2"/></svg>',
   /* ★2026-09-13 心理学編4本（あるある＋逆転劇場） */
   'shinri-kodokeizai-check': '<svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#fdf3e2"/><path d="M30 10v8M30 18H13M30 18h17" fill="none" stroke="#1b3f5e" stroke-width="2.8" stroke-linecap="round"/><rect x="25" y="40" width="10" height="13" rx="2.5" fill="#1b3f5e"/><path d="M18 55h24" stroke="#1b3f5e" stroke-width="3.2" stroke-linecap="round"/><path d="M13 18 6 33h14Z" fill="#fbd8c6" stroke="#c2453f" stroke-width="2.2" stroke-linejoin="round"/><path d="M47 18l-7 11h14Z" fill="#cfe3f2" stroke="#24729f" stroke-width="2.2" stroke-linejoin="round"/><circle cx="13" cy="38" r="5" fill="#c2453f"/><circle cx="47" cy="34" r="5" fill="#24729f"/></svg>',
   'shinri-kodo-check': '<svg aria-hidden="true" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#e8f6ef"/><rect x="5" y="22" width="16" height="20" rx="4" fill="#cfe3f2" stroke="#24729f" stroke-width="2.4"/><rect x="24" y="22" width="16" height="20" rx="4" fill="#fbe6bd" stroke="#a8701a" stroke-width="2.4"/><rect x="43" y="22" width="16" height="20" rx="4" fill="#cfe6d7" stroke="#2c7a4b" stroke-width="2.4"/><path d="M21 32h3M40 32h3" stroke="#1b3f5e" stroke-width="2.6" stroke-linecap="round"/><path d="M19 28l4 4-4 4M38 28l4 4-4 4" fill="none" stroke="#1b3f5e" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M51 46v4c0 4-5 6-12 6H19c-6 0-8-3-8-6v-4" fill="none" stroke="#c2453f" stroke-width="2.6" stroke-dasharray="5 4"/></svg>',
@@ -8051,6 +8145,19 @@ var TOOL_HERO = {
   'eigyo-handan-check': '効くからこそ、押すためには使いません。',
   'eigyo-tachiichi-check': '全員に向けた話は、誰にも届きません。',
   'eigyo-gyakkyou-check': 'うまくいかない時期に、何を続けるか。',
+  'eigyo-mikomi-check': '月末に慌てる理由は、数か月前の名簿にあります。',
+  'eigyo-junbi-check': '会いに行く前に、確かめたいことを三つ言えますか。',
+  'eigyo-shitsumon-check': '質問は多いのに、話が深まらないのはなぜですか。',
+  'eigyo-mikata-check': '知っていることを並べるより、まだ無い見方を一つ。',
+  'eigyo-shinrai-check': '信頼は、自分の都合で割られています。',
+  'eigyo-kosho-check': '断られた瞬間が、いちばん大事な聞き取りです。',
+  'keiei-kokyaku-check': 'ご契約の日は、お付き合いの一日目です。',
+  'keiei-senryaku-check': '全部やろうとして、いちばん細い所を見落としていませんか。',
+  'keiei-nekime-check': 'その値段で、悪い年も続けられますか。',
+  'keiei-mokuhyo-check': '目標が多いほど、今週やることが決まりません。',
+  'keiei-shikumi-check': 'その仕事、あなたが休むと止まりませんか。',
+  'keiei-team-check': '会議では、全員が賛成した。なのに誰も動いていない。',
+  'keiei-shin-check': '変えてはいけないものと、変えていいものを分けていますか。',
   'shinri-kodokeizai-check': '正しい説明なのに、なぜ決まらないのか。',
   'shinri-kodo-check': '人が動くのは、正しさの後です。',
   'shinri-taijin-check': '怒っている人は、怒りたいわけではありません。',
@@ -9054,7 +9161,9 @@ var TOOL_GROUPS = {
   manabi: [
     ["保険の実務", ["hoshou-konkyo-check", "kaisei2025-check", "houjin-iriguchi-check", "houjin-okiba-check", "jishakabu-souzoku-check", "shokei-nenrei-check", "taishokukin-zei-check"]],
     ["伝え方と心理", ["kanjou-ronri-check", "tatoe-check", "shinri-kodokeizai-check", "shinri-kodo-check", "shinri-taijin-check", "shinri-bamen-check"]],
-    ["営業の土台", ["eigyo-jikan-check", "eigyo-kiku-check", "eigyo-shukan-check", "eigyo-handan-check", "eigyo-tachiichi-check", "eigyo-gyakkyou-check", "bungyou-team-check", "ai-jidai-check"]]
+    ["営業の土台", ["eigyo-jikan-check", "eigyo-kiku-check", "eigyo-shukan-check", "eigyo-handan-check", "eigyo-tachiichi-check", "eigyo-gyakkyou-check", "bungyou-team-check", "ai-jidai-check"]],
+    ["営業の基本", ["eigyo-mikomi-check", "eigyo-junbi-check", "eigyo-shitsumon-check", "eigyo-mikata-check", "eigyo-shinrai-check", "eigyo-kosho-check"]],
+    ["経営の本質", ["keiei-kokyaku-check", "keiei-senryaku-check", "keiei-nekime-check", "keiei-mokuhyo-check", "keiei-shikumi-check", "keiei-team-check", "keiei-shin-check"]]
   ]
 };
 var TOOL_GIDX = (function () {
@@ -9471,7 +9580,7 @@ function tsRowHTML(h) {
    KNR_VER は索引の版（道具が書き換える。読むときの ?v=）。辞書の行は辞書のページの #w=、AI師匠の行は師匠の #q= を別の画面で開く。
    探す言葉のそろえ方は学習ツールと同じ（normQ・qAlts）。索引の側は道具が同じそろえ方で書いてある
    ------------------------------------------------------------ */
-var KNR_VER = '69192735';   /* OMKNRVER */
+var KNR_VER = '79137127';   /* OMKNRVER */
 var KNR = null, knrState = 0;   /* 0＝まだ 1＝読んでいる 2＝読めた 3＝読めなかった */
 var knrOpen = { q: '', w: false, m: false };
 var KNR_W = 6, KNR_WMAX = 40, KNR_M = 4, KNR_MMAX = 12;
@@ -9698,7 +9807,7 @@ function knrResultHTML(q, hits, extra, near, kf) {
   /* 辞書の言葉 */
   if (wl.length) {
     var capW = Math.min(wl.length, KNR_WMAX), showW = knrOpen.w ? capW : Math.min(capW, KNR_W);
-    h += knrBlockHTML('knrBlkW', '辞書の言葉', wl.length + '語', '押すと、お金の言葉の辞書がその言葉の意味を、別の画面で開きます。',
+    h += knrBlockHTML('knrBlkW', '辞書の言葉', wl.length + '語', '押すと、金融の言葉辞書がその言葉の意味を、別の画面で開きます。',
       wl.slice(0, showW).map(knrWRowHTML).join(''), true,
       (showW < capW ? '<button type="button" class="ts-blk-more" data-knrmore="w">ほかの' + (capW - showW) + '語も見る</button>' : '') +
       (knrOpen.w && wl.length > capW ? '<p class="ts-blk-n">近い順に' + capW + '語までを出しています。言葉を足すと絞り込めます。</p>' : ''));
@@ -16492,6 +16601,9 @@ function auInitButtons() {
    ★お客様に見せる文言ではないが、効果の数字や断定（必ず・絶対）は書かない。
    ============================================================ */
 var UPDATES = [
+  { id: '2026-11-01-eigyokeiei', date: '2026-11-01', target: 'cat:manabi',
+    title: '営業マンの学び：「営業の基本」6本と「経営の本質」7本を追加',
+    body: 'いろいろな業界で高い成果を上げ続けている営業の方と経営者が、当たり前にしていることを13本の教材にしました。見込み客・準備・質問の順番・新しい見方・信頼・断りと交渉の「営業の基本」と、お客様が先・何をしないか・値決め・目標と数字・仕組み・チームの信頼・変えない芯の「経営の本質」です。あわせて、社内ツールの辞書の名前を「金融の言葉辞書」に改めました。' },
   { id: '2026-11-01-onepoint', date: '2026-11-01', target: 'sec:essSec',
     title: '「今日のワンポイント」に変わりました（医療と年代別の数字）',
     body: '画面の上の近道、営業カレンダーの右の「商談のエッセンス」を「今日のワンポイント」に改めました。押すと、独身世帯・これから結婚・子育て世代・セカンドライフ・終活・医療（全世代）のカードが並び、これからお会いするお客様に近いものを選ぶと、商談のワンポイントに使える学習ツールを根拠と中身つきで提案します。医療はお客様の年代を選ぶと、がん・入院と通院・入院日数・死因・受けられる検診を、公的な統計の数字で図にして見られます。学習ツールにも『数字で見る病気と備え』と『医療保険、使わずに済んだら損ですか。』を足しました。' },   /* ESSENCE-NEWS-ITEM */
@@ -16503,16 +16615,16 @@ var UPDATES = [
     body: '今日の仕事は、3つのカードに件数と札（要対応・不備・チームの分など）だけを出し、押すとその下に一覧が開く形にしました。もう一度押すと閉じます。学習ツールは、分野ごとに似たもの同士を近くに並べ、組の名前の見出しを付けました。生命保険は、医療保険・死亡保険・年金保険と貯める保険・保険のしくみと手続き・保険と税金と相続・法人の保険の順です。これまでどおり、つかんで動かすと並べ替えられます。並べ替えた分野には「並びを初めの形に戻す」が出ます。前に並べ替えていた方も、今回だけ新しい並びで開きます（お気に入りはそのままです）。' },
   { id: '2026-10-31-seimei6', date: '2026-10-31', target: 'cat:life',
     title: '生命保険：学習資料を6つ足しました',
-    body: '生命保険の分野に、保険料のしくみ（純保険料と付加保険料・三つの予定率）、保険料の払い方（前納・一時払い・払込期間）、契約日と保険年齢（責任開始日・契約応当日・介入権）、貯める保険の見分け方（死亡・生存・生死混合）、定期付終身と転換、保険の決まり（保険法と保険業法）を足しました。入口・30秒の核心・現場あるある・逆転劇場・明日の問いは、ほかの生命保険のページと同じ作りです。お金の言葉の辞書でこれらの言葉を引くと、このページにも飛べます。' },
+    body: '生命保険の分野に、保険料のしくみ（純保険料と付加保険料・三つの予定率）、保険料の払い方（前納・一時払い・払込期間）、契約日と保険年齢（責任開始日・契約応当日・介入権）、貯める保険の見分け方（死亡・生存・生死混合）、定期付終身と転換、保険の決まり（保険法と保険業法）を足しました。入口・30秒の核心・現場あるある・逆転劇場・明日の問いは、ほかの生命保険のページと同じ作りです。金融の言葉辞書でこれらの言葉を引くと、このページにも飛べます。' },
   { id: '2026-10-31-shosai', date: '2026-10-31', target: 'sec:todaySec',
     title: '不備の行を押すと、その場で中身が出ます',
     body: '今日の仕事の「提出書類」「記録の不備」の行は、押すと画面を移らずに中身の窓が開きます。押す前から、不備の数や対応中の札が行に出ています。コンプライアンスの記録の画面の数の札（記録の不備がある・対応中ほか）は、押すとその記録だけを一覧に出します。管理職モードと保管フォルダの要対応の件数、顧客管理の担当者ごと・月ごと・メンバー表の要対応、自己点検の区分、苦情の台帳の行、抜き取りで選んだ記録からも、中身を開けます。' },
   { id: '2026-10-31-mentor-more', date: '2026-10-31', target: 'inh:mentor',
     title: 'AI師匠：答えられる問いと返事の種類を増やしました',
-    body: 'よくある問いの答え・相談の型・断り文句の返し・知識・例え話を大きく足しました。1つの返事の長さは今までどおりです。よくある問いの答えの下には「あわせて見る」で、その話の学習ツールとお金の言葉の辞書の言葉が並び、押すと別の画面で開きます。「◯◯とは？」と聞いたとき、師匠が決まった答えを持っていない言葉でも、辞書にある言葉なら、辞書の意味と確かめる先で答えます。' },
+    body: 'よくある問いの答え・相談の型・断り文句の返し・知識・例え話を大きく足しました。1つの返事の長さは今までどおりです。よくある問いの答えの下には「あわせて見る」で、その話の学習ツールと金融の言葉辞書の言葉が並び、押すと別の画面で開きます。「◯◯とは？」と聞いたとき、師匠が決まった答えを持っていない言葉でも、辞書にある言葉なら、辞書の意味と確かめる先で答えます。' },
   { id: '2026-10-29-kanren', date: '2026-10-29', target: 'inh:jisho',
     title: '辞書と学習ツール・AI師匠が繋がりました',
-    body: '「言葉で探す」に言葉を入れると、学習ツールに加えて、お金の言葉の辞書の言葉と、AI師匠への問いも並びます。押すと別の画面が開き、辞書はその言葉の意味を、AI師匠はその問いへの答えを出します。社内ツールの「学ぶ・鍛える」に「お金の言葉の辞書」のカードも足しました。' },
+    body: '「言葉で探す」に言葉を入れると、学習ツールに加えて、金融の言葉辞書の言葉と、AI師匠への問いも並びます。押すと別の画面が開き、辞書はその言葉の意味を、AI師匠はその問いへの答えを出します。社内ツールの「学ぶ・鍛える」に「金融の言葉辞書」のカードも足しました。' },
   { id: '2026-10-29-bd', date: '2026-10-29', target: 'sec:auditSec',
     title: '管理職モード：掲示板・一言・契約一覧の照合・月の点検の記録',
     body: '管理職と共有で繋いでいるチームに、掲示板で周知事項と確認事項を届けられます（確認が要る投稿は、誰が「確認しました」を押したかが分かります）。管理職モードの概要からは、メンバーの記録の不備に一言（200字まで）を添えられ、メンバーの今日の仕事のその行の下に出ます。一言は承認ではなく、記録は変わりません。あわせて、保険会社の契約一覧（CSV）をチーム全員の要約と突き合わせ、意向把握・比較推奨の記録が無い契約を人ごとに出す「契約一覧の照合」と、月ごとの数（作成率・不備・提出の遅れ・面談・ログイン）を前の月と並べて確認を残せる「月の点検」を足しました。月の点検の数は管理のための数で、評価の資料ではありません。' },
