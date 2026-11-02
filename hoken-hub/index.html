@@ -754,6 +754,14 @@ button.cp-tile.cp-tile-go:focus-visible{outline:3px solid #1a5487;outline-offset
 .cp-tgrid.cp-tgrid1{grid-template-columns:1fr;}
 @media(max-width:1180px){ .cp-tgrid.cp-tgrid5{grid-template-columns:repeat(2,minmax(0,1fr));} .cp-tgrid.cp-tgrid5 > :last-child:nth-child(odd){grid-column:1/-1;} }
 @media(max-width:760px){ .cp-tgrid.cp-tgrid5{grid-template-columns:1fr;} }
+/* 管理職と共有・点検の備えも、毎日の記録と同じ正方形に近いカードに（2026-11-02 ユーザー指示「長細いものと正方形みたいなもので画面が見にくいのを防ぐため」）。
+   PC は2つの段を横に並べて3枚を同じ幅に（1:2）、2つの段のカードの高さもそろえる。1180px 以下は毎日の記録と同じ2列の幅、携帯は縦に積む。★横いっぱいの細長い帯（.wide）に戻さない */
+.cp-hpair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:0 var(--sp-3);}
+.cp-hgrp{display:grid;grid-template-rows:auto 1fr;min-width:0;}
+.cp-hgrp > .cp-tgrid{height:100%;}
+.cp-tgrid.cp-tgrid2{grid-template-columns:repeat(2,minmax(0,1fr));}
+@media(max-width:1180px){ .cp-hpair{grid-template-columns:1fr;} .cp-tgrid.cp-tgrid1{grid-template-columns:repeat(2,minmax(0,1fr));} }   /* 毎日の記録と同じ2列の幅に */
+@media(max-width:760px){ .cp-tgrid.cp-tgrid1, .cp-tgrid.cp-tgrid2{grid-template-columns:1fr;} }
 @media(max-width:560px){
 }
 @media(max-width:560px){
@@ -1189,7 +1197,7 @@ button.cp-tile.cp-tile-go:focus-visible{outline:3px solid #1a5487;outline-offset
   /* 4つは2列×2段（3列のままだと4つ目だけが1つで下に落ちる） */
   .quick{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
   .q-btn{justify-content:flex-start;gap:8px;padding:6px 10px 6px 6px;border-radius:14px;min-height:56px;
-    font-size:var(--fs-xs);line-height:1.35;text-align:left;}
+    font-size:var(--fs-xs);line-height:1.35;text-align:left;word-break:keep-all;}   /* 「今日のワンポイン／ト」と語の途中で折らない（<wbr> の所でだけ折る） */
 }
 /* ---------- 今日の仕事（#todaySec・2026-10-06）。色はこのページの変数だけ。赤い数は「直すこと」だけ ----------
    2026-10-07 ユーザー指示：声かけ（満期カレンダー）のカードを外して3枚に／「◯◯を開く」の字ではなく、白い枠を押すと開く／
@@ -2122,8 +2130,7 @@ body.comp-open #admin .wrap > #hokanNag.bk-nag{display:flex !important;}
       <button type="button" class="q-btn q-mentor" data-quick="mentor"><span class="q-ico" id="quickFace" aria-hidden="true"></span>AI師匠に相談</button>
       <button type="button" class="q-btn q-comp" data-quick="comp"><span class="q-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3.5" width="14" height="17.5" rx="2"/><path d="M9 3.5h6v2.5H9z"/><path d="m9 13 2 2 4-4.5"/></svg></span>コンプライアンス</button>
       <button type="button" class="q-btn q-sales" data-quick="sales"><span class="q-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.2"/><path d="M3.5 9.8h17"/><path d="M8 3v4"/><path d="M16 3v4"/><path d="M7.5 13.5h2"/><path d="M11 13.5h2"/><path d="M14.5 13.5h2"/><path d="M7.5 16.8h2"/><path d="M11 16.8h2"/></svg></span>営業カレンダー</button>
-      <!-- ESSENCE-BTN-BEGIN --><button type="button" class="q-btn q-ess" data-quick="essence" aria-expanded="false" aria-controls="essSec"><span class="q-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.4 1.1 2.2h5c0-.8.4-1.6 1.1-2.2A6 6 0 0 0 12 3Z"/></svg></span>今日のワンポイント</button><!-- ESSENCE-BTN-END -->
-      <button type="button" class="q-btn q-inh" data-quick="inhouse"><span class="q-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.6"/><rect x="13" y="4" width="7" height="7" rx="1.6"/><rect x="4" y="13" width="7" height="7" rx="1.6"/><rect x="13" y="13" width="7" height="7" rx="1.6"/></svg></span>社内ツールの一覧</button>
+      <!-- ESSENCE-BTN-BEGIN --><button type="button" class="q-btn q-ess" data-quick="essence" aria-expanded="false" aria-controls="essSec"><span class="q-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.4 1.1 2.2h5c0-.8.4-1.6 1.1-2.2A6 6 0 0 0 12 3Z"/></svg></span>今日の<wbr>ワンポイント</button><!-- ESSENCE-BTN-END -->
     </nav>
     <!-- ESSENCE-HTML-BEGIN -->
     <!-- 今日のワンポイント（2026-11-01 ユーザー指示。中身は apply_essence_hub.py が essence.json・iryo/iryo_stats.json・学習資料の材料から作る。ここを手で直さない） -->
@@ -12455,13 +12462,13 @@ var CP_TL_NAME = { iko: '意向把握', hikaku: '比較推奨', tekigou: '適合
 var CP_TL_DESC = {
   iko: '最初のご意向と申込の内容を並べて残す', hikaku: '推奨の方針・比べた商品・お勧めした理由', tekigou: '変額保険など。確認書を申込書と一緒に提出',
   norikae: '前の契約をやめる・減らすときに、お伝えしたこと',
-  hub: '意向把握・比較推奨・乗換・適合性の確認を、お客様ごとに1行で。比較推奨の点検・抜き取り・点検した記録も、ここから',
-  share: 'チームのメンバーが保存した記録が、上司・社長のパソコンにすぐ届く。人ごとの不備と、追加・更新された記録を管理職モードで見る',
+  hub: '意向把握・比較推奨・乗換・適合性の確認を、お客様ごとに1行で。点検と抜き取りもここから',
+  share: 'メンバーの記録が、上司・社長のパソコンにすぐ届く。人ごとの不備と更新もここで見る',
   shorui: '申込書類を送る前に、別の人が点検',
   kujo: '受付から再発防止まで、1件ずつ閉じる', train: '研修の計画と記録・研修のセット', mat: '登録番号・承認日・使用期限',
   limit: '名簿・損保一般試験・継続教育・届出', self: '社員から受け取った学習の記録（量だけ）',
   meibo: '一人ずつのIDとパスワードと立場（社長・上長・メンバー）。ログインの記録・辞めた方を止める',
-  hokan: '社内の共有フォルダへ、1日1回この端末の記録の控えを書く。辞めた方の記録も、そのフォルダから探して印刷する'
+  hokan: '社内の共有フォルダへ1日1回、記録の控えを書く。辞めた方の記録もここから探して印刷'
 };
 function cpFlagT(cls, text, list) { return '<span class="au-flag ' + cls + '"' + (list && list.length ? ' title="' + esc(list.join('、')) + '"' : '') + '>' + esc(text) + '</span>'; }
 /* 各タイルの札。any＝どこかに注意があるか（上の一行とカードで使う） */
@@ -12508,8 +12515,8 @@ function cpTileHTML(k, d, wide) {
 function cpRenderHome() {
   var d = cpHomeData(), host = document.getElementById('cpHomeTiles');
   if (host) host.innerHTML =
-    '<h3 class="cp-home-h">管理職と共有</h3><div class="cp-tgrid cp-tgrid1">' + cpTileHTML('share', d, true) + '</div>' +
-    '<h3 class="cp-home-h">点検の備え</h3><div class="cp-tgrid cp-tgrid1">' + cpTileHTML('hub', d, true) + cpTileHTML('hokan', d, true) + '</div>' +
+    '<div class="cp-hpair"><div class="cp-hgrp"><h3 class="cp-home-h">管理職と共有</h3><div class="cp-tgrid cp-tgrid1">' + cpTileHTML('share', d) + '</div></div>' +
+    '<div class="cp-hgrp"><h3 class="cp-home-h">点検の備え</h3><div class="cp-tgrid cp-tgrid2">' + cpTileHTML('hub', d) + cpTileHTML('hokan', d) + '</div></div></div>' +
     '<h3 class="cp-home-h">毎日の記録</h3><div class="cp-tgrid cp-tgrid5">' + CP_KINDS.map(function (k) { return cpTileHTML(k, d); }).join('') + '</div>' +
     '<h3 class="cp-home-h">台帳（監査資料）</h3><div class="cp-tgrid cp-tgrid4">' + ['train', 'limit', 'self', 'meibo'].map(function (k) { return cpTileHTML(k, d); }).join('') + '</div>';
   var cb = document.getElementById('kirokuBadges');

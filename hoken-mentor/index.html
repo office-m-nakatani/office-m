@@ -9546,7 +9546,8 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=> ({'&':'&amp;','<':'&lt;
       // 同じ相談が30日で3回目以上なら、数字ではなくやり方が変わっていないことに気づかせる
       /* ★見出しと本文の回数をそろえる（本文が「三回目」で固定になっていて、見出しの「6回目」と食い違っていた。
          2026-09-07・ユーザー指摘）。MT_TEXTS.repeat3 には {n}＝今回が何回目か、{n1}＝それより前の回数 を書くこと */
-      if(nth >= 3){
+      /* ★つらさ・暴力の相談（brief）には出さない。受け止めの返事に「言え」と叱る段が混ざっていた（2026-11-02） */
+      if(nth >= 3 && !brief){
         const r = mtT('repeat3', tone);
         if(r) more += '<span class="mt-h">同じ相談が' + nth + '回目</span>'
           + mtFill(esc(r), P).replace(/\{n1\}/g, String(nth - 1)).replace(/\{n\}/g, String(nth));
@@ -11279,7 +11280,7 @@ window.__mtReady = true;
 <script>
 (function(){
   'use strict';
-  var VER = 'b3eb515218';   /* MTKANREN-VER（mt-kanren.js の版） */
+  var VER = 'b7bb7586a3';   /* MTKANREN-VER（mt-kanren.js の版） */
   if(!VER || typeof mtAnswer !== 'function' || typeof mtAdd !== 'function' || typeof mtSanitize !== 'function') return;
   if(document.getElementById('tk-app') || (typeof MT_KEY === 'string' && /taiken/.test(MT_KEY))) return;   /* 体験版には出さない */
   if(/\.html$/.test(location.pathname) && !/\/index\.html$/.test(location.pathname)) return;               /* 手元の控え（保険AI師匠.html）には出さない */
@@ -11289,6 +11290,13 @@ window.__mtReady = true;
   function E(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
   function own(o, k){ return !!o && Object.prototype.hasOwnProperty.call(o, k); }
   /* 言葉のそろえ方（辞書のページ hoken-jisho の nz と同じ。★片方だけ直さない） */
+  /* 文の中を探すときのそろえ方（データの段の nz2 と同じ。カタカナと長音は残す） */
+  function nz2(s){
+    s = String(s || '');
+    try{ s = s.normalize('NFKC'); }catch(e){}
+    return s.toLowerCase().replace(/[\s・･（）()「」『』、。,.\-－〜~]/g, '');
+  }
+  var GEN = {}; (["カード", "クレジット", "ドル", "マンション", "ライフプラン", "リスク", "ローン", "不動産", "予算", "事故", "介護", "仕事", "代理店", "休日", "休暇", "会社", "住まい", "住宅", "保証", "保険", "保険料", "保険金", "保障", "信用", "個人", "借金", "健康", "債券", "元本", "入院", "入院費", "共済", "円", "出産", "利子", "利息", "利益", "加齢", "労働", "勤務", "医師", "医療", "収入", "口座", "名義", "告知", "商品", "営業", "土地", "地震", "売上", "外貨", "契約", "子育て", "学費", "定年", "家族", "家計", "家賃", "審査", "就職", "届出", "年金", "建物", "所得", "手数料", "手続き", "手術", "投資", "担保", "持ち家", "損保", "損失", "損害保険", "支出", "教育", "時間", "更新", "書類", "期間", "期限", "株", "株式", "検査", "死亡", "残業", "決算", "治療", "法人", "消費税", "火災", "災害", "為替", "特約", "現金", "生命保険", "生理", "申込", "申込み", "病気", "病院", "痛み", "目標", "相続", "相談", "税", "税金", "経費", "結婚", "給付金", "給料", "老化", "自動車", "葬儀", "薬", "補償", "解約", "計画", "証券", "請求", "負債", "貯蓄", "貯金", "費用", "費用対効果", "賃貸", "資産", "贈与", "車", "転換", "転職", "退職", "通院", "遺族", "配当", "配当金", "金", "金利", "銀行", "雇用", "離婚", "預金", "顧客", "風邪"]).forEach(function(k){ GEN[k] = 1; });   /* 広すぎる言葉（答えを持っていないときだけ拾う） */
   function nz(s){
     s = String(s || '');
     try{ s = s.normalize('NFKC'); }catch(e){}
@@ -11298,7 +11306,7 @@ window.__mtReady = true;
   function fnv(k){ var h = 0x811c9dc5; for(var i = 0; i < k.length; i++){ h ^= k.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; } return h; }
 
   /* ---------- データ（起動が終わってから裏で読む。読めなければ何も足さない） ---------- */
-  var D = null, ST = 0, PG = {}, SH = {}, SS = {};
+  var D = null, ST = 0, PG = {}, SH = {}, SS = {}, KS = 0, KEYS = null, KMAX = 0;
   window.__mtKanrenTake = function(d){
     if(!d || d.v !== 1 || !d.n || !d.jv || !Array.isArray(d.pg) || !Array.isArray(d.wd) || !d.fq) return;
     D = d; PG = {}; d.pg.forEach(function(x){ if(x && ID_RE.test(x[0])) PG[x[0]] = String(x[1] || ''); });
@@ -11313,6 +11321,39 @@ window.__mtReady = true;
   function loadData(){
     if(ST) return; ST = 1;
     addScript('mt-kanren.js?v=' + VER, function(){ ST = D ? 2 : 3; kick(); }, function(){ ST = 3; kick(); });
+  }
+  /* 文の中を探す索引（2026-11-02）。要る問いが来たときだけ読む */
+  window.__mtJishoKeys = function(s){
+    if(typeof s !== 'string') return;
+    var o = {}; s.split('|').forEach(function(k){ if(k){ o[k] = 1; if(k.length > KMAX) KMAX = k.length; } });
+    KEYS = o;
+  };
+  function loadKeys(){
+    if(KS || !D) return; KS = 1;
+    addScript('mt-jisho/keys.js?v=' + D.jv, function(){ KS = KEYS ? 2 : 3; kick(); }, function(){ KS = 3; kick(); });
+  }
+  /* 問いの文から辞書の言葉を拾う＝いちばん長いもの（同じ長さなら先に出てくるもの）。英数字は前後が英数字でないときだけ */
+  var LAT = /^[a-z0-9+&]+$/;
+  function scanWord(q, wide){
+    if(!KEYS) return null;
+    var s = nz2(q), hit = [];
+    for(var i = 0; i < s.length; i++){
+      for(var L = Math.min(KMAX, s.length - i); L >= 2; L--){
+        var k = s.substr(i, L);
+        if(!KEYS[k] || (!wide && GEN[k])) continue;
+        if(LAT.test(k) && (/[a-z0-9]/.test(s.charAt(i - 1)) || /[a-z0-9]/.test(s.charAt(i + L)))) continue;
+        hit.push([i, L, k]); break;
+      }
+    }
+    if(!hit.length) return null;
+    hit.sort(function(a, b){ return (b[1] - a[1]) || (a[0] - b[0]); });
+    var used = [hit[0]], more = [];
+    hit.slice(1).forEach(function(h){
+      if(more.length >= 2 || GEN[h[2]]) return;
+      var lap = used.some(function(x){ return h[0] < x[0] + x[1] && x[0] < h[0] + h[1]; });
+      if(!lap){ used.push(h); more.push(h[2]); }
+    });
+    return { w:hit[0][2], more:more };
   }
   function shard(i){
     if(SS[i]) return; SS[i] = 1;
@@ -11340,7 +11381,7 @@ window.__mtReady = true;
   }
 
   /* ---------- 問いから言葉を取り出す ---------- */
-  var DEF_RE = /^(?:そもそも|ところで|ちなみに)?[、,\s]*(.+?)\s*(?:とは(?:何|なに|なん)?(?:です|でしょう)?か?|とは(?:どういう|どんな)(?:意味|こと|もの)(?:です|でしょう)?か?|って(?:何|なに|なん)(?:です|でしょう)?か?|って(?:どういう|どんな)(?:意味|こと|もの)(?:です|でしょう)?か?|の意味(?:は|を教えて(?:ください)?|って何(?:ですか)?)?|って)[?？。!！\s]*$/;
+  var DEF_RE = /^(?:そもそも|ところで|ちなみに)?[、,\s]*(.+?)\s*(?:とは(?:何|なに|なん)?(?:です|でしょう)?か?|とは(?:どういう|どんな)(?:意味|こと|もの)(?:です|でしょう)?か?|って(?:何|なに|なん)(?:です|でしょう)?か?|って(?:どういう|どんな)(?:意味|こと|もの)(?:です|でしょう)?か?|の意味(?:は|を教えて(?:ください)?|って何(?:ですか)?)?|(?:について|に関して|を)(?:の説明を)?(?:(?:詳しく|くわしく|分かりやすく|わかりやすく|簡単に|かんたんに)?(?:教えて|説明して|知りたい|聞きたい|解説して))(?:ください|下さい|くれ|ほしい|欲しい|もらえますか|もらえませんか|いただけますか|いただけませんか|ほしいです|欲しいです|です)?|の(?:こと|意味|説明|概要|中身)を(?:教えて|知りたい|説明して)(?:ください|下さい|ほしい)?|は(?:何|なに|なん)(?:です|でしょう)?か?|って)[?？。!！\s]*$/;
   function clean(t){ return String(t || '').replace(/^[「『"'“”]+|[」』"'“”]+$/g, '').trim(); }
   function defTerm(q){
     var s = String(q || '').trim(); try{ s = s.normalize('NFKC'); }catch(e){}
@@ -11353,6 +11394,9 @@ window.__mtReady = true;
     s = clean(s.replace(/[?？。!！]+$/, ''));
     return (s.length >= 2 && s.length <= 20 && !/[。、,.?!！？\s]/.test(s)) ? s : '';
   }
+
+  /* 知りたい・分からないの合図（この合図があって、決まった答えで受けなかった問いだけ、文の中の言葉を拾う） */
+  var CUE = /教えて|知りたい|とは|って何|ってなに|意味|仕組み|しくみ|計算|違い|ちがい|説明して|どういう|どんな|何ですか|なんですか|わかりやすく|分かりやすく|分からな|わからな|聞きたい|解説/;
 
   /* ---------- 答えの見分け ---------- */
   var SAFE = [];
@@ -11385,12 +11429,14 @@ window.__mtReady = true;
     var key = ''; try{ key = String(mtJoLastKey || ''); }catch(e){}
     try{ if(key && MT_SENJIN_JO_SKIP.indexOf(key) >= 0) return null; }catch(e){}
     var faq = /^faq_/.test(key) ? key : '', term = defTerm(t), bare = term ? '' : bareTerm(t);
-    if(!faq && !term && !bare) return null;
-    var tone = 'shisho'; try{ tone = mtTone(P || mtP()); }catch(e){}
     var no = noAns(h);
     if(key && (no === 'gen' || no === 'low')) no = '';   /* 受け皿・よくある問いで答えたときは、中の言い回しで「答えが無い」と見ない */
+    /* 文の中の言葉を拾う＝答えを持っていないとき、または決まった答えで受けず、知りたい合図があるとき（2026-11-02） */
+    var scan = !!no || (!key && CUE.test(t));
+    if(!faq && !term && !bare && !scan) return null;
+    var tone = 'shisho'; try{ tone = mtTone(P || mtP()); }catch(e){}
     /* 待つのは長くて＝「とは」1.5秒・よくある問い0.8秒・言葉だけ0.6秒（返事はもともと0.5〜1.2秒あとに出るので、ふだんは待たない） */
-    return { faq:faq, jo:!!key, jk:key, term:term, bare:bare, tone:tone, no:no, t:Date.now(), lim:term ? 1500 : (faq ? 800 : 600) };
+    return { faq:faq, jo:!!key, jk:key, term:term, bare:bare, scan:scan, q:t, tone:tone, no:no, t:Date.now(), lim:term ? 1500 : (scan ? 1300 : (faq ? 800 : 600)) };
   }
   var baseAnswer = mtAnswer;
   mtAnswer = function(q, P, o){
@@ -11410,7 +11456,14 @@ window.__mtReady = true;
     if(ST === 3) return true;
     if(ST !== 2) return false;
     var t = j.term || j.bare;
-    return !t || find(t) !== undefined;
+    if(t){ var r = find(t); if(r === undefined) return false; if(r && !r.x) return true; }
+    if(!j.scan) return true;
+    if(!KS) loadKeys();
+    if(KS === 1) return false;
+    if(KS === 3) return true;
+    if(j.sw === undefined) j.sw = scanWord(j.q, !!j.no);
+    if(!j.sw) return true;
+    return find(j.sw.w) !== undefined;
   }
 
   /* ---------- 「あわせて見る」と、辞書の意味の答え ---------- */
@@ -11463,11 +11516,15 @@ window.__mtReady = true;
     var s = nz(it.q || '');
     return !!s && [e.w, t].some(function(w){ var z = nz(w); return z.length >= 2 && s.indexOf(z) >= 0; });
   }
-  function dictHTML(e, z, t){
+  function dictHTML(e, z, t, sc){
     /* 聞かれた言葉と辞書の見出しが違うとき（路線価→相続税路線価）は、取り違えたように読めないよう一言添える */
     var al = (t && nz(t) !== nz(e.w) && !/診断|クイズ|TOT|ＴＯＴ|引用|見立て|部下/.test(t)) ? (z ? '「' + t + '」は、辞書では「' + e.w + '」として載っています。' : '「' + t + '」は、辞書では「' + e.w + '」として載っている。') : '';
-    var h = '<span class="mt-note mt-kr-lead">' + E((z ? '決まった答えはまだ持っていません。金融辞書の説明をお出しします。'
-                                                    : '決まった答えはまだ持っていない。金融辞書の説明を出す。') + al) + '</span>';
+    /* 文の中から拾ったとき（sc）は、どの言葉を拾ったかを先に言う（2026-11-02） */
+    var lead = sc ? (z ? 'ぴったりの答えはまだ持っていません。ご質問の中の「' + e.w + '」を、金融辞書でご説明します。'
+                       : 'ぴったりの答えはまだ持っていない。問いの中の「' + e.w + '」を、金融辞書で説明する。')
+                  : (z ? '決まった答えはまだ持っていません。金融辞書の説明をお出しします。'
+                       : '決まった答えはまだ持っていない。金融辞書の説明を出す。') + al;
+    var h = '<span class="mt-note mt-kr-lead">' + E(lead) + '</span>';
     h += '<span class="mt-h">' + E('「' + e.w + '」の意味') + '</span>';
     h += '<span class="mt-kr-mean">' + E(e.m) + '</span>';
     if(e.k) h += '<span class="mt-guard"><b>' + E('ここは確認が必要です') + '</b>' + E(e.k) + '</span>';
@@ -11483,17 +11540,39 @@ window.__mtReady = true;
     }
     var t = j.term || j.bare, e = t ? find(t) : null;
     if(!e || typeof e !== 'object') e = null;
+    /* 言葉だけで聞かれたとき（2026-11-02）＝相談の型で受けた（決まった答えではない）なら、辞書の意味を先に出し、答えは「近い答えも見る」に畳む。
+       広すぎる言葉（解約・契約など）は、答えを持っていないときだけ */
+    var gb = j.bare && GEN[nz2(j.bare)];   /* 広すぎる言葉は、ひと言の聞き返し（どの場面か）を残す */
+    if(e && j.bare && !e.x && (gb ? (j.no && j.no !== 'tango') : (j.no || !j.jo || (!hasTerm(before, e, j.bare) && !qHas(j.jk, e, j.bare))))){
+      return show(j, e, j.bare, before, false, []);
+    }
     /* ★2026-10-31：よくある問い・受け皿で答えても、答えの中にも代表の問いにも聞いた言葉が無ければ、取り違えと見て辞書の意味を先に出し、答えは「近い答えも見る」に畳む
        （「耐震等級とは？」に自動車保険の等級、「準確定申告とは？」に確定申告、「ステントグラフト内挿術とは？」にグラフの見せ方を返していた） */
     if(e && j.term && !e.x && (j.no || (!hasTerm(before, e, j.term) && (!j.jo || !qHas(j.jk, e, j.term))))){
-      var fold = (j.no === 'near' || j.no === 'tango' || !j.no);
-      var h = dictHTML(e, j.tone === 'zsedai', j.term) + block(e.g, e.r, e.w);
-      if(fold) h += '<details class="mt-more mt-kr-fold"><summary>' + E('近い答えも見る') + '</summary>' + before + '</details>';
-      else{ try{ mtPend = null; }catch(x){} try{ if(mtLast) mtLast.faq = ''; }catch(x){} }
-      return h;
+      return show(j, e, j.term, before, false, []);
+    }
+    /* 文で聞かれたとき（2026-11-02）＝決まった答えで受けなかった問いは、文の中の辞書の言葉を拾って、その意味を先に出す */
+    if((!e || e.x) && j.scan && j.sw && (!j.jo || j.no)){
+      var e2 = find(j.sw.w);
+      if(e2 && typeof e2 === 'object' && !e2.x){
+        var mo = [];
+        j.sw.more.forEach(function(k){
+          var em = look(k);
+          var w = (em && typeof em === 'object' && !em.x) ? em.w : (LAT.test(k) ? '' : k);
+          if(w && nz(w) !== nz(e2.w) && W_RE.test(w)) mo.push(w);
+        });
+        return show(j, e2, j.sw.w, before, true, mo);
+      }
     }
     if(!gk.length && e && e.g) gk = e.g;
     return before + foot(gk, ws, (e && e.x !== 2) ? e.w : '');
+  }
+  function show(j, e, t, before, sc, more){
+    var fold = (j.no === 'near' || j.no === 'tango' || !j.no);
+    var h = dictHTML(e, j.tone === 'zsedai', t, sc) + block(e.g, (more || []).concat(e.r || []), e.w);
+    if(fold) h += '<details class="mt-more mt-kr-fold"><summary>' + E('近い答えも見る') + '</summary>' + before + '</details>';
+    else{ try{ mtPend = null; }catch(x){} try{ if(mtLast) mtLast.faq = ''; }catch(x){} }
+    return h;
   }
   /* 描いたあと＝「コピー」を同じ行へ移し、その1行に入るだけ札を並べる（描き直し・幅が変わったときも） */
   function wd(x){ return x ? x.getBoundingClientRect().width : 0; }
