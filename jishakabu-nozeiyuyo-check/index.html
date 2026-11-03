@@ -972,7 +972,7 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
     <p class="og-lead">ご契約の代理店さまにお渡ししている<br>IDとパスワードを入れてください。</p>
     <form id="omgate-f" autocomplete="off">
       <label class="og-lab" for="omgate-i">ID</label>
-      <input type="text" id="omgate-i" inputmode="numeric" autocomplete="username" autocapitalize="off" spellcheck="false" maxlength="20">
+      <input type="text" id="omgate-i" inputmode="email" autocomplete="username" autocapitalize="off" spellcheck="false" maxlength="254">
       <label class="og-lab" for="omgate-p">パスワード</label>
       <input type="password" id="omgate-p" autocomplete="current-password" maxlength="64">
       <div class="og-err" id="omgate-e" role="alert"></div>
@@ -1023,7 +1023,7 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
   var SALT = 'officem-hoken-hub-2026|';
   /* 受け付ける印＝sha256(SALT + 'id:' + ID + '|pw:' + パスワード)（平文はどのファイルにも書かない）。
      ★管理画面の PASS_HASHES と同じもの */
-  var OKH = ['edca5a0720eb230f3f1d4d319dd86c9dc79bdc9aea9f681c5557a4eedebd388b'];
+  var OKH = ['edca5a0720eb230f3f1d4d319dd86c9dc79bdc9aea9f681c5557a4eedebd388b', 'f0a4f27c4bda1b2ad31a1a2bdd7718b4f96ad0c8bb98b379c5352caedb746f6d'];
   var DAYS = 30;
 
   function read(store, k) { try { return JSON.parse(store.getItem(k) || 'null'); } catch (e) { return null; } }
@@ -1084,7 +1084,7 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
 
   f.addEventListener('submit', function (e) {
     e.preventDefault();
-    var id = String(idIn.value || '').replace(/[０-９]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); }).replace(/[\s\u3000]/g, '');
+    var id = String(idIn.value || '').replace(/[\uFF01-\uFF5E]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); }).replace(/[\s\u3000]/g, '').toLowerCase();
     var pw = inp.value || '';
     if (!id) { err.textContent = 'IDを入れてください。'; idIn.focus(); return; }
     if (!pw) { err.textContent = 'パスワードを入れてください。'; inp.focus(); return; }
@@ -1103,6 +1103,8 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
         }
       } catch (e2) { /* 保存できなくても、その場では開く */ }
       open_();
+      /* 扉の奥の画面（営業カレンダーなど）が、もう一度IDを聞かずに開けるよう知らせる（2026-11-04。保存はしない） */
+      try { window.dispatchEvent(new CustomEvent('omgate-login', { detail: { id: id, pw: pw } })); } catch (e3) {}
     })['catch'](function () { err.textContent = 'この画面ではIDとパスワードを確認できませんでした。'; });
   });
 

@@ -108,6 +108,9 @@ a{color:var(--navy-2);}
 .bk-home{line-height:1.8;margin:-4px 0 14px;padding:10px 14px;border-left:3px solid #1b5e8a;background:#f3f8fc;border-radius:8px;font-size:var(--fs-sm);color:var(--text);}
 .bk-home b{color:#1a4d70;}
 .bk-big{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;}
+.bk-sync{margin:0 0 14px;}
+.bk-sync:empty{display:none;}
+#syncBand:empty{display:none;}
 .bk-big .bk-go{min-height:48px;font-size:var(--fs-base);flex:1 1 240px;justify-content:center;}
 .bk-last{font-size:var(--fs-sm);margin:6px 0 10px;}
 .bk-meter{height:10px;border-radius:999px;background:#eef1f5;overflow:hidden;}
@@ -2090,7 +2093,7 @@ body.comp-open #admin .wrap > #hokanNag.bk-nag{display:flex !important;}
     <p class="l-lead">ご利用には、IDとパスワードが必要です</p>
     <form id="lockForm" autocomplete="off">
       <label class="l-fld" for="lockId">ID</label>
-      <input type="text" id="lockId" inputmode="numeric" autocomplete="username" autocapitalize="off" spellcheck="false" maxlength="20">
+      <input type="text" id="lockId" inputmode="email" autocomplete="username" autocapitalize="off" spellcheck="false" maxlength="254">
       <label class="l-fld" for="lockPass">パスワード</label>
       <input type="password" id="lockPass" autocomplete="current-password" maxlength="64">
       <div class="l-err" id="lockErr" role="alert"></div>
@@ -2120,6 +2123,7 @@ body.comp-open #admin .wrap > #hokanNag.bk-nag{display:flex !important;}
     <div id="newsPanel" class="news-panel hide" role="region" aria-label="更新のお知らせ"></div>
     <!-- データの控えの催促（記録があるのに、長く控えを取っていないときだけ。renderBackupNag()） -->
     <div id="backupNag" class="hide"></div>
+    <div id="syncBand"></div>
 
     <div id="setupWarn"></div>
 
@@ -2996,7 +3000,7 @@ var KKC = (function () {
     a.forEach(function (x) {
       if (!x || typeof x !== 'object' || typeof x.t !== 'number' || !isFinite(x.t) || LOGIN_EV.indexOf(x.ev) < 0) return;
       var e = { t: Math.floor(x.t), ev: x.ev };
-      if (typeof x.i === 'string' && /^[0-9]{4,20}$/.test(x.i)) e.i = x.i;
+      if (typeof x.i === 'string' && /^(?:[0-9]{4,20}|[0-9a-z._%+\-]{1,64}@[0-9a-z.\-]{1,190})$/.test(x.i)) e.i = x.i;
       if (typeof x.n === 'string' && x.n) e.n = str(x.n, 40);
       if (x.r === 'owner' || x.r === 'boss' || x.r === 'member') e.r = x.r;
       if (typeof x.p === 'string' && /^[a-z][a-z-]{0,29}$/.test(x.p)) e.p = x.p;
@@ -3074,6 +3078,7 @@ var KKC = (function () {
   }
   /* 保存のたびに呼ぶ。続けて保存したときは1.5秒まとめてから送る。つないでいない端末では何もしない */
   function cpsQueue() {
+    try { syQueue(); } catch (e) {}   /* 端末どうしの同期（2026-11-03）：保存のたびに、同じIDのほかの端末へ */
     if (!cpsCfg() || !cpsCan()) return;
     clearTimeout(cpsT);
     cpsT = setTimeout(cpsPush, 1500);
@@ -3774,12 +3779,477 @@ var KKC = (function () {
     return { draw: draw };
   }
 
+  /* ---- 端末どうしの同期（2026-11-03）：同じIDとパスワードで開いた携帯とパソコンを、同じ記録にする ----
+     ユーザー指示「携帯とパソコンでログインした時に、今では同一ID,パスワードでログインしても同じ内容にできない。
+       Fire baseなどを上手く活用し、どちらも同じ画面が表示されるようにしてください」
+     ★置き場所＝Firebase の /ks/<部屋32桁>/i/<鍵24桁>（いつ・どの端末が書いたか）と /ks/<部屋>/k/<鍵24桁>（中身）
+     ★部屋の番号と暗号の鍵は、IDとパスワードから PBKDF2（20万回）で作る。中身はこの端末で AES-GCM にかけてから送る
+       ＝当社も Google も中身を読めない。IDとパスワードを知っている人は読める（短いパスワードは当てられやすい）
+     ★そろえる記録＝全ての記録の控え（BKA_GROUPS）と同じ範囲。ライフプランの資料（別のログイン）・管理画面が作り直す要約・
+       合言葉と鍵・端末ごとの設定（管理職と共有の鍵など）は入れない
+     ★記録ごとに、新しく直したほうを残す。両方の端末で同じ記録を直していたときは新しいほうを残し、もう一方を「入れ替えた記録」に残す（元に戻せる）
+     ★初めて繋いだ端末に、ほかの端末と違う記録があるときは、どちらにそろえるかを聞く（置き換える側は、先に控えのファイルに書き出す） */
+  var SY_KEY = 'officem.hokenSync.v1', SY_META = 'officem.hokenSync.meta.v1', SY_LOST = 'officem.hokenSync.lost.v1', SY_Y = 'officem.hokenSync.y', SY_RL = 'officem.hokenSync.rl';
+  var SY_URL = 'https://katatsugi-comp-default-rtdb.asia-southeast1.firebasedatabase.app';   /* OMSYNCURL */
+  var SY_IT = 200000, SY_INFO = 'katatsugi-sync-v1';
+  var SY_LIGHT = ['officem.hokenHub.v1', 'officem.hokenHub.newsSeen.v1', 'officem.kataLog.v1', 'officem.kataLog.name'];
+  var SY_EXCL = ['officem.hokenHub.compFeed.v1'];
+  var sySt = { st: 'off', at: '', err: '' }, syOpt = { reload: [], verify: null, id: '', authed: false }, syOn_ = [], syIdx = {}, syIdxOk = false;
+  var syBusy = false, syAgain = false, syT = null, syES = null, syPollT = null, syKeyC = null, syKidC = {}, syAskP = null, syStarted = false, syPending = false;
+  function syCan() { return cpsCan() && typeof fetch === 'function'; }
+  function syInFrame() { try { return window.top !== window; } catch (e) { return true; } }
+  function syKeyOk(k) { var g = bkaGroup(k); return !!g && g !== 'lifeplan' && SY_EXCL.indexOf(k) < 0; }
+  function syCfg() {
+    var o = rd(SY_KEY);
+    if (!o || o.v !== 1 || !/^[0-9a-f]{32}$/.test(o.room || '') || typeof o.kb !== 'string' || !/^[0-9a-f]{16}$/.test(o.dev || '') || !/^https?:\/\//.test(o.url || '')) return null;
+    return o;
+  }
+  function syW(k, o) { try { localStorage.setItem(k, JSON.stringify(o)); return true; } catch (e) { return false; } }
+  function syHash(str_) {   /* 中身が変わったかを見るための短い印（暗号ではない） */
+    var h1 = 0xdeadbeef, h2 = 0x41c6ce57, s_ = String(str_);
+    for (var i = 0, ch; i < s_.length; i++) { ch = s_.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return (h2 >>> 0).toString(16) + ':' + (h1 >>> 0).toString(16) + ':' + s_.length;
+  }
+  function syHex(buf) { return Array.prototype.map.call(new Uint8Array(buf), function (b) { return ('0' + b.toString(16)).slice(-2); }).join(''); }
+  function syMeta(c) {
+    var o = rd(SY_META);
+    if (!o || o.room !== c.room || !o.m || typeof o.m !== 'object') o = { room: c.room, m: {} };
+    return o;
+  }
+  function syLocal() {
+    var out = {};
+    try { for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && syKeyOk(k)) { var v = localStorage.getItem(k); if (v != null) out[k] = v; } } } catch (e) {}
+    return out;
+  }
+  function syKey(c) {
+    if (syKeyC && syKeyC.room === c.room) return Promise.resolve(syKeyC.k);
+    return crypto.subtle.importKey('raw', cpsUnb64(c.kb), { name: 'AES-GCM' }, false, ['encrypt', 'decrypt']).then(function (k) { syKeyC = { room: c.room, k: k }; return k; });
+  }
+  function syKid(c, name) {
+    var ck = c.room + '|' + name;
+    if (syKidC[ck]) return Promise.resolve(syKidC[ck]);
+    return crypto.subtle.digest('SHA-256', cpsUtf(SY_INFO + '|kid|' + c.room + '|' + name)).then(function (h) { return (syKidC[ck] = syHex(h).slice(0, 24)); });
+  }
+  function syKids(c, names) {
+    var map = {};
+    return Promise.all(names.map(function (n) { return syKid(c, n).then(function (kid) { map[n] = kid; }); })).then(function () { return map; });
+  }
+  function syGz(u8, back) {
+    var cs = back ? new DecompressionStream('gzip') : new CompressionStream('gzip');
+    return new Response(new Blob([u8]).stream().pipeThrough(cs)).arrayBuffer().then(function (b) { return new Uint8Array(b); });
+  }
+  function sySeal(c, name, val, t) {
+    var pt = cpsUtf(JSON.stringify({ k: name, v: val, t: t })), z = typeof CompressionStream === 'function' ? 1 : 0, iv = crypto.getRandomValues(new Uint8Array(12));
+    return Promise.all([syKey(c), z ? syGz(pt) : Promise.resolve(pt)]).then(function (x) {
+      return crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, x[0], x[1]).then(function (ct) { return { t: t, d: c.dev, iv: cpsB64(iv), ct: cpsB64(ct), z: z }; });
+    });
+  }
+  function syOpen(c, kid, b) {
+    if (!b || typeof b !== 'object' || typeof b.iv !== 'string' || typeof b.ct !== 'string') return Promise.resolve(null);
+    return syKey(c).then(function (k) { return crypto.subtle.decrypt({ name: 'AES-GCM', iv: cpsUnb64(b.iv) }, k, cpsUnb64(b.ct)); })
+      .then(function (pt) { pt = new Uint8Array(pt); return b.z === 1 ? syGz(pt, true) : pt; })
+      .then(function (pt) {
+        var o = JSON.parse(new TextDecoder().decode(pt));
+        if (!o || typeof o.k !== 'string' || typeof o.v !== 'string' || !syKeyOk(o.k)) return null;   /* 決めた範囲の外の記録は書かない */
+        return syKid(c, o.k).then(function (kid2) { return kid2 === kid ? { k: o.k, v: o.v, t: +o.t || +b.t || 0 } : null; });
+      }).catch(function () { return null; });   /* 読めない形（ほかのパスワード・壊れたもの）は使わない */
+  }
+  function syFetch(c, path, opt) {
+    opt = opt || {};
+    var ctl = typeof AbortController === 'function' ? new AbortController() : null, tm = ctl ? setTimeout(function () { ctl.abort(); }, 30000) : null;
+    return fetch(c.url.replace(/\/+$/, '') + '/ks/' + c.room + path + '.json', { method: opt.method || 'GET', body: opt.body, cache: 'no-store', signal: ctl ? ctl.signal : undefined })
+      .then(function (r) {
+        if (tm) clearTimeout(tm);
+        if (r.status === 401 || r.status === 403) { var e = new Error('denied'); e.code = 'denied'; throw e; }
+        if (!r.ok) throw new Error('http ' + r.status);
+        return r.json();
+      }, function (e) { if (tm) clearTimeout(tm); throw e; });
+  }
+  function syIdxClean(o) {
+    var out = {};
+    if (o && typeof o === 'object') Object.keys(o).forEach(function (kid) { var r = o[kid]; if (/^[0-9a-f]{24}$/.test(kid) && r && typeof r.t === 'number') out[kid] = { t: r.t, d: typeof r.d === 'string' ? r.d : '' }; });
+    return out;
+  }
+  function syGetIdx(c) { return syFetch(c, '/i').then(function (o) { syIdx = syIdxClean(o); syIdxOk = true; return syIdx; }); }
+  function syPut(c, kid, b) {
+    return syFetch(c, '/k/' + kid, { method: 'PUT', body: JSON.stringify(b) })
+      .then(function () { return syFetch(c, '/i/' + kid, { method: 'PUT', body: JSON.stringify({ t: b.t, d: b.d }) }); })
+      .then(function () { syIdx[kid] = { t: b.t, d: b.d }; });
+  }
+  function syGet(c, kid) { return syFetch(c, '/k/' + kid).then(function (b) { return syOpen(c, kid, b); }); }
+  function sySet(st, err) { sySt = { st: st, at: st === 'ok' ? new Date().toISOString() : sySt.at, err: err || '' }; syOn_.forEach(function (f) { try { f(syStatus()); } catch (e) {} }); syBandDraw(); }
+  function syErrText(e) {
+    if (e && e.code === 'denied') return 'そろえる場所の準備ができていません（Firebase の決まりの貼り直し待ち）';
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) return 'インターネットに繋がっていません（繋がったら、そろえ直します）';
+    return 'そろえられませんでした（しばらくして、そろえ直します）';
+  }
+  function syLostAdd(name, val, why) {
+    var arr = rd(SY_LOST); arr = Array.isArray(arr) ? arr : [];
+    if (typeof val !== 'string' || !val) return;
+    if (val.length > 400000) {   /* 大きな記録は端末に入りきらないので、控えのファイルに書き出す */
+      var m = {}; m[name] = val; syExportMap(m, '保険ツール_入れ替えた記録_' + today() + '.json'); return;
+    }
+    arr.unshift({ at: new Date().toISOString(), k: name, v: val, why: why || '' });
+    while (arr.length > 3 || JSON.stringify(arr).length > 900000) arr.pop();
+    if (!syW(SY_LOST, arr)) { var m2 = {}; m2[name] = val; syExportMap(m2, '保険ツール_入れ替えた記録_' + today() + '.json'); }
+  }
+  function syExportMap(map, fname) {
+    try {
+      var blob = new Blob([JSON.stringify({ kind: 'katatsugi-all', v: 1, tool: '保険ツール（全ての記録）', exportedAt: new Date().toISOString(), keys: map })], { type: 'application/json' });
+      var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = fname;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 3000);
+    } catch (e) {}
+  }
+  function syApply(c, meta, kid, o, applied) {
+    try { localStorage.setItem(o.k, o.v); } catch (e) { var er = new Error('quota'); er.code = 'quota'; throw er; }
+    meta.m[kid] = { n: o.k, h: syHash(o.v), rt: syIdx[kid] ? syIdx[kid].t : o.t, lt: 0 };
+    applied.push(o.k);
+  }
+  /* ふだんのそろえ方：記録ごとに、変わった側から送る・受け取る */
+  function syStep(c) {
+    var meta = syMeta(c), loc = syLocal(), names = Object.keys(loc), applied = [], now = Date.now();
+    return syKids(c, names).then(function (km) {
+      var used = {}, push = [], pull = [], both = [];
+      names.forEach(function (n) {
+        var kid = km[n], m = meta.m[kid], h = syHash(loc[n]), r = syIdx[kid];
+        used[kid] = 1;
+        var lch = !m || m.h !== h, rch = !!r && (!m || r.t > (m.rt || 0));
+        if (lch && m && !m.lt) m.lt = now;
+        if (lch && !rch) push.push(n); else if (rch && !lch) pull.push(kid); else if (lch && rch) both.push(n);
+      });
+      Object.keys(syIdx).forEach(function (kid) { if (!used[kid]) { var m = meta.m[kid]; if (!m || syIdx[kid].t > (m.rt || 0)) pull.push(kid); } });
+      var seq = Promise.resolve();
+      /* 送る直前に、置き場所の印をもう一度読む（知らせの流れが切れているあいだに、ほかの端末が書いていたら、黙って上書きしない） */
+      push.forEach(function (n) {
+        seq = seq.then(function () {
+          var kid = km[n];
+          return syFetch(c, '/i/' + kid).then(function (r) {
+            var one = {}; one[kid] = r; var cl = syIdxClean(one)[kid], m = meta.m[kid];
+            if (cl) syIdx[kid] = cl;
+            if (cl && cl.t > ((m && m.rt) || 0)) return syBoth(n);
+            var t = Math.max(Date.now(), (syIdx[kid] ? syIdx[kid].t : 0) + 1);
+            return sySeal(c, n, loc[n], t).then(function (b) { return syPut(c, kid, b); }).then(function () { meta.m[kid] = { n: n, h: syHash(loc[n]), rt: t, lt: 0 }; syW(SY_META, meta); });
+          });
+        });
+      });
+      pull.forEach(function (kid) {
+        seq = seq.then(function () { return syGet(c, kid).then(function (o) { if (o) { syApply(c, meta, kid, o, applied); syW(SY_META, meta); } }); });
+      });
+      both.forEach(function (n) { seq = seq.then(function () { return syBoth(n); }); });
+      function syBoth(n) {
+        {
+          var kid = km[n];
+          return syGet(c, kid).then(function (o) {
+            if (!o) return;
+            if (o.v === loc[n]) { meta.m[kid] = { n: n, h: syHash(o.v), rt: syIdx[kid].t, lt: 0 }; syW(SY_META, meta); return; }
+            var lt = meta.m[kid] ? (meta.m[kid].lt || now) : 0;
+            if (lt > syIdx[kid].t) {   /* この端末のほうが新しい */
+              syLostAdd(n, o.v, 'ほかの端末の記録（この端末で後から直したため入れ替え）');
+              var t = Math.max(Date.now(), syIdx[kid].t + 1);
+              return sySeal(c, n, loc[n], t).then(function (b) { return syPut(c, kid, b); }).then(function () { meta.m[kid] = { n: n, h: syHash(loc[n]), rt: t, lt: 0 }; syW(SY_META, meta); });
+            }
+            syLostAdd(n, loc[n], 'この端末の記録（ほかの端末で後から直したため入れ替え）');
+            syApply(c, meta, kid, o, applied); syW(SY_META, meta);
+          });
+        }
+      }
+      return seq.then(function () { syW(SY_META, meta); return applied; });
+    });
+  }
+  function syHeavy(n, v) {
+    if (SY_LIGHT.indexOf(n) >= 0) return false;
+    var o = null; try { o = JSON.parse(v); } catch (e) { return String(v).length > 400; }
+    if (!o || typeof o !== 'object') return false;
+    var len = function (a) { return Array.isArray(a) && a.length > 0; };
+    if (n === SALES_KEY) return len(o.customers) || len(o.activities) || len(o.contracts);
+    if (n === 'officem.hokenHub.audit.v1') return len(o.recs) || len(o.oldRecs) || len(o.materials) || len(o.trainings) || len(o.plans) || len(o.members) || len(o.selfs);
+    return JSON.stringify(o).length > 400;
+  }
+  /* 初めて繋いだとき：ほかの端末の記録が無ければ送るだけ。この端末にまだ中身が無ければ受け取るだけ。両方に違う中身があれば聞く */
+  function syFirst(c) {
+    var meta = { room: c.room, m: {} }, loc = syLocal(), names = Object.keys(loc), applied = [];
+    return syKids(c, names).then(function (km) {
+      var rk = Object.keys(syIdx), rem = {}, byKid = {};
+      names.forEach(function (n) { byKid[km[n]] = n; });
+      return Promise.all(rk.map(function (kid) { return syGet(c, kid).then(function (o) { if (o) rem[kid] = o; }); })).then(function () {
+        var diff = [], rOnly = [], lOnly = [];
+        names.forEach(function (n) { var kid = km[n], o = rem[kid]; if (!o) lOnly.push(n); else if (o.v !== loc[n]) diff.push(n); else meta.m[kid] = { n: n, h: syHash(loc[n]), rt: syIdx[kid].t, lt: 0 }; });
+        Object.keys(rem).forEach(function (kid) { if (!byKid[kid]) rOnly.push(kid); });
+        var heavy = diff.filter(function (n) { return syHeavy(n, loc[n]) && syHeavy(n, rem[km[n]].v); });
+        var choose = heavy.length ? syAsk(c, heavy.length, diff.length) : Promise.resolve(Object.keys(rem).length ? 'remote' : 'local');
+        return choose.then(function (how) {
+          if (how === 'later') return 'later';
+          var seq = Promise.resolve();
+          if (how === 'remote' && diff.length) { var bk = {}; diff.forEach(function (n) { bk[n] = loc[n]; }); if (heavy.length) syExportMap(bk, '保険ツール_そろえる前のこの端末の記録_' + today() + '.json'); }
+          if (how === 'local' && diff.length && heavy.length) { var bk2 = {}; diff.forEach(function (n) { bk2[n] = rem[km[n]].v; }); syExportMap(bk2, '保険ツール_そろえる前のほかの端末の記録_' + today() + '.json'); }
+          var send = lOnly.concat(how === 'local' ? diff : []), take = rOnly.concat(how === 'remote' ? diff.map(function (n) { return km[n]; }) : []);
+          send.forEach(function (n) {
+            seq = seq.then(function () {
+              var kid = km[n], t = Math.max(Date.now(), (syIdx[kid] ? syIdx[kid].t : 0) + 1);
+              return sySeal(c, n, loc[n], t).then(function (b) { return syPut(c, kid, b); }).then(function () { meta.m[kid] = { n: n, h: syHash(loc[n]), rt: t, lt: 0 }; });
+            });
+          });
+          take.forEach(function (kid) { seq = seq.then(function () { syApply(c, meta, kid, rem[kid], applied); }); });
+          return seq.then(function () { syW(SY_META, meta); var c2 = syCfg(); if (c2 && c2.room === c.room) { c2.first = 'done'; syW(SY_KEY, c2); } return applied; });
+        });
+      });
+    });
+  }
+  function syRun() {
+    var c = syCfg();
+    if (!c || !syCan() || syInFrame()) return Promise.resolve();
+    if (syBusy) { syAgain = true; return Promise.resolve(); }
+    if (syAskP) return Promise.resolve();
+    syBusy = true; sySet('busy');
+    return (syIdxOk && syES && syES.readyState === 1 ? Promise.resolve(syIdx) : syGetIdx(c))
+      .then(function () { return c.first === 'done' ? syStep(c) : syFirst(c); })
+      .then(function (applied) {
+        syBusy = false;
+        if (applied === 'later') { sySet('ask'); return; }
+        sySet('ok');
+        if (applied && applied.length) syAfter(applied);
+        if (!syES) syListen(c);
+        if (syAgain) { syAgain = false; syQueue(300); }
+      }, function (e) {
+        syBusy = false; syAgain = false;
+        sySet('err', e && e.code === 'quota' ? 'この端末の記録の置き場所がいっぱいで、受け取れませんでした（データの控えから量を確かめてください）' : syErrText(e));
+        clearTimeout(syPollT); syPollT = setTimeout(function () { syQueue(0); }, 60000);
+      });
+  }
+  function syQueue(ms) {
+    if (!syStarted || !syCfg()) return;
+    clearTimeout(syT); syT = setTimeout(syRun, ms == null ? 1200 : ms);
+  }
+  /* ほかの端末が書いたら、すぐに知らせが来る（EventSource）。画面を見ていないあいだは閉じる */
+  function syListen(c) {
+    if (syES || typeof EventSource !== 'function' || (typeof document !== 'undefined' && document.hidden)) return;
+    try { syES = new EventSource(c.url.replace(/\/+$/, '') + '/ks/' + c.room + '/i.json'); } catch (e) { syES = null; return; }
+    var on = function (ev) {
+      var d = null; try { d = JSON.parse(ev.data); } catch (e) { return; }
+      if (!d || typeof d.path !== 'string') return;
+      var seg = d.path.split('/').filter(Boolean);
+      if (!seg.length) { if (ev.type === 'put') syIdx = syIdxClean(d.data); else Object.keys(syIdxClean(d.data)).forEach(function (k) { syIdx[k] = syIdxClean(d.data)[k]; }); }
+      else if (seg.length === 1) { var one = {}; one[seg[0]] = d.data; var cl = syIdxClean(one); if (cl[seg[0]]) syIdx[seg[0]] = cl[seg[0]]; }
+      syIdxOk = true;
+      syQueue(400);
+    };
+    syES.addEventListener('put', on); syES.addEventListener('patch', on);
+    syES.addEventListener('cancel', function () { syClose(); });
+    syES.onerror = function () { if (syES && syES.readyState === 2) { syClose(); syPollT = setTimeout(function () { syQueue(0); }, 60000); } };
+  }
+  function syClose() { if (syES) { try { syES.close(); } catch (e) {} } syES = null; syIdxOk = false; }
+  /* 受け取った記録を画面に出す：この画面の記録が変わったら、操作の途中でなければ表示を新しくする */
+  function syBusyUi() {
+    var a = document.activeElement;
+    if (a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) && a.type !== 'button' && a.type !== 'checkbox' && a.type !== 'radio') return true;
+    return Array.prototype.some.call(document.querySelectorAll('[id$="Ovl"], .modal, .modal-bg, [aria-modal="true"], dialog[open]'), function (el) {
+      if (el.id === 'kksyAsk') return false;
+      var cs = getComputedStyle(el); return cs.display !== 'none' && cs.visibility !== 'hidden' && el.offsetWidth > 0;
+    });
+  }
+  function syAfter(applied) {
+    syOn_.forEach(function (f) { try { f(syStatus(), applied); } catch (e) {} });
+    var mine = applied.some(function (k) { return (syOpt.reload || []).indexOf(k) >= 0; });
+    if (!mine) return;
+    syPending = true; syReloadTry();
+  }
+  function syReloadTry() {
+    if (!syPending) return;
+    if (document.hidden) return;   /* 画面に戻ったときに新しくする */
+    var last = 0; try { last = +sessionStorage.getItem(SY_RL) || 0; } catch (e) {}
+    if (syBusyUi() || Date.now() - last < 20000) { syBandDraw(); return; }
+    syReload();
+  }
+  function syReload() {
+    try { sessionStorage.setItem(SY_RL, String(Date.now())); sessionStorage.setItem(SY_Y, JSON.stringify({ p: location.pathname + location.hash, y: window.scrollY || 0, at: Date.now() })); } catch (e) {}
+    location.reload();
+  }
+  function syAsk(c, heavy, diff) {
+    syAskP = new Promise(function (res) {
+      var box = document.createElement('div');
+      box.id = 'kksyAsk'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true'); box.setAttribute('aria-labelledby', 'kksyAskH');
+      box.innerHTML = '<div class="kksy-card"><h2 id="kksyAskH">ほかの端末と、記録が違います</h2>'
+        + '<p>同じIDで開いたほかの端末（携帯・パソコン）に、この端末と違う記録が' + diff + 'つあります。どちらにそろえますか。</p>'
+        + '<p class="kksy-s">置き換える側の記録は、先に控えのファイルに書き出します（データの控えの「控えのファイルから戻す」で戻せます）。</p>'
+        + '<div class="kksy-btns"><button type="button" class="kksy-main" data-sya="remote">ほかの端末の記録にそろえる</button>'
+        + '<button type="button" data-sya="local">この端末の記録をほかの端末へ送る</button>'
+        + '<button type="button" class="kksy-q" data-sya="later">あとで決める</button></div></div>';
+      box.addEventListener('click', function (e) {
+        var b = e.target.closest ? e.target.closest('[data-sya]') : null; if (!b) return;
+        var how = b.getAttribute('data-sya');
+        if (how === 'local' && !confirm('ほかの端末の記録を、この端末の記録で置き換えます。ほかの端末の記録は控えのファイルに書き出します。よろしいですか。')) return;
+        box.remove(); syAskP = null; res(how);
+      });
+      syCss(); document.body.appendChild(box);
+      var f = box.querySelector('.kksy-main'); if (f) f.focus();
+    });
+    return syAskP;
+  }
+  function syCss() {
+    if (document.getElementById('kksyCss')) return;
+    var st = document.createElement('style'); st.id = 'kksyCss';
+    st.textContent = '#kksyAsk{position:fixed;inset:0;z-index:2147483000;background:rgba(30,40,55,.38);display:flex;align-items:center;justify-content:center;padding:16px}'
+      + '#kksyAsk .kksy-card{background:#fff;border-radius:16px;max-width:520px;width:100%;padding:22px 20px;box-shadow:0 12px 40px rgba(0,0,0,.2);color:#2b2f36;font-size:16px;line-height:1.75}'
+      + '#kksyAsk h2{margin:0 0 8px;font-size:1.15rem;color:#1f3a5f}#kksyAsk p{margin:0 0 10px}#kksyAsk .kksy-s{font-size:.9rem;color:#4a5560}'
+      + '.kksy-btns{display:grid;gap:10px;margin-top:14px}.kksy-btns button,.kksy-band button,.kksy-panel button{min-height:44px;border-radius:22px;border:1px solid #c9d3de;background:#fff;color:#1f3a5f;font:inherit;font-size:15px;padding:8px 16px;cursor:pointer}'
+      + '.kksy-btns .kksy-main,.kksy-band .kksy-main{background:#b8411d;border-color:#b8411d;color:#fff}.kksy-btns .kksy-q{border:none;color:#4a5560;text-decoration:underline}'
+      + '.kksy-nb{display:inline-block}'
+      + '.kksy-band{margin:10px auto;max-width:1100px;background:#fff8ec;border:1px solid #ecd2a4;border-radius:12px;padding:10px 14px;color:#2b2f36;font-size:15px;line-height:1.7;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}'
+      + '.kksy-band p{margin:0;flex:1 1 280px}.kksy-band form{display:flex;flex-wrap:wrap;gap:8px;align-items:center;flex:1 1 100%}'
+      + '.kksy-band input{min-height:44px;border:1px solid #c9d3de;border-radius:10px;padding:6px 10px;font:inherit;font-size:16px;width:12em;max-width:100%}'
+      + '.kksy-band .kksy-err{color:#b3261e;flex:1 1 100%;font-size:.92rem}'
+      + '.kksy-panel{border:1px solid #e2e9ef;border-radius:12px;padding:12px 14px;background:#fff;font-size:15px;line-height:1.75}.kksy-panel h4{margin:0 0 6px;font-size:1rem;color:#1f3a5f}'
+      + '.kksy-panel p{margin:0 0 6px}.kksy-panel .kksy-w{color:#8a4b00}.kksy-panel .kksy-e{color:#b3261e}.kksy-panel .kksy-ok{color:#1b6b3a}'
+      + '.kksy-panel .kksy-btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.kksy-panel ul{margin:4px 0 0;padding-left:1.2em}.kksy-panel li{margin:4px 0}.kksy-panel li button{margin:4px 0 0 8px;padding:6px 14px}';
+    document.head.appendChild(st);
+  }
+  /* ページの上の帯：パスワードがもう一度要るとき・どちらにそろえるか決めていないとき・受け取った記録を表示していないとき */
+  var syBandHost = null;
+  function syBandDraw() {
+    var h = syBandHost; if (!h) return;
+    var s = syStatus(), html = '';
+    if (s.needPw) {
+      html = '<div class="kksy-band" role="region" aria-label="ほかの端末とそろえる"><p>' + (syOpt.verify ? '携帯とパソコンで同じ記録にするには、<span class="kksy-nb">IDとパスワードを</span><span class="kksy-nb">もう一度入れてください。</span>' : '携帯とパソコンで同じ記録にするには、<span class="kksy-nb">管理画面でログインし直して</span><span class="kksy-nb">ください。</span>') + '</p>'
+        + (syOpt.verify ? '<form data-sy="pw"><input name="i" inputmode="email" autocapitalize="off" spellcheck="false" autocomplete="username" aria-label="ID" placeholder="ID" value="' + String(syOpt.id || '').replace(/[&<>"]/g, '') + '">'
+          + '<input name="p" type="password" autocomplete="current-password" aria-label="パスワード" placeholder="パスワード">'
+          + '<button type="submit" class="kksy-main">そろえる</button><button type="button" data-sy="hide">今は閉じる</button><span class="kksy-err" aria-live="polite"></span></form>'
+          : '<button type="button" data-sy="hide">今は閉じる</button>') + '</div>';
+    } else if (s.st === 'ask') {
+      html = '<div class="kksy-band"><p>ほかの端末と記録が違うため、まだそろえていません。</p><button type="button" class="kksy-main" data-sy="decide">どちらにそろえるか決める</button></div>';
+    } else if (syPending) {
+      html = '<div class="kksy-band" aria-live="polite"><p>ほかの端末で直した記録が届きました。</p><button type="button" class="kksy-main" data-sy="reload">表示を新しくする</button></div>';
+    }
+    try { if (sessionStorage.getItem('officem.hokenSync.hide') === '1' && s.needPw) html = ''; } catch (e) {}
+    if (h.innerHTML !== html) h.innerHTML = html;
+  }
+  function syBand(host) {
+    syBandHost = host || null; if (!host) return;
+    syCss();
+    host.addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('[data-sy]') : null; if (!b || b.tagName === 'FORM') return;
+      var a = b.getAttribute('data-sy');
+      if (a === 'hide') { try { sessionStorage.setItem('officem.hokenSync.hide', '1'); } catch (x) {} syBandDraw(); }
+      if (a === 'decide') { var c = syCfg(); if (c) { c.first = ''; syW(SY_KEY, c); } sySt.st = 'off'; syQueue(0); }
+      if (a === 'reload') syReload();
+    });
+    host.addEventListener('submit', function (e) {
+      var f = e.target; if (!f || f.getAttribute('data-sy') !== 'pw') return;
+      e.preventDefault();
+      var id = String(f.elements.i.value || '').trim(), pw = f.elements.p.value, er = f.querySelector('.kksy-err');
+      if (!id || !pw) { er.textContent = 'IDとパスワードを入れてください。'; return; }
+      er.textContent = '確かめています…';
+      Promise.resolve(syOpt.verify(id, pw)).then(function (ok) {
+        if (!ok) { er.textContent = 'IDかパスワードが違います。'; return; }
+        er.textContent = 'ほかの端末とそろえています…';
+        syLogin(id, pw, syOpt.url);
+      }, function () { er.textContent = '確かめられませんでした。もう一度お試しください。'; });
+    });
+    syBandDraw();
+  }
+  /* ログインしたとき（IDとパスワードが分かるときだけ）に、この端末の部屋と鍵を作る */
+  function syLogin(id, pw, url) {
+    id = String(id == null ? '' : id).replace(/[\uFF01-\uFF5E]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); }).replace(/[\s\u3000]/g, '').toLowerCase();   /* 管理画面の lockIdNorm と同じ形にそろえる（2026-11-04） */
+    if (!syCan() || !id || !pw) return Promise.resolve(false);
+    url = /^https?:\/\//.test(url || '') ? url : SY_URL;
+    if (!url) return Promise.resolve(false);
+    return crypto.subtle.importKey('raw', cpsUtf(String(pw)), 'PBKDF2', false, ['deriveBits']).then(function (k) {
+      return crypto.subtle.deriveBits({ name: 'PBKDF2', salt: cpsUtf(SY_INFO + '|' + String(id)), iterations: SY_IT, hash: 'SHA-256' }, k, 384);
+    }).then(function (bits) {
+      var b = new Uint8Array(bits), room = syHex(b.slice(32, 48)), old = syCfg();
+      var c = old && old.room === room && old.url === url ? old
+        : { v: 1, url: url, room: room, kb: cpsB64(b.slice(0, 32)), dev: syHex(crypto.getRandomValues(new Uint8Array(8))), first: '', at: new Date().toISOString() };
+      c.id = String(id).slice(0, 40); c.short = String(pw).length < 8;
+      if (!old || old.room !== room || old.url !== url) { syClose(); syIdx = {}; syIdxOk = false; syKeyC = null; try { localStorage.removeItem(SY_META); } catch (e) {} }
+      if (!syW(SY_KEY, c)) return false;
+      try { sessionStorage.removeItem('officem.hokenSync.hide'); } catch (e) {}
+      syStarted = true; syBandDraw(); syQueue(0);
+      return true;
+    }).catch(function () { return false; });
+  }
+  function syForget() { syClose(); clearTimeout(syT); try { localStorage.removeItem(SY_KEY); localStorage.removeItem(SY_META); } catch (e) {} sySet('off'); }
+  /* 画面を開いたときに呼ぶ。opt＝{ reload: [この画面が表示に使う記録の鍵], verify(id,pw): 正しいか, url, id, authed, band: 帯を出す場所 } */
+  function syStart(opt) {
+    opt = opt || {};
+    syOpt = { reload: Array.isArray(opt.reload) ? opt.reload : [], verify: typeof opt.verify === 'function' ? opt.verify : null, url: opt.url || '', id: opt.id || '', authed: !!opt.authed };
+    if (opt.band) syBand(opt.band);
+    if (syInFrame() || !syCan()) return;
+    if (syStarted) { syQueue(0); return; }
+    syStarted = true;
+    try {   /* 新しくした直後は、前の位置まで戻す */
+      var y = JSON.parse(sessionStorage.getItem(SY_Y) || 'null');
+      if (y && y.p === location.pathname + location.hash && Date.now() - y.at < 15000) { sessionStorage.removeItem(SY_Y); [200, 900].forEach(function (ms) { setTimeout(function () { window.scrollTo(0, y.y || 0); }, ms); }); }
+    } catch (e) {}
+    window.addEventListener('storage', function (e) { if (e.key && syKeyOk(e.key)) syQueue(); });
+    document.addEventListener('visibilitychange', function () {
+      var c = syCfg(); if (!c) return;
+      if (document.hidden) { syClose(); return; }
+      syReloadTry(); if (!syPending) { syListen(c); syQueue(0); }
+    });
+    window.addEventListener('online', function () { syQueue(0); });
+    setInterval(function () { if (!document.hidden) syQueue(0); }, 45000);
+    syBandDraw();
+    if (syCfg()) syQueue(0);
+  }
+  function syStatus() {
+    var c = syCfg(), lost = rd(SY_LOST);
+    return { on: !!c, st: c ? sySt.st : 'off', at: sySt.at, err: sySt.err, id: c ? c.id : '', short: !!(c && c.short),
+      needPw: !c && syOpt.authed && syCan() && !syInFrame(), pending: syPending, lost: Array.isArray(lost) ? lost.length : 0 };
+  }
+  function syWatch(fn) { syOn_.push(fn); }
+  function syRestoreLost(i) {
+    var arr = rd(SY_LOST); if (!Array.isArray(arr) || !arr[i] || !syKeyOk(arr[i].k)) return false;
+    var x = arr[i], cur = null; try { cur = localStorage.getItem(x.k); } catch (e) {}
+    try { localStorage.setItem(x.k, x.v); } catch (e) { return false; }
+    arr.splice(i, 1); if (cur != null) arr.unshift({ at: new Date().toISOString(), k: x.k, v: cur, why: '元に戻す前の記録' });
+    while (arr.length > 3) arr.pop();
+    syW(SY_LOST, arr); syQueue(0); return true;
+  }
+  /* 設定・データの控えの中に置く、いまの様子とボタン */
+  var SY_NAME = { 'officem.hokenHub.v1': '管理画面の設定', 'officem.hokenHub.newsSeen.v1': 'お知らせの既読', 'officem.hokenHub.audit.v1': 'コンプライアンスの記録',
+    'officem.kataLog.v1': '学習の記録', 'officem.kataLog.name': '学習の記録の名前', 'lifeplan_ichijo_mentor_v1': 'AI師匠の会話', 'officem.hokenTraining.v1': '知識トレーニング',
+    'officem.shikaku.v1': '資格試験', 'officem.hokenKirikaeshi.v1': '切り返し辞典', 'officem.hokenShiharai.v1': '支払事例', 'officem.hokenCompliance.v1': 'コンプライアンス100本ノック',
+    'officem.hokenSales.v1': '営業カレンダー', 'officem.hokenKokyaku.v1': '顧客管理', 'officem.hokenGyakusan.v1': '目標逆算', 'officem.hokenCalendar.v1': '満期カレンダー' };
+  function syFmt(t) { var d = new Date(t); return isNaN(d) ? '' : (d.getMonth() + 1) + '月' + d.getDate() + '日 ' + d.getHours() + '時' + pad(d.getMinutes()) + '分'; }
+  function syPanel(host) {
+    if (!host) return;
+    syCss();
+    var draw = function () {
+      var s = syStatus(), h = '<div class="kksy-panel"><h4>携帯とパソコンで同じ記録にする</h4>';
+      if (!s.on) h += s.needPw ? '<p>まだそろえていません。この端末でIDとパスワードをもう一度入れると、同じIDのほかの端末と同じ記録になります。</p>'
+        : '<p>ログインすると、同じIDとパスワードで開いたほかの端末（携帯・パソコン）と、記録が自動でそろいます。</p>';
+      else {
+        h += s.st === 'err' ? '<p class="kksy-e">' + s.err + '</p>' : s.st === 'ask' ? '<p class="kksy-w">ほかの端末と記録が違うため、まだそろえていません。</p>'
+          : s.st === 'busy' ? '<p>そろえています…</p>' : '<p class="kksy-ok">同じID（' + String(s.id).replace(/[&<>"]/g, '') + '）のほかの端末と、自動でそろえています' + (s.at ? '（最後にそろえた時刻：' + syFmt(s.at) + '）' : '') + '。</p>';
+        if (s.short) h += '<p class="kksy-w">パスワードが短いため、ほかの人に当てられて記録を読まれるおそれがあります。お客様の記録を入れる前に、8文字以上のパスワードに変えてください。</p>';
+        h += '<p style="font-size:.9rem;color:#4a5560">中身はこの端末で暗号化してから Firebase（Google のサーバー）に置きます。当社も Google も中身を読めません。同じIDとパスワードを知っている方は読めます。ライフプランツールの資料は、ライフプランのログインのほうで扱います。</p>';
+        var lost = rd(SY_LOST);
+        if (Array.isArray(lost) && lost.length) h += '<p>両方の端末で直していたため入れ替えた記録（新しいほうを残しました）：</p><ul>' + lost.map(function (x, i) {
+          return '<li>' + (SY_NAME[x.k] || x.k).replace(/[&<>"]/g, '') + '（' + syFmt(x.at) + '・' + String(x.why).replace(/[&<>"]/g, '') + '）<button type="button" data-syp="undo" data-i="' + i + '">こちらに戻す</button></li>';
+        }).join('') + '</ul>';
+        h += '<div class="kksy-btns"><button type="button" class="kksy-main" data-syp="now">今すぐそろえる</button><button type="button" data-syp="stop">この端末ではそろえない</button></div>';
+      }
+      host.innerHTML = h + '</div>';
+    };
+    host.onclick = function (e) {
+      var b = e.target.closest ? e.target.closest('[data-syp]') : null; if (!b) return;
+      var a = b.getAttribute('data-syp');
+      if (a === 'now') { if (sySt.st === 'ask') { var c = syCfg(); if (c) { c.first = ''; syW(SY_KEY, c); } } syQueue(0); }
+      if (a === 'stop' && confirm('この端末では、ほかの端末と記録をそろえるのをやめます（この端末の記録は残ります）。もう一度そろえるときは、ログインし直してください。')) syForget();
+      if (a === 'undo' && syRestoreLost(+b.getAttribute('data-i'))) { draw(); syAfter(Object.keys(SY_NAME)); }
+    };
+    syWatch(draw); draw();
+  }
+
   return {
     cps: { cfg: cpsCfg, name: cpsName, payload: cpsPayload, seal: cpsSeal, push: cpsPush, queue: cpsQueue, status: cpsStatus, watch: cpsWatch, sales: cpsSales, kk: cpsKk, fromKeys: cpsFromKeys, logins: cpsLogins, cleanLogins: cleanLogins,
       TYPES: CPS_TYPES, STAGES: CPS_STAGES, KINDS: CPS_REC_KINDS },
     cal: { setup: calSetup, forget: calForget, cfg: calCfg, publish: calPublishMe, start: calStart, stop: calStop, watch: calWatch, pull: calPull, save: calSave, remove: calRemove,
       skip: calSkip, hide: calHide, seen: calSeen, hits: calHits, next: calNext, list: calList, day: calDay, dir: calDir, status: calStatus, joinHere: calJoinHere, REP: CAL_REP, REP_LABEL: CAL_REP_LABEL },
     bd: { save: bdSave, remove: bdRemove, ack: bdAck, seen: bdSeen, all: bdAll, posts: bdPosts, notes: bdNotes, unread: bdUnread, ui: bdUi, errText: bdErrText, refText: bdRefText, ts: bdTs },
+    sync: { start: syStart, login: syLogin, forget: syForget, run: syRun, queue: syQueue, status: syStatus, watch: syWatch, band: syBand, panel: syPanel, cfg: syCfg, keyOk: syKeyOk, KEY: SY_KEY },
     bk: { groups: BKA_GROUPS, group: bkaGroup, collect: bkaCollect, last: bkaLast, exportAll: bkaExport, phone: bkaPhone }, KINDS: KINDS, NAME: NAME, STATUS: STATUS, SALES_KEY: SALES_KEY, FEED_KEY: FEED_KEY, TOOL_KEY: TOOL_KEY, SET_DEF: SET_DEF, FAM_RE: FAM_RE,
     nk: nk, dayDiff: dayDiff, ageAt: ageAt, today: today, contracts: contracts, feed: feed, tool: tool,
     cleanK: cleanK, feedFrom: feedFrom, toolFrom: toolFrom, cleanHist: cleanHist, cleanAlog: cleanAlog, histPush: histPush, meOf: meOf, track: track,
@@ -6118,10 +6588,10 @@ var INHOUSE_SEARCH = [
     keys: '社内 社員教育 教育 研修 トレーニング 勉強 学習 テスト 理解度 確かめ 朝礼 ロープレ NGトーク 言ってはいけない 添削 早見表' },
   { key: 'sales', name: '保険営業カレンダー（社内）',
     label: '営業活動のカレンダー・顧客検索・面談記録・お誕生日',
-    keys: '社内 営業 ダッシュボード 営業活動 カレンダー 営業カレンダー 共有の予定 予定を共有 定例 ミーティング 会議 更新 更新の登録 満期 払込満了 見込客 アプローチ ヒアリング プレゼン クロージング 契約 定期訪問 ビジネスパートナー 提携先 顧客検索 顧客カルテ カルテ 面談 記録 日報 定期訪問 誕生日' },
+    keys: '同期 携帯 パソコン そろえる 機種変更 社内 営業 ダッシュボード 営業活動 カレンダー 営業カレンダー 共有の予定 予定を共有 定例 ミーティング 会議 更新 更新の登録 満期 払込満了 見込客 アプローチ ヒアリング プレゼン クロージング 契約 定期訪問 ビジネスパートナー 提携先 顧客検索 顧客カルテ カルテ 面談 記録 日報 定期訪問 誕生日' },
   { key: 'kokyaku', name: '顧客管理（社内）',
     label: '契約ごとに、意向把握・比較推奨・適合性の確認（変額保険）の提出状況を並べ、未提出・不備をアラートで通知する。代理店点検の準備・お客様ファイルの印刷・上長の確認',
-    keys: '社内 顧客管理 顧客 契約 契約者 提出 未提出 提出書類 書類 意向把握 比較推奨 適合性 適合性確認 変額 変額保険 特定保険契約 外貨建て アラーム 知らせ 上長 報告 メンバー 一覧 代理店点検 点検 監査 証券番号 お客様ファイル 抜き取り 帳簿' },
+    keys: '同期 携帯 パソコン そろえる 機種変更 社内 顧客管理 顧客 契約 契約者 提出 未提出 提出書類 書類 意向把握 比較推奨 適合性 適合性確認 変額 変額保険 特定保険契約 外貨建て アラーム 知らせ 上長 報告 メンバー 一覧 代理店点検 点検 監査 証券番号 お客様ファイル 抜き取り 帳簿' },
   { key: 'case', name: '保険支払事例トレーニング（社内）',
     label: '支払いが分かれる場面87件・「出る／出ないことがある／条件しだい」の3択',
     keys: '社内 支払 支払事例 出る 出ない 免責 責任開始 告知義務違反 不告知教唆 入院の定義 手術の定義 上皮内新生物 所定の状態 高度障害 払込免除 失効 復活 時効 代理請求 先進医療 通院 約款 事例 ケース' },
@@ -6357,7 +6827,7 @@ var PASS_SALT = 'officem-hoken-hub-2026|';
    ★2026-10-26 IDとパスワードの2つにした（ユーザー指示「IDとパスワードの２つを設定して、両方入力することで、誰がいつログインしたか分かるように」）。
      印＝sha256(PASS_SALT + 'id:' + ID + '|pw:' + パスワード)（lockHash）。前の合言葉だけの印は外した＝前に開いていた端末は、入れ直しになる。
      公開版はいま ID 1357・パスワード 1357（ユーザー指示）。御社用のフォルダは make_agency.py が10桁のIDと8文字以上のパスワードに差し替える */
-var PASS_HASHES = ['edca5a0720eb230f3f1d4d319dd86c9dc79bdc9aea9f681c5557a4eedebd388b'];
+var PASS_HASHES = ['edca5a0720eb230f3f1d4d319dd86c9dc79bdc9aea9f681c5557a4eedebd388b', 'f0a4f27c4bda1b2ad31a1a2bdd7718b4f96ad0c8bb98b379c5352caedb746f6d'];
 var AUTH_DAYS = 30;
 /* 期限つきの臨時の合言葉の仕組み（いまは使っていない。納品の道具 make_agency.py がこの2行を空にする形を見ているので、行は残す） */
 var TEMP_PASS_HASH = '';
@@ -6417,11 +6887,11 @@ function isAuthed() {
 /* IDをそろえる（全角の数字・英字を半角に・前後の空きを外す）。印はそろえたあとのIDで作る */
 function lockIdNorm(s) {
   return String(s == null ? '' : s).replace(/[\uFF01-\uFF5E]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); })
-    .replace(/[\s\u3000]+/g, '');
+    .replace(/[\s\u3000]+/g, '').toLowerCase();
 }
 function lockHash(id, pw) { return sha256(PASS_SALT + 'id:' + lockIdNorm(id) + '|pw:' + String(pw == null ? '' : pw)); }
 /* 記録に残してよいIDか（数字だけ・4〜20桁）。パスワードを間違えてIDの欄に入れたものを、記録に残さないため */
-function lockIdLoggable(id) { return /^[0-9]{4,20}$/.test(id); }
+function lockIdLoggable(id) { return /^(?:[0-9]{4,20}|[0-9a-z._%+\-]{1,64}@[0-9a-z.\-]{1,190})$/.test(id); }   /* 数字のID・メールアドレスの形のID（2026-11-04） */
 var lockIdNow = '';   /* いま入れたID（rememberAuth が記憶に残す。kaisha.py が探す2行の形を変えないため、変数で渡す） */
 function rememberAuth(hash) {
   try {
@@ -6501,7 +6971,7 @@ function mbCan(what) {
   return !!r;
 }
 function mbRoleLabel(r) { return MB_ROLES[r] || ''; }
-function mbIdOk(i) { return typeof i === 'string' && /^[0-9]{4,20}$/.test(i); }
+function mbIdOk(i) { return typeof i === 'string' && /^(?:[0-9]{4,20}|[0-9a-z._%+\-]{1,64}@[0-9a-z.\-]{1,190})$/.test(i); }   /* 数字のID・メールアドレスの形のID（2026-11-04） */
 /* いまこの端末で開いている方のID（名簿でも、会社で1つのときも。記憶に無ければ空） */
 function mbAuthId() {
   var o = mbRead(AUTH_KEY);
@@ -6701,6 +7171,7 @@ function mbLockSubmit(pass, err) {
   mbLogin(id, pw, keep).then(function (r) {
     if (btn) btn.disabled = false;
     if (r.ok) {
+      try { KKC.sync.login(id, pw, CP_SYNC_URL); } catch (x) {}   /* 携帯とパソコンを同じ記録に（2026-11-03） */
       pass.value = ''; err.textContent = ''; mbFailReset();
       mbLog('in', { u: r.m.u, r: r.m.r, n: r.n, i: id }, keep ? '次回から省略' : '');
       startAdmin(); return;
@@ -8944,10 +9415,11 @@ function openBackup() {
       '<td>' + (last ? esc(fmtDate(Date.parse(last))) + (d >= 0 ? '（' + (d === 0 ? '今日' : d + '日前') + '）' : '') : (n ? '<span class="bk-warn">まだ</span>' : '<span class="bk-mute">—</span>')) + '</td></tr>';
   }).join('');
   modal('データの控え',
-    '<p class="bk-lead">記録は全て、<b>この端末のブラウザの中だけ</b>にあります。ブラウザのデータを消したとき・端末の容量が足りなくなったとき・' +
+    '<p class="bk-lead">記録は全て、<b>この端末のブラウザの中' + (syOnNow() ? '（と、同じIDのほかの端末と同じにするための、暗号化した写し）' : 'だけ') + '</b>にあります。ブラウザのデータを消したとき・端末の容量が足りなくなったとき・' +
       (bkIsIOS() ? '<b>この iPhone・iPad の Safari で7日ほど開かなかったとき</b>' : 'iPhone・iPad の Safari で7日ほど開かなかったとき') +
       'には、知らせなく消えることがあります。<b>月に1回</b>（iPhone・iPad では週に1回）、全ての記録をまとめて控えのファイルにしてください。</p>' +
     bkHomeTip() +
+    '<div id="bkSync" class="bk-sync"></div>' +
     '<div class="bk-big">' +
       '<button type="button" class="btn btn-primary bk-go" id="bkExport">' + ICO.copy + '全ての記録を、ファイルに控える</button>' +
       '<button type="button" class="btn btn-ghost bk-go" id="bkImport">控えのファイルから戻す</button>' +
@@ -8979,6 +9451,7 @@ function openBackup() {
       });
     };
   });
+  try { KKC.sync.panel(document.getElementById('bkSync')); } catch (e) {}
   document.getElementById('bkHokanGo').onclick = function () { closeModal(); location.hash = '#compliance/hokan'; };
   document.getElementById('bkExport').onclick = function () {
     if (bkExportAll()) { toast('控えのファイルを保存しました'); closeModal(); openBackup(); renderBackupNag(); }
@@ -10339,7 +10812,7 @@ function bindAdmin() {
   document.getElementById('btnHelp').onclick = openHelp;
   document.getElementById('btnSettings').onclick = openSettings;
   document.getElementById('btnBackup').onclick = openBackup;
-  document.getElementById('btnLock').onclick = function () { mbLog('out'); forgetAuth(); location.replace(location.pathname); };
+  document.getElementById('btnLock').onclick = function () { mbLog('out'); try { KKC.sync.forget(); } catch (e) {} forgetAuth(); location.replace(location.pathname); };
   Object.keys(INHOUSE_BANNER).forEach(function (key) {
     /* コンプライアンス（cpsec）はこの画面の中の節。別のページを開かないので、ここでは結ばない（結ぶと「公開準備中」と読み上げに足され、
        押したときに「まだ公開していません」が出ていた。配線は initAudit()。2026-10-06 全体の辛口の点検） */
@@ -16680,6 +17153,9 @@ function auInitButtons() {
    ★お客様に見せる文言ではないが、効果の数字や断定（必ず・絶対）は書かない。
    ============================================================ */
 var UPDATES = [
+  { id: '2026-11-03-sync', date: '2026-11-03', target: 'sec:backup',
+    title: '携帯とパソコンで、同じ記録が見られるようになりました',
+    body: '同じIDとパスワードでログインした携帯とパソコンは、コンプライアンスの記録・営業カレンダー・顧客管理の記録が同じになります。中身は端末で暗号化してから置き場所へ送ります。両方で同じ記録を直したときは新しいほうを残し、もう一方は「データの控え」から戻せます。ライフプランの資料は入りません。パスワードは8文字以上にしてからお使いください。' },
   { id: '2026-11-03-seimeizei', date: '2026-11-03', target: 'cat:life',
     title: '生命保険と税金：学習資料を6つ足し、生命保険の題名を磨き直しました',
     body: '生命保険の分野に『生命保険契約に関する権利』『金融類似商品』『保険金と支払調書』『保険と差押え』、税金の分野に『公的年金の税金』『2026年の税と制度の変わり目』を足しました。あわせて生命保険の学習資料の題名を、そのページでいちばん驚く事実の言い切りに直し、所得税の控除・年金・iDeCo・高額療養費などの本文を2026年11月時点の内容に合わせました。' },
@@ -17029,11 +17505,28 @@ function startAdmin() {
   initStudy();
   renderBackupNag();
   try { hnAuto(); } catch (e) {}   /* 会社の保管フォルダへ、今日の控えを書く（2026-10-24） */
+  if (!omBg()) syHubStart();
   /* 社内ツールの「データはこの端末だけ・控えを取る」から来たとき（#backup）は、データの控えを開く */
   if (location.hash === '#backup') {
     try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
     openBackup();
   }
+}
+
+/* 携帯とパソコンを同じ記録にする（2026-11-03）。部品は kkcore の KKC.sync */
+function syOnNow() { try { return KKC.sync.status().on; } catch (e) { return false; } }
+function syHubVerify(id, pw) {
+  id = lockIdNorm(id);
+  if (!mbOn()) return Promise.resolve(PASS_HASHES.indexOf(lockHash(id, pw)) >= 0);
+  var R = OM_MEMBERS;
+  return mbDerive(mbKeyInput(id, pw), R.s, R.it).then(function (k) { var m = mbFindV(mbVOf(mbHex(k))); return !!(m && m.st === 'on'); });
+}
+function syHubStart() {
+  try {
+    var a = null; try { a = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null'); } catch (e) {}
+    KKC.sync.start({ reload: ['officem.hokenHub.audit.v1', 'officem.hokenHub.v1', 'officem.hokenSales.v1', 'officem.hokenKokyaku.v1'],
+      verify: syHubVerify, url: CP_SYNC_URL, id: lockIdNow || (a && a.i) || '', authed: true, band: document.getElementById('syncBand') });
+  } catch (e) {}
 }
 
 function showLock() {
@@ -17054,6 +17547,7 @@ function showLock() {
     var ok = PASS_HASHES.indexOf(hash) >= 0 && !(hash === TEMP_PASS_HASH && Date.now() > TEMP_PASS_EXPIRES);
     if (ok) {
       lockIdNow = lid;
+      try { KKC.sync.login(lid, pass.value, CP_SYNC_URL); } catch (x) {}   /* 携帯とパソコンを同じ記録に（2026-11-03） */
       mbFailReset(); mbLog('in', { i: lid }, document.getElementById('lockKeep').checked ? '次回から省略' : '');
       if (document.getElementById('lockKeep').checked) rememberAuth(hash);
       startAdmin();
