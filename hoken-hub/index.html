@@ -408,6 +408,35 @@ button.cp-tile.cp-tile-go:focus-visible{outline:3px solid #1a5487;outline-offset
 #auditSec .cp-det-tbl th, #auditSec .cp-det-tbl td{border-bottom:1px solid #e8edf2;padding:7px 12px;}
 #auditSec .cp-det-tbl th{background:#f8fafc;border-right:1px solid #e8edf2;}
 #auditSec .cp-det-tbl tr:last-child > th, #auditSec .cp-det-tbl tr:last-child > td{border-bottom:0;}
+/* CPHIST-CSS-BEGIN 記録の版・取り消した記録（2026-11-04） */
+.cp-vers{margin:12px 0 4px;border:1px solid #dfe7ee;border-radius:10px;background:#fbfcfd;padding:0 12px;font-size:.9rem;}
+.cp-vers > summary{cursor:pointer;min-height:44px;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-weight:700;color:var(--navy);}
+.cp-vck{display:inline-block;border-radius:999px;padding:2px 10px;font-size:.82rem;font-weight:700;}
+.cp-vck-ok{background:#e7f4ec;color:#1e6b3a;}
+.cp-vck-w{background:#fdf3e1;color:#7a4b06;}
+.cp-vck-ng{background:#fbe9e6;color:#9b2c1b;}
+.cp-vck-bad{margin:4px 0 8px;padding-left:1.3em;color:#9b2c1b;}
+.cp-ver-list{list-style:none;margin:0 0 8px;padding:0;}
+.cp-ver{border-top:1px solid #e8edf2;padding:8px 0;}
+.cp-ver-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;color:#3c4a58;}
+.cp-ver-h code{font-size:.82rem;color:#5f6b78;background:#eef2f6;border-radius:4px;padding:0 5px;}
+.cp-ver-n{font-weight:700;color:var(--navy);min-width:2.6em;}
+.cp-ver-c{margin:4px 0 0;padding-left:1.3em;color:#2b3640;line-height:1.7;}
+.cp-ver-c s{color:#6b7682;}
+.cp-ver-x .cp-ver-h{color:#7a4b06;}
+.cp-ver-vd .cp-ver-h{color:#9b2c1b;}
+.cp-ver-note{color:#5f6b78;font-size:.84rem;line-height:1.7;max-width:46em;}
+.cp-klres{display:inline-block;margin-left:8px;font-size:.86rem;color:#3c4a58;}
+.cp-klres-ok{color:#1e6b3a;}
+.cp-klres-ng{color:#9b2c1b;font-weight:700;}
+.cp-voids{margin:10px 0;}
+.cp-void{border:1px solid #ecd9d5;border-radius:10px;background:#fffaf9;padding:0 12px;margin:8px 0;}
+.cp-void > summary{cursor:pointer;min-height:44px;display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;}
+.cp-void-k{font-weight:700;color:var(--navy);}
+.cp-void-at{color:#5f6b78;font-size:.86rem;}
+.cp-void-why{color:#9b2c1b;font-size:.88rem;}
+@media print{ .cp-vers{border:0;background:none;padding:0;} .cp-vers > summary{min-height:0;} .cp-det-tools{display:none;} }
+/* CPHIST-CSS-END */
 .cp-table .cp-acts{display:grid;grid-template-columns:repeat(2,max-content);gap:6px;align-items:stretch;}
 .cp-table .cp-acts .cp-btn{white-space:nowrap;margin:0;}
 /* 年度・月を選ぶ欄（研修台帳・自習の記録）も、ほかの選ぶ欄と同じ形・44px に。狭い画面では「年度」の字を細らせず、選ぶ欄を次の行へ */
@@ -2100,6 +2129,7 @@ body.comp-open #admin .wrap > #hokanNag.bk-nag{display:flex !important;}
       <label class="l-remember"><input type="checkbox" id="lockKeep" checked>この端末では30日間、次回から省略する</label>
       <button class="btn btn-primary" type="submit">開く</button>
     </form>
+    <div class="l-fg-host"></div>
     <p class="l-note">IDとパスワードが分からないときは、社内の管理者（社長・上長）にお尋ねください。<br>お客様にお渡しした共有リンクは、IDとパスワードなしでご覧いただけます。</p>
   </div>
 </div>
@@ -3793,7 +3823,7 @@ var KKC = (function () {
   var SY_URL = 'https://katatsugi-comp-default-rtdb.asia-southeast1.firebasedatabase.app';   /* OMSYNCURL */
   var SY_IT = 200000, SY_INFO = 'katatsugi-sync-v1';
   var SY_LIGHT = ['officem.hokenHub.v1', 'officem.hokenHub.newsSeen.v1', 'officem.kataLog.v1', 'officem.kataLog.name'];
-  var SY_EXCL = ['officem.hokenHub.compFeed.v1'];
+  var SY_EXCL = ['officem.hokenHub.compFeed.v1', 'officem.hokenHub.klq.v1', 'officem.hokenHub.kls.v1'];   /* 記録の版の控え（kl）の送り待ちは端末ごと（2026-11-04） */
   var sySt = { st: 'off', at: '', err: '' }, syOpt = { reload: [], verify: null, id: '', authed: false }, syOn_ = [], syIdx = {}, syIdxOk = false;
   var syBusy = false, syAgain = false, syT = null, syES = null, syPollT = null, syKeyC = null, syKidC = {}, syAskP = null, syStarted = false, syPending = false;
   function syCan() { return cpsCan() && typeof fetch === 'function'; }
@@ -3867,6 +3897,54 @@ var KKC = (function () {
         return r.json();
       }, function (e) { if (tm) clearTimeout(tm); throw e; });
   }
+  /* KLOG-BEGIN 記録の版の控え（2026-11-04 ユーザー指示「意向把握、比較推奨などに関して、ログを書き換えできないようにしてください。いつ追加し記入したのか残せるようにしてください。」）
+     コンプライアンスの記録の版ごとの印（sha256）と日時だけを、同期と同じ部屋の /kl/<部屋>/<記録の番号>/<版> に置く。
+     ★Firebase の決まりで「一度書いたら上書きも削除もできない」（rules.json の kl）。中身（お客様のお名前など）は送らない
+     ★同じIDとパスワードでログインした端末どうしが同じ部屋（携帯とパソコンの同期と同じ） */
+  function klUrl(c, rid, n) { return c.url.replace(/\/+$/, '') + '/kl/' + c.room + '/' + rid + (n != null ? '/' + n : '') + '.json'; }
+  function klReq(url, opt) {
+    var ctl = typeof AbortController === 'function' ? new AbortController() : null, tm = ctl ? setTimeout(function () { ctl.abort(); }, 20000) : null;
+    return fetch(url, { method: (opt && opt.method) || 'GET', body: opt && opt.body, cache: 'no-store', signal: ctl ? ctl.signal : undefined }).then(function (r) {
+      if (tm) clearTimeout(tm);
+      if (r.status === 401 || r.status === 403) return { denied: true };
+      if (!r.ok) throw new Error('http ' + r.status);
+      return r.json().then(function (j) { return { v: j }; });
+    }, function (e) { if (tm) clearTimeout(tm); throw e; });
+  }
+  function klOk(rid, n, h) { return /^[A-Za-z0-9-]{1,40}$/.test(String(rid || '')) && /^[0-9]{1,4}$/.test(String(n)) && /^[0-9a-f]{64}$/.test(String(h || '')); }
+  /* 1つずつ書く。返す形＝[{r, n, st:'ok'|'same'|'diff'|'err'|'off', h2}] */
+  function klPut(list) {
+    var c = syCfg();
+    if (!c) return Promise.resolve((list || []).map(function (e) { return { r: e.r, n: e.n, st: 'off' }; }));
+    var out = [];
+    return (list || []).reduce(function (p, e) {
+      return p.then(function () {
+        if (!klOk(e.r, e.n, e.h)) { out.push({ r: e.r, n: e.n, st: 'err' }); return; }
+        var at = Date.parse(e.at); if (!isFinite(at)) at = Date.now();
+        return klReq(klUrl(c, e.r, e.n), { method: 'PUT', body: JSON.stringify({ h: e.h, at: at, d: c.dev }) }).then(function (x) {
+          if (!x.denied) { out.push({ r: e.r, n: e.n, st: 'ok' }); return; }
+          return klReq(klUrl(c, e.r, e.n)).then(function (y) {   /* 既にある版：同じ印なら済み、違えば食い違い */
+            var h2 = y.v && typeof y.v.h === 'string' ? y.v.h : '';
+            out.push({ r: e.r, n: e.n, st: !h2 ? 'err' : h2 === e.h ? 'same' : 'diff', h2: h2 });
+          });
+        }).catch(function () { out.push({ r: e.r, n: e.n, st: 'err' }); });
+      });
+    }, Promise.resolve()).then(function () { return out; });
+  }
+  /* 1つの記録の版の控えを読む。返す形＝null（同期を使っていない）／{n:{h, at}} */
+  function klGet(rid) {
+    var c = syCfg();
+    if (!c || !/^[A-Za-z0-9-]{1,40}$/.test(String(rid || ''))) return Promise.resolve(null);
+    return klReq(klUrl(c, rid)).then(function (x) {
+      var o = {}, v = x.v;
+      if (v && typeof v === 'object') Object.keys(v).forEach(function (k) {
+        var e = v[k];
+        if (/^[0-9]{1,4}$/.test(k) && e && typeof e.h === 'string' && /^[0-9a-f]{64}$/.test(e.h)) o[k] = { h: e.h, at: typeof e.at === 'number' ? e.at : 0 };
+      });
+      return o;
+    });
+  }
+  /* KLOG-END */
   function syIdxClean(o) {
     var out = {};
     if (o && typeof o === 'object') Object.keys(o).forEach(function (kid) { var r = o[kid]; if (/^[0-9a-f]{24}$/.test(kid) && r && typeof r.t === 'number') out[kid] = { t: r.t, d: typeof r.d === 'string' ? r.d : '' }; });
@@ -4249,7 +4327,7 @@ var KKC = (function () {
     cal: { setup: calSetup, forget: calForget, cfg: calCfg, publish: calPublishMe, start: calStart, stop: calStop, watch: calWatch, pull: calPull, save: calSave, remove: calRemove,
       skip: calSkip, hide: calHide, seen: calSeen, hits: calHits, next: calNext, list: calList, day: calDay, dir: calDir, status: calStatus, joinHere: calJoinHere, REP: CAL_REP, REP_LABEL: CAL_REP_LABEL },
     bd: { save: bdSave, remove: bdRemove, ack: bdAck, seen: bdSeen, all: bdAll, posts: bdPosts, notes: bdNotes, unread: bdUnread, ui: bdUi, errText: bdErrText, refText: bdRefText, ts: bdTs },
-    sync: { start: syStart, login: syLogin, forget: syForget, run: syRun, queue: syQueue, status: syStatus, watch: syWatch, band: syBand, panel: syPanel, cfg: syCfg, keyOk: syKeyOk, KEY: SY_KEY },
+    sync: { start: syStart, login: syLogin, forget: syForget, run: syRun, queue: syQueue, status: syStatus, watch: syWatch, band: syBand, panel: syPanel, cfg: syCfg, keyOk: syKeyOk, KEY: SY_KEY, logPut: klPut, logGet: klGet },
     bk: { groups: BKA_GROUPS, group: bkaGroup, collect: bkaCollect, last: bkaLast, exportAll: bkaExport, phone: bkaPhone }, KINDS: KINDS, NAME: NAME, STATUS: STATUS, SALES_KEY: SALES_KEY, FEED_KEY: FEED_KEY, TOOL_KEY: TOOL_KEY, SET_DEF: SET_DEF, FAM_RE: FAM_RE,
     nk: nk, dayDiff: dayDiff, ageAt: ageAt, today: today, contracts: contracts, feed: feed, tool: tool,
     cleanK: cleanK, feedFrom: feedFrom, toolFrom: toolFrom, cleanHist: cleanHist, cleanAlog: cleanAlog, histPush: histPush, meOf: meOf, track: track,
@@ -6879,6 +6957,7 @@ function isAuthed() {
   try {
     var o = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null');
     if (mbOn()) return mbAuthOk(o);   /* 名簿（一人ずつの合言葉）のときは名簿で照らす（2026-10-24） */
+    if (lockFbOk(o)) return true;     /* メールアドレスのIDを Firebase で確かめた記憶（再設定のあと。2026-11-04） */
     if (!(o && PASS_HASHES.indexOf(o.h) >= 0 && o.e > Date.now())) return false;
     if (o.h === TEMP_PASS_HASH && Date.now() > TEMP_PASS_EXPIRES) return false;
     return true;
@@ -6893,17 +6972,231 @@ function lockHash(id, pw) { return sha256(PASS_SALT + 'id:' + lockIdNorm(id) + '
 /* 記録に残してよいIDか（数字だけ・4〜20桁）。パスワードを間違えてIDの欄に入れたものを、記録に残さないため */
 function lockIdLoggable(id) { return /^(?:[0-9]{4,20}|[0-9a-z._%+\-]{1,64}@[0-9a-z.\-]{1,190})$/.test(id); }   /* 数字のID・メールアドレスの形のID（2026-11-04） */
 var lockIdNow = '';   /* いま入れたID（rememberAuth が記憶に残す。kaisha.py が探す2行の形を変えないため、変数で渡す） */
+var lockFbNow = false;   /* いまのログインを Firebase で確かめたか（rememberAuth が fb の印を残す。2026-11-04） */
+function lockFbOk(o) {
+  return !!(o && o.fb === 1 && typeof OMLG !== 'undefined' && OMLG.fbOn() && OMLG.isMail(o.i)
+    && /^[0-9a-f]{64}$/.test(String(o.h || '')) && typeof o.e === 'number' && o.e > Date.now());
+}
 function rememberAuth(hash) {
   try {
     var exp = Date.now() + AUTH_DAYS * 86400000;
     if (hash === TEMP_PASS_HASH) exp = Math.min(exp, TEMP_PASS_EXPIRES);
     var o = { h: hash, e: exp };
     if (lockIdNow) o.i = lockIdNow;
+    if (lockFbNow) o.fb = 1;
     localStorage.setItem(AUTH_KEY, JSON.stringify(o));
   }
   catch (e) { /* 保存できなくても、その場では開ける */ }
 }
 function forgetAuth() { try { localStorage.removeItem(AUTH_KEY); } catch (e) {} }
+/* OMLG-BEGIN ログインの回数制限と、パスワードの再設定のメール（2026-11-04）。
+   正本は hoken-gate-src/loginguard.js。写す先（管理画面・営業カレンダー・扉 gate.html）の中を直接直さない
+   （python3 hoken-gate-src/apply_loginguard.py で写し直す）。
+
+   ユーザー指示（2026-11-04）「ログイン失敗時の回数制限を作ってください。３回まで。できなかった際や、
+   IDパスワードを忘れた場合は、登録済みのメールアドレスに再設定のメールを送って再ログインできるようにしてください」
+
+   ・入れ間違いは3回まで。3回続けて違うと、この端末では30分入れない（置き場所は管理画面・営業カレンダー・扉・
+     ライフプランで同じ＝どの入口で間違えても数える）。入れたら数え直す
+   ・メールアドレスのIDは、Firebase Authentication（無料の枠）で確かめる。忘れたときは、その仕組みが
+     登録済みのアドレスへ再設定のメールを送る（文面と送り元は Google）。新しいパスワードで入れる
+     ★行き先の鍵（ウェブAPIキー）は下の FB_KEY の1行。空のあいだは今までどおり（端末の中の印で確かめる）
+   ・再設定のメールの「続ける」から戻ると、この端末の待ち時間を外す（送ったときの印 RESET と照らす）
+
+   ★これはブラウザの中で数える仕組み。閲覧データを消せば数え直しになる（Firebase 側にも別に回数の制限がある）。
+     「絶対に破られません」と説明しない */
+var OMLG = window.OMLG || (function () {   /* 同じページに2回入っても（扉と営業カレンダー）、1つだけ動かす */
+  var FAIL = 'officem.hokenHub.lockFail.v1';     /* 前からの置き場所（名簿のログインと同じ） */
+  var RESET = 'officem.hokenHub.pwreset.v1';
+  var MAX = 3, LOCK_MIN = 30;
+  var FB_KEY = '';   /* OMFBAUTHKEY */
+  var FB_BASE = 'https://identitytoolkit.googleapis.com/v1/';
+  function rd(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } }
+  function wr(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  function fails() {
+    var o = rd(FAIL);
+    o = (o && typeof o.n === 'number') ? o : { n: 0, until: 0 };
+    if (o.until && o.until <= Date.now()) { o = { n: 0, until: 0 }; try { localStorage.removeItem(FAIL); } catch (e) {} }   /* 待ち時間が過ぎたら数え直す */
+    return o;
+  }
+  function wait() { return Math.max(0, Math.ceil(((fails().until || 0) - Date.now()) / 1000)); }
+  function add() {
+    var o = fails(); o.n += 1;
+    if (o.n >= MAX) o.until = Date.now() + LOCK_MIN * 60000;
+    wr(FAIL, o);
+    return o;
+  }
+  function reset() { try { localStorage.removeItem(FAIL); } catch (e) {} }
+  function left() { return Math.max(0, MAX - fails().n); }
+  function waitText(s) { return s >= 60 ? Math.ceil(s / 60) + '分' : s + '秒'; }
+  function lockMsg() {
+    return 'IDかパスワードを' + MAX + '回続けて間違えたので、この端末では、あと' + waitText(wait()) + '入れません。'
+      + (fbOn() ? 'パスワードを忘れたときは、下の「IDかパスワードを忘れたとき」から再設定のメールを送れます。'
+                : 'パスワードを忘れたときは、下の「IDかパスワードを忘れたとき」をご覧ください。');
+  }
+  function failMsg(who) {
+    if (wait() > 0) return lockMsg();
+    var n = left();
+    return 'IDかパスワードが違います。' + (n > 0 ? 'あと' + n + '回違うと、この端末では' + LOCK_MIN + '分入れなくなります。' : '')
+      + (who || '');
+  }
+  function isMail(id) { return /^[0-9a-z._%+\-]{1,64}@[0-9a-z.\-]{1,190}\.[a-z]{2,}$/.test(String(id || '')); }
+  function fbOn() { return !!FB_KEY; }
+  function post(path, body) {
+    return fetch(FB_BASE + path + '?key=' + encodeURIComponent(FB_KEY), {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+    }).then(function (r) {
+      return r.json().then(function (j) { return { ok: r.ok, j: j || {} }; }, function () { return { ok: r.ok, j: {} }; });
+    });
+  }
+  function codeOf(j) { var m = j && j.error && j.error.message; return String(m || '').split(/[\s:]/)[0]; }
+  /* メールアドレスとパスワードを Firebase で確かめる。{ok, uid} か {ok:false, code}（net＝繋がらない） */
+  function signIn(email, pw) {
+    if (!fbOn()) return Promise.resolve({ ok: false, code: 'off' });
+    return post('accounts:signInWithPassword', { email: email, password: pw, returnSecureToken: true }).then(function (r) {
+      if (r.ok && r.j.localId) return { ok: true, uid: String(r.j.localId) };
+      return { ok: false, code: codeOf(r.j) || 'bad' };
+    }, function () { return { ok: false, code: 'net' }; });
+  }
+  /* 再設定のメールを送る。戻り先（続ける）に印を付け、戻ってきたら待ち時間を外す */
+  function sendReset(email) {
+    if (!fbOn()) return Promise.resolve({ ok: false, code: 'off' });
+    var n = '', b = new Uint8Array(12), i;
+    try { crypto.getRandomValues(b); } catch (e) { for (i = 0; i < 12; i++) b[i] = Math.floor(Math.random() * 256); }
+    for (i = 0; i < 12; i++) n += ('0' + b[i].toString(16)).slice(-2);
+    wr(RESET, { n: n, e: Date.now() + 3 * 86400000 });
+    var back = location.origin + location.pathname + '?pwreset=' + n;
+    var body = { requestType: 'PASSWORD_RESET', email: email, continueUrl: back };
+    return post('accounts:sendOobCode', body).then(function (r) {
+      if (r.ok) return { ok: true };
+      var c = codeOf(r.j);
+      if (/UNAUTHORIZED|DOMAIN|CONTINUE_URI/.test(c)) {   /* 戻り先の場所が Firebase に登録されていないときは、戻り先なしで送る */
+        return post('accounts:sendOobCode', { requestType: 'PASSWORD_RESET', email: email }).then(function (r2) {
+          return r2.ok ? { ok: true, noBack: true } : { ok: false, code: codeOf(r2.j) || 'bad' };
+        });
+      }
+      /* 登録の無いアドレスでも、知らせ方は同じ（どのアドレスが登録済みかを外から見分けられないように） */
+      if (c === 'EMAIL_NOT_FOUND') return { ok: true };
+      return { ok: false, code: c || 'bad' };
+    }, function () { return { ok: false, code: 'net' }; });
+  }
+  /* 再設定のメールの「続ける」から戻ってきたとき。印が合えば待ち時間を外して true */
+  function takeReset() {
+    var m = /[?&]pwreset=([0-9a-f]{24})/.exec(location.search || '');
+    if (!m) return false;
+    try { history.replaceState(null, '', location.pathname + location.search.replace(/([?&])pwreset=[0-9a-f]{24}&?/, '$1').replace(/[?&]$/, '') + location.hash); } catch (e) {}
+    var o = rd(RESET);
+    if (!(o && o.n === m[1] && o.e > Date.now())) return false;
+    try { localStorage.removeItem(RESET); } catch (e) {}
+    reset();
+    return true;
+  }
+  var resetBack = takeReset();
+  /* 入れたIDとパスワードを確かめる。localOk(id, pw) は端末の中の印で確かめる関数（真偽か Promise）。
+     メールアドレスのIDで、Firebase の鍵があるときは Firebase で確かめる（再設定したあとの新しいパスワードで入れるように）。
+     結果＝{ok, fb, code}。数えるのはこの関数ではなく、呼ぶ側（記録の残し方が画面ごとに違うため） */
+  function check(id, pw, localOk) {
+    if (fbOn() && isMail(id)) {
+      return signIn(id, pw).then(function (r) {
+        if (r.code !== 'net') return { ok: r.ok, fb: r.ok, code: r.code };
+        /* 繋がらないときだけ、端末の中の印で確かめる（ページが開けていれば、ふつうは繋がっている） */
+        return Promise.resolve(localOk(id, pw)).then(function (ok) { return { ok: !!ok, fb: false, code: ok ? '' : 'net' }; });
+      });
+    }
+    return Promise.resolve(localOk(id, pw)).then(function (ok) { return { ok: !!ok, fb: false, code: ok ? '' : 'bad' }; });
+  }
+  function netMsg(code) {
+    if (code === 'net') return 'インターネットに繋がっていないので、確かめられませんでした。繋がってから、もう一度お試しください。';
+    if (code === 'USER_DISABLED') return 'このIDは止められています。管理者にお尋ねください。';
+    if (code === 'TOO_MANY_ATTEMPTS_TRY_LATER') return '入れ間違いが続いたので、しばらく入れません。パスワードを忘れたときは、再設定のメールを送ってください。';
+    return '';
+  }
+  /* ---- 「IDかパスワードを忘れたとき」の欄 ---- */
+  var CSS = '.omlg-fg{margin:14px 0 0;text-align:left}'
+    + '.omlg-fg>button.omlg-open{all:unset;cursor:pointer;display:inline-flex;align-items:center;min-height:44px;font-size:13.5px;font-weight:700;color:#2f63c8;text-decoration:underline;text-underline-offset:3px}'
+    + '.omlg-fg>button.omlg-open:focus-visible{outline:2px solid #2f63c8;outline-offset:2px;border-radius:4px}'
+    + '.omlg-box{margin:6px 0 0;padding:14px 14px 12px;background:#f6f9fd;border:1px solid #dde7f3;border-radius:12px;font-size:13.5px;line-height:1.85;color:#33465c}'
+    + '.omlg-box[hidden]{display:none !important}'
+    + '.omlg-box p{margin:0 0 8px}'
+    + '.omlg-box label{display:block;font-weight:700;font-size:13px;margin:4px 0 4px}'
+    + '.omlg-box input{width:100%;box-sizing:border-box;min-height:44px;font:inherit;font-size:16px;padding:8px 12px;border:1px solid #cdd9e7;border-radius:10px;background:#fff;color:#2b3646}'
+    + '.omlg-box button.omlg-send{all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;text-align:center;min-height:44px;line-height:44px;margin:10px 0 0;border-radius:10px;background:#2f63c8;color:#fff;font-weight:700;font-size:14.5px}'
+    + '.omlg-box button.omlg-send[disabled]{opacity:.6;cursor:default}'
+    + '.omlg-box .omlg-st{margin:8px 0 0;min-height:1.6em;font-weight:700}'
+    + '.omlg-box .omlg-st.ok{color:#256b43}.omlg-box .omlg-st.ng{color:#b3261e}'
+    + '.omlg-box .omlg-small{font-size:12.5px;color:#5d6b7c;margin:8px 0 0}'
+    + '.omlg-back{margin:0 0 12px;padding:10px 12px;background:#eef7f0;border:1px solid #cfe6d6;border-radius:10px;color:#256b43;font-size:13.5px;font-weight:700;text-align:left;line-height:1.8}';
+  function css() {
+    if (document.getElementById('omlg-css')) return;
+    var s = document.createElement('style'); s.id = 'omlg-css'; s.textContent = CSS;
+    (document.head || document.documentElement).appendChild(s);
+  }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  /* host（ログインの欄の中）に「忘れたとき」を付ける。opt.idInput＝IDの欄（メールアドレスなら初めから入れる）・
+     opt.who＝メールの仕組みが無いときの尋ね先（既定は「管理者（社長・上長）」）・opt.roster＝名簿で一人ずつのIDの会社 */
+  var seq = 0;
+  function forgot(host, opt) {
+    if (!host || host.querySelector('.omlg-fg')) return;
+    opt = opt || {}; css();
+    var sq = ++seq, bid = 'omlg-box' + sq, mid = 'omlg-mail' + sq;
+    var who = opt.who || '管理者（社長・上長）';
+    var w = document.createElement('div'); w.className = 'omlg-fg';
+    var body;
+    if (!fbOn()) {
+      body = '<p>再設定のメールは、いま準備中です。IDかパスワードが分からないときは、' + esc(who) + 'にお尋ねください。</p>'
+        + (opt.roster ? '<p class="omlg-small">名簿のIDは、社長が新しいパスワードを発行できます（コンプライアンスの「名簿と権限」）。</p>' : '');
+    } else {
+      body = '<p>登録済みのメールアドレスを入れてください。パスワードの再設定のメールを送ります。メールのリンクから新しいパスワードを決めて、この画面に戻って入ってください。</p>'
+        + '<label for="' + mid + '">メールアドレス</label>'
+        + '<input type="email" id="' + mid + '" class="omlg-mail" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="254">'
+        + '<button type="button" class="omlg-send">再設定のメールを送る</button>'
+        + '<div class="omlg-st" role="status" aria-live="polite"></div>'
+        + '<p class="omlg-small">メールが届かないときは、迷惑メールの箱もご覧ください。数字のID（メールアドレスでないID）のパスワードは、' + esc(who) + 'にお尋ねください。</p>';
+    }
+    w.innerHTML = '<button type="button" class="omlg-open" aria-expanded="false" aria-controls="' + bid + '">IDかパスワードを忘れたとき</button>'
+      + '<div class="omlg-box" id="' + bid + '" hidden>' + body + '</div>';
+    host.appendChild(w);
+    var ob = w.querySelector('.omlg-open'), box = w.querySelector('.omlg-box');
+    ob.addEventListener('click', function () {
+      var open = box.hidden; box.hidden = !open; ob.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open) {
+        var mi = box.querySelector('.omlg-mail'), idv = opt.idInput ? String(opt.idInput.value || '').trim().toLowerCase() : '';
+        if (mi) { if (!mi.value && isMail(idv)) mi.value = idv; try { mi.focus(); } catch (e) {} }
+      }
+    });
+    var send = box.querySelector('.omlg-send');
+    if (send) send.addEventListener('click', function () {
+      var mi = box.querySelector('.omlg-mail'), st = box.querySelector('.omlg-st');
+      var m = String(mi.value || '').replace(/[\s　]/g, '').toLowerCase();
+      st.className = 'omlg-st';
+      if (!isMail(m)) { st.className = 'omlg-st ng'; st.textContent = 'メールアドレスの形で入れてください。'; mi.focus(); return; }
+      send.disabled = true; st.textContent = '送っています…';
+      sendReset(m).then(function (r) {
+        send.disabled = false;
+        if (r.ok) {
+          st.className = 'omlg-st ok';
+          st.textContent = '登録済みのメールアドレスなら、再設定のメールが届きます。届いたメールのリンクから新しいパスワードを決めてください。';
+          if (opt.onSent) try { opt.onSent(m); } catch (e) {}
+        } else {
+          st.className = 'omlg-st ng';
+          st.textContent = r.code === 'net' ? 'インターネットに繋がっていないので、送れませんでした。' : '送れませんでした。時間をおいてもう一度お試しいただくか、' + who + 'にお尋ねください。';
+        }
+      });
+    });
+  }
+  /* 再設定から戻ってきたときの一言（ログインの欄の頭に） */
+  function backNote(host) {
+    if (!resetBack || !host || host.querySelector('.omlg-back')) return;
+    css();
+    var p = document.createElement('p'); p.className = 'omlg-back'; p.setAttribute('role', 'status');
+    p.textContent = 'パスワードを再設定しました。新しいパスワードで入ってください。';
+    host.insertBefore(p, host.firstChild);
+  }
+  return { MAX: MAX, LOCK_MIN: LOCK_MIN, fails: fails, wait: wait, add: add, reset: reset, left: left, waitText: waitText,
+    lockMsg: lockMsg, failMsg: failMsg, isMail: isMail, fbOn: fbOn, signIn: signIn, sendReset: sendReset, check: check,
+    netMsg: netMsg, forgot: forgot, backNote: backNote, resetBack: function () { return resetBack; } };
+})();
+/* OMLG-END */
 /* MEIBO-BEGIN ============================================================
    名簿（一人ずつのIDとパスワードと立場）・入れ間違いの待ち・ログインの記録（2026-10-24。IDとパスワードの2つは 2026-10-26）
    ユーザー指示「点数が100点になれるように1つずつ修正してください。まず、保険会社目線から。権限を作ることなど内容を変更してください」
@@ -6930,7 +7223,7 @@ var MB_FAIL_KEY = 'officem.hokenHub.lockFail.v1';
 var MB_DRAFT_KEY = 'officem.hokenHub.meibo.v1';
 var MB_IT = 150000;   /* 新しく名簿を作るときの回数（名簿の中に書いて残すので、あとから変えても前の名簿は開ける） */
 var MB_HOURS = 8;     /* 「次回から省略」を外したとき（名簿のとき）は、この時間で閉じる */
-var MB_FAIL_FREE = 5; /* この回数までは待たずに入れ直せる */
+var MB_FAIL_FREE = 3; /* 入れ間違いは3回まで（2026-11-04 ユーザー指示）。数え方は OMLG（hoken-gate-src/loginguard.js） */
 var MB_VER = 2;       /* 名簿の形（2＝IDとパスワード。2026-10-26） */
 /* 止めた方の端末で消す記録（保険の記録だけを名指しで。ほかの案件の記録は触らない）。利用の記録と失敗の数は残す */
 var MB_WIPE_PREFIX = ['officem.hokenHub.', 'officem.hokenSales', 'officem.hokenKokyaku', 'officem.hokenCalendar', 'officem.hokenTraining',
@@ -6979,17 +7272,15 @@ function mbAuthId() {
   return (typeof lockIdNow === 'string' && mbIdOk(lockIdNow)) ? lockIdNow : '';
 }
 
-/* ---------- 入れ間違いの待ち（5回まで待たずに・6回目からは30秒・1分・2分…最長15分） ---------- */
-function mbFail() { var o = mbRead(MB_FAIL_KEY); return (o && typeof o.n === 'number') ? o : { n: 0, until: 0 }; }
-function mbFailWait() { var o = mbFail(); return Math.max(0, Math.ceil(((o.until || 0) - Date.now()) / 1000)); }
+/* ---------- 入れ間違いの待ち（2026-11-04 から3回まで。3回続けて違うと、この端末では30分入れない。数え方は OMLG） ---------- */
+function mbFail() { return OMLG.fails(); }
+function mbFailWait() { return OMLG.wait(); }
 function mbFailAdd() {
-  var o = mbFail(); o.n += 1;
-  if (o.n >= MB_FAIL_FREE) o.until = Date.now() + Math.min(900, 30 * Math.pow(2, o.n - MB_FAIL_FREE)) * 1000;
-  mbWrite(MB_FAIL_KEY, o);
-  if (o.n === MB_FAIL_FREE) mbLog('wait', null, 'IDかパスワードの入れ間違いが続いたので、待ち時間に入った');
+  var o = OMLG.add();
+  if (o.n === OMLG.MAX) mbLog('wait', null, 'IDかパスワードを' + OMLG.MAX + '回続けて間違えたので、' + OMLG.LOCK_MIN + '分入れない');
   return o;
 }
-function mbFailReset() { try { localStorage.removeItem(MB_FAIL_KEY); } catch (e) {} }
+function mbFailReset() { OMLG.reset(); }
 function mbWaitText(s) { return s >= 60 ? Math.ceil(s / 60) + '分' : s + '秒'; }
 
 /* ---------- ログインの記録（この端末だけ・400日・3000件まで。ID は i） ---------- */
@@ -7140,13 +7431,8 @@ function mbGoBack() {
 
 /* ---------- ログインの画面 ---------- */
 var mbLockNote = '';
-function mbWaitMsg(s) { return 'IDかパスワードの入れ間違いが続いたので、あと' + mbWaitText(s) + 'お待ちください（この端末だけの待ち時間です）。'; }
-function mbFailMsg() {
-  var w = mbFailWait();
-  if (w > 0) return 'IDかパスワードが違います。入れ間違いが続いたので、' + mbWaitText(w) + 'お待ちください。分からないときは、社長・上長にお尋ねください。';
-  var left = MB_FAIL_FREE - mbFail().n;
-  return 'IDかパスワードが違います。' + (left > 0 && left <= 2 ? 'あと' + left + '回違うと、少しお待ちいただきます。' : '') + '分からないときは、社長・上長にお尋ねください。';
-}
+function mbWaitMsg(s) { return OMLG.lockMsg(); }
+function mbFailMsg(extra) { return OMLG.failMsg(extra || ''); }
 function mbLockLabel() {
   var lead = document.querySelector('#lock .l-lead'), keep = document.querySelector('#lock .l-remember'), note = document.getElementById('lockBack');
   if (mbOn()) {
@@ -9467,11 +9753,12 @@ function openBackup() {
   };
 }
 
-/* コンプライアンスの記録を前の版の控えから戻すとき、前の版に無かった記録（乗換・早期解約・点検した記録）は消さずに持ち越す（2026-10-16・cpKeepNew） */
+/* コンプライアンスの記録を控えから戻すときは、置き換えずに合わせる（2026-11-04・cpKeepNew）。
+   今の端末にあって控えに無い記録・控えのあとに直した版・取り消した記録は消えない。台帳と設定は控えの中身になる */
 function bkKeepAudit(raw, ls) {
   try {
     var o = JSON.parse(raw);
-    if (!o || typeof o !== 'object' || o.cpv) return raw;
+    if (!o || typeof o !== 'object') return raw;
     var cur = auClean(JSON.parse(ls.getItem(AUDIT_KEY) || 'null'));
     return JSON.stringify(cpKeepNew(o, auClean(o), cur));
   } catch (e) { return raw; }
@@ -9503,7 +9790,8 @@ function bkRestoreAsk(o) {
   var when = typeof o.exportedAt === 'string' && !isNaN(Date.parse(o.exportedAt)) ? fmtDateTime(Date.parse(o.exportedAt)) : '（日時の記録なし）';
   modal('控えから戻す',
     '<p>控えを作った日時：<b>' + esc(when) + '</b></p>' +
-    '<p>戻す記録を選んでください。選んだ記録は、<b>この端末の今の記録が、控えの中身に置き換わります</b>（控えのあとに書いた分は消えます）。</p>' +
+    '<p>戻す記録を選んでください。選んだ記録は、<b>この端末の今の記録が、控えの中身に置き換わります</b>（控えのあとに書いた分は消えます）。' +
+    '<br>ただし、意向把握・比較推奨などの毎日の記録は置き換えずに合わせます（今の端末にある記録・直した版・取り消した記録は消えません）。</p>' +
     '<div class="bk-pick">' + groups.map(function (g) {
       return '<label class="bk-pick-row"><input type="checkbox" data-bkg="' + g.id + '" checked><span><b>' + esc(g.name) + '</b>' +
         '<small>控え ' + bkFmt(fsz.by[g.id]) + '／いま ' + (cur.by[g.id] ? bkFmt(cur.by[g.id]) : '記録なし') + '</small></span></label>';
@@ -11151,7 +11439,7 @@ var AUDIT_KEY = 'officem.hokenHub.audit.v1';
 var AU_TRAIN_KINDS = ['社内研修', '保険会社の研修', '継続教育（生命保険）', '公的保険制度', 'コンプライアンス', '商品', 'その他'];
 var AU_MAT_KINDS = ['パンフレット・リーフレット', 'チラシ・DM', 'SNSの投稿', 'Web・広告', '提案書・比較表', 'その他'];
 var AU_SONPO = [['kiso', '損保一般 基礎単位'], ['jidosha', '自動車保険単位'], ['kasai', '火災保険単位'], ['shogai', '傷害疾病保険単位']];
-var au = { trainings: [], plans: [], materials: [], members: [], selfs: [], recs: [], oldRecs: [], pols: [], polsAt: '', cos: [], cosAt: '', whys: [], whysAt: '', me: { name: '', role: 'member', sent: '' }, cpset: { kujoDays: 2, at: '' }, got: {}, tenken: [] };
+var au = { trainings: [], plans: [], materials: [], members: [], selfs: [], recs: [], oldRecs: [], voidRecs: [], pols: [], polsAt: '', cos: [], cosAt: '', whys: [], whysAt: '', me: { name: '', role: 'member', sent: '' }, cpset: { kujoDays: 2, at: '' }, got: {}, tenken: [] };
 var auTab = 'iko', auFy = null, auEditMember = null, auSelfYm = null;
 
 /* 読み込んだ記録を1件ずつ確かめて、形の合わないものは捨てる（壊れた控えで画面が開けなくなるのを防ぐ） */
@@ -11210,10 +11498,14 @@ function auSelfClean(x) {
 }
 function auNameKey(n) { return auStr(n).replace(/[\s\u3000]+/g, ''); }
 function auLoad() {
+  cpHistDirty = false;
   try { au = auClean(JSON.parse(localStorage.getItem(AUDIT_KEY) || 'null')); }
   catch (e) { au = auClean(null); auLoadFailed = true; toast('コンプライアンスの記録を読み込めませんでした。控えから読み込んでください'); }
   mbMeToAu();   /* 名簿で開いた方は、名簿の名前で記録する（2026-10-24） */
+  /* 読み込みで版を足したとき（前の版の記録の1つ目の版・画面を通らない変更）は、その場で保存して版を残す（2026-11-04） */
+  if (cpHistDirty && !auLoadFailed) { cpHistDirty = false; try { auSave(); } catch (e) {} }
 }
+var cpHistDirty = false;
 var auLoadFailed = false;
 function auSave() {
   if (auLoadFailed) {   // 開くときに描けなかった記録は、上書きする前に別のキーへ退避する
@@ -11223,6 +11515,7 @@ function auSave() {
   try { localStorage.setItem(AUDIT_KEY, JSON.stringify(au)); } catch (e) { toast('この端末に保存できませんでした'); }
   cpCalFeed(); cpCompFeed();
   if (typeof cpsQueue === 'function') cpsQueue();   /* 管理職と共有（2026-10-17）：つないでいれば、保存のたびに管理職へ送る */
+  if (typeof cpKlLater === 'function') cpKlLater();   /* 記録の版の控えをサーバーの書き換えられない場所へ（2026-11-04） */
 }
 function auId() { return 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 function auToday() { var d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
@@ -11910,32 +12203,222 @@ function cpClean(x) {
   if (!CP[kind]) return null;
   var id = auStr(x.id).replace(/[^a-z0-9-]/gi, '').slice(0, 40);
   if (!id) return null;
-  var src = x.f && typeof x.f === 'object' ? x.f : {}, f = {};
-  CP[kind].f.forEach(function (d) {
-    if (!d.k) return;   // 段の見出し
-    var v = src[d.k];
-    if (d.t === 'check') f[d.k] = !!v;
-    else if (d.t === 'checks') f[d.k] = Array.isArray(v) ? (v = v.map(cpOptAlias), cpOpts(d).filter(function (o) { return v.indexOf(o) >= 0; })) : [];
-    else if (d.t === 'items') f[d.k] = CP_ITEMS.map(function (o, i) { var s = Array.isArray(v) ? auStr(v[i]) : ''; return CP_ITEM_ST.indexOf(s) >= 0 ? s : '未確認'; });
-    else if (d.t === 'date' || d.t === 'calc') f[d.k] = auDateStr(v);
-    else if (d.t === 'dates') f[d.k] = cpDatesClean(v);
-    else if (d.t === 'select' && Array.isArray(d.opts)) { v = auStr(v); f[d.k] = d.opts.indexOf(v) >= 0 || (d.keep || []).indexOf(v) >= 0 ? v : (d.k === 'rep' ? '未判断' : ''); }
-    else if (d.t === 'cmptbl') f[d.k] = cpCmpsClean(v);
-    else if (d.t === 'whys') f[d.k] = cpWhysRecClean(v);
-    else f[d.k] = auStr(v).slice(0, d.t === 'area' || d.t === 'snap' ? 2000 : 200).trim();
-  });
-  if (kind === 'hikaku') {
-    if (!f.mtgs.length && !f.kdate && f.date) f.mtgs = [f.date];   // 前の形（面談・申込の日）は面談日として読む
-    f.date = f.kdate || f.mtgs[f.mtgs.length - 1] || '';
-    cpHkDerive(f);
-  }
+  var f = cpCleanF(kind, x.f);
   var conf = Array.isArray(x.conf) ? x.conf.slice(0, 200).map(cpConfClean).filter(Boolean) : [];
   var upd = cpTs(x.upd) || cpNow();
   var out = { id: id, kind: kind, owner: cpName(x.owner), cre: cpTs(x.cre) || upd, upd: upd, f: f, conf: conf, dev: cpDevStr(x.dev) };
   var kid = cpKidStr(x.kid);
   if (kid) out.kid = kid;   // 顧客管理の契約から書いた記録（営業カレンダーの契約の番号）
+  cpHistFix(out, x.hist);   // 版（2026-11-04）
   return out;
 }
+/* 中身（f）の1欄を形どおりにそろえる。画面から読んだ中身と、読み込んだ中身の両方をここに通す（版の照らし合わせを同じ形でするため） */
+function cpCleanVal(d, v) {
+  if (d.t === 'check') return !!v;
+  if (d.t === 'checks') return Array.isArray(v) ? (v = v.map(cpOptAlias), cpOpts(d).filter(function (o) { return v.indexOf(o) >= 0; })) : [];
+  if (d.t === 'items') return CP_ITEMS.map(function (o, i) { var s = Array.isArray(v) ? auStr(v[i]) : ''; return CP_ITEM_ST.indexOf(s) >= 0 ? s : '未確認'; });
+  if (d.t === 'date' || d.t === 'calc') return auDateStr(v);
+  if (d.t === 'dates') return cpDatesClean(v);
+  if (d.t === 'select' && Array.isArray(d.opts)) { v = auStr(v); return d.opts.indexOf(v) >= 0 || (d.keep || []).indexOf(v) >= 0 ? v : (d.k === 'rep' ? '未判断' : ''); }
+  if (d.t === 'cmptbl') return cpCmpsClean(v);
+  if (d.t === 'whys') return cpWhysRecClean(v);
+  return auStr(v).slice(0, d.t === 'area' || d.t === 'snap' ? 2000 : 200).trim();
+}
+function cpCleanF(kind, src) {
+  src = src && typeof src === 'object' ? src : {};
+  var f = {};
+  CP[kind].f.forEach(function (d) { if (d.k) f[d.k] = cpCleanVal(d, src[d.k]); });   // d.k が無いのは段の見出し
+  if (kind === 'hikaku') {
+    if (!f.mtgs.length && !f.kdate && f.date) f.mtgs = [f.date];   // 前の形（面談・申込の日）は面談日として読む
+    f.date = f.kdate || f.mtgs[f.mtgs.length - 1] || '';
+    cpHkDerive(f);
+  }
+  return f;
+}
+/* ---------- CPHIST-BEGIN 記録の版（2026-11-04） ----------
+   ユーザー指示「意向把握、比較推奨などに関して、ログを書き換えできないようにしてください。いつ追加し記入したのか残せるようにしてください。」
+   ・記録は上書きしない。直すたびに「版」を1つ足す（r.hist）。版＝いつ・誰が・どの端末で・どの欄をどう変えたか（c＝[欄, 新しい値] の組）
+   ・版ごとに印（h）を付ける＝sha256（記録の番号・版の番号・日時・人・端末・変えた欄・ひとつ前の版の印）。前の版をあとから変えると、そこから先の印が全て合わなくなる
+   ・消さない。「取り消す」は理由を添えた版を足すだけ（au.voidRecs へ分けて残す。数・一覧・要約には入れない）
+   ・同期している端末は、版の印と日時を Firebase の「書いたら変えられない場所」（/kl/<部屋>/<記録>/<版>）にも残す（中身は送らない）
+   ★この端末の記録はブラウザの中にあるので、手で書き換えることまでは防げない。崩れたつながり・サーバーと合わない版は「記録の確かめ」で分かる */
+var CP_HIST_MAX = 300;
+function cpHv(v, depth) {   // 版の中の値：形だけ確かめ、中身は変えない（印を照らすため）
+  if (typeof v === 'boolean') return v;
+  if (typeof v === 'string') return v.slice(0, 4000);
+  if (typeof v === 'number') return isFinite(v) ? v : null;
+  if (v === null || v === undefined) return '';
+  if ((depth || 0) > 2) return '';
+  if (Array.isArray(v)) return v.slice(0, 100).map(function (x) { return cpHv(x, (depth || 0) + 1); });
+  if (typeof v === 'object') { var o = {}; Object.keys(v).slice(0, 20).forEach(function (k) { if (/^[a-zA-Z0-9_]{1,20}$/.test(k)) o[k] = cpHv(v[k], (depth || 0) + 1); }); return o; }
+  return '';
+}
+function cpHistClean(a) {
+  return (Array.isArray(a) ? a : []).slice(0, CP_HIST_MAX).map(function (v) {
+    if (!v || typeof v !== 'object') return null;
+    var n = Math.round(+v.n), at = cpTs(v.at);
+    if (!(n >= 1 && n <= 9999) || !at) return null;
+    var c = (Array.isArray(v.c) ? v.c : []).slice(0, 80).filter(function (p) { return Array.isArray(p) && typeof p[0] === 'string' && /^[a-zA-Z0-9_]{1,20}$/.test(p[0]); })
+      .map(function (p) { return [p[0], cpHv(p[1])]; });
+    var o = { n: n, at: at, by: cpName(v.by), dev: cpDevStr(v.dev), c: c, h: /^[0-9a-f]{64}$/.test(auStr(v.h)) ? v.h : '' };
+    if (v.x) o.x = 1;
+    if (v.lg) o.lg = 1;
+    if (v.vd && typeof v.vd === 'object') o.vd = { why: auStr(v.vd.why).trim().slice(0, 300) };
+    return o;
+  }).filter(Boolean);
+}
+function cpHistHash(r, v, prev) {
+  return sha256(['cphist', r.id, r.kind, v.n, v.at, v.by, v.dev, v.x ? 1 : 0, v.lg ? 1 : 0, v.vd ? JSON.stringify(v.vd) : '', JSON.stringify(v.c), prev || ''].join('|'));
+}
+/* 変わった欄だけを [欄, 新しい値] の組で（欄の並びは CP の並び） */
+function cpHistDiff(kind, a, b) {
+  var out = [];
+  CP[kind].f.forEach(function (d) { if (d.k && JSON.stringify(a ? a[d.k] : undefined) !== JSON.stringify(b[d.k])) out.push([d.k, b[d.k]]); });
+  return out;
+}
+function cpHistReplay(r, upto) {
+  var f = {};
+  (r.hist || []).forEach(function (v) { if (upto && v.n > upto) return; v.c.forEach(function (p) { f[p[0]] = JSON.parse(JSON.stringify(p[1])); }); });
+  return cpCleanF(r.kind, f);
+}
+function cpHistAdd(r, c, o) {
+  o = o || {};
+  if (!r.hist) r.hist = [];
+  var last = r.hist[r.hist.length - 1];
+  var v = { n: last ? last.n + 1 : 1, at: o.at || cpNow(), by: o.by !== undefined ? cpName(o.by) : cpName(au.me.name), dev: o.dev !== undefined ? o.dev : (au.dev || ''), c: c };
+  if (o.x) v.x = 1;
+  if (o.lg) v.lg = 1;
+  if (o.vd) v.vd = { why: auStr(o.vd.why).trim().slice(0, 300) };
+  v.h = cpHistHash(r, v, last ? last.h : '');
+  r.hist.push(v);
+  return v;
+}
+/* 読み込むたびに：版が無い前の記録には「版を残し始める前の中身」を1つ目の版として付ける。版を辿った中身と今の中身が違えば、そのことを版として足す */
+function cpHistFix(r, raw) {
+  r.hist = cpHistClean(raw);
+  if (!r.hist.length) { cpHistAdd(r, cpHistDiff(r.kind, null, r.f), { at: r.upd, by: r.owner, dev: r.dev, lg: 1 }); cpHistDirty = true; }
+  else {
+    var now = cpHistReplay(r);
+    if (JSON.stringify(now) !== JSON.stringify(r.f)) { cpHistAdd(r, cpHistDiff(r.kind, now, r.f), { by: '', dev: '', x: 1 }); cpHistDirty = true; }
+  }
+  var last = r.hist[r.hist.length - 1];
+  if (last.vd) r.void = { at: last.at, by: last.by, why: last.vd.why };
+  else delete r.void;
+  return r;
+}
+/* 記録の確かめ：版の番号が1から続いているか・印のつながり・版を辿った中身が今の中身と同じか */
+function cpHistCheck(r) {
+  var bad = [], prev = '', h = r.hist || [];
+  h.forEach(function (v, i) {
+    if (v.n !== i + 1) bad.push(v.n + '番目の版の番号が飛んでいます');
+    if (cpHistHash(r, v, prev) !== v.h) bad.push(v.n + '番目の版の印が合いません（前の版が書き換えられたおそれがあります）');
+    prev = v.h;
+  });
+  if (JSON.stringify(cpHistReplay(r)) !== JSON.stringify(r.f)) bad.push('版を辿った中身と、今の中身が違います');
+  var x = h.filter(function (v) { return v.x; }).length;
+  return { ok: !bad.length, bad: bad, x: x, n: h.length };
+}
+/* 同じ記録の2つを比べて、残すほうを返す（版の多いほう。ただし片方の版がもう片方の版の続きのときだけ。分かれていれば今の端末のほう） */
+function cpRecNewer(a, b) {
+  if (!a) return b;
+  if (!b) return a;
+  var ha = a.hist || [], hb = b.hist || [];
+  if (ha.length === 1 && hb.length === 1 && ha[0].lg && hb[0].lg) return b.upd > a.upd ? b : a;   // 版を残す前の記録どうしは、今までどおり新しいほう
+  if (hb.length <= ha.length) return a;
+  for (var i = 0; i < ha.length; i++) if (ha[i].h !== hb[i].h) return ha[0] && hb[0] && ha[0].lg && hb[0].lg && b.upd > a.upd ? b : a;   // 版を残す前の記録どうしは、今までどおり新しいほう
+  return b;
+}
+/* 値を1行の文に（版の一覧・取り消した記録で使う） */
+function cpValText(kind, k, v) {
+  var d = null; CP[kind].f.forEach(function (x) { if (x.k === k) d = x; });
+  if (!d) return '';
+  if (d.t === 'check') return v ? 'はい' : 'いいえ';
+  if (d.t === 'cmptbl') return (Array.isArray(v) ? v : []).map(function (x) { return x && typeof x === 'object' ? cpCmpName({ c: auStr(x.c), p: auStr(x.p) }) + (x.r ? '（お勧め）' : '') + (x.s ? '（お客様の選択）' : '') : ''; }).join('／');
+  if (d.t === 'items') return (Array.isArray(v) ? v : []).map(function (s, i) { return (CP_ITEMS[i] || '') + '：' + s; }).join('・');
+  if (d.t === 'date' || d.t === 'calc') return v ? auFmt(v) : '';
+  if (d.t === 'dates') return (Array.isArray(v) ? v : []).map(auFmt).join('、');
+  if (Array.isArray(v)) return v.map(auStr).join('、');
+  return auStr(v);
+}
+/* 記録票の1行：版の数・最後の版の日時と印・つながりの確かめ */
+function cpKhVer(r) {
+  var h = r.hist || [], ck = cpHistCheck(r), last = h[h.length - 1];
+  if (!last) return '';
+  return esc(h.length + '版（最後の版 ' + cpTsFmt(last.at) + '・印 ' + last.h.slice(0, 8) + '）') + '　' +
+    (ck.ok ? (ck.x ? '<b class="cp-kh-warn">画面を通らない変更が ' + ck.x + ' か所あります</b>' : 'つながりは正常（前の版は書き換えられていません）') : '<b class="cp-kh-warn">つながりに崩れがあります</b>') +
+    (r.void ? '<br><b class="cp-kh-warn">' + esc('この記録は ' + cpTsFmt(r.void.at) + ' に取り消されています（理由：' + (r.void.why || '記入なし') + '）') + '</b>' : '');
+}
+function cpFieldLabel(kind, k) { var l = k; CP[kind].f.forEach(function (x) { if (x.k === k) l = x.l; }); return l; }
+function cpHistHTML(r, noKl) {
+  var h = r.hist || [], ck = cpHistCheck(r);
+  var rows = h.slice().reverse().map(function (v) {
+    var prev = v.n > 1 ? cpHistReplay(r, v.n - 1) : null;
+    var what = v.lg ? '版を残し始める前からの中身（それより前の直しは残っていません）' : v.vd ? '取り消し（理由：' + (v.vd.why || '記入なし') + '）' :
+      v.x ? '記録の画面を通らずに中身が変わっていました' : v.n === 1 ? '記録した' : '直した';
+    var ch = v.vd || v.lg ? '' : v.c.map(function (p) {
+      if (CP[r.kind].f.some(function (d) { return d.k === p[0] && d.t === 'snap'; })) return '';   // 表から作る写しは出さない
+      var b = prev ? cpValText(r.kind, p[0], prev[p[0]]) : '';
+      return '<li><b>' + esc(cpFieldLabel(r.kind, p[0])) + '</b>：' + (v.n > 1 ? '<s>' + esc(cpCut(b, 60) || '（空）') + '</s> → ' : '') + esc(cpCut(cpValText(r.kind, p[0], p[1]), 80) || '（空）') + '</li>';
+    }).join('');
+    return '<li class="cp-ver' + (v.x ? ' cp-ver-x' : '') + (v.vd ? ' cp-ver-vd' : '') + '"><div class="cp-ver-h"><span class="cp-ver-n">' + v.n + '版</span>' +
+      '<span>' + esc(cpTsFmt(v.at)) + '</span><span>' + esc(v.by || '（記録した人の名前なし）') + '</span><span>' + esc(what) + '</span>' +
+      '<code title="この版の印">' + esc(v.h.slice(0, 8)) + '</code></div>' + (ch ? '<ul class="cp-ver-c">' + ch + '</ul>' : '') + '</li>';
+  }).join('');
+  return '<details class="cp-vers"><summary>これまでの版（' + h.length + '）・記録の確かめ ' +
+    (ck.ok ? (ck.x ? '<span class="cp-vck cp-vck-w">画面を通らない変更 ' + ck.x + '</span>' : '<span class="cp-vck cp-vck-ok">つながりは正常</span>') : '<span class="cp-vck cp-vck-ng">崩れあり</span>') + '</summary>' +
+    (ck.ok ? '' : '<ul class="cp-vck-bad">' + ck.bad.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ul>') +
+    '<ol class="cp-ver-list">' + rows + '</ol>' +
+    '<p class="cp-ver-note">記録は上書きせず、直すたびに版を足しています。版ごとの印は、前の版の印をつないで作ります（前の版をあとから書き換えると、印が合わなくなります）。' +
+    'この端末の中の記録を手で書き換えることまでは防げません。同期している端末では、版の印と日時をサーバーの書き換えられない場所にも残し、照らせます。</p>' +
+    (noKl ? '' : '<p class="cp-det-tools"><button type="button" class="au-mini cp-btn" data-cp-act="klchk" data-id="' + esc(r.id) + '">サーバーの控えと照らす</button><span class="cp-klres" data-klres="' + esc(r.id) + '"></span></p>') +
+    '</details>';
+}
+/* サーバー（書いたら変えられない場所）へ送る版の控え。中身は送らず、記録の番号・版の番号・印・日時だけ */
+var CP_KLQ = 'officem.hokenHub.klq.v1', CP_KLS = 'officem.hokenHub.kls.v1';
+function cpKlRead(k) { try { var o = JSON.parse(localStorage.getItem(k) || 'null'); return o && typeof o === 'object' ? o : {}; } catch (e) { return {}; } }
+var cpKlBusy = false, cpKlTimer = 0;
+function cpKlLater(ms) { clearTimeout(cpKlTimer); cpKlTimer = setTimeout(cpKlFlush, ms || 2000); }
+function cpKlFlush() {
+  if (cpKlBusy || typeof KKC === 'undefined' || !KKC.sync || !KKC.sync.logPut || !KKC.sync.cfg()) return;
+  var sent = cpKlRead(CP_KLS), list = [];
+  au.recs.concat(au.voidRecs || [], au.oldRecs || []).forEach(function (r) {
+    (r.hist || []).forEach(function (v) { var k = r.id + '/' + v.n; if (sent[k] !== v.h && list.length < 200) list.push({ r: r.id, n: v.n, h: v.h, at: v.at }); });
+  });
+  if (!list.length) return;
+  cpKlBusy = true;
+  KKC.sync.logPut(list).then(function (res) {
+    cpKlBusy = false;
+    var s2 = cpKlRead(CP_KLS), diff = cpKlRead(CP_KLQ);
+    (res || []).forEach(function (x, i) {
+      var it = list[i]; if (!it) return;
+      if (x.st === 'ok' || x.st === 'same') { s2[it.r + '/' + it.n] = it.h; delete diff[it.r + '/' + it.n]; }
+      else if (x.st === 'diff') diff[it.r + '/' + it.n] = { at: cpNow(), h: it.h, h2: x.h2 || '' };
+    });
+    try { localStorage.setItem(CP_KLS, JSON.stringify(s2)); localStorage.setItem(CP_KLQ, JSON.stringify(diff)); } catch (e) {}
+  }, function () { cpKlBusy = false; });
+}
+function cpKlCheck(r, out) {
+  if (!out) return;
+  if (typeof KKC === 'undefined' || !KKC.sync || !KKC.sync.logGet || !KKC.sync.cfg()) {
+    out.textContent = 'この端末は、携帯とパソコンの同期（IDとパスワードで繋ぐ）をしていないので、サーバーの控えはありません。'; return;
+  }
+  out.textContent = '照らしています…';
+  KKC.sync.logGet(r.id).then(function (srv) {
+    if (!srv) { out.textContent = 'サーバーに繋がりませんでした。あとでもう一度押してください。'; return; }
+    var mine = {}, miss = [], ng = [], lost = [], ok = 0, prev = '';
+    /* 照らすのは、今の中身から作り直した印（保存してある印だけでは、中身を書き換えて印を残したときに見逃す） */
+    (r.hist || []).forEach(function (v) { mine[v.n] = v; var h = cpHistHash(r, v, prev); prev = h; var s = srv[v.n]; if (!s) miss.push(v.n); else if (s.h !== h) ng.push(v.n); else ok++; });
+    Object.keys(srv).forEach(function (n) { if (!mine[n]) lost.push(n); });
+    var msg = [];
+    if (ng.length) msg.push('サーバーの控えと合わない版：' + ng.join('・') + '版（この端末の版が書き換えられたおそれがあります）');
+    if (lost.length) msg.push('サーバーにだけある版：' + lost.join('・') + '版（この端末から版が消えています）');
+    if (miss.length) msg.push('まだサーバーに届いていない版：' + miss.join('・') + '版（次に保存したときに送ります）');
+    out.textContent = msg.length ? msg.join('。') : '全ての版（' + ok + '）がサーバーの控えと合っています。';
+    out.className = 'cp-klres ' + (ng.length || lost.length ? 'cp-klres-ng' : 'cp-klres-ok');
+    if (miss.length) cpKlFlush();
+  }, function () { out.textContent = 'サーバーに繋がりませんでした。'; });
+}
+/* CPHIST-END */
 function cpKidStr(v) { v = auStr(v); return /^[A-Za-z0-9_@.\-]{1,80}$/.test(v) ? v : ''; }
 /* 面談日：日付の形のものだけ・重なりを除いて古い順に（CP_MTG_MAX まで） */
 var CP_MTG_MAX = 12;
@@ -11959,11 +12442,13 @@ function cpPolClean(p) {
 }
 /* auClean の続き（コンプライアンスの分） */
 function cpCleanInto(o, out) {
-  var all = (o && Array.isArray(o.recs) ? o.recs : []).concat(o && Array.isArray(o.oldRecs) ? o.oldRecs : []).map(cpClean).filter(Boolean);
+  var all = (o && Array.isArray(o.recs) ? o.recs : []).concat(o && Array.isArray(o.oldRecs) ? o.oldRecs : [], o && Array.isArray(o.voidRecs) ? o.voidRecs : []).map(cpClean).filter(Boolean);
   var seen = {};
-  all = all.filter(function (r) { if (seen[r.id]) return false; seen[r.id] = 1; return true; });
-  out.recs = all.filter(function (r) { return !CP_GONE[r.kind]; });
-  out.oldRecs = all.filter(function (r) { return CP_GONE[r.kind]; });   /* 画面から外した記録（書類の点検）。消さずに残す */
+  all.forEach(function (r) { seen[r.id] = cpRecNewer(seen[r.id], r); });   /* 同じ記録が2つあれば、版の続いているほう（2026-11-04） */
+  all = all.filter(function (r) { return seen[r.id] === r; });
+  out.recs = all.filter(function (r) { return !CP_GONE[r.kind] && !r.void; });
+  out.oldRecs = all.filter(function (r) { return CP_GONE[r.kind] && !r.void; });   /* 画面から外した記録（書類の点検）。消さずに残す */
+  out.voidRecs = all.filter(function (r) { return r.void; });   /* 取り消した記録（2026-11-04）。数・一覧・要約には入れず、中身と版のまま残す */
   out.polsAt = cpTs(o && o.polsAt);
   out.pols = (o && Array.isArray(o.pols) ? o.pols : []).map(cpPolClean).filter(Boolean).slice(0, 20);
   if (!out.pols.length && !out.polsAt) out.pols = CP_POLS_SAMPLE.map(function (p) { return { id: p.id, title: p.title, body: p.body }; });
@@ -11995,7 +12480,7 @@ function cpCleanInto(o, out) {
   out.cpv = CP_VER;   /* この版の印。印の無い控え（前の版）を読み込むときは、前の版に無かった記録（乗換・早期解約・点検した記録）を消さずに残す（cpKeepNew） */
   return out;
 }
-var CP_VER = 2;
+var CP_VER = 3;   /* 3＝記録の版（hist）と取り消した記録（voidRecs）を持つ形（2026-11-04） */
 var CP_TK_WHAT = ['比較推奨', '意向把握', '乗換・早期解約', 'お客様ごとの記録の全体'];
 function cpTenkenClean(x) {
   if (!x || typeof x !== 'object') return null;
@@ -12005,15 +12490,24 @@ function cpTenkenClean(x) {
   return { id: auStr(x.id).replace(/[^a-z0-9-]/gi, '').slice(0, 40) || auId(), date: d, by: by, what: CP_TK_WHAT.indexOf(auStr(x.what)) >= 0 ? x.what : CP_TK_WHAT[0],
     n: isFinite(n) && n >= 0 ? Math.min(n, 100000) : 0, span: auStr(x.span).replace(/\s+/g, ' ').trim().slice(0, 60), note: auStr(x.note).trim().slice(0, 1000), ts: cpTs(x.ts) || cpNow() };
 }
-/* 前の版の控え（cpv の印が無い）を読み込むときは、その版に無かった記録をいまの端末から持ち越す（2026-10-16）。
-   ★今の版どうしの控えは、今までどおり控えの中身に置き換える（控えのあとに書いた分は消える、と窓に書いてある） */
+/* 控えから戻すとき、毎日の記録は「置き換え」ではなく「合わせる」（2026-11-04 ユーザー指示「ログを書き換えできないように」）。
+   ・いまの端末にあって控えに無い記録は残す（控えのあとに書いた分も消えない）
+   ・同じ記録は、版のつながり（hist）が長いほうを残す。前の版の続きになっていないものは、新しくしない（cpRecNewer）
+   ・取り消した記録は、取り消したまま（控えの古い中身で生き返らせない）
+   点検した記録は id ごとに足す。管理者による点検の記録は、控えに無ければ今のまま（前の 2026-10-16 の決まり） */
 function cpKeepNew(src, next, cur) {
-  if (src && src.cpv) return next;
-  var have = {};
-  next.recs.forEach(function (r) { have[r.id] = 1; });
-  (cur.recs || []).forEach(function (r) { if (r.kind === 'norikae' && !have[r.id]) next.recs.push(r); });
-  if (!next.tenken.length) next.tenken = (cur.tenken || []).slice();
-  if (!next.mchk.length) next.mchk = (cur.mchk || []).slice();
+  var pick = {}, order = [];
+  function add(r) { if (!r || !r.id) return; if (!pick[r.id]) order.push(r.id); pick[r.id] = cpRecNewer(pick[r.id], r); }
+  ['recs', 'oldRecs', 'voidRecs'].forEach(function (k) { (cur && cur[k] || []).forEach(add); });
+  ['recs', 'oldRecs', 'voidRecs'].forEach(function (k) { (next[k] || []).forEach(add); });
+  var all = order.map(function (id) { return pick[id]; });
+  next.recs = all.filter(function (r) { return !CP_GONE[r.kind] && !r.void; });
+  next.oldRecs = all.filter(function (r) { return CP_GONE[r.kind] && !r.void; });
+  next.voidRecs = all.filter(function (r) { return r.void; });
+  var tk = {};
+  (next.tenken || []).forEach(function (t) { tk[t.id] = 1; });
+  (cur && cur.tenken || []).forEach(function (t) { if (!tk[t.id]) next.tenken.push(t); });
+  if (!next.mchk.length) next.mchk = (cur && cur.mchk || []).slice();
   return next;
 }
 
@@ -12023,6 +12517,8 @@ function cpGot(n) {
   return hit;
 }
 function cpRec(id) { for (var i = 0; i < au.recs.length; i++) if (au.recs[i].id === id) return au.recs[i]; return null; }
+/* 取り消した記録・画面から外した記録まで探す（版の一覧・サーバーとの照らしで使う） */
+function cpRecAny(id) { var l = au.recs.concat(au.voidRecs || [], au.oldRecs || []); for (var i = 0; i < l.length; i++) if (l[i].id === id) return l[i]; return null; }
 function cpMine(r) { return !!au.me.name && auNameKey(r.owner) === auNameKey(au.me.name); }
 /* 立場（メンバー／上長／社長）は 2026-10-05 に使わなくした（上長への報告を外したため）。前の端末の au.me.role は消さずに残す。
    設定（方針・保険会社・理由・初動の目安）は、どの端末でも書き換えられる（前から「権限の仕組みではない」と画面に書いていた） */
@@ -12455,12 +12951,13 @@ function cpDetailHTML(r) {
   }).join('');
   var nx = cpNextKinds(r), tools = (cpMine(r) ? nx.map(function (k) { return '<button type="button" class="au-mini cp-btn" data-cp-act="copyTo" data-to="' + k + '" data-id="' + esc(r.id) + '">この顧客で' + esc(CP_SH[k]) + 'を書く</button>'; }).join('') : '') +
     (r.kid && inhouseTarget('kokyaku') ? '<button type="button" class="au-mini cp-btn" data-cp-act="kokyaku" data-id="' + esc(r.id) + '">顧客管理で見る</button>' : '') +
-    (cpMine(r) && !r.conf.length ? '<button type="button" class="au-mini cp-btn cp-del" data-cp-act="del" data-id="' + esc(r.id) + '">この記録を消す</button>' : '');
+    (cpMine(r) && !r.void ? '<button type="button" class="au-mini cp-btn cp-del" data-cp-act="del" data-id="' + esc(r.id) + '">この記録を取り消す</button>' : '');
   var missD = cpMissing(r);
   return (missD.length && cpManabiKind(r.kind) ? cpHowtoHTML(r.kind, missD) : '') +   /* 不備があれば、中身の頭に直し方（学びへの入口）。2026-10-23 */
     '<table class="cp-det-tbl"><tbody>' + rows + '</tbody></table>' +
     (cpNeedsConf(r) ? '<p class="cp-l" style="margin-top:10px">確認の記録</p>' + (hist ? '<ul class="cp-hist">' + hist + '</ul>' : '<p class="au-empty" style="padding:4px 0">まだ確認の印はありません。</p>') : '') +
-    (tools ? '<p class="cp-det-tools">' + tools + '</p>' : '');
+    (tools ? '<p class="cp-det-tools">' + tools + '</p>' : '') +
+    cpHistHTML(r);   /* これまでの版と記録の確かめ（2026-11-04） */
 }
 /* 同じお客様の次の記録を、顧客名・種目・日付を写して書き始める（中身の「この顧客で◯◯を書く」と、保存したあとの帯の「続けて◯◯を書く」） */
 function cpCopyTo(r, to) {
@@ -12795,10 +13292,23 @@ function cpMeInSave() {
   toast('保存しました');
 }
 function cpDelsHTML() {
-  if (!au.dels.length) return '';
-  return '<details class="cp-dels"><summary>この端末で消した記録（' + au.dels.length + '件）</summary><ul>' +
+  var vd = (au.voidRecs || []).filter(function (r) { return CP[r.kind]; }).slice().sort(function (a, b) { return (a.void && a.void.at) < (b.void && b.void.at) ? 1 : -1; });
+  var h = '';
+  if (vd.length) {
+    h += '<details class="cp-dels cp-voids"><summary>取り消した記録（' + vd.length + '件）</summary>' +
+      '<p class="au-note">取り消した記録は消さずに、中身・これまでの版・取り消した理由をそのまま残しています（2026-11-04 から）。数・一覧・要約には入りません。</p>' +
+      vd.map(function (r) {
+        var v = r.void || {};
+        return '<details class="cp-void"><summary><span class="cp-void-k">' + esc(CP[r.kind].label) + '</span>' + esc(auFmt(r.f.date) || '日付なし') + (r.f.no ? ' ' + auNm(r.f.no) + ' 様' : '') +
+          '<span class="cp-void-at">取り消し ' + esc(cpTsFmt(v.at)) + '・' + esc(v.by || '') + '</span></summary>' +
+          '<p class="cp-void-why">取り消した理由：' + esc(v.why || '記入なし') + '</p>' +
+          '<table class="cp-det-tbl"><tbody>' + cpDetRows(r) + '</tbody></table>' + cpHistHTML(r) + '</details>';
+      }).join('') + '</details>';
+  }
+  if (au.dels.length) h += '<details class="cp-dels"><summary>この端末で消した記録（' + au.dels.length + '件・2026年11月4日より前）</summary><ul>' +
     au.dels.slice().reverse().map(function (d) { return '<li>' + esc(cpTsFmt(d.ts) + '　' + (d.by || '') + '：' + CP[d.kind].label + ' ' + auFmt(d.date) + (d.no ? ' ' + d.no : '')) + '</li>'; }).join('') +
-    '</ul><p class="au-note">消した記録の中身は残りません。いつ・誰が・どの記録を消したかだけを、この端末に残しています。</p></details>';
+    '</ul><p class="au-note">前の作りで消した記録です。中身は残っていません。いつ・誰が・どの記録を消したかだけを、この端末に残しています。</p></details>';
+  return h;
 }
 /* ---------- 営業カレンダーの記録を、書く欄に写す（2026-10-06 全体の辛口点検：顧客名・面談日・契約日を二つの画面で二度打ちしていた） ----------
    読むだけ（officem.hokenSales.v1・同じ端末）。お名前は KKC.nk でそろえて同じお名前の方を探す。
@@ -13098,7 +13608,7 @@ function cpMarkBad(c, r) {
 /* 読み込み：id ごとに合わせる（中身は新しいほう・確認の印は照らしてから足し合わせ） */
 function cpMerge(o, res) {
   var by = {};
-  au.recs.forEach(function (r) { by[r.id] = r; });
+  au.recs.concat(au.voidRecs || [], au.oldRecs || []).forEach(function (r) { by[r.id] = r; });   /* 取り消した記録も照らす（生き返らせない） */
   o.recs.slice(0, 20000).forEach(function (x) {
     var r = cpClean(x);
     if (!r) { res.bad++; return; }
@@ -13115,8 +13625,9 @@ function cpMerge(o, res) {
       });
       return;
     }
-    if (cur.kind !== r.kind) { res.bad++; return; }
-    if (r.upd > cur.upd) { cur.f = r.f; cur.upd = r.upd; res.upd++; }
+    if (cur.kind !== r.kind || cur.void) { res.bad++; return; }
+    /* 上書きしない：受け取った記録の版が、この端末の版の続きのときだけ新しくする（2026-11-04） */
+    if (cpRecNewer(cur, r) === r) { cur.f = r.f; cur.upd = r.upd; cur.hist = r.hist; res.upd++; }
     if (!cur.dev && r.dev) cur.dev = r.dev;
     var keys = {};
     cur.conf.forEach(function (c) { keys[cpConfKey(c)] = 1; });
@@ -13328,6 +13839,7 @@ function cpKhHTML(r, outAt) {
     cpKhRow('記録した人', cpKhTxt(r.owner)) +
     cpKhRow('記録した日時', esc(cpTsFmt(r.cre))) +
     cpKhRow('最後に直した日時', esc(cpTsFmt(r.upd)) + (r.upd !== r.cre ? '' : '<span class="cp-kh-none">（直していない）</span>')) +
+    cpKhRow('版と確かめ', cpKhVer(r)) +
     '</tbody></table>' +
     '<table class="cp-kh-sign"><caption>紙に残すときの欄</caption><thead><tr><th></th><th>募集人（記録した人）</th></tr></thead><tbody>' +
     '<tr><th>記入した日</th><td></td></tr><tr class="cp-kh-sign-h"><th>署名または印</th><td></td></tr></tbody></table>' +
@@ -13411,11 +13923,16 @@ function cpSave(kind, form) {
   /* 方針が一覧から外れたあとに直すときは、記録したときの方針の文を残す */
   if (kind === 'hikaku' && r && !f.polBody && f.pol === r.f.pol) f.polBody = r.f.polBody;
   if (kind === 'hikaku' && r && r.f.coList) f.coList = r.f.coList;   // 取り扱う保険会社は、記録したとき（面談のとき）の一覧のまま
+  f = cpCleanF(kind, f);   // 読み込むときと同じ形にそろえてから版にする（版を辿った中身と今の中身を照らせるように）
   if (r) {
     if (JSON.stringify(r.f) === JSON.stringify(f)) { cpEdit[kind] = null; cpRenderKind(kind); toast('変わったところはありません'); return; }
+    /* 上書きしない：変わった欄だけを新しい版として足す（前の版はそのまま残る） */
+    var chg = cpHistDiff(kind, r.f, f);
     r.f = f; r.upd = now;
+    cpHistAdd(r, chg, { at: now });
   } else {
-    r = { id: auId(), kind: kind, owner: au.me.name, cre: now, upd: now, f: f, conf: [], dev: au.dev };
+    r = { id: auId(), kind: kind, owner: au.me.name, cre: now, upd: now, f: f, conf: [], dev: au.dev, hist: [] };
+    cpHistAdd(r, cpHistDiff(kind, null, f), { at: now });
     if (cpPrefillKid[kind]) r.kid = cpPrefillKid[kind];   // 顧客管理の契約から書いた記録
     else if (cpSalesPick[kind] && cpSalesPick[kind].kid && cpSalesPick[kind].key === cpNk(f.no)) r.kid = cpSalesPick[kind].kid;   // 営業カレンダーの契約から写した記録（顧客名を書き換えたらつながない）
     au.recs.push(r); cpPrefill[kind] = null; cpPrefillKid[kind] = ''; cpPrefillFrom[kind] = ''; cpSalesPick[kind] = null;
@@ -13540,12 +14057,24 @@ function cpHandle(e) {
     if (fm) fm.scrollIntoView({ behavior: 'smooth', block: 'start' });
     return;
   }
+  if (act === 'klchk') { var kr = cpRecAny(id); if (kr) cpKlCheck(kr, document.querySelector('[data-klres="' + id + '"]')); return; }
+  /* 消さずに「取り消す」（2026-11-04）：理由を添えた版を足し、取り消した記録へ分けて残す。中身と前の版はそのまま */
   if (act === 'del' && r) {
-    if (!cpMine(r) || r.conf.length) { toast(cpNeedsConf(r) ? '確認の印が付いた記録は消せません。直すときは「直す」から' : '前に上長・社長の確認の印が付いた記録なので、消せません。直すときは「直す」から'); return; }
-    if (!window.confirm('この記録を消しますか？（元に戻せません）')) return;
+    if (!cpMine(r)) { toast('取り消せるのは、記録した本人だけです'); return; }
+    var why = window.prompt('この記録を取り消す理由を書いてください（記録は消えず、「取り消した記録」に中身と理由が残ります）', '');
+    if (why === null) return;
+    why = String(why).trim();
+    if (!why) { toast('取り消す理由を書いてください'); return; }
+    var vnow = cpNow();
+    cpHistAdd(r, [], { at: vnow, vd: { why: why } });
+    r.void = { at: vnow, by: cpName(au.me.name), why: why.slice(0, 300) }; r.upd = vnow;
     au.recs = au.recs.filter(function (x) { return x.id !== id; });
-    au.dels.push({ kind: r.kind, no: r.f.no || '', date: r.f.date || '', by: au.me.name, ts: cpNow() }); au.dels = au.dels.slice(-200);
+    au.voidRecs = (au.voidRecs || []).concat([r]);
     if (cpEdit[r.kind] === id) cpEdit[r.kind] = null;
+    cpAfter[r.kind] = '';
+    auSave(); cpRerender(form);
+    toast('取り消しました。中身と理由は、コンプライアンスの一覧の「取り消した記録」に残ります');
+    return;
   } else if (act === 'setExp') {
     cpExportSet(); return;
   } else if (act === 'imp') {
@@ -14742,7 +15271,7 @@ function cpsRecModal(dev, id) {
   var root = modal(esc(CP[r.kind].title + (r.f.no ? '　' + r.f.no + ' 様' : '')),
     '<p class="cps-small">' + esc(o.name) + 'さんの端末から届いた記録です（最後に届いた時刻 ' + cpTsFmt(o.at) + '）。直すときは、記録した本人の端末で直していただきます。</p>' +
     (miss.length ? '<p class="cp-kh-miss"><b>記録の不備：</b>' + esc(miss.join('・')) + '</p>' : '') +
-    '<table class="cp-det-tbl"><tbody>' + rows + '</tbody></table>',
+    '<table class="cp-det-tbl"><tbody>' + rows + '</tbody></table>' + cpHistHTML(r, true),
     '<button type="button" class="btn btn-ghost btn-sm" data-mclose>閉じる</button>', true);
   root.querySelector('.modal-box').classList.add('cps-rec-box');
 }
@@ -14792,8 +15321,9 @@ function mdRestoreAsk(o) {
   var d = mdClean(o);
   if (!d) { toast('このファイルには、戻せる記録が入っていません'); return; }
   var have = {}, add = 0, upd = 0, same = 0;
-  au.recs.forEach(function (r) { have[r.id] = r; });
-  d.recs.forEach(function (r) { var c = have[r.id]; if (!c) add++; else if (r.upd > c.upd) upd++; else same++; });
+  au.recs.concat(au.voidRecs || [], au.oldRecs || []).forEach(function (r) { have[r.id] = r; });   /* 取り消した記録は生き返らせない */
+  /* 上書きしない：この端末の版の続きになっている記録だけ新しくする（2026-11-04・cpRecNewer） */
+  d.recs.forEach(function (r) { var c = have[r.id]; if (!c) add++; else if (!c.void && c.kind === r.kind && cpRecNewer(c, r) === r) upd++; else same++; });
   var me = au.me.name, lock = typeof mbOn === 'function' && mbOn();
   var diff = d.name && me && auNameKey(me) !== auNameKey(d.name);
   var nameRow = !d.name ? '' : !me ? '<p>この端末の「記録する人」の名前を<b>「' + esc(d.name) + '」</b>にします（記録を直せるのは、記録した本人の名前の端末だけのため）。</p>' :
@@ -14803,7 +15333,7 @@ function mdRestoreAsk(o) {
   modal('管理職モードからの記録を戻す',
     '<p><b>' + esc(d.name || '名前の分からない方') + 'さん</b>の記録（管理職モードに ' + esc(d.at ? cpTsFmt(d.at) : '日時の記録なし') + ' に届いた分）です。</p>' +
     '<table class="md-tbl"><tr><th></th><th>このファイル</th><th>この端末に入るもの</th></tr>' +
-      '<tr><td>コンプライアンスの記録</td><td class="md-n">' + d.recs.length + '件</td><td>足す ' + add + '件・新しい中身にする ' + upd + '件' + (same ? '・同じなので何もしない ' + same + '件' : '') + '</td></tr>' +
+      '<tr><td>コンプライアンスの記録</td><td class="md-n">' + d.recs.length + '件</td><td>足す ' + add + '件・新しい中身にする ' + upd + '件' + (same ? '・同じなので何もしない ' + same + '件（この端末のほうが新しい版のときも、この端末のまま）' : '') + '</td></tr>' +
       '<tr><td>お客様・予定・契約</td><td class="md-n">' + nc + '人・' + ns + '件・' + d.rows.length + '件</td><td>営業カレンダーを開いたときに入ります（同じお名前の方は足さずに紐付けます）</td></tr></table>' +
     nameRow +
     '<div class="md-not"><b>戻らないもの</b>：予定の内容メモ・備考、お客様の連絡先・生年月日・メモ、保険料、更新の登録、今日の60日より前の予定。今の記録は消しません。</div>',
@@ -14814,7 +15344,7 @@ function mdRestoreAsk(o) {
     d.recs.forEach(function (r) {
       var c = have[r.id];
       if (!c) au.recs.push(r);
-      else if (r.upd > c.upd) au.recs[au.recs.indexOf(c)] = r;
+      else if (!c.void && c.kind === r.kind && cpRecNewer(c, r) === r && au.recs.indexOf(c) >= 0) au.recs[au.recs.indexOf(c)] = r;
     });
     auSave();
     var sent = false;
@@ -17126,10 +17656,10 @@ function auInitButtons() {
         var o = JSON.parse(rd.result);
         var d = o && o.kind === 'officem-audit' ? o.data : null;
         if (!d || !Array.isArray(d.trainings) || !Array.isArray(d.materials) || !Array.isArray(d.members)) throw new Error('bad');
-        var next = cpKeepNew(d, auClean(d), au);   /* 前の版の控えでも、乗換・早期解約と点検した記録は消さない（2026-10-16） */
+        var next = cpKeepNew(d, auClean(d), au);   /* 毎日の記録は置き換えずに合わせる（今の端末の記録・直した版・取り消した記録は消えない。2026-11-04） */
         var dropped = d.trainings.length + (Array.isArray(d.plans) ? d.plans.length : 0) + d.materials.length + d.members.length -
           (next.trainings.length + next.plans.length + next.materials.length + next.members.length);
-        if (!window.confirm('この端末のコンプライアンスの記録（毎日の記録・台帳・確認の印）を、読み込んだ控えの内容に置き換えます。よろしいですか？' +
+        if (!window.confirm('この端末のコンプライアンスの台帳と設定を、読み込んだ控えの内容に置き換えます。\n意向把握・比較推奨などの毎日の記録は置き換えずに合わせます（今の端末にある記録・直した版・取り消した記録は消えません）。よろしいですか？' +
           (dropped > 0 ? '\n（形の合わない ' + dropped + ' 件は読み込みません）' : ''))) return;
         var prev = au, prevFy = auFy;
         au = next; auFy = null; auEditMember = null;
@@ -17153,6 +17683,9 @@ function auInitButtons() {
    ★お客様に見せる文言ではないが、効果の数字や断定（必ず・絶対）は書かない。
    ============================================================ */
 var UPDATES = [
+  { id: '2026-11-04-kiroku', date: '2026-11-04', target: 'sec:auditSec',
+    title: 'コンプライアンスの記録が、直すたびに版として残るようになりました',
+    body: '意向把握・比較推奨・適合性の確認・乗換・苦情の記録は、直すと前の版を消さずに新しい版を足します。記録の中身の下の「これまでの版」で、いつ誰がどの欄を直したかが見られます。消すボタンは無くなり、間違えて書いた記録は理由を書いて「取り消す」と「取り消した記録」に残ります。あわせて、ログインの入れ間違いは3回まで（3回続くとその端末では30分入れません）、ライフプランツールもIDとパスワードを入れた人だけが開けるようになりました。' },
   { id: '2026-11-03-sync', date: '2026-11-03', target: 'sec:backup',
     title: '携帯とパソコンで、同じ記録が見られるようになりました',
     body: '同じIDとパスワードでログインした携帯とパソコンは、コンプライアンスの記録・営業カレンダー・顧客管理の記録が同じになります。中身は端末で暗号化してから置き場所へ送ります。両方で同じ記録を直したときは新しいほうを残し、もう一方は「データの控え」から戻せます。ライフプランの資料は入りません。パスワードは8文字以上にしてからお使いください。' },
@@ -17506,6 +18039,10 @@ function startAdmin() {
   renderBackupNag();
   try { hnAuto(); } catch (e) {}   /* 会社の保管フォルダへ、今日の控えを書く（2026-10-24） */
   if (!omBg()) syHubStart();
+  if (!omBg()) (function klWait(t) {   /* 同期の鍵ができたら、まだ送っていない記録の版の控えを送る（2026-11-04） */
+    try { if (KKC.sync.cfg()) { cpKlFlush(); return; } } catch (e) { return; }
+    if (t < 20) setTimeout(function () { klWait(t + 1); }, 3000);
+  })(0);
   /* 社内ツールの「データはこの端末だけ・控えを取る」から来たとき（#backup）は、データの控えを開く */
   if (location.hash === '#backup') {
     try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
@@ -17533,35 +18070,46 @@ function showLock() {
   var host = document.getElementById('lock');
   host.classList.remove('hide');
   var pass = document.getElementById('lockPass'), err = document.getElementById('lockErr'), idIn = document.getElementById('lockId');
+  var btn = document.querySelector('#lockForm button[type="submit"]');
   document.getElementById('lockForm').onsubmit = function (e) {
     e.preventDefault();
-    /* 入れ間違いが続いたときの待ち・名簿（一人ずつの合言葉）で開く（2026-10-24） */
+    /* 入れ間違いが3回続いたときの待ち（2026-11-04）・名簿（一人ずつの合言葉）で開く（2026-10-24） */
     var wait = mbFailWait();
-    if (wait > 0) { err.textContent = mbWaitMsg(wait); pass.select(); return; }
+    if (wait > 0) { err.textContent = mbWaitMsg(wait); pass.value = ''; return; }
     /* IDとパスワードの2つ（2026-10-26）。どちらかが空なら、空のほうへ戻す */
     var lid = lockIdNorm(idIn.value);
     if (!lid) { err.textContent = 'IDを入れてください。'; idIn.focus(); return; }
     if (!pass.value) { err.textContent = 'パスワードを入れてください。'; pass.focus(); return; }
     if (mbOn()) { mbLockSubmit(pass, err); return; }
-    var hash = lockHash(lid, pass.value);
-    var ok = PASS_HASHES.indexOf(hash) >= 0 && !(hash === TEMP_PASS_HASH && Date.now() > TEMP_PASS_EXPIRES);
-    if (ok) {
-      lockIdNow = lid;
-      try { KKC.sync.login(lid, pass.value, CP_SYNC_URL); } catch (x) {}   /* 携帯とパソコンを同じ記録に（2026-11-03） */
-      mbFailReset(); mbLog('in', { i: lid }, document.getElementById('lockKeep').checked ? '次回から省略' : '');
-      if (document.getElementById('lockKeep').checked) rememberAuth(hash);
-      startAdmin();
-    } else {
+    var pw = pass.value, hash = lockHash(lid, pw);
+    function localOk() { return PASS_HASHES.indexOf(hash) >= 0 && !(hash === TEMP_PASS_HASH && Date.now() > TEMP_PASS_EXPIRES); }
+    if (btn) btn.disabled = true;
+    if (OMLG.fbOn() && OMLG.isMail(lid)) err.textContent = '確かめています…';
+    OMLG.check(lid, pw, localOk).then(function (r) {
+      if (btn) btn.disabled = false;
+      if (r.ok) {
+        lockIdNow = lid; lockFbNow = !!r.fb;
+        try { KKC.sync.login(lid, pw, CP_SYNC_URL); } catch (x) {}   /* 携帯とパソコンを同じ記録に（2026-11-03） */
+        err.textContent = '';
+        mbFailReset(); mbLog('in', { i: lid }, (document.getElementById('lockKeep').checked ? '次回から省略' : '') + (r.fb ? '（メールで確かめた）' : ''));
+        if (document.getElementById('lockKeep').checked) rememberAuth(hash);
+        startAdmin();
+        return;
+      }
+      if (r.code === 'net') { err.textContent = OMLG.netMsg('net'); return; }   /* 繋がらないだけのときは数えない */
       mbFailAdd(); mbLog('fail', lockIdLoggable(lid) ? { i: lid } : null);
-      err.textContent = mbFailMsg();
-      pass.select();
-    }
+      err.textContent = mbFailMsg(OMLG.netMsg(r.code));
+      pass.value = ''; pass.focus();
+    });
   };
   pass.oninput = function () { err.textContent = ''; };
   idIn.oninput = function () { err.textContent = ''; };
   if (mbLockNote) { err.textContent = mbLockNote; mbLockNote = ''; }
   else if (mbFailWait() > 0) err.textContent = mbWaitMsg(mbFailWait());
   mbLockLabel();
+  /* IDかパスワードを忘れたとき（再設定のメール。2026-11-04）・再設定から戻ってきたときの一言 */
+  OMLG.forgot(document.querySelector('#lock .l-fg-host'), { idInput: idIn, roster: mbOn(), who: '社内の管理者（社長・上長）' });
+  OMLG.backNote(document.getElementById('lockForm'));
   if (idIn.value) pass.focus(); else idIn.focus();
 }
 

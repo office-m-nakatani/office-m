@@ -1530,11 +1530,16 @@ html:not(.omgate-open),html:not(.omgate-open) body{overflow:hidden !important}
 #omgate .og-keep{display:flex; align-items:center; justify-content:center; gap:8px; font-size:12.5px;
   color:#5d6b7c; margin:2px 0 16px; cursor:pointer}
 #omgate .og-keep input{width:18px; height:18px; accent-color:#0b5cff; cursor:pointer}
-#omgate button{width:100%; font-family:inherit; font-weight:700; font-size:16px; letter-spacing:.08em;
+#omgate button[type=submit]{width:100%; font-family:inherit; font-weight:700; font-size:16px; letter-spacing:.08em;
   padding:15px; border:0; border-radius:14px; color:#fff; cursor:pointer;
   background:linear-gradient(135deg,#2f74ff 0%,#0b5cff 58%,#0847c9 100%);
   box-shadow:0 8px 22px rgba(11,92,255,.20); transition:transform .18s, box-shadow .18s, filter .18s}
-#omgate button:hover{filter:brightness(1.04); transform:translateY(-1px)}
+#omgate button[type=submit]:hover{filter:brightness(1.04); transform:translateY(-1px)}
+#omgate button[type=submit][disabled]{opacity:.7; cursor:default}
+#omgate .og-cancel{all:unset; box-sizing:border-box; display:block; width:100%; margin:10px 0 0; min-height:44px; line-height:44px;
+  text-align:center; border-radius:14px; border:1px solid #dae3ee; background:#fff; color:#33465c; font-weight:700; font-size:14.5px; cursor:pointer}
+#omgate .og-cancel[hidden]{display:none !important}
+#omgate .og-cancel:focus-visible{outline:2px solid #2f63c8; outline-offset:2px}
 #omgate .og-note{margin:20px 0 0; padding-top:16px; border-top:1px solid #eef1f6;
   font-size:12px; color:#7d8b9b; line-height:1.9; text-align:left}
 #omgate .og-note a{color:#2f63c8; font-weight:700}
@@ -1565,7 +1570,9 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
       <div class="og-err" id="omgate-e" role="alert"></div>
       <label class="og-keep"><input type="checkbox" id="omgate-k" checked>この端末では30日間、次回から省略する</label>
       <button type="submit">開く</button>
+      <button type="button" class="og-cancel" hidden>やめて、前の画面に戻る</button>
     </form>
+    <div class="og-fg-host"></div>
     <p class="og-note">
       <b>管理画面から開いた場合は、この画面は出ません。</b><br>
       <a href="https://office-m-nakatani.github.io/office-m/hoken-hub/">保険ツール管理画面をひらく</a><br><br>
@@ -1574,6 +1581,216 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
     </p>
   </div>
 </div>
+<script>
+/* OMLG-BEGIN ログインの回数制限と、パスワードの再設定のメール（2026-11-04）。
+   正本は hoken-gate-src/loginguard.js。写す先（管理画面・営業カレンダー・扉 gate.html）の中を直接直さない
+   （python3 hoken-gate-src/apply_loginguard.py で写し直す）。
+
+   ユーザー指示（2026-11-04）「ログイン失敗時の回数制限を作ってください。３回まで。できなかった際や、
+   IDパスワードを忘れた場合は、登録済みのメールアドレスに再設定のメールを送って再ログインできるようにしてください」
+
+   ・入れ間違いは3回まで。3回続けて違うと、この端末では30分入れない（置き場所は管理画面・営業カレンダー・扉・
+     ライフプランで同じ＝どの入口で間違えても数える）。入れたら数え直す
+   ・メールアドレスのIDは、Firebase Authentication（無料の枠）で確かめる。忘れたときは、その仕組みが
+     登録済みのアドレスへ再設定のメールを送る（文面と送り元は Google）。新しいパスワードで入れる
+     ★行き先の鍵（ウェブAPIキー）は下の FB_KEY の1行。空のあいだは今までどおり（端末の中の印で確かめる）
+   ・再設定のメールの「続ける」から戻ると、この端末の待ち時間を外す（送ったときの印 RESET と照らす）
+
+   ★これはブラウザの中で数える仕組み。閲覧データを消せば数え直しになる（Firebase 側にも別に回数の制限がある）。
+     「絶対に破られません」と説明しない */
+var OMLG = window.OMLG || (function () {   /* 同じページに2回入っても（扉と営業カレンダー）、1つだけ動かす */
+  var FAIL = 'officem.hokenHub.lockFail.v1';     /* 前からの置き場所（名簿のログインと同じ） */
+  var RESET = 'officem.hokenHub.pwreset.v1';
+  var MAX = 3, LOCK_MIN = 30;
+  var FB_KEY = '';   /* OMFBAUTHKEY */
+  var FB_BASE = 'https://identitytoolkit.googleapis.com/v1/';
+  function rd(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } }
+  function wr(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  function fails() {
+    var o = rd(FAIL);
+    o = (o && typeof o.n === 'number') ? o : { n: 0, until: 0 };
+    if (o.until && o.until <= Date.now()) { o = { n: 0, until: 0 }; try { localStorage.removeItem(FAIL); } catch (e) {} }   /* 待ち時間が過ぎたら数え直す */
+    return o;
+  }
+  function wait() { return Math.max(0, Math.ceil(((fails().until || 0) - Date.now()) / 1000)); }
+  function add() {
+    var o = fails(); o.n += 1;
+    if (o.n >= MAX) o.until = Date.now() + LOCK_MIN * 60000;
+    wr(FAIL, o);
+    return o;
+  }
+  function reset() { try { localStorage.removeItem(FAIL); } catch (e) {} }
+  function left() { return Math.max(0, MAX - fails().n); }
+  function waitText(s) { return s >= 60 ? Math.ceil(s / 60) + '分' : s + '秒'; }
+  function lockMsg() {
+    return 'IDかパスワードを' + MAX + '回続けて間違えたので、この端末では、あと' + waitText(wait()) + '入れません。'
+      + (fbOn() ? 'パスワードを忘れたときは、下の「IDかパスワードを忘れたとき」から再設定のメールを送れます。'
+                : 'パスワードを忘れたときは、下の「IDかパスワードを忘れたとき」をご覧ください。');
+  }
+  function failMsg(who) {
+    if (wait() > 0) return lockMsg();
+    var n = left();
+    return 'IDかパスワードが違います。' + (n > 0 ? 'あと' + n + '回違うと、この端末では' + LOCK_MIN + '分入れなくなります。' : '')
+      + (who || '');
+  }
+  function isMail(id) { return /^[0-9a-z._%+\-]{1,64}@[0-9a-z.\-]{1,190}\.[a-z]{2,}$/.test(String(id || '')); }
+  function fbOn() { return !!FB_KEY; }
+  function post(path, body) {
+    return fetch(FB_BASE + path + '?key=' + encodeURIComponent(FB_KEY), {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+    }).then(function (r) {
+      return r.json().then(function (j) { return { ok: r.ok, j: j || {} }; }, function () { return { ok: r.ok, j: {} }; });
+    });
+  }
+  function codeOf(j) { var m = j && j.error && j.error.message; return String(m || '').split(/[\s:]/)[0]; }
+  /* メールアドレスとパスワードを Firebase で確かめる。{ok, uid} か {ok:false, code}（net＝繋がらない） */
+  function signIn(email, pw) {
+    if (!fbOn()) return Promise.resolve({ ok: false, code: 'off' });
+    return post('accounts:signInWithPassword', { email: email, password: pw, returnSecureToken: true }).then(function (r) {
+      if (r.ok && r.j.localId) return { ok: true, uid: String(r.j.localId) };
+      return { ok: false, code: codeOf(r.j) || 'bad' };
+    }, function () { return { ok: false, code: 'net' }; });
+  }
+  /* 再設定のメールを送る。戻り先（続ける）に印を付け、戻ってきたら待ち時間を外す */
+  function sendReset(email) {
+    if (!fbOn()) return Promise.resolve({ ok: false, code: 'off' });
+    var n = '', b = new Uint8Array(12), i;
+    try { crypto.getRandomValues(b); } catch (e) { for (i = 0; i < 12; i++) b[i] = Math.floor(Math.random() * 256); }
+    for (i = 0; i < 12; i++) n += ('0' + b[i].toString(16)).slice(-2);
+    wr(RESET, { n: n, e: Date.now() + 3 * 86400000 });
+    var back = location.origin + location.pathname + '?pwreset=' + n;
+    var body = { requestType: 'PASSWORD_RESET', email: email, continueUrl: back };
+    return post('accounts:sendOobCode', body).then(function (r) {
+      if (r.ok) return { ok: true };
+      var c = codeOf(r.j);
+      if (/UNAUTHORIZED|DOMAIN|CONTINUE_URI/.test(c)) {   /* 戻り先の場所が Firebase に登録されていないときは、戻り先なしで送る */
+        return post('accounts:sendOobCode', { requestType: 'PASSWORD_RESET', email: email }).then(function (r2) {
+          return r2.ok ? { ok: true, noBack: true } : { ok: false, code: codeOf(r2.j) || 'bad' };
+        });
+      }
+      /* 登録の無いアドレスでも、知らせ方は同じ（どのアドレスが登録済みかを外から見分けられないように） */
+      if (c === 'EMAIL_NOT_FOUND') return { ok: true };
+      return { ok: false, code: c || 'bad' };
+    }, function () { return { ok: false, code: 'net' }; });
+  }
+  /* 再設定のメールの「続ける」から戻ってきたとき。印が合えば待ち時間を外して true */
+  function takeReset() {
+    var m = /[?&]pwreset=([0-9a-f]{24})/.exec(location.search || '');
+    if (!m) return false;
+    try { history.replaceState(null, '', location.pathname + location.search.replace(/([?&])pwreset=[0-9a-f]{24}&?/, '$1').replace(/[?&]$/, '') + location.hash); } catch (e) {}
+    var o = rd(RESET);
+    if (!(o && o.n === m[1] && o.e > Date.now())) return false;
+    try { localStorage.removeItem(RESET); } catch (e) {}
+    reset();
+    return true;
+  }
+  var resetBack = takeReset();
+  /* 入れたIDとパスワードを確かめる。localOk(id, pw) は端末の中の印で確かめる関数（真偽か Promise）。
+     メールアドレスのIDで、Firebase の鍵があるときは Firebase で確かめる（再設定したあとの新しいパスワードで入れるように）。
+     結果＝{ok, fb, code}。数えるのはこの関数ではなく、呼ぶ側（記録の残し方が画面ごとに違うため） */
+  function check(id, pw, localOk) {
+    if (fbOn() && isMail(id)) {
+      return signIn(id, pw).then(function (r) {
+        if (r.code !== 'net') return { ok: r.ok, fb: r.ok, code: r.code };
+        /* 繋がらないときだけ、端末の中の印で確かめる（ページが開けていれば、ふつうは繋がっている） */
+        return Promise.resolve(localOk(id, pw)).then(function (ok) { return { ok: !!ok, fb: false, code: ok ? '' : 'net' }; });
+      });
+    }
+    return Promise.resolve(localOk(id, pw)).then(function (ok) { return { ok: !!ok, fb: false, code: ok ? '' : 'bad' }; });
+  }
+  function netMsg(code) {
+    if (code === 'net') return 'インターネットに繋がっていないので、確かめられませんでした。繋がってから、もう一度お試しください。';
+    if (code === 'USER_DISABLED') return 'このIDは止められています。管理者にお尋ねください。';
+    if (code === 'TOO_MANY_ATTEMPTS_TRY_LATER') return '入れ間違いが続いたので、しばらく入れません。パスワードを忘れたときは、再設定のメールを送ってください。';
+    return '';
+  }
+  /* ---- 「IDかパスワードを忘れたとき」の欄 ---- */
+  var CSS = '.omlg-fg{margin:14px 0 0;text-align:left}'
+    + '.omlg-fg>button.omlg-open{all:unset;cursor:pointer;display:inline-flex;align-items:center;min-height:44px;font-size:13.5px;font-weight:700;color:#2f63c8;text-decoration:underline;text-underline-offset:3px}'
+    + '.omlg-fg>button.omlg-open:focus-visible{outline:2px solid #2f63c8;outline-offset:2px;border-radius:4px}'
+    + '.omlg-box{margin:6px 0 0;padding:14px 14px 12px;background:#f6f9fd;border:1px solid #dde7f3;border-radius:12px;font-size:13.5px;line-height:1.85;color:#33465c}'
+    + '.omlg-box[hidden]{display:none !important}'
+    + '.omlg-box p{margin:0 0 8px}'
+    + '.omlg-box label{display:block;font-weight:700;font-size:13px;margin:4px 0 4px}'
+    + '.omlg-box input{width:100%;box-sizing:border-box;min-height:44px;font:inherit;font-size:16px;padding:8px 12px;border:1px solid #cdd9e7;border-radius:10px;background:#fff;color:#2b3646}'
+    + '.omlg-box button.omlg-send{all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;text-align:center;min-height:44px;line-height:44px;margin:10px 0 0;border-radius:10px;background:#2f63c8;color:#fff;font-weight:700;font-size:14.5px}'
+    + '.omlg-box button.omlg-send[disabled]{opacity:.6;cursor:default}'
+    + '.omlg-box .omlg-st{margin:8px 0 0;min-height:1.6em;font-weight:700}'
+    + '.omlg-box .omlg-st.ok{color:#256b43}.omlg-box .omlg-st.ng{color:#b3261e}'
+    + '.omlg-box .omlg-small{font-size:12.5px;color:#5d6b7c;margin:8px 0 0}'
+    + '.omlg-back{margin:0 0 12px;padding:10px 12px;background:#eef7f0;border:1px solid #cfe6d6;border-radius:10px;color:#256b43;font-size:13.5px;font-weight:700;text-align:left;line-height:1.8}';
+  function css() {
+    if (document.getElementById('omlg-css')) return;
+    var s = document.createElement('style'); s.id = 'omlg-css'; s.textContent = CSS;
+    (document.head || document.documentElement).appendChild(s);
+  }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  /* host（ログインの欄の中）に「忘れたとき」を付ける。opt.idInput＝IDの欄（メールアドレスなら初めから入れる）・
+     opt.who＝メールの仕組みが無いときの尋ね先（既定は「管理者（社長・上長）」）・opt.roster＝名簿で一人ずつのIDの会社 */
+  var seq = 0;
+  function forgot(host, opt) {
+    if (!host || host.querySelector('.omlg-fg')) return;
+    opt = opt || {}; css();
+    var sq = ++seq, bid = 'omlg-box' + sq, mid = 'omlg-mail' + sq;
+    var who = opt.who || '管理者（社長・上長）';
+    var w = document.createElement('div'); w.className = 'omlg-fg';
+    var body;
+    if (!fbOn()) {
+      body = '<p>再設定のメールは、いま準備中です。IDかパスワードが分からないときは、' + esc(who) + 'にお尋ねください。</p>'
+        + (opt.roster ? '<p class="omlg-small">名簿のIDは、社長が新しいパスワードを発行できます（コンプライアンスの「名簿と権限」）。</p>' : '');
+    } else {
+      body = '<p>登録済みのメールアドレスを入れてください。パスワードの再設定のメールを送ります。メールのリンクから新しいパスワードを決めて、この画面に戻って入ってください。</p>'
+        + '<label for="' + mid + '">メールアドレス</label>'
+        + '<input type="email" id="' + mid + '" class="omlg-mail" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="254">'
+        + '<button type="button" class="omlg-send">再設定のメールを送る</button>'
+        + '<div class="omlg-st" role="status" aria-live="polite"></div>'
+        + '<p class="omlg-small">メールが届かないときは、迷惑メールの箱もご覧ください。数字のID（メールアドレスでないID）のパスワードは、' + esc(who) + 'にお尋ねください。</p>';
+    }
+    w.innerHTML = '<button type="button" class="omlg-open" aria-expanded="false" aria-controls="' + bid + '">IDかパスワードを忘れたとき</button>'
+      + '<div class="omlg-box" id="' + bid + '" hidden>' + body + '</div>';
+    host.appendChild(w);
+    var ob = w.querySelector('.omlg-open'), box = w.querySelector('.omlg-box');
+    ob.addEventListener('click', function () {
+      var open = box.hidden; box.hidden = !open; ob.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open) {
+        var mi = box.querySelector('.omlg-mail'), idv = opt.idInput ? String(opt.idInput.value || '').trim().toLowerCase() : '';
+        if (mi) { if (!mi.value && isMail(idv)) mi.value = idv; try { mi.focus(); } catch (e) {} }
+      }
+    });
+    var send = box.querySelector('.omlg-send');
+    if (send) send.addEventListener('click', function () {
+      var mi = box.querySelector('.omlg-mail'), st = box.querySelector('.omlg-st');
+      var m = String(mi.value || '').replace(/[\s　]/g, '').toLowerCase();
+      st.className = 'omlg-st';
+      if (!isMail(m)) { st.className = 'omlg-st ng'; st.textContent = 'メールアドレスの形で入れてください。'; mi.focus(); return; }
+      send.disabled = true; st.textContent = '送っています…';
+      sendReset(m).then(function (r) {
+        send.disabled = false;
+        if (r.ok) {
+          st.className = 'omlg-st ok';
+          st.textContent = '登録済みのメールアドレスなら、再設定のメールが届きます。届いたメールのリンクから新しいパスワードを決めてください。';
+          if (opt.onSent) try { opt.onSent(m); } catch (e) {}
+        } else {
+          st.className = 'omlg-st ng';
+          st.textContent = r.code === 'net' ? 'インターネットに繋がっていないので、送れませんでした。' : '送れませんでした。時間をおいてもう一度お試しいただくか、' + who + 'にお尋ねください。';
+        }
+      });
+    });
+  }
+  /* 再設定から戻ってきたときの一言（ログインの欄の頭に） */
+  function backNote(host) {
+    if (!resetBack || !host || host.querySelector('.omlg-back')) return;
+    css();
+    var p = document.createElement('p'); p.className = 'omlg-back'; p.setAttribute('role', 'status');
+    p.textContent = 'パスワードを再設定しました。新しいパスワードで入ってください。';
+    host.insertBefore(p, host.firstChild);
+  }
+  return { MAX: MAX, LOCK_MIN: LOCK_MIN, fails: fails, wait: wait, add: add, reset: reset, left: left, waitText: waitText,
+    lockMsg: lockMsg, failMsg: failMsg, isMail: isMail, fbOn: fbOn, signIn: signIn, sendReset: sendReset, check: check,
+    netMsg: netMsg, forgot: forgot, backNote: backNote, resetBack: function () { return resetBack; } };
+})();
+/* OMLG-END */
+</script>
 <script>
 /* ============================================================
    IDとパスワードの扉（2026-09-11 ユーザー指示。2026-10-26 から合言葉1つではなくIDとパスワードの2つ）
@@ -1621,6 +1838,7 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
   }
   /* どの鍵で開いたかを返す（'auth'＝管理画面・'staff'＝この扉で入った担当者（次回から省略なし）・'share'＝共有リンク・'trial'＝体験版・''＝開けない） */
   function allowed() {
+    /* OMGATE-EXTRA-BEGIN */ /* OMGATE-EXTRA-END */
     try {
       var a = read(localStorage, AUTH);
       if (live(a) && /^[0-9a-f]{64}$/.test(String(a.h || ''))) return 'auth';
@@ -1643,7 +1861,10 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
   if (how) {
     /* 共有リンク（お客様）で開いたときは、営業向けの部分を隠す印を付ける */
     if (how === 'share') R.className += ' omgate-cust';
-    open_(); return;
+    open_();
+    if (how !== 'lp') return;
+    /* 'lp'＝ライフプランをお客様の共有リンクで開いたとき。担当者の画面へ切り替えるときに、あとから聞けるよう
+       欄の仕掛けだけは用意しておく（下の window.OMGATE.ask） */
   }
 
   var f = document.getElementById('omgate-f');
@@ -1669,33 +1890,85 @@ html.omgate-cust .tot-pair{grid-template-columns:minmax(0,1fr) !important}
     });
   }
 
+  var LG = window.OMLG || null;   /* 入れ間違いの数え方と、再設定のメール（hoken-gate-src/loginguard.js） */
+  var btn = f.querySelector('button[type="submit"]');
+  function lockNow() {
+    if (!LG || LG.wait() <= 0) return false;
+    err.textContent = LG.lockMsg();
+    return true;
+  }
+  if (LG) {
+    LG.forgot(f.parentNode.querySelector('.og-fg-host') || f.parentNode, { idInput: idIn });
+    LG.backNote(f);
+    lockNow();
+  }
   f.addEventListener('submit', function (e) {
     e.preventDefault();
     var id = String(idIn.value || '').replace(/[\uFF01-\uFF5E]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); }).replace(/[\s\u3000]/g, '').toLowerCase();
     var pw = inp.value || '';
+    if (lockNow()) { inp.value = ''; return; }
     if (!id) { err.textContent = 'IDを入れてください。'; idIn.focus(); return; }
     if (!pw) { err.textContent = 'パスワードを入れてください。'; inp.focus(); return; }
-    err.textContent = '';
+    err.textContent = '確かめています…';
+    if (btn) btn.disabled = true;
     sha256(SALT + 'id:' + id + '|pw:' + pw).then(function (h) {
-      if (OKH.indexOf(h) < 0) {
-        err.textContent = 'IDかパスワードが違います。';
-        inp.value = ''; inp.focus();
-        return;
-      }
-      try {
-        if (keep && keep.checked) {
-          localStorage.setItem(AUTH, JSON.stringify({ h: h, e: Date.now() + DAYS * 86400000, i: id }));
-        } else {
-          sessionStorage.setItem(STAFF, JSON.stringify({ e: Date.now() + 12 * 3600000 }));
+      var localOk = function () { return OKH.indexOf(h) >= 0; };
+      var go = LG ? LG.check(id, pw, localOk) : Promise.resolve({ ok: localOk(), fb: false, code: '' });
+      return go.then(function (r) {
+        if (btn) btn.disabled = false;
+        if (!r.ok) {
+          var nm = LG ? LG.netMsg(r.code) : '';
+          if (r.code === 'net') { err.textContent = nm; return; }   /* 繋がらないだけのときは数えない */
+          if (LG) LG.add();
+          err.textContent = LG ? LG.failMsg(nm ? nm : '') : 'IDかパスワードが違います。';
+          inp.value = ''; inp.focus();
+          return;
         }
-      } catch (e2) { /* 保存できなくても、その場では開く */ }
-      open_();
-      /* 扉の奥の画面（営業カレンダーなど）が、もう一度IDを聞かずに開けるよう知らせる（2026-11-04。保存はしない） */
-      try { window.dispatchEvent(new CustomEvent('omgate-login', { detail: { id: id, pw: pw } })); } catch (e3) {}
-    })['catch'](function () { err.textContent = 'この画面ではIDとパスワードを確認できませんでした。'; });
+        if (LG) LG.reset();
+        err.textContent = '';
+        try {
+          if (keep && keep.checked) {
+            var rec = { h: h, e: Date.now() + DAYS * 86400000, i: id };
+            if (r.fb) rec.fb = 1;   /* メールアドレスのIDを Firebase で確かめた印（再設定したあとの新しいパスワード） */
+            localStorage.setItem(AUTH, JSON.stringify(rec));
+          } else {
+            sessionStorage.setItem(STAFF, JSON.stringify({ e: Date.now() + 12 * 3600000 }));
+          }
+        } catch (e2) { /* 保存できなくても、その場では開く */ }
+        open_();
+        if (cancelB) cancelB.hidden = true;
+        if (pend) { var cb = pend; pend = null; try { cb(); } catch (e4) {} }
+        /* 扉の奥の画面（営業カレンダーなど）が、もう一度IDを聞かずに開けるよう知らせる（2026-11-04。保存はしない） */
+        try { window.dispatchEvent(new CustomEvent('omgate-login', { detail: { id: id, pw: pw, fb: !!r.fb } })); } catch (e3) {}
+      });
+    })['catch'](function () { if (btn) btn.disabled = false; err.textContent = 'この画面ではIDとパスワードを確認できませんでした。'; });
   });
 
-  setTimeout(function () { try { idIn.focus(); } catch (e) {} }, 60);
+  /* あとから聞く口（ライフプランのお客様の画面で「担当者の方はこちら」を押したとき。2026-11-04）。
+     staff()＝管理画面かこの扉で入った端末か／ask(cb)＝扉を出し、入れたら cb を呼ぶ（やめると前の画面に戻る） */
+  var pend = null, cancelB = f.querySelector('.og-cancel'), gEl = document.getElementById('omgate');
+  function staffOk() {
+    try { var a = read(localStorage, AUTH); if (live(a) && /^[0-9a-f]{64}$/.test(String(a.h || ''))) return true; } catch (e) {}
+    try { if (live(read(sessionStorage, STAFF))) return true; } catch (e) {}
+    return false;
+  }
+  if (cancelB) cancelB.addEventListener('click', function () {
+    pend = null; cancelB.hidden = true; err.textContent = ''; inp.value = ''; open_();
+  });
+  window.OMGATE = {
+    staff: staffOk,
+    ask: function (cb) {
+      if (staffOk()) { if (cb) cb(); return; }
+      pend = cb || null;
+      R.className = R.className.replace(/(^|\s)omgate-open(?=\s|$)/g, ' ');
+      if (gEl) gEl.hidden = false;
+      if (cancelB) cancelB.hidden = false;
+      lockNow();
+      setTimeout(function () { try { idIn.focus(); } catch (e) {} }, 60);
+    }
+  };
+
+  if (!how) setTimeout(function () { try { idIn.focus(); } catch (e) {} }, 60);
 })();
 </script>
 <!-- OMGATE-END -->
